@@ -31,6 +31,10 @@ unset($CFG);  // Ignore this line
 global $CFG;  // This is necessary here for PHPUnit execution
 $CFG = new stdClass();
 
+$CFG->aspellpath  = '/usr/bin/aspell';
+$CFG->pathtodu    = '/usr/bin/du';
+$CFG->pathtodot   = '/usr/bin/dot';
+
 //=========================================================================
 // 1. DATABASE SETUP
 //=========================================================================
@@ -452,7 +456,7 @@ $CFG->admin = 'admin';
 // features (such as cancelling the plugin installation or upgrade) via the
 // server administration web interface.
 //
-//      $CFG->disableupdateautodeploy = true;
+$CFG->disableupdateautodeploy = true;
 //
 // Use the following flag to disable modifications to scheduled tasks
 // whilst still showing the state of tasks.
@@ -668,7 +672,7 @@ $CFG->admin = 'admin';
 // A site-wide password salt is no longer used in new installations.
 // If upgrading from 2.6 or older, keep all existing salts in config.php file.
 //
-// $CFG->passwordsaltmain = 'a_very_long_random_string_of_characters#@6&*1';
+$CFG->passwordsaltmain = '';
 //
 // You may also have some alternative salts to allow migration from previously
 // used salts.
