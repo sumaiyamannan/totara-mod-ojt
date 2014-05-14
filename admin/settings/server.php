@@ -242,4 +242,7 @@ if (empty($CFG->disableupdatenotifications)) {
     $ADMIN->add('server', $temp);
 }
 
+if (file_exists("{$CFG->dataroot}/cron.log")) { //only show catalyst cronlog page if file exists
+    $ADMIN->add('server', new admin_externalpage('cronlog', 'cronlog', "$CFG->wwwroot/$CFG->admin/admin_cronlog.php")); // Catalyst "cronlog" page
+}
 } // end of speedup
