@@ -5515,7 +5515,8 @@ function reset_course_userdata($data) {
 function generate_email_processing_address($modid, $modargs) {
     global $CFG;
 
-    $header = $CFG->mailprefix . substr(base64_encode(pack('C', $modid)), 0, 2).$modargs;
+    $envid = get_config('local_bouncechecker', 'enabled') && !empty($CFG->envidentifier) ? substr($CFG->envidentifier,0,12) : '';
+    $header = $CFG->mailprefix.$envid.substr(base64_encode(pack('C', $modid)), 0, 2).$modargs;
     return $header . substr(md5($header.get_site_identifier()), 0, 16).'@'.$CFG->maildomain;
 }
 
@@ -5811,6 +5812,9 @@ function email_to_user($user, $from, $subject, $messagetext, $messagehtml = '', 
     if (!empty($CFG->handlebounces)) {
         $modargs = 'B'.base64_encode(pack('V', $user->id)).substr(md5($user->email), 0, 16);
         $mail->Sender = generate_email_processing_address(0, $modargs);
+        if (get_config('local_bouncechecker', 'enabled')) {
+            $CFG->emailonlyfromnoreplyaddress = true;
+        }
     } else {
         $mail->Sender = $supportuser->email;
     }
