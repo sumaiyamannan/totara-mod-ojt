@@ -900,7 +900,15 @@ function initialise_fullme() {
     // hopefully this will stop all those "clever" admins trying to set up moodle
     // with two different addresses in intranet and Internet
     if (!empty($CFG->reverseproxy) && $rurl['host'] === $wwwroot['host'] && !defined('HEALTHCHECK')) {
-        print_error('reverseproxyabused', 'error');
+        //Catalyst customisation
+        //When Reverse Proxy hiding modules are working, moodle thinks that there is no reverse proxy (when there is)
+        //When modules aren't working, moodle sees the effect of the reverse proxy
+        //In some situations we won't have a reverse proxy
+        //In none of the above scenarios do we actually need to bail out with an error
+        //This is an upstream check that causes many problems, and solves a problem which
+        //we don't think we are exposed to.
+        //Commented out the following error:
+        //print_error('reverseproxyabused', 'error');
     }
 
     $hostandport = $rurl['scheme'] . '://' . $wwwroot['host'];
