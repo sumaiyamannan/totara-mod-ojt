@@ -15,16 +15,21 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Catalyst
+ * Catalyst-specific
  *
  * @package local_catalyst
  * @author  Eugene Venter <eugene@catalyst.net.nz>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-defined('MOODLE_INTERNAL') or die();
 
-$plugin->component = 'local_catalyst';
-$plugin->version   = 2015091000;
-$plugin->requires  = 2013111800;
+$capabilities = array(
+    // Upload totara sync files, using WS
+    'local/catalyst:totarasyncwsupload' => array(
+    'riskbitmask'   => RISK_PERSONAL | RISK_DATALOSS | RISK_CONFIG,
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_SYSTEM,
+        'archetypes' => array(
+        )
+    ),
+);
 
-$plugin->cron      = 0;

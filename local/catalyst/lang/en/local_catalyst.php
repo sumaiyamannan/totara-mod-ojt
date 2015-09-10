@@ -15,16 +15,12 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Catalyst
+ * Catalyst-related lang strings
  *
- * @package local_catalyst
- * @author  Eugene Venter <eugene@catalyst.net.nz>
- * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package   local_catalyst
+ * @author    Eugene Venter <eugene@catalyst.net.nz>
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-defined('MOODLE_INTERNAL') or die();
 
-$plugin->component = 'local_catalyst';
-$plugin->version   = 2015091000;
-$plugin->requires  = 2013111800;
-
-$plugin->cron      = 0;
+$string['pluginname'] = 'Catalyst';
+$string['catalyst:totarasyncwsupload'] = 'Upload Totara Sync files via web services';
