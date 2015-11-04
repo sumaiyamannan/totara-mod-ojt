@@ -75,10 +75,6 @@ if (!empty($CFG->maintenance_enabled) and !$hassiteconfig) {
     print_maintenance_message();
 }
 
-if ($hassiteconfig && moodle_needs_upgrading()) {
-    redirect($CFG->wwwroot .'/'. $CFG->admin .'/index.php');
-}
-
 if (get_home_page() == HOMEPAGE_TOTARA_DASHBOARD) {
     // Totara: the only other option is HOMEPAGE_SITE
     //         and only real logged in users may have dashboards.
