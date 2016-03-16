@@ -1,4 +1,7 @@
 # Totara OJT activity
+This is a module plug-in for the Totara Learning Management System (https://www.totaralms.com/solutions/totara-lms). It adds functionality for defining, tracking and signing-off on on-job-training (OJT).  As well
+as user and manager interfaces, reports are also available to provide an organisational view of overall progress.
+
 The OJT module allows a course administrator to create a checklist of topics and topic items. As soon as all required topic items are 'checked' the topic becomes complete.
 
 Each topic can be configured to:
@@ -29,6 +32,9 @@ From the above, it becomes clear that quite a few work flows can be configured f
 The actual evaluation page then allows the relevant user to either view completion, or evaluate/witness by checking the topic item checkboxes. Each topic item also has a 'notes' box, that can be used by the person performing the evaluation.
 
 Lastly, an OJT Completion Totara report source exists, which is also used in an embedded form by the module.
+
+#### Supported Versions
+* 2.7 (OJT_27 branch)
 
 #### Installation
 1. Copy the contents of mod/ into your Totara's mod/ folder
