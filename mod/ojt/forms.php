@@ -42,17 +42,21 @@ class ojt_topic_form extends moodleform {
 
         $mform->addElement('advcheckbox', 'completionreq', get_string('optionalcompletion', 'ojt'));
 
-        require_once($CFG->dirroot.'/totara/hierarchy/prefix/competency/lib.php');
-        $competency = new competency();
-        $coursecomps = $competency->get_course_evidence($courseid);
-        $competencies = array();
-        foreach ($coursecomps as $c) {
-            $competencies[$c->id] = format_string($c->fullname);
+        if (!empty($CFG->enablecompetencies)) {
+            require_once($CFG->dirroot.'/totara/hierarchy/prefix/competency/lib.php');
+            $competency = new competency();
+            $coursecomps = $competency->get_course_evidence($courseid);
+            $competencies = array();
+            foreach ($coursecomps as $c) {
+                $competencies[$c->id] = format_string($c->fullname);
+            }
+            if (!empty($competencies)) {
+                $select = $mform->addElement('select', 'competencies', get_string('competencies', 'ojt'), $competencies, array('size' => 7));
+                $select->setMultiple(true);
+                $mform->setType('competencies', PARAM_INT);
+                $mform->addHelpButton('competencies', 'competencies', 'ojt');
+            }
         }
-        $select = $mform->addElement('select', 'competencies', get_string('competencies', 'ojt'), $competencies, array('size' => 7));
-        $select->setMultiple(true);
-        $mform->setType('competencies', PARAM_INT);
-        $mform->addHelpButton('competencies', 'competencies', 'ojt');
 
         if ($CFG->usecomments) {
             $mform->addElement('advcheckbox', 'allowcomments', get_string('allowcomments', 'ojt'));
