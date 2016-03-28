@@ -466,14 +466,15 @@ function ojt_pluginfile($course, $cm, $context, $filearea, array $args, $forcedo
 
     $userid = $args[0];
     require_once($CFG->dirroot.'/mod/ojt/locallib.php');
-    if (!ojt_can_evaluate($userid, $context)) {
+    if (!(ojt_can_evaluate($userid, $context) || $userid == $USER->id)) {
+        // Only evaluators and/or owners have access to files
         return false;
     }
 
     $fs = get_file_storage();
     $relativepath = implode('/', $args);
     $fullpath = "/$context->id/mod_ojt/$filearea/$relativepath";
-    if (!$file = $fs->get_file_by_hash(sha1($fullpath)) or $file->is_directory()) {
+    if (!$file = $fs->get_file_by_hash(sha1($fullpath)) || $file->is_directory()) {
         send_file_not_found();
     }
 

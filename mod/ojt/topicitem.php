@@ -67,6 +67,7 @@ if ($data = $form->get_data()) {
     $item->name = $data->name;
     $item->completionreq = $data->completionreq;
     $item->allowfileuploads = $data->allowfileuploads;
+    $item->allowselffileuploads = $data->allowselffileuploads;
 
     if (empty($data->id)) {
         // Add

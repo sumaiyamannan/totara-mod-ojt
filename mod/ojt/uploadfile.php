@@ -36,7 +36,7 @@ require_login();
 $userid = required_param('userid', PARAM_INT);
 $topicitemid = required_param('tiid', PARAM_INT);
 
-$sql = "SELECT b.*, ti.allowfileuploads
+$sql = "SELECT b.*, ti.allowfileuploads, ti.allowselffileuploads
     FROM {ojt_topic_item} ti
     JOIN {ojt_topic} t ON ti.topicid = t.id
     JOIN {ojt} b ON t.ojtid = b.id
@@ -49,15 +49,24 @@ $cm = get_coursemodule_from_instance('ojt', $ojt->id, $course->id, false, MUST_E
 $modcontext = context_module::instance($cm->id);
 
 // Check access
-if (!$ojt->allowfileuploads) {
+if (!($ojt->allowfileuploads || $ojt->allowselffileuploads)) {
     print_error('files cannot be uploaded for this topic item');
 }
 // Only users with evaluate perm or evaluateself that's also the ojt user should be able to upload a file (if config allows)
-if (!ojt_can_evaluate($userid, $modcontext)) {
+// Also allow ojt owners to upload files, if configured
+$canevaluate = ojt_can_evaluate($userid, $modcontext);
+$canselfupload = $ojt->allowselffileuploads && $userid == $USER->id;
+if (!($canevaluate || $canselfupload)) {
     print_error('access denied');
 }
 
 require_login($course, true, $cm);
+
+if ($canevaluate) {
+    $returnurl = new moodle_url('/mod/ojt/evaluate.php', array('userid' => $userid, 'bid' => $ojt->id));
+} else {
+    $returnurl = new moodle_url('/mod/ojt/view.php', array('id' => $cm->id));
+}
 
 $PAGE->set_pagelayout('noblocks');
 $PAGE->set_url('/mod/ojt/uploadfile.php', array('tiid' => $topicitemid, 'userid' => $userid));
@@ -65,8 +74,6 @@ $PAGE->set_url('/mod/ojt/uploadfile.php', array('tiid' => $topicitemid, 'userid'
 if (!$user = $DB->get_record('user', array('id' => $userid))) {
     print_error('user not found');
 }
-
-$evalurl = new moodle_url('/mod/ojt/evaluate.php', array('userid' => $userid, 'bid' => $ojt->id));
 
 $fileoptions = $FILEPICKER_OPTIONS;
 $fileoptions['maxfiles'] = 10;
@@ -92,9 +99,9 @@ if ($data = $mform->get_data()) {
     $data = file_postupdate_standard_filemanager($data, 'topicitemfiles',
             $fileoptions, $modcontext, 'mod_ojt', "topicitemfiles{$topicitemid}", $userid);
 
-    totara_set_notification(get_string('filesupdated', 'ojt'), $evalurl, array('class' => 'notifysuccess'));
+    totara_set_notification(get_string('filesupdated', 'ojt'), $returnurl, array('class' => 'notifysuccess'));
 } else if ($mform->is_cancelled()) {
-    redirect($evalurl);
+    redirect($returnurl);
 }
 
 $strheading = get_string('updatefiles', 'ojt');
