@@ -58,7 +58,7 @@ class mod_ojt_mod_form extends moodleform_mod {
         $mform->addHelpButton('name', 'ojtname', 'ojt');
 
         // Adding the standard "intro" and "introformat" fields.
-        $this->add_intro_editor();
+        $this->standard_intro_elements();
 
         // Workflow
         $mform->addElement('advcheckbox', 'managersignoff', get_string('managersignoff', 'ojt'));
