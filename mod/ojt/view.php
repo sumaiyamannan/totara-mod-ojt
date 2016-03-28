@@ -21,7 +21,7 @@
  */
 
 /**
- * Prints a particular instance of ojt
+ * Prints a particular instance of ojt for the current user.
  *
  */
 
@@ -69,6 +69,7 @@ $jsmodule = array(
 );
 $PAGE->requires->js_init_call('M.mod_ojt_expandcollapse.init', array(), false, $jsmodule);
 
+// Check access - we're assuming only $USER access on this page
 $modcontext = context_module::instance($cm->id);
 $canevaluate = has_capability('mod/ojt:evaluate', $modcontext);
 $canevalself = has_capability('mod/ojt:evaluateself', $modcontext);
