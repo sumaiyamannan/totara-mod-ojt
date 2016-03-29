@@ -36,11 +36,13 @@ Lastly, an OJT Completion Totara report source exists, which is also used in an 
 
 #### Supported Versions
 * 2.7 (OJT_27 branch)
+* 2.9 (OJT_29 branch)
 
 #### Installation
-1. Copy the contents of mod/ into your Totara's mod/ folder
-2. Copy the contents of totara/reportbuilder/embedded/ into your Totara's totara/reportbuilder/embedded/ folder
-3. Visit /admin/index.php on your Totara system to install
+1. Download a .zip of the version branch you require and extract locally
+2. Copy the contents of mod/ into your Totara's mod/ folder
+3. Copy the contents of totara/reportbuilder/embedded/ into your Totara's totara/reportbuilder/embedded/ folder
+4. Visit /admin/index.php on your Totara system to install
 
 #### Credits
 * Contributed to the open source community through development commissioned by Customs New Zealand :)
