@@ -11,7 +11,8 @@ Each topic can be configured to:
 
 Each topic item can be configured to:
 * be optional
-* allow file uploads
+* allow file uploads by evaluator
+* allow file uploads by OJT owner
 
 An OJT activity can then be further configured to have:
 * manager signoff (a manager will get a task notification - upon topic completion - to go and sign off on a topic)
