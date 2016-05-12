@@ -47,3 +47,6 @@ Lastly, an OJT Completion Totara report source exists, which is also used in an 
 #### Credits
 * Contributed to the open source community through development commissioned by Customs New Zealand :)
 * Developed and maintained by the Catalyst IT Elearning team (https://catalyst.net.nz)
+
+### Help
+See http://catalyst.github.io/totara-mod-ojt
