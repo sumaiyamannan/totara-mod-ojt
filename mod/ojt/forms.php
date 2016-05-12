@@ -91,6 +91,9 @@ class ojt_topic_item_form extends moodleform {
         $mform->addElement('advcheckbox', 'allowfileuploads', get_string('allowfileuploads', 'ojt'));
         $mform->setType('allowfileuploads', PARAM_BOOL);
 
+        $mform->addElement('advcheckbox', 'allowselffileuploads', get_string('allowselffileuploads', 'ojt'));
+        $mform->setType('allowselffileuploads', PARAM_BOOL);
+
         $mform->addElement('hidden', 'id');
         $mform->setType('id', PARAM_INT);
         $mform->addElement('hidden', 'bid');

@@ -44,89 +44,10 @@ function xmldb_ojt_upgrade($oldversion) {
 
     $dbman = $DB->get_manager(); // Loads ddl manager and xmldb classes.
 
-    if ($oldversion < 2015022002) {
-
-        // Define competencies field to be added.
-        $table = new xmldb_table('ojt_topic');
-        $field = new xmldb_field('competencies', XMLDB_TYPE_CHAR, '150', null, null, null, null, 'completionreq');
-        if (!$dbman->field_exists($table, $field)) {
-            $dbman->add_field($table, $field);
-        }
+    if ($oldversion < 2015042200) {
 
         // OJT savepoint reached.
-        upgrade_mod_savepoint(true, 2015022002, 'ojt');
-    }
-
-    if ($oldversion < 2015052901) {
-
-        // Define table ojt_item_witness to be created.
-        $table = new xmldb_table('ojt_item_witness');
-
-        // Adding fields to table ojt_item_witness.
-        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
-        $table->add_field('userid', XMLDB_TYPE_INTEGER, '11', null, XMLDB_NOTNULL, null, null);
-        $table->add_field('topicitemid', XMLDB_TYPE_INTEGER, '11', null, XMLDB_NOTNULL, null, null);
-        $table->add_field('witnessedby', XMLDB_TYPE_INTEGER, '11', null, XMLDB_NOTNULL, null, null);
-        $table->add_field('timewitnessed', XMLDB_TYPE_INTEGER, '11', null, XMLDB_NOTNULL, null, null);
-
-        // Adding keys to table ojt_item_witness.
-        $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
-        $table->add_key('userid', XMLDB_KEY_FOREIGN, array('userid'), 'user', array('id'));
-        $table->add_key('topicitemid', XMLDB_KEY_FOREIGN, array('topicitemid'), 'ojt_topic_item', array('id'));
-        $table->add_key('witnessedby', XMLDB_KEY_FOREIGN, array('witnessedby'), 'user', array('id'));
-
-        // Adding indexes to table ojt_item_witness.
-        $table->add_index('usertopicitem', XMLDB_INDEX_UNIQUE, array('userid', 'topicitemid'));
-        $table->add_index('timewitnessed', XMLDB_INDEX_NOTUNIQUE, array('timewitnessed'));
-
-        // Conditionally launch create table for ojt_item_witness.
-        if (!$dbman->table_exists($table)) {
-            $dbman->create_table($table);
-        }
-
-        // OJT savepoint reached.
-        upgrade_mod_savepoint(true, 2015052901, 'ojt');
-    }
-
-    if ($oldversion < 2015052902) {
-
-        // Define field allowcomments to be added to ojt_topic.
-        $table = new xmldb_table('ojt_topic');
-        $field = new xmldb_field('allowcomments', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0', 'completionreq');
-
-        // Conditionally launch add field allowcomments.
-        if (!$dbman->field_exists($table, $field)) {
-            $dbman->add_field($table, $field);
-        }
-
-        // Define field allowfileuploads to be added to ojt_topic_item.
-        $table = new xmldb_table('ojt_topic_item');
-        $field = new xmldb_field('allowfileuploads', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0', 'completionreq');
-
-        // Conditionally launch add field allowfileuploads.
-        if (!$dbman->field_exists($table, $field)) {
-            $dbman->add_field($table, $field);
-        }
-
-        // Define field managersignoff to be added to ojt.
-        $table = new xmldb_table('ojt');
-        $field = new xmldb_field('managersignoff', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0', 'itemwitness');
-
-        // Conditionally launch add field managersignoff.
-        if (!$dbman->field_exists($table, $field)) {
-            $dbman->add_field($table, $field);
-        }
-
-        // Define field itemwitness to be added to ojt.
-        $field = new xmldb_field('itemwitness', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0', 'timemodified');
-
-        // Conditionally launch add field itemwitness.
-        if (!$dbman->field_exists($table, $field)) {
-            $dbman->add_field($table, $field);
-        }
-
-        // OJT savepoint reached.
-        upgrade_mod_savepoint(true, 2015052902, 'ojt');
+        upgrade_mod_savepoint(true, 2015042200, 'ojt');
     }
 
 

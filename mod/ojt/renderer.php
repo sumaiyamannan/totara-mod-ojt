@@ -90,7 +90,7 @@ class mod_ojt_renderer extends plugin_renderer_base {
 
     // Build a user's ojt form
     function user_ojt($userojt, $evaluate=false, $signoff=false, $itemwitness=false) {
-        global $CFG, $DB, $PAGE;
+        global $CFG, $DB, $USER, $PAGE;
 
         $out = '';
         $out = html_writer::start_tag('div', array('id' => 'mod-ojt-user-ojt'));
@@ -159,11 +159,11 @@ class mod_ojt_renderer extends plugin_renderer_base {
                 $cellcontent .= html_writer::tag('div', ojt_get_modifiedstr($item->timemodified, $userobj),
                     array('class' => 'mod-ojt-modifiedstr', 'ojt-item-id' => $item->id));
 
-                if (!empty($item->allowfileuploads) && $evaluate) {
+                if ($item->allowfileuploads || $item->allowselffileuploads) {
                     $cellcontent .= html_writer::tag('div', $this->list_topic_item_files($context->id, $userojt->userid, $item->id),
                         array('class' => 'mod-ojt-topicitem-files'));
 
-                    if ($evaluate) {
+                    if (($evaluate && $item->allowfileuploads) || ($userojt->userid == $USER->id && $item->allowselffileuploads)) {
                         $itemfilesurl = new moodle_url('/mod/ojt/uploadfile.php', array('userid' => $userojt->userid, 'tiid' => $item->id));
                         $cellcontent .= $this->output->single_button($itemfilesurl, get_string('updatefiles', 'ojt'), 'get');
                     }
