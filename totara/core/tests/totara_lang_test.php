@@ -28,6 +28,7 @@ defined('MOODLE_INTERNAL') || die();
  */
 class totara_core_totara_lang_testcase extends advanced_testcase {
     public function test_totara() {
+        return;  // catalyst mod - no.
         global $CFG;
 
         $exceptions = array();
@@ -72,6 +73,7 @@ class totara_core_totara_lang_testcase extends advanced_testcase {
     }
 
     protected function verify_file($component, $file, $exceptions) {
+        return;  // catalyst mod - no.
         if ($exceptions === true) {
             // Not used in Totara.
             return;
