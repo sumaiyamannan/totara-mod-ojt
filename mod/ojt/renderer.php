@@ -140,7 +140,7 @@ class mod_ojt_renderer extends plugin_renderer_base {
                         array('name' => 'comment-'.$item->id, 'rows' => 3,
                             'class' => 'ojt-completion-comment', 'ojt-item-id' => $item->id));
                     $cellcontent .= html_writer::tag('div', format_text($item->comment, FORMAT_PLAIN),
-                        array('class' => 'ojt-completion-comment-print'));
+                        array('class' => 'ojt-completion-comment-print', 'ojt-item-id' => $item->id));
                 } else {
                     // Show static stuff.
                     $cellcontent = '';
