@@ -113,6 +113,8 @@ M.mod_ojt_evaluate = M.mod_ojt_evaluate || {
 
                     // Update comment text box, so we can get the date in there too
                     $(commentinput).val(data.item.comment);
+                    // Update the comment print box
+                    $('.ojt-completion-comment-print[ojt-item-id='+itemid+']').html(data.item.comment);
 
                     $('.mod-ojt-modifiedstr[ojt-item-id='+itemid+']').html(data.modifiedstr);
                 },
