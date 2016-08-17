@@ -24,3 +24,16 @@
 
 $string['pluginname'] = 'Catalyst';
 $string['catalyst:totarasyncwsupload'] = 'Upload Totara Sync files via web services';
+$string['jsonconfig_name'] = 'JSON Configuration';
+$string['jsonconfig_intro'] = 'This is the core and plugins configuration in JSON format. You can copy it to export it to another site, or you can copy it here from another site to import it.';
+$string['jsonconfig_field'] = 'Site configuration as JSON';
+$string['jsonconfig_review'] = 'Review changes';
+$string['jsonconfig_import'] = 'Import';
+$string['jsonconfig_review_import'] = 'Review & import';
+$string['jsonconfig_invalid'] = 'Invalid JSON syntax';
+$string['jsonconfig_key'] = 'Key';
+$string['jsonconfig_value'] = 'Current value';
+$string['jsonconfig_new_value'] = 'New value';
+$string['jsonconfig_nochanges'] = 'No changes';
+$string['jsonconfig_new'] = 'new';
+$string['jsonconfig_deleted'] = 'deleted';
