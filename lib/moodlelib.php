@@ -1634,7 +1634,8 @@ function purge_all_caches() {
     require_once($CFG->dirroot.'/totara/reportbuilder/lib.php');
     reportbuilder_purge_all_cache();
 
-    // purge all other caches: rss, simplepie, etc.
+    // Purge all other caches: rss, simplepie, etc.
+    clearstatcache();
     remove_dir($CFG->cachedir.'', true);
 
     // Make sure cache dir is writable, throws exception if not.
