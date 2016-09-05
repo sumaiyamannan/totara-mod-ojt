@@ -177,21 +177,27 @@ class customfield_define_base {
      * Format the customfield data to be saved.
      * @param   object $data Data from the add/edit custom field form
      * @param   string $tableprefix The table prefix where the custom field is
+     * @param \totara_customfield\prefix\type_base|null $customfieldtype The custom field type if known.
      * @return  data to be saved
      */
-    function define_save($data, $tableprefix) {
+    function define_save($data, $tableprefix, \totara_customfield\prefix\type_base $customfieldtype = null) {
         global $DB, $TEXTAREA_OPTIONS;
         $old = null;
 
         if (!empty($data->id)) {
             $old = $DB->get_record($tableprefix.'_info_field', array('id' => $data->id));
+            $data->sortorder = $old->sortorder;
         }
         $data->tableprefix = $tableprefix;
         $data = $this->define_save_preprocess($data, $old); // Hook for child classes.
-        if (!$old) {
-            $data->sortorder = $DB->count_records_select($tableprefix.'_info_field', '') + 1;
-        } else {
-            $data->sortorder = $old->sortorder;
+        if (empty($data->sortorder)) {
+            if ($customfieldtype) {
+                // We have a customfieldtype, lets just ask it for the next sortorder.
+                $data->sortorder = $customfieldtype->get_next_sortorder();
+            } else {
+                // This is a guess. It'll work providing you don't have types or anything like that.
+                $data->sortorder = $DB->count_records_select($tableprefix . '_info_field', '') + 1;
+            }
         }
 
         if (empty($data->id)) {
@@ -205,6 +211,10 @@ class customfield_define_base {
         if ($data->datatype == 'textarea') {
             $data = file_postupdate_standard_editor($data, 'defaultdata', $TEXTAREA_OPTIONS, $TEXTAREA_OPTIONS['context'], 'totara_customfield', 'textarea', $data->id);
             $DB->set_field($tableprefix.'_info_field', 'defaultdata', $data->defaultdata, array('id' => $data->id));
+        }
+        if ($customfieldtype) {
+            // If we have a customfield type lets ask it to absolutely ensure that the sortorder is correct.
+            $customfieldtype->reorder_fields();
         }
     }
 

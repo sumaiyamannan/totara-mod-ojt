@@ -1225,5 +1225,23 @@ function xmldb_totara_hierarchy_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2016030300, 'totara', 'hierarchy');
     }
 
+    if ($oldversion < 2016092001) {
+        // There was a bug whereby sort orders could end up with duplicates, and gaps.
+        // Although this will fix itself after the user gets the first error, we don't want them to get
+        // any errors so we will fix the sortorders of all hierarchy custom fields now, during upgrade.
+        // The function isn't particularly well performing, however we don't expect to encounter sites
+        // with thousands of custom fields per type, as such we will raise memory as a caution as proceed.
+        raise_memory_limit(MEMORY_HUGE);
+        require_once($CFG->dirroot.'/totara/hierarchy/db/upgradelib.php');
+
+        totara_hierarchy_upgrade_fix_customfield_sortorder('comp_type'); // Competencies.
+        totara_hierarchy_upgrade_fix_customfield_sortorder('goal_type'); // Company goals.
+        totara_hierarchy_upgrade_fix_customfield_sortorder('goal_user'); // User goals.
+        totara_hierarchy_upgrade_fix_customfield_sortorder('org_type'); // Organisations.
+        totara_hierarchy_upgrade_fix_customfield_sortorder('pos_type'); // Positions.
+
+        upgrade_plugin_savepoint(true, 2016092001, 'totara', 'hierarchy');
+    }
+
     return true;
 }

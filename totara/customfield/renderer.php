@@ -52,12 +52,14 @@ class totara_customfield_renderer extends plugin_renderer_base {
         $table->data = array();
 
         $fieldcount = count($fields);
+        $position = 1;
         foreach ($fields as $field) {
             $row = array(format_string($field->fullname), get_string('customfieldtype'.$field->datatype, 'totara_customfield'));
             if ($can_manage) {
-                $row[] = $this->customfield_edit_icons($field, $fieldcount, $urlbase, $paramsurlbase, $can_manage);
+                $row[] = $this->customfield_edit_icons($field, $fieldcount, $urlbase, $paramsurlbase, $can_manage, $position);
             }
             $table->data[] = $row;
+            $position++;
         }
 
         $output = '';
@@ -299,9 +301,10 @@ class totara_customfield_renderer extends plugin_renderer_base {
      * @param   string   $urlbase Url where all the actions should be pointing at.
      * @param   array    $paramsurlbase Url params.
      * @param   bool     $can_manage Can the user edit custom fields.
+     * @param   int      $fieldposition The field position, between 1 and $fieldcount.
      * @return  string   the icon string
      */
-    public function customfield_edit_icons($field, $fieldcount, $urlbase, $paramsurlbase, $can_manage) {
+    public function customfield_edit_icons($field, $fieldcount, $urlbase, $paramsurlbase, $can_manage, $fieldposition = null) {
         global $OUTPUT;
 
         if (empty($str)) {
@@ -331,22 +334,40 @@ class totara_customfield_renderer extends plugin_renderer_base {
                 new pix_icon('t/delete', $strdelete), null, array('title' => $strdelete));
         }
 
-        if ($field->sortorder > 1 && $can_manage) {
-            $params = $paramsurlbase;
-            $params['action'] = 'movefield';
-            $params['dir'] = 'up';
-            $params['sesskey'] = sesskey();
-            $upstr = $OUTPUT->action_icon(new moodle_url($urlbase, $params),
-                new pix_icon('t/up', $strmoveup), null, array('title' => $strmoveup));
-        }
-
-        if ($field->sortorder < $fieldcount && $can_manage) {
-            $params = $paramsurlbase;
-            $params['action'] = 'movefield';
-            $params['dir'] = 'down';
-            $params['sesskey'] = sesskey();
-            $downstr = $OUTPUT->action_icon(new moodle_url($urlbase, $params),
-                new pix_icon('t/down', $strmovedown), null, array('title' => $strmovedown));
+        if ($fieldcount > 1 && $can_manage) {
+            if (is_null($fieldposition)) {
+                // It wasn't passed, we don't know.
+                $moveup = ($field->sortorder > 1);
+                $movedown = ($field->sortorder < $fieldcount);
+            } else {
+                $moveup = $fieldposition > 1;
+                $movedown = $fieldposition < $fieldcount;
+            }
+            // Only show up and down if there are two or more fields.
+            if ($moveup) {
+                $params = $paramsurlbase;
+                $params['action'] = 'movefield';
+                $params['dir'] = 'up';
+                $params['sesskey'] = sesskey();
+                $upstr = $OUTPUT->action_icon(
+                    new moodle_url($urlbase, $params),
+                    new pix_icon('t/up', $strmoveup),
+                    null,
+                    array('title' => $strmoveup)
+                );
+            }
+            if ($movedown) {
+                $params = $paramsurlbase;
+                $params['action'] = 'movefield';
+                $params['dir'] = 'down';
+                $params['sesskey'] = sesskey();
+                $downstr = $OUTPUT->action_icon(
+                    new moodle_url($urlbase, $params),
+                    new pix_icon('t/down', $strmovedown),
+                    null,
+                    array('title' => $strmovedown)
+                );
+            }
         }
 
         return $editstr . $deletestr . $upstr . $downstr;
@@ -357,14 +378,15 @@ class totara_customfield_renderer extends plugin_renderer_base {
      * @param int $typeid Type ID in case it's a hierarchy.
      * @param string $tableprefix The table prefix where the customfield definition are.
      * @param stdClass $field Customfield information
-     * @param \url $redirect The redirect url.
+     * @param moodle_url $redirect The redirect url.
      * @param string $heading Heading to be displayed.
      * @param $tabs (optional) Tabs to be displayed.
      * @param array $elements (optional) Aditional form fields for the customfield.
+     * @param \totara_customfield\prefix\type_base|null $customfieldtype The custom field type if known.
      * @param string $class
      */
     public function customfield_manage_edit_form($prefix, $typeid, $tableprefix, $field,
-        $redirect, $heading, $tabs, $elements = array(), $class = '') {
+        $redirect, $heading, $tabs, $elements = array(), $class = '', \totara_customfield\prefix\type_base $customfieldtype = null) {
 
         global $CFG, $TEXTAREA_OPTIONS;
         require_once($CFG->dirroot . '/totara/customfield/index_field_form.php');
@@ -389,8 +411,9 @@ class totara_customfield_renderer extends plugin_renderer_base {
             if ($data = $fieldform->get_data()) {
                 require_once($CFG->dirroot.'/totara/customfield/field/'. $datatype .'/define.class.php');
                 $newfield = 'customfield_define_'. $datatype;
+                /** @var customfield_define_base $formfield */
                 $formfield = new $newfield();
-                $formfield->define_save($data, $tableprefix);
+                $formfield->define_save($data, $tableprefix, $customfieldtype);
                 redirect($redirect);
             }
             echo $this->output->header();

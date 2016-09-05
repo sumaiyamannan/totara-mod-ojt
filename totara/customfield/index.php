@@ -40,6 +40,7 @@ $PAGE->set_context($sitecontext);
 
 // Add params to extrainfo in case the customfield need them.
 $extrainfo = array('id' => $id, 'action' => $action, 'typeid' => $typeid, 'class' => $class);
+/** @var \totara_customfield\prefix\type_base $customfieldtype */
 $customfieldtype = get_customfield_type_instace($prefix, $sitecontext, $extrainfo);
 
 if (!$customfieldtype) {
@@ -127,7 +128,7 @@ switch ($action) {
         $tabs = $renderer->customfield_tabs_link($prefix, $redirectoptions);
         $heading = $renderer->get_heading($prefix, $action, $datatypes[$datatype]);
 
-        $renderer->customfield_manage_edit_form($prefix, $typeid, $tableprefix, $field, $redirect, $heading, $tabs, array(), $class);
+        $renderer->customfield_manage_edit_form($prefix, $typeid, $tableprefix, $field, $redirect, $heading, $tabs, array(), $class, $customfieldtype);
         break;
     default:
         echo $OUTPUT->header();
