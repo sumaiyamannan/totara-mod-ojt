@@ -30,9 +30,7 @@
 
         $ADMIN->add('positions', new admin_externalpage('positionmanage', get_string('positionmanage', 'totara_hierarchy'),
             "{$CFG->wwwroot}/totara/hierarchy/framework/index.php?prefix=position",
-            array('totara/hierarchy:createpositionframeworks', 'totara/hierarchy:updatepositionframeworks', 'totara/hierarchy:deletepositionframeworks',
-                'totara/hierarchy:createposition', 'totara/hierarchy:updateposition', 'totara/hierarchy:deleteposition',
-                'totara/hierarchy:viewpositionframeworks')));
+            array('totara/hierarchy:viewpositionframeworks')));
 
         $ADMIN->add('positions', new admin_externalpage('positiontypemanage', get_string('managepositiontypes', 'totara_hierarchy'),
             "{$CFG->wwwroot}/totara/hierarchy/type/index.php?prefix=position",
@@ -44,9 +42,7 @@
 
     $ADMIN->add('organisations', new admin_externalpage('organisationmanage', get_string('organisationmanage', 'totara_hierarchy'),
             "{$CFG->wwwroot}/totara/hierarchy/framework/index.php?prefix=organisation",
-            array('totara/hierarchy:createorganisationframeworks', 'totara/hierarchy:updateorganisationframeworks', 'totara/hierarchy:deleteorganisationframeworks',
-                  'totara/hierarchy:createorganisation', 'totara/hierarchy:updateorganisation', 'totara/hierarchy:deleteorganisation',
-                  'totara/hierarchy:vieworganisationframeworks')));
+            array('totara/hierarchy:vieworganisationframeworks')));
 
     $ADMIN->add('organisations', new admin_externalpage('organisationtypemanage', get_string('manageorganisationtypes', 'totara_hierarchy'),
             "{$CFG->wwwroot}/totara/hierarchy/type/index.php?prefix=organisation",
@@ -60,9 +56,7 @@
 
     $ADMIN->add('competencies', new admin_externalpage('competencymanage', get_string('competencymanage', 'totara_hierarchy'),
         "{$CFG->wwwroot}/totara/hierarchy/framework/index.php?prefix=competency",
-        array('totara/hierarchy:createcompetencyframeworks', 'totara/hierarchy:updatecompetencyframeworks', 'totara/hierarchy:deletecompetencyframeworks',
-              'totara/hierarchy:createcompetency', 'totara/hierarchy:updatecompetency', 'totara/hierarchy:deletecompetency',
-              'totara/hierarchy:createcompetencyscale', 'totara/hierarchy:updatecompetencyscale', 'totara/hierarchy:deletecompetencyscale'),
+        array('totara/hierarchy:viewcompetencyscale', 'totara/hierarchy:viewcompetencyframeworks'),
         totara_feature_disabled('competencies')
     ));
 

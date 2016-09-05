@@ -1344,7 +1344,13 @@ class hierarchy {
         // @todo get based on item type or better still, don't use inline styles :-(
         $cssclass = !$record->visible ? 'dimmed' : '';
         $out = html_writer::start_tag('div', array('class' => 'hierarchyitem ' . $itemdepth));
-        $out .= $OUTPUT->action_link(new moodle_url('/totara/hierarchy/item/view.php', array('prefix' => $this->prefix, 'id' => $record->id)), format_string($record->fullname), null, array('class' => $cssclass));
+        $systemcontext = context_system::instance();
+        $canview = has_capability('totara/hierarchy:view' . $this->prefix, $systemcontext);
+        if ($canview) {
+            $out .= $OUTPUT->action_link(new moodle_url('/totara/hierarchy/item/view.php', array('prefix' => $this->prefix, 'id' => $record->id)), format_string($record->fullname), null, array('class' => $cssclass));
+        } else {
+            $out .= format_string($record->fullname);
+        }
         if ($include_custom_fields) {
             $out .= html_writer::empty_tag('br');
             // Print description if available.
@@ -1491,7 +1497,13 @@ class hierarchy {
      */
     function display_hierarchy_item_extrafield($item, $extrafield) {
         global $OUTPUT;
-        return $OUTPUT->action_link(new moodle_url("item/view.php", array('prefix' => $this->prefix, 'id' => $item->id)), $item->$extrafield);
+        $systemcontext = context_system::instance();
+        $canview = has_capability('totara/hierarchy:view' . $this->prefix, $systemcontext);
+        if ($canview) {
+            return $OUTPUT->action_link(new moodle_url("item/view.php", array('prefix' => $this->prefix, 'id' => $item->id)), $item->$extrafield);
+        } else {
+            return $item->$extrafield;
+        }
     }
 
     /**
