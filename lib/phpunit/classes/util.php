@@ -220,6 +220,10 @@ class phpunit_util extends testing_util {
             // Program messages exists, reset its caches just in case they have been used.
             prog_messages_manager::reset_cache();
         }
+        if (class_exists('rb_source_appraisal_detail', false)) {
+            // Appraisal detail report source class exists, reset its caches just in case they have been used.
+            rb_source_appraisal_detail::reset_cache();
+        }
         // Reset static unit test options.
         if (class_exists('\availability_date\condition', false)) {
             \availability_date\condition::set_current_time_for_test(0);
