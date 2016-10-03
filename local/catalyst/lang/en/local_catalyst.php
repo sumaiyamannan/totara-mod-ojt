@@ -37,3 +37,4 @@ $string['jsonconfig_new_value'] = 'New value';
 $string['jsonconfig_nochanges'] = 'No changes';
 $string['jsonconfig_new'] = 'new';
 $string['jsonconfig_deleted'] = 'deleted';
+$string['syncfileuploaded'] = 'Sync file uploaded';

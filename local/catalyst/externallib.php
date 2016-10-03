@@ -79,6 +79,13 @@ class local_catalyst extends external_api {
         // Set the itemid totara_sync expects
         set_config("sync_{$element}_itemid", $now, 'totara_sync');
 
+		// Trigger a 'sync file uploaded' event.
+		$event = \local_catalyst\event\sync_file_uploaded::create(array(
+			'context' => $context,
+			'other' => $fileinfo
+		));
+		$event->trigger();
+
         return 'success';
     }
 
