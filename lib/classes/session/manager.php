@@ -766,7 +766,7 @@ class manager {
                 foreach ($authplugins as $authplugin) {
                     /** @var \auth_plugin_base $authplugin*/
                     if ($authplugin->ignore_timeout_hook($user, $user->sid, $user->s_timecreated, $user->s_timemodified)) {
-                        continue;
+                        continue 2;
                     }
                     // Totara Connect hack - client SSO sessions extend master session.
                     if (\totara_connect\util::ignore_timeout_hook($user, $user->sid, $user->s_timecreated, $user->s_timemodified)) {
