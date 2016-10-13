@@ -273,4 +273,43 @@ class behat_facetoface extends behat_base {
             }
         }
     }
+
+    /**
+     * Clicks on the "Edit session" link for a Facetoface session.
+     *
+     * @throws \Behat\Mink\Exception\ExpectationException
+     * @When /^I click to edit the (facetoface|seminar) session in row (\d+)$/
+     * @param int $row
+     */
+    public function i_click_to_edit_the_facetoface_session_in_row($term, $row) {
+        $summaryliteral = $this->getSession()->getSelectorsHandler()->xpathLiteral(get_string('previoussessionslist', 'facetoface'));
+        $titleliteral = $this->getSession()->getSelectorsHandler()->xpathLiteral(get_string('editsession', 'facetoface'));
+        $xpath = "//table[@summary={$summaryliteral}]/tbody/tr[{$row}]//a/span[@title={$titleliteral}]/parent::a";
+        /** @var \Behat\Mink\Element\NodeElement[] $nodes */
+        $nodes = $this->find_all('xpath', $xpath);
+        if (empty($nodes) || count($nodes) > 1) {
+            throw new \Behat\Mink\Exception\ExpectationException('Unable to find the edit session link on row '.$row, $this->getSession());
+        }
+        $node = reset($nodes);
+        $node->click();
+    }
+
+    /**
+     * Clicks to edit the Seminar event date in the given table row.
+     *
+     * @throws \Behat\Mink\Exception\ExpectationException
+     * @When /^I click to edit the seminar event date at position (\d+)$/
+     * @param int $position
+     */
+    public function i_click_to_edit_the_seminar_event_date_at_position($position) {
+        $titleliteral = $this->getSession()->getSelectorsHandler()->xpathLiteral(get_string('editdate', 'facetoface'));
+        $xpath = "//table[contains(@class, 'f2fmanagedates')]/tbody/tr[{$position}]//a/span[@title={$titleliteral}]/parent::a";
+        /** @var \Behat\Mink\Element\NodeElement[] $nodes */
+        $nodes = $this->find_all('xpath', $xpath);
+        if (empty($nodes) || count($nodes) > 1) {
+            throw new \Behat\Mink\Exception\ExpectationException('Unable to find the edit event date link on row '.$position, $this->getSession());
+        }
+        $node = reset($nodes);
+        $node->click();
+    }
 }
