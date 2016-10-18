@@ -213,7 +213,11 @@ abstract class item_base implements item, designation {
             if ($this->description_format === null) {
                 $record->description = format_string($this->description, true, $formatoptions);
             } else {
-                $record->description = format_text($this->description, $this->description_format, $formatoptions);
+                $component  = ($record->component == 'totara_certification') ? 'totara_program' : $record->component;
+                $description = file_rewrite_pluginfile_urls($this->description, 'pluginfile.php',
+                    $context->id, $component, 'summary', 0);
+
+                $record->description = format_text($description, $this->description_format, $formatoptions);
             }
         }
         $record->url_view = (string)$this->url_view;
