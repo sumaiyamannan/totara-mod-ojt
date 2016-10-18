@@ -1301,15 +1301,20 @@ function prog_process_extensions($extensionslist, $reasonfordecision = array()) 
  *
  * @param int $userid
  * @param program $program if not set - all programs will be updated
+ * @param int $courseid if provided (and $program is not) then only programs related to this course will be updated
  */
-function prog_update_completion($userid, program $program = null) {
+function prog_update_completion($userid, program $program = null, $courseid = null) {
     global $DB;
 
     if (!$program) {
         $proglist = prog_get_all_programs($userid, '', '', '', false, true);
         $programs = array();
         foreach ($proglist as $progrow) {
-            $programs[] = new program($progrow->id);
+            $prog = new program($progrow->id);
+            // We include the program if no course filter is specified, or else if the program contains the course.
+            if (!$courseid || $prog->content->contains_course($courseid)) {
+                $programs[] = $prog;
+            }
         }
     } else {
         $programs = array($program);
