@@ -1567,6 +1567,14 @@ h6 [data-flex-icon='help'] {
   }
 }
 
+.alert {
+  > *, > ul, > ol, > p {
+    &:not(:last-child) {
+      margin-bottom: @padding-large-vertical;
+    }
+  }
+}
+
 // Behat sees the new sr-only stuff as visible,
 // but it must not see the old accesshide class for backwards compatibility.
 // This may be removed only after we drop support for old themes and fix all behat tests.
