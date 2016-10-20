@@ -607,6 +607,73 @@ class totara_plan_components_testcase extends advanced_testcase {
         $this->assertEquals($enddate, $progcompletion->timedue);
     }
 
+    /**
+     * Tests dp_program_component->assign_new_item
+     *
+     * This ensures that the correct existing due date is used if it already exists.
+     *
+     * The user's time due should be the program due date.
+     */
+    public function test_dp_component_program_assign_new_item_existing_completion() {
+        $this->resetAfterTest(true);
+        global $DB;
+
+        $datagenerator = $this->getDataGenerator();
+
+        $user = $datagenerator->create_user();
+        $this->setUser($user);
+
+        /* @var totara_plan_generator $plangenerator */
+        $plangenerator = $datagenerator->get_plugin_generator('totara_plan');
+        $enddate = time() + DAYSECS * 100; // Further in the future than the program due date.
+        $planrecord = $plangenerator->create_learning_plan(array('userid' => $user->id, 'enddate' => $enddate));
+        $plan = new development_plan($planrecord->id);
+
+        // We're initialising the settings but not changing anything. The defaults
+        // should give us the results that we're checking for.
+        $plan->initialize_settings();
+
+        $program1 = $this->program_generator->create_program();
+        $duedate = time() + DAYSECS * 10;
+        $this->program_generator->assign_to_program($program1->id, ASSIGNTYPE_INDIVIDUAL, $user->id);
+        $program1->update_learner_assignments(true);
+
+        // Check that records exist.
+        $this->assertEquals(1, $DB->count_records('prog_assignment',
+            array('programid' => $program1->id)));
+        $this->assertEquals(1, $DB->count_records('prog_user_assignment',
+            array('programid' => $program1->id)));
+        $this->assertEquals(1, $DB->count_records('prog_completion', // Will be 2 with TL-11020.
+            array('programid' => $program1->id)));
+
+        // Set the program course set 0 record's due date.
+        $progcompletion = prog_load_completion($program1->id, $user->id);
+        $progcompletion->timedue = $duedate;
+        prog_write_completion($progcompletion);
+
+        // Set the program course set 1 record's due date, to make sure it's not accidentally used.
+        $sql = "UPDATE {prog_completion}
+                   SET timedue = :timedue
+                 WHERE programid = :programid
+                   AND userid = :userid
+                   AND coursesetid <> 0";
+        $DB->execute($sql, array('timedue' => $enddate, 'programid' => $program1->id, 'userid' => $user->id));
+
+        /* @var dp_program_component $component_program */
+        $component_program = $plan->get_component('program');
+
+        $assigneditem = $component_program->assign_new_item($program1->id);
+
+        // Check that the item was successfully saved to the database.
+        $this->assertTrue($DB->record_exists('dp_plan_program_assign',
+            array('planid' => $planrecord->id, 'programid' => $program1->id)));
+
+        // See that the plan due date is equal to the program due date.
+        $progcompletion = prog_load_completion($program1->id, $user->id);
+        $this->assertEquals($duedate, $progcompletion->timedue);
+        $this->assertEquals($duedate, $assigneditem->duedate);
+    }
+
     public function test_send_component_update_alert() {
 
         // Create users.

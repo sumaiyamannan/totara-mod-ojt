@@ -593,8 +593,7 @@ class dp_program_component extends dp_base_component {
         // Load fullname of item
         $item->fullname = $DB->get_field('prog', 'fullname', array('id' => $itemid));
 
-        $existingprogcompletion = $DB->get_record('prog_completion',
-            array('programid' => $item->programid, 'userid' => $this->plan->userid));
+        $existingprogcompletion = prog_load_completion($item->programid, $this->plan->userid, false);
         $completionsettings = array();
         if ($existingprogcompletion) {
             // Prog completion already exists, so just update the timedue field if required, otherwise do nothing.
