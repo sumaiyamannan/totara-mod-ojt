@@ -228,6 +228,12 @@ class send_messages_task extends \core\task\scheduled_task {
                 $programs[$user->programid] = $program;
             }
 
+            // Double-check that the program isn't already complete.
+            prog_update_completion($user->id, $program);
+            if (prog_is_complete($program->id, $user->id)) {
+                continue;
+            }
+
             $messagesmanager = $program->get_messagesmanager();
             $messages = $messagesmanager->get_messages();
             $isviewable = $program->is_viewable($user);
@@ -301,6 +307,18 @@ class send_messages_task extends \core\task\scheduled_task {
                 // Create a new program object and store it if it has not already been instantiated.
                 $program = new \program($user->programid);
                 $programs[$user->programid] = $program;
+            }
+
+            // Double-check that the course set isn't already complete.
+            prog_update_completion($user->id, $program);
+            $params = array(
+                'programid' => $program->id,
+                'userid' => $user->id,
+                'coursesetid' => $user->coursesetid,
+                'status' => STATUS_COURSESET_COMPLETE
+            );
+            if (prog_is_complete($program->id, $user->id) || $DB->record_exists('prog_completion', $params)) {
+                continue;
             }
 
             $messagesmanager = $program->get_messagesmanager();
@@ -378,6 +396,12 @@ class send_messages_task extends \core\task\scheduled_task {
                 $programs[$user->programid] = $program;
             }
 
+            // Double-check that the program isn't already complete.
+            prog_update_completion($user->id, $program);
+            if (prog_is_complete($program->id, $user->id)) {
+                continue;
+            }
+
             $messagesmanager = $program->get_messagesmanager();
             $messages = $messagesmanager->get_messages();
             $isviewable = $program->is_viewable($user);
@@ -450,6 +474,18 @@ class send_messages_task extends \core\task\scheduled_task {
                 // Create a new program object and store it if it has not already been instantiated.
                 $program = new \program($user->programid);
                 $programs[$user->programid] = $program;
+            }
+
+            // Double-check that the course set isn't already complete.
+            prog_update_completion($user->id, $program);
+            $params = array(
+                'programid' => $program->id,
+                'userid' => $user->id,
+                'coursesetid' => $user->coursesetid,
+                'status' => STATUS_COURSESET_COMPLETE
+            );
+            if (prog_is_complete($program->id, $user->id) || $DB->record_exists('prog_completion', $params)) {
+                continue;
             }
 
             $messagesmanager = $program->get_messagesmanager();

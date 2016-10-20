@@ -53,7 +53,7 @@ class totara_program_messages_testcase extends reportcache_advanced_testcase {
 
     private $program_generator = null;
     private $program1, $program2;
-    private $user1, $user2, $user3, $user4, $user5;
+    private $user1, $user2, $user3, $user4, $user5, $user6;
     private $sink;
 
     public function setUp() {
@@ -74,10 +74,10 @@ class totara_program_messages_testcase extends reportcache_advanced_testcase {
 
         // Create users.
         $this->assertEquals(2, $DB->count_records('user'));
-        for ($i = 1; $i <= 5; $i++) {
+        for ($i = 1; $i <= 6; $i++) {
             $this->{'user'.$i} = $this->getDataGenerator()->create_user();
         }
-        $this->assertEquals(5 + 2, $DB->count_records('user'));
+        $this->assertEquals(6 + 2, $DB->count_records('user'));
 
         // Create two programs.
         $this->assertEquals(0, $DB->count_records('prog'));
@@ -341,6 +341,8 @@ class totara_program_messages_testcase extends reportcache_advanced_testcase {
 
     /**
      * Make sure that program due messages are sent when a user's due date is nearly reached.
+     *
+     * Note that user6 has completed the courses but their program completion record indicates that they are due.
      */
     public function test_program_due_messages() {
         global $DB;
@@ -380,28 +382,31 @@ class totara_program_messages_testcase extends reportcache_advanced_testcase {
         $this->getDataGenerator()->create_coursesets_in_program($this->program1, $coursesetdata);
 
         // Assign users to program.
-        $usersprogram = array($this->user1->id, $this->user2->id, $this->user3->id, $this->user4->id, $this->user5->id);
+        $usersprogram = array($this->user1->id, $this->user2->id, $this->user3->id, $this->user4->id, $this->user5->id, $this->user6->id);
         $this->program_generator->assign_program($this->program1->id, $usersprogram);
 
         // Hack the due dates, 10 days from now.
         $duedate = time() + DAYSECS * 10;
         $progcompl1 = prog_load_completion($this->program1->id, $this->user1->id);
         $progcompl1->timedue = $duedate;
-        prog_write_completion($progcompl1);
+        $this->assertTrue(prog_write_completion($progcompl1));
         $progcompl2 = prog_load_completion($this->program1->id, $this->user2->id);
         $progcompl2->timedue = $duedate;
-        prog_write_completion($progcompl2);
+        $this->assertTrue(prog_write_completion($progcompl2));
         $progcompl3 = prog_load_completion($this->program1->id, $this->user3->id);
         $progcompl3->timedue = $duedate;
-        prog_write_completion($progcompl3);
+        $this->assertTrue(prog_write_completion($progcompl3));
         $progcompl4 = prog_load_completion($this->program1->id, $this->user4->id);
         $progcompl4->timedue = time() - DAYSECS * 10; // Overdue (but should still send due).
-        prog_write_completion($progcompl4);
+        $this->assertTrue(prog_write_completion($progcompl4));
         $progcompl5 = prog_load_completion($this->program1->id, $this->user5->id);
         $progcompl5->timedue = time() + DAYSECS * 200; // Not yet due (so no message sent).
-        prog_write_completion($progcompl5);
+        $this->assertTrue(prog_write_completion($progcompl5));
+        $progcompl6 = prog_load_completion($this->program1->id, $this->user6->id);
+        $progcompl6->timedue = $duedate;
+        $this->assertTrue(prog_write_completion($progcompl6));
 
-        // Assign users and complete some courses. 0 for user1, 1 for user2, 2 for user3.
+        // Assign users and complete some courses. 0 for user1, 1 for user2, 2 for user3, 2 for user6.
         $this->getDataGenerator()->enrol_user($this->user2->id, $course1->id);
         $completion = new completion_completion(array('userid' => $this->user2->id, 'course' => $course1->id));
         $completion->mark_complete();
@@ -411,6 +416,15 @@ class totara_program_messages_testcase extends reportcache_advanced_testcase {
         $this->getDataGenerator()->enrol_user($this->user3->id, $course2->id);
         $completion = new completion_completion(array('userid' => $this->user3->id, 'course' => $course2->id));
         $completion->mark_complete();
+        $this->getDataGenerator()->enrol_user($this->user6->id, $course1->id);
+        $completion = new completion_completion(array('userid' => $this->user6->id, 'course' => $course1->id));
+        $completion->mark_complete();
+        $this->getDataGenerator()->enrol_user($this->user6->id, $course2->id);
+        $completion = new completion_completion(array('userid' => $this->user6->id, 'course' => $course2->id));
+        $completion->mark_complete();
+
+        // Re-save user6's original program completion record to indicate that it's not complete, even though the courses are.
+        $this->assertTrue(prog_write_completion($progcompl6));
 
         // Attempt to send any program messages.
         sleep(1); // Messages are only sent if they were created before "now", so we need to wait one second.
@@ -454,6 +468,8 @@ class totara_program_messages_testcase extends reportcache_advanced_testcase {
 
     /**
      * Make sure that program overdue messages are sent when a user's due date has been passed.
+     *
+     * Note that user6 has completed the courses but their program completion record indicates that they are overdue.
      */
     public function test_program_overdue_messages() {
         global $DB;
@@ -493,28 +509,31 @@ class totara_program_messages_testcase extends reportcache_advanced_testcase {
         $this->getDataGenerator()->create_coursesets_in_program($this->program1, $coursesetdata);
 
         // Assign users to program.
-        $usersprogram = array($this->user1->id, $this->user2->id, $this->user3->id, $this->user4->id, $this->user5->id);
+        $usersprogram = array($this->user1->id, $this->user2->id, $this->user3->id, $this->user4->id, $this->user5->id, $this->user6->id);
         $this->program_generator->assign_program($this->program1->id, $usersprogram);
 
         // Hack the due dates, 20 days ago.
         $duedate = time() - DAYSECS * 20;
         $progcompl1 = prog_load_completion($this->program1->id, $this->user1->id);
         $progcompl1->timedue = $duedate;
-        prog_write_completion($progcompl1);
+        $this->assertTrue(prog_write_completion($progcompl1));
         $progcompl2 = prog_load_completion($this->program1->id, $this->user2->id);
         $progcompl2->timedue = $duedate;
-        prog_write_completion($progcompl2);
+        $this->assertTrue(prog_write_completion($progcompl2));
         $progcompl3 = prog_load_completion($this->program1->id, $this->user3->id);
         $progcompl3->timedue = $duedate;
-        prog_write_completion($progcompl3);
+        $this->assertTrue(prog_write_completion($progcompl3));
         $progcompl4 = prog_load_completion($this->program1->id, $this->user4->id);
         $progcompl4->timedue = time() - DAYSECS * 5; // Overdue but not yet due to be sent.
-        prog_write_completion($progcompl4);
+        $this->assertTrue(prog_write_completion($progcompl4));
         $progcompl5 = prog_load_completion($this->program1->id, $this->user5->id);
         $progcompl5->timedue = time() + DAYSECS * 20; // Not yet due (so no message sent).
-        prog_write_completion($progcompl5);
+        $this->assertTrue(prog_write_completion($progcompl5));
+        $progcompl6 = prog_load_completion($this->program1->id, $this->user6->id);
+        $progcompl6->timedue = $duedate;
+        $this->assertTrue(prog_write_completion($progcompl6));
 
-        // Assign users and complete some courses. 0 for user1, 1 for user2, 2 for user3.
+        // Assign users and complete some courses. 0 for user1, 1 for user2, 2 for user3, 2 for user6.
         $this->getDataGenerator()->enrol_user($this->user2->id, $course1->id);
         $completion = new completion_completion(array('userid' => $this->user2->id, 'course' => $course1->id));
         $completion->mark_complete();
@@ -524,6 +543,15 @@ class totara_program_messages_testcase extends reportcache_advanced_testcase {
         $this->getDataGenerator()->enrol_user($this->user3->id, $course2->id);
         $completion = new completion_completion(array('userid' => $this->user3->id, 'course' => $course2->id));
         $completion->mark_complete();
+        $this->getDataGenerator()->enrol_user($this->user6->id, $course1->id);
+        $completion = new completion_completion(array('userid' => $this->user6->id, 'course' => $course1->id));
+        $completion->mark_complete();
+        $this->getDataGenerator()->enrol_user($this->user6->id, $course2->id);
+        $completion = new completion_completion(array('userid' => $this->user6->id, 'course' => $course2->id));
+        $completion->mark_complete();
+
+        // Re-save user6's original program completion record to indicate that it's not complete, even though the courses are.
+        $this->assertTrue(prog_write_completion($progcompl6));
 
         // Attempt to send any program messages.
         sleep(1); // Messages are only sent if they were created before "now", so we need to wait one second.
@@ -665,6 +693,8 @@ class totara_program_messages_testcase extends reportcache_advanced_testcase {
 
     /**
      * Make sure that courseset due messages are sent when a user's due date is nearly reached.
+     *
+     * Note that user6 has completed the courses but their program completion records indicate that they are due.
      */
     public function test_courseset_due_messages() {
         global $DB;
@@ -706,7 +736,7 @@ class totara_program_messages_testcase extends reportcache_advanced_testcase {
         $this->getDataGenerator()->create_coursesets_in_program($this->program1, $coursesetdata);
 
         // Assign users to program.
-        $usersprogram = array($this->user1->id, $this->user2->id, $this->user3->id, $this->user4->id, $this->user5->id);
+        $usersprogram = array($this->user1->id, $this->user2->id, $this->user3->id, $this->user4->id, $this->user5->id, $this->user6->id);
         $this->program_generator->assign_program($this->program1->id, $usersprogram);
 
         // Hack the due dates, 10 days from now.
@@ -721,8 +751,13 @@ class totara_program_messages_testcase extends reportcache_advanced_testcase {
             array('programid' => $this->program1->id, 'userid' => $this->user4->id));
         $DB->set_field('prog_completion', 'timedue', time() + DAYSECS * 200, // Not yet due (so no message sent).
             array('programid' => $this->program1->id, 'userid' => $this->user5->id));
+        $DB->set_field('prog_completion', 'timedue', $duedate,
+            array('programid' => $this->program1->id, 'userid' => $this->user6->id));
 
-        // Assign users and complete some courses. 0 for user1, 1 for user2, 2 for user3.
+        // Load user6's prog completion record, which is currently INCOMPLETE.
+        $progcompl6 = prog_load_completion($this->program1->id, $this->user6->id);
+
+        // Assign users and complete some courses. 0 for user1, 1 for user2, 2 for user3, 2 for user6.
         $this->getDataGenerator()->enrol_user($this->user2->id, $course1->id);
         $completion = new completion_completion(array('userid' => $this->user2->id, 'course' => $course1->id));
         $completion->mark_complete();
@@ -732,6 +767,38 @@ class totara_program_messages_testcase extends reportcache_advanced_testcase {
         $this->getDataGenerator()->enrol_user($this->user3->id, $course2->id);
         $completion = new completion_completion(array('userid' => $this->user3->id, 'course' => $course2->id));
         $completion->mark_complete();
+        $this->getDataGenerator()->enrol_user($this->user6->id, $course1->id);
+        $completion = new completion_completion(array('userid' => $this->user6->id, 'course' => $course1->id));
+        $completion->mark_complete();
+        $this->getDataGenerator()->enrol_user($this->user6->id, $course2->id);
+        $completion = new completion_completion(array('userid' => $this->user6->id, 'course' => $course2->id));
+        $completion->mark_complete();
+
+        // Save user6's original program completion records to indicate that they're not complete, even though the courses are.
+        $this->assertTrue(prog_write_completion($progcompl6));
+        $sql = "SELECT MAX(coursesetid)
+                  FROM {prog_completion}
+                 WHERE programid = :programid
+                   AND userid = :userid";
+        $params = array(
+            'programid' => $this->program1->id,
+            'userid' => $this->user6->id,
+            'statuscoursesetincomplete' => STATUS_COURSESET_INCOMPLETE
+        );
+        $secondcoursesetid = $DB->get_field_sql($sql, $params);
+        $sql = "UPDATE {prog_completion}
+                   SET status = :statuscoursesetincomplete,
+                       timecompleted = 0
+                 WHERE programid = :programid
+                   AND userid = :userid
+                   AND coursesetid = :secondcoursesetid";
+        $params = array(
+            'programid' => $this->program1->id,
+            'userid' => $this->user6->id,
+            'secondcoursesetid' => $secondcoursesetid,
+            'statuscoursesetincomplete' => STATUS_COURSESET_INCOMPLETE
+        );
+        $DB->execute($sql, $params);
 
         // Attempt to send any program messages.
         sleep(1); // Messages are only sent if they were created before "now", so we need to wait one second.
@@ -775,6 +842,8 @@ class totara_program_messages_testcase extends reportcache_advanced_testcase {
 
     /**
      * Make sure that courseset overdue messages are sent when a user's due date is nearly reached.
+     *
+     * Note that user6 has completed the courses but their program completion records indicate that they are overdue.
      */
     public function test_courseset_overdue_messages() {
         global $DB;
@@ -816,8 +885,11 @@ class totara_program_messages_testcase extends reportcache_advanced_testcase {
         $this->getDataGenerator()->create_coursesets_in_program($this->program1, $coursesetdata);
 
         // Assign users to program.
-        $usersprogram = array($this->user1->id, $this->user2->id, $this->user3->id, $this->user4->id, $this->user5->id);
+        $usersprogram = array($this->user1->id, $this->user2->id, $this->user3->id, $this->user4->id, $this->user5->id, $this->user6->id);
         $this->program_generator->assign_program($this->program1->id, $usersprogram);
+
+        // Load user6's prog completion record, which is currently INCOMPLETE.
+        $progcompl6 = prog_load_completion($this->program1->id, $this->user6->id);
 
         // Assign users and complete some courses. 0 for user1, 1 for user2, 2 for user3.
         $this->getDataGenerator()->enrol_user($this->user2->id, $course1->id);
@@ -828,6 +900,12 @@ class totara_program_messages_testcase extends reportcache_advanced_testcase {
         $completion->mark_complete();
         $this->getDataGenerator()->enrol_user($this->user3->id, $course2->id);
         $completion = new completion_completion(array('userid' => $this->user3->id, 'course' => $course2->id));
+        $completion->mark_complete();
+        $this->getDataGenerator()->enrol_user($this->user6->id, $course1->id);
+        $completion = new completion_completion(array('userid' => $this->user6->id, 'course' => $course1->id));
+        $completion->mark_complete();
+        $this->getDataGenerator()->enrol_user($this->user6->id, $course2->id);
+        $completion = new completion_completion(array('userid' => $this->user6->id, 'course' => $course2->id));
         $completion->mark_complete();
 
         // Hack the due dates, 30 days ago.
@@ -842,6 +920,34 @@ class totara_program_messages_testcase extends reportcache_advanced_testcase {
             array('programid' => $this->program1->id, 'userid' => $this->user4->id));
         $DB->set_field('prog_completion', 'timedue', time() + DAYSECS * 20, // Not yet due (so no message sent).
             array('programid' => $this->program1->id, 'userid' => $this->user5->id));
+        $DB->set_field('prog_completion', 'timedue', $duedate,
+            array('programid' => $this->program1->id, 'userid' => $this->user6->id));
+
+        // Save user6's original program completion records to indicate that they're not complete, even though the courses are.
+        $this->assertTrue(prog_write_completion($progcompl6));
+        $sql = "SELECT MAX(coursesetid)
+                  FROM {prog_completion}
+                 WHERE programid = :programid
+                   AND userid = :userid";
+        $params = array(
+            'programid' => $this->program1->id,
+            'userid' => $this->user6->id,
+            'statuscoursesetincomplete' => STATUS_COURSESET_INCOMPLETE
+        );
+        $secondcoursesetid = $DB->get_field_sql($sql, $params);
+        $sql = "UPDATE {prog_completion}
+                   SET status = :statuscoursesetincomplete,
+                       timecompleted = 0
+                 WHERE programid = :programid
+                   AND userid = :userid
+                   AND coursesetid = :secondcoursesetid";
+        $params = array(
+            'programid' => $this->program1->id,
+            'userid' => $this->user6->id,
+            'secondcoursesetid' => $secondcoursesetid,
+            'statuscoursesetincomplete' => STATUS_COURSESET_INCOMPLETE
+        );
+        $DB->execute($sql, $params);
 
         // Attempt to send any program messages.
         sleep(1); // Messages are only sent if they were created before "now", so we need to wait one second.
