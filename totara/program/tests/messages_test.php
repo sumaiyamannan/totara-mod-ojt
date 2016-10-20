@@ -18,6 +18,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  * @author Maria Torres <maria.torres@totaralms.com>
+ * @author Nathan Lewis <nathan.lewis@totaralearning.com>
  * @package totara_program
  */
 
@@ -29,30 +30,41 @@ require_once($CFG->dirroot . '/totara/reportbuilder/tests/reportcache_advanced_t
 require_once($CFG->dirroot . '/totara/program/lib.php');
 
 /**
- * Test events in programs.
+ * Test messages in programs.
+ *
+ * Includes:
+ * enrolment and unenrolment (including re-enrolment and re-unenrolment)
+ * program completed
+ * program due
+ * program overdue
+ * course set completed
+ * course set due
+ * course set overdue
+ * learner follow-up
+ *
+ * Does not currently include Exceptions report.
+ *
+ * Does not currently check what happens when multiple messages of a single type are set up.
  *
  * To test, run this from the command line from the $CFG->dirroot
- * vendor/bin/phpunit totara_program_events_testcase
- *
+ * vendor/bin/phpunit totara_program_messages_testcase
  */
-class totara_program_messages_testcase extends advanced_testcase {
+class totara_program_messages_testcase extends reportcache_advanced_testcase {
 
     private $program_generator = null;
-    private $program = null;
-    private $user = null;
+    private $program1, $program2;
+    private $user1, $user2, $user3, $user4, $user5;
+    private $sink;
 
     public function setUp() {
+        global $DB;
+
         parent::setup();
-        $this->resetAfterTest(true);
-        $this->program_generator = $this->getDataGenerator()->get_plugin_generator('totara_program');
-    }
 
-    public function test_program_enrolment_messages() {
-        global $DB, $CFG, $UNITTEST;
-
-        $this->preventResetByRollback();
         $this->resetAfterTest(true);
         $this->setAdminUser();
+
+        $this->program_generator = $this->getDataGenerator()->get_plugin_generator('totara_program');
 
         // Function in lib/moodlelib.php email_to_user require this.
         if (!isset($UNITTEST)) {
@@ -60,16 +72,12 @@ class totara_program_messages_testcase extends advanced_testcase {
             $UNITTEST->running = true;
         }
 
-        unset_config('noemailever');
-        $sink = $this->redirectEmails();
-        ob_start(); // Start a buffer to catch all the mtraces in the task.
-
-        // Create 8 users.
+        // Create users.
         $this->assertEquals(2, $DB->count_records('user'));
-        for ($i = 1; $i <= 8; $i++) {
+        for ($i = 1; $i <= 5; $i++) {
             $this->{'user'.$i} = $this->getDataGenerator()->create_user();
         }
-        $this->assertEquals(10, $DB->count_records('user'));
+        $this->assertEquals(5 + 2, $DB->count_records('user'));
 
         // Create two programs.
         $this->assertEquals(0, $DB->count_records('prog'));
@@ -77,63 +85,922 @@ class totara_program_messages_testcase extends advanced_testcase {
         $this->program2 = $this->program_generator->create_program();
         $this->assertEquals(2, $DB->count_records('prog'));
 
+        unset_config('noemailever');
+        $this->sink = $this->redirectMessages();
+
         // Make sure the mail is redirecting and the sink is clear.
         $this->assertTrue(phpunit_util::is_redirecting_phpmailer());
-        $sink->clear();
+        $this->sink->clear();
+    }
+
+    public function test_program_enrolment_and_unenrollment_messages() {
+        global $DB;
+
+        // Set up the messages.
+        $programmessagemanager = $this->program1->get_messagesmanager();
+        $programmessagemanager->add_message(MESSAGETYPE_UNENROLMENT);
+        $programmessagemanager->save_messages();
+        prog_messages_manager::get_program_messages_manager($this->program1->id, true); // Causes static cache to be reset.
+        $enrolmentmessageid = $DB->get_field('prog_message', 'id',
+            array('programid' => $this->program1->id, 'messagetype' => MESSAGETYPE_ENROLMENT));
+        $unenrolmentmessageid = $DB->get_field('prog_message', 'id',
+            array('programid' => $this->program1->id, 'messagetype' => MESSAGETYPE_UNENROLMENT));
 
         // Assign users to program1.
         $usersprogram1 = array($this->user1->id, $this->user2->id, $this->user3->id);
         $this->program_generator->assign_program($this->program1->id, $usersprogram1);
 
-        sleep(1); // Messages are only sent if they were created before "now", so we need to wait one second.
-
         // Attempt to send any program messages.
+        sleep(1); // Messages are only sent if they were created before "now", so we need to wait one second.
+        ob_start(); // Start a buffer to catch all the mtraces in the task.
         $task = new \totara_program\task\send_messages_task();
         $task->execute();
+        ob_end_clean(); // Throw away the buffer content.
 
         // Check the right amount of messages were caught.
-        $emails = $sink->get_messages();
+        $emails = $this->sink->get_messages();
         $this->assertCount(3, $emails);
-        $sink->clear();
+        $this->sink->clear();
 
         // Check that they all had logs created.
         $this->assertEquals(3, $DB->count_records('prog_messagelog'));
+        $this->assertEquals(1, $DB->count_records('prog_messagelog',
+            array('userid' => $this->user1->id, 'messageid' => $enrolmentmessageid)));
+        $this->assertEquals(1, $DB->count_records('prog_messagelog',
+            array('userid' => $this->user2->id, 'messageid' => $enrolmentmessageid)));
+        $this->assertEquals(1, $DB->count_records('prog_messagelog',
+            array('userid' => $this->user3->id, 'messageid' => $enrolmentmessageid)));
 
-        // Assign more users to program1 and make sure only the new users get the message.
-        $usersprogram1 = array($this->user1->id, $this->user2->id, $this->user4->id, $this->user5->id);
+        // Assign users to program1 and make sure only the new users get the message.
+        $usersprogram1 = array($this->user1->id, $this->user2->id, $this->user3->id, $this->user4->id, $this->user5->id);
         $this->program_generator->assign_program($this->program1->id, $usersprogram1);
 
-        sleep(1);
-
         // Attempt to send any program messages.
+        sleep(1); // Messages are only sent if they were created before "now", so we need to wait one second.
+        ob_start(); // Start a buffer to catch all the mtraces in the task.
         $task = new \totara_program\task\send_messages_task();
         $task->execute();
+        ob_end_clean(); // Throw away the buffer content.
 
         // Check the right amount of messages were caught.
-        $emails = $sink->get_messages();
+        $emails = $this->sink->get_messages();
         $this->assertCount(2, $emails);
-        $sink->clear();
+        $this->sink->clear();
 
         // Check that they all had logs created.
         $this->assertEquals(5, $DB->count_records('prog_messagelog'));
+        $this->assertEquals(1, $DB->count_records('prog_messagelog',
+            array('userid' => $this->user4->id, 'messageid' => $enrolmentmessageid)));
+        $this->assertEquals(1, $DB->count_records('prog_messagelog',
+            array('userid' => $this->user5->id, 'messageid' => $enrolmentmessageid)));
 
-        $usersprogram2 = array($this->user3->id, $this->user4->id, $this->user5->id, $this->user6->id, $this->user7->id);
-        $this->program_generator->assign_program($this->program2->id, $usersprogram2);
-
-        sleep(1);
+        // Remove users from the program.
+        $usersprogram1 = array();
+        $this->program_generator->assign_program($this->program1->id, $usersprogram1);
 
         // Attempt to send any program messages.
+        sleep(1); // Messages are only sent if they were created before "now", so we need to wait one second.
+        ob_start(); // Start a buffer to catch all the mtraces in the task.
         $task = new \totara_program\task\send_messages_task();
         $task->execute();
+        ob_end_clean(); // Throw away the buffer content.
 
         // Check the right amount of messages were caught.
-        $emails = $sink->get_messages();
+        $emails = $this->sink->get_messages();
         $this->assertCount(5, $emails);
-        $sink->clear();
+        $this->sink->clear();
 
         // Check that they all had logs created.
-        $this->assertEquals(10, $DB->count_records('prog_messagelog'));
+        $this->assertEquals(5, $DB->count_records('prog_messagelog')); // 5 enrolment messages were deleted.
+        $this->assertEquals(1, $DB->count_records('prog_messagelog',
+            array('userid' => $this->user1->id, 'messageid' => $unenrolmentmessageid)));
+        $this->assertEquals(1, $DB->count_records('prog_messagelog',
+            array('userid' => $this->user2->id, 'messageid' => $unenrolmentmessageid)));
+        $this->assertEquals(1, $DB->count_records('prog_messagelog',
+            array('userid' => $this->user3->id, 'messageid' => $unenrolmentmessageid)));
+        $this->assertEquals(1, $DB->count_records('prog_messagelog',
+            array('userid' => $this->user4->id, 'messageid' => $unenrolmentmessageid)));
+        $this->assertEquals(1, $DB->count_records('prog_messagelog',
+            array('userid' => $this->user5->id, 'messageid' => $unenrolmentmessageid)));
 
+        // Assign users to program1 (second assignment).
+        $usersprogram1 = array($this->user1->id, $this->user2->id, $this->user3->id, $this->user4->id);
+        $this->program_generator->assign_program($this->program1->id, $usersprogram1);
+
+        // Attempt to send any program messages.
+        sleep(1); // Messages are only sent if they were created before "now", so we need to wait one second.
+        ob_start(); // Start a buffer to catch all the mtraces in the task.
+        $task = new \totara_program\task\send_messages_task();
+        $task->execute();
         ob_end_clean(); // Throw away the buffer content.
+
+        // Check the right amount of messages were caught.
+        $emails = $this->sink->get_messages();
+        $this->assertCount(4, $emails);
+        $this->sink->clear();
+
+        // Check that they all had logs created.
+        $this->assertEquals(5, $DB->count_records('prog_messagelog')); // 4 unenrolment messages were deleted.
+        $this->assertEquals(1, $DB->count_records('prog_messagelog',
+            array('userid' => $this->user1->id, 'messageid' => $enrolmentmessageid)));
+        $this->assertEquals(1, $DB->count_records('prog_messagelog',
+            array('userid' => $this->user2->id, 'messageid' => $enrolmentmessageid)));
+        $this->assertEquals(1, $DB->count_records('prog_messagelog',
+            array('userid' => $this->user3->id, 'messageid' => $enrolmentmessageid)));
+        $this->assertEquals(1, $DB->count_records('prog_messagelog',
+            array('userid' => $this->user4->id, 'messageid' => $enrolmentmessageid)));
+        $this->assertEquals(1, $DB->count_records('prog_messagelog',
+            array('userid' => $this->user5->id, 'messageid' => $unenrolmentmessageid)));
+
+        // Remove users from the program (second unassignment).
+        $usersprogram1 = array($this->user1->id);
+        $this->program_generator->assign_program($this->program1->id, $usersprogram1);
+
+        // Attempt to send any program messages.
+        sleep(1); // Messages are only sent if they were created before "now", so we need to wait one second.
+        ob_start(); // Start a buffer to catch all the mtraces in the task.
+        $task = new \totara_program\task\send_messages_task();
+        $task->execute();
+        ob_end_clean(); // Throw away the buffer content.
+
+        // Check the right amount of messages were caught.
+        $emails = $this->sink->get_messages();
+        $this->assertCount(3, $emails);
+        $this->sink->clear();
+
+        // Check that they all had logs created.
+        $this->assertEquals(5, $DB->count_records('prog_messagelog')); // 3 enrolment messages were deleted.
+        $this->assertEquals(1, $DB->count_records('prog_messagelog',
+            array('userid' => $this->user1->id, 'messageid' => $enrolmentmessageid)));
+        $this->assertEquals(1, $DB->count_records('prog_messagelog',
+            array('userid' => $this->user2->id, 'messageid' => $unenrolmentmessageid)));
+        $this->assertEquals(1, $DB->count_records('prog_messagelog',
+            array('userid' => $this->user3->id, 'messageid' => $unenrolmentmessageid)));
+        $this->assertEquals(1, $DB->count_records('prog_messagelog',
+            array('userid' => $this->user4->id, 'messageid' => $unenrolmentmessageid)));
+        $this->assertEquals(1, $DB->count_records('prog_messagelog',
+            array('userid' => $this->user5->id, 'messageid' => $unenrolmentmessageid)));
+    }
+
+    /**
+     * Make sure that program completed messages are sent when a user completes the content.
+     *
+     * Also checks that messages are sent when user is assigned, if the user completed the content before assignment.
+     */
+    public function test_program_completed_messages() {
+        global $DB;
+
+        // Set up the messages.
+        $programmessagemanager = $this->program1->get_messagesmanager();
+        $programmessagemanager->delete();
+        $programmessagemanager->add_message(MESSAGETYPE_PROGRAM_COMPLETED);
+        $programmessagemanager->save_messages();
+        prog_messages_manager::get_program_messages_manager($this->program1->id, true); // Causes static cache to be reset.
+        $messageid = $DB->get_field('prog_message', 'id',
+            array('programid' => $this->program1->id, 'messagetype' => MESSAGETYPE_PROGRAM_COMPLETED));
+
+        // Create two courses.
+        $course1 = $this->getDataGenerator()->create_course();
+        $course2 = $this->getDataGenerator()->create_course();
+
+        // Assign courses to program.
+        $coursesetdata = array(
+            array(
+                'type' => CONTENTTYPE_MULTICOURSE,
+                'nextsetoperator' => NEXTSETOPERATOR_THEN,
+                'completiontype' => COMPLETIONTYPE_ALL,
+                'certifpath' => CERTIFPATH_CERT,
+                'courses' => array($course1)
+            ),
+            array(
+                'type' => CONTENTTYPE_MULTICOURSE,
+                'nextsetoperator' => NEXTSETOPERATOR_THEN,
+                'completiontype' => COMPLETIONTYPE_ALL,
+                'certifpath' => CERTIFPATH_CERT,
+                'courses' => array($course2)
+            ),
+        );
+        $this->getDataGenerator()->create_coursesets_in_program($this->program1, $coursesetdata);
+
+        // Assign users to courses.
+        $this->getDataGenerator()->enrol_user($this->user2->id, $course1->id);
+        $this->getDataGenerator()->enrol_user($this->user2->id, $course2->id);
+        $this->getDataGenerator()->enrol_user($this->user3->id, $course1->id);
+        $this->getDataGenerator()->enrol_user($this->user4->id, $course2->id);
+
+        // Complete courses.
+        $completion = new completion_completion(array('userid' => $this->user2->id, 'course' => $course1->id));
+        $completion->mark_complete();
+        $completion = new completion_completion(array('userid' => $this->user2->id, 'course' => $course2->id));
+        $completion->mark_complete();
+        $completion = new completion_completion(array('userid' => $this->user3->id, 'course' => $course1->id));
+        $completion->mark_complete(); // User3 has only completed one course, so hasn't completed the program.
+        $completion = new completion_completion(array('userid' => $this->user4->id, 'course' => $course2->id));
+        $completion->mark_complete(); // User4 has only completed THE SECOND course, so hasn't completed the program.
+
+        // Assign users to program.
+        $usersprogram = array($this->user1->id, $this->user2->id, $this->user3->id, $this->user4->id);
+        $this->program_generator->assign_program($this->program1->id, $usersprogram);
+
+        // Check the right amount of messages were caught.
+        $emails = $this->sink->get_messages();
+        $this->assertCount(1, $emails);
+        $this->sink->clear();
+
+        // Check that they all had logs created.
+        $this->assertEquals(1, $DB->count_records('prog_messagelog'));
+        $this->assertEquals(1, $DB->count_records('prog_messagelog',
+            array('userid' => $this->user2->id, 'messageid' => $messageid)));
+
+        // Complete the program for the other two users.
+        $completion = new completion_completion(array('userid' => $this->user1->id, 'course' => $course1->id));
+        $completion->mark_complete();
+        $completion = new completion_completion(array('userid' => $this->user1->id, 'course' => $course2->id));
+        $completion->mark_complete();
+        $completion = new completion_completion(array('userid' => $this->user3->id, 'course' => $course2->id));
+        $completion->mark_complete();
+        $completion = new completion_completion(array('userid' => $this->user4->id, 'course' => $course1->id));
+        $completion->mark_complete();
+
+        // Check the right amount of messages were caught.
+        $emails = $this->sink->get_messages();
+        $this->assertCount(3, $emails);
+        $this->sink->clear();
+
+        // Check that they all had logs created.
+        $this->assertEquals(4, $DB->count_records('prog_messagelog'));
+        $this->assertEquals(1, $DB->count_records('prog_messagelog',
+            array('userid' => $this->user1->id, 'messageid' => $messageid)));
+        $this->assertEquals(1, $DB->count_records('prog_messagelog',
+            array('userid' => $this->user2->id, 'messageid' => $messageid)));
+        $this->assertEquals(1, $DB->count_records('prog_messagelog',
+            array('userid' => $this->user3->id, 'messageid' => $messageid)));
+        $this->assertEquals(1, $DB->count_records('prog_messagelog',
+            array('userid' => $this->user4->id, 'messageid' => $messageid)));
+    }
+
+    /**
+     * Make sure that program due messages are sent when a user's due date is nearly reached.
+     */
+    public function test_program_due_messages() {
+        global $DB;
+
+        // Set up the messages.
+        $programmessagemanager = $this->program1->get_messagesmanager();
+        $programmessagemanager->delete();
+        $programmessagemanager->add_message(MESSAGETYPE_PROGRAM_DUE);
+        $programmessagemanager->save_messages();
+        prog_messages_manager::get_program_messages_manager($this->program1->id, true); // Causes static cache to be reset.
+        $messageid = $DB->get_field('prog_message', 'id',
+            array('programid' => $this->program1->id, 'messagetype' => MESSAGETYPE_PROGRAM_DUE));
+        // Hack the message record to be triggered 100 days before due.
+        $DB->set_field('prog_message', 'triggertime', DAYSECS * 100, array('id' => $messageid));
+
+        // Create two courses.
+        $course1 = $this->getDataGenerator()->create_course();
+        $course2 = $this->getDataGenerator()->create_course();
+
+        // Assign courses to program.
+        $coursesetdata = array(
+            array(
+                'type' => CONTENTTYPE_MULTICOURSE,
+                'nextsetoperator' => NEXTSETOPERATOR_THEN,
+                'completiontype' => COMPLETIONTYPE_ALL,
+                'certifpath' => CERTIFPATH_CERT,
+                'courses' => array($course1)
+            ),
+            array(
+                'type' => CONTENTTYPE_MULTICOURSE,
+                'nextsetoperator' => NEXTSETOPERATOR_THEN,
+                'completiontype' => COMPLETIONTYPE_ALL,
+                'certifpath' => CERTIFPATH_CERT,
+                'courses' => array($course2)
+            ),
+        );
+        $this->getDataGenerator()->create_coursesets_in_program($this->program1, $coursesetdata);
+
+        // Assign users to program.
+        $usersprogram = array($this->user1->id, $this->user2->id, $this->user3->id, $this->user4->id, $this->user5->id);
+        $this->program_generator->assign_program($this->program1->id, $usersprogram);
+
+        // Hack the due dates, 10 days from now.
+        $duedate = time() + DAYSECS * 10;
+        $progcompl1 = prog_load_completion($this->program1->id, $this->user1->id);
+        $progcompl1->timedue = $duedate;
+        prog_write_completion($progcompl1);
+        $progcompl2 = prog_load_completion($this->program1->id, $this->user2->id);
+        $progcompl2->timedue = $duedate;
+        prog_write_completion($progcompl2);
+        $progcompl3 = prog_load_completion($this->program1->id, $this->user3->id);
+        $progcompl3->timedue = $duedate;
+        prog_write_completion($progcompl3);
+        $progcompl4 = prog_load_completion($this->program1->id, $this->user4->id);
+        $progcompl4->timedue = time() - DAYSECS * 10; // Overdue (but should still send due).
+        prog_write_completion($progcompl4);
+        $progcompl5 = prog_load_completion($this->program1->id, $this->user5->id);
+        $progcompl5->timedue = time() + DAYSECS * 200; // Not yet due (so no message sent).
+        prog_write_completion($progcompl5);
+
+        // Assign users and complete some courses. 0 for user1, 1 for user2, 2 for user3.
+        $this->getDataGenerator()->enrol_user($this->user2->id, $course1->id);
+        $completion = new completion_completion(array('userid' => $this->user2->id, 'course' => $course1->id));
+        $completion->mark_complete();
+        $this->getDataGenerator()->enrol_user($this->user3->id, $course1->id);
+        $completion = new completion_completion(array('userid' => $this->user3->id, 'course' => $course1->id));
+        $completion->mark_complete();
+        $this->getDataGenerator()->enrol_user($this->user3->id, $course2->id);
+        $completion = new completion_completion(array('userid' => $this->user3->id, 'course' => $course2->id));
+        $completion->mark_complete();
+
+        // Attempt to send any program messages.
+        sleep(1); // Messages are only sent if they were created before "now", so we need to wait one second.
+        ob_start(); // Start a buffer to catch all the mtraces in the task.
+        $task = new \totara_program\task\send_messages_task();
+        $task->execute();
+        ob_end_clean(); // Throw away the buffer content.
+
+        // Check the right amount of messages were caught.
+        $emails = $this->sink->get_messages();
+        $this->assertCount(3, $emails);
+        $this->sink->clear();
+
+        // Check that they all had logs created.
+        $this->assertEquals(3, $DB->count_records('prog_messagelog'));
+        $this->assertEquals(1, $DB->count_records('prog_messagelog',
+            array('userid' => $this->user1->id, 'messageid' => $messageid)));
+        $this->assertEquals(1, $DB->count_records('prog_messagelog',
+            array('userid' => $this->user2->id, 'messageid' => $messageid)));
+        $this->assertEquals(1, $DB->count_records('prog_messagelog',
+            array('userid' => $this->user4->id, 'messageid' => $messageid)));
+
+        // Complete the program for one more user.
+        $completion = new completion_completion(array('userid' => $this->user1->id, 'course' => $course1->id));
+        $completion->mark_complete();
+        $completion = new completion_completion(array('userid' => $this->user1->id, 'course' => $course2->id));
+        $completion->mark_complete();
+
+        // Attempt to send any program messages.
+        sleep(1); // Messages are only sent if they were created before "now", so we need to wait one second.
+        ob_start(); // Start a buffer to catch all the mtraces in the task.
+        $task = new \totara_program\task\send_messages_task();
+        $task->execute();
+        ob_end_clean(); // Throw away the buffer content.
+
+        // Check the right amount of messages were caught.
+        $emails = $this->sink->get_messages();
+        $this->assertCount(0, $emails);
+        $this->sink->clear();
+    }
+
+    /**
+     * Make sure that program overdue messages are sent when a user's due date has been passed.
+     */
+    public function test_program_overdue_messages() {
+        global $DB;
+
+        // Set up the messages.
+        $programmessagemanager = $this->program1->get_messagesmanager();
+        $programmessagemanager->delete();
+        $programmessagemanager->add_message(MESSAGETYPE_PROGRAM_OVERDUE);
+        $programmessagemanager->save_messages();
+        prog_messages_manager::get_program_messages_manager($this->program1->id, true); // Causes static cache to be reset.
+        $messageid = $DB->get_field('prog_message', 'id',
+            array('programid' => $this->program1->id, 'messagetype' => MESSAGETYPE_PROGRAM_OVERDUE));
+        // Hack the message record to be triggered 10 days after overdue.
+        $DB->set_field('prog_message', 'triggertime', DAYSECS * 10, array('id' => $messageid));
+
+        // Create two courses.
+        $course1 = $this->getDataGenerator()->create_course();
+        $course2 = $this->getDataGenerator()->create_course();
+
+        // Assign courses to program.
+        $coursesetdata = array(
+            array(
+                'type' => CONTENTTYPE_MULTICOURSE,
+                'nextsetoperator' => NEXTSETOPERATOR_THEN,
+                'completiontype' => COMPLETIONTYPE_ALL,
+                'certifpath' => CERTIFPATH_CERT,
+                'courses' => array($course1)
+            ),
+            array(
+                'type' => CONTENTTYPE_MULTICOURSE,
+                'nextsetoperator' => NEXTSETOPERATOR_THEN,
+                'completiontype' => COMPLETIONTYPE_ALL,
+                'certifpath' => CERTIFPATH_CERT,
+                'courses' => array($course2)
+            ),
+        );
+        $this->getDataGenerator()->create_coursesets_in_program($this->program1, $coursesetdata);
+
+        // Assign users to program.
+        $usersprogram = array($this->user1->id, $this->user2->id, $this->user3->id, $this->user4->id, $this->user5->id);
+        $this->program_generator->assign_program($this->program1->id, $usersprogram);
+
+        // Hack the due dates, 20 days ago.
+        $duedate = time() - DAYSECS * 20;
+        $progcompl1 = prog_load_completion($this->program1->id, $this->user1->id);
+        $progcompl1->timedue = $duedate;
+        prog_write_completion($progcompl1);
+        $progcompl2 = prog_load_completion($this->program1->id, $this->user2->id);
+        $progcompl2->timedue = $duedate;
+        prog_write_completion($progcompl2);
+        $progcompl3 = prog_load_completion($this->program1->id, $this->user3->id);
+        $progcompl3->timedue = $duedate;
+        prog_write_completion($progcompl3);
+        $progcompl4 = prog_load_completion($this->program1->id, $this->user4->id);
+        $progcompl4->timedue = time() - DAYSECS * 5; // Overdue but not yet due to be sent.
+        prog_write_completion($progcompl4);
+        $progcompl5 = prog_load_completion($this->program1->id, $this->user5->id);
+        $progcompl5->timedue = time() + DAYSECS * 20; // Not yet due (so no message sent).
+        prog_write_completion($progcompl5);
+
+        // Assign users and complete some courses. 0 for user1, 1 for user2, 2 for user3.
+        $this->getDataGenerator()->enrol_user($this->user2->id, $course1->id);
+        $completion = new completion_completion(array('userid' => $this->user2->id, 'course' => $course1->id));
+        $completion->mark_complete();
+        $this->getDataGenerator()->enrol_user($this->user3->id, $course1->id);
+        $completion = new completion_completion(array('userid' => $this->user3->id, 'course' => $course1->id));
+        $completion->mark_complete();
+        $this->getDataGenerator()->enrol_user($this->user3->id, $course2->id);
+        $completion = new completion_completion(array('userid' => $this->user3->id, 'course' => $course2->id));
+        $completion->mark_complete();
+
+        // Attempt to send any program messages.
+        sleep(1); // Messages are only sent if they were created before "now", so we need to wait one second.
+        ob_start(); // Start a buffer to catch all the mtraces in the task.
+        $task = new \totara_program\task\send_messages_task();
+        $task->execute();
+        ob_end_clean(); // Throw away the buffer content.
+
+        // Check the right amount of messages were caught.
+        $emails = $this->sink->get_messages();
+        $this->assertCount(2, $emails);
+        $this->sink->clear();
+
+        // Check that they all had logs created.
+        $this->assertEquals(2, $DB->count_records('prog_messagelog'));
+        $this->assertEquals(1, $DB->count_records('prog_messagelog',
+            array('userid' => $this->user1->id, 'messageid' => $messageid)));
+        $this->assertEquals(1, $DB->count_records('prog_messagelog',
+            array('userid' => $this->user2->id, 'messageid' => $messageid)));
+
+        // Complete the program for one more user.
+        $completion = new completion_completion(array('userid' => $this->user1->id, 'course' => $course1->id));
+        $completion->mark_complete();
+        $completion = new completion_completion(array('userid' => $this->user1->id, 'course' => $course2->id));
+        $completion->mark_complete();
+
+        // Attempt to send any program messages.
+        sleep(1); // Messages are only sent if they were created before "now", so we need to wait one second.
+        ob_start(); // Start a buffer to catch all the mtraces in the task.
+        $task = new \totara_program\task\send_messages_task();
+        $task->execute();
+        ob_end_clean(); // Throw away the buffer content.
+
+        // Check the right amount of messages were caught.
+        $emails = $this->sink->get_messages();
+        $this->assertCount(0, $emails);
+        $this->sink->clear();
+    }
+
+    /**
+     * Make sure that courseset completed messages are sent when a user completes the content.
+     *
+     * Also checks that messages are sent when user is assigned, if the user completed the content before assignment.
+     * Also checks that multiple messages are triggered for multiple course sets within a program.
+     */
+    public function test_courseset_completed_messages() {
+        global $DB;
+
+        // Set up the messages.
+        $programmessagemanager = $this->program1->get_messagesmanager();
+        $programmessagemanager->delete();
+        $programmessagemanager->add_message(MESSAGETYPE_COURSESET_COMPLETED);
+        $programmessagemanager->save_messages();
+        prog_messages_manager::get_program_messages_manager($this->program1->id, true); // Causes static cache to be reset.
+        $messageid = $DB->get_field('prog_message', 'id',
+            array('programid' => $this->program1->id, 'messagetype' => MESSAGETYPE_COURSESET_COMPLETED));
+
+        // Create two courses.
+        $course1 = $this->getDataGenerator()->create_course();
+        $course2 = $this->getDataGenerator()->create_course();
+
+        // Assign courses to program.
+        $coursesetdata = array(
+            array(
+                'type' => CONTENTTYPE_MULTICOURSE,
+                'nextsetoperator' => NEXTSETOPERATOR_THEN,
+                'completiontype' => COMPLETIONTYPE_ALL,
+                'certifpath' => CERTIFPATH_CERT,
+                'courses' => array($course1)
+            ),
+            array(
+                'type' => CONTENTTYPE_MULTICOURSE,
+                'nextsetoperator' => NEXTSETOPERATOR_THEN,
+                'completiontype' => COMPLETIONTYPE_ALL,
+                'certifpath' => CERTIFPATH_CERT,
+                'courses' => array($course2)
+            ),
+        );
+        $this->getDataGenerator()->create_coursesets_in_program($this->program1, $coursesetdata);
+
+        // Assign user2 to courses.
+        $this->getDataGenerator()->enrol_user($this->user2->id, $course1->id);
+        $this->getDataGenerator()->enrol_user($this->user2->id, $course2->id);
+        $this->getDataGenerator()->enrol_user($this->user3->id, $course1->id);
+        $this->getDataGenerator()->enrol_user($this->user4->id, $course2->id);
+
+        // Complete courses.
+        $completion = new completion_completion(array('userid' => $this->user2->id, 'course' => $course1->id));
+        $completion->mark_complete();
+        $completion = new completion_completion(array('userid' => $this->user2->id, 'course' => $course2->id));
+        $completion->mark_complete();
+        $completion = new completion_completion(array('userid' => $this->user3->id, 'course' => $course1->id));
+        $completion->mark_complete(); // User3 has completed one course set.
+        $completion = new completion_completion(array('userid' => $this->user4->id, 'course' => $course2->id));
+        $completion->mark_complete(); // User4 has completed THE SECOND course set.
+
+        // Assign users to program.
+        $usersprogram = array($this->user1->id, $this->user2->id, $this->user3->id, $this->user4->id);
+        $this->program_generator->assign_program($this->program1->id, $usersprogram);
+
+        // Check the right amount of messages were caught.
+        $emails = $this->sink->get_messages();
+        $this->assertCount(3, $emails);
+        $this->sink->clear();
+
+        // Check that they all had logs created.
+        $this->assertEquals(3, $DB->count_records('prog_messagelog'));
+        $this->assertEquals(2, $DB->count_records('prog_messagelog',
+            array('userid' => $this->user2->id, 'messageid' => $messageid)));
+        $this->assertEquals(1, $DB->count_records('prog_messagelog',
+            array('userid' => $this->user3->id, 'messageid' => $messageid)));
+
+        // Complete the program for some more users.
+        $completion = new completion_completion(array('userid' => $this->user1->id, 'course' => $course1->id));
+        $completion->mark_complete();
+        $completion = new completion_completion(array('userid' => $this->user1->id, 'course' => $course2->id));
+        $completion->mark_complete();
+        $completion = new completion_completion(array('userid' => $this->user3->id, 'course' => $course2->id));
+        $completion->mark_complete();
+        $completion = new completion_completion(array('userid' => $this->user4->id, 'course' => $course1->id));
+        $completion->mark_complete(); // Triggers two messages.
+
+        // Check the right amount of messages were caught.
+        $emails = $this->sink->get_messages();
+        $this->assertCount(5, $emails);
+        $this->sink->clear();
+
+        // Check that they all had logs created.
+        $this->assertEquals(8, $DB->count_records('prog_messagelog'));
+        $this->assertEquals(2, $DB->count_records('prog_messagelog',
+            array('userid' => $this->user1->id, 'messageid' => $messageid)));
+        $this->assertEquals(2, $DB->count_records('prog_messagelog',
+            array('userid' => $this->user2->id, 'messageid' => $messageid)));
+        $this->assertEquals(2, $DB->count_records('prog_messagelog',
+            array('userid' => $this->user3->id, 'messageid' => $messageid)));
+        $this->assertEquals(2, $DB->count_records('prog_messagelog',
+            array('userid' => $this->user4->id, 'messageid' => $messageid)));
+    }
+
+    /**
+     * Make sure that courseset due messages are sent when a user's due date is nearly reached.
+     */
+    public function test_courseset_due_messages() {
+        global $DB;
+
+        // Set up the messages.
+        $programmessagemanager = $this->program1->get_messagesmanager();
+        $programmessagemanager->delete();
+        $programmessagemanager->add_message(MESSAGETYPE_COURSESET_DUE);
+        $programmessagemanager->save_messages();
+        prog_messages_manager::get_program_messages_manager($this->program1->id, true); // Causes static cache to be reset.
+        $messageid = $DB->get_field('prog_message', 'id',
+            array('programid' => $this->program1->id, 'messagetype' => MESSAGETYPE_COURSESET_DUE));
+        // Hack the message record to be triggered 100 days before due.
+        $DB->set_field('prog_message', 'triggertime', DAYSECS * 100, array('id' => $messageid));
+
+        // Create two courses.
+        $course1 = $this->getDataGenerator()->create_course();
+        $course2 = $this->getDataGenerator()->create_course();
+
+        // Assign courses to program.
+        $coursesetdata = array(
+            array(
+                'type' => CONTENTTYPE_MULTICOURSE,
+                'nextsetoperator' => NEXTSETOPERATOR_THEN,
+                'completiontype' => COMPLETIONTYPE_ALL,
+                'certifpath' => CERTIFPATH_CERT,
+                'timeallowed' => DAYSECS * 3,
+                'courses' => array($course1)
+            ),
+            array(
+                'type' => CONTENTTYPE_MULTICOURSE,
+                'nextsetoperator' => NEXTSETOPERATOR_THEN,
+                'completiontype' => COMPLETIONTYPE_ALL,
+                'certifpath' => CERTIFPATH_CERT,
+                'timeallowed' => DAYSECS * 3,
+                'courses' => array($course2)
+            ),
+        );
+        $this->getDataGenerator()->create_coursesets_in_program($this->program1, $coursesetdata);
+
+        // Assign users to program.
+        $usersprogram = array($this->user1->id, $this->user2->id, $this->user3->id, $this->user4->id, $this->user5->id);
+        $this->program_generator->assign_program($this->program1->id, $usersprogram);
+
+        // Hack the due dates, 10 days from now.
+        $duedate = time() + DAYSECS * 10;
+        $DB->set_field('prog_completion', 'timedue', $duedate,
+            array('programid' => $this->program1->id, 'userid' => $this->user1->id));
+        $DB->set_field('prog_completion', 'timedue', $duedate,
+            array('programid' => $this->program1->id, 'userid' => $this->user2->id));
+        $DB->set_field('prog_completion', 'timedue', $duedate,
+            array('programid' => $this->program1->id, 'userid' => $this->user3->id));
+        $DB->set_field('prog_completion', 'timedue', time() - DAYSECS * 10, // Overdue (but should still send due).
+            array('programid' => $this->program1->id, 'userid' => $this->user4->id));
+        $DB->set_field('prog_completion', 'timedue', time() + DAYSECS * 200, // Not yet due (so no message sent).
+            array('programid' => $this->program1->id, 'userid' => $this->user5->id));
+
+        // Assign users and complete some courses. 0 for user1, 1 for user2, 2 for user3.
+        $this->getDataGenerator()->enrol_user($this->user2->id, $course1->id);
+        $completion = new completion_completion(array('userid' => $this->user2->id, 'course' => $course1->id));
+        $completion->mark_complete();
+        $this->getDataGenerator()->enrol_user($this->user3->id, $course1->id);
+        $completion = new completion_completion(array('userid' => $this->user3->id, 'course' => $course1->id));
+        $completion->mark_complete();
+        $this->getDataGenerator()->enrol_user($this->user3->id, $course2->id);
+        $completion = new completion_completion(array('userid' => $this->user3->id, 'course' => $course2->id));
+        $completion->mark_complete();
+
+        // Attempt to send any program messages.
+        sleep(1); // Messages are only sent if they were created before "now", so we need to wait one second.
+        ob_start(); // Start a buffer to catch all the mtraces in the task.
+        $task = new \totara_program\task\send_messages_task();
+        $task->execute();
+        ob_end_clean(); // Throw away the buffer content.
+
+        // Check the right amount of messages were caught.
+        $emails = $this->sink->get_messages();
+        $this->assertCount(3, $emails);
+        $this->sink->clear();
+
+        // Check that they all had logs created.
+        $this->assertEquals(3, $DB->count_records('prog_messagelog'));
+        $this->assertEquals(1, $DB->count_records('prog_messagelog',
+            array('userid' => $this->user1->id, 'messageid' => $messageid)));
+        $this->assertEquals(1, $DB->count_records('prog_messagelog',
+            array('userid' => $this->user2->id, 'messageid' => $messageid)));
+        $this->assertEquals(1, $DB->count_records('prog_messagelog',
+            array('userid' => $this->user4->id, 'messageid' => $messageid)));
+
+        // Complete the program for one more user.
+        $completion = new completion_completion(array('userid' => $this->user1->id, 'course' => $course1->id));
+        $completion->mark_complete();
+        $completion = new completion_completion(array('userid' => $this->user1->id, 'course' => $course2->id));
+        $completion->mark_complete();
+
+        // Attempt to send any program messages.
+        sleep(1); // Messages are only sent if they were created before "now", so we need to wait one second.
+        ob_start(); // Start a buffer to catch all the mtraces in the task.
+        $task = new \totara_program\task\send_messages_task();
+        $task->execute();
+        ob_end_clean(); // Throw away the buffer content.
+
+        // Check the right amount of messages were caught.
+        $emails = $this->sink->get_messages();
+        $this->assertCount(0, $emails);
+        $this->sink->clear();
+    }
+
+    /**
+     * Make sure that courseset overdue messages are sent when a user's due date is nearly reached.
+     */
+    public function test_courseset_overdue_messages() {
+        global $DB;
+
+        // Set up the messages.
+        $programmessagemanager = $this->program1->get_messagesmanager();
+        $programmessagemanager->delete();
+        $programmessagemanager->add_message(MESSAGETYPE_COURSESET_OVERDUE);
+        $programmessagemanager->save_messages();
+        prog_messages_manager::get_program_messages_manager($this->program1->id, true); // Causes static cache to be reset.
+        $messageid = $DB->get_field('prog_message', 'id',
+            array('programid' => $this->program1->id, 'messagetype' => MESSAGETYPE_COURSESET_OVERDUE));
+        // Hack the message record to be triggered 10 days after overdue.
+        $DB->set_field('prog_message', 'triggertime', DAYSECS * 10, array('id' => $messageid));
+
+        // Create two courses.
+        $course1 = $this->getDataGenerator()->create_course();
+        $course2 = $this->getDataGenerator()->create_course();
+
+        // Assign courses to program.
+        $coursesetdata = array(
+            array(
+                'type' => CONTENTTYPE_MULTICOURSE,
+                'nextsetoperator' => NEXTSETOPERATOR_THEN,
+                'completiontype' => COMPLETIONTYPE_ALL,
+                'certifpath' => CERTIFPATH_CERT,
+                'timeallowed' => DAYSECS * 3,
+                'courses' => array($course1)
+            ),
+            array(
+                'type' => CONTENTTYPE_MULTICOURSE,
+                'nextsetoperator' => NEXTSETOPERATOR_THEN,
+                'completiontype' => COMPLETIONTYPE_ALL,
+                'certifpath' => CERTIFPATH_CERT,
+                'timeallowed' => DAYSECS * 3,
+                'courses' => array($course2)
+            ),
+        );
+        $this->getDataGenerator()->create_coursesets_in_program($this->program1, $coursesetdata);
+
+        // Assign users to program.
+        $usersprogram = array($this->user1->id, $this->user2->id, $this->user3->id, $this->user4->id, $this->user5->id);
+        $this->program_generator->assign_program($this->program1->id, $usersprogram);
+
+        // Assign users and complete some courses. 0 for user1, 1 for user2, 2 for user3.
+        $this->getDataGenerator()->enrol_user($this->user2->id, $course1->id);
+        $completion = new completion_completion(array('userid' => $this->user2->id, 'course' => $course1->id));
+        $completion->mark_complete();
+        $this->getDataGenerator()->enrol_user($this->user3->id, $course1->id);
+        $completion = new completion_completion(array('userid' => $this->user3->id, 'course' => $course1->id));
+        $completion->mark_complete();
+        $this->getDataGenerator()->enrol_user($this->user3->id, $course2->id);
+        $completion = new completion_completion(array('userid' => $this->user3->id, 'course' => $course2->id));
+        $completion->mark_complete();
+
+        // Hack the due dates, 30 days ago.
+        $duedate = time() - DAYSECS * 30;
+        $DB->set_field('prog_completion', 'timedue', $duedate,
+            array('programid' => $this->program1->id, 'userid' => $this->user1->id));
+        $DB->set_field('prog_completion', 'timedue', $duedate,
+            array('programid' => $this->program1->id, 'userid' => $this->user2->id));
+        $DB->set_field('prog_completion', 'timedue', $duedate,
+            array('programid' => $this->program1->id, 'userid' => $this->user3->id));
+        $DB->set_field('prog_completion', 'timedue', time() - DAYSECS * 5, // Overdue but not yet due to be sent.
+            array('programid' => $this->program1->id, 'userid' => $this->user4->id));
+        $DB->set_field('prog_completion', 'timedue', time() + DAYSECS * 20, // Not yet due (so no message sent).
+            array('programid' => $this->program1->id, 'userid' => $this->user5->id));
+
+        // Attempt to send any program messages.
+        sleep(1); // Messages are only sent if they were created before "now", so we need to wait one second.
+        ob_start(); // Start a buffer to catch all the mtraces in the task.
+        $task = new \totara_program\task\send_messages_task();
+        $task->execute();
+        ob_end_clean(); // Throw away the buffer content.
+
+        // Check the right amount of messages were caught.
+        $emails = $this->sink->get_messages();
+        $this->assertCount(2, $emails);
+        $this->sink->clear();
+
+        // Check that they all had logs created.
+        $this->assertEquals(2, $DB->count_records('prog_messagelog'));
+        $this->assertEquals(1, $DB->count_records('prog_messagelog',
+            array('userid' => $this->user1->id, 'messageid' => $messageid)));
+        $this->assertEquals(1, $DB->count_records('prog_messagelog',
+            array('userid' => $this->user2->id, 'messageid' => $messageid)));
+
+        // Complete the program for one more user.
+        $completion = new completion_completion(array('userid' => $this->user1->id, 'course' => $course1->id));
+        $completion->mark_complete();
+        $completion = new completion_completion(array('userid' => $this->user1->id, 'course' => $course2->id));
+        $completion->mark_complete();
+
+        // Attempt to send any program messages.
+        sleep(1); // Messages are only sent if they were created before "now", so we need to wait one second.
+        ob_start(); // Start a buffer to catch all the mtraces in the task.
+        $task = new \totara_program\task\send_messages_task();
+        $task->execute();
+        ob_end_clean(); // Throw away the buffer content.
+
+        // Check the right amount of messages were caught.
+        $emails = $this->sink->get_messages();
+        $this->assertCount(0, $emails);
+        $this->sink->clear();
+    }
+
+    /**
+     * Make sure that program learner follow-up messages are sent after learner has completed the program and time has passed.
+     */
+    public function test_program_learner_followup() {
+        global $DB;
+
+        // Set up the messages.
+        $programmessagemanager = $this->program1->get_messagesmanager();
+        $programmessagemanager->delete();
+        $programmessagemanager->add_message(MESSAGETYPE_LEARNER_FOLLOWUP);
+        $programmessagemanager->save_messages();
+        prog_messages_manager::get_program_messages_manager($this->program1->id, true); // Causes static cache to be reset.
+        $messageid = $DB->get_field('prog_message', 'id',
+            array('programid' => $this->program1->id, 'messagetype' => MESSAGETYPE_LEARNER_FOLLOWUP));
+        // Hack the message record to be triggered 10 days after completion.
+        $DB->set_field('prog_message', 'triggertime', DAYSECS * 10, array('id' => $messageid));
+
+        // Create two courses.
+        $course1 = $this->getDataGenerator()->create_course();
+        $course2 = $this->getDataGenerator()->create_course();
+
+        // Assign courses to program.
+        $coursesetdata = array(
+            array(
+                'type' => CONTENTTYPE_MULTICOURSE,
+                'nextsetoperator' => NEXTSETOPERATOR_THEN,
+                'completiontype' => COMPLETIONTYPE_ALL,
+                'certifpath' => CERTIFPATH_CERT,
+                'courses' => array($course1)
+            ),
+            array(
+                'type' => CONTENTTYPE_MULTICOURSE,
+                'nextsetoperator' => NEXTSETOPERATOR_THEN,
+                'completiontype' => COMPLETIONTYPE_ALL,
+                'certifpath' => CERTIFPATH_CERT,
+                'courses' => array($course2)
+            ),
+        );
+        $this->getDataGenerator()->create_coursesets_in_program($this->program1, $coursesetdata);
+
+        // Assign users to program.
+        $usersprogram = array($this->user1->id, $this->user2->id, $this->user3->id, $this->user4->id, $this->user5->id);
+        $this->program_generator->assign_program($this->program1->id, $usersprogram);
+
+        // Assign users and complete some courses. 0 for user1, 1 for user2, 2 for user3.
+        $this->getDataGenerator()->enrol_user($this->user2->id, $course1->id);
+        $completion = new completion_completion(array('userid' => $this->user2->id, 'course' => $course1->id));
+        $completion->mark_complete();
+        $this->getDataGenerator()->enrol_user($this->user3->id, $course1->id);
+        $completion = new completion_completion(array('userid' => $this->user3->id, 'course' => $course1->id));
+        $completion->mark_complete();
+        $this->getDataGenerator()->enrol_user($this->user3->id, $course2->id);
+        $completion = new completion_completion(array('userid' => $this->user3->id, 'course' => $course2->id));
+        $completion->mark_complete();
+
+        // Attempt to send any program messages.
+        sleep(1); // Messages are only sent if they were created before "now", so we need to wait one second.
+        ob_start(); // Start a buffer to catch all the mtraces in the task.
+        $task = new \totara_program\task\send_messages_task();
+        $task->execute();
+        ob_end_clean(); // Throw away the buffer content.
+
+        // Check the right amount of messages were caught.
+        $emails = $this->sink->get_messages();
+        $this->assertCount(0, $emails);
+        $this->sink->clear();
+
+        // Check that there are no logs.
+        $this->assertEquals(0, $DB->count_records('prog_messagelog'));
+
+        // Hack the timecomplete, 30 days ago.
+        $timecompleted = time() - DAYSECS * 30;
+        $DB->set_field('prog_completion', 'timecompleted', $timecompleted,
+            array('programid' => $this->program1->id, 'userid' => $this->user3->id));
+
+        // Attempt to send any program messages.
+        sleep(1); // Messages are only sent if they were created before "now", so we need to wait one second.
+        ob_start(); // Start a buffer to catch all the mtraces in the task.
+        $task = new \totara_program\task\send_messages_task();
+        $task->execute();
+        ob_end_clean(); // Throw away the buffer content.
+
+        // Check the right amount of messages were caught.
+        $emails = $this->sink->get_messages();
+        $this->assertCount(1, $emails);
+        $this->sink->clear();
+
+        // Check that only user3 has a message log.
+        $this->assertEquals(1, $DB->count_records('prog_messagelog'));
+        $this->assertEquals(1, $DB->count_records('prog_messagelog',
+            array('userid' => $this->user3->id, 'messageid' => $messageid)));
+
+        // Complete the program for one more user.
+        $completion = new completion_completion(array('userid' => $this->user1->id, 'course' => $course1->id));
+        $completion->mark_complete();
+        $completion = new completion_completion(array('userid' => $this->user1->id, 'course' => $course2->id));
+        $completion->mark_complete();
+
+        // Hack the timecomplete, 30 days ago.
+        $timecompleted = time() - DAYSECS * 30;
+        $DB->set_field('prog_completion', 'timecompleted', $timecompleted,
+            array('programid' => $this->program1->id, 'userid' => $this->user1->id));
+
+        // Attempt to send any program messages.
+        sleep(1); // Messages are only sent if they were created before "now", so we need to wait one second.
+        ob_start(); // Start a buffer to catch all the mtraces in the task.
+        $task = new \totara_program\task\send_messages_task();
+        $task->execute();
+        ob_end_clean(); // Throw away the buffer content.
+
+        // Check the right amount of messages were caught.
+        $emails = $this->sink->get_messages();
+        $this->assertCount(1, $emails);
+        $this->sink->clear();
+
+        // Check that user1 and user3 have a message log.
+        $this->assertEquals(2, $DB->count_records('prog_messagelog'));
+        $this->assertEquals(1, $DB->count_records('prog_messagelog',
+            array('userid' => $this->user1->id, 'messageid' => $messageid)));
+        $this->assertEquals(1, $DB->count_records('prog_messagelog',
+            array('userid' => $this->user3->id, 'messageid' => $messageid)));
     }
 }

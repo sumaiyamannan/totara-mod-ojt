@@ -197,8 +197,11 @@ abstract class prog_message {
 
         // Get text to scan for placeholders.
         $messagedata = $this->studentmessagedata->subject . $this->studentmessagedata->fullmessage;
-        if (\totara_job\job_assignment::has_manager($recipient->id)) {
-            $messagedata .= $this->managermessagedata->subject . $this->managermessagedata->fullmessage;
+        if (!empty($this->managermessagedata->subject)) {
+            $messagedata .= $this->managermessagedata->subject;
+        }
+        if (!empty($this->managermessagedata->fullmessage)) {
+            $messagedata .= $this->managermessagedata->fullmessage;
         }
 
         // Placeholders available.

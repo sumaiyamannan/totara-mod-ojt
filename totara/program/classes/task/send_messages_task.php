@@ -483,7 +483,7 @@ class send_messages_task extends \core\task\scheduled_task {
         // Query to retrieve all users who need to be sent follow-up messages
         // based on their course completion dates and the trigger dates in any
         // follow-up messages that are defined by the program.
-        $sql = "SELECT u.id, pc.programid, pc.timecompleted, pm.id AS messageid, pm.triggertime
+        $sql = "SELECT u.*, pc.programid, pc.timecompleted, pm.id AS messageid, pm.triggertime
                   FROM {user} u
             INNER JOIN {prog_completion} pc
                     ON u.id = pc.userid

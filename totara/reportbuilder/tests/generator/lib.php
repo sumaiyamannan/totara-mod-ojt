@@ -327,6 +327,7 @@ class totara_reportbuilder_cache_generator extends testing_data_generator {
      *   - completiontype The type, one of COMPLETIONTYPE_ALL, COMPLETIONTYPE_SOME, COMPLETIONTYPE_OPTIONAL
      *   - certifpath The certification path for this set, one of CERTIFPATH_STD, CERTIFPATH_RECERT
      *   - mincourses int The minimum number of courses the user is required to complete (only relevant with COMPLETIONTYPE_SOME)
+     *   - timeallowed int The minimum time, in seconds, which users are expected to be able to finish in.
      *   - courses array An array of courses created by create_course.
      *
      * @param program $program
@@ -363,6 +364,7 @@ class totara_reportbuilder_cache_generator extends testing_data_generator {
             $completiontype = (isset($detail['completiontype'])) ? $detail['completiontype'] : COMPLETIONTYPE_ALL;
             $certifpath = (isset($detail['certifpath'])) ? $detail['certifpath'] : CERTIFPATH_STD;
             $mincourses = (isset($detail['mincourses'])) ? (int)$detail['mincourses'] : 0;
+            $timeallowed = (isset($detail['timeallowed'])) ? (int)$detail['timeallowed'] : 0;
             $courses = (isset($detail['courses']) && is_array($detail['courses'])) ? $detail['courses'] : false;
 
             $coursecount = 0;
@@ -388,6 +390,7 @@ class totara_reportbuilder_cache_generator extends testing_data_generator {
             $courseset->completiontype = $completiontype;
             $courseset->certifpath = $certifpath;
             $courseset->mincourses = $mincourses;
+            $courseset->timeallowed = $timeallowed;
         }
 
         $certifcontent->save_content();
