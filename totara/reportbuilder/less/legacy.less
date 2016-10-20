@@ -21,41 +21,6 @@
 // @author    Rob Tyler <rob.tyler@totaralearning.com>
 // @package   totara_reportbuilder
 
-div.globalrestrictionsnotice {
-    display: inline-block;
-    margin: 0 auto;
-    max-width: 80%;
-}
-
-div.globalrestrictionscontainer {
-    text-align: center;
-}
-
-body.path-admin-totara-reportbuilder-restrictions .header.c3.lastcol {
-    min-width: 120px;
-}
-
-.error-required {
-    display:none;
-}
-
-#chooserestriction .selectallnone {
-    margin: 10px 10%;
-    font-size: 1.1em;
-}
-
-#chooserestriction form.chooserestriction.mform {
-    margin-top: 10px;
-}
-
-#chooserestriction form.chooserestriction.mform div.fitemtitle {
-    width: 10%;
-}
-
-#chooserestriction form.chooserestriction.mform div.felement {
-    width: 89%;
-}
-
 /* show/hide button alignment */
 .dir-ltr .rb-showhide {
     clear: right;
@@ -66,66 +31,18 @@ body.path-admin-totara-reportbuilder-restrictions .header.c3.lastcol {
     text-align: left;
 }
 
-.rb-search-menu {
-    vertical-align: middle !important;
-}
-
-.rb-genbutton {
-    float: right;
-}
-
-.rb-genicon {
-    cursor: hand; cursor: pointer;
-}
-
-.rb-hidden {
-    display: none;
-}
-
-.rb-inline {
-    display: inline-block;
-}
-.reportbuilder-table .user_namewithlinks a {
-    padding-left: 5px;
-    float: left;
-}
-#team_members .user_namewithlinks .name {
-    font-size: 16px;
-    font-weight: bold;
-    padding-top: 8px;
-}
 .dir-rtl .reportbuilder-table .user_namewithlinks .name {
     float: right;
 }
 
-.reportbuilder-table .user_namewithlinks ul {
-    clear: both;
-    margin: 0;
-    padding-top: 2px;
-}
-
-.reportbuilder-table .user_namewithlinks ul li {
-    float:left;
-    list-style-type: none;
-}
 .dir-rtl .reportbuilder-table .user_namewithlinks ul li {
     float: right;
 }
 
-.reportbuilder-table .user_namewithlinks li a {
-    border-left: 1px solid #bbbbbb;
-    font-size: 10px;
-    line-height: 10px;
-    margin: 2px;
-}
 .dir-rtl .reportbuilder-table .user_namewithlinks a {
     float: right;
 }
 
-.reportbuilder-table .user_namewithlinks li:first-child a {
-    border-left: none;
-    margin-left: 0;
-}
 .dir-rtl .reportbuilder-table .user_namewithlinks li:first-child a {
     border-left: 1px solid #bbb;
 }
@@ -134,31 +51,7 @@ body.path-admin-totara-reportbuilder-restrictions .header.c3.lastcol {
     border-left: none;
 }
 
-form[id^="toolbarsearch"].mform div,
-form[id^="toolbarsearch"].mform fieldset {
-    margin: 0;
-    padding: 0;
-    width: auto;
-}
-
-form[id^="toolbarsearch"].mform .fsubmit {
-    width: auto;
-}
-
-#fitem_id_toolbarsearchtext,
-#fitem_id_toolbarsearchbutton,
-#fitem_id_cleartoolbarsearchtext {
-    display: inline-block;
-    margin-right: 1em;
-}
-
 /* Sidebar filters */
-.rb-sidebar {
-    float: left;
-    vertical-align: top;
-    margin: 5px;
-    padding-right: 10px;
-}
 .dir-rtl .rb-sidebar.desktop-first-column {
     float: right;
     padding-left: 10px;
@@ -187,11 +80,6 @@ form[id^="toolbarsearch"].mform .fsubmit {
 }
 
 /* Date */
-.rb-sidebar .felement > span {
-    clear: both;
-    display: block;
-}
-
 .rb-sidebar.mform .fitem .fstatic {
     width: auto;
     float: left;
@@ -210,9 +98,7 @@ form[id^="toolbarsearch"].mform .fsubmit {
 .dir-rtl .rb-sidebar .fdate_time_selector input {
     float: right;
 }
-.rb-sidebar .fdate_time_selector select:nth-child(8) {
-    clear: left;
-}
+
 .dir-rtl .rb-sidebar .fdate_time_selector select:nth-child(8) {
     clear: right;
 }
@@ -236,10 +122,6 @@ form[id^="toolbarsearch"].mform .fsubmit {
 
 #fitem_id_all_sidebar_filters {
     display: none !important;
-}
-
-.multicheck-items label>div {
-    display: inline;
 }
 
 .rb-display-expand {
@@ -272,15 +154,8 @@ form[id^="toolbarsearch"].mform .fsubmit {
     display: inline-block;
 }
 
-.rb-display-table-container {
-    clear: right;
-}
 .dir-rtl .rb-display-table-container {
     clear: left;
-}
-
-.jsenabled #fgroup_id_submitgroupsidebar {
-    display: none;
 }
 
 fieldset.felement.fgroup > .rb-filter-button {
@@ -300,17 +175,11 @@ fieldset.felement.fgroup > .rb-filter-content-list {
     width: 100%;
     border: none;
 }
-.totara-table-container .totara-toolbar-top {
-    width: 100%;
-}
 .totara-table-container .toolbar-left-table,
 .totara-table-container .toolbar-right-table {
     margin: 1px;
 }
-.totara-table-container .toolbar-cell {
-    padding: 4px;
-    display: inline-block;
-}
+
 .totara-table-container .fitem_fsubmit,
 .totara-table-container input {
     vertical-align: top;
@@ -321,14 +190,6 @@ fieldset.felement.fgroup > .rb-filter-content-list {
 }
 
 /* Align the toolbar items, swapping sides in RTL languages */
-.totara-table-container .toolbar-left-table {
-    float: left;
-    clear: left;
-}
-.totara-table-container .toolbar-right-table {
-    float: right;
-    clear: right;
-}
 .dir-rtl .totara-table-container .toolbar-left-table {
     float: right;
     clear: right;
@@ -336,13 +197,6 @@ fieldset.felement.fgroup > .rb-filter-content-list {
 .dir-rtl .totara-table-container .toolbar-right-table {
     float: left;
     clear: left;
-}
-.totara-table-container .no-results {
-    clear: both;
-    display: block;
-    padding: 5px 0;
-    margin: 0;
-    text-align: center;
 }
 .totara-table-container .totaratable {
     border: none;
@@ -356,18 +210,4 @@ fieldset.felement.fgroup > .rb-filter-content-list {
 }
 .totara-table-container .totara-toolbar-bottom {
     width: 100%;
-}
-
-/* IE does not work properly with 100% height, so let'd use http://alistapart.com/article/creating-intrinsic-ratios-for-video */
-.ie .rb-report-svggraph {
-    position: relative;
-    padding-bottom: 40%;  /* This is the ration of original svg size 1000x400 */
-    height: 0;
-}
-.ie .rb-report-svggraph svg {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
 }

@@ -1902,7 +1902,7 @@ class reportbuilder {
         if (!$appliedids) {
             // Strange, no restriction was picked automatically, this should not happen, but let them pick one manually now.
             $messagehtml = html_writer::div(get_string('selectedglobalrestrictionsselect', 'totara_reportbuilder', $chooselink),
-                'notifynotice globalrestrictionsnotice');
+                'notifynotice globalrestrictionsnotice alert alert-info');
             echo html_writer::div($messagehtml, 'globalrestrictionscontainer');
             return;
         }
@@ -1922,7 +1922,7 @@ class reportbuilder {
         $a->appliednamesstr = implode(', ', $appliednames);
         $a->chooselink = $chooselink;
         $messagehtml = html_writer::div(get_string('selectedglobalrestrictionsmany', 'totara_reportbuilder', $a),
-            'notifynotice globalrestrictionsnotice');
+            'notifynotice globalrestrictionsnotice alert alert-info');
         echo html_writer::div($messagehtml, 'globalrestrictionscontainer');
     }
 
