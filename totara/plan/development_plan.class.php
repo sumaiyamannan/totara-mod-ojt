@@ -612,7 +612,11 @@ class development_plan {
         $history = $this->get_history('id DESC');
         $latestmodification = reset($history);
 
-        return ($latestmodification->status != DP_PLAN_STATUS_COMPLETE) ? get_string('notcompleted', 'totara_plan') : userdate($latestmodification->timemodified, get_string('datepickerlongyearphpuserdate', 'totara_core'), 99, false);
+        if ($latestmodification->status != DP_PLAN_STATUS_COMPLETE) {
+            return get_string('notcompleted', 'totara_plan');
+        } else {
+            return userdate($latestmodification->timemodified, get_string('strftimedatefulllong', 'langconfig'), 99, false);
+        }
     }
 
 

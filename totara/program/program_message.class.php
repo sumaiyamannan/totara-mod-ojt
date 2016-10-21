@@ -214,7 +214,7 @@ abstract class prog_message {
 
         // Initialise data needed to calculate completion fields.
         if (in_array('duedate', $placeholders) || in_array('completioncriteria', $placeholders)) {
-            $formatdate = get_string('datepickerlongyearphpuserdate', 'totara_core');
+            $formatdate = get_string('strftimedatefulllong', 'langconfig');
             $deletecompletionfield = false;
             if ($assignment = $DB->get_record('prog_user_assignment', array('programid' => $programid, 'userid' => $userid))) {
                 if (!$progassignment = $DB->get_record('prog_assignment', array('id' => $assignment->assignmentid))) {

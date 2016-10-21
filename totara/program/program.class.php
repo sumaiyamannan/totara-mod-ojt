@@ -1633,7 +1633,7 @@ class program {
         }
 
         if (empty($format)) {
-            $format = get_string('datepickerlongyearphpuserdate', 'totara_core');
+            $format = get_string('strftimedatefulllong', 'langconfig');
         }
 
         $out = userdate($time, $format);

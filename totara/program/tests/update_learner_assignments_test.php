@@ -52,6 +52,8 @@ class totara_program_update_learner_assignments_testcase extends reportcache_adv
     private $controlproguserassignments = null;
     private $controlprogcompletions = null;
 
+    private $updateassignmentsdateformat;
+
     /**
      * Setup.
      *
@@ -61,6 +63,8 @@ class totara_program_update_learner_assignments_testcase extends reportcache_adv
      */
     public function setUp() {
         parent::setup();
+
+        $this->updateassignmentsdateformat = get_string('datepickerlongyearparseformat', 'totara_core');
 
         $this->resetAfterTest(true);
 
@@ -847,8 +851,8 @@ class totara_program_update_learner_assignments_testcase extends reportcache_adv
         global $DB;
 
         $timebefore = time();
-        $completiontime = date('d/m/Y', $timebefore + DAYSECS * 20);
-        $duedate = totara_date_parse_from_format(get_string('datepickerlongyearparseformat', 'totara_core'), $completiontime);
+        $completiontime = date($this->updateassignmentsdateformat, $timebefore + DAYSECS * 20);
+        $duedate = totara_date_parse_from_format($this->updateassignmentsdateformat, $completiontime);
 
         // Add audience assignment.
         $audience = $this->audiences[0];
@@ -921,12 +925,10 @@ class totara_program_update_learner_assignments_testcase extends reportcache_adv
         global $DB;
 
         $timebefore = time();
-        $originalcompletiontime = date('d/m/Y', $timebefore + DAYSECS * 20);
-        $originalduedate = totara_date_parse_from_format(get_string('datepickerlongyearparseformat', 'totara_core'),
-            $originalcompletiontime);
-        $newcompletiontime = date('d/m/Y', $timebefore + DAYSECS * 30); // Increased.
-        $newduedate = totara_date_parse_from_format(get_string('datepickerlongyearparseformat', 'totara_core'),
-            $newcompletiontime);
+        $originalcompletiontime = date($this->updateassignmentsdateformat, $timebefore + DAYSECS * 20);
+        $originalduedate = totara_date_parse_from_format($this->updateassignmentsdateformat, $originalcompletiontime);
+        $newcompletiontime = date($this->updateassignmentsdateformat, $timebefore + DAYSECS * 30); // Increased.
+        $newduedate = totara_date_parse_from_format($this->updateassignmentsdateformat, $newcompletiontime);
 
         // Add audience assignment.
         $audience = $this->audiences[0];
@@ -1048,12 +1050,10 @@ class totara_program_update_learner_assignments_testcase extends reportcache_adv
         global $DB;
 
         $timebefore = time();
-        $originalcompletiontime = date('d/m/Y', $timebefore + DAYSECS * 20);
-        $originalduedate = totara_date_parse_from_format(get_string('datepickerlongyearparseformat', 'totara_core'),
-            $originalcompletiontime);
-        $newcompletiontime = date('d/m/Y', $timebefore + DAYSECS * 10); // Decreased.
-        $newduedate = totara_date_parse_from_format(get_string('datepickerlongyearparseformat', 'totara_core'),
-            $newcompletiontime);
+        $originalcompletiontime = date($this->updateassignmentsdateformat, $timebefore + DAYSECS * 20);
+        $originalduedate = totara_date_parse_from_format($this->updateassignmentsdateformat, $originalcompletiontime);
+        $newcompletiontime = date($this->updateassignmentsdateformat, $timebefore + DAYSECS * 10); // Decreased.
+        $newduedate = totara_date_parse_from_format($this->updateassignmentsdateformat, $newcompletiontime);
 
         // Add audience assignment.
         $audience = $this->audiences[0];
@@ -1307,12 +1307,10 @@ class totara_program_update_learner_assignments_testcase extends reportcache_adv
         global $DB;
 
         $timebefore = time();
-        $originalcompletiontime = date('d/m/Y', $timebefore + DAYSECS * 10);
-        $originalduedate = totara_date_parse_from_format(get_string('datepickerlongyearparseformat', 'totara_core'),
-            $originalcompletiontime);
-        $newcompletiontime = date('d/m/Y', $timebefore + DAYSECS * 20); // Increased - normally allowed but not when complete.
-        $newduedate = totara_date_parse_from_format(get_string('datepickerlongyearparseformat', 'totara_core'),
-            $newcompletiontime);
+        $originalcompletiontime = date($this->updateassignmentsdateformat, $timebefore + DAYSECS * 10);
+        $originalduedate = totara_date_parse_from_format($this->updateassignmentsdateformat, $originalcompletiontime);
+        $newcompletiontime = date($this->updateassignmentsdateformat, $timebefore + DAYSECS * 20); // Increased - normally allowed but not when complete.
+        $newduedate = totara_date_parse_from_format($this->updateassignmentsdateformat, $newcompletiontime);
 
         // Add audience assignment.
         $audience = $this->audiences[0];
@@ -1443,13 +1441,11 @@ class totara_program_update_learner_assignments_testcase extends reportcache_adv
         global $DB;
 
         $timebefore = time();
-        $individialcompletiontime = date('d/m/Y', $timebefore + DAYSECS * 20);
-        $individualduedate = totara_date_parse_from_format(get_string('datepickerlongyearparseformat', 'totara_core'),
-            $individialcompletiontime);
+        $individialcompletiontime = date($this->updateassignmentsdateformat, $timebefore + DAYSECS * 20);
+        $individualduedate = totara_date_parse_from_format($this->updateassignmentsdateformat, $individialcompletiontime);
         // Give the audience the bigger date, so that all assigned users should have this due date.
-        $audiencecompletiontime = date('d/m/Y', $timebefore + DAYSECS * 30);
-        $audienceduedate = totara_date_parse_from_format(get_string('datepickerlongyearparseformat', 'totara_core'),
-            $audiencecompletiontime);
+        $audiencecompletiontime = date($this->updateassignmentsdateformat, $timebefore + DAYSECS * 30);
+        $audienceduedate = totara_date_parse_from_format($this->updateassignmentsdateformat, $audiencecompletiontime);
 
         // Add audience assignment.
         $audience = $this->audiences[0];
@@ -1523,9 +1519,8 @@ class totara_program_update_learner_assignments_testcase extends reportcache_adv
         global $DB;
 
         $timebefore = time();
-        $originalcompletiontime = date('d/m/Y', $timebefore + DAYSECS * 100);
-        $originalduedate = totara_date_parse_from_format(get_string('datepickerlongyearparseformat', 'totara_core'),
-            $originalcompletiontime);
+        $originalcompletiontime = date($this->updateassignmentsdateformat, $timebefore + DAYSECS * 100);
+        $originalduedate = totara_date_parse_from_format($this->updateassignmentsdateformat, $originalcompletiontime);
         // Give the audience the smaller date, and we will make sure that it is not being applied.
         $newdurationstring = "10 " . TIME_SELECTOR_DAYS;
         $newduration = DAYSECS * 10;

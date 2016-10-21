@@ -133,6 +133,8 @@ $string['datatable:sProcessing'] = 'Processing...';
 $string['datatable:sSearch'] = 'Search:';
 $string['datatable:sZeroRecords'] = 'No matching records found';
 $string['datepickerattime'] = 'at';
+// The following date picker strings should only be used in relation to date pickers! If you want the particular format that one
+// of them is using, you should probably use something from langconfig.php or define your own string.
 $string['datepickerlongyeardisplayformat'] = 'dd/mm/yy';
 $string['datepickerlongyearparseformat'] = 'd/m/Y';
 $string['datepickerlongyearphpuserdate'] = '%d/%m/%Y';

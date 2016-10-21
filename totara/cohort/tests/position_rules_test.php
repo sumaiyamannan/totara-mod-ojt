@@ -75,7 +75,7 @@ class totara_cohort_position_rules_testcase extends advanced_testcase {
         $this->setAdminUser();
 
         $this->users = array();
-        $this->dateformat = get_string('datepickerlongyearparseformat', 'totara_core');
+        $this->dateformat = 'd/m/Y';
 
         // Set totara_cohort generator.
         $this->cohort_generator = $this->getDataGenerator()->get_plugin_generator('totara_cohort');

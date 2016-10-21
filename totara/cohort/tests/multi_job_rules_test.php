@@ -60,7 +60,6 @@ class totara_cohort_multi_jobs_rules_testcase extends advanced_testcase {
     private $cohort_generator = null;
     /** @var totara_hierarchy_generator $hierarchy_generator */
     private $hierarchy_generator = null;
-    private $dateformat = '';
     const TEST_POSITION_COUNT_MEMBERS = 24;
 
     /**
@@ -105,7 +104,6 @@ class totara_cohort_multi_jobs_rules_testcase extends advanced_testcase {
 
         $now = time();
         $this->users = array();
-        $this->dateformat = get_string('datepickerlongyearparseformat', 'totara_core');
 
         // Set totara_cohort generator.
         $this->cohort_generator = $this->getDataGenerator()->get_plugin_generator('totara_cohort');

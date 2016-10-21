@@ -228,7 +228,7 @@ class goal extends hierarchy {
 
         // Display the target date if appropriate.
         if (!empty($item->targetdate)) {
-            $format_date = userdate($item->targetdate, get_string('datepickerlongyearphpuserdate', 'totara_core'), 99, false);
+            $format_date = userdate($item->targetdate, get_string('strftimedatefulllong', 'langconfig'), 99, false);
             $data[] = array(
                 'title' => get_string('goaltargetdate', 'totara_hierarchy'),
                 'value' => $format_date,
