@@ -53,6 +53,9 @@ if ($debug) {
     $report->debug($debug);
 }
 
+$facetofacerenderer = $PAGE->get_renderer('mod_facetoface');
+echo $facetofacerenderer->reports_management_tabs('facetofaceeventreport');
+
 $report->display_restrictions();
 
 $countfiltered = $report->get_filtered_count();

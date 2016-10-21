@@ -29,7 +29,10 @@ defined('MOODLE_INTERNAL') || die();
 $ADMIN->add('root', new admin_category('modfacetofacefolder', new lang_string('modulenameplural', 'mod_facetoface'), $module->is_enabled() === false), 'courses');
 
 $eventreporturl = new moodle_url('/mod/facetoface/eventreport.php');
-$ADMIN->add('modfacetofacefolder', new admin_externalpage('modfacetofaceeventreport', new lang_string('manageevents', 'mod_facetoface'), $eventreporturl, 'mod/facetoface:viewallsessions'));
+$ADMIN->add('modfacetofacefolder', new admin_externalpage('modfacetofaceeventreport', new lang_string('eventsreport', 'mod_facetoface'), $eventreporturl, 'mod/facetoface:viewallsessions'));
+
+$sessionreporturl = new moodle_url('/mod/facetoface/sessionreport.php');
+$ADMIN->add('modfacetofacefolder', new admin_externalpage('modfacetofacesessionreport', new lang_string('sessionsreport', 'mod_facetoface'), $sessionreporturl, 'mod/facetoface:viewallsessions', true));
 
 $settings = new admin_settingpage($section, get_string('globalsettings', 'mod_facetoface'), 'totara/core:modconfig', $module->is_enabled() === false);
 $ADMIN->add('modfacetofacefolder', $settings);
