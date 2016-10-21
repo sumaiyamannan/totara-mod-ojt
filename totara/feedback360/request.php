@@ -162,7 +162,7 @@ if ($action == 'form') {
     $PAGE->requires->js('/totara/feedback360/js/delete.js', false);
     $PAGE->requires->js_init_call('M.totara_requestfeedback.init', $args, false, $jsmodule);
 
-    $mform = new request_select_users();
+    $mform = new request_select_users(null, array('anon' => $feedback360->anonymous));
     $mform->set_data($data);
 } else if ($action == 'confirm') {
     $systemnew = required_param('systemnew', PARAM_SEQUENCE);
