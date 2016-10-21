@@ -535,6 +535,23 @@ $CFG->admin = 'admin';
 //
 //      $CFG->upgradekey = 'put_some_password-like_value_here';
 //
+//
+// Limit to courses loaded by Calendar in Totara.
+//
+// When the the config setting calendar_adminseesall has been turned on,
+// admins viewing a calendar with the filter set to 'All courses', can see
+// events from any course, not just those they are logged in to.
+// However, the courses loaded in order to show this information must be limited
+// to prevent performance issues.
+//
+// The default limit is to show events from up to 50 courses at a time.
+// Adding the below config variable and increasing the limit may cause performance
+// issues for admins, while lowering the limit may mean that it is less likely
+// for all events to appear.
+//
+//      $CFG->calendar_adminallcourseslimit = 50;
+//
+//
 //=========================================================================
 // 7. SETTINGS FOR DEVELOPMENT SERVERS - not intended for production use!!!
 //=========================================================================

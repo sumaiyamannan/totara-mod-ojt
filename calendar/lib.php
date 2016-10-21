@@ -2956,6 +2956,186 @@ class calendar_information {
         $block->title = get_string('monthlyview', 'calendar');
         $renderer->add_pretend_calendar_block($block, BLOCK_POS_RIGHT);
     }
+
+    /**
+     * Generates an array with start and finish times for a calendar view. Those times
+     * are used to load courses that will be shown on the page.
+     *
+     * This takes into account that views will include a 3 month side block.
+     *  - Start times are from the start of the month previous to the one we are looking at.
+     *  - End times are from the end of the next month, or later if the upcoming view requires
+     *    looking ahead further.
+     *
+     * @param string $view - The view of the calendar, typically either 'day', 'month' or 'upcoming'.
+     * @param int|string $timezone
+     * @return array with the keys 'start' and 'end'.
+     */
+    public function get_time_boundaries($view, $timezone = 99) {
+        global $CFG;
+
+        $boundaries = array();
+
+        // Get the calendar type we are using.
+        $calendartype = \core_calendar\type_factory::get_calendar_instance();
+        $date = $calendartype->timestamp_to_date_array($this->time, $timezone);
+
+        // The start will be the beginning of the month previous to the one we're on.
+        $prevmonth = calendar_sub_month($date['mon'], $date['year']);
+        $prevmonthtime = $calendartype->convert_to_gregorian($prevmonth[1], $prevmonth[0], 1);
+        $prevmonthtime = make_timestamp($prevmonthtime['year'], $prevmonthtime['month'], $prevmonthtime['day'],
+            $prevmonthtime['hour'], $prevmonthtime['minute'], 0, $timezone);
+        $prevmonthsettings = self::get_month_time_settings($prevmonthtime, $timezone);
+        $boundaries['start'] = $prevmonthsettings->tstart;
+
+        // The end will be the end of the next month.
+        $nextmonth = calendar_add_month($date['mon'], $date['year']);
+        $nextmonthtime = $calendartype->convert_to_gregorian($nextmonth[1], $nextmonth[0], 1);
+        $nextmonthtime = make_timestamp($nextmonthtime['year'], $nextmonthtime['month'], $nextmonthtime['day'],
+            $nextmonthtime['hour'], $nextmonthtime['minute'], 0, $timezone);
+        $nextmonthsettings = self::get_month_time_settings($nextmonthtime, $timezone);
+        $boundaries['end'] = $nextmonthsettings->tend;
+
+        if ($view === 'upcoming') {
+            // If it's the 'upcoming' view, we'll update the end if it needs to be later than
+            // end of the next month.
+            $defaultlookahead = CALENDAR_DEFAULT_UPCOMING_LOOKAHEAD;
+            if (isset($CFG->calendar_lookahead)) {
+                $defaultlookahead = intval($CFG->calendar_lookahead);
+            }
+            // How many days in the future we 'll look.
+            $range = get_user_preferences('calendar_lookahead', $defaultlookahead);
+
+            $upcomingend = usergetmidnight($this->time + DAYSECS * $range + 3 * HOURSECS, $timezone) - 1;
+            if ($upcomingend > $boundaries['end']) {
+                $boundaries['end'] = $upcomingend;
+            }
+        }
+
+        return $boundaries;
+    }
+
+    /**
+     * Given a timestamp, an object is returned containing information about that month such
+     * as when it starts as shown on the calendar. Also included is information about the
+     * calendar in use (currently, the only supported type is gregorian), such as number of
+     * days in the week.
+     *
+     * @param int $time - timestamp for some time in the month that we are interested in
+     * @param int|string $timezone
+     * @return stdClass
+     */
+    public static function get_month_time_settings($time, $timezone = 99) {
+        // Get the calendar type we are using.
+        $calendartype = \core_calendar\type_factory::get_calendar_instance();
+
+        // Store the display settings.
+        $display = new stdClass;
+        $display->thismonth = false;
+
+        // Get the specified date in the calendar type being used.
+        $display->date = $calendartype->timestamp_to_date_array($time, $timezone);
+        $thisdate = $calendartype->timestamp_to_date_array(time(), $timezone);
+        if ($display->date['mon'] == $thisdate['mon'] && $display->date['year'] == $thisdate['year']) {
+            $display->thismonth = true;
+            $display->date = $thisdate;
+        }
+
+        // Get Gregorian date for the start of the month.
+        $gregoriandate = $calendartype->convert_to_gregorian($display->date['year'], $display->date['mon'], 1);
+        // Store the gregorian date values to be used later.
+        list($gy, $gm, $gd, $gh, $gmin) = array($gregoriandate['year'], $gregoriandate['month'], $gregoriandate['day'],
+            $gregoriandate['hour'], $gregoriandate['minute']);
+
+        // Get the starting week day for this month.
+        $display->startwday = dayofweek(1, $display->date['mon'], $display->date['year']);
+        // Get the days in a week.
+        $display->daynames = calendar_get_days();
+        // Store the number of days in a week.
+        $display->numberofdaysinweek = $calendartype->get_num_weekdays();
+
+        $display->minwday = calendar_get_starting_weekday();
+        $display->maxwday = $display->minwday + ($display->numberofdaysinweek - 1);
+        $display->maxdays = calendar_days_in_month($display->date['mon'], $display->date['year']);
+
+        // These are used for DB queries, so we want unixtime, so we need to use Gregorian dates.
+        $display->tstart = make_timestamp($gy, $gm, $gd, $gh, $gmin, 0, $timezone);
+        $display->tend = $display->tstart + ($display->maxdays * DAYSECS) - 1;
+
+        // Align the starting weekday to fall in our display range
+        // This is simple, not foolproof.
+        if ($display->startwday < $display->minwday) {
+            $display->startwday += $display->numberofdaysinweek;
+        }
+
+        return $display;
+    }
+
+    /**
+     * Return courses which can then be added to calendar information via prepare_for_view.
+     *
+     * These courses are not filtered according to user's view capability or the calendars active filters. These are simply
+     * courses with events that occur within a given timeframe.
+     *
+     * @param string $view - The view of the calendar, typically either 'day', 'month' or 'upcoming'.
+     * @return array of course records. These are not yet filtered according to the user's view capabilties.
+     */
+    public function get_default_courses($view) {
+        global $CFG, $DB;
+
+        if (!isloggedin()) {
+            return array();
+        }
+
+        if (!empty($CFG->calendar_adminseesall) && has_capability('moodle/calendar:manageentries', context_system::instance())) {
+            // Load the times for when this view of the calendar starts and ends.
+            if (!in_array($view, array('day', 'month', 'sideblockonly', 'upcoming'))) {
+                // Unsupported view type. Use the previous function for getting default courses.
+                // This may leave out desired courses due to an arbitrary limit on the number returned
+                // and no timeframe taken into account.
+                return calendar_get_default_courses();
+            }
+
+            $boundaries = $this->get_time_boundaries($view);
+
+            $sql = "SELECT DISTINCT c.*, " . context_helper::get_preload_record_columns_sql('ctx') . "
+                    FROM {course} c
+                    JOIN {event} e ON e.courseid = c.id
+               LEFT JOIN {context} ctx ON (ctx.instanceid = c.id AND ctx.contextlevel = :contextlevel)
+                   WHERE (e.timestart >= :timestart1 OR e.timestart + e.timeduration > :timestart2)
+                     AND e.timestart <= :timeend
+                  ";
+            $params = array(
+                'contextlevel' => CONTEXT_COURSE,
+                'timestart1' => $boundaries['start'],
+                'timestart2' => $boundaries['start'],
+                'timeend' => $boundaries['end']
+            );
+            if (isset($CFG->calendar_adminallcourseslimit)) {
+                // This setting is not available via the interface and must be set via config.php.
+                // Higher limits may impact performance, while lower limits may mean some events aren't
+                // shown to admins when they view all courses in the calendar.
+                // See config-dist.php for more information.
+                $limit = $CFG->calendar_adminallcourseslimit;
+            } else {
+                // We need to limit the number of records fetched here in some way, as there's potential
+                // to destroy performance by loading hundreds of courses along with their context records.
+                $limit = 50;
+            }
+            $courses = $DB->get_records_sql($sql, $params, 0, $limit);
+            if ((count($courses) == $limit) and ($limit > 0)) {
+                debugging('The number of courses returned when loading the calendar has reached the current limit. Some events may not be shown.',
+                    DEBUG_DEVELOPER);
+            }
+            foreach ($courses as $course) {
+                context_helper::preload_from_record($course);
+            }
+            return $courses;
+        }
+
+        $courses = enrol_get_my_courses();
+
+        return $courses;
+    }
 }
 
 /**
