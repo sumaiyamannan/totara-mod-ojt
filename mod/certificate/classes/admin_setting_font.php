@@ -26,7 +26,7 @@ defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->libdir.'/adminlib.php');
 
-class mod_certificate_admin_setting_font extends admin_setting_configselect {
+class mod_certificate_admin_setting_font extends totara_core_admin_setting_font {
     /**
      * Constructor
      * @param string $name unique ascii name, either 'mysetting' for settings that in config, or 'myplugin/mysetting' for ones in config_plugins.
@@ -35,8 +35,9 @@ class mod_certificate_admin_setting_font extends admin_setting_configselect {
      * @param string|int $defaultsetting
      */
     public function __construct($name, $visiblename, $description, $defaultsetting) {
-        parent::__construct($name, $visiblename, $description, $defaultsetting, null);
+        parent::__construct($name, $visiblename, $description, $defaultsetting, false);
     }
+
     /**
      * Lazy load the font options.
      *
