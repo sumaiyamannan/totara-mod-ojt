@@ -2716,8 +2716,9 @@ class reportbuilder {
             if (!isset($value) || $value == '') {
                 continue;
             }
+            $searchcolumnoption = $this->get_single_item($this->columnoptions, $searchcolumn->type, $searchcolumn->value);
             $filterjoins = array_merge($filterjoins,
-                $this->get_joins($searchcolumn, 'searchcolumn'));
+                $this->get_joins($searchcolumnoption, 'searchcolumn'));
         }
         return $filterjoins;
     }
