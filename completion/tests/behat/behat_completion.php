@@ -29,6 +29,7 @@ require_once(__DIR__ . '/../../../lib/behat/behat_base.php');
 
 use Behat\Behat\Context\Step\Given,
     Behat\Behat\Context\Step\Then,
+    Behat\Gherkin\Node\TableNode as TableNode,
     Behat\Mink\Exception\ElementNotFoundException as ElementNotFoundException;
 
 /**
@@ -178,5 +179,106 @@ class behat_completion extends behat_base {
 
         return new Given('"//span[contains(., \''.$imgalttext.'\')]" "xpath_element" ' .
             'should exist in the "'.$csselementforactivitytype.'" "css_element"');
+    }
+
+    /**
+     * Add completion records for the specified users and courses
+     *
+     * @Given /^the following courses are completed:$/
+     * @throws Exception
+     * @throws coding_exception
+     */
+    public function the_following_courses_are_completed(TableNode $table) {
+        global $DB;
+
+        $required = array(
+            'user',
+            'course', // Course shortname
+            'timecompleted',
+        );
+        $optional = array(
+            'timeenrolled',
+            'timestarted',
+        );
+        $datevalues = array('timecompleted', 'timeenrolled', 'timestarted');
+
+        $data = $table->getHash();
+        $firstrow = reset($data);
+
+        // Check required fields are present.
+        foreach ($required as $reqname) {
+            if (!isset($firstrow[$reqname])) {
+                throw new Exception('Course completions require the field '.$reqname.' to be set');
+            }
+        }
+
+        foreach ($data as $row) {
+            // Copy values, ready to pass on to the generator.
+            $record = array();
+            foreach ($row as $fieldname => $value) {
+                if (in_array($fieldname, $required)) {
+                    $record[$fieldname] = $value;
+                } else if (in_array($fieldname, $optional)) {
+                    $record[$fieldname] = $value;
+                } else {
+                    throw new Exception('Unknown field '.$fieldname.' in course completion');
+                }
+            }
+
+            if (!$userid = $DB->get_field('user', 'id', array('username' => $record['user']))) {
+                throw new Exception('Unknown user '. $record['user']);
+            }
+            if (!$courseid = $DB->get_field('course', 'id', array('shortname' => $record['course']))) {
+                throw new Exception('Unknown course '. $record['course']);
+            }
+
+            foreach($datevalues as $item) {
+                $convertkey = isset($record[$item]) ? $item : 'timecompleted';
+                switch(strtolower($record[$convertkey])) {
+                    case 'today':
+                        $record[$item] = time();
+                        break;
+
+                    case 'tomorrow':
+                        $record[$item] = strtotime("+1 day");
+                        break;
+
+                    case 'yesterday':
+                        $record[$item] = strtotime("-1 day");
+                        break;
+
+                    case 'last week':
+                        $record[$item] = strtotime("-1 week");
+                        break;
+
+                    case 'last month':
+                        $record[$item] = strtotime("-1 month");
+                        break;
+
+                    default:
+                        $record[$item] = $record[$convertkey];
+                }
+            }
+
+            $params = array(
+                'userid' => $userid,
+                'course' => $courseid,
+                'timeenrolled' => $record['timeenrolled'],
+                'timestarted' => $record['timestarted'],
+                'timecompleted' => $record['timecompleted'],
+                'reaggregate' => 0,
+                'status' => COMPLETION_STATUS_COMPLETEVIARPL,
+                'rplgrade' => 100,
+            );
+
+            $existing = $DB->get_record('course_completions', array('userid' => $userid, 'course' => $courseid), '*', IGNORE_MISSING);
+            if ($existing) {
+                $params['id'] = $existing->id;
+                $DB->update_record('course_completions', $params);
+            }
+            else {
+                $DB->insert_record('course_completions', $params);
+            }
+        }
     }
 }
