@@ -787,7 +787,7 @@
     <DATABASE level="required">
       <VENDOR name="mariadb" version="5.5.31" />
       <VENDOR name="mysql" version="5.5.31" />
-      <VENDOR name="postgres" version="9.2" />
+      <VENDOR name="postgres" version="9.1" />
       <VENDOR name="mssql" version="10.0" />
       <VENDOR name="oracle" version="10.2" />
     </DATABASE>
