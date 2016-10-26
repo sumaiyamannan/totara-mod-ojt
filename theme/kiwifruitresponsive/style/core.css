@@ -773,6 +773,13 @@ select {
     border:1px solid #AAAAAA;
 }
 
+.mform fieldset.collapsible legend a.fheader {
+    color: #00ACA8;
+}
+.mform .helptooltip a {
+    color: #00ACA8;
+}
+
 /**
  * Buttons and button-like links
  */
