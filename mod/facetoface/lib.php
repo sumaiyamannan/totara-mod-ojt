@@ -524,6 +524,9 @@ function facetoface_delete_instance($id) {
 
     $DB->delete_records('facetoface_interest', array('facetoface' => $facetoface->id));
 
+    // Notifications.
+    $DB->delete_records('facetoface_notification', array('facetofaceid' => $facetoface->id));
+
     $DB->delete_records('facetoface_sessions', array('facetoface' => $facetoface->id));
 
     $DB->delete_records('facetoface', array('id' => $facetoface->id));
