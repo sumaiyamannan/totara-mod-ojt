@@ -1032,44 +1032,7 @@ function xmldb_totara_reportbuilder_upgrade($oldversion) {
 
     if ($oldversion < 2015100902) {
 
-        // Get the reports created by deleted user/s.
-        $sql = "SELECT rbs.id
-                  FROM {report_builder_schedule} rbs
-                  JOIN {user} u ON u.id = rbs.userid
-                 WHERE u.deleted = 1";
-        $reports = $DB->get_records_sql($sql);
-        // Delete all scheduled reports created by deleted user/s.
-        foreach ($reports as $report) {
-            $DB->delete_records('report_builder_schedule_email_audience',   array('scheduleid' => $report->id));
-            $DB->delete_records('report_builder_schedule_email_systemuser', array('scheduleid' => $report->id));
-            $DB->delete_records('report_builder_schedule_email_external',   array('scheduleid' => $report->id));
-            $DB->delete_records('report_builder_schedule', array('id' => $report->id));
-        }
-
-        // Get deleted user/s.
-        $sql = "SELECT DISTINCT rbses.userid
-                  FROM {report_builder_schedule_email_systemuser} rbses
-                  JOIN {user} u ON u.id = rbses.userid
-                 WHERE u.deleted = 1";
-        $reports = $DB->get_fieldset_sql($sql);
-        if ($reports) {
-            list($sqlin, $sqlparm) = $DB->get_in_or_equal($reports);
-            // Remove deleted user/s from scheduled reports.
-            $DB->execute("DELETE FROM {report_builder_schedule_email_systemuser} WHERE userid $sqlin", $sqlparm);
-        }
-
-        // Get deleted audience/s.
-        $sql = "SELECT DISTINCT rbsea.cohortid
-                  FROM {report_builder_schedule_email_audience} rbsea
-                 WHERE NOT EXISTS (
-                           SELECT 1 FROM {cohort} ch WHERE rbsea.cohortid = ch.id
-               )";
-        $cohorts = $DB->get_fieldset_sql($sql);
-        if ($cohorts) {
-            list($sqlin, $sqlparm) = $DB->get_in_or_equal($cohorts);
-            // Remove deleted audience/s from scheduled reports.
-            $DB->execute("DELETE FROM {report_builder_schedule_email_audience} WHERE cohortid $sqlin", $sqlparm);
-        }
+        totara_reportbuilder_delete_scheduled_reports();
 
         // Reportbuilder savepoint reached.
         upgrade_plugin_savepoint(true, 2015100902, 'totara', 'reportbuilder');
@@ -1209,6 +1172,14 @@ function xmldb_totara_reportbuilder_upgrade($oldversion) {
 
         // Reportbuilder savepoint reached.
         totara_upgrade_mod_savepoint(true, 2016080300, 'totara_reportbuilder');
+    }
+
+    if ($oldversion < 2016092001) {
+
+        totara_reportbuilder_delete_scheduled_reports();
+
+        // Reportbuilder savepoint reached.
+        upgrade_plugin_savepoint(true, 2016092001, 'totara', 'reportbuilder');
     }
 
     return true;
