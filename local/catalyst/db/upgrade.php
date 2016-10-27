@@ -15,16 +15,29 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Catalyst
+ * Catalyst-specific
  *
  * @package local_catalyst
  * @author  Eugene Venter <eugene@catalyst.net.nz>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-defined('MOODLE_INTERNAL') or die();
 
-$plugin->component = 'local_catalyst';
-$plugin->version   = 2016102800;
-$plugin->requires  = 2013111800;
 
-$plugin->cron      = 0;
+defined('MOODLE_INTERNAL') || die();
+
+
+function xmldb_local_catalyst_upgrade($oldversion) {
+
+    global $CFG, $DB;
+
+    $dbman = $DB->get_manager();
+
+    if ($oldversion < 2016102800) {
+        set_config('exportadhoclimit', 15000, 'reportbuilder');
+
+        upgrade_plugin_savepoint(true, 2016102800, 'local', 'catalyst');
+    }
+
+    return true;
+}
+
