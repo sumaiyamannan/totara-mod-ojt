@@ -40,11 +40,12 @@ class behat_facetoface extends behat_base {
      *
      * @Given /^I fill seminar session with relative date in form data:$/
      * @param TableNode $data
-     * @return array the list of actions to perform
      */
     public function i_fill_seminar_session_with_relative_date_in_form_data(TableNode $data) {
 
+        $behatformcontext = behat_context_helper::get('behat_forms');
         $dataclone = clone $data;
+        $rowday = array();
         $rows = array();
         $timestartday = '';
         $timestartmonth = '';
@@ -138,6 +139,7 @@ class behat_facetoface extends behat_base {
         $finishdate->setTime($finishdate->format('H'), $minutes);
 
         // Replace values for timestart.
+        $rowday[] = array('timestart[day]', (int) $startdate->format('d'));
         $rows[] = array('timestart[month]', (int) $startdate->format('m'));
         $rows[] = array('timestart[day]', (int) $startdate->format('d'));
         $rows[] = array('timestart[year]', (int) $startdate->format('Y'));
@@ -145,6 +147,7 @@ class behat_facetoface extends behat_base {
         $rows[] = array('timestart[minute]', (int) $startdate->format('i'));
 
         // Replace values for timefinish.
+        $rowday[] = array('timefinish[day]', (int) $finishdate->format('d'));
         $rows[] = array('timefinish[month]', (int) $finishdate->format('m'));
         $rows[] = array('timefinish[day]', (int) $finishdate->format('d'));
         $rows[] = array('timefinish[year]', (int) $finishdate->format('Y'));
@@ -153,10 +156,11 @@ class behat_facetoface extends behat_base {
 
         // Set the the rows back to data.
         $dataclone->setRows($rows);
+        $dataday = new TableNode();
+        $dataday->setRows($rowday);
 
-        return array(
-            new Given('I set the following fields to these values:', $dataclone),
-        );
+        $behatformcontext->i_set_the_following_fields_to_these_values($dataday);
+        $behatformcontext->i_set_the_following_fields_to_these_values($dataclone);
     }
 
     /**
