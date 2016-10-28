@@ -1334,23 +1334,17 @@ function prog_update_completion($userid, program $program = null) {
         }
 
         $courseset_group_completed = false;
-        $previous_courseset_group_completed = false;
 
         // Go through the course set groups to determine the user's completion status.
         foreach ($courseset_groups as $courseset_group) {
             $courseset_group_completed = prog_courseset_group_complete($courseset_group, $userid);
 
-            if ($courseset_group_completed) {
-                $previous_courseset_group_completed = true;
-            } else {
+            if (!$courseset_group_completed) {
                 // If the user has not completed the course group the program is not complete.
                 // Set the timedue for the course set in this group with the shortest
                 // time allowance so that course set due reminders will be triggered
                 // at the appropriate time.
-                if ($previous_courseset_group_completed) {
-                    $program_content->set_courseset_group_timedue($courseset_group, $userid);
-                    $previous_courseset_group_completed = false;
-                }
+                $program_content->set_courseset_group_timedue($courseset_group, $userid);
                 break;
             }
         }

@@ -181,14 +181,15 @@ class totara_program_lib_testcase extends reportcache_advanced_testcase {
         $this->getDataGenerator()->add_courseset_program($cert2->id, array($course6->id), CERTIFPATH_RECERT);
 
         // Assign the users to the programs and certs as individuals.
+        $startassigntime = time();
         foreach ($users as $user) {
             $this->getDataGenerator()->assign_to_program($prog1->id, ASSIGNTYPE_INDIVIDUAL, $user->id);
             $this->getDataGenerator()->assign_to_program($prog2->id, ASSIGNTYPE_INDIVIDUAL, $user->id);
             $this->getDataGenerator()->assign_to_program($cert1->id, ASSIGNTYPE_INDIVIDUAL, $user->id);
             $this->getDataGenerator()->assign_to_program($cert2->id, ASSIGNTYPE_INDIVIDUAL, $user->id);
         }
-
-        $now = time();
+        $endassigntime = time();
+        sleep(1);
 
         // Mark all the users complete in all the courses, causing completion in all programs/certs.
         foreach ($users as $user) {
@@ -217,7 +218,8 @@ class totara_program_lib_testcase extends reportcache_advanced_testcase {
 
         foreach ($progcompletionnonzeropre as $pcnonzero) {
             $this->assertEquals(STATUS_COURSESET_COMPLETE, $pcnonzero->status);
-            $this->assertGreaterThanOrEqual($now, $pcnonzero->timestarted);
+            $this->assertGreaterThanOrEqual($startassigntime, $pcnonzero->timestarted);
+            $this->assertLessThanOrEqual($endassigntime, $pcnonzero->timestarted);
             $this->assertEquals(12345, $pcnonzero->timedue);
             $this->assertEquals(1000, $pcnonzero->timecompleted);
 

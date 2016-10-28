@@ -203,9 +203,17 @@ class totara_program_update_learner_assignments_testcase extends reportcache_adv
 
         $timebefore = time();
 
-        // Add individual assignments.
+        // Create users and courses.
         $user0 = $this->users[0];
         $user1 = $this->users[1];
+        $course1 = $this->getDataGenerator()->create_course();
+        $course2 = $this->getDataGenerator()->create_course();
+
+        // Assign courses to program. Reload program after changing it.
+        $this->getDataGenerator()->add_courseset_program($this->program->id, array($course1->id, $course2->id));
+        $this->program = new program($this->program->id);
+
+        // Add individual assignments.
         $this->set_individual_assignments($this->program, array($user0, $user1));
 
         // Check that records exist.
@@ -226,7 +234,9 @@ class totara_program_update_learner_assignments_testcase extends reportcache_adv
             array('programid' => $this->program->id)));
         $this->assertEquals(2, $DB->count_records('prog_user_assignment',
             array('programid' => $this->program->id)));
-        $this->assertEquals(2, $DB->count_records('prog_completion',
+        $this->assertEquals(2, $DB->count_records('prog_completion', // Program completion records.
+            array('programid' => $this->program->id, 'coursesetid' => 0)));
+        $this->assertEquals(4, $DB->count_records('prog_completion', // Course set completion records were also created.
             array('programid' => $this->program->id)));
 
         // Check prog_assignment records.
@@ -267,17 +277,17 @@ class totara_program_update_learner_assignments_testcase extends reportcache_adv
 
         // Check prog_completion records.
         $progcompletion0 = $DB->get_record('prog_completion',
-            array('programid' => $this->program->id, 'userid' => $user0->id));
+            array('programid' => $this->program->id, 'userid' => $user0->id, 'coursesetid' => 0));
         $this->assertNotEmpty($progcompletion0);
 
         $progcompletion1 = $DB->get_record('prog_completion',
-            array('programid' => $this->program->id, 'userid' => $user1->id));
+            array('programid' => $this->program->id, 'userid' => $user1->id, 'coursesetid' => 0));
         $this->assertNotEmpty($progcompletion1);
 
         $this->assertEquals(0, $progcompletion0->coursesetid);
         $this->assertEquals(0, $progcompletion1->coursesetid);
-        $this->assertEquals(0, $progcompletion0->status);
-        $this->assertEquals(0, $progcompletion1->status);
+        $this->assertEquals(STATUS_PROGRAM_INCOMPLETE, $progcompletion0->status);
+        $this->assertEquals(STATUS_PROGRAM_INCOMPLETE, $progcompletion1->status);
         $this->assertGreaterThanOrEqual($timebefore, $progcompletion0->timestarted);
         $this->assertGreaterThanOrEqual($timebefore, $progcompletion1->timestarted);
         $this->assertLessThanOrEqual($timeafter, $progcompletion0->timestarted);
@@ -286,6 +296,24 @@ class totara_program_update_learner_assignments_testcase extends reportcache_adv
         $this->assertEquals(-1, $progcompletion1->timedue);
         $this->assertEquals(0, $progcompletion0->timecompleted);
         $this->assertEquals(0, $progcompletion1->timecompleted);
+
+        // Check prog_completion course set non-0 records.
+        $sql = "SELECT pc.*
+                  FROM {prog_completion} pc
+                 WHERE pc.programid = :programid
+                   AND pc.userid = :userid
+                   AND coursesetid != 0";
+        $progcoursesetcompletion0 = $DB->get_record_sql($sql, array('programid' => $this->program->id, 'userid' => $user0->id));
+        $this->assertNotEmpty($progcoursesetcompletion0);
+        $progcoursesetcompletion1 = $DB->get_record_sql($sql, array('programid' => $this->program->id, 'userid' => $user1->id));
+        $this->assertNotEmpty($progcoursesetcompletion1);
+
+        $this->assertNotEquals(0, $progcoursesetcompletion0->coursesetid);
+        $this->assertNotEquals(0, $progcoursesetcompletion1->coursesetid);
+        $this->assertEquals(STATUS_COURSESET_INCOMPLETE, $progcoursesetcompletion0->status);
+        $this->assertEquals(STATUS_COURSESET_INCOMPLETE, $progcoursesetcompletion1->status);
+        $this->assertEquals(0, $progcoursesetcompletion0->timecompleted);
+        $this->assertEquals(0, $progcoursesetcompletion1->timecompleted);
     }
 
     /**
@@ -2514,9 +2542,151 @@ class totara_program_update_learner_assignments_testcase extends reportcache_adv
         }
     }
 
+    /**
+     * First complete users in the courses, then assign the users to the program. They should immediately
+     * be marked complete.
+     *
+     * This test is based on test_assigning_individuals.
+     */
+    public function test_already_complete_when_assigned() {
+        global $DB;
+
+        $timebefore = time();
+
+        // Create users and courses.
+        $user0 = $this->users[0];
+        $user1 = $this->users[1];
+        $course1 = $this->getDataGenerator()->create_course();
+        $course2 = $this->getDataGenerator()->create_course();
+
+        // Assign courses to program. Reload program after changing it.
+        $this->getDataGenerator()->add_courseset_program($this->program->id, array($course1->id, $course2->id));
+        $this->program = new program($this->program->id);
+
+        // Assign users to courses.
+        $this->getDataGenerator()->enrol_user($user0->id, $course1->id);
+        $this->getDataGenerator()->enrol_user($user1->id, $course2->id);
+
+        // Complete courses.
+        $completion = new completion_completion(array('userid' => $user0->id, 'course' => $course1->id));
+        $completion->mark_complete($timebefore);
+        $completion = new completion_completion(array('userid' => $user0->id, 'course' => $course2->id));
+        $completion->mark_complete($timebefore);
+        $completion = new completion_completion(array('userid' => $user1->id, 'course' => $course1->id));
+        $completion->mark_complete($timebefore);
+        $completion = new completion_completion(array('userid' => $user1->id, 'course' => $course2->id));
+        $completion->mark_complete($timebefore);
+
+        // Add individual assignments.
+        $this->set_individual_assignments($this->program, array($user0, $user1));
+
+        // Check that records exist.
+        $this->assertEquals(2, $DB->count_records('prog_assignment',
+            array('programid' => $this->program->id)));
+        $this->assertEquals(0, $DB->count_records('prog_user_assignment',
+            array('programid' => $this->program->id)));
+        $this->assertEquals(0, $DB->count_records('prog_completion', // See here that the users aren't already complete!
+            array('programid' => $this->program->id)));
+
+        // Apply assignment changes.
+        $this->program->update_learner_assignments(true);
+
+        $timeafter = time();
+
+        // Check that records exist.
+        $this->assertEquals(2, $DB->count_records('prog_assignment',
+            array('programid' => $this->program->id)));
+        $this->assertEquals(2, $DB->count_records('prog_user_assignment',
+            array('programid' => $this->program->id)));
+        $this->assertEquals(2, $DB->count_records('prog_completion', // Completion records exist, check their status below.
+            array('programid' => $this->program->id, 'coursesetid' => 0)));
+        $this->assertEquals(4, $DB->count_records('prog_completion', // Course set completion records were also created.
+            array('programid' => $this->program->id)));
+
+        // Check prog_assignment records.
+        $progassignment0 = $DB->get_record('prog_assignment',
+            array('programid' => $this->program->id, 'assignmenttype' => 5, 'assignmenttypeid' => $user0->id));
+        $this->assertNotEmpty($progassignment0);
+
+        $progassignment1 = $DB->get_record('prog_assignment',
+            array('programid' => $this->program->id, 'assignmenttype' => 5, 'assignmenttypeid' => $user1->id));
+        $this->assertNotEmpty($progassignment1);
+
+        $this->assertEquals(0, $progassignment0->includechildren);
+        $this->assertEquals(0, $progassignment1->includechildren);
+        $this->assertEquals(-1, $progassignment0->completiontime);
+        $this->assertEquals(-1, $progassignment1->completiontime);
+        $this->assertEquals(0, $progassignment0->completionevent);
+        $this->assertEquals(0, $progassignment1->completionevent);
+        $this->assertEquals(0, $progassignment0->completioninstance);
+        $this->assertEquals(0, $progassignment1->completioninstance);
+
+        // Check prog_user_assignment records.
+        $proguserassignment0 = $DB->get_record('prog_user_assignment',
+            array('programid' => $this->program->id, 'userid' => $user0->id));
+        $this->assertNotEmpty($proguserassignment0);
+
+        $proguserassignment1 = $DB->get_record('prog_user_assignment',
+            array('programid' => $this->program->id, 'userid' => $user1->id));
+        $this->assertNotEmpty($proguserassignment1);
+
+        $this->assertEquals($progassignment0->id, $proguserassignment0->assignmentid);
+        $this->assertEquals($progassignment1->id, $proguserassignment1->assignmentid);
+        $this->assertGreaterThanOrEqual($timebefore, $proguserassignment0->timeassigned);
+        $this->assertGreaterThanOrEqual($timebefore, $proguserassignment1->timeassigned);
+        $this->assertLessThanOrEqual($timeafter, $proguserassignment0->timeassigned);
+        $this->assertLessThanOrEqual($timeafter, $proguserassignment1->timeassigned);
+        $this->assertEquals(0, $proguserassignment0->exceptionstatus);
+        $this->assertEquals(0, $proguserassignment1->exceptionstatus);
+
+        // Check prog_completion course set 0 records.
+        $progcompletion0 = $DB->get_record('prog_completion',
+            array('programid' => $this->program->id, 'userid' => $user0->id, 'coursesetid' => 0));
+        $this->assertNotEmpty($progcompletion0);
+
+        $progcompletion1 = $DB->get_record('prog_completion',
+            array('programid' => $this->program->id, 'userid' => $user1->id, 'coursesetid' => 0));
+        $this->assertNotEmpty($progcompletion1);
+
+        $this->assertEquals(0, $progcompletion0->coursesetid);
+        $this->assertEquals(0, $progcompletion1->coursesetid);
+        $this->assertEquals(STATUS_PROGRAM_COMPLETE, $progcompletion0->status);
+        $this->assertEquals(STATUS_PROGRAM_COMPLETE, $progcompletion1->status);
+        $this->assertGreaterThanOrEqual($timebefore, $progcompletion0->timestarted);
+        $this->assertGreaterThanOrEqual($timebefore, $progcompletion1->timestarted);
+        $this->assertLessThanOrEqual($timeafter, $progcompletion0->timestarted);
+        $this->assertLessThanOrEqual($timeafter, $progcompletion1->timestarted);
+        $this->assertEquals(-1, $progcompletion0->timedue);
+        $this->assertEquals(-1, $progcompletion1->timedue);
+        $this->assertGreaterThanOrEqual($timebefore, $progcompletion0->timecompleted);
+        $this->assertGreaterThanOrEqual($timebefore, $progcompletion1->timecompleted);
+        $this->assertLessThanOrEqual($timeafter, $progcompletion0->timecompleted);
+        $this->assertLessThanOrEqual($timeafter, $progcompletion1->timecompleted);
+
+        // Check prog_completion course set non-0 records.
+        $sql = "SELECT pc.*
+                  FROM {prog_completion} pc
+                 WHERE pc.programid = :programid
+                   AND pc.userid = :userid
+                   AND coursesetid != 0";
+        $progcoursesetcompletion0 = $DB->get_record_sql($sql, array('programid' => $this->program->id, 'userid' => $user0->id));
+        $this->assertNotEmpty($progcoursesetcompletion0);
+        $progcoursesetcompletion1 = $DB->get_record_sql($sql, array('programid' => $this->program->id, 'userid' => $user1->id));
+        $this->assertNotEmpty($progcoursesetcompletion1);
+
+        $this->assertNotEquals(0, $progcoursesetcompletion0->coursesetid);
+        $this->assertNotEquals(0, $progcoursesetcompletion1->coursesetid);
+        $this->assertEquals(STATUS_COURSESET_COMPLETE, $progcoursesetcompletion0->status);
+        $this->assertEquals(STATUS_COURSESET_COMPLETE, $progcoursesetcompletion1->status);
+        $this->assertGreaterThanOrEqual($timebefore, $progcoursesetcompletion0->timecompleted);
+        $this->assertGreaterThanOrEqual($timebefore, $progcoursesetcompletion1->timecompleted);
+        $this->assertLessThanOrEqual($timeafter, $progcoursesetcompletion0->timecompleted);
+        $this->assertLessThanOrEqual($timeafter, $progcoursesetcompletion1->timecompleted);
+    }
+
     /*
      * Other things that could be tested, although some may be better tested seperately (or may be already) as they
-     * may be things user by update_learner_assignments rather than things that it does itself.
+     * may be things used by update_learner_assignments rather than things that it does itself.
      *      - Extensions
      *      - Future assignments
      *      - make_timedue()

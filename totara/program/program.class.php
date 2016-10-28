@@ -544,7 +544,7 @@ class program {
                             }
                         } // Else no change or decrease, skipped. If we want to allow decrease then it should be added here.
                     } else {
-                        // This is a new assignment and it's not a future assignment.
+                        // This is a new assignment and it might be a future assignment.
 
                         // No record in prog_user_assignment so we need to make one.
                         $exceptions = $this->update_exceptions($user->id, $progassignment, $timedue);
@@ -622,6 +622,13 @@ class program {
                     }
 
                     \totara_program\event\bulk_learner_assignments_ended::create()->trigger();
+
+                    // Update completion of all just-assigned users. This will mark them complete if they have already completed
+                    // all program content, or else create the first non-0 course set record (with course set group timedue).
+                    foreach ($allassignusers as $userid => $data) {
+                        prog_update_completion($userid, $this);
+                    }
+
                     unset($newassignusersbuffer);
                 }
 

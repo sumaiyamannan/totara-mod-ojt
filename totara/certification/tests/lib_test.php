@@ -303,14 +303,14 @@ class totara_certification_lib_testcase extends reportcache_advanced_testcase {
 
         // These check that the correct certification path results are being returned.
         $this->assertEquals(2000, certif_get_content_completion_time($certifications[4]->certifid, $users[4]->id, CERTIFPATH_CERT));
-        $this->assertNull(        certif_get_content_completion_time($certifications[4]->certifid, $users[4]->id, CERTIFPATH_RECERT));
-        $this->assertNull(        certif_get_content_completion_time($certifications[6]->certifid, $users[4]->id, CERTIFPATH_CERT));
+        $this->assertNull(        certif_get_content_completion_time($certifications[4]->certifid, $users[4]->id, CERTIFPATH_RECERT)); // The prog completion record doesn't exist.
+        $this->assertEmpty(       certif_get_content_completion_time($certifications[6]->certifid, $users[4]->id, CERTIFPATH_CERT)); // The prog completion record was created but is not completed.
         $this->assertEquals(5000, certif_get_content_completion_time($certifications[6]->certifid, $users[4]->id, CERTIFPATH_RECERT));
         $this->assertEquals(4000, certif_get_content_completion_time($certifications[2]->certifid, $users[4]->id, CERTIFPATH_CERT));
         $this->assertEquals(6000, certif_get_content_completion_time($certifications[2]->certifid, $users[4]->id, CERTIFPATH_RECERT));
 
         // Check result when course set not complete (user completed recert path courses, but is on primary path).
-        $this->assertNull(certif_get_content_completion_time($certifications[2]->certifid, $users[5]->id));
+        $this->assertEmpty(certif_get_content_completion_time($certifications[2]->certifid, $users[5]->id));
     }
 
     /**
@@ -1059,7 +1059,8 @@ class totara_certification_lib_testcase extends reportcache_advanced_testcase {
 
         // Assign the user to the cert as an individual.
         $this->getDataGenerator()->assign_to_program($certification->id, ASSIGNTYPE_INDIVIDUAL, $user->id);
-        $this->assertSame(0, prog_display_progress($certification->id, $user->id, CERTIFPATH_CERT, true));
+        // Completion is checked during assignment.
+        $this->assertSame(100, prog_display_progress($certification->id, $user->id, CERTIFPATH_CERT, true));
         $this->assert_program_progress_after_course_completion(100, $certification, $user, $course);
     }
 
@@ -1111,8 +1112,8 @@ class totara_certification_lib_testcase extends reportcache_advanced_testcase {
 
         // Assign the user to the cert as an individual.
         $this->getDataGenerator()->assign_to_program($certification->id, ASSIGNTYPE_INDIVIDUAL, $user->id);
-        // This is a little skrewy, but is correct.
-        $this->assertSame(0, prog_display_progress($certification->id, $user->id, CERTIFPATH_CERT, true));
+        // Completion is checked during assignment.
+        $this->assertSame(100, prog_display_progress($certification->id, $user->id, CERTIFPATH_CERT, true));
         $this->assert_program_progress_after_course_completion(100, $certification, $user, $courses[1]);
         $this->assert_program_progress_after_course_completion(100, $certification, $user, $courses[2]);
     }
@@ -1165,7 +1166,8 @@ class totara_certification_lib_testcase extends reportcache_advanced_testcase {
 
         // Assign the user to the cert as an individual.
         $this->getDataGenerator()->assign_to_program($certification->id, ASSIGNTYPE_INDIVIDUAL, $user->id);
-        $this->assertSame(0, prog_display_progress($certification->id, $user->id, CERTIFPATH_CERT, true));
+        // Completion is checked during assignment.
+        $this->assertSame(100, prog_display_progress($certification->id, $user->id, CERTIFPATH_CERT, true));
         $this->assert_program_progress_after_course_completion(100, $certification, $user, $courses[1]);
         $this->assert_program_progress_after_course_completion(100, $certification, $user, $courses[2]);
     }
@@ -1334,7 +1336,8 @@ class totara_certification_lib_testcase extends reportcache_advanced_testcase {
 
         // Assign the user to the cert as an individual.
         $this->getDataGenerator()->assign_to_program($certification->id, ASSIGNTYPE_INDIVIDUAL, $user->id);
-        $this->assertSame(0, prog_display_progress($certification->id, $user->id, CERTIFPATH_CERT, true));
+        // Completion is checked during assignment.
+        $this->assertSame(100, prog_display_progress($certification->id, $user->id, CERTIFPATH_CERT, true));
         $this->assert_program_progress_after_course_completion(100, $certification, $user, $courses[1]);
         $this->assert_program_progress_after_course_completion(100, $certification, $user, $courses[2]);
     }
@@ -2024,7 +2027,8 @@ class totara_certification_lib_testcase extends reportcache_advanced_testcase {
 
         // Assign the user to the cert as an individual.
         $this->getDataGenerator()->assign_to_program($certification->id, ASSIGNTYPE_INDIVIDUAL, $user->id);
-        $this->assertSame(0, prog_display_progress($certification->id, $user->id, CERTIFPATH_CERT, true));
+        // Completion is checked during assignment.
+        $this->assertSame(100, prog_display_progress($certification->id, $user->id, CERTIFPATH_CERT, true));
         $this->assert_program_progress_after_course_completion(100, $certification, $user, $courses[1]);
         $this->assert_program_progress_after_course_completion(100, $certification, $user, $courses[2]);
         $this->assert_program_progress_after_course_completion(100, $certification, $user, $courses[3]);
@@ -2089,7 +2093,8 @@ class totara_certification_lib_testcase extends reportcache_advanced_testcase {
 
         // Assign the user to the cert as an individual.
         $this->getDataGenerator()->assign_to_program($certification->id, ASSIGNTYPE_INDIVIDUAL, $user->id);
-        $this->assertSame(0, prog_display_progress($certification->id, $user->id, CERTIFPATH_CERT, true));
+        // Completion is checked during assignment.
+        $this->assertSame(100, prog_display_progress($certification->id, $user->id, CERTIFPATH_CERT, true));
         $this->assert_program_progress_after_course_completion(100, $certification, $user, $courses[1]);
         $this->assert_program_progress_after_course_completion(100, $certification, $user, $courses[2]);
         $this->assert_program_progress_after_course_completion(100, $certification, $user, $courses[3]);
@@ -2154,7 +2159,8 @@ class totara_certification_lib_testcase extends reportcache_advanced_testcase {
 
         // Assign the user to the cert as an individual.
         $this->getDataGenerator()->assign_to_program($certification->id, ASSIGNTYPE_INDIVIDUAL, $user->id);
-        $this->assertSame(0, prog_display_progress($certification->id, $user->id, CERTIFPATH_CERT, true));
+        // Completion is checked during assignment.
+        $this->assertSame(100, prog_display_progress($certification->id, $user->id, CERTIFPATH_CERT, true));
         $this->assert_program_progress_after_course_completion(100, $certification, $user, $courses[1]);
         $this->assert_program_progress_after_course_completion(100, $certification, $user, $courses[2]);
         $this->assert_program_progress_after_course_completion(100, $certification, $user, $courses[3]);

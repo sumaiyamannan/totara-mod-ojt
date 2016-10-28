@@ -559,12 +559,14 @@ function certification_fix_missing_certif_completions() {
 }
 
 /**
- * Get time of last completed certification course set
+ * Get time of last completed certification course set.
+ *
+ * If no matching record is found then this function returns null.
  *
  * @param integer $certificationid
  * @param integer $userid
  * @param int $path null if courses in both paths should be considered, else CERTIFPATH_CERT or CERTIFPATH_RECERT
- * @return integer
+ * @return integer|null
  */
 function certif_get_content_completion_time($certificationid, $userid, $path = null) {
     global $DB;
