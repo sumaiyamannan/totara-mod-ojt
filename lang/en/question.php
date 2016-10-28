@@ -24,6 +24,8 @@
 
 $string['addmorechoiceblanks'] = 'Blanks for {no} more choices';
 $string['addcategory'] = 'Add category';
+$string['additionalexportoptions'] = 'Additional export options';
+$string['additionalimportoptions'] = 'Additional import options';
 $string['adminreport'] = 'Report on possible problems in your question database.';
 $string['advancedsearchoptions'] = 'Search options';
 $string['alltries'] = 'All tries';
