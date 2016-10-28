@@ -313,3 +313,8 @@ $string['feedbacknamefilter'] = 'Feedback name contains';
 $string['usernamefilter'] = 'Username contains';
 $string['firstnamefilter'] = 'First name contains';
 $string['lastnamefilter'] = 'Last name contains';
+
+// Totara strings
+$string['maxdayshigherwarning'] = 'The global setting, \'Maximum days since completion\', is currently set to {$a} days. Any messages with a \'Period\' value greater than or equal to this will not be sent.';
+$string['setting_maxtimesincecomp_name'] = 'Maximum days since completion';
+$string['setting_maxtimesincecomp_desc'] = 'Course or activity completions older than this will not be considered when sending out feedback reminders. Zero or an empty value represents no limit.';

@@ -22,4 +22,8 @@ if ($ADMIN->fulltree) {
     $settings->add(new admin_setting_configselect('feedback_allowfullanonymous',
                                     get_string('allowfullanonymous', 'feedback'),
                                     $str, 0, $options));
+
+    $settings->add(new admin_setting_configtext('reminder_maxtimesincecompletion',
+        get_string('setting_maxtimesincecomp_name', 'feedback'),
+        get_string('setting_maxtimesincecomp_desc', 'feedback'), 0, PARAM_INT));
 }

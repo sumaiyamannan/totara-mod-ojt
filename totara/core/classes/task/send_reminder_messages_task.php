@@ -101,10 +101,10 @@ class send_reminder_messages_task extends \core\task\scheduled_task {
                     if ($config['tracking'] == 0) {
                         $tsql = "
                             INNER JOIN {course_completions} cc
-                                    ON cc.course = ?
+                                    ON cc.course = :courseid1
                                    AND cc.userid = u.id
                             ";
-                        $tparams = array($course->id);
+                        $tparams = array('courseid1' => $course->id);
                     } else {
                         // Otherwise get the activity.
                         // Load moduleinstance.
@@ -113,16 +113,21 @@ class send_reminder_messages_task extends \core\task\scheduled_task {
 
                         $tsql = "
                             INNER JOIN {course_completion_criteria} cr
-                                    ON cr.course = ?
-                                   AND cr.criteriatype = ?
-                                   AND cr.module = ?
-                                   AND cr.moduleinstance = ?
+                                    ON cr.course = :courseid1
+                                   AND cr.criteriatype = :criteriatype
+                                   AND cr.module = :module
+                                   AND cr.moduleinstance = :moduleinstance
                             INNER JOIN {course_completion_crit_compl} cc
-                                    ON cc.course = ?
+                                    ON cc.course = :courseid2
                                    AND cc.userid = u.id
                                    AND cc.criteriaid = cr.id
                             ";
-                        $tparams = array($course->id, COMPLETION_CRITERIA_TYPE_ACTIVITY, $module, $config['tracking'], $course->id);
+                        $tparams = array(
+                            'courseid1' => $course->id,
+                            'criteriatype' => COMPLETION_CRITERIA_TYPE_ACTIVITY,
+                            'module' => $module,
+                            'moduleinstance' => $config['tracking'],
+                            'courseid2' => $course->id);
                     }
 
                     // Process each message.
@@ -141,6 +146,12 @@ class send_reminder_messages_task extends \core\task\scheduled_task {
 
                         $now = time();
 
+                        if (empty($CFG->reminder_maxtimesincecompletion)) {
+                            $evalcompletionperiod = 0;
+                        } else {
+                            $evalcompletionperiod = $now - ($CFG->reminder_maxtimesincecompletion * DAYSECS);
+                        }
+
                         // Get anyone that needs a reminder sent that hasn't had one already
                         // and has yet to complete the required feedback.
                         $sql = "
@@ -149,25 +160,38 @@ class send_reminder_messages_task extends \core\task\scheduled_task {
                                   {$tsql}
                          LEFT JOIN {reminder_sent} rs
                                 ON rs.userid = u.id
-                               AND rs.reminderid = ?
-                               AND rs.messageid = ?
+                               AND rs.reminderid = :reminderid
+                               AND rs.messageid = :messageid
                          LEFT JOIN {feedback_completed} fc
-                                ON fc.feedback = ?
+                                ON fc.feedback = :feedbackid
                                AND fc.userid = u.id
                              WHERE fc.id IS NULL
                                AND rs.id IS NULL
-                               AND (cc.timecompleted + ?) >= ?
-                               AND (cc.timecompleted + ?) < ?
+                               AND cc.timecompleted >= :evalcompletionperiod
+                               AND (cc.timecompleted + :periodsecs1) >= :timecreated
+                               AND (cc.timecompleted + :periodsecs2) < :now
                         ";
-                        $params = array_merge($tparams, array($reminder->id, $message->id, $requirementid, $periodsecs,
-                            $reminder->timecreated, $periodsecs, $now));
+                        $params = array_merge($tparams,
+                            array(
+                                'reminderid' => $reminder->id,
+                                'messageid' => $message->id,
+                                'feedbackid' => $requirementid,
+                                'evalcompletionperiod' => $evalcompletionperiod,
+                                'periodsecs1' => $periodsecs,
+                                'timecreated' => $reminder->timecreated,
+                                'periodsecs2' => $periodsecs,
+                                'now' => $now
+                            ));
 
                         // If this is an escalation and we have a timestamp of when escalations were enabled/disabled then
                         // we need to limit returned users to those who completed since this was last changed otherwise
                         // people who completed in the past may receive the notification.
                         if ($message->type === 'escalation' && isset($config['escalationmodified'])) {
-                            $sql .= " AND cc.timecompleted >= ?";
-                            $params = array_merge($params, array($config['escalationmodified']));
+                            $sql .= " AND cc.timecompleted >= :timecompleted";
+                            $params = array_merge($params,
+                                array(
+                                    'timecompleted' => $config['escalationmodified']
+                                ));
                         }
 
                         // Check if any users found.
@@ -202,7 +226,7 @@ class send_reminder_messages_task extends \core\task\scheduled_task {
                             }
 
                             // Get the manager on the users first job assignment - if there is a manager there.
-                            $jobassignment = \totara_job\job_assignment::get_first($user->id);
+                            $jobassignment = \totara_job\job_assignment::get_first($user->id, false);
                             if (!empty($jobassignment->managerid)) {
                                 $manager = $DB->get_record('user', ['id' => $jobassignment->managerid], '*', MUST_EXIST);
                             } else {

@@ -210,8 +210,16 @@ echo $OUTPUT->heading($streditcoursereminders);
 
 // Show tabs
 $tabs = array();
+$shownotice = false;
 foreach ($reminders as $r) {
     $tabs[] = new tabobject($r->id, $CFG->wwwroot.'/course/reminders.php?courseid='.$course->id.'&id='.$r->id, $r->title);
+    if (!empty($CFG->reminder_maxtimesincecompletion)) {
+        if ($r->has_message_with_period_greater_or_equal($CFG->reminder_maxtimesincecompletion)) {
+            // If the period value for any messages is greater than or equal to the global setting, we should
+            // warn the user.
+            $shownotice = true;
+        }
+    }
 }
 
 $tabs[] = new tabobject('new', $CFG->wwwroot.'/course/reminders.php?courseid='.$course->id.'&id=-1', get_string('new', 'totara_coursecatalog'));
@@ -233,6 +241,9 @@ if (!$completion->is_enabled()) {
     echo $OUTPUT->notification(get_string('nofeedbackactivities', 'totara_coursecatalog'), 'notifynotice');
     echo $OUTPUT->continue_button(new moodle_url('/course/view.php', array('id' => $course->id)));
 } else {
+    if ($shownotice) {
+        echo $OUTPUT->notification(get_string('maxdayshigherwarning', 'feedback', $CFG->reminder_maxtimesincecompletion), 'notifymessage');
+    }
     // Display tabs and show form.
     echo $OUTPUT->tabtree($tabs, $selected_tab);
     $reminderform->display();
