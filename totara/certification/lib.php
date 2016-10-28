@@ -1579,9 +1579,16 @@ function reset_certifcomponent_completions($certifcompletion, $courses=null) {
     }
 
     // Remove mesages for prog&user so we can resend them.
+    certif_delete_messagelog($prog->id, $userid, MESSAGETYPE_PROGRAM_COMPLETED);
+    certif_delete_messagelog($prog->id, $userid, MESSAGETYPE_PROGRAM_DUE);
+    certif_delete_messagelog($prog->id, $userid, MESSAGETYPE_PROGRAM_OVERDUE);
+    certif_delete_messagelog($prog->id, $userid, MESSAGETYPE_COURSESET_DUE);
+    certif_delete_messagelog($prog->id, $userid, MESSAGETYPE_COURSESET_OVERDUE);
+    certif_delete_messagelog($prog->id, $userid, MESSAGETYPE_COURSESET_COMPLETED);
     certif_delete_messagelog($prog->id, $userid, MESSAGETYPE_RECERT_WINDOWOPEN);
     certif_delete_messagelog($prog->id, $userid, MESSAGETYPE_RECERT_WINDOWDUECLOSE);
     certif_delete_messagelog($prog->id, $userid, MESSAGETYPE_RECERT_FAILRECERT);
+    certif_delete_messagelog($prog->id, $userid, MESSAGETYPE_LEARNER_FOLLOWUP);
 
     $transaction->allow_commit();
 }

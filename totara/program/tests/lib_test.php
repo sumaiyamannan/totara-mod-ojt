@@ -96,7 +96,7 @@ class totara_program_lib_testcase extends reportcache_advanced_testcase {
         $certcompletion->timecompleted = 0;
         $certcompletion->timewindowopens = 0;
         $certcompletion->timeexpires = 0;
-        certif_write_completion($certcompletion, $progcompletion); // Contains data validation, so we don't need to check it here.
+        $this->assertTrue(certif_write_completion($certcompletion, $progcompletion)); // Contains data validation, so we don't need to check it here.
 
         // The program should currently be complete. Update the program so that the user is incomplete.
         $progcompletion = $DB->get_record('prog_completion',
@@ -126,7 +126,7 @@ class totara_program_lib_testcase extends reportcache_advanced_testcase {
         $progcompletion->status = STATUS_PROGRAM_INCOMPLETE;
         $progcompletion->timecompleted = 0;
         $certcompletion->renewalstatus = CERTIFRENEWALSTATUS_DUE;
-        certif_write_completion($certcompletion, $progcompletion); // Contains data validation, so we don't need to check it here.
+        $this->assertTrue(certif_write_completion($certcompletion, $progcompletion)); // Contains data validation, so we don't need to check it here.
 
         // Update the course completions all courses. The recertification should have the new date, but the complete program
         // won't be effected.

@@ -264,7 +264,7 @@ class totara_certification_lib_testcase extends reportcache_advanced_testcase {
         $certcompletion->timeexpires = 300;
         $progcompletion->timedue = 300;
         $this->assertEquals(array(), certif_get_completion_errors($certcompletion, $progcompletion));
-        certif_write_completion($certcompletion, $progcompletion);
+        $this->assertTrue(certif_write_completion($certcompletion, $progcompletion));
 
         foreach ($completiondatas as $completiondata) {
             list($user, $course, $time) = $completiondata;
@@ -284,7 +284,7 @@ class totara_certification_lib_testcase extends reportcache_advanced_testcase {
         $progcompletion->timecompleted = 0;
         $progcompletion->status = STATUS_PROGRAM_INCOMPLETE;
         $this->assertEquals(array(), certif_get_completion_errors($certcompletion, $progcompletion));
-        certif_write_completion($certcompletion, $progcompletion);
+        $this->assertTrue(certif_write_completion($certcompletion, $progcompletion));
 
         $completion = new completion_completion(array('userid' => $users[4]->id, 'course' => $courses[5]->id));
         $completion->mark_complete(1000);
@@ -359,7 +359,7 @@ class totara_certification_lib_testcase extends reportcache_advanced_testcase {
         $progcompletion->status = STATUS_PROGRAM_INCOMPLETE;
         $progcompletion->timecompleted = 0;
         $certcompletion->renewalstatus = CERTIFRENEWALSTATUS_DUE;
-        certif_write_completion($certcompletion, $progcompletion); // Contains data validation, so we don't need to check it here.
+        $this->assertTrue(certif_write_completion($certcompletion, $progcompletion)); // Contains data validation, so we don't need to check it here.
 
         // Indirectly call write_certif_completion, causing the user to be marked certified again.
         prog_update_completion($user->id);
@@ -378,7 +378,7 @@ class totara_certification_lib_testcase extends reportcache_advanced_testcase {
         $certcompletion->timecompleted = 0;
         $certcompletion->timewindowopens = 0;
         $certcompletion->timeexpires = 0;
-        certif_write_completion($certcompletion, $progcompletion); // Contains data validation, so we don't need to check it here.
+        $this->assertTrue(certif_write_completion($certcompletion, $progcompletion)); // Contains data validation, so we don't need to check it here.
 
         // Indirectly call write_certif_completion, causing the user to be marked certified again.
         prog_update_completion($user->id);
