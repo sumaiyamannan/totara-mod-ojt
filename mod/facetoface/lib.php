@@ -869,16 +869,18 @@ function facetoface_cancel_session($session, $fromform) {
     // Remove entries from the calendars.
     facetoface_remove_all_calendar_entries($session);
 
-    // Change all user sign-up statuses, the only exception is previously cancelled users.
+    // Change all user sign-up statuses, the only exceptions are previously cancelled users and declined users.
     $sql = "SELECT DISTINCT s.userid, s.id as signupid
               FROM {facetoface_signups} s
               JOIN {facetoface_signups_status} ss ON ss.signupid = s.id
              WHERE s.sessionid = :sessionid AND
                    ss.superceded = 0 AND
-                   ss.statuscode <> :statususercanceled";
+                   ss.statuscode <> :statususercanceled AND
+                   ss.statuscode <> :statususerdeclined";
     $params = array(
         'sessionid' => $session->id,
         'statususercanceled' => MDL_F2F_STATUS_USER_CANCELLED,
+        'statususerdeclined' => MDL_F2F_STATUS_DECLINED
     );
     $signedupusers = $DB->get_recordset_sql($sql, $params);
     foreach ($signedupusers as $user) {
