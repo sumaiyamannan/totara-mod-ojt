@@ -198,3 +198,49 @@ Feature: Cancellation for session
     And I follow "View all events"
     Then I should not see "Cancel booking"
     And I log out
+
+  @javascript
+  Scenario: User can cancel their booking at any time until session starts even when cancellation note field is deleted
+    Given I log in as "admin"
+    And I click on "Find Learning" in the totara menu
+    And I follow "Course 1"
+    And I follow "View all events"
+    And I follow "Add a new event"
+    And I click on "Edit date" "link"
+    And I fill seminar session with relative date in form data:
+      | sessiontimezone    | Pacific/Auckland |
+      | timestart[day]     | +1               |
+      | timestart[month]   | 0                |
+      | timestart[year]    | 0                |
+      | timestart[hour]    | 0                |
+      | timestart[minute]  | 0                |
+      | timefinish[day]    | +1               |
+      | timefinish[month]  | 0                |
+      | timefinish[year]   | 0                |
+      | timefinish[hour]   | +1               |
+      | timefinish[minute] | 0                |
+    And I press "OK"
+    And I set the following fields to these values:
+      | capacity           | 3                |
+    And I click on "At any time" "radio"
+    And I press "Save changes"
+
+    And I click on "Home" in the totara menu
+    And I navigate to "Custom fields" node in "Site administration > Seminars"
+    And I click on "User cancellation" "link"
+    And I click on "Delete" "link" in the "Cancellation note" "table_row"
+    And I press "Yes"
+    And I log out
+
+    When I log in as "student1"
+    And I click on "Find Learning" in the totara menu
+    And I follow "Course 1"
+    And I follow "View all events"
+    And I click on the link "Sign-up" in row 1
+    And I press "Sign-up"
+    Then I should see "Your booking has been completed."
+    And I should see "Cancel booking"
+    When I click on the link "Cancel booking" in row 1
+    And I press "Yes"
+    And I should not see "Cancel booking"
+    And I log out

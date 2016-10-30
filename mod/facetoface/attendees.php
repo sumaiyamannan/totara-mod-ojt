@@ -1054,8 +1054,8 @@ if ($show_table) {
                 $cancelstatus = new stdClass();
                 $cancelstatus->id = $attendee->submissionid;
                 $cancellationnote = customfield_get_data($cancelstatus, 'facetoface_cancellation', 'facetofacecancellation', false);
-
-                $cancellationnotetext = empty($cancellationnote) ? '' : $cancellationnote['cancellationnote'];
+                // Verify 'cancellation note' custom filed is not deleted.
+                $cancellationnotetext = isset($cancellationnote['cancellationnote']) ? $cancellationnote['cancellationnote'] : '';
                 if (!$download) {
                     $data[] = $icon . html_writer::span($cancellationnotetext, 'cancellationnote' . $attendee->id, array('id' => 'cancellationnote' . $attendee->id));
                 } else {
