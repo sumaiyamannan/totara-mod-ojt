@@ -831,6 +831,12 @@ function environment_check_moodle($version, $env_select) {
     /// Extract required moodle version
         $needed_version = $data['@']['requires'];
     }
+    // Totara: compatibility tweak for new version numbers.
+    if ($needed_version === '9.0') {
+        $moodle_needed_version = '3.0';
+    } else {
+        $moodle_needed_version = $needed_version;
+    }
 
 /// Now search the version we are using
     $release = get_config('', 'release');
@@ -841,7 +847,7 @@ function environment_check_moodle($version, $env_select) {
     }
 
 /// And finally compare them, saving results
-    if (version_compare($current_version, $needed_version, '>=')) {
+    if (version_compare($current_version, $moodle_needed_version, '>=')) {
         $result->setStatus(true);
     } else {
         $result->setStatus(false);
