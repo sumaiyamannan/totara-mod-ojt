@@ -3716,6 +3716,7 @@ function facetoface_print_session_list($courseid, $facetoface, $sessions) {
     global $USER, $OUTPUT, $PAGE;
 
     $timenow = time();
+    $output = '';
 
     $cm = get_coursemodule_from_instance('facetoface', $facetoface->id, $courseid, false, MUST_EXIST);
     $context = context_module::instance($cm->id);
@@ -3777,8 +3778,15 @@ function facetoface_print_session_list($courseid, $facetoface, $sessions) {
 
     $displaytimezones = get_config(null, 'facetoface_displaysessiontimezones');
 
+    if ($editevents) {
+        $output .= html_writer::link(
+            new moodle_url('sessions.php', array('f' => $facetoface->id, 'backtoallsessions' => 1)), get_string('addsession', 'facetoface'),
+            array('class' => 'btn btn-default')
+        );
+    }
+
     // Upcoming sessions
-    $output = $OUTPUT->heading(get_string('upcomingsessions', 'facetoface'));
+    $output .= $OUTPUT->heading(get_string('upcomingsessions', 'facetoface'));
     if (empty($upcomingarray) && empty($upcomingtbdarray)) {
         print_string('noupcoming', 'facetoface');
     } else {
@@ -3792,15 +3800,6 @@ function facetoface_print_session_list($courseid, $facetoface, $sessions) {
 
         $output .= $f2f_renderer->print_session_list_table(
             $upcomingarray, $viewattendees, $editevents, $displaytimezones, $reserveinfo, $PAGE->url
-        );
-    }
-
-    if ($editevents) {
-        $output .= html_writer::tag(
-            'p',
-            html_writer::link(
-                new moodle_url('sessions.php', array('f' => $facetoface->id, 'backtoallsessions' => 1)), get_string('addsession', 'facetoface')
-            )
         );
     }
 
