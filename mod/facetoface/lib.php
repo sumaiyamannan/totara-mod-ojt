@@ -3786,7 +3786,7 @@ function facetoface_print_session_list($courseid, $facetoface, $sessions) {
     }
 
     // Upcoming sessions
-    $output .= $OUTPUT->heading(get_string('upcomingsessions', 'facetoface'));
+    $output .= $OUTPUT->heading(get_string('upcomingsessions', 'facetoface'), 3);
     if (empty($upcomingarray) && empty($upcomingtbdarray)) {
         print_string('noupcoming', 'facetoface');
     } else {
@@ -3805,7 +3805,7 @@ function facetoface_print_session_list($courseid, $facetoface, $sessions) {
 
     // Previous sessions
     if (!empty($previousarray)) {
-        $output .= $OUTPUT->heading(get_string('previoussessions', 'facetoface'));
+        $output .= $OUTPUT->heading(get_string('previoussessions', 'facetoface'), 3);
         $output .= $f2f_renderer->print_session_list_table(
             $previousarray, $viewattendees, $editevents, $displaytimezones, [], $PAGE->url
         );
