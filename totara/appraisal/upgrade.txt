@@ -1,0 +1,7 @@
+This files describes API changes for code that uses the question API,
+information provided here is intended especially for developers.
+
+=== 9.2 ===
+
+* get_aggregate_question_answers() function added argument $usedefaults
+* Refactored add_field_form_elements() function to perform aggregate calculations in a separate calculate_aggregate() function

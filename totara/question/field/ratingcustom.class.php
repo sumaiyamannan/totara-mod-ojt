@@ -229,5 +229,4 @@ class question_ratingcustom extends multichoice {
         $form->addGroupRule("choice[$i]",
                 array("score" => array(array(get_string('error:scorenumeric', 'totara_question'), 'numeric', '', 'client'))));
     }
-
 }

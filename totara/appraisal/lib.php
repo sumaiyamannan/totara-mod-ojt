@@ -1284,9 +1284,12 @@ class appraisal {
      * @param int $stagepageid      The appraisalstagepageid connected to the appraisal.
      * @param int $questionid       The id of the question.
      * @param array $paramids       An array of question ids we are aggregating.
+     * @param bool $usedefaults     Use default value if question not yet answered (value == null)
      * @return array                of database records.
      */
-    public static function get_aggregate_question_answers($userid, $stagepageid, $questionid, $paramids) {
+    public static function get_aggregate_question_answers($userid, $stagepageid, $questionid,
+                                $paramids, $usedefaults=false) {
+
         global $USER, $DB;
 
         // Get the appraisalid from the pageid.
@@ -1304,20 +1307,40 @@ class appraisal {
         $ansfields = '';
 
         list($insql, $inparams) = $DB->get_in_or_equal($paramids);
-        $sql = "SELECT id, datatype
+        $sql = "SELECT id, datatype, param1, defaultdata
                   FROM {appraisal_quest_field}
                  WHERE id {$insql}";
         $types = $DB->get_records_sql($sql, $inparams);
 
-        foreach ($types as $qst) {
+        // $usedefaults defaults to false.
+        // For appraisals activated before this patch, this can not be changed
+        // Therefore there is no need to include any upgrade steps to ensure that existing appraisals
+        // have default values in the db
+        $roleparam = array('qid' => $questionid, 'uid' => $userid, 'aid' => $appraisalid);
+        foreach ($types as $id => $qst) {
             if (!empty($ansfields)) {
                 $ansfields .= ', ';
             }
 
             if ($qst->datatype == 'ratingnumeric') {
                 $ansfields .= "ans.data_{$qst->id}";
+                if ($usedefaults) {
+                    if (isset($qst->defaultdata)) {
+                        $roleparam["default_{$id}"] =  $qst->defaultdata;
+                    } else if (isset($qst->param1)) {
+                        $range = json_decode($qst->param1, true);
+                        $roleparam["default_{$id}"] = isset($range['rangefrom']) ? $range['rangefrom'] : 0;
+                    } else {
+                        $roleparam["default_{$id}"] = 0;
+                    }
+                    $ansfields .= ", coalesce(ans.data_{$qst->id}, :default_{$id}) as data_{$qst->id}_default";
+                }
             } else if ($qst->datatype == 'ratingcustom') {
                 $ansfields .= "ans.data_{$qst->id}score";
+                if ($usedefaults) {
+                    $roleparam["default_{$id}"] = isset($qst->defaultdata) ? $qst->defaultdata : 0;
+                    $ansfields .= ", coalesce(ans.data_{$qst->id}score, :default_{$id}) as data_{$qst->id}score_default";
+                }
             } else {
                 print_error('error:invalidquestiontype', 'totara_appraisal');
             }
@@ -1336,7 +1359,6 @@ class appraisal {
                      WHERE aua.userid = :uid
                        AND aua.appraisalid = :aid
                   ORDER BY ara.appraisalrole";
-        $roleparam = array('qid' => $questionid, 'uid' => $userid, 'aid' => $appraisalid);
         $raw_answers = $DB->get_records_sql($rolesql, $roleparam);
 
         // Check role permissions before returning the answers.

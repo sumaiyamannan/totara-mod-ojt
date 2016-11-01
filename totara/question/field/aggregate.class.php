@@ -64,15 +64,27 @@ class question_aggregate extends question_base{
 
         if ($readonly) {
             $questions = html_writer::start_tag('ul');
-            foreach (explode(',', $this->param1) as $qid) {
+            foreach ($this->__get('param1') as $qid) {
                 $questions .= html_writer::tag('li', format_string($options[$qid]));
             }
             $questions .= html_writer::end_tag('ul');
 
             $form->addElement('static', '', get_string('aggregate', 'totara_question'), $questions);
 
-            $form->addElement('advcheckbox', 'aggregateaverage', get_string('aggregateaverage', 'totara_question'), null, array('disabled' => 'disabled'));
-            $form->addElement('advcheckbox', 'aggregatemedian', get_string('aggregatemedian', 'totara_question'), null, array('disabled' => 'disabled'));
+            $displaylist = array();
+            $displaylist[] = $form->createElement('advcheckbox', 'aggregateaverage', '', get_string('aggregateaverage', 'totara_question'), array('disabled' => 'disabled'));
+            $displaylist[] = $form->createElement('advcheckbox', 'aggregatemedian', '', get_string('aggregatemedian', 'totara_question'), array('disabled' => 'disabled'));
+            $form->addGroup($displaylist, 'displaylist', get_string('aggregatedisplayscores', 'totara_question'), array('<br/>'), false);
+
+            $includelist = array();
+            $includelist[] = $form->createElement('advcheckbox', 'aggregateincludeunanswered', '',
+                get_string('aggregateincludescoresforunanswered', 'totara_question'), array('disabled' => 'disabled'));
+            $includelist[] = $form->createElement('advcheckbox', 'aggregateincludezero', '',
+                get_string('aggregateincludezeroscores', 'totara_question'), array('disabled' => 'disabled'));
+            $form->addGroup($includelist, 'includelist', get_string('aggregateincludedvalues', 'totara_question'), array('<br/>'), false);
+            $form->setType('aggregateincludeunanswered', PARAM_BOOL);
+            $form->setType('aggregateincludezero', PARAM_BOOL);
+            $form->addHelpButton('includelist', 'aggregateincludedvalues', 'totara_question');
         } else {
             if (!empty($options)) {
                 $questions = array();
@@ -86,8 +98,23 @@ class question_aggregate extends question_base{
                 $form->addElement('static', '', get_string('aggregate', 'totara_question'), get_string('aggregatenooptions', 'totara_question'));
             }
 
-            $form->addElement('advcheckbox', 'aggregateaverage', get_string('aggregateaverage', 'totara_question'));
-            $form->addElement('advcheckbox', 'aggregatemedian', get_string('aggregatemedian', 'totara_question'));
+            $displaylist = array();
+            $displaylist[] = $form->createElement('advcheckbox', 'aggregateaverage', '',
+                get_string('aggregateaverage', 'totara_question'));
+            $displaylist[] = $form->createElement('advcheckbox', 'aggregatemedian', '',
+                get_string('aggregatemedian', 'totara_question'));
+            $form->addGroup($displaylist, 'displaylist', get_string('aggregatedisplayscores', 'totara_question'), array('<br/>'), false);
+            $form->addRule('displaylist', null, 'required');
+
+            $includelist = array();
+            $includelist[] = $form->createElement('advcheckbox', 'aggregateincludeunanswered', '',
+                get_string('aggregateincludescoresforunanswered', 'totara_question'));
+            $includelist[] = $form->createElement('advcheckbox', 'aggregateincludezero', '',
+                get_string('aggregateincludezeroscores', 'totara_question'));
+            $form->addGroup($includelist, 'includelist', get_string('aggregateincludedvalues', 'totara_question'), array('<br/>'), false);
+            $form->setType('aggregateincludeunanswered', PARAM_BOOL);
+            $form->setType('aggregateincludezero', PARAM_BOOL);
+            $form->addHelpButton('includelist', 'aggregateincludedvalues', 'totara_question');
         }
     }
 
@@ -104,6 +131,13 @@ class question_aggregate extends question_base{
         $toform->multiselectfield = $this->param1;
         $toform->aggregateaverage = $this->param2;
         $toform->aggregatemedian = $this->param3;
+        if (isset($this->param4) && is_array($this->param4)) {
+            $toform->aggregateincludeunanswered = $this->param4['usedefault'];
+            $toform->aggregateincludezero = $this->param4['usezero'];
+        } else {
+            $toform->aggregateincludeunanswered = false;
+            $toform->aggregateincludezero = false;
+        }
 
         return $toform;
     }
@@ -118,6 +152,11 @@ class question_aggregate extends question_base{
         $this->param1 = $fromform->multiselectfield;
         $this->param2 = (int)$fromform->aggregateaverage;
         $this->param3 = (int)$fromform->aggregatemedian;
+        $aggparam = array();
+        $aggparam['usedefault'] = (int)$fromform->aggregateincludeunanswered;
+        $aggparam['usezero'] = (int)$fromform->aggregateincludezero;
+        $this->param4 = $aggparam;
+
         return $fromform;
     }
 
@@ -130,7 +169,7 @@ class question_aggregate extends question_base{
         $err = array();
 
         if (empty($data->aggregateaverage) && empty($data->aggregatemedian)) {
-            $err['aggregateaverage'] = get_string('error:aggregatedisplayselect', 'totara_question');
+            $err['displaylist'] = get_string('error:aggregatedisplayselect', 'totara_question');
         }
 
         if (empty($data->multiselectfield)) {
@@ -215,7 +254,8 @@ class question_aggregate extends question_base{
             return $this->display_preview($form);
         }
 
-        $answers = $module::get_aggregate_question_answers($this->subjectid, $this->appraisalstagepageid, $this->id, $this->param1);
+        $answers = $module::get_aggregate_question_answers($this->subjectid, $this->appraisalstagepageid, $this->id,
+            $this->param1, isset($this->param4) ? $this->param4['usedefault'] : false);
 
         // The don't have permission to view anything, just return.
         if (empty($answers)) {
@@ -228,27 +268,7 @@ class question_aggregate extends question_base{
         foreach ($answers as $roletype => $answer) {
             $rolekey = get_string($rolestringkeys[$roletype], "totara_{$module}");
 
-            $out = '';
-
-            $answer = array_filter($answer);
-            if (empty($answer)) {
-                $out = get_string('notanswered', 'totara_question');
-            } else {
-                if (!empty($this->param2)) {
-                    $avg = $this->average_results($answer);
-                    $out .= get_string('aggregatedisplayavg', 'totara_question', $avg);
-                }
-
-                if (!empty($this->param2) && !empty($this->param3)) {
-                    // Showing both avg & med so we'll need a seperator.
-                    $out .= html_writer::empty_tag('br');
-                }
-
-                if (!empty($this->param3)) {
-                    $med = $this->median_results($answer);
-                    $out .= get_string('aggregatedisplaymed', 'totara_question', $med);
-                }
-            }
+            $out = $this->calculate_aggregate($answer);
 
             // Add the aggregation as read only.
             $form->addElement('static', 'aggregate', $rolekey , $out);
@@ -297,5 +317,63 @@ class question_aggregate extends question_base{
 
     public function add_field_specific_edit_elements(MoodleQuickForm $form) {
         throw new \coding_exception('coding error: question_aggregate->add_field_specific_edit_elements() should never be called, see add_field_form_elements() instead.');
+    }
+
+    /**
+     * Calculate the aggregation values
+     *
+     * @param array $answer         Array of answers for the questions included in the aggregate.
+     * @return string               Output html to display the aggregate value(s)
+     */
+    public function calculate_aggregate($answer) {
+        $out = '';
+
+        if (isset($this->param4) && is_array($this->param4)) {
+            $usedefault = $this->param4['usedefault'];
+            $usezero = $this->param4['usezero'];
+        } else {
+            $usedefault = false;
+            $usezero = false;
+        }
+
+        // First filter is used to determine whether any question was actually answered
+        $anyanswer = array_filter($answer, function ($val, $key) {
+            return !preg_match('/_default$/', $key) && !is_null($val);
+        }, ARRAY_FILTER_USE_BOTH);
+
+        if (empty($anyanswer)) {
+            $out = get_string('notanswered', 'totara_question');
+        } else {
+            // Now we filter to get the actual values to use in the calculation
+            $answervalues = array();
+            foreach ($answer as $key => $value) {
+                if (!preg_match('/_default$/', $key)) {
+                    // Retrieved default values not to be included in the calculation
+                    $value = (is_null($value) && $usedefault)
+                        ? $answer[$key.'_default']
+                        : $answer[$key];
+                    if (!is_null($value) && ($usezero || $value != 0)) {
+                        $answervalues[$key] = $value;
+                    }
+                }
+            }
+
+            if (!empty($this->param2)) {
+                $avg = $this->average_results($answervalues);
+                $out .= get_string('aggregatedisplayavg', 'totara_question', $avg);
+            }
+
+            if (!empty($this->param2) && !empty($this->param3)) {
+                // Showing both avg & med so we'll need a seperator.
+                $out .= html_writer::empty_tag('br');
+            }
+
+            if (!empty($this->param3)) {
+                $med = $this->median_results($answervalues);
+                $out .= get_string('aggregatedisplaymed', 'totara_question', $med);
+            }
+        }
+
+        return $out;
     }
 }

@@ -573,18 +573,42 @@ abstract class multichoice extends question_base {
         $scaleid = $this->param1;
         if ($scaleid > 0) {
             $scale = $DB->get_record($this->prefix . '_scale', array('id' => $scaleid));
+            $defaultidx = count($this->param3) > 0 ? $this->param3[0] : -1;
+
             if ($scale->name != '') {
-                // Sort values by id. Later, if we add editing of scales, we need to sort by sortorder field.
-                $values = $DB->get_records($this->prefix . '_scale_value', array($this->prefix . 'scaleid' => $scaleid), 'id');
                 $scale->id = 0;
                 $scale->name = '';
                 $newscaleid = $DB->insert_record($this->prefix . '_scale', $scale);
-                foreach ($values as $value) {
-                    $value->id = 0;
-                    $value->{$this->prefix . 'scaleid'} = $newscaleid;
-                    $DB->insert_record($this->prefix . '_scale_value', $value);
-                }
                 $this->param1 = $newscaleid;
+            }
+
+            // If a scale has a name, it means the scale is beinge re-used here.
+            // During activation these scale values are copied into a new scale without a name
+            // and the new scale is used in the param3 reference
+            // We are now also ensuring that the defaultdata column contains the admin's selected default choice
+            // (similar to rating questions with a numeric scale)
+            // The newly saved default value are not used anywhere for existing questions
+            //   - existing appraisals defaults to not including unanswered questions and
+            //   - feedback360 doesn't expect a value in this column
+            // There is thus no need to include upgrade steps for existing data
+            if ($scale->name != '' || $defaultidx != -1) {
+                // Sort values by id. Later, if we add editing of scales, we need to sort by sortorder field.
+                $values = $DB->get_records($this->prefix . '_scale_value', array($this->prefix . 'scaleid' => $scaleid), 'id');
+
+                $idx = 0;
+                foreach ($values as $value) {
+                    if ($defaultidx >= 0 && $defaultidx == $idx) {
+                        $this->defaultdata = $value->score;
+                    }
+                    if (isset($newscaleid)) {
+                        $value->id = 0;
+                        $value->{$this->prefix . 'scaleid'} = $newscaleid;
+                        $DB->insert_record($this->prefix . '_scale_value', $value);
+                    }
+
+                    $idx += 1;
+                }
+
                 $this->storage->save();
             }
         }
@@ -600,5 +624,4 @@ abstract class multichoice extends question_base {
             return get_string('userselectednothing', 'totara_question');
         }
     }
-
 }
