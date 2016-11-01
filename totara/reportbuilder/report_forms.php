@@ -1392,7 +1392,7 @@ class report_builder_course_expand_form extends moodleform {
 
         if ($url != '') {
             $mform->addElement('static', 'enrol', '', html_writer::link($url, $action,
-                array('class' => 'link-as-button')));
+                array('class' => 'link-as-button btn btn-primary')));
         }
     }
 }
@@ -1421,7 +1421,7 @@ class report_builder_program_expand_form extends moodleform {
 
         $url = new moodle_url('/totara/program/view.php', array('id' => $prog['id']));
         $mform->addElement('static', 'view', '', html_writer::link($url, get_string('view' . $type, 'totara_' . $type),
-            array('class' => 'link-as-button')));
+            array('class' => 'link-as-button btn btn-primary')));
     }
 }
 

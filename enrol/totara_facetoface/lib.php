@@ -533,7 +533,7 @@ class enrol_totara_facetoface_plugin extends enrol_plugin {
                 $url = new moodle_url('/enrol/totara_facetoface/withdraw.php', array('eid' => $instance->id));
                 $output .= html_writer::start_tag('p');
                 $output .= html_writer::link($url, get_string('withdrawpending', 'enrol_totara_facetoface'),
-                        array('class' => 'link-as-button'));
+                        array('class' => 'link-as-button btn btn-default'));
                 $output .= html_writer::end_tag('p');
             }
 
@@ -722,7 +722,7 @@ class enrol_totara_facetoface_plugin extends enrol_plugin {
             $output .= get_string('cannotenrolalreadyrequested', 'enrol_totara_facetoface');
             $output .= html_writer::end_tag('p');
             $output .= html_writer::start_tag('p');
-            $output .= html_writer::link($url, get_string('withdrawpending', 'enrol_totara_facetoface'), array('class' => 'link-as-button'));
+            $output .= html_writer::link($url, get_string('withdrawpending', 'enrol_totara_facetoface'), array('class' => 'link-as-button btn btn-default'));
             $output .= html_writer::end_tag('p');
             return $output;
         }

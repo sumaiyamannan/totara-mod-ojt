@@ -1574,6 +1574,10 @@ h6 [data-flex-icon='help'] {
     }
   }
 }
+.link-as-button {
+  &:extend(.btn);
+  &:extend(.btn-default);
+}
 
 // Behat sees the new sr-only stuff as visible,
 // but it must not see the old accesshide class for backwards compatibility.
