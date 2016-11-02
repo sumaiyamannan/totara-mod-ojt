@@ -1,5 +1,5 @@
 @_file_upload @javascript @tool @totara @totara_customfield @totara_hierarchy @tool_totara_sync
-Feature: Use location customfield in HR import position upload
+Feature: Use customfields in HR import position upload
   In order to test HR import of positions with customfields
   I must log in as an admin and import from a CSV file
 
@@ -79,7 +79,7 @@ Feature: Use location customfield in HR import position upload
     # Check
     When I navigate to "Manage positions" node in "Site administration > Hierarchies > Positions"
     Then I should see "5" in the "Position Framework 1" "table_row"
-    And I should see "5" in the "Position Framework 2" "table_row"
+    And I should see "6" in the "Position Framework 2" "table_row"
 
     When I follow "Position Framework 1"
     And I follow "Position 4"
@@ -92,3 +92,10 @@ Feature: Use location customfield in HR import position upload
     Then I should see "Stonehenge"
     And I should see "Off A344 Road, Amesbury, Wiltshire, England"
     And I should see "http://www.stonehenge.co.uk"
+
+    # Check URL customfield value is cleaned.
+    When I navigate to "Manage positions" node in "Site administration > Hierarchies > Positions"
+    Then I follow "Position Framework 2"
+    And I follow "Position 11"
+    Then I should see "URL Hacker"
+    And I should not see "gotcha"

@@ -9,3 +9,4 @@ pos7,Position 7,posfw2,1,Weta Workshop,"Miramar, Wellington, NZ",,PosType
 pos8,Position 8,posfw2,1,"Liberty Island, New York, NY",The Statue of Liberty,,PosType
 pos9,Position 9,posfw2,1,The U.K. Prime Minister,"10 Downing Street, London, England",,PosType
 pos10,Position 10,posfw2,1,Xavier,"2005 Sooke Rd, Victoria, BC V9B 5Y2",,PosType
+pos11,Position 11,posfw2,1,URL Hacker,"Hacking Street, London, England","<script>console.log('gotcha')</script>",PosType

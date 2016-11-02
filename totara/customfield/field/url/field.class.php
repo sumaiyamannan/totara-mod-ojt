@@ -296,6 +296,7 @@ class customfield_url extends customfield_base {
         }
 
         $data = array();
+        $url = clean_param($url, PARAM_URL);
         if (!empty($url)) {
             $url = core_text::strtolower($url);
             if (substr($url, 0, 7) !== 'http://' && substr($url, 0, 8) !== 'https://' && substr($url, 0, 1) !== '/') {
