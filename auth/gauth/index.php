@@ -55,8 +55,8 @@ require_once('openid.php');
 
 // save the jump target - this is checked later that it
 // starts with $CFG->wwwroot, and cleaned
-if (isset($_GET['wantsurl'])) {
-    $SESSION->wantsurl = $_GET['wantsurl'];
+if (!empty($_GET['wantsurl'])) {
+    $SESSION->wantsurl = required_param('wantsurl', PARAM_LOCALURL);
 }
 
 // do the OpenId negotiation
