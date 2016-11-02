@@ -100,7 +100,7 @@ function totara_course_is_viewable($courseid, $userid = null) {
 /**
  * This function loads the program settings that are available for the user
  *
- * @param object $navinode The navigation_node to add the settings to
+ * @param navigation_node $navinode The navigation_node to add the settings to
  * @param context $context
  * @param bool $forceopen If set to true the course node will be forced open
  * @return navigation_node|false
@@ -163,10 +163,13 @@ function totara_load_program_settings($navinode, $context, $forceopen = false) {
     // Override roles.
     if (has_capability('moodle/role:review', $context)) {
         $url = new moodle_url('/admin/roles/permissions.php', array('contextid' => $context->id));
+        $permissionsnode = $usersnode->add(get_string('permissions', 'role'), $url, navigation_node::TYPE_SETTING, null, 'override');
     } else {
         $url = null;
+        $permissionsnode = $usersnode->add(get_string('permissions', 'role'), $url, navigation_node::TYPE_CONTAINER, null, 'override');
+        $trytrim = true;
     }
-    $permissionsnode = $usersnode->add(get_string('permissions', 'role'), $url, navigation_node::TYPE_SETTING, null, 'override');
+
     // Add assign or override roles if allowed.
     if (is_siteadmin()) {
         if (has_capability('moodle/role:assign', $context)) {
@@ -182,6 +185,10 @@ function totara_load_program_settings($navinode, $context, $forceopen = false) {
                     'permissions', new pix_icon('i/checkpermissions', get_string('checkpermissions', 'role')));
     }
     // Just in case nothing was actually added.
+    if (isset($trytrim)) {
+        $permissionsnode->trim_if_empty();
+    }
+
     $usersnode->trim_if_empty();
     $adminnode->trim_if_empty();
 }
