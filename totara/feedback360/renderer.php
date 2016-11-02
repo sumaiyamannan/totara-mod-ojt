@@ -240,7 +240,7 @@ class totara_feedback360_renderer extends plugin_renderer_base {
                 if ($feedback360->status == feedback360::STATUS_DRAFT) {
                     $delete = $this->output->action_icon(
                             new moodle_url('/totara/feedback360/assignments.php',
-                                array('id' => $itemid, 'deleteid' => $assign->id)),
+                                array('id' => $itemid, 'deleteid' => $assign->id, 'sesskey' => sesskey())),
                             new pix_icon('t/delete', get_string('delete')));
                     $row[] = new html_table_cell($delete);
                 } else {
