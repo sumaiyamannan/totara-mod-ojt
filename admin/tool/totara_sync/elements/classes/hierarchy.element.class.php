@@ -71,7 +71,7 @@ abstract class totara_sync_hierarchy extends totara_sync_element {
     }
 
     function config_save($data) {
-        $this->set_config('csvsaveemptyfields', $data->csvsaveemptyfields);
+        $this->set_config('csvsaveemptyfields', !empty($data->csvsaveemptyfields));
         $this->set_config('allow_create', !empty($data->allow_create));
         $this->set_config('allow_update', !empty($data->allow_update));
         $this->set_config('allow_delete', !empty($data->allow_delete));
