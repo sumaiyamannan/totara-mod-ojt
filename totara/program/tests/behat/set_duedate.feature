@@ -84,7 +84,7 @@ Feature: Set due date for program assignments
     And I should see "12 Dec 2015 at 02:20" in the "Mary Jones" "table_row"
     When I click on "Exception Report (2)" "link"
     And I select "All learners" from the "selectiontype" singleselect
-    And I select "Override and add program" from the "selectionaction" singleselect
+    And I select "Assign" from the "selectionaction" singleselect
     And I press "Proceed with this action"
     And I click on "OK" "button" in the "Confirm issue resolution" "totaradialogue"
     And I log out
@@ -123,7 +123,7 @@ Feature: Set due date for program assignments
     And I wait "1" seconds
     When I click on "Exception Report (2)" "link"
     And I select "All learners" from the "selectiontype" singleselect
-    And I select "Override and add program" from the "selectionaction" singleselect
+    And I select "Assign" from the "selectionaction" singleselect
     And I press "Proceed with this action"
     And I click on "OK" "button" in the "Confirm issue resolution" "totaradialogue"
     And I log out

@@ -89,10 +89,10 @@ Feature: Generation of program assignment exceptions
     And I click on "Edit program details" "button"
     And I click on "Exception Report (1)" "link"
     Then I should see "fn_001 ln_001"
-    And I should see "Time allowance"
+    And I should see "Time allowance" in the "fn_001 ln_001" "table_row"
 
-    When I click on "All \"time allowance\" issues" "option" in the "#selectiontype" "css_element"
-    And I click on "Set realistic time allowance" "option" in the "#selectionaction" "css_element"
+    When I click on "Time allowance" "option" in the "#selectiontype" "css_element"
+    And I click on "Set realistic due date and assign" "option" in the "#selectionaction" "css_element"
     And I click on "Proceed with this action" "button"
     And I click on "OK" "button"
     Then I should see "No exceptions"
@@ -175,10 +175,10 @@ Feature: Generation of program assignment exceptions
     And I click on "Edit program details" "button"
     And I click on "Exception Report (1)" "link"
     Then I should see "fn_001 ln_001"
-    And I should see "User already assigned to program via learning plan"
+    And I should see "Already assigned to program" in the "fn_001 ln_001" "table_row"
 
-    When I click on "All \"already assigned\" issues" "option" in the "#selectiontype" "css_element"
-    And I click on "Override and add program" "option" in the "#selectionaction" "css_element"
+    When I click on "Already assigned to program" "option" in the "#selectiontype" "css_element"
+    And I click on "Assign" "option" in the "#selectionaction" "css_element"
     And I click on "Proceed with this action" "button"
     And I click on "OK" "button"
     Then I should see "No exceptions"
@@ -254,10 +254,10 @@ Feature: Generation of program assignment exceptions
     And I click on "Edit program details" "button"
     And I click on "Exception Report (1)" "link"
     Then I should see "fn_001 ln_001"
-    And I should see "Completion time unknown"
+    And I should see "Completion time unknown" in the "fn_001 ln_001" "table_row"
 
-    When I click on "All \"completion time unknown\" issues" "option" in the "#selectiontype" "css_element"
-    And I click on "Dismiss and take no action" "option" in the "#selectionaction" "css_element"
+    When I click on "Completion time unknown" "option" in the "#selectiontype" "css_element"
+    And I click on "Do not assign" "option" in the "#selectionaction" "css_element"
     And I click on "Proceed with this action" "button"
     And I click on "OK" "button"
     Then I should see "No exceptions"
@@ -340,21 +340,21 @@ Feature: Generation of program assignment exceptions
 
     Then I click on "exceptionid" "checkbox"
     And I wait until the page is ready
-    And I click on "Set realistic time allowance" "option" in the "#selectionaction" "css_element"
+    And I click on "Set realistic due date and assign" "option" in the "#selectionaction" "css_element"
     And I click on "Proceed with this action" "button"
     And I click on "OK" "button"
     Then I should see "4 learner(s) assigned. 2 learner(s) are active, 2 with exception(s)"
 
     Then I click on "exceptionid" "checkbox"
     And I wait until the page is ready
-    And I click on "Override and add program" "option" in the "#selectionaction" "css_element"
+    And I click on "Assign" "option" in the "#selectionaction" "css_element"
     And I click on "Proceed with this action" "button"
     And I click on "OK" "button"
     Then I should see "4 learner(s) assigned. 3 learner(s) are active, 1 with exception(s)"
 
     Then I click on "exceptionid" "checkbox"
     And I wait until the page is ready
-    And I click on "Dismiss and take no action" "option" in the "#selectionaction" "css_element"
+    And I click on "Do not assign" "option" in the "#selectionaction" "css_element"
     And I click on "Proceed with this action" "button"
     And I click on "OK" "button"
     Then I should see "4 learner(s) assigned. 3 learner(s) are active, 0 with exception(s)"
@@ -396,7 +396,7 @@ Feature: Generation of program assignment exceptions
     When I click on "Exception Report (1)" "link"
     Then I click on "exceptionid" "checkbox"
     And I wait until the page is ready
-    And I click on "Dismiss and take no action" "option" in the "#selectionaction" "css_element"
+    And I click on "Do not assign" "option" in the "#selectionaction" "css_element"
     And I click on "Proceed with this action" "button"
     And I click on "OK" "button"
     Then I should see "4 learner(s) assigned. 3 learner(s) are active, 0 with exception(s)"
@@ -516,7 +516,7 @@ Feature: Generation of program assignment exceptions
     Then I should see "fn_001 ln_001"
     Then I click on "exceptionid" "checkbox"
     And I wait until the page is ready
-    And I click on "Override and add program" "option" in the "#selectionaction" "css_element"
+    And I click on "Assign" "option" in the "#selectionaction" "css_element"
     And I click on "Proceed with this action" "button"
     And I click on "OK" "button"
     Then I should see "2 learner(s) assigned. 2 learner(s) are active, 0 with exception(s)"

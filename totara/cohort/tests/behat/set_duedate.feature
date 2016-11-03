@@ -59,7 +59,7 @@ Feature: Set due date for program assignments via audience management
     Then I should see "Complete by 9 Dec 2015 at 14:30" in the "Audience1" "table_row"
     When I click on "Exception Report (2)" "link"
     And I select "All learners" from the "selectiontype" singleselect
-    And I select "Override and add program" from the "selectionaction" singleselect
+    And I select "Assign" from the "selectionaction" singleselect
     And I press "Proceed with this action"
     And I click on "OK" "button" in the "Confirm issue resolution" "totaradialogue"
     And I log out
