@@ -65,6 +65,8 @@ if ($ADMIN->fulltree) { // Improve performance.
     $options['approval_admin'] =  new lang_string('setting:approval_admin', 'facetoface');
     $settings->add(new admin_setting_configmulticheckbox('facetoface_approvaloptions', new lang_string('setting:approvaloptions_caption', 'facetoface'),
         new lang_string('setting:approvaloptions_default', 'facetoface'), array('approval_none' => 1, 'approval_self' => 1,'approval_manager' => 1), $options));
+    $settings->add(new admin_setting_users_with_capability('facetoface_adminapprovers', new lang_string('setting:adminapprovers_caption', 'facetoface'),
+        new lang_string('setting:adminapprovers_format', 'facetoface'), array(), 'mod/facetoface:approveanyrequest'));
 
     $settings->add(new admin_setting_configcheckbox('facetoface_managerselect',
         new lang_string('setting:managerselect_caption', 'facetoface'),
@@ -148,9 +150,6 @@ if ($ADMIN->fulltree) {
 
     $settings->add(new admin_setting_configtextarea('facetoface_termsandconditions', new lang_string('setting:termsandconditions_caption', 'facetoface'),
         new lang_string('setting:termsandconditions_format', 'facetoface'), new lang_string('setting:termsandconditions_default', 'facetoface')));
-
-    $settings->add(new admin_setting_users_with_capability('facetoface_adminapprovers', new lang_string('setting:adminapprovers_caption', 'facetoface'),
-        new lang_string('setting:adminapprovers_format', 'facetoface'), array(), 'mod/facetoface:approveanyrequest'));
 
     $settings->add(new admin_setting_heading('facetoface/managerreserveheader',
         new lang_string('setting:managerreserveheader', 'mod_facetoface'), ''));
