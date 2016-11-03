@@ -246,32 +246,23 @@ function completion_cron_completions() {
     foreach ($rs as $record) {
         // Recalculate course's criteria
         completion_handle_criteria_recalc($record->course, $record->userid);
-    }
 
-    $rs->close();
+        // Reload the data from the db, because the previous function might have changed it.
+        $record = $DB->get_record('course_completions', array('id' => $record->id));
 
-    // Reload the data from the db, because the previous function might have changed it.
-    $rs = $DB->get_recordset_sql($sql, array('timestarted' => $timestarted));
-
-    foreach ($rs as $record) {
         $completion = new completion_completion((array) $record, false);
 
         // Aggregate the criteria and complete if necessary
         $completion->aggregate();
+
+        $DB->set_field('course_completions', 'reaggregate', 0, array('id' => $record->id));
+
+        unset($completion, $record);
+    }
+
+    if (debugging()) {
+        mtrace('Finished aggregating completions');
     }
 
     $rs->close();
-
-    // Mark all users as aggregated
-    $sql = "
-        UPDATE
-            {course_completions}
-        SET
-            reaggregate = 0
-        WHERE
-            reaggregate < :timestarted
-        AND reaggregate > 0
-    ";
-
-    $DB->execute($sql, array('timestarted' => $timestarted));
 }
