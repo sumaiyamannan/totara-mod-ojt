@@ -219,7 +219,7 @@ class mod_facetoface_mod_form extends moodleform_mod {
             $mform->setDefault('approval_termsandconds', get_config(null, 'facetoface_termsandconditions'));
             $mform->disabledIf('approval_termsandconds', 'approvaloptions', 'noteq', 'approval_self');
 
-            $mform->disabledIf('approverselector', 'approvaloptions', 'noteq', 'approval_admin');
+            $mform->disabledIf('addapprovaladmins', 'approvaloptions', 'noteq', 'approval_admin');
 
             $mform->addHelpButton('approvaloptions', 'approvaloptions', 'mod_facetoface');
         } else {
