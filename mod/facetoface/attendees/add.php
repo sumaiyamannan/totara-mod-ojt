@@ -237,6 +237,8 @@ echo facetoface_print_session($session, false, true, true);
 // Configure selector form.
 $strusertochange = get_string('userstoadd', 'facetoface');
 $stravailableusers = get_string('potentialusers', 'role', $usercount);
+$strlarrow = get_string('add');
+$strrarrow = get_string('remove');
 require_once('addremove_html.php');
 
 echo $OUTPUT->footer();

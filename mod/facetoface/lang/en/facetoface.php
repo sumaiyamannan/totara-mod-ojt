@@ -1972,6 +1972,7 @@ $string['thirdpartyemailaddress'] = 'Third-party email address(es)';
 $string['thirdpartywaitlist'] = 'Notify third-party about wait-listed events';
 $string['type'] = 'Type';
 $string['unapprovedrequests'] = 'Unapproved Requests';
+$string['undo'] = 'Undo';
 $string['unknowndate'] = '(unknown date)';
 $string['unknowntime'] = '(unknown time)';
 $string['upcomingsessions'] = 'Upcoming events';

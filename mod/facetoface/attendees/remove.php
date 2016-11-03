@@ -197,6 +197,8 @@ echo facetoface_print_session($session, false, true, true);
 $strusertochange = get_string('userstoremove', 'facetoface');
 $stravailableusers = get_string('currentattendees', 'facetoface');
 $nointerestsearch = true;
-require('addremove_html.php');
+$strlarrow = get_string('remove');
+$strrarrow = get_string('undo', 'facetoface');
+require_once('addremove_html.php');
 
 echo $OUTPUT->footer();
