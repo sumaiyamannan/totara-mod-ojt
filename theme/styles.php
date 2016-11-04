@@ -100,13 +100,22 @@ if (!$usesvg) {
 
 if ($chunk !== null) {
     $etag .= '/chunk'.$chunk;
-    $candidatename .= '.'.$chunk;
+    // Totara RTL support.
+    if ($rtl) {
+        $candidatename .= '-rtl.' . $chunk;
+    } else {
+        $candidatename .= '.' . $chunk;
+    }
 }
 $candidatesheet = "$candidatedir/$candidatename.css";
 
 // Totara RTL support.
 if ($rtl) {
-    $candidatesheet = "$candidatedir/$candidatename-rtl.css";
+    if ($chunk !== null) {
+        $candidatesheet = "$candidatedir/$candidatename.css";
+    } else {
+        $candidatesheet = "$candidatedir/$candidatename-rtl.css";
+    }
     $etag .= '/rtl';
 }
 
@@ -188,15 +197,35 @@ if ($type === 'editor') {
     $relroot = preg_replace('|^http.?://[^/]+|', '', $CFG->wwwroot);
     if (!empty($slashargument)) {
         if ($usesvg) {
-            $chunkurl = "{$relroot}/theme/styles.php/{$themename}/{$rev}/all";
+            // Totara RTL support.
+            if ($rtl) {
+                $chunkurl = "{$relroot}/theme/styles.php/{$themename}/{$rev}/all/rtl";
+            } else {
+                $chunkurl = "{$relroot}/theme/styles.php/{$themename}/{$rev}/all";
+            }
         } else {
-            $chunkurl = "{$relroot}/theme/styles.php/_s/{$themename}/{$rev}/all";
+            // Totara RTL support.
+            if ($rtl) {
+                $chunkurl = "{$relroot}/theme/styles.php/_s/{$themename}/{$rev}/all/rtl";
+            } else {
+                $chunkurl = "{$relroot}/theme/styles.php/_s/{$themename}/{$rev}/all";
+            }
         }
     } else {
         if ($usesvg) {
-            $chunkurl = "{$relroot}/theme/styles.php?theme={$themename}&rev={$rev}&type=all";
+            // Totara RTL support.
+            if ($rtl) {
+                $chunkurl = "{$relroot}/theme/styles.php?theme={$themename}&rev={$rev}&type=all&rtl=1";
+            } else {
+                $chunkurl = "{$relroot}/theme/styles.php?theme={$themename}&rev={$rev}&type=all";
+            }
         } else {
-            $chunkurl = "{$relroot}/theme/styles.php?theme={$themename}&rev={$rev}&type=all&svg=0";
+            // Totara RTL support.
+            if ($rtl) {
+                $chunkurl = "{$relroot}/theme/styles.php?theme={$themename}&rev={$rev}&type=all&svg=0&rtl=1";
+            } else {
+                $chunkurl = "{$relroot}/theme/styles.php?theme={$themename}&rev={$rev}&type=all&svg=0";
+            }
         }
     }
 
