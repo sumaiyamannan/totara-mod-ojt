@@ -99,6 +99,7 @@ foreach ($requests as $request) {
             error_log($logerrmsg);
         }
         unset($jsonexception->a);
+        $jsonexception->backtrace = format_backtrace($jsonexception->backtrace, true);
         if (!debugging('', DEBUG_DEVELOPER)) {
             unset($jsonexception->debuginfo);
             unset($jsonexception->backtrace);
