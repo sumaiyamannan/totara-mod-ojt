@@ -719,6 +719,7 @@ $string['maxeditingtime'] = 'Maximum time to edit posts';
 $string['maxinputvars'] = 'We recommend setting max_input_vars to a minimum of 2000 to ensure proper functionality of the site.';
 $string['maxusersperpage'] = ' Maximum users per page';
 $string['configmaxusersperpage'] = 'Maximum number of users displayed within user selector in course, group, audience, webservice etc.';
+$string['mbstringoverloadunsupported'] = 'Multibyte function overloading is not compatible with Totara, set "mbstring.func_overload = 0" in php.ini file.';
 $string['mbstringrecommended'] = 'Installing the optional MBSTRING library is highly recommended in order to improve site performance, particularly if your site is supporting non-Latin languages.';
 $string['mediapluginavi'] = 'Enable .avi filter';
 $string['mediapluginflv'] = 'Enable .flv filter';

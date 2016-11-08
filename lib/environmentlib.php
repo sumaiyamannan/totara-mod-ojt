@@ -687,6 +687,14 @@ function environment_check_php_settings($version, $env_select) {
                         $result->setStatus(true);
                     }
                     break;
+                case 'mbstring.func_overload':
+                    $current = ini_get('mbstring.func_overload');
+                    if ($current !== false and $current > 0) {
+                        $result->setStatus(false);
+                    } else {
+                        $result->setStatus(true);
+                    }
+                    break;
                 default:
                     $current = ini_get_bool($setting_name);
                     /// The name exists. Just check if it's an installed extension
