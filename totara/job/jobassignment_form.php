@@ -459,6 +459,16 @@ class job_assignment_form extends moodleform {
             }
         }
 
+        // Prevent manager job assignment path loops.
+        if ($data['id'] && $data['managerjaid']) {
+            $managerja = \totara_job\job_assignment::get_with_id($data['managerjaid']);
+            $managerjapath = $managerja->managerjapath . '/';
+
+            if (strpos($managerjapath, '/' . $data['id'] . '/') !== false) {
+                $result['managerselector'] = get_string('error:jobcircular', 'totara_job');
+            }
+        }
+
         // If setting a temporary manager, check that an expiry date is set.
         $canedittempmanager = $this->_customdata['canedittempmanager'];
         if ($canedittempmanager && $mform->getElement('tempmanagerid')->getValue()) {
