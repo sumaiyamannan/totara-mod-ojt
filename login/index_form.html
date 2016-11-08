@@ -36,7 +36,7 @@ $autocapitalize = (core_useragent::is_safari_ios() || core_useragent::is_webkit_
         <?php
           if (!empty($errormsg)) {
               echo html_writer::start_tag('div', array('class' => 'loginerrors'));
-              echo html_writer::link('#', $errormsg, array('id' => 'loginerrormessage', 'class' => 'accesshide'));
+              echo html_writer::link('#', $errormsg, array('id' => 'loginerrormessage', 'class' => 'sr-only'));
               echo $OUTPUT->error_text($errormsg);
               echo html_writer::end_tag('div');
           }
