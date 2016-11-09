@@ -223,6 +223,11 @@ if (!isset($_SERVER['REMOTE_ADDR']) && isset($_SERVER['argv'][0])) {
 // sometimes default PHP settings are borked on shared hosting servers, I wonder why they have to do that??
 ini_set('precision', 14); // needed for upgrades and gradebook
 ini_set('serialize_precision', 17); // Make float serialization consistent on all systems.
+ini_set('default_charset', 'UTF-8'); // Totara: always use UTF-8 as default encoding.
+ini_set('input_encoding', '');
+ini_set('output_encoding', '');
+ini_set('internal_encoding', '');
+ini_set('mbstring.language' , 'neutral');
 
 // Scripts may request no debug and error messages in output
 // please note it must be defined before including the config.php script
