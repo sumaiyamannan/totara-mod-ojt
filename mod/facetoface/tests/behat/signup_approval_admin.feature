@@ -84,7 +84,7 @@ Feature: Seminar Signup Admin Approval
     And I follow "Classroom Connect Course"
     And I should see "Sign-up"
     And I follow "Sign-up"
-    And I should see "Manager and Administrative approva"
+    And I should see "Manager and Administrative approval"
     Then I should see "This seminar requires manager approval, you are currently not assigned to a manager in the system. Please contact the site administrator."
 
   Scenario: Student signs up with no manager assigned with manager select enabled and admin approval required
@@ -98,7 +98,7 @@ Feature: Seminar Signup Admin Approval
     And I follow "Classroom Connect Course"
     And I should see "Sign-up"
     And I follow "Sign-up"
-    And I should see "Manager and Administrative approva"
+    And I should see "Manager and Administrative approval"
     And I press "Request approval"
     Then I should see "This seminar requires manager approval, please select a manager to request approval"
 
@@ -112,6 +112,7 @@ Feature: Seminar Signup Admin Approval
     And I log in as "manager"
     And I click on "Dashboard" in the totara menu
     And I click on "View all tasks" "link"
+    And I should see "Sally Sal" in the "td.user_namelink" "css_element"
     And I click on "Attendees" "link"
 
     Then I should see "Sally Sal"
@@ -124,6 +125,7 @@ Feature: Seminar Signup Admin Approval
     And I click on "Dashboard" in the totara menu
     Then I should see "Seminar booking admin request"
     And I click on "View all alerts" "link"
+    And I should see "Sally Sal" in the "td.user_namelink" "css_element"
     And I click on "Attendees" "link" in the "1 January 2020" "table_row"
     Then I should see "Sally Sal"
 
@@ -133,7 +135,7 @@ Feature: Seminar Signup Admin Approval
     And I follow "Classroom Connect Course"
     And I should see "Sign-up"
     And I follow "Sign-up"
-    And I should see "Manager and Administrative approva"
+    And I should see "Manager and Administrative approval"
     And I press "Request approval"
     And I log out
 
@@ -141,6 +143,7 @@ Feature: Seminar Signup Admin Approval
     And I click on "Dashboard" in the totara menu
     Then I should see "Seminar booking admin request"
     And I click on "View all tasks" "link"
+    And I should see "Jimmy Jim" in the "td.user_namelink" "css_element"
     And I click on "Attendees" "link" in the "1 January 2020" "table_row"
     Then I should see "Jimmy Jim" in the ".lastrow" "css_element"
 
@@ -155,6 +158,7 @@ Feature: Seminar Signup Admin Approval
     And I click on "Dashboard" in the totara menu
     Then I should see "Seminar booking admin request"
     And I click on "View all alerts" "link"
+    And I should see "Jimmy Jim" in the "td.user_namelink" "css_element"
     And I click on "Attendees" "link" in the "1 January 2020" "table_row"
     Then I should see "Jimmy Jim"
 
@@ -184,7 +188,7 @@ Feature: Seminar Signup Admin Approval
     And I follow "Classroom Connect Course"
     And I should see "Sign-up"
     And I follow "Sign-up"
-    And I should see "Manager and Administrative approva"
+    And I should see "Manager and Administrative approval"
     And I should see "Managers from all job assignements will be chosen if left empty"
     And I press "Request approval"
     Then I should see "Your booking has been completed but requires approval from your manager"
@@ -193,8 +197,8 @@ Feature: Seminar Signup Admin Approval
     And I log in as "manager"
     And I click on "Dashboard" in the totara menu
     And I click on "View all tasks" "link"
+    And I should see "Sammy Sam" in the "td.user_namelink" "css_element"
     And I click on "Attendees" "link"
-
   Scenario: Administrator approve and deny before manager
     # Add admin approver
     Given I log in as "admin"

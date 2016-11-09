@@ -740,6 +740,8 @@ class facetoface_notification extends data_object {
         if (!empty($CFG->facetoface_fromaddress)) {
             $fromuser = \mod_facetoface\facetoface_user::get_facetoface_user();
         }
+        // We need a real user id to display an attendee name in task/alert report builder.
+        $fromuser->realid = $user->id;
 
         $options = array('context' => context_course::instance($this->_facetoface->course));
         $coursename = format_string($this->_facetoface->coursename, true, $options);

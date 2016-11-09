@@ -2854,7 +2854,6 @@ class mod_facetoface_lib_testcase extends advanced_testcase {
         $this->assertCount(1, $messages);
         $message = reset($messages);
         $this->assertEquals($user2->id, $message->useridto);
-        $this->assertEquals(\mod_facetoface\facetoface_user::FACETOFACE_USER, $message->useridfrom);
     }
 
     /**
@@ -2948,8 +2947,6 @@ class mod_facetoface_lib_testcase extends advanced_testcase {
         $expected = sprintf($checkformat, $userfrom->firstname, $userfrom->lastname, $expectedemail);
 
         foreach ($emails as $email) {
-            $this->assertEquals($userfrom->id, $email->useridfrom);
-
             $actual = sprintf($checkformat, $email->fromfirstname, $email->fromlastname, $email->fromemail);
             $this->assertEquals($expected, $actual);
         }
