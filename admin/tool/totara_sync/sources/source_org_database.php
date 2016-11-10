@@ -239,7 +239,7 @@ class totara_sync_source_org_database extends totara_sync_source_org {
             }
 
             if (empty($extdbrow['timemodified'])) {
-                $dbrow['timemodified'] = $now;
+                $dbrow['timemodified'] = 0;
             } else {
                 //try to parse the contents - if parse fails assume a unix timestamp and leave unchanged
                 $parsed_date = totara_date_parse_from_format($csvdateformat, trim($extdbrow['timemodified']), true);

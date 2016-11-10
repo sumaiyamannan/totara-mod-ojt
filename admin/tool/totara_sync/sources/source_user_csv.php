@@ -353,7 +353,7 @@ class totara_sync_source_user_csv extends totara_sync_source_user {
             }
 
             if (empty($csvrow['timemodified'])) {
-                $dbrow['timemodified'] = $now;
+                $dbrow['timemodified'] = 0;
             } else {
                 // Try to parse the contents - if parse fails assume a unix timestamp and leave unchanged
                 $parsed_date = totara_date_parse_from_format($csvdateformat, trim($csvrow['timemodified']), true);
