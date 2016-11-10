@@ -442,18 +442,6 @@ $CFG->admin = 'admin';
 //
 //      $CFG->cssoptimiserpretty = true;
 //
-// Use the following flag to completely disable the Available update notifications
-// feature and hide it from the server administration UI.
-//
-//      $CFG->disableupdatenotifications = true;
-//
-// Use the following flag to completely disable the installation of plugins
-// (new plugins, available updates and missing dependencies) and related
-// features (such as cancelling the plugin installation or upgrade) via the
-// server administration web interface.
-//
-//      $CFG->disableupdateautodeploy = true;
-//
 // Use the following flag to disable modifications to scheduled tasks
 // whilst still showing the state of tasks.
 //

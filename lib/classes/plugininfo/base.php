@@ -415,33 +415,12 @@ abstract class base {
      * Populates the property {@link $availableupdates} on first call (lazy
      * loading).
      *
+     * @deprecated Not implemented in Totara
+     *
      * @return array|null
      */
     public function available_updates() {
-
-        if ($this->availableupdates === null) {
-            // Lazy load the information about available updates.
-            $this->availableupdates = $this->pluginman->load_available_updates_for_plugin($this->component);
-        }
-
-        if (empty($this->availableupdates) or !is_array($this->availableupdates)) {
-            $this->availableupdates = array();
-            return null;
-        }
-
-        $updates = array();
-
-        foreach ($this->availableupdates as $availableupdate) {
-            if ($availableupdate->version > $this->versiondisk) {
-                $updates[] = $availableupdate;
-            }
-        }
-
-        if (empty($updates)) {
-            return null;
-        }
-
-        return $updates;
+        return null;
     }
 
     /**

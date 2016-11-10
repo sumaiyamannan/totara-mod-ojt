@@ -369,11 +369,6 @@ $CFG->yuipatchlevel = 0;
 $CFG->yuipatchedmodules = array(
 );
 
-if (!empty($CFG->disableonclickaddoninstall)) {
-    // This config.php flag has been merged into another one.
-    $CFG->disableupdateautodeploy = true;
-}
-
 // Store settings from config.php in array in $CFG - we can use it later to detect problems and overrides.
 if (!isset($CFG->config_php_settings)) {
     $CFG->config_php_settings = (array)$CFG;
@@ -424,15 +419,6 @@ if (!empty($CFG->earlyprofilingenabled)) {
     require_once($CFG->libdir . '/xhprof/xhprof_moodle.php');
     profiling_start();
 }
-
-// Totara: force-disable some settings that are not functional in Totara.
-// Always force autoupdates off in Totara.
-$CFG->disableupdatenotifications = '1';
-$CFG->disableupdateautodeploy = '1';
-$CFG->updateautodeploy = '0';
-$CFG->updateautocheck = '0';
-$CFG->updatenotifybuilds = '0';
-$CFG->updateminmaturity = (string)MATURITY_STABLE;
 
 /**
  * Database connection. Used for all access to the database.
