@@ -1,21 +1,25 @@
 <?php
 function clustercache_setup_cache (){
+    // Set up the local cache.
     cache_helper::update_definitions();
     $cachename = 'Local cache';
     $localcreated = clustercache_create_local_file_store($cachename);
     $writer = cache_config_writer::instance();
     if ($localcreated) {
         // Actually map something to the cache store.
-        $definition = 'core/string';
+        $definitions = array('core/string', 'core/htmlpurifier');
         $mappings = array($cachename);
-        $result = $writer->set_definition_mappings($definition, $mappings);
-        if (!$result) {
-            print "$definition mapped to $cachename successfully<br/>\n";
-        } else {
-            print "failed to map $definition to $cachename<br/>\n";
+        foreach ($definitions as $definition) {
+            $result = $writer->set_definition_mappings($definition, $mappings);
+            if (!$result) {
+                print "$definition mapped to $cachename successfully<br/>\n";
+            } else {
+                print "failed to map $definition to $cachename<br/>\n";
+            }
         }
     }
 
+    // Set up the memcache cluster.
     $cachename = 'Cluster memcache';
     $memcachecreated = clustercache_create_memcache_cluster_store($cachename);
     if (!$memcachecreated) {
