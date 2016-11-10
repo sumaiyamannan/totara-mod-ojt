@@ -220,8 +220,9 @@ class rb_source_dp_evidence extends rb_base_source {
                 'extrafields' => array(
                     'userid' => 'base.userid',
                     'readonly' => 'base.readonly',
+                ),
                 'noexport' => true,
-                'nosort' => true),
+                'nosort' => true,
             )
         );
 
