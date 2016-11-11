@@ -81,8 +81,8 @@ Feature: Test Current Learning block
     And I configure the "Current Learning" block
     And I expand all fieldsets
     And I set the following fields to these values:
-      | Default region | content |
-      | Default weight | -10     |
+      | Default region | Main |
+      | Default weight | -10  |
     And I press "Save changes"
     Then I should see "Course 1" in the "Current Learning" "block"
     And I should see "Test Program 1" in the "Current Learning" "block"
@@ -129,8 +129,8 @@ Feature: Test Current Learning block
     And I configure the "Current Learning" block
     And I expand all fieldsets
     And I set the following fields to these values:
-      | Default region | content |
-      | Default weight | -10     |
+      | Default region | Main |
+      | Default weight | -10  |
     And I press "Save changes"
     Then I should see "Course 1" in the "Current Learning" "block"
     And I should see "Test Program 1" in the "Current Learning" "block"

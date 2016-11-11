@@ -2003,13 +2003,20 @@ class theme_config {
     /**
      * Get the list of all block regions known to this theme in all templates.
      *
+     * @param string The page layout that you would like the regions for ('' = all regions in the theme)
      * @return array internal region name => human readable name.
      */
-    public function get_all_block_regions() {
+    public function get_all_block_regions($pagelayout = '') {
         $regions = array();
-        foreach ($this->layouts as $layoutinfo) {
-            foreach ($layoutinfo['regions'] as $region) {
+        if ($pagelayout !== '') {
+            foreach ($this->layouts[$pagelayout]['regions'] as $region) {
                 $regions[$region] = $this->get_region_name($region, $this->name);
+            }
+        } else {
+            foreach ($this->layouts as $layout => $layoutinfo) {
+                foreach ($layoutinfo['regions'] as $region) {
+                    $regions[$region] = $this->get_region_name($region, $this->name);
+                }
             }
         }
         return $regions;
