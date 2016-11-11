@@ -68,50 +68,39 @@ function clustercache_create_local_file_store($storename) {
     $data->plugin = 'file';
     // Set an arbitary name, but consistent accross our many sites.
     $data->name = $storename;
-    $data->lock = 'cachelock_file_default';
     $data->path = "/var/cache/appcache/$siteidentifier";
-    // Check that there is no existing instance with this name.
-    if (array_key_exists($storename, $stores)) {
-        // Success - there's a plugin of that name already.
-        // no need to do anything.
-        return 1;
-    }
-    $writer = cache_config_writer::instance();
-    // Check that there is no existing instance with this name.
-    $instance = cache_config::instance();
-    $stores = $instance->get_all_stores();
-
     $config = cache_administration_helper::get_store_configuration_from_data($data);
-    unset($config['lock']);
-    foreach ($writer->get_locks() as $lock => $lockconfig) {
-        if ($lock == $data->lock) {
-            $config['lock'] = $data->lock;
-        }
-    }
-    if (empty($config['lock'])) {
-        // Unable to create the cache instance without a lock mechanism.
-        return 0;
+    $writer = cache_config_writer::instance();
+
+    // Is this only an update?
+    $updatestore = array_key_exists($storename, $stores) ? true : false;
+
+    if ($updatestore) {
+        $result = $writer->edit_store_instance($data->name, $data->plugin, $config);
+        print "Update local store named $storename<br/>\n";
+    } else {
+        $result = $writer->add_store_instance($data->name, $data->plugin, $config);
+        print "Add local store named $storename<br>\n";
     }
 
-    try {
-        $result = $writer->add_store_instance($data->name, $data->plugin, $config);
-    } catch (cache_exception $e) {
-        $message = $e->getMessage();
-        if (strpos($message, 'cache/Duplicate name specificed for cache plugin instance.') === 0) {
-            // Success - there's already a plugin of that name.
-            return true;
-        }
-        throw $e;
+    if (!$result) {
+        print "FAILED to create/update local store named $storename<br/>\n";
     }
-    if ($result) {
-        print "Created local store named $storename<br/>\n";
-    } else {
-        print "FAILED to create local store named $storename<br/>\n";
-    }
+
     return $result;
 }
+
 function clustercache_create_memcache_cluster_store($storename) {
     global $CFG;
+
+    $metadatafilepath = $CFG->dirroot . '/deploymentREADME.php';
+    if (!file_exists($metadatafilepath)) {
+        // Unable to get needed info.
+        print "metadata file path ($metadatafilepath) doesn't exist<br/>\n";
+        return false;
+    }
+    include($metadatafilepath);
+
     $stores = cache_administration_helper::get_store_instance_summaries();
     $writer = cache_config_writer::instance();
 
@@ -121,23 +110,21 @@ function clustercache_create_memcache_cluster_store($storename) {
     $data->name = $storename;
     $instance = cache_config::instance();
     $stores = $instance->get_all_stores();
-    if (array_key_exists($storename, $stores)) {
-        // Success - there's a plugin of that name already.
-        // no need to do anything.
-        print "$storename already exists<br/>\n";
-        return true;
-    }
+
     $data->lock = 'cachelock_file_default';
     $data->servers = 'cache-local:11212';
     $data->clustered = 1;
-    $data->setservers = "cache-local:11212\ncache-remote-a:11212";
-    $metadatafilepath = $CFG->dirroot . '/deploymentREADME.php';
-    if (!file_exists($metadatafilepath)) {
-        // Unable to get needed info.
-        print "metadata file path ($metadatafilepath) doesn't exist<br/>\n";
-        return false;
+    $data->setservers = array();
+    $setservers = array('cache-local' => 11212, 'cache-remote-a' => 11212);
+    foreach ($setservers as $server => $port) {
+        if ($environment != "prod" && !clustercache_can_connect_to_server($server, $port)) {
+            print "WARNING: cannot connect to memcache server $server:$port - skipping configuration of this server<br/>\n";
+            continue;
+        }
+        $data->setservers[] = "{$server}:{$port}";
     }
-    include($metadatafilepath);
+    $data->setservers = implode("\n", $data->setservers);
+
     if (empty($siteenvironmentid)) {
         // Can't get enough info to set prefix properly.
         print "can't find site environment id<br/>\n";
@@ -147,6 +134,8 @@ function clustercache_create_memcache_cluster_store($storename) {
 
     $config = cache_administration_helper::get_store_configuration_from_data($data);
     $writer = cache_config_writer::instance();
+
+
     unset($config['lock']);
     foreach ($writer->get_locks() as $lock => $lockconfig) {
         if ($lock == $data->lock) {
@@ -159,21 +148,30 @@ function clustercache_create_memcache_cluster_store($storename) {
         return false;
     }
 
-    try {
-        $result = $writer->add_store_instance($data->name, $data->plugin, $config);
-    } catch (cache_exception $e) {
-        $message = $e->getMessage();
-        if (strpos($message, 'cache/Duplicate name specificed for cache plugin instance.') === 0) {
-            // Success - there's already a plugin of that name.
-            return true;
-        }
-        throw $e;
-    }
-    if ($result) {
-        print "Created cluster memcache store '$storename'<br/>\n";
+    // Is this an update?
+    $updatestore = array_key_exists($storename, $stores) ? true : false;
+
+    if ($updatestore) {
+        $result = $writer->edit_store_instance($data->name, $data->plugin, $config);
+        print "Update local store named $storename<br/>\n";
     } else {
-        print "FAILED to create cluster memcache store '$storename'<br/>\n";
+        $result = $writer->add_store_instance($data->name, $data->plugin, $config);
+        print "Create local store named $storename<br/>\n";
     }
+    if (!$result) {
+        print "FAILED to create/update cluster memcache store '$storename'<br/>\n";
+    }
+
     return $result;
 }
 
+
+function clustercache_can_connect_to_server($server, $port) {
+    $fp = @fsockopen($server, $port, $errno, $errstr, 4);
+    if (!$fp) {
+        return false;
+    } else {
+        fclose($fp);
+        return true;
+    }
+}
