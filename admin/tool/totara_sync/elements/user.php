@@ -1117,6 +1117,11 @@ class totara_sync_element_user extends totara_sync_element {
 
         $issane = array();
         $invalidids = array();
+
+        // Get non-enabled totarasync users.
+        $badids = $this->check_user_sync_disabled($synctable);
+        $invalidids = array_merge($invalidids, $badids);
+
         // Get duplicated idnumbers.
         $badids = $this->get_duplicated_values($synctable, $synctable_clone, 'idnumber', 'duplicateuserswithidnumberx');
         $invalidids = array_merge($invalidids, $badids);
@@ -1389,6 +1394,34 @@ class totara_sync_element_user extends totara_sync_element {
         $rs = $DB->get_recordset_sql($sql, $params);
         foreach ($rs as $r) {
             $this->addlog(get_string($role.'xnotexist', 'tool_totara_sync', $r), 'error', 'checksanity');
+            $invalidids[] = $r->id;
+        }
+        $rs->close();
+
+        return $invalidids;
+    }
+
+    /**
+     * Get users where their HR Import setting is disabled.
+     *
+     * @param string $synctable sync table name
+     *
+     * @return array with invalid ids from synctable for users that do not have totarasync enabled
+     */
+    function check_user_sync_disabled($synctable) {
+        global $DB;
+
+        $invalidids = array();
+
+        $sql = "SELECT u.id, u.idnumber
+                FROM {user} u
+                INNER JOIN {{$synctable}} s
+                  ON (u.idnumber = s.idnumber AND u.idnumber != '')
+                WHERE u.totarasync = 0";
+
+        $rs = $DB->get_recordset_sql($sql);
+        foreach ($rs as $r) {
+            $this->addlog(get_string('usersyncdisabled', 'tool_totara_sync', $r), 'error', 'checksanity');
             $invalidids[] = $r->id;
         }
         $rs->close();

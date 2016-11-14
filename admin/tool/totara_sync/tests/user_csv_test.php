@@ -660,4 +660,64 @@ class tool_totara_sync_user_csv_testcase extends advanced_testcase {
         $this->assertSame('User006 \\\' Unnessecary escape', $DB->get_field('user', 'lastname', array('idnumber' => 'imp006', 'deleted' => 0, 'suspended' => 0)));
         $this->assertSame('User007 " Double Quote', $DB->get_field('user', 'lastname', array('idnumber' => 'imp007', 'deleted' => 0, 'suspended' => 0)));
     }
+
+    public function test_user_sync_disabled_setting() {
+        global $DB;
+
+        $this->resetAfterTest();
+
+        $configcsv = $this->configcsv;
+        foreach ($configcsv as $k => $v) {
+            set_config($k, $v, 'totara_sync_source_user_csv');
+        }
+
+        $config = array_merge($this->config, array('allow_delete' => '1', 'sourceallrecords' => '1'));
+        foreach ($config as $k => $v) {
+            set_config($k, $v, 'totara_sync_element_user');
+        }
+
+        $elements = totara_sync_get_elements(true);
+        /** @var totara_sync_element_user $element */
+        $element = $elements['user'];
+
+        // Run the first sync to add users.
+        $data = file_get_contents(__DIR__ . '/fixtures/users.01.csv');
+        $filepath = $this->filedir . '/csv/ready/user.csv';
+        file_put_contents($filepath, $data);
+
+        $result = $element->sync();
+        $this->assertTrue($result);
+
+        // Check we have admin + guest + 3 users from the CSV
+        $this->assertCount(5, $DB->get_records('user'));
+
+        // Update user import001 to turn off the HR Import setting.
+        $user = $DB->get_record('user', array('username' => 'import001'));
+        $user->totarasync = 0;
+        $DB-> update_record('user', $user);
+
+        // Run the sync again with an updated CSV. ('-edited' has been appended to their firstname).
+        $data = file_get_contents(__DIR__ . '/fixtures/users-edited.01.csv');
+        $filepath = $this->filedir . '/csv/ready/user.csv';
+        file_put_contents($filepath, $data);
+
+        $result = $element->sync();
+        $this->assertTrue($result);
+
+        // Check we have admin + guest + 3 users from the CSV
+        $this->assertCount(5, $DB->get_records('user'));
+
+        // Check that user import001 has not been updated.
+        $user = $DB->get_record('user', array('username' => 'import001'));
+        $this->assertSame('Import', $user->firstname);
+
+        // Check that an import log entry has been created.
+        $info = get_string('usersyncdisabled', 'tool_totara_sync', $user);
+        $this->assertTrue($DB->record_exists('totara_sync_log', array('info' => $info)));
+
+        // Check the other users have been updated.
+        $this->assertSame('Import-edited', $DB->get_field('user', 'firstname', array('username' => 'import002')));
+        $this->assertSame('Import-edited', $DB->get_field('user', 'firstname', array('username' => 'import003')));
+
+    }
 }
