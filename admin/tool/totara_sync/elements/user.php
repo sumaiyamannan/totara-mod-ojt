@@ -213,8 +213,8 @@ class totara_sync_element_user extends totara_sync_element {
 
         $this->set_customfieldsdb();
 
-        $invalidids = $this->check_sanity($synctable, $synctable_clone);
-        $issane = (empty($invalidids) ? true : false);
+        $invalididnumbers = $this->check_sanity($synctable, $synctable_clone);
+        $issane = (empty($invalididnumbers) ? true : false);
         $problemswhileapplying = false;
 
         // Initialise to safe defaults if settings not present.
@@ -268,7 +268,7 @@ class totara_sync_element_user extends totara_sync_element {
                     // Remove user.
                     try {
                         // Do not delete the records which have invalid values(e.g. spelling mistake).
-                        if (array_search($user->idnumber, $invalidids) === false) {
+                        if (array_search($user->idnumber, $invalididnumbers) === false) {
                             $usr = $DB->get_record('user', array('id' => $user->id));
                             // Check for guest account record.
                             if ($usr->username === 'guest' || isguestuser($usr)) {
@@ -335,7 +335,7 @@ class totara_sync_element_user extends totara_sync_element {
                 $rs = $DB->get_recordset_sql($sql);
                 foreach ($rs as $user) {
                     // Do not suspend the records which have invalid values(e.g. spelling mistake).
-                    if (array_search($user->idnumber, $invalidids) === false) {
+                    if (array_search($user->idnumber, $invalididnumbers) === false) {
                         $user = $DB->get_record('user', array('id' => $user->id));
                         $user->suspended = 1;
                         \core\session\manager::kill_user_sessions($user->id);
@@ -1113,7 +1113,7 @@ class totara_sync_element_user extends totara_sync_element {
      * @param string $synctable sync table name
      * @param string $synctable_clone sync clone table name
      *
-     * @return boolean true if the data is valid, false otherwise
+     * @return array containing idnumbers of all records that are invalid
      */
     function check_sanity($synctable, $synctable_clone) {
         global $DB;
@@ -1123,7 +1123,7 @@ class totara_sync_element_user extends totara_sync_element {
             return true; // Nothing to check.
         }
 
-        $issane = array();
+        $allinvalididnumbers = array();
         $invalidids = array();
 
         // Get non-enabled totarasync users.
@@ -1163,8 +1163,8 @@ class totara_sync_element_user extends totara_sync_element {
         }
 
         // Check position start date is not larger than position end date.
-        if (property_exists($syncfields, 'posstartdate') && property_exists($syncfields, 'posenddate')) {
-            $badids = $this->get_invalid_start_end_dates($synctable, 'posstartdate', 'posenddate', 'posstartdateafterenddate');
+        if (property_exists($syncfields, 'jobassignmentstartdate') && property_exists($syncfields, 'jobassignmentenddate')) {
+            $badids = $this->get_invalid_start_end_dates($synctable, 'jobassignmentstartdate', 'jobassignmentenddate', 'jobassignmentstartdateafterenddate');
             $invalidids = array_merge($invalidids, $badids);
         }
 
@@ -1246,7 +1246,7 @@ class totara_sync_element_user extends totara_sync_element {
                     // Collect idnumber for records which are invalid.
                     $rs = $DB->get_records_sql("SELECT id, idnumber FROM {{$synctable}} WHERE id $badids", $params);
                     foreach ($rs as $id => $record) {
-                        $issane[] = $record->idnumber;
+                        $allinvalididnumbers[$id] = $record->idnumber;
                     }
                     $DB->delete_records_select($synctable, "id $badids", $params);
                     $DB->delete_records_select($synctable_clone, "id $badids", $params);
@@ -1258,7 +1258,7 @@ class totara_sync_element_user extends totara_sync_element {
             }
         }
 
-        return $issane;
+        return $allinvalididnumbers;
     }
 
     /**
@@ -1597,7 +1597,9 @@ class totara_sync_element_user extends totara_sync_element {
         $invalidids = array();
         $sql = "SELECT id, idnumber
                   FROM {{$synctable}}
-                 WHERE idnumber = $role";
+                 WHERE idnumber = $role
+                   AND idnumber != ''
+                   AND idnumber IS NOT NULL";
         if (empty($this->config->sourceallrecords)) {
             $sql .= ' AND deleted = ?'; // Avoid users that will be deleted.
             $params[0] = 0;
@@ -1657,7 +1659,9 @@ class totara_sync_element_user extends totara_sync_element {
         $sql = "SELECT s.id, s.idnumber
                   FROM {{$synctable}} s
                   INNER JOIN {user} u ON s.idnumber = u.idnumber
-                 WHERE u.deleted = 1";
+                 WHERE u.deleted = 1
+                   AND s.idnumber != ''
+                   AND s.idnumber IS NOT NULL";
         if (empty($this->config->sourceallrecords)) {
             // With sourceallrecords on we also need to check the deleted column in the sync table.
             $sql .= ' AND s.deleted = 0';
@@ -1679,7 +1683,7 @@ class totara_sync_element_user extends totara_sync_element {
      *
      * @return array with invalid ids from synctable for invalid emails
      */
-    protected function get_invalid_emails($synctable) {
+    public function get_invalid_emails($synctable) {
         global $DB;
 
         $params = array();
@@ -1712,7 +1716,7 @@ class totara_sync_element_user extends totara_sync_element {
      *
      * @return array with a dummy invalid id record if there is a row with an invalid language
      */
-    protected function get_invalid_lang($synctable) {
+    public function get_invalid_lang($synctable) {
         global $DB;
 
         $forcewarning = false;
@@ -1755,7 +1759,7 @@ class totara_sync_element_user extends totara_sync_element {
      *
      * @return array with ids of any rows with invalid usernames
      */
-    protected function check_invalid_username($synctable, $synctable_clone) {
+    public function check_invalid_username($synctable, $synctable_clone) {
         global $DB;
 
         $invalidids = array();

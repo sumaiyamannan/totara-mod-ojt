@@ -60,6 +60,11 @@ class tool_totara_sync_user_database_testcase extends advanced_testcase {
     public function setUp() {
         global $CFG;
 
+        parent::setup();
+
+        $this->resetAfterTest(true);
+        $this->setAdminUser();
+
         if (defined('TEST_SYNC_DB_TYPE') ||
             defined('TEST_SYNC_DB_HOST') ||
             defined('TEST_SYNC_DB_PORT') ||
@@ -95,11 +100,6 @@ class tool_totara_sync_user_database_testcase extends advanced_testcase {
         } else {
             $this->assertTrue(false, 'HR Import database test configuration was only partially provided');
         }
-
-        parent::setup();
-
-        $this->resetAfterTest(true);
-        $this->setAdminUser();
 
         set_config('element_user_enabled', 1, 'totara_sync');
         set_config('source_user', 'totara_sync_source_user_database', 'totara_sync');
@@ -220,6 +220,7 @@ class tool_totara_sync_user_database_testcase extends advanced_testcase {
             if ($dbman->table_exists($this->dbtable)) {
                 $dbman->drop_table($table, $this->dbtable);
             }
+            $this->ext_dbconnection->dispose();
         }
     }
 

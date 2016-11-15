@@ -323,10 +323,10 @@ abstract class totara_sync_source_user extends totara_sync_source {
             $table->add_field('jobassignmentfullname', XMLDB_TYPE_CHAR, '255');
         }
         if (!empty($this->config->import_jobassignmentstartdate)) {
-            $table->add_field('jobassignmentstartdate', XMLDB_TYPE_CHAR, '20');
+            $table->add_field('jobassignmentstartdate', XMLDB_TYPE_INTEGER, '10');
         }
         if (!empty($this->config->import_jobassignmentenddate)) {
-            $table->add_field('jobassignmentenddate', XMLDB_TYPE_CHAR, '20');
+            $table->add_field('jobassignmentenddate', XMLDB_TYPE_INTEGER, '10');
         }
         if (!empty($this->config->import_orgidnumber)) {
             $table->add_field('orgidnumber', XMLDB_TYPE_CHAR, '100');
