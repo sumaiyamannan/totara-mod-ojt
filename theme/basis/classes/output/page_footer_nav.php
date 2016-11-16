@@ -46,7 +46,7 @@ class page_footer_nav implements \renderable, \templatable {
         // so we have to wrap the menu data in a footer nav specific
         // object in order to change the way it is output without
         // altering the main header.
-        $templatecontext = new \totara_core\output\totara_menu($this->menudata);
+        $templatecontext = (new \totara_core\output\totara_menu($this->menudata))->export_for_template($output);
         $templatecontext->menuitems_has_items = !empty($templatecontext->menuitems) ? true : false;
 
         return $templatecontext;

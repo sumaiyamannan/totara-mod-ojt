@@ -67,16 +67,21 @@
 
 .page-footer-nav {
     text-align: left;
-}
-
-.page-footer-nav-list {
-    margin-bottom: @line-height-computed;
+    margin-top: @line-height-computed;
 }
 
 .page-footer-nav-item {
     list-style-type: none;
     white-space: nowrap;
+    margin-bottom: @line-height-computed;
     .page-footer-nav-item {
         &:extend(small);
+        margin-bottom: 0;
+    }
+}
+
+.page-footer-nav-list {
+    .page-footer-nav > & {
+        margin: 0;
     }
 }
