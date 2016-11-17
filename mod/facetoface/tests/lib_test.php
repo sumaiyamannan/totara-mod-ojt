@@ -3508,6 +3508,57 @@ class mod_facetoface_lib_testcase extends advanced_testcase {
     }
 
     /**
+     * Test facetoface_is_adminapprover
+     */
+    public function test_facetoface_is_adminapprover() {
+        global $DB;
+        $course = $this->getDataGenerator()->create_course();
+        $facetoface1 = $this->facetoface_generator->create_instance(array('course' => $course->id, 'approvaltype' => APPROVAL_ADMIN));
+        $user2 = $this->getDataGenerator()->create_user();
+        $user3 = $this->getDataGenerator()->create_user();
+        $facetoface2 = $this->facetoface_generator->create_instance(array('course' => $course->id, 'approvaltype' => APPROVAL_ADMIN,
+                'approvaladmins' => "{$user2->id},{$user3->id}"));
+
+        $user4 = $this->getDataGenerator()->create_user();
+        $user5 = $this->getDataGenerator()->create_user();
+        $user6 = $this->getDataGenerator()->create_user();
+
+        // 3,4,5 - system approvers.
+        set_config('facetoface_adminapprovers', "{$user3->id},{$user4->id},{$user5->id}");
+
+        // 3,5,6 - has capability.
+        $managerrole = $DB->get_record('role', array('shortname' => 'manager'));
+        $context = context_system::instance();
+        assign_capability('mod/facetoface:approveanyrequest', CAP_ALLOW, $managerrole->id, $context);
+        $this->getDataGenerator()->role_assign($managerrole->id, $user3->id, $context->id);
+        $this->getDataGenerator()->role_assign($managerrole->id, $user5->id, $context->id);
+        $this->getDataGenerator()->role_assign($managerrole->id, $user6->id, $context->id);
+
+
+        // not listed in activity, not system approver.
+        $user1 = $this->getDataGenerator()->create_user();
+        $this->assertFalse(facetoface_is_adminapprover($user1->id, $facetoface1));
+
+        // listed in different activity, not system approver.
+        $this->assertFalse(facetoface_is_adminapprover($user2->id, $facetoface1));
+        // listed in activity, not system approver.
+        $this->assertTrue(facetoface_is_adminapprover($user2->id, $facetoface2));
+
+        // not listed in activity, system approver, no capability.
+        $this->assertFalse(facetoface_is_adminapprover($user4->id, $facetoface1));
+
+        // not listed in activity, not system approver, has capability.
+        $this->assertFalse(facetoface_is_adminapprover($user6->id, $facetoface1));
+
+        // not listed in activity, system approver, has capability.
+        $this->assertTrue(facetoface_is_adminapprover($user5->id, $facetoface1));
+
+
+        // listed in activity, system approver, has capability.
+        $this->assertTrue(facetoface_is_adminapprover($user3->id, $facetoface2));
+    }
+
+    /**
      * Test facetoface_can_user_signup()
      */
     public function test_facetoface_can_user_signup() {

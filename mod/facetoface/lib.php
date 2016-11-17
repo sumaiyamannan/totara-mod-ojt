@@ -2758,31 +2758,8 @@ function facetoface_approve_requests($data) {
 
     $sessionid = $data->s;
 
-    // Load session
-    if (!$session = facetoface_get_session($sessionid)) {
-        error_log('F2F: Could not load facetoface session');
-        return false;
-    }
+    list($session, $facetoface, $course, $cm, $context) = facetoface_get_env_session($sessionid);
 
-    // Load facetoface
-    if (!$facetoface = $DB->get_record('facetoface', array('id' => $session->facetoface))) {
-        error_log('F2F: Could not load facetoface instance');
-        return false;
-    }
-
-    // Load course
-    if (!$course = $DB->get_record('course', array('id' => $facetoface->course))) {
-        error_log('F2F: Could not load course');
-        return false;
-    }
-
-    // Load cm.
-    if (!$cm = get_coursemodule_from_instance('facetoface', $facetoface->id, $course->id)) {
-        error_log('F2F: Could not load cm');
-        return false;
-    }
-
-    $context = context_module::instance($cm->id);
     $approved = array();
     $rejected = array();
     $errors = array();
@@ -2838,7 +2815,8 @@ function facetoface_approve_requests($data) {
 
             // Approve
             case 2:
-                if ($facetoface->approvaltype == APPROVAL_ADMIN && $currentstatus == MDL_F2F_STATUS_REQUESTED) {
+                if ($facetoface->approvaltype == APPROVAL_ADMIN && !facetoface_is_adminapprover($USER->id, $facetoface)) {
+                    // Non-admin approves - now need admin approval
                     // The user is on the first step of the 2 step approval process.
                     facetoface_update_signup_status(
                         $attendee->submissionid,
@@ -4057,6 +4035,29 @@ function facetoface_get_approvaltype_string($approvaltype, $approvalrole = null)
         default:
             print_error('error:unrecognisedapprovaltype', 'mod_facetoface');
     }
+}
+
+/**
+ * Is user approver for seminar activity
+ * @param int $userid
+ * @param stdClass $facetoface
+ * @return bool true if user is system approver or activity approver
+ */
+function facetoface_is_adminapprover ($userid, stdClass $facetoface) {
+    $sysapprovers = get_users_from_config(get_config(null, 'facetoface_adminapprovers'), 'mod/facetoface:approveanyrequest');
+    $systemapprover = false;
+
+    foreach ($sysapprovers as $sysapprover) {
+        if ($sysapprover->id == $userid) {
+            $systemapprover = true;
+        }
+    }
+
+    $activityapprover = in_array($userid, explode(',', $facetoface->approvaladmins));
+    if ($systemapprover || $activityapprover) {
+        return true;
+    }
+    return false;
 }
 
 /**
