@@ -1330,8 +1330,8 @@ class development_plan {
             if (!empty($itemids)) {
                 // Delete component relations
                 foreach ($itemids as $id => $value) {
-                    $DB->delete_records('dp_plan_component_relation', array('itemid1' => $id));
-                    $DB->delete_records('dp_plan_component_relation', array('itemid2' => $id));
+                    $DB->delete_records('dp_plan_component_relation', array('itemid1' => $id, "component1" => $c));
+                    $DB->delete_records('dp_plan_component_relation', array('itemid2' => $id, "component2" => $c));
                 }
             }
         }
