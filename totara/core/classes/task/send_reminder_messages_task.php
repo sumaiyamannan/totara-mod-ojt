@@ -134,7 +134,7 @@ class send_reminder_messages_task extends \core\task\scheduled_task {
                     foreach ($messages as $message) {
 
                         // If it's a weekend, send no reminders except "Same day" ones.
-                        if ($message->period && !reminder_is_businessday(time())) {
+                        if ($message->period && !reminder_is_businessday(time()) && (!defined('PHPUNIT_TEST') || !PHPUNIT_TEST)) {
                             continue;
                         }
                         // Number of seconds after completion (for timestamp comparison).
@@ -221,7 +221,7 @@ class send_reminder_messages_task extends \core\task\scheduled_task {
                         foreach ($rs as $user) {
 
                             // Check that even with weekends accounted for the period has still passed.
-                            if (!reminder_check_businessdays($user->timecompleted, $message->period)) {
+                            if (!reminder_check_businessdays($user->timecompleted, $message->period) && (!defined('PHPUNIT_TEST') || !PHPUNIT_TEST)) {
                                 continue;
                             }
 
