@@ -226,7 +226,6 @@ ini_set('serialize_precision', 17); // Make float serialization consistent on al
 ini_set('default_charset', 'UTF-8'); // Totara: always use UTF-8 as default encoding.
 ini_set('input_encoding', '');
 ini_set('output_encoding', '');
-ini_set('internal_encoding', '');
 ini_set('mbstring.language' , 'neutral');
 
 // Scripts may request no debug and error messages in output
