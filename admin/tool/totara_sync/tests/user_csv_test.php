@@ -694,7 +694,7 @@ class tool_totara_sync_user_csv_testcase extends advanced_testcase {
         // Update user import001 to turn off the HR Import setting.
         $user = $DB->get_record('user', array('username' => 'import001'));
         $user->totarasync = 0;
-        $DB-> update_record('user', $user);
+        $DB->update_record('user', $user);
 
         // Run the sync again with an updated CSV. ('-edited' has been appended to their firstname).
         $data = file_get_contents(__DIR__ . '/fixtures/users-edited.01.csv');
@@ -702,7 +702,7 @@ class tool_totara_sync_user_csv_testcase extends advanced_testcase {
         file_put_contents($filepath, $data);
 
         $result = $element->sync();
-        $this->assertTrue($result);
+        $this->assertFalse($result);
 
         // Check we have admin + guest + 3 users from the CSV
         $this->assertCount(5, $DB->get_records('user'));

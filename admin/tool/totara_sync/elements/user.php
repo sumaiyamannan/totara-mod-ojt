@@ -1413,7 +1413,7 @@ class totara_sync_element_user extends totara_sync_element {
 
         $invalidids = array();
 
-        $sql = "SELECT u.id, u.idnumber
+        $sql = "SELECT s.id, u.idnumber
                 FROM {user} u
                 INNER JOIN {{$synctable}} s
                   ON (u.idnumber = s.idnumber AND u.idnumber != '')
