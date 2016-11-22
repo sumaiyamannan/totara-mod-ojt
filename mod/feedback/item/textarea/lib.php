@@ -120,7 +120,7 @@ class feedback_item_textarea extends feedback_item_base {
 
 
     //liefert eine Struktur ->name, ->data = array(mit Antworten)
-    public function get_analysed($item, $groupid = false, $courseid = false) {
+    public function get_analysed($item, $groupid = false, $courseid = false, $donl2br = true) {
         global $DB;
 
         $analysed_val = new stdClass();
@@ -131,7 +131,7 @@ class feedback_item_textarea extends feedback_item_base {
         if ($values) {
             $data = array();
             foreach ($values as $value) {
-                $data[] = str_replace("\n", '<br />', $value->value);
+                $data[] = $donl2br ? nl2br($value->value) : $value->value;
             }
             $analysed_val->data = $data;
         }
@@ -164,7 +164,7 @@ class feedback_item_textarea extends feedback_item_base {
                     echo '-&nbsp;&nbsp;';
                     echo '</td>';
                     echo '<td align="' . $align . '" valign="top">';
-                    echo str_replace("\n", '<br />', $value->value);
+                    echo nl2br($value->value);
                     echo '</td>';
                     echo '</tr>';
                 }
@@ -181,18 +181,14 @@ class feedback_item_textarea extends feedback_item_base {
                              $xls_formats, $item,
                              $groupid, $courseid = false) {
 
-        $analysed_item = $this->get_analysed($item, $groupid, $courseid);
+        $analysed_item = $this->get_analysed($item, $groupid, $courseid, false);
 
         $worksheet->write_string($row_offset, 0, format_string($item->label), $xls_formats->head2);
         $worksheet->write_string($row_offset, 1, format_string($item->name), $xls_formats->head2);
         $data = $analysed_item->data;
         if (is_array($data)) {
-            if (isset($data[0])) {
-                $worksheet->write_string($row_offset, 2, htmlspecialchars_decode($data[0], ENT_QUOTES), $xls_formats->value_bold);
-            }
-            $row_offset++;
             $sizeofdata = count($data);
-            for ($i = 1; $i < $sizeofdata; $i++) {
+            for ($i = 0; $i < $sizeofdata; $i++) {
                 $worksheet->write_string($row_offset, 2, htmlspecialchars_decode($data[$i], ENT_QUOTES), $xls_formats->default);
                 $row_offset++;
             }
@@ -311,7 +307,7 @@ class feedback_item_textarea extends feedback_item_base {
 
         //print the presentation
         echo $OUTPUT->box_start('generalbox boxalign'.$align);
-        echo $value ? str_replace("\n", '<br />', $value) : '&nbsp;';
+        echo $value ? nl2br($value) : '&nbsp;';
         echo $OUTPUT->box_end();
     }
 

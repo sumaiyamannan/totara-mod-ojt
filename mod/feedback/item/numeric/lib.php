@@ -133,7 +133,7 @@ class feedback_item_numeric extends feedback_item_base {
 
 
     //liefert eine Struktur ->name, ->data = array(mit Antworten)
-    public function get_analysed($item, $groupid = false, $courseid = false) {
+    public function get_analysed($item, $groupid = false, $courseid = false, $donl2br = true) {
         global $DB;
 
         $analysed = new stdClass();
@@ -198,7 +198,7 @@ class feedback_item_numeric extends feedback_item_base {
                              $xls_formats, $item,
                              $groupid, $courseid = false) {
 
-        $analysed_item = $this->get_analysed($item, $groupid, $courseid);
+        $analysed_item = $this->get_analysed($item, $groupid, $courseid, false);
 
         $worksheet->write_string($row_offset, 0, format_string($item->label), $xls_formats->head2);
         $worksheet->write_string($row_offset, 1, format_string($item->name), $xls_formats->head2);

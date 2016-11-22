@@ -102,17 +102,20 @@ $xls_formats->head1 = $workbook->add_format(array(
 
 $xls_formats->head2 = $workbook->add_format(array(
                         'align'=>'left',
+                        'v_align'=>'top',
                         'bold'=>1,
-                        'bottum'=>2));
+                        'bottom'=>2));
 
 $xls_formats->default = $workbook->add_format(array(
                         'align'=>'left',
-                        'v_align'=>'top'));
+                        'v_align'=>'top',
+                        'text_wrap'=>1));
 
 $xls_formats->value_bold = $workbook->add_format(array(
                         'align'=>'left',
                         'bold'=>1,
-                        'v_align'=>'top'));
+                        'v_align'=>'top',
+                        'text_wrap'=>1));
 
 $xls_formats->procent = $workbook->add_format(array(
                         'align'=>'left',

@@ -268,7 +268,7 @@ class feedback_item_label extends feedback_item_base {
     }
     public function get_printval($item, $value) {
     }
-    public function get_analysed($item, $groupid = false, $courseid = false) {
+    public function get_analysed($item, $groupid = false, $courseid = false, $donl2br = true) {
     }
     public function value_type() {
         return PARAM_BOOL;
