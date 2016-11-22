@@ -369,7 +369,7 @@ $string['createnewroom'] = 'Create new room';
 $string['csvtextfile'] = 'Text file';
 $string['scvtextfile_help'] = '*File format information*
 
-The file should be a text file containing a heading row and one or more data rows. If a row contains multiple columns they should be separated by a comma (,). Every row must have the same number of columns. Below is a list of the heading names you can use:
+The file should be a CSV text file containing a heading row and one or more data rows. If a row contains multiple columns they should be separated by a comma (,). Every row must have the same number of columns. Below is a list of the heading names you can use:
 
  * username - the username of the user to add
  * idnumber - the idnumber of the user to add
@@ -615,6 +615,8 @@ $string['eventattendeesviewed'] = 'Attendees viewed';
 $string['eventinterestdeclared'] = 'Interest declared';
 $string['eventinterestreportviewed'] = 'Interest report viewed';
 $string['eventinterestwithdrawn'] = 'Interest withdrawn';
+$string['eventsreport'] = 'Events report';
+$string['eventsview'] = 'Events view';
 $string['eventreportcnt'] = 'Seminar events: {$a}';
 $string['eventsigninsheetexported'] = 'Sign-in sheet exported';
 $string['eventsessioncreated'] = 'Event created';
@@ -1056,8 +1058,10 @@ $string['sessionstartdateandtimewithouttimezone'] = '{$a->startdate}, {$a->start
 $string['sessionstartdatewithtime'] = '{$a->startdate}, {$a->starttime} {$a->timezone}';
 $string['sessionstartfinishdateandtime'] = '{$a->startdate} - {$a->enddate}, {$a->starttime} - {$a->endtime} (time zone: {$a->timezone})';
 $string['sessionstartfinishdateandtimewithouttimezone'] = '{$a->startdate} - {$a->enddate}, {$a->starttime} - {$a->endtime}';
+$string['sessionsview'] = 'Sessions view';
 $string['sessionrequiresmanagerapproval'] = 'This event requires manager approval to book.';
 $string['sessionroles'] = 'Event roles';
+$string['sessionsreport'] = 'Sessions report';
 $string['sessionstartdate'] = 'Session start';
 $string['sessionstartdateshort'] = 'Start date';
 $string['sessionstarttime'] = 'Event start time';
@@ -1972,6 +1976,7 @@ $string['thirdpartyemailaddress'] = 'Third-party email address(es)';
 $string['thirdpartywaitlist'] = 'Notify third-party about wait-listed events';
 $string['type'] = 'Type';
 $string['unapprovedrequests'] = 'Unapproved Requests';
+$string['undo'] = 'Undo';
 $string['unknowndate'] = '(unknown date)';
 $string['unknowntime'] = '(unknown time)';
 $string['upcomingsessions'] = 'Upcoming events';

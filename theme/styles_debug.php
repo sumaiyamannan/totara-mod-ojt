@@ -58,6 +58,11 @@ if ($type === 'editor') {
 $chunkurl = new moodle_url($CFG->httpswwwroot . '/theme/styles_debug.php', array('theme' => $themename,
     'type' => $type, 'subtype' => $subtype, 'sheet' => $sheet, 'usesvg' => $usesvg));
 
+// Totara RTL support.
+if ($rtl) {
+    $chunkurl->param('rtl', 1);
+}
+
 // We need some kind of caching here because otherwise the page navigation becomes
 // way too slow in theme designer mode. Feel free to create full cache definition later...
 $key = "$type $subtype $sheet $usesvg";

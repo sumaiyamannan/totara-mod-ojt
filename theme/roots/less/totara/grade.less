@@ -102,8 +102,33 @@
   height: auto;
 }
 
-.mform.gradingform_rubric_editform .fitem .felement .hiddenelement {display:none;}
-.mform.gradingform_rubric_editform .fitem .felement .pseudotablink {background-color:transparent;border:0 solid;height:1px;width:1px;color:transparent;padding:0;margin:0;position:relative;float:right;}
+.mform.gradingform_rubric_editform .fitem .felement,
+.mform.gradingform_guide_editform .fitem .felement {
+
+  .hiddenelement {
+    display:none;
+  }
+  .criterionmaxscore input {
+    width:auto;
+  }
+  textarea {
+    width:100%;
+  }
+}
+
+.mform.gradingform_rubric_editform .fitem .felement .pseudotablink,
+.mform.gradingform_guide_editform .fitem .felement .pseudotablink {
+  background-color:transparent;
+  border:0 solid;
+  height:1px;
+  width:1px;
+  color:transparent;
+  padding:0;
+  margin:0;
+  position:relative;
+  float:right;
+}
+
 #rubric-rubric {
   &.gradingform_rubric {
     #rubric-criteria {

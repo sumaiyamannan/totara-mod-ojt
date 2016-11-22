@@ -85,6 +85,7 @@ $string['customfieldshortname'] = 'Custom Field short name';
 $string['customfieldshortname_help'] = 'Custom field short name is the abbreviated name of the custom field and can be used for display purposes.
 
 Custom fields will appear as options on the edit item screen for items.';
+$string['customfieldtextdateformat'] = 'd/m/Y';
 $string['customfieldtypecheckbox'] = 'Checkbox';
 $string['customfieldtypedatetime'] = 'Date/time';
 $string['customfieldtypefile'] = 'File';

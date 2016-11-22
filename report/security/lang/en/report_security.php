@@ -31,6 +31,10 @@ Please note that this measure does not improve security of the server significan
 $string['check_configrw_name'] = 'Writable config.php';
 $string['check_configrw_ok'] = 'config.php can not be modified by PHP scripts.';
 $string['check_configrw_warning'] = 'PHP scripts may modify config.php.';
+$string['check_cookiehttponly_error'] = 'Please enable HTTP only cookies.';
+$string['check_cookiehttponly_details'] = '<p>It is recommended that HTTP only cookies is enabled to prevent client side scripts from accessing cookies set by the server, helping to mitigate the risk of XSS attacks.</p><p>The HTTP only flag is supported by all modern browsers but please be aware that older browsers may not support this flag and therefore should be considered less secure.</p>';
+$string['check_cookiehttponly_name'] = 'HTTP only cookies';
+$string['check_cookiehttponly_ok'] = 'HTTP only cookies enabled.';
 $string['check_cookiesecure_details'] = '<p>If you enable https communication it is strongly recommended that you also enable secure cookies. You should also add permanent redirection from http to https. Ideally also serve HSTS headers well.</p>';
 $string['check_cookiesecure_error'] = 'Please enable secure cookies';
 $string['check_cookiesecure_name'] = 'Secure cookies';

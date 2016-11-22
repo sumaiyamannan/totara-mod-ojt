@@ -46,10 +46,8 @@ $PAGE->navbar->add(get_string('managesubscriptions', 'calendar'));
 
 if ($courseid != SITEID && !empty($courseid)) {
     $course = $DB->get_record('course', array('id' => $courseid));
-    $courses = array($course->id => $course);
 } else {
     $course = get_site();
-    $courses = calendar_get_default_courses();
 }
 require_course_login($course);
 if (!calendar_user_can_add_event($course)) {

@@ -299,25 +299,12 @@ class core_plugin_manager_testcase extends advanced_testcase {
         $foobar->versiondisk = 2015092900;
         $pluginman->inject_testable_plugininfo('foo', 'bar', $foobar);
 
-        $washere = false;
         foreach ($pluginman->get_plugins() as $type => $infos) {
             foreach ($infos as $name => $plugin) {
                 $updates = $plugin->available_updates();
-                if ($plugin->component != 'foo_bar') {
-                    $this->assertNull($updates);
-                } else {
-                    $this->assertTrue(is_array($updates));
-                    $this->assertEquals(3, count($updates));
-                    foreach ($updates as $update) {
-                        $washere = true;
-                        $this->assertInstanceOf('\core\update\info', $update);
-                        $this->assertEquals($update->component, $plugin->component);
-                        $this->assertTrue($update->version > $plugin->versiondb);
-                    }
-                }
+                $this->assertSame(null, $updates);
             }
         }
-        $this->assertTrue($washere);
     }
 
     public function test_some_plugins_updatable_none() {
@@ -334,7 +321,7 @@ class core_plugin_manager_testcase extends advanced_testcase {
         $foobar->versiondisk = 2015092900;
         $pluginman->inject_testable_plugininfo('foo', 'bar', $foobar);
 
-        $this->assertTrue($pluginman->some_plugins_updatable());
+        $this->assertFalse($pluginman->some_plugins_updatable());
     }
 
     public function test_available_updates() {
@@ -349,11 +336,7 @@ class core_plugin_manager_testcase extends advanced_testcase {
         $updates = $pluginman->available_updates();
 
         $this->assertTrue(is_array($updates));
-        $this->assertEquals(1, count($updates));
-        $update = $updates['foo_bar'];
-        $this->assertInstanceOf('\core\update\remote_info', $update);
-        $this->assertEquals('foo_bar', $update->component);
-        $this->assertEquals(2015100400, $update->version->version);
+        $this->assertEquals(0, count($updates));
     }
 
     public function test_get_remote_plugin_info() {
@@ -362,27 +345,22 @@ class core_plugin_manager_testcase extends advanced_testcase {
         $this->assertFalse($pluginman->get_remote_plugin_info('not_exists', ANY_VERSION, false));
 
         $info = $pluginman->get_remote_plugin_info('foo_bar', 2015093000, true);
-        $this->assertEquals(2015093000, $info->version->version);
+        $this->assertFalse($info);
 
         $info = $pluginman->get_remote_plugin_info('foo_bar', 2015093000, false);
-        $this->assertEquals(2015100400, $info->version->version);
+        $this->assertFalse($info);
     }
 
-    /**
-     * The combination of ANY_VERSION + $exactmatch is illegal.
-     *
-     * @expectedException moodle_exception
-     */
     public function test_get_remote_plugin_info_exception() {
         $pluginman = testable_core_plugin_manager::instance();
-        $pluginman->get_remote_plugin_info('any_thing', ANY_VERSION, true);
+        $this->assertFalse($pluginman->get_remote_plugin_info('any_thing', ANY_VERSION, true));
     }
 
     public function test_is_remote_plugin_available() {
         $pluginman = testable_core_plugin_manager::instance();
 
         $this->assertFalse($pluginman->is_remote_plugin_available('not_exists', ANY_VERSION, false));
-        $this->assertTrue($pluginman->is_remote_plugin_available('foo_bar', 2013131313, false));
+        $this->assertFalse($pluginman->is_remote_plugin_available('foo_bar', 2013131313, false));
         $this->assertFalse($pluginman->is_remote_plugin_available('foo_bar', 2013131313, true));
     }
 
@@ -434,20 +412,20 @@ class core_plugin_manager_testcase extends advanced_testcase {
         $this->assertNull($reqs['foo_bar']->hasver);
         $this->assertEquals(ANY_VERSION, $reqs['foo_bar']->reqver);
         $this->assertEquals($pluginman::REQUIREMENT_STATUS_MISSING, $reqs['foo_bar']->status);
-        $this->assertEquals($pluginman::REQUIREMENT_AVAILABLE, $reqs['foo_bar']->availability);
+        $this->assertEquals($pluginman::REQUIREMENT_UNAVAILABLE, $reqs['foo_bar']->availability);
         $this->assertEquals($pluginman::REQUIREMENT_UNAVAILABLE, $reqs['not_exists']->availability);
 
         $pluginfo->dependencies = array('foo_bar' => 2013122400);
         $reqs = $pluginman->resolve_requirements($pluginfo, 2015110900, 30);
-        $this->assertEquals($pluginman::REQUIREMENT_AVAILABLE, $reqs['foo_bar']->availability);
+        $this->assertEquals($pluginman::REQUIREMENT_UNAVAILABLE, $reqs['foo_bar']->availability);
 
         $pluginfo->dependencies = array('foo_bar' => 2015093000);
         $reqs = $pluginman->resolve_requirements($pluginfo, 2015110900, 30);
-        $this->assertEquals($pluginman::REQUIREMENT_AVAILABLE, $reqs['foo_bar']->availability);
+        $this->assertEquals($pluginman::REQUIREMENT_UNAVAILABLE, $reqs['foo_bar']->availability);
 
         $pluginfo->dependencies = array('foo_bar' => 2015100500);
         $reqs = $pluginman->resolve_requirements($pluginfo, 2015110900, 30);
-        $this->assertEquals($pluginman::REQUIREMENT_AVAILABLE, $reqs['foo_bar']->availability);
+        $this->assertEquals($pluginman::REQUIREMENT_UNAVAILABLE, $reqs['foo_bar']->availability);
 
         $pluginfo->dependencies = array('foo_bar' => 2025010100);
         $reqs = $pluginman->resolve_requirements($pluginfo, 2015110900, 30);
@@ -478,12 +456,10 @@ class core_plugin_manager_testcase extends advanced_testcase {
 
         $one->dependencies = array('foo_bar' => ANY_VERSION);
         $misdeps = $pluginman->missing_dependencies();
-        $this->assertInstanceOf('\core\update\remote_info', $misdeps['foo_bar']);
-        $this->assertEquals(2015100400, $misdeps['foo_bar']->version->version);
+        $this->assertFalse($misdeps['foo_bar']);
 
         $two->dependencies = array('foo_bar' => 2015100500);
         $misdeps = $pluginman->missing_dependencies();
-        $this->assertInstanceOf('\core\update\remote_info', $misdeps['foo_bar']);
-        $this->assertEquals(2015100500, $misdeps['foo_bar']->version->version);
+        $this->assertFalse($misdeps['foo_bar']);
     }
 }

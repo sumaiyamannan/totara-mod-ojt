@@ -748,8 +748,7 @@ class totara_hierarchy_renderer extends plugin_renderer_base {
 
             $duedate = '';
             if (!empty($assignment->targetdate)) {
-                $duedate = userdate($assignment->targetdate, get_string('datepickerlongyearphpuserdate', 'totara_core'),
-                    $CFG->timezone, false);
+                $duedate = userdate($assignment->targetdate, get_string('strftimedatefulllong', 'langconfig'), $CFG->timezone, false);
             }
 
             $assign = goal::get_assignment_string(goal::SCOPE_PERSONAL, $assignment);

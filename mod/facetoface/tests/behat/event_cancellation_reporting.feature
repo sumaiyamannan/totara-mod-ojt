@@ -39,6 +39,7 @@ Feature: Seminar event cancellation reporting
       | Maximum bookings | 20 |
     And I follow "show-selectdate0-dialog"
     And I fill seminar session with relative date in form data:
+      | Timezone displayed  | Pacific/Auckland |
       | sessiontimezone     | Pacific/Auckland |
       | timestart[day]      | 10               |
       | timestart[timezone] | Pacific/Auckland |
@@ -47,6 +48,7 @@ Feature: Seminar event cancellation reporting
     And I press "OK"
     And I follow "show-selectdate0-dialog"
     And I set the following fields to these values:
+      | Timezone displayed  | Pacific/Auckland |
       | sessiontimezone     | Pacific/Auckland |
       | timestart[hour]     | 10               |
       | timestart[minute]   | 0                |
@@ -124,16 +126,16 @@ Feature: Seminar event cancellation reporting
 
     When I follow "View This Report"
     Then I should see "Course 1" in the "Learner One" "table_row"
-    And I should see date "10 day" formatted "%d %B %Y"
+    And I should see date "10 day Pacific/Auckland" formatted "%d %B %Y"
     And I should see "User Cancelled" in the "Learner One" "table_row"
     And I should see "Test Seminar" in the "Learner One" "table_row"
 
     And I should see "Course 1" in the "Learner Two" "table_row"
-    And I should see date "10 day" formatted "%d %B %Y"
+    And I should see date "10 day Pacific/Auckland" formatted "%d %B %Y"
     And I should see "Event Cancelled" in the "Learner Two" "table_row"
     And I should see "Test Seminar" in the "Learner Two" "table_row"
 
     And I should see "Course 1" in the "Learner Three" "table_row"
-    And I should see date "10 day" formatted "%d %B %Y"
+    And I should see date "10 day Pacific/Auckland" formatted "%d %B %Y"
     And I should see "Event Cancelled" in the "Learner Three" "table_row"
     And I should see "Test Seminar" in the "Learner Three" "table_row"

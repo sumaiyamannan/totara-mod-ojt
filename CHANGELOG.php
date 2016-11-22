@@ -3,6 +3,266 @@
 
 Totara LMS Changelog
 
+Release 9.1 (22nd November 2016):
+=================================
+
+
+Important:
+
+    TL-10252       Non-date picker uses of date picker strings changed to langconfig strings
+
+                   Code unrelated to date pickers has been updated to use strings from the
+                   langconfig language pack. Date picker strings should only be used in
+                   relation to date pickers. Code now using the langconfig strings will
+                   benefit from customisations made to those strings.
+
+                   Additionally, the lang string customfieldtextdateformat was added in
+                   totara_customfield. If you have customised the lang string
+                   datepickerlongyearregexphp then after upgrading you should change
+                   customfieldtextdateformat to your custom regular expression.
+
+    TL-11112       The default encoding is now consistently set to UTF-8
+
+                   Totara now sets UTF-8 as default encoding for PHP scripts to prevent hard
+                   to detect problems on sites with non-standard php.ini settings. There are
+                   no known problems in Totara, but this change may help with compatibility in
+                   external libraries and 3rd party plugins.
+
+    TL-11114       Incompatible plugin updates and installer code was removed
+
+                   Totara LMS does not include an add-on installer, all additional plugins
+                   must be installed manually by server administrators.
+
+                   Before installing any additional plugins please make sure the code was
+                   tested with Totara LMS, is secure, is maintained by authors and contains
+                   phpunit and behat tests.
+
+                   Totara Learning Solutions support does not cover plugins that are not
+                   included in the standard distribution.
+
+    TL-11157       Fixed data loss bug when learning plans are deleted under certain conditions
+
+                   This bug occurs under very specific circumstances.
+
+                   Due to the structure of the repository table involved, it is possible to
+                   have relationship data from different learning plans and even different
+                   components within the same learning plan co-existing within the same table.
+                   Originally, the system deleted relationships between learning plan
+                   components (e.g. course and objectives) using just the component identifier
+                   e.g. objective ID.
+
+                   However, in very rare situations, it is possible for the table to hold
+                   values from unrelated components which use the same identifier. When the
+                   system deleted a component using this identifier value alone *all*
+                   components associated with it were removed. Hence the data loss.
+
+                   The system now checks component type in addition to ID to prevent this
+                   happening.
+
+Security issues:
+
+    TL-5178        Added a missing sesskey check to feedback/assignments.php
+    TL-6615        Added a check for HTTP only cookies to the security report
+
+                   The HTTP only cookies setting restricts access to cookies by client side
+                   scripts in supported browsers making it more difficult to exploit any
+                   potential XSS vulnerabilities.
+
+    TL-8849        Improved validation when managing Seminar custom fields
+
+                   Previously it was possible to view custom fields from areas outside of
+                   Seminars through the Seminar custom field management page.
+                   This page now properly verifies that the custom fields being requested
+                   belong to a Seminar area.
+
+    TL-10752       Implemented additional checks within the Appraisal review ajax script
+
+Improvements:
+
+    TL-9325        Moved the add event link within Seminar above the upcoming events display
+    TL-10038       Added a warning entry into the HR Import import log if data contains a user that has their "HR import" setting disabled
+    TL-10097       Removed whitespace when editing individual feedback 360 requests
+    TL-10203       Improved efficiency when importing users that include dropdown menu profile field data
+
+                   A significant performance gain has been made when importing users through
+                   HR Import on sites that use drop down menu profile custom fields.
+                   The import process should now run much faster than before.
+
+    TL-10292       Added a legend when exporting and importing questions by category or context from within the question bank
+    TL-10627       Improved appraisal snapshot PDF rendering
+    TL-10654       Improved display of username when viewing as another role
+    TL-10681       Added an environment test for mbstring.func_overload to ensure it is not set
+
+                   Multibyte function overloading is not compatible with Totara.
+
+    TL-10705       Improved the help text within Seminar when uploading attendees by CSV file
+    TL-10731       Added setting to allow limiting of feedback reminders sent out
+
+                   A new setting has been added, 'reminder_maxtimesincecompletion', which can
+                   be used to limit the number of days after course completion in which
+                   feedback activity reminders will be sent. This may be used to prevent
+                   reminders being sent for historic course completions after they are
+                   imported via upload.
+
+    TL-10782       Seminar direct enrolment instances within a course can now be manually removed when no longer wanted
+    TL-10793       Improved support of RTL languages within Report builder reports in the new themes
+    TL-10909       Improved wording of course activity reports visibility setting help
+    TL-10917       Improved the performance of admin settings for PDF fonts
+    TL-10947       Removed duplicated link in the My team block
+    TL-10965       Improved program assignments to recognise changes in hierarchies related to 'all below' assignments
+
+                   Previously, if a change was made to a lower level of a hierarchy then the
+                   change did not trigger deferred program assignment update. Instead, the
+                   change would not be applied until the program user assignments cron task
+                   was run.
+                   Now, the change immediately flags the related program for update and will
+                   be processed by the deferred program assignments task.
+
+    TL-11001       Mark completion reaggregated after each record is processed
+
+                   Previously, completion_regular_task would first process all records which
+                   had a reaggregate flag greater than one, then finally set the flags on all
+                   the records to 0. Now, the reaggregate flag is set to 0 after each record
+                   is processed.
+
+    TL-11026       Improved move left and move right functionality when editing a course
+    TL-11041       Site level administrative approvers setting in Seminars has been relocated to Seminars > Global settings
+    TL-11045       Seminar upcoming and previous headings are now the correct level
+    TL-11051       The Seminar event "Add approver" button is now disabled when it is not relevant
+    TL-11052       Changed text when removing users from a seminar event
+
+Bug fixes:
+
+    TL-7752        Fixed problems with program enrolment messages
+
+                   Program enrolment and unenrolment messages are now resent each time a user
+                   is assigned or unassigned, rather than just the first time either of those
+                   events occur.
+                   All program messages are now covered by automated tests.
+
+    TL-9301        Fixed Seminar event functionality when the cancellationnote default custom field has been deleted
+    TL-9846        Removed reference to deprecated variable when in a chat activity
+    TL-9993        Fixed the display of images within textareas in Learning Plans and Record of Learning Evidence
+    TL-9994        Stopped the actions column from being included when exporting Other Evidence report in the Record of Learning
+    TL-10108       Prevented program due messages being sent when the user is already complete
+
+                   This fix affects several messages: program due, program overdue, course set
+                   due and course set overdue. In programs and certifications, just before one
+                   of these messages is sent, a check is performed to ensure that the user
+                   hasn't completed the program or certification in the mean time.
+
+    TL-10213       Reduced the number of joins in appraisal details report with scale value questions
+
+                   Multi-choice, single answer questions no longer need a join, while
+                   multi-choice, multi-select questions now require just one join per role per
+                   question (down from two).
+                   A consequence of this change is that multi-choice columns will no longer be
+                   sorted alphabetically in this report. Instead, if you sort a multi-choice
+                   column, the records will be shown in the same order as the options are
+                   defined and as they appear when completing the appraisal.
+                   MySQL is inherently limited to 61 joins, but now more questions can be
+                   added before this limit is reached.
+
+    TL-10244       Removed unnecessary italic format from the my team block
+    TL-10273       Removed unnecessary fieldset around forum search
+    TL-10311       Controls in the element library now link to the same page
+    TL-10320       Corrected the accessibility link between the Seminar event export label and it's select input
+    TL-10331       Ensured URL custom fields are cleaned using PARAM_URL when uploaded via HR Import
+    TL-10332       Added default behaviour of do not open in new window for URL custom fields when added or updated via HR Import
+    TL-10360       Competency completion calculations now correctly look at previously completed courses
+
+                   Courses completed before the last time a competency is modified are now
+                   correctly considered for competency assignment
+
+    TL-10687       Dock action icons now use the same colour as block actions in basis
+    TL-10766       Fixed colour of legends and help icons in Kiwifruit responsive
+    TL-10787       Fixed a php notice generated when a competency is added to a learning plan with optional courses
+    TL-10819       Added code to re-run an upgrade step to delete report data for deleted users
+
+                   The issue was caused by TL-8711 and fixed by TL-10804
+
+    TL-10837       Added workaround for iOS 10 bug causing problems with video playback
+    TL-10853       Ensured consistent spacing around the login info within the Basis theme footer
+    TL-10891       Fixed overactive validation of Seminar cutoff against dates
+
+                   Previously when editing a Seminar event in which the current date was
+                   already within the cutoff period, if you attempted to edit the event you
+                   could not save because the cutoff was too close, even in situations when
+                   you were not changing the dates or the cutoff.
+                   Cutoff validation is now only applied when the dates are changing, or when
+                   the cutoff period is changing.
+
+    TL-10901       Fixed missing course events from calendar when viewing all
+
+                   Previously, many events were being excluded from the calendar when being
+                   viewed by a user with the capability, moodle/calendar:manageentries, while
+                   the site setting, 'calendar_adminseesall' was turned on. The process of
+                   selecting events from courses to show in the calendar to fix this has been
+                   improved. However, for performance reasons, there is still a limit on how
+                   many courses have events shown in the calendar. This limit has been set at
+                   50 courses by default. The limit can be adjusted using a new setting,
+                   calendar_adminallcourseslimit. See config-dist.php for more information on
+                   that setting.
+
+    TL-10905       Stopped a duplicate error message from being displayed on the login screen when the session has expired
+    TL-10910       Fixed required permissions for appraisals aggregate questions
+    TL-10916       Fixed a debug error within the Current Learning block when images are added to the summary of a program or certification
+    TL-10946       Removed false deprecation message for the viewmyteam string
+    TL-10955       Fixed database error when generating a report with search columns
+    TL-10956       Fixed  the display of the marking guide editing interface
+
+                   Missing selectors from Totara's new themes have been added to now catch
+                   each type of advanced grading form; marking guide & Rubric.
+
+                   As themes continue to prefer CSS applied without the use of the 'style'
+                   attribute, the maximum grade form input has also had its explicit width
+                   removed.
+
+                   The Javascript calculation of textarea widths inside the form have also
+                   been simplified, with height now being the only value calculated & set.
+
+    TL-10963       Added tabs to the seminar events and session report pages and ensured bookmarking of both pages can be achieved
+    TL-10972       Deleting a Seminar now correctly removes orphaned notification records
+    TL-10979       Ensured certification messages can be resent on subsequent recertifications
+
+                   This patch ensures that all applicable certification messages are reset
+                   when a user's recertification window opens, allowing them to be triggered
+                   again for that user.
+
+    TL-10998       Removed inaccessible options in Program Administration block
+    TL-11009       Fixed the display of learning plan courses within the Current Learning block after being enrolled in a course
+    TL-11010       Fixed emails being sent to declined users when an event is closed
+    TL-11020       Caused program completion to be checked on assignment
+
+                   Now, when users are assigned to programs and certifications, completion
+                   will immediately be calculated. If the user has already completed the
+                   courses required for program completion or certification, they will be
+                   marked complete. Previously, the user would have had to wait for the
+                   Program Completions scheduled task to run, which occurs once each night by
+                   default.
+
+                   This change also causes the first course set completion record to be
+                   correctly created. Previously, it was not created until the first course
+                   set was completed. Because it is being created at the correct time, course
+                   set due and overdue messages related to the first course set will now be
+                   correctly triggered.
+
+    TL-11047       Fixed an incorrect capability check made when checking whether a user can manage dashboards
+    TL-11060       Fixed a php notice generated within HR Sync when using the organisation or position elements
+    TL-11087       Ensured that IE9 chunked stylesheet paths are correctly generated
+    TL-11102       Fixed a timing issue in totara_core_webservice PHPUnit tests
+    TL-11138       Provided an IE9 compatible fallback for the loading icon
+
+API changes:
+
+    TL-9726        Added the system requirements for upgrades to Totara 10dev
+
+Contributions:
+
+    * Davo Smith at Synergy Learning - TL-10917
+    * Jo Jones at Kineo - TL-11157
+
+
 Release 9.0 (19th October 2016):
 ================================
 

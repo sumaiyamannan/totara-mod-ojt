@@ -918,7 +918,7 @@ class importcertification_testcase extends reportcache_advanced_testcase {
         $progcompletion->organisationid = $jobassignment->organisationid;
 
         // Save the change (performs data validation and logging).
-        certif_write_completion($certcompletion, $progcompletion, $message);
+        $this->assertTrue(certif_write_completion($certcompletion, $progcompletion, $message));
     }
 
     /**
@@ -953,7 +953,7 @@ class importcertification_testcase extends reportcache_advanced_testcase {
         $progcompletion->timecompleted = 0;
 
         // Save the change (performs data validation and logging).
-        certif_write_completion($certcompletion, $progcompletion, $logmessage);
+        $this->assertTrue(certif_write_completion($certcompletion, $progcompletion, $logmessage));
     }
 
     /**
@@ -992,6 +992,6 @@ class importcertification_testcase extends reportcache_advanced_testcase {
         $certcompletion->timemodified = $now;
 
         // Save the change (performs data validation and logging).
-        certif_write_completion($certcompletion, $progcompletion, $logmessage);
+        $this->assertTrue(certif_write_completion($certcompletion, $progcompletion, $logmessage));
     }
 }

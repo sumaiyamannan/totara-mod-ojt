@@ -1207,6 +1207,24 @@ class enrol_totara_facetoface_plugin extends enrol_plugin {
         $context = context_course::instance($instance->courseid);
         return has_capability('moodle/course:enrolconfig', $context);
     }
+
+    /**
+     * Is it possible to delete enrol instance via standard UI?
+     *
+     * @param stdClass $instance
+     * @return bool
+     */
+    public function can_delete_instance($instance) {
+        global $DB;
+
+        $context = context_course::instance($instance->courseid);
+        $has = has_capability('enrol/totara_facetoface:unenrol', $context);
+        if (!$has) {
+            return false;
+        }
+        // Allow delete only when no users here.
+        return !$DB->record_exists('user_enrolments', array('enrolid' => $instance->id));
+    }
 }
 
 /*

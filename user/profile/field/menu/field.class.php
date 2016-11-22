@@ -33,6 +33,8 @@ class profile_field_menu extends profile_field_base {
     /** @var array $options */
     public $options;
 
+    public static $optionscache = array();
+
     /** @var int $datakey */
     public $datakey;
 
@@ -48,18 +50,22 @@ class profile_field_menu extends profile_field_base {
         // First call parent constructor.
         parent::__construct($fieldid, $userid);
 
-        // Param 1 for menu type is the options.
-        if (isset($this->field->param1)) {
-            $options = explode("\n", $this->field->param1);
-        } else {
-            $options = array();
-        }
-        $this->options = array();
+        // TOTARA - add static cache to improve performance for dropdowns with lot of items.
+        if (!isset($this::$optionscache[$fieldid])) {
 
-        // TOTARA - changed to always use choosedots as it never makes sense to blindly save the first value.
-        $this->options[''] = get_string('choosedots');
-        foreach ($options as $key => $option) {
-            $this->options[$key] = format_string($option); // Multilang formatting.
+            // Param 1 for menu type is the options.
+            if (isset($this->field->param1)) {
+                $options = explode("\n", $this->field->param1);
+            } else {
+                $options = array();
+            }
+            $this::$optionscache[$fieldid] = array();
+
+            // TOTARA - changed to always use choosedots as it never makes sense to blindly save the first value.
+            $this::$optionscache[$fieldid][''] = get_string('choosedots');
+            foreach ($options as $key => $option) {
+                $this::$optionscache[$fieldid][$key] = format_string($option); // Multilang formatting.
+            }
         }
 
         // TODO: TL-7042 decide if we want MDL-43205 in Totara 2.9.0
@@ -69,11 +75,13 @@ class profile_field_menu extends profile_field_base {
         if ($this->data !== null) {
             // Returns false if no match found, so we can't just
             // cast to an integer.
-            $match = array_search($this->data, $this->options);
+            $match = array_search($this->data, $this::$optionscache[$fieldid]);
             if ($match !== false) {
                 $this->datakey = (int)$match;
             }
         }
+
+        $this->options = $this::$optionscache[$fieldid];
     }
 
     /**

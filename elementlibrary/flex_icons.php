@@ -144,7 +144,7 @@ $sizeclasses = array(
     'ft-size-600',
     'ft-size-700',
 );
-echo render_icons_table(array('alarm-warning', 'edit', 'permissions'), $sizeclasses);
+echo render_icons_table(array('alarm-warning', 'edit', 'permissions', 'loading'), $sizeclasses);
 $editicon = $OUTPUT->render(new flex_icon('edit', array('classes' => 'ft-size-300')));
 $editiconmarkup = htmlentities($editicon);
 echo <<<EOF
@@ -246,16 +246,24 @@ or use the template renderer directly:<br />
 All preexisting non-icon files in pix directories should be moved elsewhere.</p>
 EOF;
 
+$warningicon = $OUTPUT->flex_icon('warning');
+
 echo $OUTPUT->heading('List of all standard core flex icons');
 echo render_all_core_icons();
 echo <<<EOF
-<p>Note: Brand icons should only be used to represent the company or product to which they refer.</p>
+<br />
+<div class="alert alert-warning">
+    <p>{$warningicon}<strong>Note:</strong> Brand icons should only be used to represent the company or product to which they refer.</p>
+</div>
 EOF;
 
 echo $OUTPUT->heading('List of all plugin flex icons');
 echo render_all_plugin_icons();
 echo <<<EOF
-<p>Note: Brand icons should only be used to represent the company or product to which they refer.</p>
+<br />
+<div class="alert alert-warning">
+    <p>{$warningicon}<strong>Note:</strong> Brand icons should only be used to represent the company or product to which they refer.</p>
+</div>
 EOF;
 
 echo $OUTPUT->box_end();
@@ -314,12 +322,11 @@ function render_all_core_icons() {
     }
     sort($identifiers);
 
-    // There is no point putting the CSS into the theme...
-    $output = '<div style="-webkit-column-count: 5; -moz-column-count: 5; column-count: 5;">';
+    $output = '<div class="row">';
     foreach ($identifiers as $identifier) {
-        $output .= '<div style="padding-top: 5px">' . $OUTPUT->flex_icon($identifier) . $identifier . '</div>';
+        $output .= '<div class="col-xs-6 col-sm-4 col-md-3">' . $OUTPUT->flex_icon($identifier) . $identifier . '</div>';
     }
-    $output .= '</div>';
+    $output .= '</div>'; // .row
 
     return $output;
 }
@@ -345,15 +352,20 @@ function render_all_plugin_icons() {
     ksort($plugins);
 
     $output = '';
+    $count = 0;
+    $numplugins = count($plugins);
     foreach ($plugins as $component => $identifiers) {
         $output .= $OUTPUT->heading($component, 3);
         sort($identifiers);
-        // There is no point putting the CSS into the theme...
-        $output .= '<div style="-webkit-column-count: 3; -moz-column-count: 3; column-count: 3;">';
+        $output .= '<div class="row">';
         foreach ($identifiers as $identifier) {
-            $output .= '<div style="padding-top: 5px">' . $OUTPUT->flex_icon($identifier) . $identifier . '</div>';
+            $output .= '<div class="col-xs-12 col-sm-6">' . $OUTPUT->flex_icon($identifier) . $identifier . '</div>';
         }
-        $output .= '</div>';
+        $output .= '</div>'; // .row;
+        $count++;
+        if ($count !== $numplugins) {
+            $output .= '<hr />';
+        }
     }
 
     return $output;

@@ -912,6 +912,8 @@ class mod_facetoface_lib_testcase extends advanced_testcase {
     }
 
     function test_facetoface_delete_instance() {
+        global $DB;
+
         $this->init_sample_data();
 
         // Test variables.
@@ -921,6 +923,18 @@ class mod_facetoface_lib_testcase extends advanced_testcase {
         $sink = $this->redirectMessages();
         $this->assertTrue((bool)facetoface_delete_instance($id));
         $sink->close();
+
+        $this->assertEquals(0, $DB->count_records_select('facetoface', 'id = ?', array($id)));
+
+        $this->assertEquals(0, $DB->count_records_select('facetoface_interest', 'facetoface = ?', array($id)));
+
+        // Notifications.
+        $this->assertEquals(0, $DB->count_records_select('facetoface_notification', 'facetofaceid = ?', array($id)));
+
+        $this->assertEquals(0, $DB->count_records_select('facetoface_sessions', 'facetoface = ?', array($id)));
+
+        $this->assertEquals(0, $DB->count_records_select('event', 'modulename = ? AND instance = ?', array('facetoface', $id)));
+
     }
 
     function test_cleanup_session_data() {
@@ -1230,6 +1244,12 @@ class mod_facetoface_lib_testcase extends advanced_testcase {
         $this->assertEquals(3, $DB->count_records('facetoface_sessioncancel_info_data', array('facetofacesessioncancelid' => $session2->id)));
         $this->assertCount(0, $DB->get_records_sql($sqlparamssessioncancel . $sqlinsessioncancel1, $paraminsessioncancel1));
         $this->assertCount(1, $DB->get_records_sql($sqlparamssessioncancel . $sqlinsessioncancel2, $paraminsessioncancel2));
+
+        // Check session notification sent and hist.
+        $this->assertEquals(0, $DB->count_records('facetoface_notification_sent', array('sessionid' => $session1->id)));
+        $this->assertEquals(0, $DB->count_records('facetoface_notification_hist', array('sessionid' => $session1->id)));
+        $this->assertEquals(2, $DB->count_records('facetoface_notification_sent', array('sessionid' => $session2->id)));
+        $this->assertEquals(2, $DB->count_records('facetoface_notification_hist', array('sessionid' => $session2->id)));
 
         // Check the customfield data after associated session deletion.
         $this->assertFalse($DB->record_exists('facetoface_signup_info_data', array('facetofacesignupid' => $signup11->id)));

@@ -153,39 +153,26 @@ function totara_plan_pluginfile($course, $cm, $context, $filearea, $args, $force
         return false;
     }
 
-    if (count($args) > 2) {
-        // Require at least evidence id and path.
-        return false;
-    }
-
-    if ($filearea !== 'attachment') {
-        // Plans only have one file area.
-        return false;
-    }
+    $itemid = array_shift($args);
 
     require_login();
-
-    // First argument is the evidence ID.
-    $evidenceid = array_shift($args);
-    $evidenceid = clean_param($evidenceid, PARAM_INT);
-
-    if (!$evidence = $DB->get_record('dp_plan_evidence', array('id' => $evidenceid))) {
-        // Return false, don't use MUST_EXIST to throw an exception.
-        return false;
-    }
-    $userid = $evidence->userid;
-
-    // Check the current user is able to see the evidence.
-    if ($USER->id != $evidence->userid && !(\totara_job\job_assignment::is_managing($USER->id, $userid)) && !has_capability('totara/plan:accessanyplan', $context)) {
-        // The user does not own the evidence, is not the manager of the user the evidence belongs to and does not have the required
-        // capability to access all plans.
-        return false;
+    if ($filearea == 'dp_plan_objective') {
+        $objective = $DB->get_record('dp_plan_objective', array('id' => $itemid));
+        $plan = $DB->get_record('dp_plan', array('id' => $objective->planid));
+        if ($USER->id != $plan->userid && !(\totara_job\job_assignment::is_managing($USER->id, $plan->userid)) && !has_capability('totara/plan:accessanyplan', $context)) {
+            return false;
+        }
+    } else if ($filearea == 'dp_plan') {
+        $plan = $DB->get_record('dp_plan', array('id' => $itemid));
+        if ($USER->id != $plan->userid && !(\totara_job\job_assignment::is_managing($USER->id, $plan->userid)) && !has_capability('totara/plan:accessanyplan', $context)) {
+            return false;
+        }
     }
 
     $fs = get_file_storage();
     // Join all remaining args together as a path.
     $relativepath = join('/', $args);
-    $fullpath = "/{$context->id}/totara_plan/$filearea/$evidenceid/$relativepath";
+    $fullpath = "/{$context->id}/totara_plan/$filearea/$itemid/$relativepath";
     if (!$file = $fs->get_file_by_hash(sha1($fullpath)) or $file->is_directory()) {
         return false;
     }

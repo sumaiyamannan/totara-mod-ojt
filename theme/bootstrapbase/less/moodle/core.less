@@ -1267,32 +1267,103 @@ body.tag .managelink {
     left: 50%;
 }
 
-.mod-indent-outer {
-    display: table;
-}
-.mod-indent {
-    display: table-cell;
-}
-.label .mod-indent {
-  float:left;
-  padding-top:20px
+ .dir-ltr .mod-indent-outer {
+  > .mod-indent-1 + div {
+    margin-left: 30px;
+  }
+  > .mod-indent-2 + div {
+    margin-left: 60px;
+  }
+  > .mod-indent-3 + div {
+    margin-left: 90px;
+  }
+  > .mod-indent-4 + div {
+    margin-left: 120px;
+  }
+  > .mod-indent-5 + div {
+    margin-left: 150px;
+  }
+  > .mod-indent-6 + div {
+    margin-left: 180px;
+  }
+  > .mod-indent-7 + div {
+    margin-left: 210px;
+  }
+  > .mod-indent-8 + div {
+    margin-left: 240px;
+  }
+  > .mod-indent-9 + div {
+    margin-left: 270px;
+  }
+  > .mod-indent-10 + div {
+    margin-left: 300px;
+  }
+  > .mod-indent-11 + div {
+    margin-left: 330px;
+  }
+  > .mod-indent-12 + div {
+    margin-left: 360px;
+  }
+  > .mod-indent-13 + div {
+    margin-left: 390px;
+  }
+  > .mod-indent-14 + div {
+    margin-left: 420px;
+  }
+  > .mod-indent-15 + div,
+  > .mod-indent-huge + div {
+    margin-left: 450px;
+  }
 }
 
-/* Creates a series of .mod-indent-# rule declarations based on indent size and number of indent levels. */
-@mod-indent-size: 30px;
-@mod-indent-levels: 16;
-.mod-indent-generate(@n, @i: 1) when (@i =< @n) {
-    .mod-indent-@{i} {
-        width: (@i * @mod-indent-size);
-    }
-    .mod-indent-generate(@n, (@i + 1));
+ .dir-rtl .mod-indent-outer {
+  > .mod-indent-1 + div {
+    margin-right: 30px;
+  }
+  > .mod-indent-2 + div {
+    margin-right: 60px;
+  }
+  > .mod-indent-3 + div {
+    margin-right: 90px;
+  }
+  > .mod-indent-4 + div {
+    margin-right: 120px;
+  }
+  > .mod-indent-5 + div {
+    margin-right: 150px;
+  }
+  > .mod-indent-6 + div {
+    margin-right: 180px;
+  }
+  > .mod-indent-7 + div {
+    margin-right: 210px;
+  }
+  > .mod-indent-8 + div {
+    margin-right: 240px;
+  }
+  > .mod-indent-9 + div {
+    margin-right: 270px;
+  }
+  > .mod-indent-10 + div {
+    margin-right: 300px;
+  }
+  > .mod-indent-11 + div {
+    margin-right: 330px;
+  }
+  > .mod-indent-12 + div {
+    margin-right: 360px;
+  }
+  > .mod-indent-13 + div {
+    margin-right: 390px;
+  }
+  > .mod-indent-14 + div {
+    margin-right: 420px;
+  }
+  > .mod-indent-15 + div,
+  > .mod-indent-huge + div {
+    margin-right: 450px;
+  }
 }
-.mod-indent-generate(@n, @i: 1) when (@i = @n) {
-    .mod-indent-huge {
-        width: (@i * @mod-indent-size);
-    }
-}
-.mod-indent-generate(@mod-indent-levels);
 
 /* Audio player size in 'block' mode (can only change width, height is hardcoded in JS) */
 .resourcecontent .mediaplugin_mp3 object {

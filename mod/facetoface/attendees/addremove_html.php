@@ -40,7 +40,7 @@ if (!empty($CFG->showuseridentity) && has_capability('moodle/site:viewuseridenti
 
 ?>
 <form id="assignform" method="post" action="<?php echo $PAGE->url; ?>">
-<div>
+<div class="f2f-usersbox">
 <input type="hidden" name="sesskey" value="<?php p(sesskey()) ?>" />
 <?php
 if (!empty($error)) {
@@ -79,8 +79,8 @@ $idx = 0; // Iterator to put elements on their positions when adding/removing.
         <button name="searchtoremovereset" id="searchtoremovereset" class="search noshow"><?php p($strshowall) ?></button>
     </div>
     <div class="span2 controls addremove">
-        <button name="add" id="add"><?php echo $OUTPUT->larrow().'&nbsp;'.get_string('add'); ?></button>
-        <button name="remove" id="remove"><?php echo $OUTPUT->rarrow().'&nbsp;'.get_string('remove'); ?></button>
+        <button name="add" id="add"><?php echo $OUTPUT->larrow().'&nbsp;'.$strlarrow; ?></button>
+        <button name="remove" id="remove"><?php echo $OUTPUT->rarrow().'&nbsp;'.$strrarrow; ?></button>
     </div>
     <div class="span5">
         <label for="addselect"><?php echo $stravailableusers ?></label>
@@ -169,7 +169,7 @@ $idx = 0; // Iterator to put elements on their positions when adding/removing.
             <label for="ignoreconflicts"><?php echo $strignoreconflicts; ?></label>
         </div>
     <?php } ?>
-    <input name="next" id="next" type="submit" value="<?php echo get_string('continue'); ?>"/>
-    <input name="cancel" id="cancel" type="submit" value="<?php echo get_string('cancel'); ?>"/>
+    <input name="next" id="next" type="submit" value="<?php echo get_string('continue'); ?>" class="form-submit btn btn-primary"/>
+    <input name="cancel" id="cancel" type="submit" value="<?php echo get_string('cancel'); ?>"  class="btn btn-default"/>
 
 </form>

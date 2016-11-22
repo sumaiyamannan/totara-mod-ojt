@@ -231,7 +231,7 @@ class rb_source_dp_program_recurring extends rb_base_source {
         if ($time == 0) {
             return '';
         } else {
-            return userdate($time, get_string('datepickerlongyearphpuserdate', 'totara_core'), 99, false);
+            return userdate($time, get_string('strftimedatefulllong', 'langconfig'), 99, false);
         }
     }
 

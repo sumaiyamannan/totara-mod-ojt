@@ -76,13 +76,15 @@ if (!empty($day) && !empty($mon) && !empty($year)) {
     $time = time();
 }
 
+$calendar = new calendar_information(0, 0, 0, $time);
+
 if ($courseid != SITEID && !empty($courseid)) {
     $course = $DB->get_record('course', array('id' => $courseid));
     $courses = array($course->id => $course);
     $issite = false;
 } else {
     $course = get_site();
-    $courses = calendar_get_default_courses();
+    $courses = $calendar->get_default_courses('sideblockonly');
     $issite = true;
 }
 require_course_login($course);
@@ -99,7 +101,6 @@ if ($course !== NULL) {
 $PAGE->set_url($url);
 $PAGE->set_totara_menu_selected('calendar');
 
-$calendar = new calendar_information(0, 0, 0, $time);
 $calendar->prepare_for_view($course, $courses);
 
 $pagetitle = get_string('export', 'calendar');

@@ -215,18 +215,32 @@ class block_current_learning extends block_base {
                 // There are two and they are not the same :(
                 $oldisprimary = $items[$instances[$component][$type][$item->id]]->is_primary_user_learning_item();
                 $newisprimary = $item->is_primary_user_learning_item();
-                if ($oldisprimary && $newisprimary) {
-                    // We should never ever be here!
-                    debugging('Two primary user learning instance with matching identifiers found - this should never happen.', DEBUG_DEVELOPER);
-                    // Unset this one just so we can progress.
-                    unset($items[$key]);
-                } else if ($newisprimary) {
-                    // The new item is primary and the old is not, unset the old.
-                    unset($items[$instances[$component][$type][$item->id]]);
-                    $instances[$component][$type][$item->id] = $key;
+
+                // Special case for plan courses (as they are a secondary item that we want to show instead of a primary item).
+                // This is so that the due date for the plan course is shown when available.
+                if ($item instanceof \totara_plan\user_learning\course ||
+                    $items[$instances[$component][$type][$item->id]] instanceof \totara_plan\user_learning\course) {
+                    // If the item is a plan course then use it.
+                    if ($item instanceof \totara_plan\user_learning\course) {
+                        unset($items[$instances[$component][$type][$item->id]]);
+                        $instances[$component][$type][$item->id] = $key;
+                    } else {
+                        unset($items[$key]);
+                    }
                 } else {
-                    // The old is primary and the new is not, unset the new.
-                    unset($items[$key]);
+                    if ($oldisprimary && $newisprimary) {
+                        // We should never ever be here!
+                        debugging('Two primary user learning instance with matching identifiers found - this should never happen.', DEBUG_DEVELOPER);
+                        // Unset this one just so we can progress.
+                        unset($items[$key]);
+                    } else if ($newisprimary) {
+                        // The new item is primary and the old is not, unset the old.
+                        unset($items[$instances[$component][$type][$item->id]]);
+                        $instances[$component][$type][$item->id] = $key;
+                    } else {
+                        // The old is primary and the new is not, unset the new.
+                        unset($items[$key]);
+                    }
                 }
             }
         }

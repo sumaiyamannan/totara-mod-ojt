@@ -143,7 +143,7 @@ $tabledata[$title] = $scalevalue;
 // Target.
 $title = get_string('goaltargetdate', 'totara_hierarchy');
 if (!empty($goalpersonal->targetdate)) {
-    $targetdate = userdate($goalpersonal->targetdate, get_string('datepickerlongyearphpuserdate', 'totara_core'), 99, false);
+    $targetdate = userdate($goalpersonal->targetdate, get_string('strftimedatefulllong', 'langconfig'), 99, false);
 } else {
     $targetdate = '';
 }

@@ -524,6 +524,9 @@ function facetoface_delete_instance($id) {
 
     $DB->delete_records('facetoface_interest', array('facetoface' => $facetoface->id));
 
+    // Notifications.
+    $DB->delete_records('facetoface_notification', array('facetofaceid' => $facetoface->id));
+
     $DB->delete_records('facetoface_sessions', array('facetoface' => $facetoface->id));
 
     $DB->delete_records('facetoface', array('id' => $facetoface->id));
@@ -866,16 +869,18 @@ function facetoface_cancel_session($session, $fromform) {
     // Remove entries from the calendars.
     facetoface_remove_all_calendar_entries($session);
 
-    // Change all user sign-up statuses, the only exception is previously cancelled users.
+    // Change all user sign-up statuses, the only exceptions are previously cancelled users and declined users.
     $sql = "SELECT DISTINCT s.userid, s.id as signupid
               FROM {facetoface_signups} s
               JOIN {facetoface_signups_status} ss ON ss.signupid = s.id
              WHERE s.sessionid = :sessionid AND
                    ss.superceded = 0 AND
-                   ss.statuscode <> :statususercanceled";
+                   ss.statuscode <> :statususercanceled AND
+                   ss.statuscode <> :statususerdeclined";
     $params = array(
         'sessionid' => $session->id,
         'statususercanceled' => MDL_F2F_STATUS_USER_CANCELLED,
+        'statususerdeclined' => MDL_F2F_STATUS_DECLINED
     );
     $signedupusers = $DB->get_recordset_sql($sql, $params);
     foreach ($signedupusers as $user) {
@@ -3713,6 +3718,7 @@ function facetoface_print_session_list($courseid, $facetoface, $sessions) {
     global $USER, $OUTPUT, $PAGE;
 
     $timenow = time();
+    $output = '';
 
     $cm = get_coursemodule_from_instance('facetoface', $facetoface->id, $courseid, false, MUST_EXIST);
     $context = context_module::instance($cm->id);
@@ -3774,8 +3780,15 @@ function facetoface_print_session_list($courseid, $facetoface, $sessions) {
 
     $displaytimezones = get_config(null, 'facetoface_displaysessiontimezones');
 
+    if ($editevents) {
+        $output .= html_writer::link(
+            new moodle_url('sessions.php', array('f' => $facetoface->id, 'backtoallsessions' => 1)), get_string('addsession', 'facetoface'),
+            array('class' => 'btn btn-default')
+        );
+    }
+
     // Upcoming sessions
-    $output = $OUTPUT->heading(get_string('upcomingsessions', 'facetoface'));
+    $output .= $OUTPUT->heading(get_string('upcomingsessions', 'facetoface'), 3);
     if (empty($upcomingarray) && empty($upcomingtbdarray)) {
         print_string('noupcoming', 'facetoface');
     } else {
@@ -3792,18 +3805,9 @@ function facetoface_print_session_list($courseid, $facetoface, $sessions) {
         );
     }
 
-    if ($editevents) {
-        $output .= html_writer::tag(
-            'p',
-            html_writer::link(
-                new moodle_url('sessions.php', array('f' => $facetoface->id, 'backtoallsessions' => 1)), get_string('addsession', 'facetoface')
-            )
-        );
-    }
-
     // Previous sessions
     if (!empty($previousarray)) {
-        $output .= $OUTPUT->heading(get_string('previoussessions', 'facetoface'));
+        $output .= $OUTPUT->heading(get_string('previoussessions', 'facetoface'), 3);
         $output .= $f2f_renderer->print_session_list_table(
             $previousarray, $viewattendees, $editevents, $displaytimezones, [], $PAGE->url
         );

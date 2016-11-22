@@ -468,6 +468,7 @@ p.errormessage {
     background:#BFBFB3;
     position: relative;
     margin: 0;
+    padding-top: 12px;
 }
 #page-footer .footer-content {
     width: 98%;
@@ -770,6 +771,13 @@ select {
 }
 .comment-area textarea {
     border:1px solid #AAAAAA;
+}
+
+.mform fieldset.collapsible legend a.fheader {
+    color: #00ACA8;
+}
+.mform .helptooltip a {
+    color: #00ACA8;
 }
 
 /**

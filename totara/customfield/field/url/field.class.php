@@ -160,7 +160,7 @@ class customfield_url extends customfield_base {
             }
 
             $text = s(empty($urldata->text) ? $urldata->url : format_string($urldata->text));
-            $target = isset($urldata->target) ? array('target' => '_blank', 'rel' => 'noreferrer') : null;
+            $target = !empty($urldata->target) ? array('target' => '_blank', 'rel' => 'noreferrer') : null;
 
             return html_writer::link($urldata->url, $text, $target);
         }
@@ -296,6 +296,7 @@ class customfield_url extends customfield_base {
         }
 
         $data = array();
+        $url = clean_param($url, PARAM_URL);
         if (!empty($url)) {
             $url = core_text::strtolower($url);
             if (substr($url, 0, 7) !== 'http://' && substr($url, 0, 8) !== 'https://' && substr($url, 0, 1) !== '/') {

@@ -260,6 +260,34 @@ class reminder extends data_object {
         // Delete reminder.
         parent::delete();
     }
+
+    /**
+     * TOTARA method for checking period values from all messages linked to this
+     * reminder against another number of days (such as the value of $CFG->reminder_maxtimesincecompletion).
+     *
+     * @param int $days for comparing against the period value of messages.
+     * @return bool true if a message has period value greater than days.
+     */
+    public function has_message_with_period_greater_or_equal($days) {
+        foreach (array('invitation', 'reminder', 'escalation') as $mtype) {
+            $message = reminder_message::fetch(
+                array(
+                    'reminderid'    => $this->id,
+                    'type'          => $mtype,
+                    'deleted'       => 0
+                )
+            );
+            if (!$message) {
+                // There is no saved message.
+                continue;
+            }
+            if ($message->period >= $days) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 }
 
 

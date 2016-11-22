@@ -89,13 +89,15 @@ $PAGE->set_url($url);
 $PAGE->set_pagelayout('admin');
 $PAGE->set_totara_menu_selected('calendar');
 
+$calendar = new calendar_information(0, 0, 0, $time);
+
 if ($courseid != SITEID && !empty($courseid)) {
     $course = $DB->get_record('course', array('id' => $courseid), '*', MUST_EXIST);
     $courses = array($course->id => $course);
     $issite = false;
 } else {
     $course = get_site();
-    $courses = calendar_get_default_courses();
+    $courses = $calendar->get_default_courses('sideblockonly');
     $issite = true;
 }
 require_login($course, false);
@@ -108,7 +110,6 @@ if ($action === 'delete' && $eventid > 0) {
     redirect($deleteurl);
 }
 
-$calendar = new calendar_information(0, 0, 0, $time);
 $calendar->prepare_for_view($course, $courses);
 
 $formoptions = new stdClass;

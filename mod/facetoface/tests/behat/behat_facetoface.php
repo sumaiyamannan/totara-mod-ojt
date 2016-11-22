@@ -40,11 +40,12 @@ class behat_facetoface extends behat_base {
      *
      * @Given /^I fill seminar session with relative date in form data:$/
      * @param TableNode $data
-     * @return array the list of actions to perform
      */
     public function i_fill_seminar_session_with_relative_date_in_form_data(TableNode $data) {
 
+        $behatformcontext = behat_context_helper::get('behat_forms');
         $dataclone = clone $data;
+        $rowday = array();
         $rows = array();
         $timestartday = '';
         $timestartmonth = '';
@@ -105,12 +106,12 @@ class behat_facetoface extends behat_base {
             }
         }
 
-        if ($timestartzone !== '') {
-            date_default_timezone_set($timestartzone);
-        }
         $now = time();
         $newdate = strtotime("{$timestartmonth} {$timestartday} {$timestartyear} {$timestarthour} {$timestartmin}" , $now) ;
         $startdate = new DateTime(date('Y-m-d H:i' , $newdate));
+        if ($timestartzone !== '') {
+            new DateTime(date('Y-m-d H:i' , $newdate), new DateTimeZone($timestartzone));
+        }
 
         // Values for the minutes field should be multiple of 5 (from 00 to 55). So we need to fix these values.
         $startmin = $startdate->format("i");
@@ -123,11 +124,11 @@ class behat_facetoface extends behat_base {
 
         $startdate->setTime($startdate->format('H'), $minutes);
 
-        if ($timefinishzone !== '') {
-            date_default_timezone_set($timefinishzone);
-        }
-        $newdate = strtotime("{$timefinishmonth} {$timefinishday} {$timefinishyear} {$timefinishhour} {$timefinishmin}" , $now) ;
+        $newdate = strtotime("{$timefinishmonth} {$timefinishday} {$timefinishyear} {$timefinishhour} {$timefinishmin}" , $now);
         $finishdate = new DateTime(date('Y-m-d H:i' , $newdate));
+        if ($timefinishzone !== '') {
+            $finishdate = new DateTime(date('Y-m-d H:i' , $newdate), new DateTimeZone($timefinishzone));
+        }
 
         $finishmin = $finishdate->format('i');
         $minutes = (($finishmin % 5 ) !== 0) ? floor($finishmin / 5) * 5 + 5 : ($finishmin / 5) * 5;
@@ -138,6 +139,7 @@ class behat_facetoface extends behat_base {
         $finishdate->setTime($finishdate->format('H'), $minutes);
 
         // Replace values for timestart.
+        $rowday[] = array('timestart[day]', (int) $startdate->format('d'));
         $rows[] = array('timestart[month]', (int) $startdate->format('m'));
         $rows[] = array('timestart[day]', (int) $startdate->format('d'));
         $rows[] = array('timestart[year]', (int) $startdate->format('Y'));
@@ -145,6 +147,7 @@ class behat_facetoface extends behat_base {
         $rows[] = array('timestart[minute]', (int) $startdate->format('i'));
 
         // Replace values for timefinish.
+        $rowday[] = array('timefinish[day]', (int) $finishdate->format('d'));
         $rows[] = array('timefinish[month]', (int) $finishdate->format('m'));
         $rows[] = array('timefinish[day]', (int) $finishdate->format('d'));
         $rows[] = array('timefinish[year]', (int) $finishdate->format('Y'));
@@ -153,10 +156,11 @@ class behat_facetoface extends behat_base {
 
         // Set the the rows back to data.
         $dataclone->setRows($rows);
+        $dataday = new TableNode();
+        $dataday->setRows($rowday);
 
-        return array(
-            new Given('I set the following fields to these values:', $dataclone),
-        );
+        $behatformcontext->i_set_the_following_fields_to_these_values($dataday);
+        $behatformcontext->i_set_the_following_fields_to_these_values($dataclone);
     }
 
     /**
@@ -268,5 +272,44 @@ class behat_facetoface extends behat_base {
                 throw new \Behat\Mink\Exception\ExpectationException('Seminar custom asset by the name of "' . $assetname . '" still exists', $this->getSession());
             }
         }
+    }
+
+    /**
+     * Clicks on the "Edit session" link for a Facetoface session.
+     *
+     * @throws \Behat\Mink\Exception\ExpectationException
+     * @When /^I click to edit the (facetoface|seminar) session in row (\d+)$/
+     * @param int $row
+     */
+    public function i_click_to_edit_the_facetoface_session_in_row($term, $row) {
+        $summaryliteral = $this->getSession()->getSelectorsHandler()->xpathLiteral(get_string('previoussessionslist', 'facetoface'));
+        $titleliteral = $this->getSession()->getSelectorsHandler()->xpathLiteral(get_string('editsession', 'facetoface'));
+        $xpath = "//table[@summary={$summaryliteral}]/tbody/tr[{$row}]//a/span[@title={$titleliteral}]/parent::a";
+        /** @var \Behat\Mink\Element\NodeElement[] $nodes */
+        $nodes = $this->find_all('xpath', $xpath);
+        if (empty($nodes) || count($nodes) > 1) {
+            throw new \Behat\Mink\Exception\ExpectationException('Unable to find the edit session link on row '.$row, $this->getSession());
+        }
+        $node = reset($nodes);
+        $node->click();
+    }
+
+    /**
+     * Clicks to edit the Seminar event date in the given table row.
+     *
+     * @throws \Behat\Mink\Exception\ExpectationException
+     * @When /^I click to edit the seminar event date at position (\d+)$/
+     * @param int $position
+     */
+    public function i_click_to_edit_the_seminar_event_date_at_position($position) {
+        $titleliteral = $this->getSession()->getSelectorsHandler()->xpathLiteral(get_string('editdate', 'facetoface'));
+        $xpath = "//table[contains(@class, 'f2fmanagedates')]/tbody/tr[{$position}]//a/span[@title={$titleliteral}]/parent::a";
+        /** @var \Behat\Mink\Element\NodeElement[] $nodes */
+        $nodes = $this->find_all('xpath', $xpath);
+        if (empty($nodes) || count($nodes) > 1) {
+            throw new \Behat\Mink\Exception\ExpectationException('Unable to find the edit event date link on row '.$position, $this->getSession());
+        }
+        $node = reset($nodes);
+        $node->click();
     }
 }

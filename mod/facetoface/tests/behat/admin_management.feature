@@ -17,14 +17,14 @@ Feature: Add and remove seminar Administrators
     And I navigate to "Global settings" node in "Site administration > Seminars"
     And I click on "Manager and Administrative approval" "text"
     And I click on "Save changes" "button"
-
-  Scenario: Seminar - Add and remove administrators
-    Given I click on "Find Learning" in the totara menu
+    And I click on "Find Learning" in the totara menu
     And I follow "course 1"
     And I click on "Turn editing on" "button"
     And I add a "Seminar" to section "1"
     And I expand all fieldsets
-    And I set the following fields to these values:
+
+  Scenario: Seminar - Add and remove administrators
+    Given I set the following fields to these values:
       | Name                                | test seminar |
       | Manager and Administrative approval | 1            |
 
@@ -67,3 +67,17 @@ Feature: Add and remove seminar Administrators
     Then I should not see "Admin One (activity level approver)" in the "Approval Options" "fieldset"
     And I should see "Admin Two (activity level approver)" in the "Approval Options" "fieldset"
     And I should not see "Admin Three (activity level approver)" in the "Approval Options" "fieldset"
+
+  Scenario: Seminar - enable/disable add approver button depending on whether approval option is on.
+    When I set the following fields to these values:
+      | Name        | test seminar |
+      | No Approval | 1            |
+    Then the "Add approver" "button" should be disabled
+
+    When I set the following fields to these values:
+      | Manager and Administrative approval | 1            |
+    Then the "Add approver" "button" should be enabled
+
+    When I set the following fields to these values:
+      | Manager Approval | 1            |
+    Then the "Add approver" "button" should be disabled

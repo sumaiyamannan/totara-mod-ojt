@@ -1716,7 +1716,8 @@ $string['showonly'] = 'Show only';
 $string['showperpage'] = 'Show {$a} per page';
 $string['showrecent'] = 'Show recent activity';
 $string['showreports'] = 'Show activity reports';
-$string['showreports_help'] = 'Activity reports are available for each participant that show their activity in the course. As well as listings of their contributions, such as forum posts or assignment submissions, these reports also include access logs. This setting determines whether a student can view their own activity reports via their profile page.';
+// Totara: Make help text easier to understand.
+$string['showreports_help'] = 'This setting determines whether a student\'s activity reports are shown when viewing course profiles listed on their user account profile page. These reports display the student\'s contributions such as forum posts, assignment submissions and include access logs.';
 $string['showsettings'] = 'Show settings';
 $string['showtheselogs'] = 'Show these logs';
 $string['showthishelpinlanguage'] = 'Show this help in language: {$a}';

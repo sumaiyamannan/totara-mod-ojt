@@ -644,10 +644,15 @@ class appraisal_quest_edit_form extends question_base_form {
                 $accesskey = appraisal::ACCESS_CANANSWER;
                 $strerr = get_string('error:writerequired', 'totara_appraisal');
             }
+
+            // Override validation for redisplay and aggregate questions.
             if ($element->inherits_permissions()) {
                 $accesskey = appraisal::ACCESS_CANANSWER;
                 $strerr = get_string('error:redisplayrequired', 'totara_appraisal');
+            } else if ($element instanceof question_aggregate) {
+                $accesskey = appraisal::ACCESS_CANANSWER;
             }
+
             if (!isset($data['cloneprevroles']) || !$data['cloneprevroles']) {
                 if (!$data['roles'][appraisal::ROLE_LEARNER][$accesskey] &&
                     !$data['roles'][appraisal::ROLE_MANAGER][$accesskey] &&

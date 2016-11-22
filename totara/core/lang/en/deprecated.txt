@@ -39,4 +39,3 @@ tempmanagerselectionallusers,totara_core
 tempmanagerselectiononlymanagers,totara_core
 tempmanagersupporttext,totara_core
 updatetemporarymanagerstask,totara_core
-viewmyteam,totara_core

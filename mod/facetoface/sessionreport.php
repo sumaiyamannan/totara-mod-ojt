@@ -29,7 +29,7 @@ $format = optional_param('format', '', PARAM_TEXT);
 $debug = optional_param('debug', 0, PARAM_INT);
 
 $url = new moodle_url('/mod/facetoface/sessionreport.php', array('format' => $format, 'debug' => $debug));
-admin_externalpage_setup('modfacetofaceeventreport', '', null, $url);
+admin_externalpage_setup('modfacetofacesessionreport', '', null, $url);
 
 
 // Verify global restrictions.
@@ -53,6 +53,9 @@ echo $renderer->header();
 if ($debug) {
     $report->debug($debug);
 }
+
+$facetofacerenderer = $PAGE->get_renderer('mod_facetoface');
+echo $facetofacerenderer->reports_management_tabs('facetofacesessionreport');
 
 $report->display_restrictions();
 

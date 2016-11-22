@@ -930,6 +930,30 @@ class mod_facetoface_renderer extends plugin_renderer_base {
     }
 
     /**
+     * Manage report tabs
+     *
+     * @param string $currenttab
+     * @return string tabs
+     */
+    public function reports_management_tabs($currenttab = 'facetofaceeventreport') {
+        $tabs = array();
+        $row = array();
+        $activated = array();
+        $inactive = array();
+
+        $row[] = new tabobject('facetofaceeventreport', new moodle_url('/mod/facetoface/eventreport.php'),
+            get_string('eventsview', 'mod_facetoface'));
+
+        $row[] = new tabobject('facetofacesessionreport', new moodle_url('/mod/facetoface/sessionreport.php'),
+            get_string('sessionsview', 'mod_facetoface'));
+
+        $tabs[] = $row;
+        $activated[] = $currenttab;
+
+        return print_tabs($tabs, $currenttab, $inactive, $activated, true);
+    }
+
+    /**
      * Show a list of all reservations for a session and allow them to be removed.
      *
      * @param object $reservations Data about all the reservations

@@ -53,6 +53,12 @@ if ($planid == 0 && $datatype != 'goals' && $datatype != 'requiredlearning') {
 }
 
 $roleassignment = new appraisal_role_assignment($roleassignmentid);
+if ($roleassignment->userid != $USER->id) {
+    // This script is for the user in a given role assignment to select their own answer.
+    // If they're the manager, then the manager's role assignment id should have been supplied.
+    // So if the supplied role assignment is not for the current user, something's wrong.
+    print_error('invalidaccess');
+}
 
 if (!$roleassignment) {
     echo get_string('noassignments', 'totara_appraisal');

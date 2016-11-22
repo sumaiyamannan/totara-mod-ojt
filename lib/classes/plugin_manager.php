@@ -71,10 +71,6 @@ class core_plugin_manager {
     protected $pluginsinfo = null;
     /** @var array of raw subplugins information */
     protected $subpluginsinfo = null;
-    /** @var array cache information about availability in the plugins directory if requesting "at least" version */
-    protected $remotepluginsinfoatleast = null;
-    /** @var array cache information about availability in the plugins directory if requesting exact version */
-    protected $remotepluginsinfoexact = null;
     /** @var array list of installed plugins $name=>$version */
     protected $installedplugins = null;
     /** @var array list of all enabled plugins $name=>$name */
@@ -85,8 +81,6 @@ class core_plugin_manager {
     protected $plugintypes = null;
     /** @var \core\update\code_manager code manager to use for plugins code operations */
     protected $codemanager = null;
-    /** @var \core\update\api client instance to use for accessing download.moodle.org/api/ */
-    protected $updateapiclient = null;
 
     /**
      * Direct initiation not allowed, use the factory method {@link self::instance()}
@@ -123,14 +117,11 @@ class core_plugin_manager {
             if (static::$singletoninstance) {
                 static::$singletoninstance->pluginsinfo = null;
                 static::$singletoninstance->subpluginsinfo = null;
-                static::$singletoninstance->remotepluginsinfoatleast = null;
-                static::$singletoninstance->remotepluginsinfoexact = null;
                 static::$singletoninstance->installedplugins = null;
                 static::$singletoninstance->enabledplugins = null;
                 static::$singletoninstance->presentplugins = null;
                 static::$singletoninstance->plugintypes = null;
                 static::$singletoninstance->codemanager = null;
-                static::$singletoninstance->updateapiclient = null;
             }
         }
         $cache = cache::make('core', 'plugin_manager');
@@ -146,7 +137,7 @@ class core_plugin_manager {
     public function get_plugin_types() {
         if (func_num_args() > 0) {
             if (!func_get_arg(0)) {
-                throw coding_exception('core_plugin_manager->get_plugin_types() does not support relative paths.');
+                throw new coding_exception('core_plugin_manager->get_plugin_types() does not support relative paths.');
             }
         }
         if ($this->plugintypes) {
@@ -712,6 +703,7 @@ class core_plugin_manager {
         $others = array();
         foreach ($this->get_plugins() as $type => $plugins) {
             foreach ($plugins as $plugin) {
+                /** @var \core\plugininfo\base $plugin */
                 $required = $plugin->get_other_required_plugins();
                 if (isset($required[$component])) {
                     $others[] = $plugin->component;
@@ -757,7 +749,7 @@ class core_plugin_manager {
         $return = true;
         foreach ($this->get_plugins() as $type => $plugins) {
             foreach ($plugins as $plugin) {
-
+                /** @var \core\plugininfo\base $plugin */
                 if (!$plugin->is_core_dependency_satisfied($moodleversion)) {
                     $return = false;
                     $failedplugins[] = $plugin->component;
@@ -825,7 +817,7 @@ class core_plugin_manager {
      *
      * @param \core\plugininfo\base $plugin the plugin we are checking
      * @param string|int|double $moodleversion moodle core branch to check against
-     * @return stdObject
+     * @return stdClass
      */
     protected function resolve_core_requirements(\core\plugininfo\base $plugin, $moodleversion) {
 
@@ -893,11 +885,7 @@ class core_plugin_manager {
         }
 
         if ($reqs->status !== self::REQUIREMENT_STATUS_OK) {
-            if ($this->is_remote_plugin_available($otherpluginname, $requiredversion, false)) {
-                $reqs->availability = self::REQUIREMENT_AVAILABLE;
-            } else {
-                $reqs->availability = self::REQUIREMENT_UNAVAILABLE;
-            }
+            $reqs->availability = self::REQUIREMENT_UNAVAILABLE;
         }
 
         return $reqs;
@@ -909,26 +897,15 @@ class core_plugin_manager {
      * See {@link self::get_remote_plugin_info()} for the full explanation of how the $version
      * parameter is interpretted.
      *
+     * @deprecated Not implemented in Totara
+     *
      * @param string $component plugin frankenstyle name
      * @param string|int $version ANY_VERSION or the version number
      * @param bool $exactmatch false if "given version or higher" is requested
      * @return boolean
      */
     public function is_remote_plugin_available($component, $version, $exactmatch) {
-
-        $info = $this->get_remote_plugin_info($component, $version, $exactmatch);
-
-        if (empty($info)) {
-            // There is no available plugin of that name.
-            return false;
-        }
-
-        if (empty($info->version)) {
-            // Plugin is known, but no suitable version was found.
-            return false;
-        }
-
-        return true;
+        return false;
     }
 
     /**
@@ -937,54 +914,16 @@ class core_plugin_manager {
      * This check should be used whenever attempting to install a plugin from
      * the plugins directory (new install, available update, missing dependency).
      *
+     * @deprecated Not implemented in Totara
+     *
      * @param string $component
      * @param int $version version number
      * @param string $reason returned code of the reason why it is not
      * @return boolean
      */
     public function is_remote_plugin_installable($component, $version, &$reason=null) {
-        global $CFG;
-
-        // Make sure the feature is not disabled.
-        if (!empty($CFG->disableupdateautodeploy)) {
-            $reason = 'disabled';
-            return false;
-        }
-
-        // Make sure the version is available.
-        if (!$this->is_remote_plugin_available($component, $version, true)) {
-            $reason = 'remoteunavailable';
-            return false;
-        }
-
-        // Make sure the plugin type root directory is writable.
-        list($plugintype, $pluginname) = core_component::normalize_component($component);
-        if (!$this->is_plugintype_writable($plugintype)) {
-            $reason = 'notwritableplugintype';
-            return false;
-        }
-
-        $remoteinfo = $this->get_remote_plugin_info($component, $version, true);
-        $localinfo = $this->get_plugin_info($component);
-
-        if ($localinfo) {
-            // If the plugin is already present, prevent downgrade.
-            if ($localinfo->versiondb > $remoteinfo->version->version) {
-                $reason = 'cannotdowngrade';
-                return false;
-            }
-
-            // Make sure we have write access to all the existing code.
-            if (is_dir($localinfo->rootdir)) {
-                if (!$this->is_plugin_folder_removable($component)) {
-                    $reason = 'notwritableplugin';
-                    return false;
-                }
-            }
-        }
-
-        // Looks like it could work.
-        return true;
+        $reason = 'disabled';
+        return false;
     }
 
     /**
@@ -998,21 +937,7 @@ class core_plugin_manager {
      * @return array
      */
     public function filter_installable($remoteinfos) {
-        global $CFG;
-
-        if (!empty($CFG->disableupdateautodeploy)) {
-            return array();
-        }
-        if (empty($remoteinfos)) {
-            return array();
-        }
-        $installable = array();
-        foreach ($remoteinfos as $index => $remoteinfo) {
-            if ($this->is_remote_plugin_installable($remoteinfo->component, $remoteinfo->version->version)) {
-                $installable[$index] = $remoteinfo;
-            }
-        }
-        return $installable;
+        return array();
     }
 
     /**
@@ -1035,33 +960,15 @@ class core_plugin_manager {
      * See {@link \core\update\api::validate_pluginfo_format()} for the
      * returned data structure.
      *
+     * @deprecated Not implemented in Totara
+     *
      * @param string $component plugin frankenstyle name
      * @param string|int $version ANY_VERSION or the version number
      * @param bool $exactmatch false if "given version or higher" is requested
      * @return \core\update\remote_info|bool
      */
     public function get_remote_plugin_info($component, $version, $exactmatch) {
-
-        if ($exactmatch and $version == ANY_VERSION) {
-            throw new coding_exception('Invalid request for exactly any version, it does not make sense.');
-        }
-
-        $client = $this->get_update_api_client();
-
-        if ($exactmatch) {
-            // Use client's get_plugin_info() method.
-            if (!isset($this->remotepluginsinfoexact[$component][$version])) {
-                $this->remotepluginsinfoexact[$component][$version] = $client->get_plugin_info($component, $version);
-            }
-            return $this->remotepluginsinfoexact[$component][$version];
-
-        } else {
-            // Use client's find_plugin() method.
-            if (!isset($this->remotepluginsinfoatleast[$component][$version])) {
-                $this->remotepluginsinfoatleast[$component][$version] = $client->find_plugin($component, $version);
-            }
-            return $this->remotepluginsinfoatleast[$component][$version];
-        }
+        return false;
     }
 
     /**
@@ -1071,17 +978,14 @@ class core_plugin_manager {
      * the ZIP contents in advance, typically by using the API requests against
      * the plugins directory.
      *
+     * @deprecated Not implemented in Totara
+     *
      * @param string $url
      * @param string $md5
      * @return string|bool full path to the file, false on error
      */
     public function get_remote_plugin_zip($url, $md5) {
-        global $CFG;
-
-        if (!empty($CFG->disableupdateautodeploy)) {
-            return false;
-        }
-        return $this->get_code_manager()->get_remote_plugin_zip($url, $md5);
+        return false;
     }
 
     /**
@@ -1090,6 +994,8 @@ class core_plugin_manager {
      * Returns the list of files found in the ZIP. The format of that list is
      * array of (string)filerelpath => (bool|string) where the array value is
      * either true or a string describing the problematic file.
+     *
+     * @deprecated Not supported in Totara
      *
      * @see zip_packer::extract_to_pathname()
      * @param string $zipfilepath full path to the saved ZIP file
@@ -1107,6 +1013,8 @@ class core_plugin_manager {
      * Plugin ZIP packages are expected to contain a single directory and the
      * directory name would become the plugin name once extracted to the Moodle
      * dirroot.
+     *
+     * @deprecated Not supported in Totara
      *
      * @param string $zipfilepath full path to the ZIP files
      * @return string|bool false on error
@@ -1135,27 +1043,8 @@ class core_plugin_manager {
                         continue;
                     }
                     if ($reqinfo->status != self::REQUIREMENT_STATUS_OK) {
-                        if ($reqinfo->availability == self::REQUIREMENT_AVAILABLE) {
-                            $remoteinfo = $this->get_remote_plugin_info($reqname, $reqinfo->reqver, false);
-
-                            if (empty($dependencies[$reqname])) {
-                                $dependencies[$reqname] = $remoteinfo;
-                            } else {
-                                // If resolving requirements has led to two different versions of the same
-                                // remote plugin, pick the higher version. This can happen in cases like one
-                                // plugin requiring ANY_VERSION and another plugin requiring specific higher
-                                // version with lower maturity of a remote plugin.
-                                if ($remoteinfo->version->version > $dependencies[$reqname]->version->version) {
-                                    $dependencies[$reqname] = $remoteinfo;
-                                }
-                            }
-
-                        } else {
-                            if (!isset($dependencies[$reqname])) {
-                                // Unable to find a plugin fulfilling the requirements.
-                                $dependencies[$reqname] = false;
-                            }
-                        }
+                        // Unable to find a plugin fulfilling the requirements.
+                        $dependencies[$reqname] = false;
                     }
                 }
             }
@@ -1236,141 +1125,15 @@ class core_plugin_manager {
      * The method uses {@link mtrace()} to produce direct output and can be
      * used in both web and cli interfaces.
      *
+     * @deprecated Not implemented in Totara
+     *
      * @param array $plugins list of plugins
      * @param bool $confirmed should the files be really deployed into the dirroot?
      * @param bool $silent perform without output
      * @return bool true on success
      */
     public function install_plugins(array $plugins, $confirmed, $silent) {
-        global $CFG, $OUTPUT;
-
-        if (!empty($CFG->disableupdateautodeploy)) {
-            return false;
-        }
-
-        if (empty($plugins)) {
-            return false;
-        }
-
-        $ok = get_string('ok', 'core');
-
-        // Let admins know they can expect more verbose output.
-        $silent or $this->mtrace(get_string('packagesdebug', 'core_plugin'), PHP_EOL, DEBUG_NORMAL);
-
-        // Download all ZIP packages if we do not have them yet.
-        $zips = array();
-        foreach ($plugins as $plugin) {
-            if ($plugin instanceof \core\update\remote_info) {
-                $zips[$plugin->component] = $this->get_remote_plugin_zip($plugin->version->downloadurl,
-                    $plugin->version->downloadmd5);
-                $silent or $this->mtrace(get_string('packagesdownloading', 'core_plugin', $plugin->component), ' ... ');
-                $silent or $this->mtrace(PHP_EOL.' <- '.$plugin->version->downloadurl, '', DEBUG_DEVELOPER);
-                $silent or $this->mtrace(PHP_EOL.' -> '.$zips[$plugin->component], ' ... ', DEBUG_DEVELOPER);
-                if (!$zips[$plugin->component]) {
-                    $silent or $this->mtrace(get_string('error'));
-                    return false;
-                }
-                $silent or $this->mtrace($ok);
-            } else {
-                if (empty($plugin->zipfilepath)) {
-                    throw new coding_exception('Unexpected data structure provided');
-                }
-                $zips[$plugin->component] = $plugin->zipfilepath;
-                $silent or $this->mtrace('ZIP '.$plugin->zipfilepath, PHP_EOL, DEBUG_DEVELOPER);
-            }
-        }
-
-        // Validate all downloaded packages.
-        foreach ($plugins as $plugin) {
-            $zipfile = $zips[$plugin->component];
-            $silent or $this->mtrace(get_string('packagesvalidating', 'core_plugin', $plugin->component), ' ... ');
-            list($plugintype, $pluginname) = core_component::normalize_component($plugin->component);
-            $tmp = make_request_directory();
-            $zipcontents = $this->unzip_plugin_file($zipfile, $tmp, $pluginname);
-            if (empty($zipcontents)) {
-                $silent or $this->mtrace(get_string('error'));
-                $silent or $this->mtrace('Unable to unzip '.$zipfile, PHP_EOL, DEBUG_DEVELOPER);
-                return false;
-            }
-
-            $validator = \core\update\validator::instance($tmp, $zipcontents);
-            $validator->assert_plugin_type($plugintype);
-            $validator->assert_moodle_version($CFG->version);
-            // TODO Check for missing dependencies during validation.
-            $result = $validator->execute();
-            if (!$silent) {
-                $result ? $this->mtrace($ok) : $this->mtrace(get_string('error'));
-                foreach ($validator->get_messages() as $message) {
-                    if ($message->level === $validator::INFO) {
-                        // Display [OK] validation messages only if debugging mode is DEBUG_NORMAL.
-                        $level = DEBUG_NORMAL;
-                    } else if ($message->level === $validator::DEBUG) {
-                        // Display [Debug] validation messages only if debugging mode is DEBUG_ALL.
-                        $level = DEBUG_ALL;
-                    } else {
-                        // Display [Warning] and [Error] always.
-                        $level = null;
-                    }
-                    if ($message->level === $validator::WARNING and !CLI_SCRIPT) {
-                        $this->mtrace('  <strong>['.$validator->message_level_name($message->level).']</strong>', ' ', $level);
-                    } else {
-                        $this->mtrace('  ['.$validator->message_level_name($message->level).']', ' ', $level);
-                    }
-                    $this->mtrace($validator->message_code_name($message->msgcode), ' ', $level);
-                    $info = $validator->message_code_info($message->msgcode, $message->addinfo);
-                    if ($info) {
-                        $this->mtrace('['.s($info).']', ' ', $level);
-                    } else if (is_string($message->addinfo)) {
-                        $this->mtrace('['.s($message->addinfo, true).']', ' ', $level);
-                    } else {
-                        $this->mtrace('['.s(json_encode($message->addinfo, true)).']', ' ', $level);
-                    }
-                    if ($icon = $validator->message_help_icon($message->msgcode)) {
-                        if (CLI_SCRIPT) {
-                            $this->mtrace(PHP_EOL.'  ^^^ '.get_string('help').': '.
-                                get_string($icon->identifier.'_help', $icon->component), '', $level);
-                        } else {
-                            $this->mtrace($OUTPUT->render($icon), ' ', $level);
-                        }
-                    }
-                    $this->mtrace(PHP_EOL, '', $level);
-                }
-            }
-            if (!$result) {
-                $silent or $this->mtrace(get_string('packagesvalidatingfailed', 'core_plugin'));
-                return false;
-            }
-        }
-        $silent or $this->mtrace(PHP_EOL.get_string('packagesvalidatingok', 'core_plugin'));
-
-        if (!$confirmed) {
-            return true;
-        }
-
-        // Extract all ZIP packs do the dirroot.
-        foreach ($plugins as $plugin) {
-            $silent or $this->mtrace(get_string('packagesextracting', 'core_plugin', $plugin->component), ' ... ');
-            $zipfile = $zips[$plugin->component];
-            list($plugintype, $pluginname) = core_component::normalize_component($plugin->component);
-            $target = $this->get_plugintype_root($plugintype);
-            if (file_exists($target.'/'.$pluginname)) {
-                $this->remove_plugin_folder($this->get_plugin_info($plugin->component));
-            }
-            if (!$this->unzip_plugin_file($zipfile, $target, $pluginname)) {
-                $silent or $this->mtrace(get_string('error'));
-                $silent or $this->mtrace('Unable to unzip '.$zipfile, PHP_EOL, DEBUG_DEVELOPER);
-                if (function_exists('opcache_reset')) {
-                    opcache_reset();
-                }
-                return false;
-            }
-            $silent or $this->mtrace($ok);
-        }
-        if (function_exists('opcache_reset')) {
-            opcache_reset();
-        }
-
-        return true;
+        return false;
     }
 
     /**
@@ -1459,17 +1222,11 @@ class core_plugin_manager {
     /**
      * Checks if there are some plugins with a known available update
      *
+     * @deprecated Not implemented in Totara
+     *
      * @return bool true if there is at least one available update
      */
     public function some_plugins_updatable() {
-        foreach ($this->get_plugins() as $type => $plugins) {
-            foreach ($plugins as $plugin) {
-                if ($plugin->available_updates()) {
-                    return true;
-                }
-            }
-        }
-
         return false;
     }
 
@@ -1480,26 +1237,13 @@ class core_plugin_manager {
      * called by {@link \core\plugininfo\base::available_updates()} only
      * to lazy load the data once they are first requested.
      *
+     * @deprecated Not implemented in Totara
+     *
      * @param string $component frankenstyle name of the plugin
      * @return null|array array of \core\update\info objects or null
      */
     public function load_available_updates_for_plugin($component) {
-        global $CFG;
-
-        $provider = \core\update\checker::instance();
-
-        if (!$provider->enabled() or during_initial_install()) {
-            return null;
-        }
-
-        if (isset($CFG->updateminmaturity)) {
-            $minmaturity = $CFG->updateminmaturity;
-        } else {
-            // This can happen during the very first upgrade to 2.3.
-            $minmaturity = MATURITY_STABLE;
-        }
-
-        return $provider->get_update_info($component, array('minmaturity' => $minmaturity));
+        return null;
     }
 
     /**
@@ -1516,56 +1260,12 @@ class core_plugin_manager {
      * release candidates but less mature than explicit stable (this should be
      * pretty rare case).
      *
+     * @deprecated Not implemented in Totara
+     *
      * @return array (string)component => (\core\update\remote_info)remoteinfo
      */
     public function available_updates() {
-
-        $updates = array();
-
-        foreach ($this->get_plugins() as $type => $plugins) {
-            foreach ($plugins as $plugin) {
-                $availableupdates = $plugin->available_updates();
-                if (empty($availableupdates)) {
-                    continue;
-                }
-                foreach ($availableupdates as $update) {
-                    if (empty($updates[$plugin->component])) {
-                        $updates[$plugin->component] = $update;
-                        continue;
-                    }
-                    $maturitycurrent = $updates[$plugin->component]->maturity;
-                    if (empty($maturitycurrent)) {
-                        $maturitycurrent = MATURITY_STABLE - 25;
-                    }
-                    $maturityremote = $update->maturity;
-                    if (empty($maturityremote)) {
-                        $maturityremote = MATURITY_STABLE - 25;
-                    }
-                    if ($maturityremote < $maturitycurrent) {
-                        continue;
-                    }
-                    if ($maturityremote > $maturitycurrent) {
-                        $updates[$plugin->component] = $update;
-                        continue;
-                    }
-                    if ($update->version > $updates[$plugin->component]->version) {
-                        $updates[$plugin->component] = $update;
-                        continue;
-                    }
-                }
-            }
-        }
-
-        foreach ($updates as $component => $update) {
-            $remoteinfo = $this->get_remote_plugin_info($component, $update->version, true);
-            if (empty($remoteinfo) or empty($remoteinfo->version)) {
-                unset($updates[$component]);
-            } else {
-                $updates[$component] = $remoteinfo;
-            }
-        }
-
-        return $updates;
+        return array();
     }
 
     /**
@@ -1990,12 +1690,8 @@ class core_plugin_manager {
 
         if (!$this->is_plugin_folder_removable($plugin->component)) {
             throw new moodle_exception('err_removing_unremovable_folder', 'core_plugin', '',
-                array('plugin' => $pluginfo->component, 'rootdir' => $pluginfo->rootdir),
+                array('plugin' => $plugin->component, 'rootdir' => $plugin->rootdir),
                 'plugin root folder is not removable as expected');
-        }
-
-        if ($plugin->get_status() === self::PLUGIN_STATUS_UPTODATE or $plugin->get_status() === self::PLUGIN_STATUS_NEW) {
-            $this->archive_plugin_version($plugin);
         }
 
         remove_dir($plugin->rootdir);
@@ -2012,25 +1708,12 @@ class core_plugin_manager {
      * (they are considered as implicit requirements if distributed together
      * with the main package).
      *
+     * @deprecated Not implemented in Totara
+     *
      * @param \core\plugininfo\base $plugin
      * @return bool
      */
     public function can_cancel_plugin_installation(\core\plugininfo\base $plugin) {
-        global $CFG;
-
-        if (!empty($CFG->disableupdateautodeploy)) {
-            return false;
-        }
-
-        if (empty($plugin) or $plugin->is_standard() or $plugin->is_subplugin()
-                or !$this->is_plugin_folder_removable($plugin->component)) {
-            return false;
-        }
-
-        if ($plugin->get_status() === self::PLUGIN_STATUS_NEW) {
-            return true;
-        }
-
         return false;
     }
 
@@ -2041,29 +1724,12 @@ class core_plugin_manager {
      * (they are considered as implicit requirements if distributed together
      * with the main package).
      *
+     * @deprecated Not implemented in Totara
+     *
      * @param \core\plugininfo\base $plugin
      * @return bool
      */
     public function can_cancel_plugin_upgrade(\core\plugininfo\base $plugin) {
-        global $CFG;
-
-        if (!empty($CFG->disableupdateautodeploy)) {
-            // Cancelling the plugin upgrade is actually installation of the
-            // previously archived version.
-            return false;
-        }
-
-        if (empty($plugin) or $plugin->is_standard() or $plugin->is_subplugin()
-                or !$this->is_plugin_folder_removable($plugin->component)) {
-            return false;
-        }
-
-        if ($plugin->get_status() === self::PLUGIN_STATUS_UPGRADE) {
-            if ($this->get_code_manager()->get_archived_plugin_version($plugin->component, $plugin->versiondb)) {
-                return true;
-            }
-        }
-
         return false;
     }
 
@@ -2074,84 +1740,47 @@ class core_plugin_manager {
      * to cancel the installation of just unzipped plugin before the database
      * upgrade happens.
      *
+     * @deprecated Not implemented in Totara
+     *
      * @param string $component
+     * @return bool
      */
     public function cancel_plugin_installation($component) {
-        global $CFG;
-
-        if (!empty($CFG->disableupdateautodeploy)) {
-            return false;
-        }
-
-        $plugin = $this->get_plugin_info($component);
-
-        if ($this->can_cancel_plugin_installation($plugin)) {
-            $this->remove_plugin_folder($plugin);
-        }
-
         return false;
     }
 
     /**
      * Returns plugins, the installation of which can be cancelled.
      *
+     * @deprecated Not implemented in Totara
+     *
      * @return array [(string)component] => (\core\plugininfo\base)plugin
      */
     public function list_cancellable_installations() {
-        global $CFG;
-
-        if (!empty($CFG->disableupdateautodeploy)) {
-            return array();
-        }
-
-        $cancellable = array();
-        foreach ($this->get_plugins() as $type => $plugins) {
-            foreach ($plugins as $plugin) {
-                if ($this->can_cancel_plugin_installation($plugin)) {
-                    $cancellable[$plugin->component] = $plugin;
-                }
-            }
-        }
-
-        return $cancellable;
+        return array();
     }
 
     /**
      * Archive the current on-disk plugin code.
      *
-     * @param \core\plugiinfo\base $plugin
+     * @deprecated Not implemented in Totara
+     *
+     * @param \core\plugininfo\base $plugin
      * @return bool
      */
     public function archive_plugin_version(\core\plugininfo\base $plugin) {
-        return $this->get_code_manager()->archive_plugin_version($plugin->rootdir, $plugin->component, $plugin->versiondisk);
+        return false;
     }
 
     /**
      * Returns list of all archives that can be installed to cancel the plugin upgrade.
      *
+     * @deprecated Not implemented in Totara
+     *
      * @return array [(string)component] => {(string)->component, (string)->zipfilepath}
      */
     public function list_restorable_archives() {
-        global $CFG;
-
-        if (!empty($CFG->disableupdateautodeploy)) {
-            return false;
-        }
-
-        $codeman = $this->get_code_manager();
-        $restorable = array();
-        foreach ($this->get_plugins() as $type => $plugins) {
-            foreach ($plugins as $plugin) {
-                if ($this->can_cancel_plugin_upgrade($plugin)) {
-                    $restorable[$plugin->component] = (object)array(
-                        'component' => $plugin->component,
-                        'zipfilepath' => $codeman->get_archived_plugin_version($plugin->component, $plugin->versiondb)
-                    );
-                }
-            }
-        }
-
-        return $restorable;
+        return array();
     }
 
     /**
@@ -2291,6 +1920,8 @@ class core_plugin_manager {
     /**
      * Returns a code_manager instance to be used for the plugins code operations.
      *
+     * @deprecated Not supported in Totara
+     *
      * @return \core\update\code_manager
      */
     protected function get_code_manager() {
@@ -2300,19 +1931,5 @@ class core_plugin_manager {
         }
 
         return $this->codemanager;
-    }
-
-    /**
-     * Returns a client for https://download.moodle.org/api/
-     *
-     * @return \core\update\api
-     */
-    protected function get_update_api_client() {
-
-        if ($this->updateapiclient === null) {
-            $this->updateapiclient = \core\update\api::client();
-        }
-
-        return $this->updateapiclient;
     }
 }

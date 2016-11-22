@@ -694,11 +694,29 @@ class totara_reportbuilder_column_testcase extends reportcache_advanced_testcase
     }
 
     /**
+     * Data provider for columns and filters test.
+     *
+     * Each source is tested separately, so that one failure won't prevent the other sources from being tested.
+     */
+    public function data_columns_and_filters() {
+        $sources = array();
+
+        // Loop through installed sources.
+        $sourcelist = reportbuilder::get_source_list(true);
+        foreach ($sourcelist as $sourcename => $title) {
+            $sources[] = array($sourcename, $title);
+        }
+
+        return $sources;
+    }
+
+    /**
      * Check all reports columns and filters
      *
      * @group slowtest
+     * @dataProvider data_columns_and_filters
      */
-    public function test_columns_and_filters() {
+    public function test_columns_and_filters($sourcename, $title) {
         global $SESSION, $DB;
 
         $this->resetAfterTest();
@@ -709,143 +727,139 @@ class totara_reportbuilder_column_testcase extends reportcache_advanced_testcase
         $reportname = 'Test Report';
         $filtername = 'filtering_testreport';
 
-        // Loop through installed sources.
-        $sourcelist = reportbuilder::get_source_list(true);
-        foreach ($sourcelist as $sourcename => $title) {
-            $sourcecheck = in_array($sourcename, array('dp_certification_history', 'program_membership', 'user'));
-            // echo '<h3>Title : [' . $title . '] Sourcename : [' . $sourcename . ']</h3>' . "\n";
-            $src = reportbuilder::get_source_object($sourcename, true); // Caching here is completely fine.
-            $sortorder = 1;
-            foreach ($src->columnoptions as $column) {
-                // Create a report.
-                $report = new stdClass();
-                $report->fullname = $reportname;
-                $report->shortname = 'test' . $i++;
-                $report->source = $sourcename;
-                $report->hidden = 0;
-                $report->accessmode = 0;
-                $report->contentmode = 0;
-                $reportid = $DB->insert_record('report_builder', $report);
+        $sourcecheck = in_array($sourcename, array('dp_certification_history', 'program_membership', 'user'));
+
+        $src = reportbuilder::get_source_object($sourcename, true); // Caching here is completely fine.
+        $sortorder = 1;
+        foreach ($src->columnoptions as $column) {
+            // Create a report.
+            $report = new stdClass();
+            $report->fullname = $reportname;
+            $report->shortname = 'test' . $i++;
+            $report->source = $sourcename;
+            $report->hidden = 0;
+            $report->accessmode = 0;
+            $report->contentmode = 0;
+            $reportid = $DB->insert_record('report_builder', $report);
+            $col = new stdClass();
+            $col->reportid = $reportid;
+            $col->type = $column->type;
+            $col->value = $column->value;
+            $col->heading = $column->defaultheading;
+            $col->sortorder = $sortorder++;
+            $colid = $DB->insert_record('report_builder_columns', $col);
+
+            // Create the reportbuilder object.
+            $rb = new reportbuilder($reportid);
+            $sql = $rb->build_query();
+
+            $message = "\nReport title : {$title}\n";
+            $message .= "Report sourcename : {$sourcename}\n";
+            $message .= "Column option : Test {$column->type}_{$column->value} column\n";
+            $message .= "SQL : {$sql[0]}\n";
+            $message .= "SQL Params : " . var_export($sql[1], true) . "\n";
+
+            // Get the column option object.
+            $columnoption = reportbuilder::get_single_item($rb->columnoptions, $column->type, $column->value);
+
+            // The answer here depends on if the column we are testing is grouped or not.
+            if ($sourcecheck) {
+                $this->assertEquals('2', $rb->get_full_count(), $message);
+            } else if (
+                ($sourcename === 'certification_overview' and ($col->type === 'course' or "{$col->type}_{$col->value}" === 'certif_completion_progress'))
+                or ($sourcename === 'cohort' and strpos("{$col->type}_{$col->value}", 'course_category_') === 0)
+            ) {
+                // TODO: Add more test data.
+                $this->assertEquals(0, $rb->get_full_count(), $message);
+            } else {
+                $this->assertEquals('1', $rb->get_full_count(), $message);
+            }
+
+            // Now, test the same with report caching.
+            $this->enable_caching($reportid);
+            $rb = new reportbuilder($reportid);
+            $sql = $rb->build_query();
+
+            $message = "\nReport title : {$title}\n";
+            $message .= "Report sourcename : {$sourcename}\n";
+            $message .= "Column option : Test {$column->type}_{$column->value} column\n";
+            $message .= "SQL : {$sql[0]}\n";
+            $message .= "SQL Params : " . var_export($sql[1], true) . "\n";
+
+            // Get the column option object.
+            $columnoption = reportbuilder::get_single_item($rb->columnoptions, $column->type, $column->value);
+
+            // The answer here depends on if the column we are testing is grouped or not.
+            if ($sourcecheck) {
+                $this->assertEquals('2', $rb->get_full_count(), $message);
+            } else if (
+                ($sourcename === 'certification_overview' and ($col->type === 'course' or "{$col->type}_{$col->value}" === 'certif_completion_progress'))
+                or ($sourcename === 'cohort' and strpos("{$col->type}_{$col->value}", 'course_category_') === 0)
+            ) {
+                // TODO: Add more test data.
+                $this->assertEquals(0, $rb->get_full_count(), $message);
+            } else {
+                $this->assertEquals('1', $rb->get_full_count(), $message);
+            }
+        }
+
+        $sortorder = 1;
+
+        foreach ($src->filteroptions as $filter) {
+            // Create a report.
+            $report = new stdClass();
+            $report->fullname = $reportname;
+            $report->shortname = 'test' . $i++;
+            $report->source = $sourcename;
+            $report->hidden = 0;
+            $report->accessmode = 0;
+            $report->contentmode = 0;
+            $reportid = $DB->insert_record('report_builder', $report);
+            // If the filter is based on a column, include that column.
+            if (empty($filter->field)) {
+                // Add a single column.
                 $col = new stdClass();
                 $col->reportid = $reportid;
-                $col->type = $column->type;
-                $col->value = $column->value;
-                $col->heading = $column->defaultheading;
-                $col->sortorder = $sortorder++;
+                $col->type = $filter->type;
+                $col->value = $filter->value;
+                $col->heading = 'Test' . $i++;
+                $col->sortorder = 1;
                 $colid = $DB->insert_record('report_builder_columns', $col);
-
-                // Create the reportbuilder object.
-                $rb = new reportbuilder($reportid);
-                $sql = $rb->build_query();
-
-                $message = "\nReport title : {$title}\n";
-                $message .= "Report sourcename : {$sourcename}\n";
-                $message .= "Column option : Test {$column->type}_{$column->value} column\n";
-                $message .= "SQL : {$sql[0]}\n";
-                $message .= "SQL Params : " . var_export($sql[1], true) . "\n";
-
-                // Get the column option object.
-                $columnoption = reportbuilder::get_single_item($rb->columnoptions, $column->type, $column->value);
-
-                // The answer here depends on if the column we are testing is grouped or not.
-                if ($sourcecheck) {
-                    $this->assertEquals('2', $rb->get_full_count(), $message);
-                } else if (
-                        ($sourcename === 'certification_overview' and ($col->type === 'course' or "{$col->type}_{$col->value}" === 'certif_completion_progress'))
-                        or ($sourcename === 'cohort' and strpos("{$col->type}_{$col->value}", 'course_category_') === 0)
-                ) {
-                    // TODO: Add more test data.
-                    $this->assertEquals(0, $rb->get_full_count(), $message);
-                } else {
-                    $this->assertEquals('1', $rb->get_full_count(), $message);
-                }
-
-                // Now, test the same with report caching.
-                $this->enable_caching($reportid);
-                $rb = new reportbuilder($reportid);
-                $sql = $rb->build_query();
-
-                $message = "\nReport title : {$title}\n";
-                $message .= "Report sourcename : {$sourcename}\n";
-                $message .= "Column option : Test {$column->type}_{$column->value} column\n";
-                $message .= "SQL : {$sql[0]}\n";
-                $message .= "SQL Params : " . var_export($sql[1], true) . "\n";
-
-                // Get the column option object.
-                $columnoption = reportbuilder::get_single_item($rb->columnoptions, $column->type, $column->value);
-
-                // The answer here depends on if the column we are testing is grouped or not.
-                if ($sourcecheck) {
-                    $this->assertEquals('2', $rb->get_full_count(), $message);
-                } else if (
-                        ($sourcename === 'certification_overview' and ($col->type === 'course' or "{$col->type}_{$col->value}" === 'certif_completion_progress'))
-                        or ($sourcename === 'cohort' and strpos("{$col->type}_{$col->value}", 'course_category_') === 0)
-                ) {
-                    // TODO: Add more test data.
-                    $this->assertEquals(0, $rb->get_full_count(), $message);
-                } else {
-                    $this->assertEquals('1', $rb->get_full_count(), $message);
-                }
             }
+            // Add a single filter.
+            $fil = new stdClass();
+            $fil->reportid = $reportid;
+            $fil->type = $filter->type;
+            $fil->value = $filter->value;
+            $fil->sortorder = $sortorder++;
+            $filid = $DB->insert_record('report_builder_filters', $fil);
 
-            $sortorder = 1;
-
-            foreach ($src->filteroptions as $filter) {
-                // Create a report.
-                $report = new stdClass();
-                $report->fullname = $reportname;
-                $report->shortname = 'test' . $i++;
-                $report->source = $sourcename;
-                $report->hidden = 0;
-                $report->accessmode = 0;
-                $report->contentmode = 0;
-                $reportid = $DB->insert_record('report_builder', $report);
-                // If the filter is based on a column, include that column.
-                if (empty($filter->field)) {
-                    // Add a single column.
-                    $col = new stdClass();
-                    $col->reportid = $reportid;
-                    $col->type = $filter->type;
-                    $col->value = $filter->value;
-                    $col->heading = 'Test' . $i++;
-                    $col->sortorder = 1;
-                    $colid = $DB->insert_record('report_builder_columns', $col);
-                }
-                // Add a single filter.
-                $fil = new stdClass();
-                $fil->reportid = $reportid;
-                $fil->type = $filter->type;
-                $fil->value = $filter->value;
-                $fil->sortorder = $sortorder++;
-                $filid = $DB->insert_record('report_builder_filters', $fil);
-
-                // Set session to filter by this column.
-                $fname = $filter->type . '-' . $filter->value;
-                switch($filter->filtertype) {
-                    case 'date':
-                        $search = array('before' => null, 'after' => 1);
-                        break;
-                    case 'text':
-                    case 'number':
-                    case 'select':
-                    default:
-                        $search = array('operator' => 1, 'value' => 2);
-                        break;
-                }
-                $SESSION->{$filtername} = array();
-                $SESSION->{$filtername}[$fname] = array($search);
-
-                // Create the reportbuilder object.
-                $rb = new reportbuilder($reportid);
-                $sql = $rb->build_query(false, true);
-
-                $message = "\nReport title : {$title}\n";
-                $message .= "Report sourcename : {$sourcename}\n";
-                $message .= "Filter option : Test {$filter->type}_{$filter->value} filter\n";
-                $message .= "SQL : {$sql[0]}\n";
-                $message .= "SQL Params : " . var_export($sql[1], true) . "\n";
-                $this->assertRegExp('/[012]/', (string)$rb->get_filtered_count(), $message);
+            // Set session to filter by this column.
+            $fname = $filter->type . '-' . $filter->value;
+            switch($filter->filtertype) {
+                case 'date':
+                    $search = array('before' => null, 'after' => 1);
+                    break;
+                case 'text':
+                case 'number':
+                case 'select':
+                default:
+                    $search = array('operator' => 1, 'value' => 2);
+                    break;
             }
+            $SESSION->{$filtername} = array();
+            $SESSION->{$filtername}[$fname] = array($search);
+
+            // Create the reportbuilder object.
+            $rb = new reportbuilder($reportid);
+            $sql = $rb->build_query(false, true);
+
+            $message = "\nReport title : {$title}\n";
+            $message .= "Report sourcename : {$sourcename}\n";
+            $message .= "Filter option : Test {$filter->type}_{$filter->value} filter\n";
+            $message .= "SQL : {$sql[0]}\n";
+            $message .= "SQL Params : " . var_export($sql[1], true) . "\n";
+            $this->assertRegExp('/[012]/', (string)$rb->get_filtered_count(), $message);
         }
     }
 }

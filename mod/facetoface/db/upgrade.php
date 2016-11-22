@@ -4462,5 +4462,17 @@ function xmldb_facetoface_upgrade($oldversion=0) {
         // Facetoface savepoint reached.
         upgrade_mod_savepoint(true, 2016092800, 'facetoface');
     }
+
+    if ($oldversion < 2016092801) {
+
+        // Remove seminar notifications for removed seminars.
+        // Regression T-14050.
+        $sql = "DELETE FROM {facetoface_notification} WHERE facetofaceid NOT IN (SELECT id FROM {facetoface})";
+        $DB->execute($sql);
+
+        // Facetoface savepoint reached.
+        upgrade_mod_savepoint(true, 2016092801, 'facetoface');
+    }
+
     return $result;
 }

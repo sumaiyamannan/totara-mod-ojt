@@ -40,30 +40,30 @@ Feature: Seminar event cancellation calendar views
       | Maximum bookings | 29 |
     And I follow "show-selectdate0-dialog"
     And I fill seminar session with relative date in form data:
-      | sessiontimezone     | Pacific/Auckland |
+      | sessiontimezone     | Australia/Perth |
       | timestart[day]      | 1                |
       | timestart[month]    | 0                |
       | timestart[year]     | 0                |
       | timestart[hour]     | 0                |
       | timestart[minute]   | 0                |
-      | timestart[timezone] | Pacific/Auckland |
+      | timestart[timezone] | Australia/Perth |
       | timefinish[day]     | 1                |
       | timefinish[month]   | 0                |
       | timefinish[year]    | 0                |
       | timefinish[hour]    | 0                |
       | timefinish[minute]  | 0                |
-      | timefinish[timezone]| Pacific/Auckland |
+      | timefinish[timezone]| Australia/Perth |
     And I press "OK"
 
     Given I follow "show-selectdate0-dialog"
     And I set the following fields to these values:
-      | sessiontimezone     | Pacific/Auckland |
+      | sessiontimezone     | Australia/Perth |
       | timestart[hour]     | 10               |
       | timestart[minute]   | 0                |
-      | timestart[timezone] | Pacific/Auckland |
+      | timestart[timezone] | Australia/Perth |
       | timefinish[hour]    | 16               |
       | timefinish[minute]  | 0                |
-      | timefinish[timezone]| Pacific/Auckland |
+      | timefinish[timezone]| Australia/Perth |
     And I press "OK"
     And I click on "Teacher One" "checkbox"
     And I press "Save changes"
@@ -83,9 +83,9 @@ Feature: Seminar event cancellation calendar views
     And I log in as "learner1"
     And I click on "Dashboard" in the totara menu
     And I click on "Go to calendar" "link"
-    Then I should see date "1 day" formatted "%d %B %Y"
+    Then I should see date "1 day Australia/Perth" formatted "%d %B %Y"
     Then I should see "Course 1"
-    And I should see "10:00 AM - 4:00 PM Pacific/Auckland"
+    And I should see "10:00 AM - 4:00 PM Australia/Perth"
     And I should see "Teacher One"
 
     Given I log out
@@ -101,14 +101,14 @@ Feature: Seminar event cancellation calendar views
     And I click on "Find Learning" in the totara menu
     And I follow "Course 1"
     And I follow "View all events"
-    Then I should see date "1 day" formatted "%d %B %Y"
-    And I should see "Event cancelled" in the "10:00 AM - 4:00 PM Pacific/Auckland" "table_row"
-    And I should see "Sign-up unavailable" in the "10:00 AM - 4:00 PM Pacific/Auckland" "table_row"
+    Then I should see date "1 day Australia/Perth" formatted "%d %B %Y"
+    And I should see "Event cancelled" in the "10:00 AM - 4:00 PM Australia/Perth" "table_row"
+    And I should see "Sign-up unavailable" in the "10:00 AM - 4:00 PM Australia/Perth" "table_row"
 
     When I click on "Dashboard" in the totara menu
     And I click on "Go to calendar" "link"
     Then I should not see "Course 1"
-    And I should not see "10:00 AM - 4:00 PM Pacific/Auckland"
+    And I should not see "10:00 AM - 4:00 PM Australia/Perth"
     And I should not see "Editing Trainer Teacher One"
     And I should see "There are no upcoming events"
 
@@ -118,9 +118,9 @@ Feature: Seminar event cancellation calendar views
     And I log in as "teacher1"
     And I click on "Dashboard" in the totara menu
     And I click on "Go to calendar" "link"
-    Then I should see date "1 day" formatted "%d %B %Y"
+    Then I should see date "1 day Australia/Perth" formatted "%d %B %Y"
     Then I should see "Course 1"
-    And I should see "10:00 AM - 4:00 PM Pacific/Auckland"
+    And I should see "10:00 AM - 4:00 PM Australia/Perth"
     And I should see "Teacher One"
 
     Given I log out
@@ -136,13 +136,13 @@ Feature: Seminar event cancellation calendar views
     And I click on "Find Learning" in the totara menu
     And I follow "Course 1"
     And I follow "View all events"
-    Then I should see date "1 day" formatted "%d %B %Y"
-    And I should see "Event cancelled" in the "10:00 AM - 4:00 PM Pacific/Auckland" "table_row"
-    And I should see "Sign-up unavailable" in the "10:00 AM - 4:00 PM Pacific/Auckland" "table_row"
+    Then I should see date "1 day Australia/Perth" formatted "%d %B %Y"
+    And I should see "Event cancelled" in the "10:00 AM - 4:00 PM Australia/Perth" "table_row"
+    And I should see "Sign-up unavailable" in the "10:00 AM - 4:00 PM Australia/Perth" "table_row"
 
     When I click on "Dashboard" in the totara menu
     And I click on "Go to calendar" "link"
     Then I should not see "Course 1"
-    And I should not see "10:00 AM - 4:00 PM Pacific/Auckland"
+    And I should not see "10:00 AM - 4:00 PM Australia/Perth"
+    And I should not see "You are booked for this Seminar event"
     And I should not see "Editing Trainer Teacher One"
-    And I should see "There are no upcoming events"

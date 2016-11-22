@@ -79,3 +79,22 @@ Feature: Enable/disable password field based on authentication selected.
     Then I should see "text modified"
     When I click on "Delete" "link" in the "text modified" "table_row"
     Then I should not see "text modified"
+
+  Scenario: Can create and edit dropdown menu profile fields
+    Given I log in as "admin"
+    And I navigate to "User profile fields" node in "Site administration > Users > Accounts"
+    And I set the following fields to these values:
+        | datatype | menu     |
+    And I set the following fields to these values:
+        | Short name                 | menushort    |
+        | Name                       | menu profile |
+    And I set the field "Menu options (one per line)" to multiline
+          """
+          AAA
+          BBB
+          CCC
+          """
+    And I press "Save changes"
+    Then I should see "menu profile"
+    When I click on "Delete" "link" in the "menu profile" "table_row"
+    Then I should not see "menu profile"

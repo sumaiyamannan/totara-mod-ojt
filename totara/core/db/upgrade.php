@@ -382,18 +382,6 @@ function xmldb_totara_core_upgrade($oldversion) {
         totara_upgrade_mod_savepoint(true, 2013041000, 'totara_core');
     }
 
-    if ($oldversion < 2013042300) {
-        //disable autoupdate notifications from Moodle
-        set_config('disableupdatenotifications', '1');
-        set_config('disableupdateautodeploy', '1');
-        set_config('updateautodeploy', false);
-        set_config('updateautocheck', false);
-        set_config('updatenotifybuilds', false);
-        set_config('updateminmaturity', MATURITY_STABLE);
-        set_config('updatenotifybuilds', 0);
-        totara_upgrade_mod_savepoint(true, 2013042300, 'totara_core');
-    }
-
     if ($oldversion < 2013042600) {
         $systemcontext = context_system::instance();
         $roles = get_all_roles();
@@ -1521,6 +1509,18 @@ function xmldb_totara_core_upgrade($oldversion) {
     if ($oldversion < 2016080100) {
         totara_core_upgrade_multiple_jobs();
         upgrade_plugin_savepoint(true, 2016080100, 'totara', 'core');
+    }
+
+    if ($oldversion < 2016101901) {
+        // Delete all removed update and install settings.
+        unset_config('disableupdatenotifications');
+        unset_config('disableupdateautodeploy');
+        unset_config('updateautodeploy');
+        unset_config('updateautocheck');
+        unset_config('updatenotifybuilds');
+        unset_config('updateminmaturity');
+        unset_config('updatenotifybuilds');
+        upgrade_plugin_savepoint(true, 2016101901, 'totara', 'core');
     }
 
     return true;

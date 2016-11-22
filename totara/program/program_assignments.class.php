@@ -1949,12 +1949,10 @@ class prog_assigment_completion_profile_field_date extends prog_assignment_compl
             return $date;
         }
 
-        // Check if the profile field contains a date in the lanconfig form...
-        $datepattern = get_string('datepickerlongyearregexphp', 'totara_core');
-        if (preg_match($datepattern, $date, $matches) > 0) {
-            list($day, $month, $year) = explode('/', $date);
-            $date = $month.'/'.$day.'/'.$year;
-            return strtotime($date);
+        // Check if the profile field contains a date in the specified format.
+        $result = totara_date_parse_from_format(get_string('customfieldtextdateformat', 'totara_customfield'), $date);
+        if ($result > 0) {
+            return $result;
         }
 
         // Last ditch attempt, try using strtotime to convert the string into a timestamp..

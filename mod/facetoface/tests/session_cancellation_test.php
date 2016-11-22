@@ -117,6 +117,11 @@ class mod_facetoface_session_cancellation_testcase extends advanced_testcase {
         $user1 = $this->getDataGenerator()->create_user();
         $user2 = $this->getDataGenerator()->create_user();
         $user3 = $this->getDataGenerator()->create_user();
+        $user4 = $this->getDataGenerator()->create_user();
+        $manager = $this->getDataGenerator()->create_user();
+
+        $managerja = \totara_job\job_assignment::create_default($manager->id);
+        \totara_job\job_assignment::create_default($user4->id, array('managerjaid' => $managerja->id));
 
         $session = facetoface_get_session($sessionid);
 
@@ -124,6 +129,9 @@ class mod_facetoface_session_cancellation_testcase extends advanced_testcase {
         facetoface_cancel_attendees($sessionid, array($user1->id));
         facetoface_user_signup($session, $facetoface, $course, '', MDL_F2F_NONE, MDL_F2F_STATUS_APPROVED, $user2->id, false);
         facetoface_user_signup($session, $facetoface, $course, '', MDL_F2F_NONE, MDL_F2F_STATUS_BOOKED, $user3->id, false);
+        facetoface_user_signup($session, $facetoface, $course, '', MDL_F2F_NONE, MDL_F2F_STATUS_REQUESTED, $user4->id, false);
+        $attendee = facetoface_get_attendee($session->id, $user4->id);
+        facetoface_update_signup_status($attendee->submissionid, MDL_F2F_STATUS_DECLINED,$user4->id);
 
         $sql = "SELECT ss.statuscode
                   FROM {facetoface_signups} s
@@ -133,13 +141,17 @@ class mod_facetoface_session_cancellation_testcase extends advanced_testcase {
         $this->assertEquals(MDL_F2F_STATUS_USER_CANCELLED, $DB->get_field_sql($sql, array('sid' => $session->id, 'uid' => $user1->id)));
         $this->assertEquals(MDL_F2F_STATUS_APPROVED, $DB->get_field_sql($sql, array('sid' => $session->id, 'uid' => $user2->id)));
         $this->assertEquals(MDL_F2F_STATUS_BOOKED, $DB->get_field_sql($sql, array('sid' => $session->id, 'uid' => $user3->id)));
+        $this->assertEquals(MDL_F2F_STATUS_DECLINED, $DB->get_field_sql($sql, array('sid' => $session->id, 'uid' => $user4->id)));
 
         $result = facetoface_cancel_session($session, null);
         $this->assertTrue($result);
 
+        // Users that have cancelled their session or their request have been declined should not being affected when a
+        // session is cancelled.
         $this->assertEquals(MDL_F2F_STATUS_USER_CANCELLED, $DB->get_field_sql($sql, array('sid' => $session->id, 'uid' => $user1->id)));
         $this->assertEquals(MDL_F2F_STATUS_SESSION_CANCELLED, $DB->get_field_sql($sql, array('sid' => $session->id, 'uid' => $user2->id)));
         $this->assertEquals(MDL_F2F_STATUS_SESSION_CANCELLED, $DB->get_field_sql($sql, array('sid' => $session->id, 'uid' => $user3->id)));
+        $this->assertEquals(MDL_F2F_STATUS_DECLINED, $DB->get_field_sql($sql, array('sid' => $session->id, 'uid' => $user4->id)));
 
         $newsession = $DB->get_record('facetoface_sessions', array('id' => $sessionid));
         $this->assertEquals(1, $newsession->cancelledstatus);

@@ -39,7 +39,11 @@ Feature: Test appraisal detailed report with numeric question
       | timedue[day]          | 31                      |
       | timedue[month]        | 12                      |
       | timedue[year]         | 2037                    |
-      | Page names (optional) | Page1.1                 |
+    And I set the field "Page names (optional)" to multiline
+    """
+      Page1.1
+      Page1.2
+      """
     And I click on "Add stage" "button" in the ".fitem_actionbuttons" "css_element"
     And I should see "Behat Appraisal stage" in the ".appraisal-stages" "css_element"
     And I click on "Behat Appraisal stage" "link" in the ".appraisal-stages" "css_element"
@@ -61,12 +65,34 @@ Feature: Test appraisal detailed report with numeric question
     And I click on "#id_list_2" "css_element"
     And I click on "//button[text()='Save changes']" "xpath_element" in the "div.moodle-dialogue-focused div.moodle-dialogue-ft" "css_element"
     And I wait "1" seconds
+
+    # Create multi choice several answer question
+    And I click on "Page1.2" "link" in the ".appraisal-page-list" "css_element"
+    And I set the field "id_datatype" to "Multiple choice (several answers)"
+    And I click on "Add" "button" in the "#fgroup_id_addquestgroup" "css_element"
+    And I set the following fields to these values:
+      | Question          | Multi-choice question  |
+      | choice[0][option] | One                    |
+      | choice[1][option] | Two                    |
+      | choice[2][option] | Three                  |
+      | id_roles_1_2      | 1                      |
+      | id_roles_1_1      | 1                      |
+      | id_roles_2_2      | 1                      |
+      | id_roles_2_1      | 1                      |
+    # Display settings doesn't visually change to "Text input field" radio. So nail it.
+    And I click on "#id_listtype_list_2" "css_element"
+    And I click on "//button[text()='Save changes']" "xpath_element" in the "div.moodle-dialogue-focused div.moodle-dialogue-ft" "css_element"
+    And I wait "1" seconds
+
+    # Set up users.
     And I click on "Assignments" "link"
     And I set the field "menugroupselector" to "Audience"
     And I wait "1" seconds
     And I click on "Cohort 1" "link" in the "Assign Learner Group To Appraisal" "totaradialogue"
     And I click on "Save" "button" in the "Assign Learner Group To Appraisal" "totaradialogue"
     And I wait "1" seconds
+
+    # Activate appraisal.
     And I click on "Activate now" "link"
     And I press "Activate"
 
@@ -84,7 +110,10 @@ Feature: Test appraisal detailed report with numeric question
     And I click on "Performance" in the totara menu
     And I press "Start"
     And I set the following fields to these values:
-        | Your answer | 3 |
+      | Your answer | 3 |
+    And I click on "Next" "button" in the "#fitem_id_submitbutton" "css_element"
+    And I set the following fields to these values:
+      | Your answer | One |
     And I click on "Complete Stage" "button" in the "#fitem_id_submitbutton" "css_element"
     And I log out
 
@@ -94,6 +123,8 @@ Feature: Test appraisal detailed report with numeric question
     And I click on "Detail report" "link" in the "Behat Test Appraisal" "table_row"
     And I should see "3" in the "User One" "table_row"
     And I should not see "3" in the "User Two" "table_row"
+    And I should see "One" in the "User One" "table_row"
+    And I should not see "One" in the "User Two" "table_row"
 
     # Save search test
     When I press "Save this search"

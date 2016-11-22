@@ -314,48 +314,17 @@ class core_calendar_renderer extends plugin_renderer_base {
             $returnurl = $this->page->url;
         }
 
-        // Get the calendar type we are using.
-        $calendartype = \core_calendar\type_factory::get_calendar_instance();
-
-        // Store the display settings.
-        $display = new stdClass;
-        $display->thismonth = false;
-
-        // Get the specified date in the calendar type being used.
-        $date = $calendartype->timestamp_to_date_array($calendar->time);
-        $thisdate = $calendartype->timestamp_to_date_array(time());
-        if ($date['mon'] == $thisdate['mon'] && $date['year'] == $thisdate['year']) {
-            $display->thismonth = true;
-            $date = $thisdate;
+        // Totara: loading the time information for $display in its own method
+        // as we're also using that code to determine what courses are loaded earlier on.
+        $display = calendar_information::get_month_time_settings($calendar->time);
+        if ($display->thismonth) {
             $calendar->time = time();
         }
-
-        // Get Gregorian date for the start of the month.
-        $gregoriandate = $calendartype->convert_to_gregorian($date['year'], $date['mon'], 1);
-        // Store the gregorian date values to be used later.
-        list($gy, $gm, $gd, $gh, $gmin) = array($gregoriandate['year'], $gregoriandate['month'], $gregoriandate['day'],
-            $gregoriandate['hour'], $gregoriandate['minute']);
-
-        // Get the starting week day for this month.
-        $startwday = dayofweek(1, $date['mon'], $date['year']);
-        // Get the days in a week.
-        $daynames = calendar_get_days();
-        // Store the number of days in a week.
-        $numberofdaysinweek = $calendartype->get_num_weekdays();
-
-        $display->minwday = calendar_get_starting_weekday();
-        $display->maxwday = $display->minwday + ($numberofdaysinweek - 1);
-        $display->maxdays = calendar_days_in_month($date['mon'], $date['year']);
-
-        // These are used for DB queries, so we want unixtime, so we need to use Gregorian dates.
-        $display->tstart = make_timestamp($gy, $gm, $gd, $gh, $gmin, 0);
-        $display->tend = $display->tstart + ($display->maxdays * DAYSECS) - 1;
-
-        // Align the starting weekday to fall in our display range
-        // This is simple, not foolproof.
-        if ($startwday < $display->minwday) {
-            $startwday += $numberofdaysinweek;
-        }
+        // Set some other variables used below here to reduce merge conflicts.
+        $date = $display->date;
+        $daynames = $display->daynames;
+        $numberofdaysinweek = $display->numberofdaysinweek;
+        $startwday = $display->startwday;
 
         // Get events from database
         $events = calendar_get_events($display->tstart, $display->tend, $calendar->users, $calendar->groups, $calendar->courses);

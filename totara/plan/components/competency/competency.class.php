@@ -955,7 +955,7 @@ class dp_competency_component extends dp_base_component {
             // Update duedates
             foreach ($duedates as $id => $duedate) {
                 // allow empty due dates
-                if ($duedate == '' || $duedate == 'dd/mm/yy') {
+                if ($duedate == '' || $duedate == get_string('datepickerlongyearplaceholder', 'totara_core')) {
                     // set all empty due dates to the plan due date
                     // if they are required
                     if ($this->get_setting('duedatemode') == DP_DUEDATES_REQUIRED) {

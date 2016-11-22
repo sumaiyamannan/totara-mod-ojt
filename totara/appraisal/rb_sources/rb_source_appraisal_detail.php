@@ -40,6 +40,8 @@ class rb_source_appraisal_detail extends rb_source_appraisal {
      */
     private $appraisalid;
 
+    // Cache for multi choice value names. The report gets the ids of the choices and the display functions convert them to names.
+    private static $appraisalmultichoicenamecache = array();
 
     public function __construct($groupid, rb_global_restriction_set $globalrestrictionset = null) {
         parent::__construct($groupid, $globalrestrictionset);
@@ -572,29 +574,17 @@ class rb_source_appraisal_detail extends rb_source_appraisal {
                 break;
 
             case 'multichoicesingle':
-                // Join the scale value table, set its name to the question id.
-                $joinname = 'scalevalue' . $columnoption->type . $question->id;
-                $this->joinlist[] =
-                    new rb_join(
-                        $joinname,
-                        'LEFT',
-                        "{appraisal_scale_value}",
-                        "{$joinname}.id = " . $columnoption->field . $question->id,
-                        REPORT_BUILDER_RELATION_ONE_TO_ONE,
-                        $columnoption->type
-                    );
-
                 // The column points to the data in the joined table.
                 $newcolumn =
                     $this->make_question_column(
                         $columnoption->type,
                         $columnoption->value . '_' . $question->id,
                         get_string('answerbyrole', 'rb_source_appraisal_detail', $a),
-                        $joinname . '.name',
+                        $columnoption->field . $question->id,
                         $columnoption,
                         $hidden
                     );
-                $newcolumn->joins = array($joinname);
+                $newcolumn->displayfunc = 'multichoicesingle';
                 $results[] = $newcolumn;
                 break;
 
@@ -605,10 +595,8 @@ class rb_source_appraisal_detail extends rb_source_appraisal {
                     new rb_join(
                         $joinname,
                         'LEFT',
-                        "(SELECT asd.appraisalroleassignmentid, " . sql_group_concat('asv.name') . " AS names " .
-                           "FROM {appraisal_scale_value} asv " .
-                           "JOIN {appraisal_scale_data} asd " .
-                             "ON asv.id = appraisalscalevalueid " .
+                        "(SELECT asd.appraisalroleassignmentid, " . $DB->sql_group_concat('appraisalscalevalueid', ',', 'appraisalscalevalueid') . " AS ids " .
+                           "FROM {appraisal_scale_data} asd " .
                           "WHERE appraisalquestfieldid = {$question->id} " .
                           "GROUP BY asd.appraisalroleassignmentid)",
                         $joinname . '.appraisalroleassignmentid = ' . $columnoption->type . '.appraisalroleassignmentid',
@@ -622,11 +610,12 @@ class rb_source_appraisal_detail extends rb_source_appraisal {
                         $columnoption->type,
                         $columnoption->value . '_' . $question->id,
                         get_string('answerbyrole', 'rb_source_appraisal_detail', $a),
-                        $joinname . '.names',
+                        $joinname . '.ids',
                         $columnoption,
                         $hidden
                     );
                 $newcolumn->joins = array($joinname);
+                $newcolumn->displayfunc = 'multichoicemulti';
                 $results[] = $newcolumn;
                 break;
 
@@ -733,6 +722,67 @@ class rb_source_appraisal_detail extends rb_source_appraisal {
         return implode(html_writer::empty_tag('br'), $list);
     }
 
+    /**
+     * Populates the multi choice name cache.
+     *
+     * Just using a static variable as a cache because it's quick and easy and only costs one query to populate.
+     */
+    private function populate_multichoice_name_cache() {
+        global $DB;
+
+        $sql = "SELECT asv.id, asv.name
+                  FROM {appraisal_scale_value} asv
+                  JOIN {appraisal_quest_field} aqf
+                    ON " . $DB->sql_cast_char2int('aqf.param1') . " = asv.appraisalscaleid
+                   AND aqf.datatype IN ('multichoicesingle', 'multichoicemulti')
+                  JOIN {appraisal_stage_page} asp
+                    ON asp.id = aqf.appraisalstagepageid
+                  JOIN {appraisal_stage} ast
+                    ON ast.id = asp.appraisalstageid
+                 WHERE ast.appraisalid = :appraisalid";
+        $params = array('appraisalid' => $this->appraisalid);
+        self::$appraisalmultichoicenamecache[$this->appraisalid] = $DB->get_records_sql_menu($sql, $params);
+    }
+
+    /**
+     * Reset the appraisal details multi-choice name cache. Called during testing to prevent leaking between tests.
+     */
+    public static function reset_cache() {
+        self::$appraisalmultichoicenamecache = array();
+    }
+
+    public function rb_display_multichoicesingle($id) {
+        if (empty($id)) {
+            return '';
+        }
+
+        // Cache option names.
+        if (empty(self::$appraisalmultichoicenamecache[$this->appraisalid])) {
+            $this->populate_multichoice_name_cache();
+        }
+
+        return self::$appraisalmultichoicenamecache[$this->appraisalid][$id];
+    }
+
+    public function rb_display_multichoicemulti($idscommalist) {
+        if (empty($idscommalist)) {
+            return '';
+        }
+
+        // Cache option names.
+        if (empty(self::$appraisalmultichoicenamecache[$this->appraisalid])) {
+            $this->populate_multichoice_name_cache();
+        }
+
+        $ids = explode(',', $idscommalist);
+
+        $result = array();
+        foreach ($ids as $id) {
+            $result[] = self::$appraisalmultichoicenamecache[$this->appraisalid][$id];
+        }
+
+        return implode(', ', $result);
+    }
 
     public function get_required_jss() {
         $jsdetails = new stdClass();

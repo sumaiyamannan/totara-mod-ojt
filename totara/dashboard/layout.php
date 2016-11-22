@@ -27,6 +27,9 @@ require_once($CFG->libdir.'/adminlib.php');
 require_once($CFG->dirroot . '/totara/dashboard/lib.php');
 
 $id = required_param('id', PARAM_INT);
+
+$PAGE->set_blocks_editing_capability('moodle/my:configsyspages');
+
 admin_externalpage_setup('totaradashboard', '', array('id' => $id),
     new moodle_url('/totara/dashboard/layout.php'), array('pagelayout' => 'dashboard'));
 
@@ -35,7 +38,6 @@ totara_dashboard::check_feature_enabled();
 
 $header = $SITE->shortname . ': ' . get_string('editdashboard', 'totara_dashboard');
 
-$PAGE->set_blocks_editing_capability('moodle/my:configsyspages');
 // Override pagetype to show blocks properly.
 $PAGE->set_pagetype('my-totara-dashboard-' . $id);
 $PAGE->set_subpage('default');
@@ -53,7 +55,7 @@ $resetbutton = $OUTPUT->single_button($reseturl, get_string('resetalldashboard',
 // Edit settings.
 $settingsurl = new moodle_url("/totara/dashboard/edit.php", array('id' => $id));
 $settingsbutton = $OUTPUT->single_button($settingsurl, get_string('editdashboardsettings', 'totara_dashboard'));
-
+$editbutton = '';
 // Add block editing button.
 if ($PAGE->user_allowed_editing()) {
     $editvalue = $PAGE->user_is_editing() ? 'off' : 'on';

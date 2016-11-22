@@ -2479,49 +2479,5 @@ function upgrade_install_plugins(array $installable, $confirmed, $heading='', $c
     if (empty($return)) {
         $return = $PAGE->url;
     }
-
-    if (!empty($CFG->disableupdateautodeploy)) {
-        redirect($return);
-    }
-
-    if (empty($installable)) {
-        redirect($return);
-    }
-
-    $pluginman = core_plugin_manager::instance();
-
-    if ($confirmed) {
-        // Installation confirmed at the validation results page.
-        if (!$pluginman->install_plugins($installable, true, true)) {
-            throw new moodle_exception('install_plugins_failed', 'core_plugin', $return);
-        }
-
-        // Always redirect to admin/index.php to perform the database upgrade.
-        // Do not throw away the existing $PAGE->url parameters such as
-        // confirmupgrade or confirmrelease if $PAGE->url is a superset of the
-        // URL we must go to.
-        $mustgoto = new moodle_url('/admin/index.php', array('cache' => 0, 'confirmplugincheck' => 0));
-        if ($mustgoto->compare($PAGE->url, URL_MATCH_PARAMS)) {
-            redirect($PAGE->url);
-        } else {
-            redirect($mustgoto);
-        }
-
-    } else {
-        $output = $PAGE->get_renderer('core', 'admin');
-        echo $output->header();
-        if ($heading) {
-            echo $output->heading($heading, 3);
-        }
-        echo html_writer::start_tag('pre', array('class' => 'plugin-install-console'));
-        $validated = $pluginman->install_plugins($installable, false, false);
-        echo html_writer::end_tag('pre');
-        if ($validated) {
-            echo $output->plugins_management_confirm_buttons($continue, $return);
-        } else {
-            echo $output->plugins_management_confirm_buttons(null, $return);
-        }
-        echo $output->footer();
-        die();
-    }
+    redirect($return);
 }

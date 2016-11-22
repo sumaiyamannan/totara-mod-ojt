@@ -42,10 +42,20 @@ $systemcontext = context_system::instance();
 $canassign = has_capability('totara/feedback360:assignfeedback360togroup', $systemcontext);
 $canviewusers = has_capability('totara/feedback360:viewassignedusers', $systemcontext);
 
+$returnparams = array('id' => $itemid);
+$returnurl = new moodle_url('/totara/feedback360/assignments.php', $returnparams);
+
 $deleteid = optional_param('deleteid', null, PARAM_ALPHANUMEXT);
 if ($deleteid && $canassign) {
+
+    if (!confirm_sesskey()) {
+        print_error('confirmsesskeybad', 'error');
+    }
+
     list($grp, $aid) = explode("_", $deleteid);
     $assign->delete_assigned_group($grp, $aid);
+
+    redirect($returnurl);
 }
 
 admin_externalpage_setup('managefeedback360');

@@ -559,12 +559,14 @@ function certification_fix_missing_certif_completions() {
 }
 
 /**
- * Get time of last completed certification course set
+ * Get time of last completed certification course set.
+ *
+ * If no matching record is found then this function returns null.
  *
  * @param integer $certificationid
  * @param integer $userid
  * @param int $path null if courses in both paths should be considered, else CERTIFPATH_CERT or CERTIFPATH_RECERT
- * @return integer
+ * @return integer|null
  */
 function certif_get_content_completion_time($certificationid, $userid, $path = null) {
     global $DB;
@@ -1577,9 +1579,16 @@ function reset_certifcomponent_completions($certifcompletion, $courses=null) {
     }
 
     // Remove mesages for prog&user so we can resend them.
+    certif_delete_messagelog($prog->id, $userid, MESSAGETYPE_PROGRAM_COMPLETED);
+    certif_delete_messagelog($prog->id, $userid, MESSAGETYPE_PROGRAM_DUE);
+    certif_delete_messagelog($prog->id, $userid, MESSAGETYPE_PROGRAM_OVERDUE);
+    certif_delete_messagelog($prog->id, $userid, MESSAGETYPE_COURSESET_DUE);
+    certif_delete_messagelog($prog->id, $userid, MESSAGETYPE_COURSESET_OVERDUE);
+    certif_delete_messagelog($prog->id, $userid, MESSAGETYPE_COURSESET_COMPLETED);
     certif_delete_messagelog($prog->id, $userid, MESSAGETYPE_RECERT_WINDOWOPEN);
     certif_delete_messagelog($prog->id, $userid, MESSAGETYPE_RECERT_WINDOWDUECLOSE);
     certif_delete_messagelog($prog->id, $userid, MESSAGETYPE_RECERT_FAILRECERT);
+    certif_delete_messagelog($prog->id, $userid, MESSAGETYPE_LEARNER_FOLLOWUP);
 
     $transaction->allow_commit();
 }

@@ -280,9 +280,6 @@ class totara_program_observer {
     public static function job_assignment_updated(\totara_job\event\job_assignment_updated $event) {
         global $DB;
 
-        // TODO: This needs to be checked and fixed.
-
-        // Only process the primary position assignment.
         $newjobassignment = \totara_job\job_assignment::get_with_id($event->objectid);
         if ($newjobassignment->userid != $event->relateduserid) {
             throw new Exception('Job assignment userid does not match relateduserid in totara_program_observer::job_assignment_updated');
@@ -303,12 +300,12 @@ class totara_program_observer {
             }
 
             if ($event->other['oldmanagerjaid']) {
-                $directmanagerstoprocess[] = $event->other['oldmanagerjaid'];
+                $directmanagerjaidstoprocess[] = $event->other['oldmanagerjaid'];
                 $path = explode('/', substr($event->other['oldmanagerjapath'], 1));
                 $countpath = count($path);
                 if ($countpath > 2) {
                     // Don't include the user or their manager here.
-                    $indirectmanagerstoprocess = array_merge($indirectmanagerjaidstoprocess, array_slice($path, 0, $countpath - 2));
+                    $indirectmanagerjaidstoprocess = array_merge($indirectmanagerjaidstoprocess, array_slice($path, 0, $countpath - 2));
                 }
             }
 
@@ -361,6 +358,32 @@ class totara_program_observer {
                                          AND assignmenttypeid {$insql})";
                 $params['assignmenttypeposition'] = ASSIGNTYPE_POSITION;
                 $DB->execute($sql, $params);
+
+                // Now do the same check for programs where includechildren is set.
+                $sql = "SELECT path
+                          FROM {pos}
+                         WHERE id {$insql}";
+                unset($params['assignmenttypeposition']);
+                $pospaths = $DB->get_records_sql($sql, $params);
+                $posparents = array();
+                foreach($pospaths as $pospath) {
+                    $patharray = explode('/', $pospath->path);
+                    $posparents = array_merge($posparents, $patharray);
+                }
+                $posparents = array_unique($posparents);
+                $posparents = array_filter($posparents);
+
+                if (!empty($posparents)) {
+                    list($insql, $params) = $DB->get_in_or_equal($posparents, SQL_PARAMS_NAMED);
+                    $sql = "UPDATE {prog} SET assignmentsdeferred = 1
+                             WHERE id IN (SELECT programid
+                                        FROM {prog_assignment}
+                                       WHERE assignmenttype = :assignmenttypeposition
+                                         AND includechildren = 1
+                                         AND assignmenttypeid {$insql})";
+                    $params['assignmenttypeposition'] = ASSIGNTYPE_POSITION;
+                    $DB->execute($sql, $params);
+                }
             }
         }
 
@@ -384,6 +407,32 @@ class totara_program_observer {
                                          AND assignmenttypeid {$insql})";
                 $params['assignmenttypeorganisation'] = ASSIGNTYPE_ORGANISATION;
                 $DB->execute($sql, $params);
+
+                // Now do the same check for programs where includechildren is set.
+                $sql = "SELECT path
+                          FROM {org}
+                         WHERE id {$insql}";
+                unset($params['assignmenttypeorganisation']);
+                $orgpaths = $DB->get_records_sql($sql, $params);
+                $orgparents = array();
+                foreach($orgpaths as $orgpath) {
+                    $patharray = explode('/', $orgpath->path);
+                    $orgparents = array_merge($orgparents, $patharray);
+                }
+                $orgparents = array_unique($orgparents);
+                $orgparents = array_filter($orgparents);
+
+                if (!empty($orgparents)) {
+                    list($insql, $params) = $DB->get_in_or_equal($orgparents, SQL_PARAMS_NAMED);
+                    $sql = "UPDATE {prog} SET assignmentsdeferred = 1
+                             WHERE id IN (SELECT programid
+                                        FROM {prog_assignment}
+                                       WHERE assignmenttype = :assignmenttypeorganisation
+                                         AND includechildren = 1
+                                         AND assignmenttypeid {$insql})";
+                    $params['assignmenttypeorganisation'] = ASSIGNTYPE_ORGANISATION;
+                    $DB->execute($sql, $params);
+                }
             }
         }
 

@@ -326,4 +326,273 @@ class totara_core_task_send_reminder_messages_test extends reportcache_advanced_
         $sink->close();
     }
 
+    /**
+     * Tests the effect of the admin setting reminder_maxtimesincecompletion.
+     *
+     * By default, there should be no limit.
+     */
+    public function test_maxtimesincecompletion_default_no_limit() {
+        global $CFG;
+
+        $messages = $this->reminder->get_messages();
+        // Set some different values for the period (number of days after completion) for the messages.
+        foreach ($messages as $message) {
+            /* @var reminder_message $message */
+            if ($message->type === 'reminder') {
+                $message->period = 1;
+                $message->update();
+                continue;
+            }
+            /* @var reminder_message $message */
+            if ($message->type === 'escalation') {
+                $message->period = 2;
+                $message->update();
+                continue;
+            }
+        }
+
+        // By default, the setting we're testing should not be empty.
+        // An empty value, such as where it's not set, represents no limit.
+        $this->assertTrue(empty($CFG->reminder_maxtimesincecompletion));
+
+        $sink = $this->redirectMessages();
+
+        // Make learner1 complete the course with completion date 3 days before today.
+        $completion = new completion_info($this->course);
+        $completion = $completion->get_completion($this->learner1->id, COMPLETION_CRITERIA_TYPE_SELF);
+        $this->assertFalse($completion->is_complete());
+        $completion->mark_complete(time() - (3 * DAYSECS));
+        $this->assertTrue($completion->is_complete());
+
+        // Make learner2 complete the course with completion date before the reminder was created.
+        // See setUp() to see that the reminder was created 5 days ago.
+        $completion = new completion_info($this->course);
+        $completion = $completion->get_completion($this->learner2->id, COMPLETION_CRITERIA_TYPE_SELF);
+        $this->assertFalse($completion->is_complete());
+        $completion->mark_complete(time() - (8 * DAYSECS));
+        $this->assertTrue($completion->is_complete());
+
+        // Add another user with a different completion time.
+        $learner3 = $this->getDataGenerator()->create_user();
+        $this->getDataGenerator()->enrol_user($learner3->id, $this->course->id);
+        $completion = new completion_info($this->course);
+        $completion = $completion->get_completion($learner3->id, COMPLETION_CRITERIA_TYPE_SELF);
+        $this->assertFalse($completion->is_complete());
+        $completion->mark_complete(time() - (1.5 * DAYSECS));
+        $this->assertTrue($completion->is_complete());
+
+        $task = new \totara_core\task\send_reminder_messages_task();
+        ob_start();
+        $task->execute();
+        $output = ob_get_clean();
+
+        // There should be 6 messages, 4 for learner1 and 2 for learner3.
+        // There are none sent to learner2 because that user's completion date + period value (-8 + 2 = 6 days ago)
+        // is before the reminder creation date (5 days ago).
+        $this->assertSame(6, $sink->count());
+        $this->assertContains('2 "invitation" type messages sent', $output);
+        $this->assertContains('2 "reminder" type messages sent', $output);
+        $this->assertContains('2 "escalation" type messages sent', $output);
+
+        $sink->close();
+    }
+
+    /**
+     * Tests the effect of the admin setting reminder_maxtimesincecompletion.
+     *
+     * When the setting is greater than zero, feedback is only sent for completions
+     * where the date is less than that number of days ago.
+     *
+     * The effect of this limit would only be noticed with a reminder that is older than the
+     * number of days specified.
+     */
+    public function test_maxtimesincecompletion_limit_less_than_reminder() {
+        global $CFG;
+
+        $messages = $this->reminder->get_messages();
+        // Set some different values for the period (number of days after completion) for the messages.
+        foreach ($messages as $message) {
+            /* @var reminder_message $message */
+            if ($message->type === 'reminder') {
+                $message->period = 1;
+                $message->update();
+                continue;
+            }
+            /* @var reminder_message $message */
+            if ($message->type === 'escalation') {
+                $message->period = 2;
+                $message->update();
+                continue;
+            }
+        }
+
+        // We set the limit to 2 days. The reminder creation date was set to 5 days ago,
+        // so this limit won't be influenced by that.
+        set_config('reminder_maxtimesincecompletion', 2);
+
+        $sink = $this->redirectMessages();
+
+        // Make learner1 complete the course with completion date 3 days before today.
+        $completion = new completion_info($this->course);
+        $completion = $completion->get_completion($this->learner1->id, COMPLETION_CRITERIA_TYPE_SELF);
+        $this->assertFalse($completion->is_complete());
+        $completion->mark_complete(time() - (3 * DAYSECS));
+        $this->assertTrue($completion->is_complete());
+
+        // Make learner2 complete the course with completion date before the reminder was created.
+        // See setUp() to see that the reminder was created 5 days ago.
+        $completion = new completion_info($this->course);
+        $completion = $completion->get_completion($this->learner2->id, COMPLETION_CRITERIA_TYPE_SELF);
+        $this->assertFalse($completion->is_complete());
+        $completion->mark_complete(time() - (8 * DAYSECS));
+        $this->assertTrue($completion->is_complete());
+
+        // Add another user with a different completion time.
+        $learner3 = $this->getDataGenerator()->create_user();
+        $this->getDataGenerator()->enrol_user($learner3->id, $this->course->id);
+        $completion = new completion_info($this->course);
+        $completion = $completion->get_completion($learner3->id, COMPLETION_CRITERIA_TYPE_SELF);
+        $this->assertFalse($completion->is_complete());
+        $completion->mark_complete(time() - (1.5 * DAYSECS));
+        $this->assertTrue($completion->is_complete());
+
+        $task = new \totara_core\task\send_reminder_messages_task();
+        ob_start();
+        $task->execute();
+        $output = ob_get_clean();
+
+        // There should be 2 messages since only learner3 had a completion within the last 2 days.
+        // At this stage they are only due the invitation and reminder, not yet the escalation.
+        // There are none sent to learner1 because their completion date is before 2 days ago.
+        // There are none sent to learner2 because that user's completion date + period value (-8 + 2 = 6 days ago)
+        // is before the reminder creation date (5 days ago). Plus their completion is before the limit anyway.
+        $this->assertSame(2, $sink->count());
+        $this->assertContains('1 "invitation" type messages sent', $output);
+        $this->assertContains('1 "reminder" type messages sent', $output);
+        $this->assertContains('no users to send escalation message to', $output);
+
+        $sink->close();
+    }
+
+    /**
+     * Tests the effect of the admin setting reminder_maxtimesincecompletion.
+     *
+     * When the setting is greater than zero, feedback is only sent for completions
+     * where the date is less than that number of days ago,
+     * BUT still takes into account whether completions are before the reminder was created.
+     *
+     * The effect of this limit would not be noticed for a reminder while it has been created more recently
+     * than the number of days specified.
+     */
+    public function test_maxtimesincecompletion_limit_more_than_reminder() {
+        global $CFG;
+
+        $messages = $this->reminder->get_messages();
+        // Set some different values for the period (number of days after completion) for the messages.
+        foreach ($messages as $message) {
+            /* @var reminder_message $message */
+            if ($message->type === 'reminder') {
+                $message->period = 1;
+                $message->update();
+                continue;
+            }
+            /* @var reminder_message $message */
+            if ($message->type === 'escalation') {
+                $message->period = 2;
+                $message->update();
+                continue;
+            }
+        }
+
+        // Now let's set the limit to 10 days. The reminder we're dealing with has a creation date of
+        // only 5 days ago.
+        set_config('reminder_maxtimesincecompletion', 10);
+
+        $sink = $this->redirectMessages();
+
+        // Make learner1 complete the course with completion date 3 days before today.
+        $completion = new completion_info($this->course);
+        $completion = $completion->get_completion($this->learner1->id, COMPLETION_CRITERIA_TYPE_SELF);
+        $this->assertFalse($completion->is_complete());
+        $completion->mark_complete(time() - (3 * DAYSECS));
+        $this->assertTrue($completion->is_complete());
+
+        // Make learner2 complete the course with completion date before the reminder was created.
+        // See setUp() to see that the reminder was created 5 days ago.
+        $completion = new completion_info($this->course);
+        $completion = $completion->get_completion($this->learner2->id, COMPLETION_CRITERIA_TYPE_SELF);
+        $this->assertFalse($completion->is_complete());
+        $completion->mark_complete(time() - (8 * DAYSECS));
+        $this->assertTrue($completion->is_complete());
+
+        // Add another user with a different completion time.
+        $learner3 = $this->getDataGenerator()->create_user();
+        $this->getDataGenerator()->enrol_user($learner3->id, $this->course->id);
+        $completion = new completion_info($this->course);
+        $completion = $completion->get_completion($learner3->id, COMPLETION_CRITERIA_TYPE_SELF);
+        $this->assertFalse($completion->is_complete());
+        $completion->mark_complete(time() - (1.5 * DAYSECS));
+        $this->assertTrue($completion->is_complete());
+
+        $task = new \totara_core\task\send_reminder_messages_task();
+        ob_start();
+        $task->execute();
+        $output = ob_get_clean();
+
+        // The limit had no effect because the more recent reminder creation date applied instead.
+        // There should be 6 messages, 4 for learner1 and 2 for learner3.
+        // There are none sent to learner2 because that user's completion date + period value (-8 + 2 = 6 days ago)
+        // is before the reminder creation date (5 days ago).
+        $this->assertSame(6, $sink->count());
+        $this->assertContains('2 "invitation" type messages sent', $output);
+        $this->assertContains('2 "reminder" type messages sent', $output);
+        $this->assertContains('2 "escalation" type messages sent', $output);
+
+        $sink->close();
+    }
+
+    /**
+     * We need to make sure that if a user has no job assignment, messages will still go out to the user.
+     */
+    public function test_no_manager_if_no_job_assignment() {
+        global $DB;
+
+        // Create a learner, the generator gives them a job assignment by default - delete that.
+        $learner3 =  $this->getDataGenerator()->create_user();
+        $learner3_ja = \totara_job\job_assignment::get_first($learner3->id);
+        $DB->delete_records('job_assignment', array('id' => $learner3_ja->id));
+
+        $sink = $this->redirectMessages();
+
+        // Complete the course with completion date 1 day before today.
+        $completion = new completion_info($this->course);
+        $completion = $completion->get_completion($learner3->id, COMPLETION_CRITERIA_TYPE_SELF);
+        $this->assertFalse($completion->is_complete());
+        $completion->mark_complete(time() - DAYSECS);
+        $this->assertTrue($completion->is_complete());
+
+        $task = new \totara_core\task\send_reminder_messages_task();
+        ob_start();
+        $task->execute();
+        $output = ob_get_clean();
+
+        // There should be three messages to the learner.
+        $this->assertSame(3, $sink->count());
+        $this->assertContains('1 "invitation" type messages sent', $output);
+        $this->assertContains('1 "reminder" type messages sent', $output);
+        $this->assertContains('1 "escalation" type messages sent', $output);
+
+        // Do the run through to check the user got the escalation email, rather than there being an
+        // attempt to send it to some non-existent manager.
+        $messages = $sink->get_messages();
+        $learnergotescalation = false;
+        foreach($messages as $message) {
+            if (($message->subject === 'Subject for type escalation') and ($message->useridto == $learner3->id)) {
+                $learnergotescalation = true;
+            }
+        }
+        $this->assertTrue($learnergotescalation);
+
+        $sink->close();
+    }
 }

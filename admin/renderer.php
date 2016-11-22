@@ -125,7 +125,7 @@ class core_admin_renderer extends plugin_renderer_base {
         $output .= $this->warning(get_string('pluginscheckfailed', 'admin', array('pluginslist' => implode(', ', array_unique($failed)))));
         $output .= $this->plugins_check_table(core_plugin_manager::instance(), $version, array('xdep' => true));
         $output .= $this->warning(get_string('pluginschecktodo', 'admin'));
-        $output .= $this->continue_button($reloadurl);
+        $output .= $this->upgrade_reload($reloadurl);
 
         $output .= $this->footer();
 
@@ -210,16 +210,14 @@ class core_admin_renderer extends plugin_renderer_base {
         $output .= $this->header();
         $output .= $this->box_start('generalbox', 'plugins-check-page');
         $output .= html_writer::tag('p', get_string('pluginchecknotice', 'core_plugin'), array('class' => 'page-description'));
-        $output .= $this->check_for_updates_button($checker, $reloadurl);
-        $output .= $this->missing_dependencies($pluginman);
         $output .= $this->plugins_check_table($pluginman, $version, array('full' => $showallplugins));
         $output .= $this->box_end();
         $output .= $this->upgrade_reload($reloadurl);
 
-        if ($pluginman->some_plugins_updatable()) {
-            $output .= $this->container_start('upgradepluginsinfo');
-            $output .= $this->help_icon('upgradepluginsinfo', 'core_admin', get_string('upgradepluginsfirst', 'core_admin'));
-            $output .= $this->container_end();
+        $failed = array();
+        if (!$pluginman->all_plugins_ok($version, $failed)) {
+            $output .= $this->footer();
+            return $output;
         }
 
         $button = new single_button($continueurl, get_string('upgradestart', 'admin'), 'get');
@@ -238,31 +236,8 @@ class core_admin_renderer extends plugin_renderer_base {
      * @return string
      */
     public function upgrade_confirm_abort_install_page(array $abortable, moodle_url $continue) {
-
-        $pluginman = core_plugin_manager::instance();
-
-        if (empty($abortable)) {
-            // The UI should not allow this.
-            throw new moodle_exception('err_no_plugin_install_abortable', 'core_plugin');
-        }
-
-        $out = $this->output->header();
-        $out .= $this->output->heading(get_string('cancelinstallhead', 'core_plugin'), 3);
-        $out .= $this->output->container(get_string('cancelinstallinfo', 'core_plugin'), 'cancelinstallinfo');
-
-        foreach ($abortable as $pluginfo) {
-            $out .= $this->output->heading($pluginfo->displayname.' ('.$pluginfo->component.')', 4);
-            $out .= $this->output->container(get_string('cancelinstallinfodir', 'core_plugin', $pluginfo->rootdir));
-            if ($repotype = $pluginman->plugin_external_source($pluginfo->component)) {
-                $out .= $this->output->container(get_string('uninstalldeleteconfirmexternal', 'core_plugin', $repotype),
-                    'uninstalldeleteconfirmexternal');
-            }
-        }
-
-        $out .= $this->plugins_management_confirm_buttons($continue, $this->page->url);
-        $out .= $this->output->footer();
-
-        return $out;
+        // The UI should not allow this.
+        throw new moodle_exception('err_no_plugin_install_abortable', 'core_plugin');
     }
 
     /**
@@ -290,7 +265,6 @@ class core_admin_renderer extends plugin_renderer_base {
 
         $output .= $this->header();
         $output .= $this->maturity_info($maturity);
-        $output .= empty($CFG->disableupdatenotifications) ? $this->available_updates($availableupdates, $availableupdatesfetch) : '';
         $output .= $this->insecure_dataroot_warning($insecuredataroot);
         $output .= $this->display_errors_warning($errorsdisplayed);
         $output .= $this->buggy_iconv_warning($buggyiconvnomb);
@@ -334,7 +308,6 @@ class core_admin_renderer extends plugin_renderer_base {
      *
      * The filtering options array may contain following items:
      *  bool contribonly - show only contributed extensions
-     *  bool updatesonly - show only plugins with an available update
      *
      * @param core_plugin_manager $pluginman
      * @param \core\update\checker $checker
@@ -347,7 +320,6 @@ class core_admin_renderer extends plugin_renderer_base {
 
         $output .= $this->header();
         $output .= $this->heading(get_string('pluginsoverview', 'core_admin'));
-        $output .= $this->check_for_updates_button($checker, $this->page->url);
         $output .= $this->plugins_overview_panel($pluginman, $options);
         $output .= $this->plugins_control_panel($pluginman, $options);
         $output .= $this->footer();
@@ -363,23 +335,7 @@ class core_admin_renderer extends plugin_renderer_base {
      * @return string HTML
      */
     public function check_for_updates_button(\core\update\checker $checker, $reloadurl) {
-
-        $output = '';
-
-        if ($checker->enabled()) {
-            $output .= $this->container_start('checkforupdates');
-            $output .= $this->single_button(
-                new moodle_url($reloadurl, array('fetchupdates' => 1)),
-                get_string('checkforupdates', 'core_plugin')
-            );
-            if ($timefetched = $checker->get_last_timefetched()) {
-                $timefetched = userdate($timefetched, get_string('strftimedatetime', 'core_langconfig'));
-                $output .= $this->container(get_string('checkforupdateslast', 'core_plugin', $timefetched), 'lasttimefetched');
-            }
-            $output .= $this->container_end();
-        }
-
-        return $output;
+        return '';
     }
 
     /**
@@ -720,60 +676,6 @@ class core_admin_renderer extends plugin_renderer_base {
     }
 
     /**
-     * Displays the info about available Moodle core and plugin updates
-     *
-     * The structure of the $updates param has changed since 2.4. It contains not only updates
-     * for the core itself, but also for all other installed plugins.
-     *
-     * @param array|null $updates array of (string)component => array of \core\update\info objects or null
-     * @param int|null $fetch timestamp of the most recent updates fetch or null (unknown)
-     * @return string
-     */
-    protected function available_updates($updates, $fetch) {
-
-        $updateinfo = '';
-        $someupdateavailable = false;
-        if (is_array($updates)) {
-            if (is_array($updates['core'])) {
-                $someupdateavailable = true;
-                $updateinfo .= $this->heading(get_string('updateavailable', 'core_admin'), 3);
-                foreach ($updates['core'] as $update) {
-                    $updateinfo .= $this->moodle_available_update_info($update);
-                }
-                $updateinfo .= html_writer::tag('p', get_string('updateavailablerecommendation', 'core_admin'),
-                    array('class' => 'updateavailablerecommendation'));
-            }
-            unset($updates['core']);
-            // If something has left in the $updates array now, it is updates for plugins.
-            if (!empty($updates)) {
-                $someupdateavailable = true;
-                $updateinfo .= $this->heading(get_string('updateavailableforplugin', 'core_admin'), 3);
-                $pluginsoverviewurl = new moodle_url('/admin/plugins.php', array('updatesonly' => 1));
-                $updateinfo .= $this->container(get_string('pluginsoverviewsee', 'core_admin',
-                    array('url' => $pluginsoverviewurl->out())));
-            }
-        }
-
-        if (!$someupdateavailable) {
-            $now = time();
-            if ($fetch and ($fetch <= $now) and ($now - $fetch < HOURSECS)) {
-                $updateinfo .= $this->heading(get_string('updateavailablenot', 'core_admin'), 3);
-            }
-        }
-
-        $updateinfo .= $this->container_start('checkforupdates');
-        $fetchurl = new moodle_url('/admin/index.php', array('fetchupdates' => 1, 'sesskey' => sesskey(), 'cache' => 0));
-        $updateinfo .= $this->single_button($fetchurl, get_string('checkforupdates', 'core_plugin'));
-        if ($fetch) {
-            $updateinfo .= $this->container(get_string('checkforupdateslast', 'core_plugin',
-                userdate($fetch, get_string('strftimedatetime', 'core_langconfig'))));
-        }
-        $updateinfo .= $this->container_end();
-
-        return $this->warning($updateinfo);
-    }
-
-    /**
      * Display a warning about not being registered on Moodle.org if necesary.
      *
      * @param boolean $registered true if the site is registered on Moodle.org
@@ -792,48 +694,6 @@ class core_admin_renderer extends plugin_renderer_base {
         }
 
         return '';
-    }
-
-    /**
-     * Helper method to render the information about the available Moodle update
-     *
-     * @param \core\update\info $updateinfo information about the available Moodle core update
-     */
-    protected function moodle_available_update_info(\core\update\info $updateinfo) {
-
-        $boxclasses = 'moodleupdateinfo';
-        $info = array();
-
-        if (isset($updateinfo->release)) {
-            $info[] = html_writer::tag('span', get_string('updateavailable_release', 'core_admin', $updateinfo->release),
-                array('class' => 'info release'));
-        }
-
-        if (isset($updateinfo->version)) {
-            $info[] = html_writer::tag('span', get_string('updateavailable_version', 'core_admin', $updateinfo->version),
-                array('class' => 'info version'));
-        }
-
-        if (isset($updateinfo->maturity)) {
-            $info[] = html_writer::tag('span', get_string('maturity'.$updateinfo->maturity, 'core_admin'),
-                array('class' => 'info maturity'));
-            $boxclasses .= ' maturity'.$updateinfo->maturity;
-        }
-
-        if (isset($updateinfo->download)) {
-            $info[] = html_writer::link($updateinfo->download, get_string('download'), array('class' => 'info download'));
-        }
-
-        if (isset($updateinfo->url)) {
-            $info[] = html_writer::link($updateinfo->url, get_string('updateavailable_moreinfo', 'core_plugin'),
-                array('class' => 'info more'));
-        }
-
-        $box  = $this->output->box_start($boxclasses);
-        $box .= $this->output->box(implode(html_writer::tag('span', ' ', array('class' => 'separator')), $info), '');
-        $box .= $this->output->box_end();
-
-        return $box;
     }
 
     /**
@@ -901,10 +761,6 @@ class core_admin_renderer extends plugin_renderer_base {
         $sumtotal = 0;
         // Number of plugins requiring attention.
         $sumattention = 0;
-        // List of all components we can cancel installation of.
-        $installabortable = $pluginman->list_cancellable_installations();
-        // List of all components we can cancel upgrade of.
-        $upgradeabortable = $pluginman->list_restorable_archives();
 
         foreach ($plugininfo as $type => $plugins) {
 
@@ -994,31 +850,6 @@ class core_admin_renderer extends plugin_renderer_base {
                 }
                 $status = html_writer::span(get_string('status_' . $statuscode, 'core_plugin'), $statusclass);
 
-                if (!empty($installabortable[$plugin->component])) {
-                    $status .= $this->output->single_button(
-                        new moodle_url($this->page->url, array('abortinstall' => $plugin->component)),
-                        get_string('cancelinstallone', 'core_plugin'),
-                        'post',
-                        array('class' => 'actionbutton cancelinstallone')
-                    );
-                }
-
-                if (!empty($upgradeabortable[$plugin->component])) {
-                    $status .= $this->output->single_button(
-                        new moodle_url($this->page->url, array('abortupgrade' => $plugin->component)),
-                        get_string('cancelupgradeone', 'core_plugin'),
-                        'post',
-                        array('class' => 'actionbutton cancelupgradeone')
-                    );
-                }
-
-                $availableupdates = $plugin->available_updates();
-                if (!empty($availableupdates)) {
-                    foreach ($availableupdates as $availableupdate) {
-                        $status .= $this->plugin_available_update_info($pluginman, $availableupdate);
-                    }
-                }
-
                 $status = new html_table_cell($sourcelabel.' '.$status);
 
                 $requires = new html_table_cell($this->required_column($plugin, $pluginman, $version));
@@ -1032,7 +863,7 @@ class core_admin_renderer extends plugin_renderer_base {
                         continue;
                     }
 
-                } else if ($statusisboring and $dependenciesok and empty($availableupdates)) {
+                } else if ($statusisboring and $dependenciesok) {
                     // no change is going to happen to the plugin - display it only
                     // if the user wants to see the full list
                     if (empty($options['full'])) {
@@ -1080,34 +911,6 @@ class core_admin_renderer extends plugin_renderer_base {
 
         $out .= $this->output->container_start('actions');
 
-        $installableupdates = $pluginman->filter_installable($pluginman->available_updates());
-        if ($installableupdates) {
-            $out .= $this->output->single_button(
-                new moodle_url($this->page->url, array('installupdatex' => 1)),
-                get_string('updateavailableinstallall', 'core_admin', count($installableupdates)),
-                'post',
-                array('class' => 'singlebutton updateavailableinstallall')
-            );
-        }
-
-        if ($installabortable) {
-            $out .= $this->output->single_button(
-                new moodle_url($this->page->url, array('abortinstallx' => 1)),
-                get_string('cancelinstallall', 'core_plugin', count($installabortable)),
-                'post',
-                array('class' => 'singlebutton cancelinstallall')
-            );
-        }
-
-        if ($upgradeabortable) {
-            $out .= $this->output->single_button(
-                new moodle_url($this->page->url, array('abortupgradex' => 1)),
-                get_string('cancelupgradeall', 'core_plugin', count($upgradeabortable)),
-                'post',
-                array('class' => 'singlebutton cancelupgradeall')
-            );
-        }
-
         $out .= html_writer::div(html_writer::link(new moodle_url($this->page->url, array('showallplugins' => 0)),
             get_string('plugincheckattention', 'core_plugin')).' '.html_writer::span($sumattention, 'badge'));
 
@@ -1148,206 +951,6 @@ class core_admin_renderer extends plugin_renderer_base {
     }
 
     /**
-     * Displays the information about missing dependencies
-     *
-     * @param core_plugin_manager $pluginman
-     * @return string
-     */
-    protected function missing_dependencies(core_plugin_manager $pluginman) {
-
-        $dependencies = $pluginman->missing_dependencies();
-
-        if (empty($dependencies)) {
-            return '';
-        }
-
-        $available = array();
-        $unavailable = array();
-        $unknown = array();
-
-        foreach ($dependencies as $component => $remoteinfo) {
-            if ($remoteinfo === false) {
-                // The required version is not available. Let us check if there
-                // is at least some version in the plugins directory.
-                $remoteinfoanyversion = $pluginman->get_remote_plugin_info($component, ANY_VERSION, false);
-                if ($remoteinfoanyversion === false) {
-                    $unknown[$component] = $component;
-                } else {
-                    $unavailable[$component] = $remoteinfoanyversion;
-                }
-            } else {
-                $available[$component] = $remoteinfo;
-            }
-        }
-
-        $out  = $this->output->container_start('plugins-check-dependencies');
-
-        if ($unavailable or $unknown) {
-            $out .= $this->output->heading(get_string('misdepsunavail', 'core_plugin'));
-            if ($unknown) {
-                $out .= $this->output->notification(get_string('misdepsunknownlist', 'core_plugin', implode($unknown, ', ')));
-            }
-            if ($unavailable) {
-                $unavailablelist = array();
-                foreach ($unavailable as $component => $remoteinfoanyversion) {
-                    $unavailablelistitem = html_writer::link('https://moodle.org/plugins/view.php?plugin='.$component,
-                        '<strong>'.$remoteinfoanyversion->name.'</strong>');
-                    if ($remoteinfoanyversion->version) {
-                        $unavailablelistitem .= ' ('.$component.' &gt; '.$remoteinfoanyversion->version->version.')';
-                    } else {
-                        $unavailablelistitem .= ' ('.$component.')';
-                    }
-                    $unavailablelist[] = $unavailablelistitem;
-                }
-                $out .= $this->output->notification(get_string('misdepsunavaillist', 'core_plugin',
-                    implode($unavailablelist, ', ')));
-            }
-            $out .= $this->output->container_start('plugins-check-dependencies-actions');
-            $out .= ' '.html_writer::link(new moodle_url('/admin/tool/installaddon/'),
-                get_string('dependencyuploadmissing', 'core_plugin'));
-            $out .= $this->output->container_end(); // End of .plugins-check-dependencies-actions container.
-        }
-
-        if ($available) {
-            $out .= $this->output->heading(get_string('misdepsavail', 'core_plugin'));
-            $out .= $this->output->container_start('plugins-check-dependencies-actions');
-
-            $installable = $pluginman->filter_installable($available);
-            if ($installable) {
-                $out .= $this->output->single_button(
-                    new moodle_url($this->page->url, array('installdepx' => 1)),
-                    get_string('dependencyinstallmissing', 'core_plugin', count($installable)),
-                    'post',
-                    array('class' => 'singlebutton dependencyinstallmissing')
-                );
-            }
-
-            $out .= html_writer::div(html_writer::link(new moodle_url('/admin/tool/installaddon/'),
-                get_string('dependencyuploadmissing', 'core_plugin')), 'dependencyuploadmissing');
-
-            $out .= $this->output->container_end(); // End of .plugins-check-dependencies-actions container.
-
-            $out .= $this->available_missing_dependencies_list($pluginman, $available);
-        }
-
-        $out .= $this->output->container_end(); // End of .plugins-check-dependencies container.
-
-        return $out;
-    }
-
-    /**
-     * Displays the list if available missing dependencies.
-     *
-     * @param core_plugin_manager $pluginman
-     * @param array $dependencies
-     * @return string
-     */
-    protected function available_missing_dependencies_list(core_plugin_manager $pluginman, array $dependencies) {
-        global $CFG;
-
-        $table = new html_table();
-        $table->id = 'plugins-check-available-dependencies';
-        $table->head = array(
-            get_string('displayname', 'core_plugin'),
-            get_string('release', 'core_plugin'),
-            get_string('version', 'core_plugin'),
-            get_string('supportedmoodleversions', 'core_plugin'),
-            get_string('info', 'core'),
-        );
-        $table->colclasses = array('displayname', 'release', 'version', 'supportedmoodleversions', 'info');
-        $table->data = array();
-
-        foreach ($dependencies as $plugin) {
-
-            $supportedmoodles = array();
-            foreach ($plugin->version->supportedmoodles as $moodle) {
-                if ($CFG->branch == str_replace('.', '', $moodle->release)) {
-                    $supportedmoodles[] = html_writer::span($moodle->release, 'label label-success');
-                } else {
-                    $supportedmoodles[] = html_writer::span($moodle->release, 'label');
-                }
-            }
-
-            $requriedby = $pluginman->other_plugins_that_require($plugin->component);
-            if ($requriedby) {
-                foreach ($requriedby as $ix => $val) {
-                    $inf = $pluginman->get_plugin_info($val);
-                    if ($inf) {
-                        $requriedby[$ix] = $inf->displayname.' ('.$inf->component.')';
-                    }
-                }
-                $info = html_writer::div(
-                    get_string('requiredby', 'core_plugin', implode(', ', $requriedby)),
-                    'requiredby'
-                );
-            } else {
-                $info = '';
-            }
-
-            $info .= $this->output->container_start('actions');
-
-            $info .= html_writer::div(
-                html_writer::link('https://moodle.org/plugins/view.php?plugin='.$plugin->component,
-                    get_string('misdepinfoplugin', 'core_plugin')),
-                'misdepinfoplugin'
-            );
-
-            $info .= html_writer::div(
-                html_writer::link('https://moodle.org/plugins/pluginversion.php?id='.$plugin->version->id,
-                    get_string('misdepinfoversion', 'core_plugin')),
-                'misdepinfoversion'
-            );
-
-            $info .= html_writer::div(html_writer::link($plugin->version->downloadurl, get_string('download')), 'misdepdownload');
-
-            if ($pluginman->is_remote_plugin_installable($plugin->component, $plugin->version->version, $reason)) {
-                $info .= $this->output->single_button(
-                    new moodle_url($this->page->url, array('installdep' => $plugin->component)),
-                    get_string('dependencyinstall', 'core_plugin'),
-                    'post',
-                    array('class' => 'singlebutton dependencyinstall')
-                );
-            } else {
-                $reasonhelp = $this->info_remote_plugin_not_installable($reason);
-                if ($reasonhelp) {
-                    $info .= html_writer::div($reasonhelp, 'reasonhelp dependencyinstall');
-                }
-            }
-
-            $info .= $this->output->container_end(); // End of .actions container.
-
-            $table->data[] = array(
-                html_writer::div($plugin->name, 'name').' '.html_writer::div($plugin->component, 'component'),
-                $plugin->version->release,
-                $plugin->version->version,
-                implode($supportedmoodles, ' '),
-                $info
-            );
-        }
-
-        return html_writer::table($table);
-    }
-
-    /**
-     * Explain why {@link core_plugin_manager::is_remote_plugin_installable()} returned false.
-     *
-     * @param string $reason the reason code as returned by the plugin manager
-     * @return string
-     */
-    protected function info_remote_plugin_not_installable($reason) {
-
-        if ($reason === 'notwritableplugintype' or $reason === 'notwritableplugin') {
-            return $this->output->help_icon('notwritable', 'core_plugin', get_string('notwritable', 'core_plugin'));
-        }
-
-        if ($reason === 'remoteunavailable') {
-            return $this->output->help_icon('notdownloadable', 'core_plugin', get_string('notdownloadable', 'core_plugin'));
-        }
-
-        return false;
-    }
-
-    /**
      * Formats the information that needs to go in the 'Requires' column.
      * @param \core\plugininfo\base $plugin the plugin we are rendering the row for.
      * @param core_plugin_manager $pluginman provides data on all the plugins.
@@ -1357,10 +960,10 @@ class core_admin_renderer extends plugin_renderer_base {
     protected function required_column(\core\plugininfo\base $plugin, core_plugin_manager $pluginman, $version) {
 
         $requires = array();
-        $displayuploadlink = false;
-        $displayupdateslink = false;
 
         foreach ($pluginman->resolve_requirements($plugin, $version) as $reqname => $reqinfo) {
+            $label = '';
+            $class = '';
             if ($reqname === 'core') {
                 if ($reqinfo->status == $pluginman::REQUIREMENT_STATUS_OK) {
                     $class = 'requires-ok';
@@ -1374,44 +977,17 @@ class core_admin_renderer extends plugin_renderer_base {
                     ' '.$label, array('class' => $class));
 
             } else {
-                $actions = array();
-
                 if ($reqinfo->status == $pluginman::REQUIREMENT_STATUS_OK) {
                     $label = '';
                     $class = 'requires-ok';
 
                 } else if ($reqinfo->status == $pluginman::REQUIREMENT_STATUS_MISSING) {
-                    if ($reqinfo->availability == $pluginman::REQUIREMENT_AVAILABLE) {
-                        $label = html_writer::span(get_string('dependencymissing', 'core_plugin'), 'label label-warning');
-                        $label .= ' '.html_writer::span(get_string('dependencyavailable', 'core_plugin'), 'label label-warning');
-                        $class = 'requires-failed requires-missing requires-available';
-                        $actions[] = html_writer::link(
-                            new moodle_url('https://moodle.org/plugins/view.php', array('plugin' => $reqname)),
-                            get_string('misdepinfoplugin', 'core_plugin')
-                        );
-
-                    } else {
-                        $label = html_writer::span(get_string('dependencymissing', 'core_plugin'), 'label label-danger');
-                        $label .= ' '.html_writer::span(get_string('dependencyunavailable', 'core_plugin'),
-                            'label label-danger');
-                        $class = 'requires-failed requires-missing requires-unavailable';
-                    }
-                    $displayuploadlink = true;
+                    $label = html_writer::span(get_string('dependencymissing', 'core_plugin'), 'label label-danger');
+                    $class = 'requires-failed requires-missing';
 
                 } else if ($reqinfo->status == $pluginman::REQUIREMENT_STATUS_OUTDATED) {
-                    if ($reqinfo->availability == $pluginman::REQUIREMENT_AVAILABLE) {
-                        $label = html_writer::span(get_string('dependencyfails', 'core_plugin'), 'label label-warning');
-                        $label .= ' '.html_writer::span(get_string('dependencyavailable', 'core_plugin'), 'label label-warning');
-                        $class = 'requires-failed requires-outdated requires-available';
-                        $displayupdateslink = true;
-
-                    } else {
-                        $label = html_writer::span(get_string('dependencyfails', 'core_plugin'), 'label label-danger');
-                        $label .= ' '.html_writer::span(get_string('dependencyunavailable', 'core_plugin'),
-                            'label label-danger');
-                        $class = 'requires-failed requires-outdated requires-unavailable';
-                    }
-                    $displayuploadlink = true;
+                    $label = html_writer::span(get_string('dependencyfails', 'core_plugin'), 'label label-danger');
+                    $class = 'requires-failed requires-outdated';
                 }
 
                 if ($reqinfo->reqver != ANY_VERSION) {
@@ -1422,7 +998,7 @@ class core_admin_renderer extends plugin_renderer_base {
 
                 $requires[] = html_writer::tag('li', html_writer::span(
                     get_string($str, 'core_plugin', array('component' => $reqname, 'version' => $reqinfo->reqver)),
-                    'dep dep-plugin').' '.$label.' '.html_writer::span(implode(' | ', $actions), 'actions'),
+                    'dep dep-plugin').' '.$label,
                     array('class' => $class)
                 );
             }
@@ -1433,26 +1009,6 @@ class core_admin_renderer extends plugin_renderer_base {
         }
 
         $out = html_writer::tag('ul', implode("\n", $requires));
-
-        if ($displayuploadlink) {
-            $out .= html_writer::div(
-                html_writer::link(
-                    new moodle_url('/admin/tool/installaddon/'),
-                    get_string('dependencyuploadmissing', 'core_plugin')
-                ),
-                'dependencyuploadmissing'
-            );
-        }
-
-        if ($displayupdateslink) {
-            $out .= html_writer::div(
-                html_writer::link(
-                    new moodle_url($this->page->url, array('sesskey' => sesskey(), 'fetchupdates' => 1)),
-                    get_string('checkforupdates', 'core_plugin')
-                ),
-                'checkforupdates'
-            );
-        }
 
         return $out;
 
@@ -1466,16 +1022,17 @@ class core_admin_renderer extends plugin_renderer_base {
      * @return string as usually
      */
     public function plugins_overview_panel(core_plugin_manager $pluginman, array $options = array()) {
+        $out = '';
+        if (!empty($options['contribonly'])) {
+            $out .= $this->output->notification(markdown_to_html(get_string('totaraaddonnotice', 'core_plugin')), 'notifymessage');
+        }
 
         $plugininfo = $pluginman->get_plugins();
 
-        $numtotal = $numextension = $numupdatable = 0;
+        $numtotal = $numextension = 0;
 
         foreach ($plugininfo as $type => $plugins) {
             foreach ($plugins as $name => $plugin) {
-                if ($plugin->available_updates()) {
-                    $numupdatable++;
-                }
                 if ($plugin->get_status() === core_plugin_manager::PLUGIN_STATUS_MISSING) {
                     continue;
                 }
@@ -1486,52 +1043,34 @@ class core_admin_renderer extends plugin_renderer_base {
             }
         }
 
-        $infoall = html_writer::link(
-            new moodle_url($this->page->url, array('contribonly' => 0, 'updatesonly' => 0)),
-            get_string('overviewall', 'core_plugin'),
-            array('title' => get_string('filterall', 'core_plugin'))
-        ).' '.html_writer::span($numtotal, 'badge number number-all');
-
-        $infoext = html_writer::link(
-            new moodle_url($this->page->url, array('contribonly' => 1, 'updatesonly' => 0)),
-            get_string('overviewext', 'core_plugin'),
-            array('title' => get_string('filtercontribonly', 'core_plugin'))
-        ).' '.html_writer::span($numextension, 'badge number number-additional');
-
-        if ($numupdatable) {
-            $infoupdatable = html_writer::link(
-                new moodle_url($this->page->url, array('contribonly' => 0, 'updatesonly' => 1)),
-                get_string('overviewupdatable', 'core_plugin'),
-                array('title' => get_string('filterupdatesonly', 'core_plugin'))
-            ).' '.html_writer::span($numupdatable, 'badge badge-info number number-updatable');
-        } else {
-            // No updates, or the notifications disabled.
-            $infoupdatable = '';
+        $infoall = get_string('overviewall', 'core_plugin');
+        if (!empty($options['contribonly'])) {
+            $infoall = html_writer::link(
+                new moodle_url($this->page->url, array('contribonly' => 0)),
+                $infoall,
+                array('title' => get_string('filterall', 'core_plugin'))
+            );
         }
+        $infoall .= ' '.html_writer::span($numtotal, 'badge number number-all');
 
-        $out = html_writer::start_div('', array('id' => 'plugins-overview-panel'));
+        $infoext = get_string('overviewext', 'core_plugin');
+        if (empty($options['contribonly'])) {
+            $infoext = html_writer::link(
+                new moodle_url($this->page->url, array('contribonly' => 1)),
+                $infoext,
+                array('title' => get_string('filtercontribonly', 'core_plugin'))
+            );
+        }
+        $infoext .= ' '.html_writer::span($numextension, 'badge number number-additional');
 
-        if (!empty($options['updatesonly'])) {
-            $out .= $this->output->heading(get_string('overviewupdatable', 'core_plugin'), 3);
-        } else if (!empty($options['contribonly'])) {
+        $out .= html_writer::start_div('', array('id' => 'plugins-overview-panel'));
+
+        if (!empty($options['contribonly'])) {
             $out .= $this->output->heading(get_string('overviewext', 'core_plugin'), 3);
         }
 
-        if ($numupdatable) {
-            $installableupdates = $pluginman->filter_installable($pluginman->available_updates());
-            if ($installableupdates) {
-                $out .= $this->output->single_button(
-                    new moodle_url($this->page->url, array('installupdatex' => 1)),
-                    get_string('updateavailableinstallall', 'core_admin', count($installableupdates)),
-                    'post',
-                    array('class' => 'singlebutton updateavailableinstallall')
-                );
-            }
-        }
-
         $out .= html_writer::div($infoall, 'info info-all').
-            html_writer::div($infoext, 'info info-ext').
-            html_writer::div($infoupdatable, 'info info-updatable');
+            html_writer::div($infoext, 'info info-ext');
 
         $out .= html_writer::end_div(); // End of #plugins-overview-panel block.
 
@@ -1550,22 +1089,6 @@ class core_admin_renderer extends plugin_renderer_base {
     public function plugins_control_panel(core_plugin_manager $pluginman, array $options = array()) {
 
         $plugininfo = $pluginman->get_plugins();
-
-        // Filter the list of plugins according the options.
-        if (!empty($options['updatesonly'])) {
-            $updateable = array();
-            foreach ($plugininfo as $plugintype => $pluginnames) {
-                foreach ($pluginnames as $pluginname => $pluginfo) {
-                    $pluginavailableupdates = $pluginfo->available_updates();
-                    if (!empty($pluginavailableupdates)) {
-                        foreach ($pluginavailableupdates as $pluginavailableupdate) {
-                            $updateable[$plugintype][$pluginname] = $pluginfo;
-                        }
-                    }
-                }
-            }
-            $plugininfo = $updateable;
-        }
 
         if (!empty($options['contribonly'])) {
             $contribs = array();
@@ -1691,14 +1214,7 @@ class core_admin_renderer extends plugin_renderer_base {
                     $requiredby = '';
                 }
 
-                $updateinfo = '';
-                if (is_array($plugin->available_updates())) {
-                    foreach ($plugin->available_updates() as $availableupdate) {
-                        $updateinfo .= $this->plugin_available_update_info($pluginman, $availableupdate);
-                    }
-                }
-
-                $notes = new html_table_cell($source.$msg.$requiredby.$updateinfo);
+                $notes = new html_table_cell($source.$msg.$requiredby);
 
                 $row->cells = array(
                     $pluginname, $version, $availability, $settings, $uninstall, $notes
@@ -1708,75 +1224,6 @@ class core_admin_renderer extends plugin_renderer_base {
         }
 
         return html_writer::table($table);
-    }
-
-    /**
-     * Helper method to render the information about the available plugin update
-     *
-     * @param core_plugin_manager $pluginman plugin manager instance
-     * @param \core\update\info $updateinfo information about the available update for the plugin
-     */
-    protected function plugin_available_update_info(core_plugin_manager $pluginman, \core\update\info $updateinfo) {
-
-        $boxclasses = 'pluginupdateinfo';
-        $info = array();
-
-        if (isset($updateinfo->release)) {
-            $info[] = html_writer::div(
-                get_string('updateavailable_release', 'core_plugin', $updateinfo->release),
-                'info release'
-            );
-        }
-
-        if (isset($updateinfo->maturity)) {
-            $info[] = html_writer::div(
-                get_string('maturity'.$updateinfo->maturity, 'core_admin'),
-                'info maturity'
-            );
-            $boxclasses .= ' maturity'.$updateinfo->maturity;
-        }
-
-        if (isset($updateinfo->download)) {
-            $info[] = html_writer::div(
-                html_writer::link($updateinfo->download, get_string('download')),
-                'info download'
-            );
-        }
-
-        if (isset($updateinfo->url)) {
-            $info[] = html_writer::div(
-                html_writer::link($updateinfo->url, get_string('updateavailable_moreinfo', 'core_plugin')),
-                'info more'
-            );
-        }
-
-        $box = html_writer::start_div($boxclasses);
-        $box .= html_writer::div(
-            get_string('updateavailable', 'core_plugin', $updateinfo->version),
-            'version'
-        );
-        $box .= html_writer::div(
-            implode(html_writer::span(' ', 'separator'), $info),
-            'infos'
-        );
-
-        if ($pluginman->is_remote_plugin_installable($updateinfo->component, $updateinfo->version, $reason)) {
-            $box .= $this->output->single_button(
-                new moodle_url($this->page->url, array('installupdate' => $updateinfo->component,
-                    'installupdateversion' => $updateinfo->version)),
-                get_string('updateavailableinstall', 'core_admin'),
-                'post',
-                array('class' => 'singlebutton updateavailableinstall')
-            );
-        } else {
-            $reasonhelp = $this->info_remote_plugin_not_installable($reason);
-            if ($reasonhelp) {
-                $box .= html_writer::div($reasonhelp, 'reasonhelp updateavailableinstall');
-            }
-        }
-        $box .= html_writer::end_div();
-
-        return $box;
     }
 
     /**

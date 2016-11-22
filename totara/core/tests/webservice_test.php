@@ -43,6 +43,31 @@ class totara_core_webservice_testcase extends advanced_testcase {
         $event2->set_legacy_logdata(array(SITEID, 'webservice', $function . ' 127.0.0.1' , 0, 2));
         $event2->trigger();
 
-        $this->assertSame($event->get_data(), $event2->get_data());
+        // List of domain specific fields for equality check. Non domain fields
+        // like event IDs and timestamps should not be compared.
+        $fields = [
+            'eventname',
+            'component',
+            'action',
+            'target',
+            'objecttable',
+            'objectid',
+            'crud',
+            'edulevel',
+            'contextid',
+            'contextlevel',
+            'contextinstanceid',
+            'userid',
+            'courseid',
+            'relateduserid',
+            'anonymous',
+            'other'
+        ];
+
+        $data1 = $event->get_data();
+        $data2 = $event->get_data();
+        foreach ($fields as $field) {
+            $this->assertSame($data1[$field], $data2[$field]);
+        }
     }
 }

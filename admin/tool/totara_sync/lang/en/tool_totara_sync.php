@@ -297,6 +297,7 @@ $string['managerassigncanthavejaid'] = 'Manager\'s job assignment idnumber can o
 $string['managerassignmissingmanagerjobx'] = 'Manager\'s job assignment must already exist in database or be in the import. Skipped manager assignment for user {$a->idnumber}';
 $string['managerassignmissingjobx'] = 'User\'s job assignment must already exist in database or be in the import. Skipped manager assignment for user {$a->idnumber}';
 $string['nosourceenabled'] = 'No source enabled for this element.';
+$string['usersyncdisabled'] = 'Skipped user {$a->idnumber} as their HR Import setting is disabled.';
 
 $string['syncexecute'] = 'Run HR Import';
 $string['runsynccronstart'] = 'Running HR Import cron...';

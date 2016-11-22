@@ -612,7 +612,11 @@ class development_plan {
         $history = $this->get_history('id DESC');
         $latestmodification = reset($history);
 
-        return ($latestmodification->status != DP_PLAN_STATUS_COMPLETE) ? get_string('notcompleted', 'totara_plan') : userdate($latestmodification->timemodified, get_string('datepickerlongyearphpuserdate', 'totara_core'), 99, false);
+        if ($latestmodification->status != DP_PLAN_STATUS_COMPLETE) {
+            return get_string('notcompleted', 'totara_plan');
+        } else {
+            return userdate($latestmodification->timemodified, get_string('strftimedatefulllong', 'langconfig'), 99, false);
+        }
     }
 
 
@@ -1326,8 +1330,8 @@ class development_plan {
             if (!empty($itemids)) {
                 // Delete component relations
                 foreach ($itemids as $id => $value) {
-                    $DB->delete_records('dp_plan_component_relation', array('itemid1' => $id));
-                    $DB->delete_records('dp_plan_component_relation', array('itemid2' => $id));
+                    $DB->delete_records('dp_plan_component_relation', array('itemid1' => $id, "component1" => $c));
+                    $DB->delete_records('dp_plan_component_relation', array('itemid2' => $id, "component2" => $c));
                 }
             }
         }

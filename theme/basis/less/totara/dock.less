@@ -21,9 +21,17 @@
 // @author    Sam Hemelryk <sam.hemelryk@totaralearning.com>
 // @package   theme_basis
 
+#dock .controls a {
+    color: lighten(@gray-light, 10%);
+}
+
 #dockeditempanel {
     .dockeditempanel_hd {
         &:extend(.block .block-header);
+    }
+
+    .commands a {
+        color: lighten(@gray-light, 10%);
     }
 
     .dockeditempanel_content {

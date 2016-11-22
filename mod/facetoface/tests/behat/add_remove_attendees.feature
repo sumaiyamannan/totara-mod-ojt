@@ -180,7 +180,7 @@ Feature: Add - Remove seminar attendees
 
     When I click on "Remove users" "option" in the "#menuf2f-actions" "css_element"
     And I click on "Sam1 Student1, student1@example.com" "option"
-    And I press "Add"
+    And I press "Remove"
     And I wait "1" seconds
     And I press "Continue"
     And I press "Confirm"
@@ -417,7 +417,7 @@ Feature: Add - Remove seminar attendees
       | searchtext | Sam |
     And I press "Search"
     And I click on "Sam1 Student1, sid#1, student1@example.com" "option"
-    And I press "Add"
+    And I press "Remove"
     And I wait "1" seconds
     And I press "Continue"
     And I should see "Sam1 Student1"
@@ -483,7 +483,7 @@ Feature: Add - Remove seminar attendees
       | searchtext | Sam |
     And I press "Search"
     And I click on "Sam1 Student1, student1@example.com" "option"
-    And I press "Add"
+    And I press "Remove"
     And I wait "1" seconds
     And I press "Continue"
     And I should see "Sam1 Student1"

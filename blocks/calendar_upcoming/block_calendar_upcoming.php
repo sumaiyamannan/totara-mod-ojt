@@ -65,7 +65,9 @@ class block_calendar_upcoming extends block_base {
             if ($courseshown == SITEID) {
                 // Being displayed at site level. This will cause the filter to fall back to auto-detecting
                 // the list of courses it will be grabbing events from.
-                $filtercourse = calendar_get_default_courses();
+                // Totara: We need to get all relevant courses that are upcoming.
+                $calendar = new calendar_information(0, 0, 0, time());
+                $filtercourse = $calendar->get_default_courses('upcoming');
             } else {
                 // Forcibly filter events to include only those from the particular course we are in.
                 $filtercourse = array($courseshown => $this->page->course);

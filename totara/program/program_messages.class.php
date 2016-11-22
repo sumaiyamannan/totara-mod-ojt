@@ -44,6 +44,11 @@ define('MESSAGETYPE_RECERT_FAILRECERT', 14);
 
 class prog_messages_manager {
 
+    /**
+     * Static cache of program message managers.
+     */
+    protected static $managerscache = array();
+
     // The $formdataobject is an object that will contains the values of any
     // submitted data so that the message edit form can be populated when it
     // is first displayed
@@ -115,15 +120,10 @@ class prog_messages_manager {
     }
 
     /**
-     * Static cache of program message managers.
-     */
-    protected static $managerscache = array();
-
-    /**
      * Retrieves a programs message manager from cache or creates and caches it.
      *
-     * @param $programid        The id of the program
-     * @param $refreshcache     Whether to use the managerscache or ignore it
+     * @param int $programid        The id of the program
+     * @param bool $refreshcache     Whether to use the managerscache or ignore it
      * @return object           An instance of prog_messages_manager
      */
     public static function get_program_messages_manager($programid, $refreshcache = false) {
@@ -132,6 +132,13 @@ class prog_messages_manager {
         }
 
         return self::$managerscache[$programid];
+    }
+
+    /**
+     * Resets the program message managers static cache. Called during testing to prevent leaking between tests.
+     */
+    public static function reset_cache() {
+        self::$managerscache = array();
     }
 
     /**

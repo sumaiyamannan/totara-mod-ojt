@@ -51,6 +51,7 @@ function report_security_get_issue_list() {
         'report_security_check_usernameenumeration',
         'report_security_check_https',
         'report_security_check_cookiesecure',
+        'report_security_check_cookiehttponly',
         'report_security_check_configrw',
         'report_security_check_riskxss',
         'report_security_check_riskadmin',
@@ -994,6 +995,36 @@ function report_security_check_repositoryurl($detailed = false) {
 
     if ($detailed) {
         $result->details = get_string('check_repositoryurl_details', 'report_security');
+    }
+
+    return $result;
+}
+
+/**
+ * Verifies if the httponly setting is enable for a site.
+ *
+ * @param bool $detailed
+ * @return stdClass result
+ */
+function report_security_check_cookiehttponly($detailed = false) {
+    global $CFG;
+
+    $result = new stdClass();
+    $result->issue   = 'report_security_check_cookiehttponly';
+    $result->name    = get_string('check_cookiehttponly_name', 'report_security');
+    $result->details = null;
+    $result->link    = "<a href=\"$CFG->wwwroot/$CFG->admin/settings.php?section=httpsecurity\">".get_string('httpsecurity', 'admin').'</a>';
+
+    if ($CFG->cookiehttponly == true) {
+        $result->status = REPORT_SECURITY_OK;
+        $result->info = get_string('check_cookiehttponly_ok', 'report_security');
+    } else {
+        $result->status = REPORT_SECURITY_SERIOUS;
+        $result->info = get_string('check_cookiehttponly_error', 'report_security');
+    }
+
+    if ($detailed) {
+        $result->details = get_string('check_cookiehttponly_details', 'report_security');
     }
 
     return $result;

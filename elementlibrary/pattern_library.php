@@ -30,6 +30,7 @@ require_once($CFG->libdir . '/adminlib.php');
 
 $strheading = 'Element Library: Pattern Library';
 $url = new moodle_url('/elementlibrary/pattern_library.php');
+admin_externalpage_setup('elementlibrary');
 
 $PAGE->set_context(context_system::instance());
 $PAGE->set_url($url);
@@ -37,8 +38,6 @@ $PAGE->set_title($strheading);
 $PAGE->set_heading($strheading);
 
 $PAGE->requires->js_call_amd('core_elementlibrary/pattern_library', 'init');
-
-admin_externalpage_setup('elementlibrary');
 
 // 'Back to top' button.
 $toplink = '';

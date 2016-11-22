@@ -449,6 +449,33 @@ class mod_facetoface_session_form extends moodleform {
             $dates[] = $date;
         }
 
+        if (isset($this->_customdata['session']) && isset($this->_customdata['session']->sessiondates) && count($dates) === count($this->_customdata['session']->sessiondates)) {
+            // Its an existing session with the same number of dates, we are going to need to check if the session dates have been changed.
+            $dateschanged = false;
+            foreach ($dates as $date) {
+                // We need to find each submit date.
+                // If all are found then this submit date has not changed.
+                $datefound = false;
+                foreach ($this->_customdata['session']->sessiondates as $originaldate) {
+                    if ($date->timestart == $originaldate->timestart && $date->timefinish == $originaldate->timefinish) {
+                        // We've found the date.
+                        $datefound = true;
+                        break;
+                    }
+                }
+                // If we didn't find the date, then we know they have changed.
+                if (!$datefound) {
+                    $dateschanged = true;
+                    break;
+                }
+            }
+
+        } else {
+            // There are no previous session dates, or the number of session dates has changed.
+            // Because of this we treat the dates as having changed.
+            $dateschanged = true;
+        }
+
         if(!empty($data['registrationtimestart']) && !empty($data['registrationtimefinish'])) {
             $start = $data['registrationtimestart'];
             $finish = $data['registrationtimefinish'];
@@ -534,7 +561,7 @@ class mod_facetoface_session_form extends moodleform {
             }
         }
 
-        // Check the minimum capacity and cut-off.
+        // Check the minimum capacity.
         $mincapacity = $data['mincapacity'];
         if (!is_numeric($mincapacity) || (intval($mincapacity) != $mincapacity)) {
             $errors['mincapacity'] = get_string('error:mincapacitynotnumeric', 'facetoface');
@@ -544,21 +571,20 @@ class mod_facetoface_session_form extends moodleform {
 
         // Check the cut-off is at least the day before the earliest start time.
         if (!empty($data['sendcapacityemail'])) {
+            // If the cutoff or the dates have changed check the cut-off is at least the day before the earliest start time.
+            // We only want to run this validation if the cutoff period has changed, or if the dates have changed.
             $cutoff = $data['cutoff'];
-            if ($cutoff < DAYSECS) {
-                $errors['cutoffdurationgroup'] = get_string('error:cutofftooclose', 'facetoface');
-            } else {
-                $now = time();
-                foreach ($dates as $dateid => $date) {
-                    // If the date is being deleted then we don't need to test against it.
-                    if (!empty($data['datedelete'][$dateid])) {
-                        continue;
-                    }
-
-                    $cutofftimestamp = $date->timestart - $cutoff;
-                    if ($cutofftimestamp < $now) {
-                        $errors['cutoffdurationgroup'] = get_string('error:cutofftoolate', 'facetoface');
-                        break;
+            if (!isset($this->_customdata['session']->cutoff) || $this->_customdata['session']->cutoff != $cutoff || $dateschanged) {
+                if ($cutoff < DAYSECS) {
+                    $errors['cutoffdurationgroup'] = get_string('error:cutofftooclose', 'facetoface');
+                } else {
+                    $now = time();
+                    foreach ($dates as $dateid => $date) {
+                        $cutofftimestamp = $date->timestart - $cutoff;
+                        if ($cutofftimestamp < $now) {
+                            $errors['cutoffdurationgroup'] = get_string('error:cutofftoolate', 'facetoface');
+                            break;
+                        }
                     }
                 }
             }

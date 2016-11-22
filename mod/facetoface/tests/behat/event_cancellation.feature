@@ -96,7 +96,7 @@ Feature: Seminar event cancellation basic
     And "Delete event" "link" should exist in the "10 February 2025" "table_row"
     And "Edit event" "link" should not exist in the "10 February 2025" "table_row"
 
-    And I navigate to "View and manage events" node in "Site administration > Seminars"
+    And I navigate to "Events report" node in "Site administration > Seminars"
     And I should see "N/A" in the ".session_bookingstatus div span" "css_element"
     And I should see "N/A" in the "Test Seminar" "table_row"
 
@@ -249,7 +249,7 @@ Feature: Seminar event cancellation basic
     And I follow "Course 1"
     And I follow "View all events"
     Then I should see "9:00 AM - 3:00 PM Pacific/Auckland" in the "10 February 2025" "table_row"
-    And I should see date "-10 day" formatted "%d %B %Y"
+    And I should see date "-10 day Pacific/Auckland" formatted "%d %B %Y"
     And I should see "10:00 AM - 4:00 PM Pacific/Auckland"
     And I should see "2 / 39" in the "10:00 AM - 4:00 PM Pacific/Auckland" "table_row"
     And I should see "Event in progress" in the "10:00 AM - 4:00 PM Pacific/Auckland" "table_row"
@@ -264,7 +264,7 @@ Feature: Seminar event cancellation basic
     And I follow "Course 1"
     And I follow "View all events"
     Then I should see "9:00 AM - 3:00 PM Pacific/Auckland" in the "10 February 2025" "table_row"
-    And I should see date "-10 day" formatted "%d %B %Y"
+    And I should see date "-10 day Pacific/Auckland" formatted "%d %B %Y"
     And I should see "10:00 AM - 4:00 PM Pacific/Auckland"
     And I should see "2 / 39" in the "10:00 AM - 4:00 PM Pacific/Auckland" "table_row"
     And I should see "Event in progress" in the "10:00 AM - 4:00 PM Pacific/Auckland" "table_row"
@@ -331,7 +331,7 @@ Feature: Seminar event cancellation basic
 
     When I follow "Go back"
     Then I should see "9:00 AM - 3:00 PM Pacific/Auckland" in the "10 February 2025" "table_row"
-    And I should see date "0 day" formatted "%d %B %Y"
+    And I should see date "0 day Pacific/Auckland" formatted "%d %B %Y"
     And I should see "12:05 AM - 11:55 PM Pacific/Auckland"
     And I should see "2 / 39" in the "12:05 AM - 11:55 PM Pacific/Auckland" "table_row"
     And I should see "Event in progress" in the "12:05 AM - 11:55 PM Pacific/Auckland" "table_row"
@@ -346,7 +346,7 @@ Feature: Seminar event cancellation basic
     And I follow "Course 1"
     And I follow "View all events"
     Then I should see "9:00 AM - 3:00 PM Pacific/Auckland" in the "10 February 2025" "table_row"
-    And I should see date "0 day" formatted "%d %B %Y"
+    And I should see date "0 day Pacific/Auckland" formatted "%d %B %Y"
     And I should see "12:05 AM - 11:55 PM Pacific/Auckland"
     And I should see "2 / 39" in the "12:05 AM - 11:55 PM Pacific/Auckland" "table_row"
     And I should see "Event in progress" in the "12:05 AM - 11:55 PM Pacific/Auckland" "table_row"
@@ -363,19 +363,19 @@ Feature: Seminar event cancellation basic
       | Maximum bookings | 39 |
     And I follow "show-selectdate0-dialog"
     And I fill seminar session with relative date in form data:
-      | sessiontimezone     | Pacific/Auckland |
-      | timestart[day]      | 0                |
-      | timestart[month]    | 0                |
-      | timestart[year]     | 0                |
-      | timestart[hour]     | 1                |
-      | timestart[minute]   | 0                |
-      | timestart[timezone] | Pacific/Auckland |
-      | timefinish[day]     | 0                |
-      | timefinish[month]   | 0                |
-      | timefinish[year]    | 0                |
-      | timefinish[hour]    | 2                |
-      | timefinish[minute]  | 0                |
-      | timefinish[timezone]| Pacific/Auckland |
+      | sessiontimezone     | Australia/Perth |
+      | timestart[day]      | 0               |
+      | timestart[month]    | 0               |
+      | timestart[year]     | 0               |
+      | timestart[hour]     | 1               |
+      | timestart[minute]   | 0               |
+      | timestart[timezone] | Australia/Perth |
+      | timefinish[day]     | 0               |
+      | timefinish[month]   | 0               |
+      | timefinish[year]    | 0               |
+      | timefinish[hour]    | 2               |
+      | timefinish[minute]  | 0               |
+      | timefinish[timezone]| Australia/Perth |
     And I press "OK"
     And I press "Save changes"
 
@@ -391,7 +391,7 @@ Feature: Seminar event cancellation basic
     And I press "Confirm"
 
     When I follow "Go back"
-    Then I should see date "0 day" formatted "%d %B %Y"
+    Then I should see date "0 day Australia/Perth" formatted "%d %B %Y"
     And I should see "Booking open"
     And I should see "2 / 39" in the "Booking open" "table_row"
     And "Cancel event" "link" should exist in the "2 / 39" "table_row"
@@ -413,23 +413,23 @@ Feature: Seminar event cancellation basic
       | Maximum bookings | 39 |
     And I follow "show-selectdate0-dialog"
     And I fill seminar session with relative date in form data:
-      | sessiontimezone     | Pacific/Auckland |
-      | timestart[day]      | 0                |
-      | timestart[month]    | 0                |
-      | timestart[year]     | 0                |
-      | timestart[hour]     | -2               |
-      | timestart[minute]   | 0                |
-      | timestart[timezone] | Pacific/Auckland |
-      | timefinish[day]     | 0                |
-      | timefinish[month]   | 0                |
-      | timefinish[year]    | 0                |
-      | timefinish[hour]    | 2                |
-      | timefinish[minute]  | 0                |
-      | timefinish[timezone]| Pacific/Auckland |
+      | sessiontimezone     | Australia/Perth |
+      | timestart[day]      | 0               |
+      | timestart[month]    | 0               |
+      | timestart[year]     | 0               |
+      | timestart[hour]     | -2              |
+      | timestart[minute]   | 0               |
+      | timestart[timezone] | Australia/Perth |
+      | timefinish[day]     | 0               |
+      | timefinish[month]   | 0               |
+      | timefinish[year]    | 0               |
+      | timefinish[hour]    | 2               |
+      | timefinish[minute]  | 0               |
+      | timefinish[timezone]| Australia/Perth |
     And I press "OK"
 
     When I press "Save changes"
-    Then I should see date "0 day" formatted "%d %B %Y"
+    Then I should see date "0 day Australia/Perth" formatted "%d %B %Y"
     And I should see "Event in progress"
     And I should see "0 / 39" in the "Event in progress" "table_row"
     And "Cancel event" "link" should not exist in the "Event in progress" "table_row"
@@ -463,7 +463,7 @@ Feature: Seminar event cancellation basic
 
     When I click on "Cancel event" "link" in the "Booking open" "table_row"
     And I press "Yes"
-    Then I should see date "10 day" formatted "%d %B %Y"
+    Then I should see date "10 day Pacific/Auckland" formatted "%d %B %Y"
     And I should see "Event cancelled" in the "0 / 39" "table_row"
     And I should see "Sign-up unavailable" in the "Event cancelled" "table_row"
     And "Cancel event" "link" should not exist in the "Event cancelled" "table_row"

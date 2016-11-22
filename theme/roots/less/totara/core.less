@@ -784,56 +784,52 @@ a.skip:active {
 }
 
 .mod-indent-outer {
-  display: table;
-}
-.mod-indent {
-  display: table-cell;
-}
-.mod-indent-1 {
-  width: 30px;
-}
-.mod-indent-2 {
-  width: 60px;
-}
-.mod-indent-3 {
-  width: 90px;
-}
-.mod-indent-4 {
-  width: 120px;
-}
-.mod-indent-5 {
-  width: 150px;
-}
-.mod-indent-6 {
-  width: 180px;
-}
-.mod-indent-7 {
-  width: 210px;
-}
-.mod-indent-8 {
-  width: 240px;
-}
-.mod-indent-9 {
-  width: 270px;
-}
-.mod-indent-10 {
-  width: 300px;
-}
-.mod-indent-11 {
-  width: 330px;
-}
-.mod-indent-12 {
-  width: 360px;
-}
-.mod-indent-13 {
-  width: 390px;
-}
-.mod-indent-14 {
-  width: 420px;
-}
-.mod-indent-15,
-.mod-indent-huge {
-  width: 420px;
+  > .mod-indent-1 + div {
+    margin-left: 30px;
+  }
+  > .mod-indent-2 + div {
+    margin-left: 60px;
+  }
+  > .mod-indent-3 + div {
+    margin-left: 90px;
+  }
+  > .mod-indent-4 + div {
+    margin-left: 120px;
+  }
+  > .mod-indent-5 + div {
+    margin-left: 150px;
+  }
+  > .mod-indent-6 + div {
+    margin-left: 180px;
+  }
+  > .mod-indent-7 + div {
+    margin-left: 210px;
+  }
+  > .mod-indent-8 + div {
+    margin-left: 240px;
+  }
+  > .mod-indent-9 + div {
+    margin-left: 270px;
+  }
+  > .mod-indent-10 + div {
+    margin-left: 300px;
+  }
+  > .mod-indent-11 + div {
+    margin-left: 330px;
+  }
+  > .mod-indent-12 + div {
+    margin-left: 360px;
+  }
+  > .mod-indent-13 + div {
+    margin-left: 390px;
+  }
+  > .mod-indent-14 + div {
+    margin-left: 420px;
+  }
+  > .mod-indent-15 + div,
+  > .mod-indent-huge + div {
+    margin-left: 450px;
+  }
 }
 
 /* Audio player size in 'block' mode (can only change width, height is hardcoded in JS) */
@@ -1506,6 +1502,14 @@ ul.dragdrop-keyboard-drag li {
   .usermenu > .login {
     line-height: @line-height-computed * 2;
   }
+
+  .navbar-toggle {
+    margin: 0 @padding-large-horizontal;
+  }
+}
+
+.navbar-header:last-child {
+  padding-top: ceil(@navbar-padding-vertical * 1.25);
 }
 
 // Undo styles applied earlier in this file affecting

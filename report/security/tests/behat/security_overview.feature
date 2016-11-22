@@ -99,3 +99,19 @@ Feature: security overview
     # Check the status is shown as Critical
     Given I navigate to "Security overview" node in "Site administration > Reports"
     And I should see "Critical" in the "Frontpage role" "table_row"
+
+  @javascript
+  Scenario: Check that the Critical status is displayed when httponly is disabled
+
+    # To start with the security setting is off
+    Given I navigate to "Security overview" node in "Site administration > Reports"
+    And I should see "Serious" in the "HTTP only cookies" "table_row"
+
+    # Now change to create an OK status
+    # For this I need to enable the httponly setting.
+    Given the following config values are set as admin:
+      | cookiehttponly | 1 |
+
+    # Check the status is OK now
+    Given I navigate to "Security overview" node in "Site administration > Reports"
+    And I should see "OK" in the "HTTP only cookies" "table_row"

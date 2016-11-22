@@ -784,7 +784,7 @@ if ($show_table) {
         if ($actions) {
             echo $OUTPUT->container_start('actions last');
             // Action selector
-            echo html_writer::label(get_string('attendeeactions', 'mod_facetoface'), 'f2f-actions', true, array('class' => 'sr-only'));
+            echo html_writer::label(get_string('attendeeactions', 'mod_facetoface'), 'menuf2f-actions', true, array('class' => 'sr-only'));
             echo html_writer::select($actions, 'f2f-actions', '', array('' => get_string('actions')));
             if ($action == 'waitlist') {
                 echo $OUTPUT->help_icon('f2f-waitlist-actions', 'mod_facetoface');
@@ -1054,8 +1054,8 @@ if ($show_table) {
                 $cancelstatus = new stdClass();
                 $cancelstatus->id = $attendee->submissionid;
                 $cancellationnote = customfield_get_data($cancelstatus, 'facetoface_cancellation', 'facetofacecancellation', false);
-
-                $cancellationnotetext = empty($cancellationnote) ? '' : $cancellationnote['cancellationnote'];
+                // Verify 'cancellation note' custom filed is not deleted.
+                $cancellationnotetext = isset($cancellationnote['cancellationnote']) ? $cancellationnote['cancellationnote'] : '';
                 if (!$download) {
                     $data[] = $icon . html_writer::span($cancellationnotetext, 'cancellationnote' . $attendee->id, array('id' => 'cancellationnote' . $attendee->id));
                 } else {
@@ -1178,7 +1178,7 @@ if ($show_table) {
         if ($exports) {
             echo $OUTPUT->container_start('actions last');
             // Action selector.
-            echo html_writer::label(get_string('attendeeactions', 'mod_facetoface'), 'f2f-actions', true, array('class' => 'sr-only'));
+            echo html_writer::label(get_string('attendeeactions', 'mod_facetoface'), 'menuf2f-actions', true, array('class' => 'sr-only'));
             echo html_writer::select($exports, 'f2f-actions', '', array('' => get_string('export', 'totara_reportbuilder')));
             echo $OUTPUT->container_end();
         }

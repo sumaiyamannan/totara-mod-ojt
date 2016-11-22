@@ -33,9 +33,7 @@
 .f2factivityname {
     line-height:1.5;
 }
-.facetoface .mod-indent-outer {
-    display: block;
-}
+
 span.errorstring {
     font-size: 12px;
     line-height: 18px;
@@ -281,4 +279,8 @@ ul.assetlist {
 
 .f2f-ignoreconflicts-checkbox {
     padding: 10px;
+}
+
+.f2f-usersbox {
+    margin-bottom: 48px;
 }

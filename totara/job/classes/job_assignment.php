@@ -877,7 +877,7 @@ class job_assignment {
         $msgparams = (object)array(
             'staffmember' => fullname($user),
             'tempmanager' => fullname($newtempmanager),
-            'expirytime' => userdate($this->tempmanagerexpirydate, get_string('datepickerlongyearphpuserdate', 'totara_core')),
+            'expirytime' => userdate($this->tempmanagerexpirydate, get_string('strftimedatefulllong', 'langconfig')),
             'url' => $msg->contexturl
         );
 

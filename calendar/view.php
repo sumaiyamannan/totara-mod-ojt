@@ -79,6 +79,8 @@ $url->param('time', $time);
 
 $PAGE->set_url($url);
 
+$calendar = new calendar_information(0, 0, 0, $time);
+
 if ($courseid != SITEID && !empty($courseid)) {
     $course = $DB->get_record('course', array('id' => $courseid));
     $courses = array($course->id => $course);
@@ -86,13 +88,12 @@ if ($courseid != SITEID && !empty($courseid)) {
     navigation_node::override_active_url(new moodle_url('/course/view.php', array('id' => $course->id)));
 } else {
     $course = get_site();
-    $courses = calendar_get_default_courses();
+    $courses = $calendar->get_default_courses($view);
     $issite = true;
 }
 
 require_course_login($course);
 
-$calendar = new calendar_information(0, 0, 0, $time);
 $calendar->prepare_for_view($course, $courses);
 
 $pagetitle = '';

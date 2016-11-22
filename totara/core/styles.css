@@ -53,16 +53,6 @@ table.namewithlinks-layout {
     width: 100%;
 }
 
-.block_totara_my_team_nav .content span {
-    padding-left: 5px;
-    font-style: italic;
-}
-
-.block_totara_my_team_nav a img.smallicon {
-    height: auto;
-    width: auto;
-}
-
 ul.reportmanager {
     margin: 0;
     list-style-type: none;

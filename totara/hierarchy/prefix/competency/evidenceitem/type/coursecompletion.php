@@ -81,9 +81,6 @@ class competency_evidence_type_coursecompletion extends competency_evidence_type
 
         global $CFG, $DB;
 
-        // Only select course completions that have changed
-        // since an evidence item evidence was last changed
-        //
         // A note on the sub-query, it returns:
         //   scaleid | proficient
         // where proficient is the ID of the lowest scale
@@ -113,7 +110,8 @@ class competency_evidence_type_coursecompletion extends competency_evidence_type
              ON ccrit.iteminstance = c.id
             INNER JOIN
                 {course_completions} cc
-            ON cc.course = c.id
+              ON cc.course = c.id
+             AND cc.timecompleted IS NOT NULL
             INNER JOIN
                 {comp_scale_assignments} csa
             ON co.frameworkid = csa.frameworkid
@@ -144,15 +142,7 @@ class competency_evidence_type_coursecompletion extends competency_evidence_type
             AND proficient.proficient IS NOT NULL
             AND
             (
-                (
                 ccr.proficiencymeasured <> proficient.proficient
-                AND
-                    (
-                        ccr.timemodified < cc.timecompleted
-                     OR ccr.timemodified < cc.timeenrolled
-                     OR ccr.timemodified < cc.timestarted
-                    )
-                )
              OR ccr.proficiencymeasured IS NULL
             )
         ";
