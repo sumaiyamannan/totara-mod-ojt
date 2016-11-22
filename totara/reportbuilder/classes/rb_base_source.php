@@ -5751,4 +5751,27 @@ abstract class rb_base_source {
     public function get_custom_export_header(reportbuilder $report, $format) {
         return null;
     }
+
+    /**
+     * Inject column_test data into database.
+     * @param totara_reportbuilder_column_testcase $testcase
+     */
+    public function phpunit_column_test_add_data(totara_reportbuilder_column_testcase $testcase) {
+       if (!PHPUNIT_TEST) {
+           throw new coding_exception('phpunit_prepare_test_data() cannot be used outside of unit tests');
+       }
+       // Nothing to do by default.
+    }
+
+    /**
+     * Returns expected result for column_test.
+     * @param rb_column_option $columnoption
+     * @return int
+     */
+    public function phpunit_column_test_expected_count($columnoption) {
+        if (!PHPUNIT_TEST) {
+            throw new coding_exception('phpunit_column_test_expected_count() cannot be used outside of unit tests');
+        }
+        return 1;
+    }
 }
