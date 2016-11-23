@@ -81,6 +81,7 @@ abstract class qtype_multichoice_base extends question_graded_automatically {
             $a->feedback = '';
             $a->feedbackformat = FORMAT_HTML;
             $this->answers[$ansid] = $this->qtype->make_answer($a);
+            $this->answers[$ansid]->isdeletedchoice = true;
             $this->answers[$ansid]->answerformat = FORMAT_HTML;
         }
     }
@@ -192,6 +193,12 @@ class qtype_multichoice_single_question extends qtype_multichoice_base {
         }
         $choiceid = $this->order[$response['answer']];
         $ans = $this->answers[$choiceid];
+
+        // Deleted choice.
+        if (isset($ans->isdeletedchoice) && $ans->isdeletedchoice === true) {
+            return array($this->id => question_classified_response::no_response());
+        }
+
         return array($this->id => new question_classified_response($choiceid,
                 $this->html_to_text($ans->answer, $ans->answerformat), $ans->fraction));
     }
