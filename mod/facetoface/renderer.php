@@ -439,7 +439,17 @@ class mod_facetoface_renderer extends plugin_renderer_base {
             $options .= $reservelink;
         }
 
-        if (!empty($signuplink)) {
+        $showsignuplink = true;
+        // If Seminar enrolment plugin is not enabled check visibility of the activity.
+        if (!enrol_is_enabled('totara_facetoface')) {
+            // Check visibility of activity (includes visible flag, conditional availability, etc) before adding Sign up link.
+            $cm = get_coursemodule_from_instance('facetoface', $session->facetoface);
+            $modinfo = get_fast_modinfo($cm->course);
+            $cm = $modinfo->get_cm($cm->id);
+            $showsignuplink = $cm->uservisible;
+        }
+
+        if (!empty($signuplink) && $showsignuplink) {
             $options .= $signuplink;
         }
 

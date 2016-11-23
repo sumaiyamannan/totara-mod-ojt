@@ -36,6 +36,8 @@ class enrol_totara_facetoface_session_order_by_time_testcase extends advanced_te
         $facetoface = $this->getDataGenerator()->create_module('facetoface', array('course' => $course->id));
 
         $totara_facetoface = enrol_get_plugin('totara_facetoface');
+        $fields = array('name' => 'facetoface_enrolment', 'status' => 0, 'roleid' => 0, 'customint6' => 1);
+        $totara_facetoface->add_instance($course, $fields);
 
         // Session 1
         $session = new stdClass();

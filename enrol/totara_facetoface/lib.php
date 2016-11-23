@@ -1075,6 +1075,17 @@ class enrol_totara_facetoface_plugin extends enrol_plugin {
     public function get_enrolable_sessions($courseid, $user = null, $facetofaceid = null, $ignoreapprovals = false) {
         global $DB, $USER;
 
+        // First of all check if the plugin is enable site wide.
+        if (!enrol_is_enabled('totara_facetoface')) {
+            return array();
+        }
+
+        // Check the plugin is enable for the course, otherwise return empty array.
+        $enrolmentparams = array('courseid' => $courseid,
+            'enrol' => 'totara_facetoface', 'status' => ENROL_INSTANCE_ENABLED, 'customint6' => 1);
+        if ($courseid !== null && !$DB->record_exists('enrol', $enrolmentparams)) {
+            return array();
+        }
         if ($user === null) {
             $user = $USER;
         }

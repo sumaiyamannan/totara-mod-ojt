@@ -1039,6 +1039,9 @@ class enrol_totara_facetoface_testcase extends advanced_testcase {
         $sessionsnottoautoenrol[] = $session;
 
         $totara_facetoface = enrol_get_plugin('totara_facetoface');
+        $fields = array('name' => 'facetoface_enrolment', 'status' => 0, 'roleid' => 0, 'customint6' => 1);
+        $totara_facetoface->add_instance($course1, $fields);
+
         $sessions = enrol_totara_facetoface_get_sessions_to_autoenrol($totara_facetoface, $course1, $facetofaces, $user2);
 
         foreach ($sessionstoautoenrol as $session) {
