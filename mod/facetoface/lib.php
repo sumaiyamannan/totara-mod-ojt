@@ -6804,7 +6804,9 @@ function facetoface_output_user_for_selection(stdClass $user, array $extrafields
         }
         // This little bit of hardcoding is pretty bad, but its consistent with how Seminar was working and as this
         // change was made right before release we wanted to keep it consistent.
-        $out .= ', ' . implode(', ', $displayfields);
+        if (!empty($displayfields)) {
+            $out .= ', ' . implode(', ', $displayfields);
+        }
     }
     return $out;
 }
