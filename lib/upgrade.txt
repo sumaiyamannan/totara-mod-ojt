@@ -3,6 +3,8 @@ information provided here is intended especially for developers.
 
 === 9.2 ===
 * theme_config::get_all_block_regions() added argument $pagelayout
+* lib/templates/flex_icon.mustache context variable has changed, the property ->customdata->title sets the title of the flex icon
+* lib/templates/flex_icon_stack.mustache context variable has changed, the property ->customdata->title sets the title of the flex icon
 
 === 3.0.5 ==
 

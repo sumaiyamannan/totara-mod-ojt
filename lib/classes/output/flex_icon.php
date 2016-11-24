@@ -110,8 +110,12 @@ class flex_icon extends \pix_icon {
     public function export_for_template(\renderer_base $output) {
         global $PAGE;
         $icondata = flex_icon_helper::get_data_by_identifier($PAGE->theme->name, $this->identifier);
+        if(!isset($this->customdata['title']) && isset($this->customdata['alt'])) {
+            $this->customdata['title'] = $this->customdata['alt'];
+        }
         $icondata['identifier'] = $this->identifier;
         $icondata['customdata'] = $this->customdata;
+
         return $icondata;
     }
 
