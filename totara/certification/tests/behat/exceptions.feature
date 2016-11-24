@@ -21,7 +21,8 @@ Feature: Generation of certification assignment exceptions
       | Certification Exception Tests  | exctest   |
     And I log in as "admin"
     And I set the following administration settings values:
-      | menulifetime | 0 |
+      | menulifetime   | 0       |
+      | enableprograms | Disable |
     # Get back the removed dashboard item for now.
     And I navigate to "Main menu" node in "Site administration > Appearance"
     And I click on "Edit" "link" in the "Required Learning" "table_row"

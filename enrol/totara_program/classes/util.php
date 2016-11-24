@@ -41,7 +41,7 @@ class enrol_totara_program_util {
         $resetcaches = false;
         $enabled = explode(',', $CFG->enrol_plugins_enabled);
 
-        if (totara_feature_visible('programs')) {
+        if (totara_feature_visible('programs') || totara_feature_visible('certifications')) {
             // Make sure the program enrol plugin is enabled.
             if (!in_array('totara_program', $enabled)) {
                 $enabled[] = 'totara_program';

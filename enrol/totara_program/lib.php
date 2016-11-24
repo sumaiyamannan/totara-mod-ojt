@@ -34,7 +34,7 @@ class enrol_totara_program_plugin extends enrol_plugin {
     public function get_newinstance_link($courseid) {
         global $DB;
 
-        if (!totara_feature_visible('programs')) {
+        if (!totara_feature_visible('programs') && !totara_feature_visible('certifications')) {
             return null;
         }
 
@@ -58,9 +58,9 @@ class enrol_totara_program_plugin extends enrol_plugin {
      * @return bool
      */
     public function can_delete_instance($instance) {
-        if (!totara_feature_visible('programs')) {
+        if (!totara_feature_visible('programs') && !totara_feature_visible('certifications')) {
             // Allow deleting only when programs disabled so that they can get rid of preexisting
-            // ebrolemnts before the programs were disabled.
+            // enrolemnts before the programs were disabled.
             $context = context_course::instance($instance->courseid);
             return has_capability('enrol/totara_program:unenrol', $context);
         }
@@ -74,7 +74,7 @@ class enrol_totara_program_plugin extends enrol_plugin {
      * @return int id of new instance, null if can not be created
      */
     public function add_default_instance($course) {
-        if (!totara_feature_visible('programs')) {
+        if (!totara_feature_visible('programs') && !totara_feature_visible('certifications')) {
             return null;
         }
 
@@ -216,7 +216,7 @@ class enrol_totara_program_plugin extends enrol_plugin {
     public function try_autoenrol(stdClass $instance) {
         global $CFG, $USER, $DB;
 
-        if (!totara_feature_visible('programs')) {
+        if (!totara_feature_visible('programs') && !totara_feature_visible('certifications')) {
             return false;
         }
 

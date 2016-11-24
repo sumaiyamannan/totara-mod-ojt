@@ -64,6 +64,9 @@ class totara_program_messages_testcase extends reportcache_advanced_testcase {
         $this->resetAfterTest(true);
         $this->setAdminUser();
 
+        // Turn off certifications. This is to test that it doesn't interfere with program completion.
+        set_config('enablecertifications', TOTARA_DISABLEFEATURE);
+
         $this->program_generator = $this->getDataGenerator()->get_plugin_generator('totara_program');
 
         // Function in lib/moodlelib.php email_to_user require this.

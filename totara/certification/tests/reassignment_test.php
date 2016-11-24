@@ -48,11 +48,12 @@ class totara_certification_reassignments_testcase extends reportcache_advanced_t
      * Setup.
      */
     public function setUp() {
-        global $CFG;
-
         parent::setup();
 
         $this->resetAfterTest(true);
+
+        // Turn off programs. This is to test that it doesn't interfere with certification completion.
+        set_config('enableprograms', TOTARA_DISABLEFEATURE);
 
         $this->task = new \totara_certification\task\update_certification_task();
 

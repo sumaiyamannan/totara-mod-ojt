@@ -62,6 +62,9 @@ class totara_certification_messages_testcase extends reportcache_advanced_testca
         $this->resetAfterTest(true);
         $this->setAdminUser();
 
+        // Turn off programs. This is to test that it doesn't interfere with certification completion.
+        set_config('enableprograms', TOTARA_DISABLEFEATURE);
+
         // Create users.
         $this->assertEquals(2, $DB->count_records('user'));
         $this->user1 = $this->getDataGenerator()->create_user();

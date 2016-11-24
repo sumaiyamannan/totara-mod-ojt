@@ -19,7 +19,8 @@ Feature: Certification completion date is based on course completion time
   Scenario: Changing completion of face-to-face to later time does not lead to invalid state
     Given I log in as "admin"
     And I set the following administration settings values:
-      | enableprogramcompletioneditor | 1 |
+      | enableprogramcompletioneditor | 1       |
+      | enableprograms                | Disable |
     And I click on "Certifications" in the totara menu
     And I follow "Certification One"
     And I press "Edit certification details"

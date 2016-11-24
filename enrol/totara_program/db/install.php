@@ -27,7 +27,7 @@ defined('MOODLE_INTERNAL') || die();
 function xmldb_enrol_totara_program_install() {
     global $CFG, $DB;
 
-    if (!totara_feature_visible('programs')) {
+    if (!totara_feature_visible('programs') && !totara_feature_visible('certifications')) {
         return;
     }
 
