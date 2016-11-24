@@ -498,14 +498,21 @@ class rb_source_dp_program extends rb_base_source {
         );
 
         $requiredcolumns[] = new rb_column(
-            'base',
+            'visibility',
+            'id',
+            '',
+            "base.id"
+        );
+
+        $requiredcolumns[] = new rb_column(
+            'visibility',
             'visible',
             '',
             "base.visible"
         );
 
         $requiredcolumns[] = new rb_column(
-            'base',
+            'visibility',
             'audiencevisible',
             '',
             "base.audiencevisible"
@@ -538,12 +545,8 @@ class rb_source_dp_program extends rb_base_source {
     public function post_config(reportbuilder $report) {
         // Visibility checks are only applied if viewing a single user's records.
         if ($report->get_param_value('userid')) {
-            $fieldalias = 'base';
-            $fieldbaseid = $report->get_field('base', 'id', 'base.id');
-            $fieldvisible = $report->get_field('base', 'visible', 'base.visible');
-            $fieldaudvis = $report->get_field('base', 'audiencevisible', 'base.audiencevisible');
-            $report->set_post_config_restrictions(totara_visibility_where($report->get_param_value('userid'),
-                $fieldbaseid, $fieldvisible, $fieldaudvis, $fieldalias, 'program', $report->is_cached(), true));
+            $report->set_post_config_restrictions($report->post_config_visibility_where('program', 'base',
+                $report->get_param_value('userid'), true));
         }
     }
 

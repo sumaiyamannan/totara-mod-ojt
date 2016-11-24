@@ -626,16 +626,24 @@ class rb_source_dp_course extends rb_base_source {
         $requiredcolumns = array();
 
         $requiredcolumns[] = new rb_column(
-            'course',
-            'coursevisible',
+            'visibility',
+            'id',
+            '',
+            "course.id",
+            array('joins' => 'course')
+        );
+
+        $requiredcolumns[] = new rb_column(
+            'visibility',
+            'visible',
             '',
             "course.visible",
             array('joins' => 'course')
         );
 
         $requiredcolumns[] = new rb_column(
-            'course',
-            'courseaudiencevisible',
+            'visibility',
+            'audiencevisible',
             '',
             "course.audiencevisible",
             array('joins' => 'course')
@@ -655,12 +663,8 @@ class rb_source_dp_course extends rb_base_source {
     public function post_config(reportbuilder $report) {
         // Visibility checks are only applied if viewing a single user's records.
         if ($report->get_param_value('userid')) {
-            $fieldalias = 'course';
-            $fieldbaseid = $report->get_field('course', 'id', 'base.courseid');
-            $fieldvisible = $report->get_field('course', 'visible', 'course.visible');
-            $fieldaudvis = $report->get_field('course', 'audiencevisible', 'course.audiencevisible');
-            $report->set_post_config_restrictions(totara_visibility_where($report->get_param_value('userid'),
-                $fieldbaseid, $fieldvisible, $fieldaudvis, $fieldalias, 'course', $report->is_cached(), true));
+            $report->set_post_config_restrictions($report->post_config_visibility_where('course', 'course',
+                $report->get_param_value('userid'), true));
         }
     }
 

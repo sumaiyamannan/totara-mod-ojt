@@ -4946,6 +4946,70 @@ class reportbuilder {
         }
         return $this->_post_config_restrictions;
     }
+
+    /**
+     * Calculate the sql and params for visibility of courses, programs or certifications.
+     *
+     * This function performs checks to ensure that the required columns have been defined. If they haven't,
+     * you'll get an exception when the report is instantiated.
+     *
+     * @param string $type course, program or certification.
+     * @param string $table Table alias matching $type
+     * @param int $userid The user that the results should be restricted for. Defaults to current user.
+     * @param bool $showhidden If using normal visibility, show items even if they are hidden.
+     * @param string $fieldid Field name of the id in $table
+     * @param string $fieldvisible
+     * @param string $fieldaudiencevisible
+     * @return array
+     */
+    public function post_config_visibility_where($type, $table, $userid = null, $showhidden = false, $fieldid = 'id',
+                                                 $fieldvisible = 'visible', $fieldaudiencevisible = 'audiencevisible') {
+        // Check that the required columns are all defined.
+        if (empty($this->requiredcolumns['visibility-' . $fieldid]) ||
+            $this->requiredcolumns['visibility-' . $fieldid]->field != $table . '.' . $fieldid) {
+            throw new moodle_exception('Report is missing required column visibility id or field is incorrect');
+        }
+
+        if (empty($this->requiredcolumns['visibility-' . $fieldvisible]) ||
+            $this->requiredcolumns['visibility-' . $fieldvisible]->field != $table . '.' . $fieldvisible) {
+            throw new moodle_exception('Report is missing required column visibility visible or field is incorrect');
+        }
+
+        if (empty($this->requiredcolumns['visibility-' . $fieldaudiencevisible]) ||
+            $this->requiredcolumns['visibility-' . $fieldaudiencevisible]->field != $table . '.' . $fieldaudiencevisible) {
+            throw new moodle_exception('Report is missing required column visibility audiencevisible or field is incorrect');
+        }
+
+        if (empty($this->requiredcolumns['ctx-id']) ||
+            $this->requiredcolumns['ctx-id']->field != 'ctx.id') {
+            throw new moodle_exception('Report is missing required column ctx id or field is incorrect');
+        }
+
+        if ($type == 'program' || $type == 'certification') {
+            if (empty($this->requiredcolumns[$table . '-available']) ||
+                $this->requiredcolumns[$table . '-available']->field != $table . '.available') {
+                throw new moodle_exception("Report is missing required column {$table} available or field is incorrect");
+            }
+
+            if (empty($this->requiredcolumns[$table . '-availablefrom']) ||
+                $this->requiredcolumns[$table . '-availablefrom']->field != $table . '.availablefrom') {
+                throw new moodle_exception("Report is missing required column {$table} availablefrom or field is incorrect");
+            }
+
+            if (empty($this->requiredcolumns[$table . '-availableuntil']) ||
+                $this->requiredcolumns[$table . '-availableuntil']->field != $table . '.availableuntil') {
+                throw new moodle_exception("Report is missing required column {$table} availableuntil or field is incorrect");
+            }
+        }
+
+        // Calculate the correct field names including table alias.
+        $id = $this->get_field('visibility', $fieldid, $table . '.' . $fieldid);
+        $vis = $this->get_field('visibility', $fieldvisible, $table . '.' . $fieldvisible);
+        $audvis = $this->get_field('visibility', $fieldaudiencevisible, $table . '.' . $fieldaudiencevisible);
+
+        // Get the sql and params and return them.
+        return totara_visibility_where($userid, $id, $vis, $audvis, $table, $type, $this->is_cached(), $showhidden);
+    }
 } // End of reportbuilder class
 
 class ReportBuilderException extends \Exception { }

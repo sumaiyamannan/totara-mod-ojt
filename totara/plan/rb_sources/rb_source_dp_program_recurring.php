@@ -378,7 +378,15 @@ class rb_source_dp_program_recurring extends rb_base_source {
         );
 
         $requiredcolumns[] = new rb_column(
-            'prog',
+            'visibility',
+            'id',
+            '',
+            "prog.id",
+            array('joins' => 'prog')
+        );
+
+        $requiredcolumns[] = new rb_column(
+            'visibility',
             'visible',
             '',
             "prog.visible",
@@ -386,7 +394,7 @@ class rb_source_dp_program_recurring extends rb_base_source {
         );
 
         $requiredcolumns[] = new rb_column(
-            'prog',
+            'visibility',
             'audiencevisible',
             '',
             "prog.audiencevisible",
@@ -423,12 +431,8 @@ class rb_source_dp_program_recurring extends rb_base_source {
     public function post_config(reportbuilder $report) {
         // Visibility checks are only applied if viewing a single user's records.
         if ($report->get_param_value('userid')) {
-            $fieldalias = 'prog';
-            $fieldbaseid = $report->get_field('prog', 'id', 'base.id');
-            $fieldvisible = $report->get_field('prog', 'visible', 'prog.visible');
-            $fieldaudvis = $report->get_field('prog', 'audiencevisible', 'prog.audiencevisible');
-            $report->set_post_config_restrictions(totara_visibility_where($report->get_param_value('userid'),
-                $fieldbaseid, $fieldvisible, $fieldaudvis, $fieldalias, 'program', $report->is_cached(), true));
+            $report->set_post_config_restrictions($report->post_config_visibility_where('program', 'prog',
+                $report->get_param_value('userid'), true));
         }
     }
 

@@ -2232,19 +2232,12 @@ function prog_is_inprogress($progid, $userid) {
 /**
  * Snippet to determine if a program is available based on the available fields.
  *
- * @param $fieldalias Alias for the program table used in the query
- * @param $separator Character separator between the alias and the field name
- * @param int|null $userid The user ID that wants to see the program
+ * @param string $fieldalias Alias for the program table used in the query
+ * @param string $separator Character separator between the alias and the field name
+ * @param int|null $userid The user ID that wants to see the program (Unused)
  * @return array
  */
 function get_programs_availability_sql($fieldalias, $separator, $userid = null) {
-    global $DB, $USER;
-
-    if (empty($userid)) {
-        $userid = $USER->id;
-    }
-
-    $user = $DB->get_record('user', array('id' => $userid));
     $now = time();
 
     $availabilitysql = " (({$fieldalias}{$separator}available = :available) AND
