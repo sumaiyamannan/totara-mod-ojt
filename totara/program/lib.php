@@ -882,7 +882,7 @@ function prog_can_enter_course($user, $course) {
     $get_programs = "
         SELECT p.*
           FROM {prog} p
-          WHERE p.available = ?
+          WHERE p.available = :avl
           AND (
               p.id IN
               (
@@ -890,10 +890,10 @@ function prog_can_enter_course($user, $course) {
                   FROM {dp_plan_program_assign} pc
             INNER JOIN {dp_plan} pln ON pln.id = pc.planid
              LEFT JOIN {prog_courseset} pcs ON pc.programid = pcs.programid
-             LEFT JOIN {prog_courseset_course} pcsc ON pcs.id = pcsc.coursesetid AND pcsc.courseid = ?
-                 WHERE pc.approved >= ?
-                   AND pln.userid = ?
-                   AND pln.status = ?
+             LEFT JOIN {prog_courseset_course} pcsc ON pcs.id = pcsc.coursesetid AND pcsc.courseid = :cid
+                 WHERE pc.approved >= :app
+                   AND pln.userid = :uid
+                   AND pln.status >= :stat
              )
             OR p.id IN
              (
@@ -902,14 +902,21 @@ function prog_can_enter_course($user, $course) {
              LEFT JOIN {prog_completion} pc
                     ON pua.programid = pc.programid AND pua.userid = pc.userid
              LEFT JOIN {prog_courseset} pcs ON pua.programid = pcs.programid
-             LEFT JOIN {prog_courseset_course} pcsc ON pcs.id = pcsc.coursesetid AND pcsc.courseid = ?
-                 WHERE pua.userid = ?
-                   AND pc.coursesetid = ?
-                   AND (pc.timedue = ?
-                        OR pc.status <> ? )
+             LEFT JOIN {prog_courseset_course} pcsc ON pcs.id = pcsc.coursesetid AND pcsc.courseid = :c2id
+                 WHERE pua.userid = :u2id
+                   AND pc.coursesetid = :csid
              ))
     ";
-    $params = array(AVAILABILITY_TO_STUDENTS, $course->id, DP_APPROVAL_APPROVED, $user->id, DP_PLAN_STATUS_APPROVED, $course->id, $user->id, 0, COMPLETION_TIME_NOT_SET, STATUS_PROGRAM_COMPLETE);
+    $params = array(
+        'avl'  => AVAILABILITY_TO_STUDENTS,
+        'cid'  => $course->id,
+        'app'  => DP_APPROVAL_APPROVED,
+        'uid'  => $user->id,
+        'stat' => DP_PLAN_STATUS_APPROVED,
+        'c2id' => $course->id,
+        'u2id' => $user->id,
+        'csid' => 0
+    );
     $program_records = $DB->get_records_sql($get_programs, $params);
 
     if (!empty($program_records)) {
