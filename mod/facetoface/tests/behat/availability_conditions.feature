@@ -67,7 +67,7 @@ Feature: Seminar availability based on activity completion
     Then I should see "Not available unless: The activity Certificate 1 is marked complete"
     And I should not see "Sign-up"
 
-    When I press "Mark as complete: Certificate 1"
+    When I click on "Not completed: Certificate 1. Select to mark as complete." "link"
     Then I should see "Sign-up"
     And I log out
 
@@ -86,7 +86,7 @@ Feature: Seminar availability based on activity completion
     Then I should see "Not available unless: The activity Certificate 1 is marked complete"
     And I should not see "Join waitlist"
 
-    When I press "Mark as complete: Certificate 1"
+    When I click on "Not completed: Certificate 1. Select to mark as complete." "link"
     Then I should see "Join waitlist"
     And I log out
 

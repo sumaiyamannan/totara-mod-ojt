@@ -455,13 +455,14 @@
 .path-course-view li.activity form.togglecompletion img {
     max-width: none; /* The width is 0 so ensure we don't end up with a relative max-width */
 }
-.path-course-view li.activity form.togglecompletion .ajaxworking {
-    width: 16px;
-    height: 16px;
-    position: absolute;
-    right: 22px;
-    top: 3px;
-    background: url([[pix:i/ajaxloader]]) no-repeat;
+.jsenabled .togglecompletion {
+    display: none;
+}
+.completion-icon {
+    display: none;
+}
+.jsenabled .completion-icon {
+    display: inline;
 }
 .dir-rtl.path-course-view .completionprogress {
     float: none;
