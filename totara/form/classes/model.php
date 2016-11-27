@@ -665,6 +665,9 @@ class model implements item {
      * @return array empty when no data present
      */
     public function get_current_data($elname) {
+        if (!isset($elname)) {
+            return $this->currentdata;
+        }
         if (array_key_exists($elname, $this->currentdata)) {
             return array($elname => $this->currentdata[$elname]);
         }

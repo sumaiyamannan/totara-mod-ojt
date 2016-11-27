@@ -458,4 +458,32 @@ class totara_form_model_testcase extends advanced_testcase {
         new test_form();
 
     }
+
+    public function test_get_current_data() {
+        $definition = new test_definition($this,
+            function (model $model, advanced_testcase $testcase) {
+                $testcase->assertSame(array('a' => 'x'), $model->get_current_data('a'));
+                $testcase->assertSame(array('b' => 'y'), $model->get_current_data('b'));
+                $testcase->assertSame(array(), $model->get_current_data('c'));
+            });
+        test_form::phpunit_set_definition($definition);
+        test_form::phpunit_set_post_data(null);
+        new test_form(array('a' => 'x', 'b' => 'y'));
+
+        $definition = new test_definition($this,
+            function (model $model, advanced_testcase $testcase) {
+                $testcase->assertSame(array(), $model->get_current_data(null));
+            });
+        test_form::phpunit_set_definition($definition);
+        test_form::phpunit_set_post_data(null);
+        new test_form();
+
+        $definition = new test_definition($this,
+            function (model $model, advanced_testcase $testcase) {
+                $testcase->assertSame(array('a' => 'x', 'b' => 'y'), $model->get_current_data(null));
+            });
+        test_form::phpunit_set_definition($definition);
+        test_form::phpunit_set_post_data(null);
+        new test_form(array('a' => 'x', 'b' => 'y'));
+    }
 }
