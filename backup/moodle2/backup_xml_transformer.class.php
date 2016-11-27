@@ -47,9 +47,24 @@ class backup_xml_transformer extends xml_contenttransformer {
     private $courseid;                // courseid this content belongs to
     private $unicoderegexp;           // to know if the site supports unicode regexp
 
-    public function __construct($courseid) {
+    /**
+     * The backup task this transformer is being used for.
+     * Added mid-cycle so may not be reliably set, use with caution.
+     * @since Totara 2.7.22, 2.9.14, 9.2.
+     * @var backup_task
+     */
+    private $task = null;
+
+    /**
+     * The backup_xml_transformer constructor.
+     *
+     * @param int $courseid
+     * @param backup_task|null $task since Totara 2.7.22, 2.9.14, 9.2.
+     */
+    public function __construct($courseid, backup_task $task = null) {
         $this->absolute_links_encoders = array();
         $this->courseid = $courseid;
+        $this->task = $task;
         // Check if we support unicode modifiers in regular expressions
         $this->unicoderegexp = @preg_match('/\pL/u', 'a'); // This will fail silently, returning false,
                                                            // if regexp libraries don't support unicode
@@ -122,7 +137,7 @@ class backup_xml_transformer extends xml_contenttransformer {
 
     private function encode_absolute_links($content) {
         foreach ($this->absolute_links_encoders as $classname => $methodname) {
-            $content = call_user_func(array($classname, $methodname), $content);
+            $content = call_user_func(array($classname, $methodname), $content, $this->task);
         }
         return $content;
     }

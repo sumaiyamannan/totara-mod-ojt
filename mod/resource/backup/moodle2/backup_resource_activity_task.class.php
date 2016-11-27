@@ -57,71 +57,28 @@ class backup_resource_activity_task extends backup_activity_task {
      * @param string $content some HTML text that eventually contains URLs to the activity instance scripts
      * @return string the content with the URLs encoded
      */
-    static public function encode_content_links($content) {
-        global $CFG, $DB;
+    static public function encode_content_links($content, backup_task $task = null) {
 
-        $base = preg_quote($CFG->wwwroot,"/");
-
-        // Link to the list of resources.
-        $search="/(".$base."\/mod\/resource\/index.php\?id\=)([0-9]+)/";
-        $content= preg_replace($search, '$@RESOURCEINDEX*$2@$', $content);
-
-        // Link to resource view by moduleid.
-        $search = "/(".$base."\/mod\/resource\/view.php\?id\=)([0-9]+)/";
-        // Link to resource view by recordid
-        $search2 = "/(".$base."\/mod\/resource\/view.php\?r\=)([0-9]+)/";
-
-        // Check whether there are contents in the resource old table.
-        if (static::$resourceoldexists === null) {
-            static::$resourceoldexists = $DB->record_exists('resource_old', array());
+        if (!self::has_scripts_in_content($content, 'mod/resource', ['index.php', 'view.php'])) {
+            // No scripts present in the content, simply continue.
+            return $content;
         }
 
-        // If there are links to items in the resource_old table, rewrite them to be links to the correct URL
-        // for their new module.
-        if (static::$resourceoldexists) {
-            // Match all of the resources.
-            $result = preg_match_all($search, $content, $matches, PREG_PATTERN_ORDER);
-
-            // Course module ID resource links.
-            if ($result) {
-                list($insql, $params) = $DB->get_in_or_equal($matches[2]);
-                $oldrecs = $DB->get_records_select('resource_old', "cmid $insql", $params, '', 'cmid, newmodule');
-
-                for ($i = 0; $i < count($matches[0]); $i++) {
-                    $cmid = $matches[2][$i];
-                    if (isset($oldrecs[$cmid])) {
-                        // Resource_old item, rewrite it
-                        $replace = '$@' . strtoupper($oldrecs[$cmid]->newmodule) . 'VIEWBYID*' . $cmid . '@$';
-                    } else {
-                        // Not in the resource old table, don't rewrite
-                        $replace = '$@RESOURCEVIEWBYID*'.$cmid.'@$';
-                    }
-                    $content = str_replace($matches[0][$i], $replace, $content);
-                }
-            }
-
-            $matches = null;
-            $result = preg_match_all($search2, $content, $matches, PREG_PATTERN_ORDER);
-
-            // No resource links.
-            if (!$result) {
-                return $content;
-            }
-            // Resource ID links.
-            list($insql, $params) = $DB->get_in_or_equal($matches[2]);
-            $oldrecs = $DB->get_records_select('resource_old', "oldid $insql", $params, '', 'oldid, cmid, newmodule');
-
-            for ($i = 0; $i < count($matches[0]); $i++) {
-                $recordid = $matches[2][$i];
-                if (isset($oldrecs[$recordid])) {
-                    // Resource_old item, rewrite it
-                    $replace = '$@' . strtoupper($oldrecs[$recordid]->newmodule) . 'VIEWBYID*' . $oldrecs[$recordid]->cmid . '@$';
-                    $content = str_replace($matches[0][$i], $replace, $content);
-                }
-            }
+        if (empty($task)) {
+            // No task has been provided, lets just encode everything, must be some old school backup code.
+            $content = self::encode_content_link_basic_id($content, "/mod/resource/index.php?id=", 'RESOURCEINDEX');
+            $content = self::encode_content_link_basic_id($content, "/mod/resource/view.php?id=", 'RESOURCEVIEWBYID');
+            $content = self::encode_content_link_basic_id($content, "/mod/resource/view.php?r=", 'RESOURCEVIEWBYR');
         } else {
-            $content = preg_replace($search, '$@RESOURCEVIEWBYID*$2@$', $content);
+            // OK we have a valid task, we can translate just those links belonging to content that is being backed up.
+            $content = self::encode_content_link_basic_id($content, "/mod/resource/index.php?id=", 'RESOURCEINDEX', $task->get_courseid());
+            foreach ($task->get_tasks_of_type_in_plan('backup_resource_activity_task') as $task) {
+                /** @var backup_resource_activity_task $task */
+                $content = self::encode_content_link_basic_id($content, "/mod/resource/view.php?id=", 'RESOURCEVIEWBYID', $task->get_moduleid());
+                $content = self::encode_content_link_basic_id($content, "/mod/resource/view.php?r=", 'RESOURCEVIEWBYR', $task->get_activityid());
+            }
         }
+
         return $content;
     }
 }

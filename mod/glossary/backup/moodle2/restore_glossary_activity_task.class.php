@@ -68,6 +68,7 @@ class restore_glossary_activity_task extends restore_activity_task {
         $rules = array();
 
         $rules[] = new restore_decode_rule('GLOSSARYVIEWBYID', '/mod/glossary/view.php?id=$1', 'course_module');
+        $rules[] = new restore_decode_rule('GLOSSARYVIEWBYG', '/mod/glossary/view.php?g=$1', 'glossary');
         $rules[] = new restore_decode_rule('GLOSSARYINDEX', '/mod/glossary/index.php?id=$1', 'course');
         $rules[] = new restore_decode_rule('GLOSSARYSHOWENTRY', '/mod/glossary/showentry.php?courseid=$1&eid=$2',
                                            array('course', 'glossary_entry'));

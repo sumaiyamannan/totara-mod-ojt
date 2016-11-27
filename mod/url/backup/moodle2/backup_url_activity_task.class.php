@@ -52,25 +52,27 @@ class backup_url_activity_task extends backup_activity_task {
      * @param string $content some HTML text that eventually contains URLs to the activity instance scripts
      * @return string the content with the URLs encoded
      */
-    static public function encode_content_links($content) {
-        global $CFG;
+    static public function encode_content_links($content, backup_task $task = null) {
 
-        $base = preg_quote($CFG->wwwroot.'/mod/url','#');
+        if (!self::has_scripts_in_content($content, 'mod/url', ['index.php', 'view.php'])) {
+            // No scripts present in the content, simply continue.
+            return $content;
+        }
 
-        //Access a list of all links in a course
-        $pattern = '#('.$base.'/index\.php\?id=)([0-9]+)#';
-        $replacement = '$@URLINDEX*$2@$';
-        $content = preg_replace($pattern, $replacement, $content);
-
-        //Access the link supplying a course module id
-        $pattern = '#('.$base.'/view\.php\?id=)([0-9]+)#';
-        $replacement = '$@URLVIEWBYID*$2@$';
-        $content = preg_replace($pattern, $replacement, $content);
-
-        //Access the link supplying an instance id
-        $pattern = '#('.$base.'/view\.php\?u=)([0-9]+)#';
-        $replacement = '$@URLVIEWBYU*$2@$';
-        $content = preg_replace($pattern, $replacement, $content);
+        if (empty($task)) {
+            // No task has been provided, lets just encode everything, must be some old school backup code.
+            $content = self::encode_content_link_basic_id($content, "/mod/url/index.php?id=", 'URLINDEX');
+            $content = self::encode_content_link_basic_id($content, "/mod/url/view.php?id=", 'URLVIEWBYID');
+            $content = self::encode_content_link_basic_id($content, "/mod/url/view.php?u=", 'URLVIEWBYU');
+        } else {
+            // OK we have a valid task, we can translate just those links belonging to content that is being backed up.
+            $content = self::encode_content_link_basic_id($content, "/mod/url/index.php?id=", 'URLINDEX', $task->get_courseid());
+            foreach ($task->get_tasks_of_type_in_plan('backup_url_activity_task') as $task) {
+                /** @var backup_url_activity_task $task */
+                $content = self::encode_content_link_basic_id($content, "/mod/url/view.php?id=", 'URLVIEWBYID', $task->get_moduleid());
+                $content = self::encode_content_link_basic_id($content, "/mod/url/view.php?u=", 'URLVIEWBYU', $task->get_activityid());
+            }
+        }
 
         return $content;
     }

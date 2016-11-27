@@ -50,20 +50,27 @@ class backup_page_activity_task extends backup_activity_task {
      * Encodes URLs to the index.php and view.php scripts
      *
      * @param string $content some HTML text that eventually contains URLs to the activity instance scripts
+     * @param backup_task $task The backup task if needed. Added in Totara 2.7.22, 2.9.14, 9.2, may not be set, may be null.
      * @return string the content with the URLs encoded
      */
-    static public function encode_content_links($content) {
-        global $CFG;
+    static public function encode_content_links($content, backup_task $task = null) {
 
-        $base = preg_quote($CFG->wwwroot,"/");
+        if (!self::has_scripts_in_content($content, 'mod/page', ['index.php', 'view.php'])) {
+            // No scripts present in the content, simply continue.
+            return $content;
+        }
 
-        // Link to the list of pages
-        $search="/(".$base."\/mod\/page\/index.php\?id\=)([0-9]+)/";
-        $content= preg_replace($search, '$@PAGEINDEX*$2@$', $content);
-
-        // Link to page view by moduleid
-        $search="/(".$base."\/mod\/page\/view.php\?id\=)([0-9]+)/";
-        $content= preg_replace($search, '$@PAGEVIEWBYID*$2@$', $content);
+        if (empty($task)) {
+            // No task has been provided, lets just encode everything, must be some old school backup code.
+            $content = self::encode_content_link_basic_id($content, "/mod/page/index.php?id=", 'PAGEINDEX');
+            $content = self::encode_content_link_basic_id($content, "/mod/page/view.php?id=", 'PAGEVIEWBYID');
+        } else {
+            // OK we have a valid task, we can translate just those links belonging to content that is being backed up.
+            $content = self::encode_content_link_basic_id($content, "/mod/page/index.php?id=", 'PAGEINDEX', $task->get_courseid());
+            foreach ($task->get_tasks_of_type_in_plan('backup_page_activity_task') as $task) {
+                $content = self::encode_content_link_basic_id($content, "/mod/page/view.php?id=", 'PAGEVIEWBYID', $task->get_moduleid());
+            }
+        }
 
         return $content;
     }

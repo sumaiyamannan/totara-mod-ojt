@@ -52,18 +52,25 @@ class backup_survey_activity_task extends backup_activity_task {
      * @param string $content some HTML text that eventually contains URLs to the activity instance scripts
      * @return string the content with the URLs encoded
      */
-    static public function encode_content_links($content) {
-        global $CFG;
+    static public function encode_content_links($content, backup_task $task = null) {
 
-        $base = preg_quote($CFG->wwwroot,"/");
+        if (!self::has_scripts_in_content($content, 'mod/survey', ['index.php', 'view.php'])) {
+            // No scripts present in the content, simply continue.
+            return $content;
+        }
 
-        // Link to the list of surveys
-        $search="/(".$base."\/mod\/survey\/index.php\?id\=)([0-9]+)/";
-        $content= preg_replace($search, '$@SURVEYINDEX*$2@$', $content);
-
-        // Link to survey view by moduleid
-        $search="/(".$base."\/mod\/survey\/view.php\?id\=)([0-9]+)/";
-        $content= preg_replace($search, '$@SURVEYVIEWBYID*$2@$', $content);
+        if (empty($task)) {
+            // No task has been provided, lets just encode everything, must be some old school backup code.
+            $content = self::encode_content_link_basic_id($content, "/mod/survey/index.php?id=", 'SURVEYINDEX');
+            $content = self::encode_content_link_basic_id($content, "/mod/survey/view.php?id=", 'SURVEYVIEWBYID');
+        } else {
+            // OK we have a valid task, we can translate just those links belonging to content that is being backed up.
+            $content = self::encode_content_link_basic_id($content, "/mod/survey/index.php?id=", 'SURVEYINDEX', $task->get_courseid());
+            foreach ($task->get_tasks_of_type_in_plan('backup_survey_activity_task') as $task) {
+                /** @var backup_survey_activity_task $task */
+                $content = self::encode_content_link_basic_id($content, "/mod/survey/view.php?id=", 'SURVEYVIEWBYID', $task->get_moduleid());
+            }
+        }
 
         return $content;
     }
