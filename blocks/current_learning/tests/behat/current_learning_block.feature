@@ -88,7 +88,7 @@ Feature: Test Current Learning block
     And I should see "Test Program 1" in the "Current Learning" "block"
 
   @javascript
-  Scenario: Learner can remove and readd Current Learning block on Dashboard
+  Scenario: Learner can remove and re-add Current Learning block on Dashboard
     Given the following "programs" exist in "totara_program" plugin:
       | fullname                | shortname |
       | Test Program 1          | program1  |
@@ -141,6 +141,79 @@ Feature: Test Current Learning block
       | fullname                | shortname |
       | Test Program 1          | program1  |
     And the following "program assignments" exist in "totara_program" plugin:
-      | user  | program  |
+      | user     | program  |
       | learner1 | program1 |
+    And the following "courses" exist:
+      | fullname | shortname | enablecompletion |
+      | Course 1 | course1   | 1                |
+      | Course 2 | course2   | 1                |
+      | Course 3 | course3   | 1                |
+      | Course 4 | course4   | 1                |
+    And I add a courseset with courses "course1,course2,course3" to "program1":
+      | Set name              | set1        |
+      | Learner must complete | All courses |
+      | Minimum time required | 1           |
+    And I add a courseset with courses "course4" to "program1":
+      | Set name              | set1          |
+      | Learner must complete | Some courses  |
+      | Minimum time required | 1             |
+    And I log in as "learner1"
+    And I click on "Dashboard" in the totara menu
+    And I should not see "Course 3"
+    And I toggle "Test Program 1" in the current learning block
+    And I should see "Course 3"
+    And I wait "1" seconds
+    And I toggle "Test Program 1" in the current learning block
+    And I should not see "Course 3"
 
+  @javascript
+  Scenario: Learner can change pages in the Current Learning block
+   Given the following "courses" exist:
+    | fullname  | shortname | category |
+    | Course 1  | C1        | 0        |
+    | Course 2  | C2        | 0        |
+    | Course 3  | C3        | 0        |
+    | Course 4  | C4        | 0        |
+    | Course 5  | C5        | 0        |
+    | Course 6  | C6        | 0        |
+    | Course 7  | C7        | 0        |
+    | Course 8  | C8        | 0        |
+    | Course 9  | C9        | 0        |
+    | Course 10 | C10       | 0        |
+    | Course 11 | C11       | 0        |
+    | Course 12 | C12       | 0        |
+    | Course 13 | C13       | 0        |
+    | Course 14 | C14       | 0        |
+    | Course 15 | C15       | 0        |
+  And the following "course enrolments" exist:
+    | user     | course | role    |
+    | learner1 | C1     | student |
+    | learner1 | C2     | student |
+    | learner1 | C3     | student |
+    | learner1 | C4     | student |
+    | learner1 | C5     | student |
+    | learner1 | C6     | student |
+    | learner1 | C7     | student |
+    | learner1 | C8     | student |
+    | learner1 | C9     | student |
+    | learner1 | C10    | student |
+    | learner1 | C11    | student |
+    | learner1 | C12    | student |
+    | learner1 | C13    | student |
+    | learner1 | C14    | student |
+    | learner1 | C15    | student |
+  And I log in as "learner1"
+  And I click on "Dashboard" in the totara menu
+  And I should see "Course 10"
+  And I click on ".block_current_learning .pagination [data-page=2]" "css_element"
+  And I should see "Course 5"
+  And I should not see "Course 10"
+  And I click on ".block_current_learning .pagination [data-page=1]" "css_element"
+  And I should see "Course 10"
+  And I should not see "Course 5"
+  And I click on ".block_current_learning .pagination [data-page=next]" "css_element"
+  And I should see "Course 5"
+  And I should not see "Course 10"
+  And I click on ".block_current_learning .pagination [data-page=prev]" "css_element"
+  And I should see "Course 10"
+  And I should not see "Course 5"

@@ -31,9 +31,9 @@ class behat_current_learning_block extends behat_base {
     /**
      * Click on the expand item for a program or certification if the current learning block.
      *
-     * @Given /^I expand "([^"]*)" in the current learning block$/
+     * @Given /^I toggle "([^"]*)" in the current learning block$/
      */
-    public function i_expand_item_in_current_learning_block($program) {
+    public function i_toggle_item_in_current_learning_block($program) {
         $program_xpath = $this->getSession()->getSelectorsHandler()->xpathLiteral($program);
         $xpath = ".//li[div[@class[contains(.,'block_current_learning-row-item')]][.//text()[.=" . $program_xpath . "]]]";
         $row = $this->find(
@@ -42,7 +42,7 @@ class behat_current_learning_block extends behat_base {
             new \Behat\Mink\Exception\ExpectationException('Could not find item row for "'.$program.'" in the current learning block' . $xpath, $this->getSession())
         );
 
-        $xpath = "//*[@class='collapsed-icon']";
+        $xpath = "//*[@class[contains(.,'expand-collapse-icon-wrap')]]";
         $node = $row->find(
             'xpath',
             $xpath,

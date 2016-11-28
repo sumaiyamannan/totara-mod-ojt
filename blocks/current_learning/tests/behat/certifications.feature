@@ -69,7 +69,7 @@ Feature: User certifications and their courses appear correctly in the current l
     Given I log in as "user001"
     And I click on "Dashboard" in the totara menu
     Then I should see "Test Certification" in the "Current Learning" "block"
-    And I expand "Test Certification" in the current learning block
+    And I toggle "Test Certification" in the current learning block
     And I should see "Certify Course 1" in "Test Certification" within the current learning block
     And I should see "Certify Course 2" in "Test Certification" within the current learning block
     And I should not see "Recertify Course" in "Test Certification" within the current learning block
@@ -91,7 +91,7 @@ Feature: User certifications and their courses appear correctly in the current l
     And I run the "\totara_certification\task\update_certification_task" task
     And I click on "Dashboard" in the totara menu
     Then I should see "Test Certification" in the "Current Learning" "block"
-    And I expand "Test Certification" in the current learning block
+    And I toggle "Test Certification" in the current learning block
     And I should not see "Certify Course 1" in "Test Certification" within the current learning block
     And I should not see "Certify Course 2" in "Test Certification" within the current learning block
     And I should see "Recertify Course" in "Test Certification" within the current learning block
@@ -111,7 +111,7 @@ Feature: User certifications and their courses appear correctly in the current l
 
     # The certification should still contain the correct content.
     And I should see "Test Certification" in the "Current Learning" "block"
-    And I expand "Test Certification" in the current learning block
+    And I toggle "Test Certification" in the current learning block
     And I should see "Recertify Course" in "Test Certification" within the current learning block
     And I should not see "Certify Course 1" in "Test Certification" within the current learning block
     And I should not see "Certify Course 2" in "Test Certification" within the current learning block
