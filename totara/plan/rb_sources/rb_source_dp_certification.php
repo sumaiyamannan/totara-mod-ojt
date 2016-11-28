@@ -665,14 +665,28 @@ class rb_source_dp_certification extends rb_base_source {
             "base.availableuntil"
         );
 
+        $requiredcolumns[] = new rb_column(
+            'visibility',
+            'completionstatus',
+            '',
+            'certif_completion.status',
+            array(
+                'joins' => 'certif_completion'
+            )
+        );
+
         return $requiredcolumns;
     }
 
     public function post_config(reportbuilder $report) {
         // Visibility checks are only applied if viewing a single user's records.
         if ($report->get_param_value('userid')) {
-            $report->set_post_config_restrictions($report->post_config_visibility_where('certification', 'base',
-                $report->get_param_value('userid'), true));
+            list($visibilitysql, $whereparams) = $report->post_config_visibility_where('certification', 'base',
+                $report->get_param_value('userid'), true);
+            $completionstatus = $report->get_field('visibility', 'completionstatus', 'certif_completion.status');
+            $wheresql = "(({$visibilitysql}) OR ({$completionstatus} > :assigned))";
+            $whereparams['assigned'] = CERTIFSTATUS_ASSIGNED;
+            $report->set_post_config_restrictions(array($wheresql, $whereparams));
         }
     }
 

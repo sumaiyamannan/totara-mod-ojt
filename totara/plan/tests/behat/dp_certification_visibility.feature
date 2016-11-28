@@ -333,3 +333,240 @@ Feature: See that certification visibility affects Record of Learning: Certifica
     Then I should see "Record of Learning for fn_002 ln_002 : All Certifications"
     And I should not see "RoLCertVisibility Test Cert 1" in the "#dp-plan-content" "css_element"
     And I should see "RoLCertVisibility Test Cert 2" in the "#dp-plan-content" "css_element"
+
+  @javascript
+  Scenario: Certification ROL: Audience visibility, no users, newly assigned in 1st certification and then unassigned.
+    When I log in as "admin"
+    And I navigate to "Advanced features" node in "Site administration"
+    And I set the field "Enable audience-based visibility" to "1"
+    And I set the field "Enable program completion editor" to "1"
+    And I press "Save changes"
+    Then I should see "Changes saved"
+
+    When I click on "Certifications" in the totara menu
+    And I click on "RoLCertVisibility Test Cert 1" "link"
+    And I click on "Edit certification details" "button"
+    And I click on "Details" "link"
+    And I set the field "Visibility" to "No users"
+    And I press "Save changes"
+    Then I should see "Program details saved successfully"
+
+    When I switch to "Completion" tab
+    Then I should see "Not certified" in the "fn_002 ln_002" "table_row"
+
+    When I switch to "Assignments" tab
+    And I click on "Delete" "link" in the "fn_002 ln_002" "table_row"
+    And I press "Save changes"
+    And I press "Save all changes"
+    Then I should see "Program assignments saved successfully"
+
+    # RoL: Certs tab should be visible but not contain the certification for learner.
+    When I log out
+    And I log in as "user002"
+    And I click on "Record of Learning" in the totara menu
+    And I click on "Certifications" "link" in the "#dp-plan-content" "css_element"
+    Then I should see "Record of Learning : All Certifications"
+    And I should not see "RoLCertVisibility Test Cert 1" in the "#dp-plan-content" "css_element"
+    And I should see "RoLCertVisibility Test Cert 2" in the "#dp-plan-content" "css_element"
+
+    # RoL: Certs tab should be shown and contains the certification for manager.
+    When I log out
+    And I log in as "mana003"
+    And I click on "Team" in the totara menu
+    And I click on "fn_002 ln_002" "link"
+    And I click on "Record of Learning" "link" in the ".userprofile" "css_element"
+    And I click on "Certifications" "link" in the "#dp-plan-content" "css_element"
+    Then I should see "Record of Learning for fn_002 ln_002 : All Certifications"
+    And I should not see "RoLCertVisibility Test Cert 1" in the "#dp-plan-content" "css_element"
+    And I should see "RoLCertVisibility Test Cert 2" in the "#dp-plan-content" "css_element"
+
+  @javascript
+  Scenario: Certification ROL: Audience visibility, no users, certified, before window opens in 1st certification and then unassigned.
+    When I log in as "admin"
+    And I navigate to "Advanced features" node in "Site administration"
+    And I set the field "Enable audience-based visibility" to "1"
+    And I set the field "Enable program completion editor" to "1"
+    And I press "Save changes"
+    Then I should see "Changes saved"
+
+    When I click on "Certifications" in the totara menu
+    And I click on "RoLCertVisibility Test Cert 1" "link"
+    And I click on "Edit certification details" "button"
+    And I click on "Details" "link"
+    And I set the field "Visibility" to "No users"
+    And I press "Save changes"
+    Then I should see "Program details saved successfully"
+
+    When I switch to "Completion" tab
+    And I click on "Edit completion records" "link" in the "fn_002 ln_002" "table_row"
+    And I set the following fields to these values:
+      | Certification completion state | Certified, before window opens |
+      | timecompleted[day]             | 1                              |
+      | timecompleted[month]           | September                      |
+      | timecompleted[year]            | 2030                           |
+      | timecompleted[hour]            | 12                             |
+      | timecompleted[minute]          | 30                             |
+      | timewindowopens[day]           | 2                              |
+      | timewindowopens[month]         | September                      |
+      | timewindowopens[year]          | 2030                           |
+      | timewindowopens[hour]          | 12                             |
+      | timewindowopens[minute]        | 30                             |
+      | timeexpires[day]               | 3                              |
+      | timeexpires[month]             | September                      |
+      | timeexpires[year]              | 2030                           |
+      | timeexpires[hour]              | 12                             |
+      | timeexpires[minute]            | 30                             |
+    And I click on "Save changes" "button"
+    And I click on "Save changes" "button"
+    Then I should see "Completion changes have been saved"
+
+    When I follow "Return to certification"
+    And I switch to "Assignments" tab
+    And I click on "Delete" "link" in the "fn_002 ln_002" "table_row"
+    And I press "Save changes"
+    And I press "Save all changes"
+    Then I should see "Program assignments saved successfully"
+
+    # RoL: Certs tab should be visible but not contain the certification for learner.
+    When I log out
+    And I log in as "user002"
+    And I click on "Record of Learning" in the totara menu
+    And I click on "Certifications" "link" in the "#dp-plan-content" "css_element"
+    Then I should see "Record of Learning : All Certifications"
+    And I should see "RoLCertVisibility Test Cert 1" in the "#dp-plan-content" "css_element"
+    And I should see "RoLCertVisibility Test Cert 2" in the "#dp-plan-content" "css_element"
+
+    # RoL: Certs tab should be shown and contains the certification for manager.
+    When I log out
+    And I log in as "mana003"
+    And I click on "Team" in the totara menu
+    And I click on "fn_002 ln_002" "link"
+    And I click on "Record of Learning" "link" in the ".userprofile" "css_element"
+    And I click on "Certifications" "link" in the "#dp-plan-content" "css_element"
+    Then I should see "Record of Learning for fn_002 ln_002 : All Certifications"
+    And I should see "RoLCertVisibility Test Cert 1" in the "#dp-plan-content" "css_element"
+    And I should see "RoLCertVisibility Test Cert 2" in the "#dp-plan-content" "css_element"
+
+  @javascript
+  Scenario: Certification ROL: Audience visibility, no users, certified, window is open in 1st certification and then unassigned.
+    When I log in as "admin"
+    And I navigate to "Advanced features" node in "Site administration"
+    And I set the field "Enable audience-based visibility" to "1"
+    And I set the field "Enable program completion editor" to "1"
+    And I press "Save changes"
+    Then I should see "Changes saved"
+
+    When I click on "Certifications" in the totara menu
+    And I click on "RoLCertVisibility Test Cert 1" "link"
+    And I click on "Edit certification details" "button"
+    And I click on "Details" "link"
+    And I set the field "Visibility" to "No users"
+    And I press "Save changes"
+    Then I should see "Program details saved successfully"
+
+    When I switch to "Completion" tab
+    And I click on "Edit completion records" "link" in the "fn_002 ln_002" "table_row"
+    And I set the following fields to these values:
+      | Certification completion state | Certified, window is open      |
+      | timecompleted[day]             | 1                              |
+      | timecompleted[month]           | September                      |
+      | timecompleted[year]            | 2030                           |
+      | timecompleted[hour]            | 12                             |
+      | timecompleted[minute]          | 30                             |
+      | timewindowopens[day]           | 2                              |
+      | timewindowopens[month]         | September                      |
+      | timewindowopens[year]          | 2030                           |
+      | timewindowopens[hour]          | 12                             |
+      | timewindowopens[minute]        | 30                             |
+      | timeexpires[day]               | 3                              |
+      | timeexpires[month]             | September                      |
+      | timeexpires[year]              | 2030                           |
+      | timeexpires[hour]              | 12                             |
+      | timeexpires[minute]            | 30                             |
+    And I click on "Save changes" "button"
+    And I click on "Save changes" "button"
+    Then I should see "Completion changes have been saved"
+
+    When I follow "Return to certification"
+    And I switch to "Assignments" tab
+    And I click on "Delete" "link" in the "fn_002 ln_002" "table_row"
+    And I press "Save changes"
+    And I press "Save all changes"
+    Then I should see "Program assignments saved successfully"
+
+    # RoL: Certs tab should be visible but not contain the certification for learner.
+    When I log out
+    And I log in as "user002"
+    And I click on "Record of Learning" in the totara menu
+    And I click on "Certifications" "link" in the "#dp-plan-content" "css_element"
+    Then I should see "Record of Learning : All Certifications"
+    And I should see "RoLCertVisibility Test Cert 1" in the "#dp-plan-content" "css_element"
+    And I should see "RoLCertVisibility Test Cert 2" in the "#dp-plan-content" "css_element"
+
+    # RoL: Certs tab should be shown and contains the certification for manager.
+    When I log out
+    And I log in as "mana003"
+    And I click on "Team" in the totara menu
+    And I click on "fn_002 ln_002" "link"
+    And I click on "Record of Learning" "link" in the ".userprofile" "css_element"
+    And I click on "Certifications" "link" in the "#dp-plan-content" "css_element"
+    Then I should see "Record of Learning for fn_002 ln_002 : All Certifications"
+    And I should see "RoLCertVisibility Test Cert 1" in the "#dp-plan-content" "css_element"
+    And I should see "RoLCertVisibility Test Cert 2" in the "#dp-plan-content" "css_element"
+
+  @javascript
+  Scenario: Certification ROL: Audience visibility, no users, expired in 2nd certification and then unassigned.
+    When I log in as "admin"
+    And I navigate to "Advanced features" node in "Site administration"
+    And I set the field "Enable audience-based visibility" to "1"
+    And I set the field "Enable program completion editor" to "1"
+    And I press "Save changes"
+    Then I should see "Changes saved"
+
+    When I click on "Certifications" in the totara menu
+    And I click on "RoLCertVisibility Test Cert 1" "link"
+    And I click on "Edit certification details" "button"
+    And I click on "Details" "link"
+    And I set the field "Visibility" to "No users"
+    And I press "Save changes"
+    Then I should see "Program details saved successfully"
+
+    When I switch to "Completion" tab
+    And I click on "Edit completion records" "link" in the "fn_002 ln_002" "table_row"
+    And I set the following fields to these values:
+      | Certification completion state | Expired   |
+      | timedue[day]                   | 3         |
+      | timedue[month]                 | September |
+      | timedue[year]                  | 2015      |
+      | timedue[hour]                  | 12        |
+      | timedue[minute]                | 30        |
+    And I click on "Save changes" "button"
+    And I click on "Save changes" "button"
+    Then I should see "Completion changes have been saved"
+
+    When I follow "Return to certification"
+    And I switch to "Assignments" tab
+    And I click on "Delete" "link" in the "fn_002 ln_002" "table_row"
+    And I press "Save changes"
+    And I press "Save all changes"
+    Then I should see "Program assignments saved successfully"
+
+  # RoL: Certs tab should be visible but not contain the certification for learner.
+    When I log out
+    And I log in as "user002"
+    And I click on "Record of Learning" in the totara menu
+    And I click on "Certifications" "link" in the "#dp-plan-content" "css_element"
+    Then I should see "Record of Learning : All Certifications"
+    And I should see "RoLCertVisibility Test Cert 1" in the "#dp-plan-content" "css_element"
+    And I should see "RoLCertVisibility Test Cert 2" in the "#dp-plan-content" "css_element"
+
+  # RoL: Certs tab should be shown and contains the certification for manager.
+    When I log out
+    And I log in as "mana003"
+    And I click on "Team" in the totara menu
+    And I click on "fn_002 ln_002" "link"
+    And I click on "Record of Learning" "link" in the ".userprofile" "css_element"
+    And I click on "Certifications" "link" in the "#dp-plan-content" "css_element"
+    Then I should see "Record of Learning for fn_002 ln_002 : All Certifications"
+    And I should see "RoLCertVisibility Test Cert 1" in the "#dp-plan-content" "css_element"
+    And I should see "RoLCertVisibility Test Cert 2" in the "#dp-plan-content" "css_element"

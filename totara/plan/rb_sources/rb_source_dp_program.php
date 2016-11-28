@@ -539,14 +539,28 @@ class rb_source_dp_program extends rb_base_source {
             "base.availableuntil"
         );
 
+        $requiredcolumns[] = new rb_column(
+            'visibility',
+            'completionstatus',
+            '',
+            "program_completion.status",
+            array(
+                'joins' => array('program_completion')
+            )
+        );
+
         return $requiredcolumns;
     }
 
     public function post_config(reportbuilder $report) {
         // Visibility checks are only applied if viewing a single user's records.
         if ($report->get_param_value('userid')) {
-            $report->set_post_config_restrictions($report->post_config_visibility_where('program', 'base',
-                $report->get_param_value('userid'), true));
+            list($visibilitysql, $whereparams) = $report->post_config_visibility_where('program', 'base',
+                $report->get_param_value('userid'), true);
+            $completionstatus = $report->get_field('visibility', 'completionstatus', 'program_completion.status');
+            $wheresql = "(({$visibilitysql}) OR ({$completionstatus} > :incomplete))";
+            $whereparams['incomplete'] = STATUS_PROGRAM_INCOMPLETE;
+            $report->set_post_config_restrictions(array($wheresql, $whereparams));
         }
     }
 

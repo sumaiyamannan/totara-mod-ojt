@@ -90,6 +90,7 @@ class rb_source_dp_course extends rb_base_source {
 
         // to get access to position type constants
         require_once($CFG->dirroot . '/totara/reportbuilder/classes/rb_join.php');
+        require_once($CFG->dirroot . '/totara/reportbuilder/classes/rb_join_nonpruneable.php');
 
         /**
          * dp_plan has userid, dp_plan_course_assign has courseid. In order to
@@ -141,7 +142,10 @@ class rb_source_dp_course extends rb_base_source {
                 REPORT_BUILDER_RELATION_MANY_TO_ONE,
                 array('dp_course','base')
         );
-        $joinlist[] = new rb_join(
+        // Ideally, this wouldn't have to be set as nonpruneable.
+        // The prune_joins() method may need to be updated to not prune joins in required columns
+        // or some other solution if we change/remove required columns in the future.
+        $joinlist[] = new rb_join_nonpruneable(
                 'course_completion',
                 'LEFT',
                 '{course_completions}',
@@ -657,14 +661,28 @@ class rb_source_dp_course extends rb_base_source {
             array('joins' => 'ctx')
         );
 
+        $requiredcolumns[] = new rb_column(
+            'visibility',
+            'completionstatus',
+            '',
+            "course_completion.status",
+            array(
+                'joins' => array('course_completion', 'dp_course'),
+            )
+        );
+
         return $requiredcolumns;
     }
 
     public function post_config(reportbuilder $report) {
         // Visibility checks are only applied if viewing a single user's records.
         if ($report->get_param_value('userid')) {
-            $report->set_post_config_restrictions($report->post_config_visibility_where('course', 'course',
-                $report->get_param_value('userid'), true));
+            list($visibilitysql, $whereparams) = $report->post_config_visibility_where('course', 'course',
+                $report->get_param_value('userid'), true);
+            $completionstatus = $report->get_field('visibility', 'completionstatus', 'course_completion.status');
+            $wheresql = "(({$visibilitysql}) OR ({$completionstatus} > :notyetstarted))";
+            $whereparams['notyetstarted'] = COMPLETION_STATUS_NOTYETSTARTED;
+            $report->set_post_config_restrictions(array($wheresql, $whereparams));
         }
     }
 

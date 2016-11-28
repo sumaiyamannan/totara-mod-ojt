@@ -425,14 +425,25 @@ class rb_source_dp_program_recurring extends rb_base_source {
             array('joins' => 'prog')
         );
 
+        $requiredcolumns[] = new rb_column(
+            'visibility',
+            'completionstatus',
+            '',
+            "base.status"
+        );
+
         return $requiredcolumns;
     }
 
     public function post_config(reportbuilder $report) {
         // Visibility checks are only applied if viewing a single user's records.
         if ($report->get_param_value('userid')) {
-            $report->set_post_config_restrictions($report->post_config_visibility_where('program', 'prog',
-                $report->get_param_value('userid'), true));
+            list($visibilitysql, $whereparams) = $report->post_config_visibility_where('program', 'prog',
+                $report->get_param_value('userid'), true);
+            $completionstatus = $report->get_field('visibility', 'completionstatus', 'base.status');
+            $wheresql = "(({$visibilitysql}) OR ({$completionstatus} > :incomplete))";
+            $whereparams['incomplete'] = STATUS_PROGRAM_INCOMPLETE;
+            $report->set_post_config_restrictions(array($wheresql, $whereparams));
         }
     }
 
