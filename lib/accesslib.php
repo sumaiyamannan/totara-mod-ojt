@@ -1802,8 +1802,8 @@ function role_assign_bulk($roleid, $userids, $contextid, $component = '', $itemi
     $userids = array_map(function($item) {
         if (is_object($item)) {
             return $item->userid;
-        } elseif (is_int($item)) {
-            return $item;
+        } else if (is_numeric($item)) {
+            return (int)$item;
         } else {
             return 0;
         }
