@@ -141,6 +141,8 @@ if (!$archive) {
 
     if (empty($users)) {
         echo $OUTPUT->box(get_string('nouserstoarchive', 'completion'));
+        $viewurl = new moodle_url('/course/view.php', array('id' => $course->id));
+        echo $OUTPUT->continue_button($viewurl);
     } else {
         $message = $strarchivecompletionscheck;
         $message .= html_writer::empty_tag('br');
