@@ -1313,34 +1313,6 @@ div.tabtree2 {
     border-right: 1px solid #CCC;
     border-left: none;
 }
-.dir-rtl .treeview .hitarea {
-    float: right;
-    background: url([[pix:totara_core|jquery_treeview/treeview-default-rtl]]);
-}
-.dir-rtl .treeview li {
-    background: url([[pix:totara_core|jquery_treeview/treeview-default-line-rtl]]) right 0  no-repeat;
-}
-.dir-rtl .filetree li {
-    padding: 0 16px 0 0;
-}
-.dir-rtl .treeview li.lastCollapsable {}
-.dir-rtl .treeview li.lastExpandable {
-    background: url([[pix:totara_core|jquery_treeview/treeview-default-rtl]]) no-repeat 8px 11px;
-}
-.dir-rtl .treeview li.collapsable,
-.dir-rtl .treeview li.expandable {
-    padding-right: 0px;
-    background-position: right -176px
-}
-.dir-rtl .treeview li.last {
-    background-position: right -1766px;
-}
-.dir-rtl .treeview li.collapsable .hitarea {
-    background-position: -16px -24px;
-}
-.dir-rtl .treeview li.expandable .hitarea {
-    background-position: 0 -2px;
-}
 .dir-rtl .filetree li.expandable span.folder {
     background-position: right 0;
     margin-right: 15px;
