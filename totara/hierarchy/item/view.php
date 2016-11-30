@@ -144,11 +144,11 @@ foreach ($data as $ditem) {
     }
 
     echo html_writer::tag('dt', format_string($ditem['title']));
-    $requirescleaning = array('url', 'location', 'file');
+    $requirescleaning = array('url', 'location', 'file', 'textarea');
     if (isset($ditem['type']) && in_array($ditem['type'], $requirescleaning)) {
         $value = $ditem['value'];
     } else {
-        $value = format_string($ditem['value']);
+        $value = format_string($ditem['value'], FORMAT_HTML);
     }
     echo html_writer::tag('dd', $value);
 }

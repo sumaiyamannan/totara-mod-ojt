@@ -38,4 +38,5 @@ $string['goaluserstatuscolumn'] = 'User\'s Goal Status';
 $string['goaluserstatusheading'] = 'Status';
 $string['sourcetitle'] = 'Goal Status';
 $string['type_goal'] = 'Goal';
+$string['type_goal_type'] = 'Company Goal Type';
 $string['user'] = 'The user';
