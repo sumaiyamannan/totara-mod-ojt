@@ -31,6 +31,8 @@ class rb_facetoface_signin_embedded extends rb_base_embedded {
         $this->url = '/mod/facetoface/signinsheet.php';
         $this->source = 'facetoface_signin';
         $this->shortname = 'facetoface_signin';
+        $this->defaultsortcolumn = 'user_namelink';
+        $this->defaultsortorder = SORT_ASC;
         $this->fullname = get_string('embedded:seminarsessionattendance', 'mod_facetoface');
         $this->columns = array(
             array(
