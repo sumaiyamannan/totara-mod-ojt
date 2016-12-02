@@ -112,6 +112,7 @@ class behat_totara_hierarchy extends behat_base {
             'description', // This will be cleared to 'null' inside the data generator code.
             'visible',
             'parent', // ID number.
+            'type', // ID number.
         );
 
         $data = $table->getHash();
@@ -150,6 +151,14 @@ class behat_totara_hierarchy extends behat_base {
                 $record['parentid'] = $parentid;
             }
             unset($record['parent']);
+
+            if (!empty($record['type'])) {
+                if (!$typeid = $DB->get_field("{$shortprefix}_type", 'id', array('idnumber' => $record['type']))) {
+                    throw new Exception("Unknown {$prefix} ID Number {$record['type']}");
+                }
+                $record['typeid'] = $typeid;
+            }
+            unset($record['type']);
 
             $this->get_data_generator()->create_hierarchy($frameworkid, $prefix, $record);
         }

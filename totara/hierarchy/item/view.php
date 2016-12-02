@@ -144,7 +144,7 @@ foreach ($data as $ditem) {
     }
 
     echo html_writer::tag('dt', format_string($ditem['title']));
-    $requirescleaning = array('url', 'location');
+    $requirescleaning = array('url', 'location', 'file');
     if (isset($ditem['type']) && in_array($ditem['type'], $requirescleaning)) {
         $value = $ditem['value'];
     } else {
