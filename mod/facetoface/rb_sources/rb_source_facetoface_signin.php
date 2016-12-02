@@ -234,7 +234,7 @@ class rb_source_facetoface_signin extends rb_facetoface_base_source {
                 "facetoface.name",
                 array(
                     'joins' => array('facetoface','sessions'),
-                    'displayfunc' => 'link_f2f',
+                    'displayfunc' => 'seminar_name_link',
                     'defaultheading' => get_string('f2fname', 'rb_source_facetoface_signin'),
                     'extrafields' => array('activity_id' => 'sessions.facetoface'),
                 )

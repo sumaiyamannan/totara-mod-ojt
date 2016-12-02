@@ -68,7 +68,7 @@ abstract class rb_facetoface_base_source extends rb_base_source {
             "facetoface.name",
             array(
                 'joins' => array('facetoface', $joinsessions),
-                'displayfunc' => 'link_f2f',
+                'displayfunc' => 'seminar_name_link',
                 'defaultheading' => get_string('ftfname', 'rb_source_facetoface_sessions'),
                 'extrafields' => array('activity_id' => $joinsessions . '.facetoface'),
             )

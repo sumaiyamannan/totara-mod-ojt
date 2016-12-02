@@ -122,6 +122,13 @@ Feature: Seminar sessions report overview
     When I click on "Seminar Summary" "link"
     Then I should see "N/A" in the "1.11" "table_row"
 
+  Scenario: Check name column links to seminar in sessions summary report.
+
+    Given I click on "Reports" in the totara menu
+    When I click on "Seminar Summary" "link"
+    And I click on "Test seminar name 1" "link" in the "Course 1" "table_row"
+    Then I should see "All events in Test seminar name 1"
+
   Scenario: Check active seminar sessions summary report
     # Prepare 4 sessions in three activities:
     # 2: (2nd activity of C1) Two dates, self approved, overbooked, 1st started, 2nd upcoming
