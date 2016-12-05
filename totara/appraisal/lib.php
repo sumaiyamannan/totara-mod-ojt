@@ -3770,15 +3770,25 @@ class appraisal_question extends question_storage {
     public function user_can_view($roleassignmentid, $userid) {
         global $DB;
 
-        $sql = "SELECT ara2.appraisalrole
-                FROM {appraisal_user_assignment} aua
-                LEFT JOIN {appraisal_role_assignment} ara ON (aua.id = ara.appraisaluserassignmentid)
-                LEFT JOIN {appraisal_role_assignment} ara2 ON (aua.id = ara2.appraisaluserassignmentid)
-                WHERE ara.id = ? AND ara2.userid = ?";
-        $assignments = $DB->get_records_sql($sql, array($roleassignmentid, $userid));
+        $answerroleassignment = new appraisal_role_assignment($roleassignmentid);
 
-        foreach ($assignments as $assignment) {
-            if ($this->roles[$assignment->appraisalrole] & appraisal::ACCESS_CANVIEWOTHER  == appraisal::ACCESS_CANVIEWOTHER) {
+        // Users can always see their own answers.
+        if ($userid == $answerroleassignment->userid) {
+            return true;
+        }
+
+        $userassignment = $answerroleassignment->get_user_assignment();
+
+        // We don't know what role the viewer has, and they may have more than one, so find and check them all.
+        $sql = "SELECT appraisalrole
+                  FROM {appraisal_role_assignment}
+                 WHERE appraisaluserassignmentid = :userassignmentid
+                   AND userid = :viewerid";
+        $viewerroleassignments = $DB->get_records_sql($sql, array('userassignmentid' => $userassignment->id, 'viewerid' => $userid));
+
+        foreach ($viewerroleassignments as $assignment) {
+            if (!empty($this->roles[$assignment->appraisalrole]) &&
+                ($this->roles[$assignment->appraisalrole] & appraisal::ACCESS_CANVIEWOTHER == appraisal::ACCESS_CANVIEWOTHER)) {
                 return true;
             }
         }
