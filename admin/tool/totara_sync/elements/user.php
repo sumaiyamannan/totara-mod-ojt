@@ -397,8 +397,7 @@ class totara_sync_element_user extends totara_sync_element {
                     $this->create_user($suser, $saveemptyfields);
                     $this->addlog(get_string('createduserx', 'tool_totara_sync', $suser->idnumber), 'info', 'createuser');
                 } catch (Exception $e) {
-                    // We can't do anything here, we have to trust that create user has tided up any transactions it opened.
-                    // If we rollback all transactions here the clone table which was created within a transaction will be removed.
+                    // We don't need to (and don't want to) do any rollback here because we trust that create_user has done it.
                     $this->addlog(get_string('cannotcreateuserx', 'tool_totara_sync', $suser->idnumber) . ': ' .
                             $e->getMessage(), 'error', 'createuser');
                     $problemswhileapplying = true;
@@ -618,49 +617,58 @@ class totara_sync_element_user extends totara_sync_element {
 
         $transaction = $DB->start_delegated_transaction();
 
-        // Prep a few params.
-        $user = new stdClass;
-        $user->username = core_text::strtolower($suser->username);  // Usernames always lowercase in moodle.
-        $user->idnumber = $suser->idnumber;
-        $user->confirmed = 1;
-        $user->totarasync = 1;
-        $user->mnethostid = $CFG->mnet_localhost_id;
-        $user->lang = $CFG->lang;
-        $user->timecreated = time();
-        $user->auth = isset($suser->auth) ? strtolower($suser->auth) : 'manual';
-        $this->set_sync_user_fields($user, $suser, $saveemptyfields);
-
         try {
-            $user->id = $DB->insert_record('user', $user);  // Insert user.
-        } catch (Exception $e) {
-            // Throws exception which will be captured by caller.
-            $transaction->rollback(new totara_sync_exception('user', 'createusers', 'cannotcreateuserx', $user->idnumber));
-        }
+            // Prep a few params.
+            $user = new stdClass;
+            $user->username = core_text::strtolower($suser->username);  // Usernames always lowercase in moodle.
+            $user->idnumber = $suser->idnumber;
+            $user->confirmed = 1;
+            $user->totarasync = 1;
+            $user->mnethostid = $CFG->mnet_localhost_id;
+            $user->lang = $CFG->lang;
+            $user->timecreated = time();
+            $user->auth = isset($suser->auth) ? strtolower($suser->auth) : 'manual';
+            $this->set_sync_user_fields($user, $suser, $saveemptyfields);
 
-        try {
-            $userauth = get_auth_plugin(strtolower($user->auth));
-        } catch (Exception $e) {
-            // Throws exception which will be captured by caller.
-            $transaction->rollback(new totara_sync_exception('user', 'createusers', 'invalidauthforuserx', $user->auth));
-        }
+            try {
+                $user->id = $DB->insert_record('user', $user);  // Insert user.
+            } catch (Exception $e) {
+                // Throws exception which will be captured by caller.
+                $transaction->rollback(new totara_sync_exception('user', 'createusers', 'cannotcreateuserx', $user->idnumber));
+            }
 
-        if ($userauth->can_change_password()) {
-            if (!isset($suser->password) || trim($suser->password) === '') {
-                // Tag for password generation.
-                set_user_preference('auth_forcepasswordchange', 1, $user->id);
-                set_user_preference('create_password',          1, $user->id);
-            } else {
-                // Set user password.
-                if (!$userauth->user_update_password($user, $suser->password)) {
-                    $this->addlog(get_string('cannotsetuserpassword', 'tool_totara_sync', $user->idnumber), 'warn', 'createusers');
-                } else if (!empty($this->config->forcepwchange)) {
+            try {
+                $userauth = get_auth_plugin(strtolower($user->auth));
+            } catch (Exception $e) {
+                // Throws exception which will be captured by caller.
+                $transaction->rollback(new totara_sync_exception('user', 'createusers', 'invalidauthforuserx', $user->auth));
+            }
+
+            if ($userauth->can_change_password()) {
+                if (!isset($suser->password) || trim($suser->password) === '') {
+                    // Tag for password generation.
                     set_user_preference('auth_forcepasswordchange', 1, $user->id);
+                    set_user_preference('create_password',          1, $user->id);
+                } else {
+                    // Set user password.
+                    if (!$userauth->user_update_password($user, $suser->password)) {
+                        $this->addlog(get_string('cannotsetuserpassword', 'tool_totara_sync', $user->idnumber), 'warn', 'createusers');
+                    } else if (!empty($this->config->forcepwchange)) {
+                        set_user_preference('auth_forcepasswordchange', 1, $user->id);
+                    }
                 }
             }
+            unset($userauth);
+            // Update custom field data.
+            $user = $this->put_custom_field_data($user, $suser, $saveemptyfields);
+
+        } catch (totara_sync_exception $e) {
+            // One of the totara sync exceptions above was triggered. Rollback has already occurred. Just pass on the exception.
+            throw $e;
+        } catch (Exception $e) {
+            // Some other exception has occurred. Rollback, which in turn passes on the exception.
+            $transaction->rollback(new totara_sync_exception('user', 'createusers', 'cannotcreateuserx', $suser->idnumber));
         }
-        unset($userauth);
-        // Update custom field data.
-        $user = $this->put_custom_field_data($user, $suser, $saveemptyfields);
 
         $transaction->allow_commit();
 
@@ -1129,6 +1137,9 @@ class totara_sync_element_user extends totara_sync_element {
         $badids = $this->check_empty_values($synctable, 'idnumber', 'emptyvalueidnumberx');
         $invalidids = array_merge($invalidids, $badids);
 
+        // Check for usernames with invalid characters.
+        $badids = $this->check_invalid_username($synctable, $synctable_clone);
+        $invalidids = array_merge($invalidids, $badids);
         // Get duplicated usernames.
         $badids = $this->get_duplicated_values($synctable, $synctable_clone, 'username', 'duplicateuserswithusernamex');
         $invalidids = array_merge($invalidids, $badids);
@@ -1730,6 +1741,51 @@ class totara_sync_element_user extends totara_sync_element {
             // Put a dummy record in here to flag a problem without skipping the user.
             $invalidids[] = 0;
         }
+
+        return $invalidids;
+    }
+
+    /**
+     * Check for invalid usernames
+     *
+     * Note that this function actually updates the usernames in both sync tables.
+     *
+     * @param string $synctable sync table name
+     * @param string $synctable_clone sync table clone name
+     *
+     * @return array with ids of any rows with invalid usernames
+     */
+    protected function check_invalid_username($synctable, $synctable_clone) {
+        global $DB;
+
+        $invalidids = array();
+
+        // Get a list of all the usernames.
+        $sql = "SELECT id, idnumber, username FROM {{$synctable}}";
+        $rs = $DB->get_recordset_sql($sql);
+        foreach ($rs as $r) {
+            // Get a clean version of the username with all invalid characters removed.
+            $clean_username = clean_param($r->username, PARAM_USERNAME);
+
+            // The cleaned username doesn't match the original. There's a issue.
+            if ($r->username !== $clean_username) {
+                // Check if the username is mixed case, if it is that is fine, it will be converted to lower case later.
+                // The conversion is done in {@see \totara_sync_element_user::create_user()}.
+                if (\core_text::strtolower($r->username) !== $clean_username) {
+                    // The cleaned username is not just a lowercase version of the original,
+                    // characters have been removed, so log an error and record the id.
+                    $this->addlog(get_string('invalidusernamex', 'tool_totara_sync', $r), 'error', 'checksanity');
+                    $invalidids[] = $r->id;
+                } else {
+                    // The cleaned username has only had uppercase characters changed to lower case.
+                    // It's acceptable so just flag a warning. the username will be imported in lowercase.
+                    $this->addlog(get_string('invalidcaseusernamex', 'tool_totara_sync', $r), 'warn', 'checksanity');
+                    $DB->set_field($synctable, 'username', $clean_username, array('id' => $r->id));
+                    $DB->set_field($synctable_clone, 'username', $clean_username, array('id' => $r->id));
+                }
+            }
+        }
+        $rs->close();
 
         return $invalidids;
     }

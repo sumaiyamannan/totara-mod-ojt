@@ -661,6 +661,66 @@ class tool_totara_sync_user_csv_testcase extends advanced_testcase {
         $this->assertSame('User007 " Double Quote', $DB->get_field('user', 'lastname', array('idnumber' => 'imp007', 'deleted' => 0, 'suspended' => 0)));
     }
 
+    /**
+     * Check that usernames with mixed case characters are imported to
+     * lowercase usernames when unique.
+     */
+    public function test_csv_mixed_case_usernames() {
+        global $DB;
+
+        $this->resetAfterTest();
+
+        $this->assertCount(2, $DB->get_records('user'));
+
+        set_config('authdeleteusers', 'full');
+
+        $configcsv = array_merge($this->configcsv, array('import_deleted' => '1'));
+        foreach ($configcsv as $k => $v) {
+            set_config($k, $v, 'totara_sync_source_user_csv');
+        }
+
+        $config = $this->config;
+        foreach ($config as $k => $v) {
+            set_config($k, $v, 'totara_sync_element_user');
+        }
+
+        $elements = totara_sync_get_elements(true);
+        /* @var totara_sync_element_user $element */
+        $element = $elements['user'];
+
+        $data = file_get_contents(__DIR__ . '/fixtures/user_mixed_case_1.csv');
+        $filepath = $this->filedir . '/csv/ready/user.csv';
+        file_put_contents($filepath, $data);
+
+        $result = $element->sync();
+        $this->assertFalse($result);
+
+        // Check we have the right number of users. We should have the admin and guest
+        // plus three more from the import.
+        $this->assertCount(5, $DB->get_records('user'));
+
+        // The 'Admin' and 'LowerCase' users should not be created.
+        $this->assertTrue($DB->record_exists('user', array('idnumber' => 'User4', 'username' => 'mixedcase1')));
+        $this->assertTrue($DB->record_exists('user', array('idnumber' => 'User5', 'username' => 'mixedcase2')));
+        $this->assertTrue($DB->record_exists('user', array('idnumber' => 'User6', 'username' => 'mixedcase3')));
+
+        $data = file_get_contents(__DIR__ . '/fixtures/user_mixed_case_2.csv');
+        $filepath = $this->filedir . '/csv/ready/user.csv';
+        file_put_contents($filepath, $data);
+
+        // We shouldn't have an error on this sync. The csae should be ignored
+        // and the data imported.
+        $result = $element->sync();
+        $this->assertTrue($result);
+
+        // The number of users should not change from before.
+        $this->assertCount(5, $DB->get_records('user'));
+
+        // Only User4 should be updated with the username being lowercase.
+        $this->assertTrue($DB->record_exists('user',
+            array('idnumber' => 'User4', 'username' => 'mixedcase1', 'firstname' => 'Charles')));
+    }
+
     public function test_user_sync_disabled_setting() {
         global $DB;
 
