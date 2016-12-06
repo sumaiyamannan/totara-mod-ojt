@@ -4141,7 +4141,7 @@ abstract class rb_base_source {
      * @return True
      */
     protected function add_job_assignment_fields_to_filters(&$filteroptions, $users='auser') {
-        global $DB;
+        global $DB, $CFG;
 
         // Job assignment field filters.
         $filteroptions[] = new rb_filter_option(
