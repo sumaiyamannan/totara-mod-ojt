@@ -137,7 +137,7 @@ abstract class totara_sync_source_user extends totara_sync_source {
             if (in_array($f, array('idnumber', 'username', 'timemodified'))) {
                 $mform->addElement('hidden', $name, '1');
                 $mform->setType($name, PARAM_INT);
-            } else if (in_array($f, array('firstname', 'lastname')) && $this->element->config->allow_create) {
+            } else if (in_array($f, array('firstname', 'lastname')) && !empty($this->element->config->allow_create)) {
                 $mform->addElement('hidden', $name, '1');
                 $mform->setType($name, PARAM_INT);
             } else if ($f == 'email' && (!isset($this->element->config->allowduplicatedemails) || !$this->element->config->allowduplicatedemails)) {
