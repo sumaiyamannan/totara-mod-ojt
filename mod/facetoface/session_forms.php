@@ -378,7 +378,7 @@ class mod_facetoface_session_form extends moodleform {
         $errors = parent::validation($data, $files);
         $facetofaceid = $this->_customdata['f'];
         $dates = array();
-        $dateids = $data['sessiondateid'];
+        $dateids = isset($data['sessiondateid']) ? $data['sessiondateid'] : array();
         $datecount = count($dateids);
         $deletecount = 0;
         $errdates = array();

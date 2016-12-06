@@ -367,7 +367,7 @@ if ($fromform = $mform->get_data()) { // Form submitted
         facetoface_update_attendees($session);
 
         // Send any necessary datetime change notifications but only if date/time is known.
-        if (facetoface_session_dates_check($olddates, $sessiondates)) {
+        if (!empty($sessiondates) && facetoface_session_dates_check($olddates, $sessiondates)) {
             $attendees = facetoface_get_attendees($session->id);
             foreach ($attendees as $user) {
                 facetoface_send_datetime_change_notice($facetoface, $session, $user->id, $olddates);
