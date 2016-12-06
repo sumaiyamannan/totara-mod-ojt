@@ -20,6 +20,8 @@
  * @package mod_facetoface
  */
 
+require_once($CFG->dirroot.'/mod/facetoface/db/upgradelib.php');
+
 // This file keeps track of upgrades to
 // the facetoface module
 //
@@ -4472,6 +4474,15 @@ function xmldb_facetoface_upgrade($oldversion=0) {
 
         // Facetoface savepoint reached.
         upgrade_mod_savepoint(true, 2016092801, 'facetoface');
+    }
+
+    if ($oldversion < 2016092802) {
+        // Adding "Below is the message that was sent to learner:" to the end of prefix text for existing notifications.
+        // This will upgrade only non-changed text in comparison to original v9 manager prefix.
+        facetoface_upgradelib_managerprefix_clarification();
+
+        // Facetoface savepoint reached.
+        upgrade_mod_savepoint(true, 2016092802, 'facetoface');
     }
 
     return $result;

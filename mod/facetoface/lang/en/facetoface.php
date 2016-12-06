@@ -1111,6 +1111,13 @@ $string['setting:defaultcancellationinstrmngrdefault'] = '*** Advice only ****
 This is to advise that [firstname] [lastname] is no longer signed-up for the following course and listed you as their Team Leader / Manager.
 
 ';
+$string['setting:defaultcancellationinstrmngrdefault_v92'] = '*** Advice only ****
+
+This is to advise that [firstname] [lastname] is no longer signed up for the following course and listed you as their Team Leader / Manager.
+
+Below is the message that was sent to the learner:
+
+';
 $string['setting:defaultcancellationinstrmngrcopybelow'] = '*** [firstname] [lastname]\'s booking cancellation is copied below ****';
 $string['setting:defaultcancellationmessage'] = 'Default cancellation message sent to the user.';
 $string['setting:defaultcancellationmessage_caption'] = 'Cancellation message';
@@ -1222,6 +1229,13 @@ $string['setting:defaultdeclineinstrmngrdefault'] = '*** Advice only ****
 This is to advise that [firstname] [lastname] is no longer signed-up for the following course and listed you as their Team Leader / Manager.
 
 ';
+$string['setting:defaultdeclineinstrmngrdefault_v92'] = '*** Advice only ****
+
+This is to advise that [firstname] [lastname] is no longer signed-up for the following course and listed you as their Team Leader / Manager.
+
+Below is the message that was sent to the learner:
+
+';
 $string['setting:defaultdeclineinstrmngrcopybelow'] = '*** [firstname] [lastname]\'s booking decline is copied below ****';
 $string['setting:defaultdeclinemessage'] = 'Default decline message sent to the user.';
 $string['setting:defaultdeclinemessage_caption'] = 'Decline message';
@@ -1270,6 +1284,15 @@ $string['setting:defaultconfirmationinstrmngrdefault'] = '*** Advice only ****
 This is to advise that [firstname] [lastname] has been booked for the following course and listed you as their Team Leader / Manager.
 
 If you are not their Team Leader / Manager and believe you have received this email by mistake please reply to this email.  If you have concerns about your staff member taking this course please discuss this with them directly.
+
+';
+$string['setting:defaultconfirmationinstrmngrdefault_v92'] = '*** Advice only ****
+
+This is to advise that [firstname] [lastname] has been booked for the following course and listed you as their Team Leader / Manager.
+
+If you are not their Team Leader / Manager and believe you have received this email by mistake please reply to this email.  If you have concerns about your staff member taking this course please discuss this with them directly.
+
+Below is the message that was sent to the learner:
 
 ';
 $string['setting:defaultconfirmationinstrmngrcopybelow'] = '*** [firstname] [lastname]\'s booking confirmation is copied below ****';
@@ -1363,6 +1386,14 @@ Your staff member [firstname] [lastname] had a pending request to attend the bel
 
 If you are not their Team Leader / Manager and believe you have received this email by mistake please reply to this email.
 ';
+$string['setting:defaultpendingreqclosureinstrmngrcopybelow_v92'] = '*** Advice only ****
+Your staff member [firstname] [lastname] had a pending request to attend the below seminar event and has also received this closure email.
+
+If you are not their Team Leader / Manager and believe you have received this email by mistake please reply to this email.
+
+Below is the message that was sent to the learner:
+
+';
 $string['setting:defaultpendingreqclosuremessage'] = 'Default cancellation message sent to the user.';
 $string['setting:defaultpendingreqclosuremessage_caption'] = 'Registration closure message';
 $string['setting:defaultpendingreqclosuremessagedefault_v9'] = 'This is to advise that your pending booking request for the following seminar event has expired:
@@ -1392,6 +1423,16 @@ $string['setting:defaultregistrationexpiredinstrmngr'] = '
 This is to advise that [firstname] [lastname] has been sent the following email and you are listed as their Team Leader / Manager.
 
 If you are not their Team Leader / Manager and believe you have received this email by mistake please reply to this email.
+
+';
+$string['setting:defaultregistrationexpiredinstrmngr_v92'] = '
+*** Advice only ****
+
+This is to advise that [firstname] [lastname] has been sent the following email and you are listed as their Team Leader / Manager.
+
+If you are not their Team Leader / Manager and believe you have received this email by mistake please reply to this email.
+
+Below is the message that was sent to the learner:
 
 ';
 $string['setting:defaultregistrationexpiredmessagedefault'] = 'The registration period for the following session has been closed:
@@ -1437,6 +1478,15 @@ $string['setting:defaultreminderinstrmngrdefault'] = '*** Reminder only ****
 Your staff member [firstname] [lastname] is booked to attend and above course and has also received this reminder email.
 
 If you are not their Team Leader / Manager and believe you have received this email by mistake please reply to this email.
+
+';
+$string['setting:defaultreminderinstrmngrdefault_v92'] = '*** Reminder only ****
+
+Your staff member [firstname] [lastname] is booked to attend and above course and has also received this reminder email.
+
+If you are not their Team Leader / Manager and believe you have received this email by mistake please reply to this email.
+
+Below is the message that was sent to the learner:
 
 ';
 $string['setting:defaultreminderinstrmngrcopybelow'] = '*** [firstname] [lastname]\'s reminder email is copied below ****';
@@ -1516,6 +1566,16 @@ Please review this request before registration closes on [registrationcutoff]
 Follow the link below to approve the request:
 [attendeeslink]
 ';
+$string['setting:defaultrequestinstrmngrdefault_v92'] = 'This is to advise that [firstname] [lastname] has requested to be booked into the following course, and you are listed as their Team Leader / Manager.
+
+Please review this request before registration closes on [registrationcutoff]
+
+Follow the link below to approve the request:
+[attendeeslink]
+
+Below is the message that was sent to the learner:
+
+';
 $string['setting:defaultrequestinstrmngrcopybelow'] = '*** [firstname] [lastname]\'s booking request is copied below ****';
 $string['setting:defaultrequestmessagedefault'] = 'Your request to book into the following course has been sent to your manager:
 
@@ -1560,6 +1620,16 @@ Please review this request before registration closes on [registrationcutoff]
 Follow the link below to review the request:
 [attendeeslink]
 ';
+$string['setting:defaultrolerequestinstrmngrdefault_v92'] = 'This is to advise that [firstname] [lastname] has requested to be booked into the following course, and you are listed as a [sessionrole] for the session.
+
+Please review this request before registration closes on [registrationcutoff]
+
+Follow the link below to review the request:
+[attendeeslink]
+
+Below is the message that was sent to the learner:
+
+';
 $string['setting:defaultrolerequestinstrmngrcopybelow'] = '*** [firstname] [lastname]\'s booking request is copied below ****';
 $string['setting:defaultrolerequestmessagedefault'] = 'Your request to book into the following course has been sent to the sessions [sessionrole](s):
 
@@ -1602,6 +1672,16 @@ Please review this request before registration closes on [registrationcutoff]
 
 Follow the link below to approve the request:
 [attendeeslink]
+';
+$string['setting:defaultadminrequestinstrmngrdefault_v92'] = 'This is to advise that [firstname] [lastname] has requested to be booked into the following course, and you are listed as an approver for the session.
+
+Please review this request before registration closes on [registrationcutoff]
+
+Follow the link below to approve the request:
+[attendeeslink]
+
+Below is the message that was sent to the learner:
+
 ';
 $string['setting:defaultadminrequestinstrmngrcopybelow'] = '*** [firstname] [lastname]\'s booking request is copied below ****';
 $string['setting:defaultadminrequestmessagedefault'] = 'Your request to book into the following course has been sent to the sessions approvers:
