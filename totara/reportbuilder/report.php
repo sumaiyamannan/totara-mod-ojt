@@ -107,7 +107,7 @@ if ($debug) {
 }
 
 // print report description if set
-echo $output->print_description(format_text($report->description), $report->_id);
+echo $output->print_description($report->description, $report->_id);
 
 // print filters
 $report->display_search();
