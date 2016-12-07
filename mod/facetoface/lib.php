@@ -4054,7 +4054,9 @@ function facetoface_is_adminapprover ($userid, stdClass $facetoface) {
     }
 
     $activityapprover = in_array($userid, explode(',', $facetoface->approvaladmins));
-    if ($systemapprover || $activityapprover) {
+
+    $admins = array_keys(get_admins());
+    if ($systemapprover || $activityapprover || in_array($userid, $admins)) {
         return true;
     }
     return false;
