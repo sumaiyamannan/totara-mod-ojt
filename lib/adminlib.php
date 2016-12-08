@@ -1514,7 +1514,7 @@ class admin_settingpage implements part_of_admin_tree {
      */
     public function output_html() {
         $adminroot = admin_get_root();
-        $return = '<fieldset>'."\n".'<div class="clearer"><!-- --></div>'."\n";
+        $return = '';
         foreach($this->settings as $setting) {
             $fullname = $setting->get_full_name();
             if (array_key_exists($fullname, $adminroot->errors)) {
@@ -1525,7 +1525,6 @@ class admin_settingpage implements part_of_admin_tree {
             }
             $return .= $setting->output_html($data);
         }
-        $return .= '</fieldset>';
         return $return;
     }
 
