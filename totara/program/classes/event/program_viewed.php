@@ -62,6 +62,10 @@ class program_viewed extends \core\event\base {
         if (isset($dataevent['userid'])) {
            $data['userid'] = $dataevent['userid'];
         }
+        if (isset($dataevent['relateduserid'])) {
+            // The related user id, if the current user is viewing the program from another users perspective.
+            $data['relateduserid'] = $dataevent['relateduserid'];
+        }
 
         self::$preventcreatecall = false;
         $event = self::create($data);
@@ -131,7 +135,11 @@ class program_viewed extends \core\event\base {
                 $url = new \moodle_url('/totara/program/view.php', array('id' => $this->objectid));
                 break;
             case "required":
-                $url = new \moodle_url('/totara/program/required.php', array('id' => $this->objectid, 'userid' => $this->userid));
+                $userid = $this->userid;
+                if (!empty($this->relateduserid)) {
+                    $userid = $this->relateduserid;
+                }
+                $url = new \moodle_url('/totara/program/required.php', array('id' => $this->objectid, 'userid' => $userid));
                 break;
             case "content":
                 $url = new \moodle_url('/totara/program/edit_content.php', array('id' => $this->objectid));
