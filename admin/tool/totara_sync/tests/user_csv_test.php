@@ -720,4 +720,45 @@ class tool_totara_sync_user_csv_testcase extends advanced_testcase {
         $this->assertSame('Import-edited', $DB->get_field('user', 'firstname', array('username' => 'import003')));
 
     }
+
+    /**
+     * Test record with missing idnumber is correctly skipped and
+     * doesn't effect import of any other records.
+     */
+    public function test_csv_with_missing_idnumber() {
+        global $DB, $CFG;
+
+        $this->resetAfterTest();
+
+        $this->assertCount(2, $DB->get_records('user'));
+
+        $configcsv = array_merge($this->configcsv, array('import_manageridnumber' => '1'));
+        foreach ($configcsv as $k => $v) {
+            set_config($k, $v, 'totara_sync_source_user_csv');
+        }
+
+        $config = array_merge($this->config, array(
+            'sourceallrecords' => '1', // Source contains all records.
+            'allow_delete' => '1', // Full delete.
+        ));
+        foreach ($config as $k => $v) {
+            set_config($k, $v, 'totara_sync_element_user');
+        }
+
+        $elements = totara_sync_get_elements(true);
+        /** @var totara_sync_element_user $element */
+        $element = $elements['user'];
+
+        // This file will addd 3 users.
+        $data = file_get_contents(__DIR__ . '/fixtures/user_missing_idnumber_1.csv');
+        $filepath = $this->filedir . '/csv/ready/user.csv';
+        file_put_contents($filepath, $data);
+
+        $result = $element->sync();
+
+        // We have circular management structure.
+        $this->assertFalse($result, 'Totara sync succeeded, but one user was missing an id number.');
+
+        $this->assertCount(5, $DB->get_records('user'));
+    }
 }
