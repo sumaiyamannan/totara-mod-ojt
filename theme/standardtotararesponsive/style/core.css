@@ -1507,7 +1507,7 @@ div.criteria-description {
 }
 
 /* flex icon fixes */
-.fp-navbar .flex-icon {
+.filemanager-toolbar .flex-icon {
     font-size: 18px;
     padding: 6px 2px;
 }

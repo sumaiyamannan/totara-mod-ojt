@@ -189,7 +189,9 @@ class core_files_renderer extends plugin_renderer_base {
         $icons = array(
             'add_file' => $this->output->flex_icon('document-new', ['alt' => get_string('addfiletext', 'repository')]),
             'create_folder' => $this->output->flex_icon('folder-create', ['alt' => get_string('createfolder', 'repository')]),
+            'deeper' => $this->output->flex_icon('deeper'),
             'download_all' => $this->output->flex_icon('download', ['alt' => get_string('downloadallfiles', 'repository')]),
+            'folder' => $this->output->flex_icon('folder'),
             'loading_small' => $this->output->flex_icon('loading', ['classes' => 'fp-img-downloading']),
             'view_icon_active' => $this->output->flex_icon('view-large', ['alt' => get_string('displayasicons', 'repository')]),
             'view_list_active' => $this->output->flex_icon('view-list', ['alt' => get_string('displayasdetails', 'repository')]),
@@ -224,7 +226,7 @@ class core_files_renderer extends plugin_renderer_base {
             </div>
         </div>
         <div class="fp-pathbar">
-            <span class="fp-path-folder"><a class="fp-path-folder-name" href="#"></a></span>
+            <span class="fp-path-folder">' . $icons['deeper'] . $icons['folder'] . '<a class="fp-path-folder-name" href="#"></a></span>
         </div>
     </div>
     <div class="filemanager-loading mdl-align">'.$icons['progress'].'</div>
@@ -608,7 +610,7 @@ class core_files_renderer extends plugin_renderer_base {
                 <div class="fp-clear-left"></div>
             </div>
             <div class="fp-pathbar">
-                 <span class="fp-path-folder"><a class="fp-path-folder-name" href="#"></a></span>
+                 <span class="fp-path-folder">' . $this->output->flex_icon('deeper') . $this->output->flex_icon('folder') . '<a class="fp-path-folder-name" href="#"></a></span>
             </div>
         </div>
         <div class="fp-content"></div>

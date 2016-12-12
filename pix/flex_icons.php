@@ -692,6 +692,13 @@ $icons = array(
                     'classes' => 'fa-database',
                 ),
         ),
+    'deeper' =>
+        array(
+            'data' =>
+                array(
+                    'classes' => 'fa-caret-right ft-flip-rtl'
+                ),
+        ),
     /* General delete icon to be used for all delete actions */
     'delete' =>
         array(
