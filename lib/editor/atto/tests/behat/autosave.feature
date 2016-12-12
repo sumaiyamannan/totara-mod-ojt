@@ -27,6 +27,24 @@ Feature: Atto Autosave
     And I log out
 
   @javascript
+  Scenario: Undo draft restore
+    Given I log in as "teacher1"
+    And I follow "Course 1"
+    And I navigate to "Edit settings" node in "Course administration"
+    And I set the field "Course summary" to "This is my draft"
+    # Wait for the autosave
+    And I wait "5" seconds
+    And I log out
+    When I log in as "teacher1"
+    And I follow "Course 1"
+    And I navigate to "Edit settings" node in "Course administration"
+    # Wait for the autorestore
+    And I wait "2" seconds
+    Then I should see "Draft content has been automatically restored on this page."
+    And I click on ".atto_undo_button_undo" "css_element"
+    Then I should not see "This is my draft"
+
+  @javascript
   Scenario: Restore a draft
     Given I log in as "teacher1"
     And I follow "Course 1"

@@ -128,16 +128,16 @@ div.editor_atto_toolbar div.atto_group {
 }
 
 /* RTL Rules */
-body.dir-rtl div.editor_atto_toolbar button + button {
+.dir-rtl div.editor_atto_toolbar button + button {
     border-left: 0;
     border-right: 1px solid #CCC;
 }
 
-body.dir-rtl div.editor_atto_toolbar img.icon {
+.dir-rtl div.editor_atto_toolbar img.icon {
     padding: 0;
 }
 
-body.dir-rtl div.editor_atto_toolbar div.atto_group {
+.dir-rtl div.editor_atto_toolbar div.atto_group {
     margin: 9px 9px 0 0;
 }
 
@@ -191,35 +191,43 @@ div.editor_atto_content:hover .atto_control {
     float: right;
     cursor: pointer;
 }
+.dir-rtl .editor_atto_notification{
+    float: left;
+}
 .editor_atto_notification .atto_info,
 .editor_atto_notification .atto_warning {
     display: inline-block;
-    background-color: #F2F2F2;
     padding: 0.5em;
     padding-left: 1em;
     padding-right: 1em;
-    border-bottom-left-radius: 1em;
-    border-bottom-right-radius: 1em;
+    border-top: none;
+    border-radius: 0px 0px 8px 8px;
 }
-.editor_atto_notification .atto_info {
-    background-color: #F2F2F2;
+.editor_atto_alert {
+    position: fixed;
+    z-index: 200; /* must sit atop main menu > sub menu positoned elements in case of :hover action */
+    top: 80px;
+    left: 50%;
+    opacity: 0; /* manipulated by Y.Anim */
+    box-shadow: 2px 2px 5px 1px #CCC;
+
+  -webkit-transform: translateX(-50%);
+      -ms-transform: translateX(-50%);
+          transform: translateX(-50%);
+
+    cursor: pointer;
 }
-.editor_atto_notification .atto_warning {
-    background-color: #FFD700;
+.editor_atto_alert .icon {
+  position: absolute;
+  top: 0;
+  right: 3px;
+}
+.dir-rtl .editor_atto_alert .icon {
+    right: auto;
+    left: 3px;
 }
 .editor_atto_toolbar,
 .editor_atto_content_wrap,
 .editor_atto + textarea {
     box-sizing: border-box;
-}
-.dir-rtl .editor_atto_notification .atto_info,
-.dir-rtl .editor_atto_notification .atto_warning {
-    border-bottom-right-radius: 1em;
-    border-bottom-left-radius: 1em;
-}
-.dir-ltr .editor_atto_notification {
-    right: 0;
-}
-.dir-rtl .editor_atto_notification {
-    left: 0;
 }
