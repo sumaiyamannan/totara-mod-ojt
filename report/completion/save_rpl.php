@@ -115,9 +115,16 @@ if (strlen($rpl)) {
 
 } else {
     // If no RPL, uncomplete user, and let aggregation do its thing.
-    $completion->set_properties($completion, array('timecompleted' => null, 'reaggregate' => time(), 'rpl' => null, 'rplgrade' => null, 'status' => COMPLETION_STATUS_INPROGRESS));
+    $completion->set_properties($completion, array(
+        'timecompleted' => null,
+        'reaggregate' => time(),
+        'rpl' => null,
+        'rplgrade' => null,
+        'status' => COMPLETION_STATUS_NOTYETSTARTED
+    ));
     $completion->update();
     \report_completion\event\rpl_deleted::create_from_rpl($user->id, $course->id, $cmid, $type)->trigger();
+    $completion->aggregate();
 }
 
 // Redirect, if requested (not an ajax request)
