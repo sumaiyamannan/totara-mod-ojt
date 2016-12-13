@@ -24,11 +24,23 @@
 global $CFG;
 require_once($CFG->dirroot.'/totara/feedback360/tests/feedback360_testcase.php');
 
+/**
+ * Class feedback360_responder_test
+ *
+ * Tests methods from the feedback360_repsonder class.
+ */
 class feedback360_responder_test extends feedback360_testcase {
+
+    /**
+     * @var testing_data_generator
+     */
+    private $data_generator;
 
     public function setUp() {
         parent::setUp();
-        $this->preventResetByRollback();
+        $this->resetAfterTest(true);
+
+        $this->data_generator = $this->getDataGenerator();
     }
 
     public function test_edit() {
@@ -173,5 +185,112 @@ class feedback360_responder_test extends feedback360_testcase {
         feedback360_responder::update_timedue($newtimedue, $userassignment->id);
         $resptest = new feedback360_responder($respid);
         $this->assertEquals($newtimedue, $resptest->timedue);
+    }
+
+    /**
+     * Tests the load() method with system users (users selected based on their Totara user records,
+     * rather than by email).
+     */
+    public function test_load_systemusers() {
+        global $DB;
+
+        // Create feedback360 and assign a user for requesting feedback and users for responding.
+        list($feedback360, $requesters, $questions) = $this->prepare_feedback_with_users();
+        $requester = reset($requesters);
+
+        $this->setCurrentTimeStart();
+
+        // Creating 2 system user assignments.
+        $user1 = $this->data_generator->create_user();
+        $user2 = $this->data_generator->create_user();
+        $systemresponder1 = $this->assign_resp($feedback360, $requester->id, $user1->id);
+        $systemresponder2 = $this->assign_resp($feedback360, $requester->id, $user2->id);
+
+        $userassignment = $DB->get_record('feedback360_user_assignment', array('feedback360id' => $feedback360->id,
+            'userid' => $requester->id));
+
+        // Creating 2 email user assignments.
+        feedback360_responder::update_external_assignments(
+            array('email1@example.com', 'email2@example.com'),
+            array(),
+            $userassignment->id,
+            0
+        );
+
+        // Grab db records for system users assigned to be responders to feedback.
+        $dbrecords = $DB->get_records_select('feedback360_resp_assignment', 'feedback360emailassignmentid IS NULL');
+        // We'll just use the first for our comparisons.
+        $dbrecord = array_pop($dbrecords);
+
+        $result = new feedback360_responder();
+        $result->load($dbrecord->id);
+
+        // Confirm data loaded is correct.
+        $this->assertEquals($dbrecord->id, $result->id);
+        $this->assertEquals($feedback360->id, $result->feedback360id);
+        $this->assertEquals($userassignment->id, $result->feedback360userassignmentid);
+        $this->assertEquals($requester->id, $result->subjectid);
+        $this->assertEquals(0, $result->viewed);
+        $this->assertTimeCurrent($result->timeassigned);
+        $this->assertEquals(0, $result->timecompleted);
+        $this->assertTimeCurrent($result->timedue);
+        $this->assertNull($result->feedback360emailassignmentid);
+        $this->assertEquals('', $result->get_email());
+        $this->assertEquals('', $result->token);
+        $this->assertEquals(feedback360_responder::TYPE_USER, $result->type);
+        $this->assertEquals($dbrecord->userid, $result->userid);
+    }
+
+    /**
+     * Tests the load() method with email-based responders. No user in Totara is specified with these
+     * users, instead requests for feedback are based on email addresses only.
+     */
+    public function test_load_emailresponders() {
+        global $DB;
+
+        // Create feedback360 and assign a user for requesting feedback and users for responding.
+        list($feedback360, $requesters, $questions) = $this->prepare_feedback_with_users();
+        $requester = reset($requesters);
+
+        $this->setCurrentTimeStart();
+
+        // Creating 2 system user assignments.
+        $user1 = $this->data_generator->create_user();
+        $user2 = $this->data_generator->create_user();
+        $systemresponder1 = $this->assign_resp($feedback360, $requester->id, $user1->id);
+        $systemresponder2 = $this->assign_resp($feedback360, $requester->id, $user2->id);
+
+        $userassignment = $DB->get_record('feedback360_user_assignment', array('feedback360id' => $feedback360->id,
+            'userid' => $requester->id));
+
+        // Creating 2 email user assignments.
+        feedback360_responder::update_external_assignments(
+            array('email1@example.com', 'email2@example.com'),
+            array(),
+            $userassignment->id,
+            0
+        );
+
+        // Grab db records for an email user assigned to be responder to feedback.
+        $email1assignmentrecord =  $DB->get_record('feedback360_email_assignment', array('email' => 'email1@example.com'));
+        $dbrecord = $DB->get_record('feedback360_resp_assignment', array('feedback360emailassignmentid' => $email1assignmentrecord->id));
+
+        $result = new feedback360_responder();
+        $result->load($dbrecord->id);
+
+        // Confirm data loaded is correct.
+        $this->assertEquals($dbrecord->id, $result->id);
+        $this->assertEquals($feedback360->id, $result->feedback360id);
+        $this->assertEquals($userassignment->id, $result->feedback360userassignmentid);
+        $this->assertEquals($requester->id, $result->subjectid);
+        $this->assertEquals(0, $result->viewed);
+        $this->assertTimeCurrent($result->timeassigned);
+        $this->assertEquals(0, $result->timecompleted);
+        $this->assertTimeCurrent($result->timedue);
+        $this->assertNull($result->feedback360emailassignmentid);
+        $this->assertEquals('email1@example.com', $result->get_email());
+        $this->assertEquals($email1assignmentrecord->token, $result->token);
+        $this->assertEquals(feedback360_responder::TYPE_EMAIL, $result->type);
+        $this->assertEquals(0, $result->userid);
     }
 }

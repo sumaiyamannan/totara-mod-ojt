@@ -144,6 +144,11 @@ if ($action == 'form') {
         }
     }
 
+    if ($feedback360->anonymous) {
+        shuffle($data['emailexisting']);
+        shuffle($data['systemexisting']);
+    }
+
     $existing = !empty($data['systemexisting']) ? implode(',', array_keys($data['systemexisting'])) : '';
 
     $args = array('args'=>'{"userid":' . $userid . ','
