@@ -309,7 +309,6 @@ class MoodleQuickForm_date_time_selector extends MoodleQuickForm_group {
      * @return array
      */
     function exportValue(&$submitValues, $assoc = false) {
-        $value = null;
         $valuearray = array();
         $pickername = $this->getName();
 
@@ -323,8 +322,7 @@ class MoodleQuickForm_date_time_selector extends MoodleQuickForm_group {
             if($this->_options['optional']) {
                 // If checkbox is on, the value is zero, so go no further
                 if(empty($valuearray['enabled'])) {
-                    $value[$this->getName()] = 0;
-                    return $value;
+                    return $this->_prepareValue(0, $assoc);
                 }
             }
             $valuearray = $valuearray + array('year' => 1970, 'month' => 1, 'day' => 1, 'hour' => 0, 'minute' => 0,
@@ -334,6 +332,7 @@ class MoodleQuickForm_date_time_selector extends MoodleQuickForm_group {
             //add the raw datestring in case we want to process the value differently
             $rawvalue = $valuearray['year'] . '-' . str_pad($valuearray['month'], 2, '0', STR_PAD_LEFT)  . '-' . str_pad($valuearray['day'], 2, '0', STR_PAD_LEFT);
             $rawvalue .= ' ' . str_pad($valuearray['hour'], 2, '0', STR_PAD_LEFT)  . ':' . str_pad($valuearray['minute'], 2, '0', STR_PAD_LEFT)  . ':00';
+            $value = array();
             $value[$pickername . '_raw'] = $rawvalue;
             $value[$pickername . '_timezone'] = $valuearray['timezone'];
 
@@ -344,7 +343,7 @@ class MoodleQuickForm_date_time_selector extends MoodleQuickForm_group {
                                                                  $valuearray['day'],
                                                                  $valuearray['hour'],
                                                                  $valuearray['minute']);
-            $value[$this->getName()] = make_timestamp($gregoriandate['year'],
+            $value[$pickername] = make_timestamp($gregoriandate['year'],
                                                       $gregoriandate['month'],
                                                       $gregoriandate['day'],
                                                       $gregoriandate['hour'],
@@ -352,8 +351,12 @@ class MoodleQuickForm_date_time_selector extends MoodleQuickForm_group {
                                                       0,
                                                       $valuearray['timezone'],
                                                       true);
-
-            return $value;
+            if (!$assoc) {
+                return $value[$pickername];
+            } else {
+                // Totara: do not use _prepareValue() here because it cannot handle the timezone and raw hack!
+                return $value;
+            }
         } else {
             return null;
         }
