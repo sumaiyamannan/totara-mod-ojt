@@ -179,6 +179,9 @@ if ($data = $form->get_data()) {
         if (isset($data->audiencevisible)) {
             $program_todb->audiencevisible = $data->audiencevisible;
         }
+        if (isset($data->allowextensionrequests)) {
+            $program_todb->allowextensionrequests = $data->allowextensionrequests;
+        }
 
         // Set up the new program.
         $program = program::create($program_todb);
