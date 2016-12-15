@@ -102,4 +102,6 @@ foreach ($ids as $msgid => $message) {
 }
 
 // send them home
-redirect($returnto);
+if(!is_ajax_request($_SERVER)) {
+    redirect($returnto);
+}
