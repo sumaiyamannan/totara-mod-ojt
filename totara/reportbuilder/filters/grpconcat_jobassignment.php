@@ -316,7 +316,7 @@ class rb_filter_grpconcat_jobassignment extends rb_filter_hierarchy_multi {
             'totara_hierarchy' => array('chooseposition', 'selected', 'chooseorganisation', 'currentlyselected', 'selectcompetency'),
             'totara_reportbuilder' => array('chooseorgplural', 'chooseposplural', 'choosecompplural')
         );
-        $jsdetails->args = array('filter_to_load' => 'jobassign_multi', null, null, null, 'reportid' => $this->report->_id);
+        $jsdetails->args = array('filter_to_load' => 'jobassign_multi', null, null, $this->name, 'reportid' => $this->report->_id);
 
         foreach ($jsdetails->strings as $scomponent => $sstrings) {
             $PAGE->requires->strings_for_js($sstrings, $scomponent);
