@@ -16,6 +16,7 @@ Feature: Teachers can embed images into instructions and conclusion fields
       | teacher1 | C1     | editingteacher |
     And I log in as "teacher1"
     # Upload an image into the private files.
+    And I follow "Profile" in the user menu
     And I follow "Manage private files"
     And I upload "mod/workshop/tests/fixtures/moodlelogo.png" file to "Files" filemanager
     And I click on "Save changes" "button"
