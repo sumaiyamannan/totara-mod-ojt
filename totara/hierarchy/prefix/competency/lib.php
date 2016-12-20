@@ -626,9 +626,6 @@ class competency extends hierarchy {
         // define the table
         $out = new html_table();
         $out->id = 'list-coursecompetency';
-        $out->attributes = array(
-                'class' => 'boxaligncenter',
-        );
         $out->head = array();
         $out->rowclasses[0] = 'header';
 
