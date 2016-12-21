@@ -246,6 +246,7 @@ Feature: Verify capability manageanyplan.
     # No confirmation message is displayed for the above status change
     # or the following so not a great 'then'.
     Then I set the field "compprof_competency[2]" to "Competent with supervision"
+    And I wait "1" seconds
     And I set the field "priorities_competency[2]" to "Low"
 
     # Add some linked courses to the competency.
