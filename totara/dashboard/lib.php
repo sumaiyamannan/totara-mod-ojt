@@ -409,26 +409,60 @@ class totara_dashboard {
 
         // Now copy across the blocks and their content.
         $context = context_system::instance();
-        $blocks = $DB->get_records('block_instances', array(
+        $sql = "SELECT
+                    bi.*,
+                    bp.blockinstanceid,
+                    bp.contextid,
+                    bp.pagetype,
+                    bp.subpage,
+                    bp.visible,
+                    bp.region,
+                    bp.weight
+                FROM {block_instances} bi
+                LEFT JOIN {block_positions} bp ON bp.blockinstanceid = bi.id
+                WHERE parentcontextid = :parentcontextid AND pagetypepattern = :pagetypepattern
+                ORDER BY bi.id";
+        $params = array(
             'parentcontextid' => $context->id,
             'pagetypepattern' => 'my-totara-dashboard-' . $this->id
-        ));
-        if ($blocks) {
-            foreach ($blocks as $block) {
-                $originalid = $block->id;
-                unset($block->id);
-
+        );
+        $blockinstances = $DB->get_records_sql($sql, $params);
+        if ($blockinstances) {
+            foreach ($blockinstances as $bi) {
+                // Clone block record.
+                $block = new stdClass();
                 // Amend the page type pattern to the newly cloned dashboard.
                 $block->pagetypepattern = 'my-totara-dashboard-' . $dashboard->id;
+                $block->blockname = $bi->blockname;
+                $block->parentcontextid = $bi->parentcontextid;
+                $block->showinsubcontexts = $bi->showinsubcontexts;
+                $block->subpagepattern = $bi->subpagepattern;
+                $block->defaultregion = $bi->defaultregion;
+                $block->defaultweight = $bi->defaultweight;
+                $block->configdata = $bi->configdata;
                 // Create the new block record.
                 $block->id = $DB->insert_record('block_instances', $block);
+
+                // If block position exists then clone it too.
+                if ($bi->blockinstanceid) {
+                    $bp = new stdClass();
+                    $bp->blockinstanceid = $block->id;
+                    $bp->contextid = $bi->contextid;
+                    $bp->pagetype  = $block->pagetypepattern;
+                    $bp->subpage   = $bi->subpage;
+                    $bp->visible   = $bi->visible;
+                    $bp->region    = $bi->region;
+                    $bp->weight    = $bi->weight;
+                    // Create the new block position record.
+                    $bp->id = $DB->insert_record('block_positions', $bp);
+                }
 
                 // Force the creation of the block context.
                 context_block::instance($block->id);
                 // Copy the block content from one to the next.
                 $block = block_instance($block->blockname, $block);
-                if (!$block->instance_copy($originalid)) {
-                    debugging("Unable to copy block data for original block instance: $originalid to new block instance: $block->id", DEBUG_DEVELOPER);
+                if (!$block->instance_copy($bi->id)) {
+                    debugging("Unable to copy block data for original block instance: $bi->id to new block instance: $block->id", DEBUG_DEVELOPER);
                 }
             }
         }
