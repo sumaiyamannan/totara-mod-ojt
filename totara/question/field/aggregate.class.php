@@ -337,9 +337,12 @@ class question_aggregate extends question_base{
         }
 
         // First filter is used to determine whether any question was actually answered
-        $anyanswer = array_filter($answer, function ($val, $key) {
-            return !preg_match('/_default$/', $key) && !is_null($val);
-        }, ARRAY_FILTER_USE_BOTH);
+        $anyanswer = array();
+        foreach ($answer as $key => $val) {
+            if (!preg_match('/_default$/', $key) && !is_null($val)) {
+                $anyanswer[$key] = $val;
+            }
+        }
 
         if (empty($anyanswer)) {
             $out = get_string('notanswered', 'totara_question');
