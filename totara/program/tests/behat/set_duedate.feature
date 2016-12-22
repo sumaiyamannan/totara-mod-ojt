@@ -10,9 +10,18 @@ Feature: Set due date for program assignments
       | username | firstname | lastname | email             | timezone         |
       | user1    | John      | Smith    | user1@example.com | Europe/Rome      |
       | user2    | Mary      | Jones    | user2@example.com | America/New_York |
+    And the following "custom profile fields" exist in "totara_core" plugin:
+      | datatype | shortname | name                     | param1      |
+      | text     | pfti      | Profile field text input |             |
+    And the following "courses" exist:
+      | fullname               | shortname     | format | enablecompletion | completionstartonenrol |
+      | Course search result x | coursesearchx | topics | 1                | 1                      |
+      | Course search result y | coursesearchy | topics | 1                | 1                      |
     And the following "programs" exist in "totara_program" plugin:
-      | fullname                | shortname    |
-      | Set Due Date Tests      | duedatetest  |
+      | fullname                | shortname   |
+      | Set Due Date Tests      | duedatetest |
+      | Program search result x | progsearchx |
+      | Program search result y | progsearchy |
     And the following "cohorts" exist:
       | name      | idnumber | contextlevel | reference |
       | Audience1 | aud1     | System       |           |
@@ -24,8 +33,10 @@ Feature: Set due date for program assignments
       | fullname           | idnumber  |
       | Position Framework | pframe    |
     And the following "positions" exist in "totara_hierarchy" plugin:
-      | fullname     | idnumber  | pos_framework |
-      | Position One | pos1      | pframe        |
+      | fullname                 | idnumber  | pos_framework |
+      | Position One             | pos1      | pframe        |
+      | Position search result x | posx      | pframe        |
+      | Position search result y | posy      | pframe        |
     And I log in as "admin"
     # Get back the removed dashboard item for now.
     And I navigate to "Main menu" node in "Site administration > Appearance"
@@ -175,3 +186,92 @@ Feature: Set due date for program assignments
     Then I should see "Complete within 2 Year(s) of being assigned position 'Position One'" in the "Audience1" "table_row"
     And I press "Save changes"
     And I click on "Save all changes" "button" in the "Confirm assignment changes" "totaradialogue"
+
+  @javascript
+  Scenario: Relative due date related objects can be selected and searched
+    Given I select "Individuals" from the "category_select_dropdown" singleselect
+    And I click on "Add" "button" in the "#category_select" "css_element"
+    And I click on "Add individuals to program" "button"
+    And I click on "John Smith (user1@example.com)" "link" in the "Add individuals to program" "totaradialogue"
+    And I click on "Ok" "button" in the "Add individuals to program" "totaradialogue"
+    And I wait "1" seconds
+    # Program completion.
+    And I click on "Set due date" "link" in the "John Smith" "table_row"
+    And I set the following fields to these values:
+      | timeamount | 2                  |
+      | timeperiod | Month(s)           |
+      | eventtype  | Program completion |
+    And I wait "1" seconds
+    Then I should see "Miscellaneous" in the "Choose item" "totaradialogue"
+    When I click on "Miscellaneous" "link" in the "Choose item" "totaradialogue"
+    Then I should see "Program search result x" in the "Choose item" "totaradialogue"
+    And I should see "Program search result y" in the "Choose item" "totaradialogue"
+    And I click on "Search" "link" in the "Choose item" "totaradialogue"
+    And I set the field "id_query" to "x"
+    And I click on "Search" "button" in the "Choose item" "totaradialogue"
+    Then I should see "Program search result x" in the "Choose item" "totaradialogue"
+    And I should not see "Program search result y" in the "Choose item" "totaradialogue"
+    And I click on "Program search result x" "link" in the "#search-tab" "css_element"
+    And I click on "Ok" "button" in the "Choose item" "totaradialogue"
+    When I click on "Set time relative to event" "button" in the "Completion criteria" "totaradialogue"
+    Then I should see "Complete within 2 Month(s) of completion of program 'Program search result x'"
+    # Position assigned date.
+    And I click on "Complete within 2 Month(s) of completion of program 'Program search result x'" "link" in the "John Smith" "table_row"
+    And I set the following fields to these values:
+      | eventtype  | Position assigned date |
+    And I wait "1" seconds
+    Then I should see "Position search result x" in the "Choose item" "totaradialogue"
+    And I should see "Position search result y" in the "Choose item" "totaradialogue"
+    And I click on "Search" "link" in the "Choose item" "totaradialogue"
+    And I set the field "id_query" to "x"
+    And I click on "Search" "button" in the "Choose item" "totaradialogue"
+    Then I should see "Position search result x" in the "Choose item" "totaradialogue"
+    And I should not see "Position search result y" in the "Choose item" "totaradialogue"
+    And I click on "Position search result x" "link" in the "#search-tab" "css_element"
+    And I click on "Ok" "button" in the "Choose item" "totaradialogue"
+    When I click on "Set time relative to event" "button" in the "Completion criteria" "totaradialogue"
+    Then I should see "Complete within 2 Month(s) of being assigned position 'Position search result x'"
+    # Job assignment start date.
+    And I click on "Complete within 2 Month(s) of being assigned position 'Position search result x'" "link" in the "John Smith" "table_row"
+    And I set the following fields to these values:
+      | eventtype  | Job assignment start date |
+    And I wait "1" seconds
+    Then I should see "Position search result x" in the "Choose item" "totaradialogue"
+    And I should see "Position search result y" in the "Choose item" "totaradialogue"
+    And I click on "Search" "link" in the "Choose item" "totaradialogue"
+    And I set the field "id_query" to "x"
+    And I click on "Search" "button" in the "Choose item" "totaradialogue"
+    Then I should see "Position search result x" in the "Choose item" "totaradialogue"
+    And I should not see "Position search result y" in the "Choose item" "totaradialogue"
+    And I click on "Position search result x" "link" in the "#search-tab" "css_element"
+    And I click on "Ok" "button" in the "Choose item" "totaradialogue"
+    When I click on "Set time relative to event" "button" in the "Completion criteria" "totaradialogue"
+    Then I should see "Complete within 2 Month(s) of start in position 'Position search result x'"
+    # Course completion date.
+    And I click on "Complete within 2 Month(s) of start in position 'Position search result x'" "link" in the "John Smith" "table_row"
+    And I set the following fields to these values:
+      | eventtype  | Course completion |
+    And I wait "1" seconds
+    Then I should see "Miscellaneous" in the "Choose item" "totaradialogue"
+    When I click on "Miscellaneous" "link" in the "Choose item" "totaradialogue"
+    Then I should see "Course search result x" in the "Choose item" "totaradialogue"
+    And I should see "Course search result y" in the "Choose item" "totaradialogue"
+    And I click on "Search" "link" in the "Choose item" "totaradialogue"
+    And I set the field "id_query" to "x"
+    And I click on "Search" "button" in the "Choose item" "totaradialogue"
+    Then I should see "Course search result x" in the "Choose item" "totaradialogue"
+    And I should not see "Course search result y" in the "Choose item" "totaradialogue"
+    And I click on "Course search result x" "link" in the "#search-tab" "css_element"
+    And I click on "Ok" "button" in the "Choose item" "totaradialogue"
+    When I click on "Set time relative to event" "button" in the "Completion criteria" "totaradialogue"
+    Then I should see "Complete within 2 Month(s) of completion of course 'Course search result x'"
+    # Profile field date.
+    And I click on "Complete within 2 Month(s) of completion of course 'Course search result x'" "link" in the "John Smith" "table_row"
+    And I set the following fields to these values:
+      | eventtype  | Profile field date |
+    And I wait "1" seconds
+    Then I should see "Profile field text input" in the "Choose item" "totaradialogue"
+    And I click on "Profile field text input" "link" in the "Choose item" "totaradialogue"
+    And I click on "Ok" "button" in the "Choose item" "totaradialogue"
+    When I click on "Set time relative to event" "button" in the "Completion criteria" "totaradialogue"
+    Then I should see "Complete within 2 Month(s) of date in profile field 'Profile field text input'"
