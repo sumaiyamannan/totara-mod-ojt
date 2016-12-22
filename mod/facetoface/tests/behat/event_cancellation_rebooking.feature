@@ -31,7 +31,7 @@ Feature: Seminar event cancellation rebooking
     And I add a "Seminar" to section "1" and I fill the form with:
       | Name                                   | Test Seminar |
       | Description                            | Test Seminar |
-      | Users can sign-up to multiple sessions | 0            |
+      | Users can sign-up to multiple events   | 0            |
     And I follow "View all events"
 
     Given I follow "Add a new event"
