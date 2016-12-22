@@ -219,13 +219,19 @@ class rb_source_courses extends rb_base_source {
             "base.category"
         );
         $requiredcolumns[] = new rb_column(
-            'base',
+            'visibility',
+            'id',
+            '',
+            "base.id"
+        );
+        $requiredcolumns[] = new rb_column(
+            'visibility',
             'visible',
             '',
             "base.visible"
         );
         $requiredcolumns[] = new rb_column(
-            'base',
+            'visibility',
             'audiencevisible',
             '',
             "base.audiencevisible"
@@ -279,12 +285,7 @@ class rb_source_courses extends rb_base_source {
         $categoryparams = array('sitelevelcategory' => 0);
 
         $reportfor = $report->reportfor; // ID of the user the report is for.
-        $fieldalias = 'base';
-        $fieldbaseid = $report->get_field('base', 'id', 'base.id');
-        $fieldvisible = $report->get_field('base', 'visible', 'base.visible');
-        $fieldaudvis = $report->get_field('base', 'audiencevisible', 'base.audiencevisible');
-        list($visiblesql, $visibleparams) = totara_visibility_where($reportfor,
-                $fieldbaseid, $fieldvisible, $fieldaudvis, $fieldalias, 'course', $report->is_cached());
+        list($visiblesql, $visibleparams) = $report->post_config_visibility_where('course', 'base', $reportfor);
 
         // Combine the results.
         $report->set_post_config_restrictions(array($categorysql . " AND " . $visiblesql,

@@ -799,7 +799,8 @@ class totara_reportbuilder_renderer extends plugin_renderer_base {
         if (isset($description) &&
             trim(strip_tags($description)) != '') {
             $out .= $this->output->box_start('generalbox reportbuilder-description');
-            $out .= $description;
+            // format_text is HTML and multi language support for general and embedded reports.
+            $out .= format_text($description);
             $out .= $this->output->box_end();
         }
         return $out;

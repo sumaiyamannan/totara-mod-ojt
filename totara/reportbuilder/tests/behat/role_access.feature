@@ -253,3 +253,82 @@ Feature: Test role access restrictions in Reportbuilder
     And I follow "Some User Report"
     And I should see "usernobody"
 
+  Scenario: Set Reportbuilder role access restriction for authenticated user in any context
+    # This test is here because the authenticated user role is not automatically
+    # given to a system user. If the the report builder code does not explicitly
+    # add the role, then this test will fail for the "any context" option.
+
+    Given I switch to "Access" tab
+    And I set the field "Context" to "any"
+    And I set the field "Site Manager" to "0"
+    And I set the field "Authenticated user" to "1"
+    And I press "Save changes"
+
+    When I click on "Reports" in the totara menu
+    Then I should see "Some User Report"
+    And I follow "Some User Report"
+    And I should see "usernobody"
+
+    When I log out
+    And I log in as "usermanager"
+    Then I should see "Reports"
+
+    When I click on "Reports" in the totara menu
+    Then I should see "Some User Report"
+    And I follow "Some User Report"
+    And I should see "usernobody"
+
+    When I log out
+    And I log in as "usercreator"
+    Then I should see "Reports"
+
+    When I click on "Reports" in the totara menu
+    Then I should see "Some User Report"
+    And I follow "Some User Report"
+    And I should see "usernobody"
+
+    When I log out
+    And I log in as "userstudent"
+    Then I should see "Reports"
+
+    When  I click on "Reports" in the totara menu
+    Then I should see "Some User Report"
+    And I follow "Some User Report"
+    And I should see "usernobody"
+
+    When I log out
+    And I log in as "usernobody"
+    Then I should see "Reports"
+
+    When I click on "Reports" in the totara menu
+    Then I should see "Some User Report"
+    And I follow "Some User Report"
+    And I should see "usernobody"
+
+    Given I log out
+    And I log in as "admin"
+    And I click on "Reports" in the totara menu
+    And I follow "Some User Report"
+    And I press "Edit this report"
+    And I click on "Access" "link" in the ".tabtree" "css_element"
+    And I set the field "Context" to "any"
+    And I set the field "Authenticated user" to "0"
+    And I press "Save changes"
+
+    When I log out
+    And I log in as "usermanager"
+    Then I should not see "Reports"
+
+    When I log out
+    And I log in as "usercreator"
+    Then I should not see "Reports"
+
+    When I log out
+    And I log in as "userstudent"
+    Then I should not see "Reports"
+
+    When I log out
+    And I log in as "usernobody"
+    Then I should not see "Reports"
+
+

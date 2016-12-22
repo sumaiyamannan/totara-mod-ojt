@@ -34,6 +34,8 @@ require_login();
 
 // Set up the variables for a personal goal.
 $goalpersonal = goal::get_goal_item(array('id' => $goalpersonalid), goal::SCOPE_PERSONAL);
+customfield_load_data($goalpersonal, 'goal_user', 'goal_user');
+
 $userid = $goalpersonal->userid;
 $context = context_user::instance($userid);
 $PAGE->set_context($context);
@@ -158,6 +160,33 @@ if ($goalpersonal->description) {
 }
 
 $tabledata[$title] = format_text($goalpersonal->description, FORMAT_HTML, $TEXTAREA_OPTIONS);
+
+// Also display custom personal goal fields to be consistent with custom company goals
+$hierarchy = hierarchy::load_hierarchy('goal');
+$cfdata = $hierarchy->get_custom_fields($goalpersonalid, true);
+
+if ($cfdata) {
+    foreach ($cfdata as $cf) {
+        // Don't show hidden custom fields.
+        if ($cf->hidden) {
+            continue;
+        }
+        $cf_class = "customfield_{$cf->datatype}";
+
+        require_once($CFG->dirroot.'/totara/customfield/field/'.$cf->datatype.'/field.class.php');
+        if (!class_exists($cf_class) || !is_subclass_of($cf_class, 'customfield_base')) {
+            throw new moodle_exception('error', '', '', null, 'invalid classname');
+        }
+
+        $data = array(
+            'type' => $cf->datatype,
+            'title' => $cf->fullname,
+            'value' => call_user_func(array($cf_class, 'display_item_data'), $cf->data,
+                array('prefix' => 'goal_user', 'itemid' => $cf->id, 'extended' => true))
+        );
+        $tabledata[$cf->fullname] = $data['value'];
+    }
+}
 
 echo html_writer::start_tag('dl', array('class' => 'dl-horizontal'));
 

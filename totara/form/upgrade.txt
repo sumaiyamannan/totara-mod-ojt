@@ -1,0 +1,7 @@
+This file describes API changes in Totara forms,
+information provided here is intended especially for developers.
+
+
+=== 9.2 ===
+
+* \totara_form\model::get_current_data(null) now returns all current data

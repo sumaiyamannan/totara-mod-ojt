@@ -362,16 +362,6 @@ class totara_appraisal_generator extends component_generator_base {
     private function setup_ratingcustom_question(array &$data) {
         $choices = array();
 
-        // Set up some default options.
-        for ($index = 1; $index < 6; $index++) {
-            $choice = array();
-            $choice['option'] = 'choice' . $index;
-            $choice['score'] = $index * 2;
-            $choice['default'] = "0";
-
-            $choices[] = $choice;
-        }
-
         // Make sure we have some default values for things set by $extradata.
         $data['listtype']['list'] = "1"; //DISPLAY_RADIO
         if (!empty($data['ExtraInfo'])) {
@@ -393,6 +383,17 @@ class totara_appraisal_generator extends component_generator_base {
                             default:
                                 return false;
                         }
+                    case 'Scores':
+                        $scores = explode(';', $value);
+                        foreach ($scores as $idx => $score) {
+                            $choice = array();
+                            $choice['option'] = 'choice' . ($idx + 1);
+                            $choice['score'] = $score;
+                            $choice['default'] = "0";
+
+                            $choices[] = $choice;
+                        }
+                        break;
                     default:
                         return false;
                 }
@@ -400,10 +401,23 @@ class totara_appraisal_generator extends component_generator_base {
             unset($data['ExtraInfo']);
         }
 
+        if (count($choices) == 0) {
+            // Set up some default options.
+            for ($index = 1; $index < 6; $index++) {
+                $choice = array();
+                $choice['option'] = 'choice' . $index;
+                $choice['score'] = $index * 2;
+                $choice['default'] = "0";
+
+                $choices[] = $choice;
+            }
+        }
+
         if (isset($data['default']) && $data['default'] !== '') {
-            foreach ($choices as $choice) {
+            foreach ($choices as $idx => $choice) {
                 if ($choice['option'] == $data['default']) {
-                    $choice['default'] = "1";
+                    // For some reason assigning $choice['default'] doesn't always work
+                    $choices[$idx]['default'] = "1";
                 }
             }
 
@@ -426,17 +440,41 @@ class totara_appraisal_generator extends component_generator_base {
 
         // Should contain question names.
         $selections = array();
+        $useUnans = false;
+        $useZero = false;
+
         if (!isset($data['ExtraInfo']) or $data['ExtraInfo'] === '*') {
             $selections = array_keys($options);
         } else {
-            // Match the question name on string like "Stagename - Pagename : Questionname".
-            $questions = explode(',', $data['ExtraInfo']);
-            foreach ($questions as $quest) {
-                foreach ($options as $key => $option) {
-                    $pattern = '/.+ - .+ : ' . $quest . '/';
-                    if (preg_match($pattern, $option)) {
-                        $selections[] = $key;
-                        continue(2);
+            $extrainfo = explode(';', $data['ExtraInfo']);
+
+            // For now having at most 2 options.
+            // Using foreach for future expansion
+            foreach ($extrainfo as $extra) {
+                $valuepair = explode(':', $extra);
+                if (count ($valuepair) == 1) {
+                    $questions = explode(',', $valuepair[0]);
+                    // Match the question name on string like "Stagename - Pagename : Questionname".
+                    foreach ($questions as $quest) {
+                        foreach ($options as $key => $option) {
+                            $pattern = '/.+ - .+ : ' . $quest . '/';
+                            if (preg_match($pattern, $option)) {
+                                $selections[] = $key;
+                                continue(2);
+                            }
+                        }
+                    }
+                }
+                else {
+                    switch ($valuepair[0]) {
+                        case 'UseUnans':
+                            $useUnans = strtolower($valuepair[1][0]) == 't' ? true : false;
+                            break;
+                        case 'UseZero':
+                            $useZero = strtolower($valuepair[1][0]) == 't' ? true : false;
+                            break;
+                        default:
+                            break;
                     }
                 }
             }
@@ -446,6 +484,8 @@ class totara_appraisal_generator extends component_generator_base {
         $data['multiselectfield'] = $selections;
         $data['aggregateaverage'] = "1";
         $data['aggregatemedian'] = "1";
+        $data['aggregateincludeunanswered'] = $useUnans;
+        $data['aggregateincludezero'] = $useZero;
     }
 
     /**

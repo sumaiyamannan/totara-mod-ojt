@@ -1197,20 +1197,14 @@ class development_plan {
         // only print if there are pending items
         $out = '';
         if (count($list)) {
-            $table = new html_table();
-            $table->attributes['class'] = 'invisiblepadded';
-            $row = new html_table_row();
             $descriptor .= ($itemscount > 1 ? '_p' : '_s');
-            $description = $OUTPUT->container_start('plan_box_wrap');
-            $description .= html_writer::tag('p', get_string($descriptor, 'totara_plan'));
+            $description = html_writer::tag('p', get_string($descriptor, 'totara_plan'));
             $description .= html_writer::alist($list);
-            $description .= $OUTPUT->container_end();
 
             $url = new moodle_url('/totara/plan/approve.php', array('id' => $this->id));
             $actionbutton = $canapprove ? $OUTPUT->single_button($url, get_string('review', 'totara_plan'), 'get') : '';
 
-            $table->data[] = new html_table_row(array($description, $actionbutton));
-            $out = html_writer::table($table);
+            $out = $description . $actionbutton;
         }
 
         return $out;
@@ -1247,7 +1241,7 @@ class development_plan {
         }
 
         // put the heading on now we know how many
-        $out = $OUTPUT->container(html_writer::tag('p', get_string(($totalitems > 1 ? 'planhasunapproveditems' : 'planhasunapproveditem'), 'totara_plan')) . html_writer::alist($list), 'plan_box_wrap');
+        $out = html_writer::tag('p', get_string(($totalitems > 1 ? 'planhasunapproveditems' : 'planhasunapproveditem'), 'totara_plan')) . html_writer::alist($list);
 
         // Show request button if plan is active
         if ($this->status == DP_PLAN_STATUS_APPROVED && $can_manage) {

@@ -15,7 +15,8 @@ Feature: User recertification and expiry of certification
       | Recertify Course | RC1       | topics | 1                | 1                      |
     And I log in as "admin"
     And I set the following administration settings values:
-      | menulifetime | 0 |
+      | menulifetime   | 0       |
+      | enableprograms | Disable |
     And I set self completion for "Certify Course" in the "Miscellaneous" category
     And I set self completion for "Recertify Course" in the "Miscellaneous" category
     And I click on "Certifications" in the totara menu

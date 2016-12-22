@@ -52,7 +52,7 @@ class restore_facetoface_activity_task extends restore_activity_task {
     static public function define_decode_contents() {
         $contents = array();
 
-//        $contents[] = new restore_decode_content('facetoface', array(), 'facetoface');
+        $contents[] = new restore_decode_content('facetoface', array('intro'), 'facetoface');
 
         return $contents;
     }

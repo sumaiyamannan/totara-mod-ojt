@@ -1369,30 +1369,36 @@ class dp_competency_component extends dp_base_component {
 
         require_once($CFG->dirroot.'/totara/hierarchy/prefix/position/lib.php');
 
-        $jobassignment = \totara_job\job_assignment::get_first($this->plan->userid);
+        $jobassignments = \totara_job\job_assignment::get_all($this->plan->userid);
 
-        if (empty($jobassignment) || empty($jobassignment->positionid)) {
-            // No position assigned to the primary job assignment, so just go away
+        if (empty($jobassignments)) {
             return true;
         }
 
         $position = new position();
-        if ($includecompleted) {
-            $competencies = $position->get_assigned_competencies($jobassignment->positionid);
-        } else {
-            $completed_competency_ids = competency::get_user_completed_competencies($this->plan->userid);
-            $competencies = $position->get_assigned_competencies($jobassignment->positionid, 0, $completed_competency_ids);
-        }
 
-        if ($competencies) {
-            $relation = array('component' => 'position', 'id' => $jobassignment->positionid);
-            if ($this->auto_assign_competencies($competencies, false, $relation)) {
-                // Assign courses
-                if ($includecourses) {
-                    $this->assign_linked_courses($competencies, false);
-                }
+        foreach ($jobassignments as $jobassignment) {
+            if (empty($jobassignment->positionid)) {
+                continue;
+            }
+
+            if ($includecompleted) {
+                $competencies = $position->get_assigned_competencies($jobassignment->positionid);
             } else {
-                return false;
+                $completed_competency_ids = competency::get_user_completed_competencies($this->plan->userid);
+                $competencies = $position->get_assigned_competencies($jobassignment->positionid, 0, $completed_competency_ids);
+            }
+
+            if ($competencies) {
+                $relation = array('component' => 'position', 'id' => $jobassignment->positionid);
+                if ($this->auto_assign_competencies($competencies, false, $relation)) {
+                    // Assign courses
+                    if ($includecourses) {
+                        $this->assign_linked_courses($competencies, false);
+                    }
+                } else {
+                    return false;
+                }
             }
         }
 

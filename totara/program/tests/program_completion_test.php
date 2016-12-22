@@ -49,6 +49,9 @@ class totara_program_program_completion_testcase extends reportcache_advanced_te
     public function setup_completions() {
         $this->resetAfterTest(true);
 
+        // Turn off certifications. This is to test that it doesn't interfere with program completion.
+        set_config('enablecertifications', TOTARA_DISABLEFEATURE);
+
         // Create users.
         for ($i = 1; $i <= $this->numtestusers; $i++) {
             $this->users[$i] = $this->getDataGenerator()->create_user();

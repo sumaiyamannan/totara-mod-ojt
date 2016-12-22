@@ -827,6 +827,40 @@ function enrol_get_all_users_courses($userid, $onlyactive = false, $fields = NUL
     return $courses;
 }
 
+/**
+ * Returns list of active enrolments a user has into a single course
+ *
+ * @param int $userid
+ * @param int $courseid
+ * @return stdClass[] An array of user_enrolments records, with two additional properties, the course id (courseid),
+ * and the enrol instance type (enrol)
+ */
+function core_enrol_get_all_user_enrolments_in_course($userid, $courseid) {
+    global $DB;
+
+    $sql = "SELECT ue.*, e.enrol, e.courseid
+              FROM {user_enrolments} ue
+              JOIN {enrol} e
+                ON ue.enrolid = e.id
+             WHERE ue.userid = :userid
+               AND e.courseid = :courseid
+               AND ue.status = :userstatus
+               AND e.status = :instancestatus
+               AND ue.timestart < :now1
+               AND (ue.timeend = 0 OR ue.timeend > :now2)";
+
+    $now = time();
+    $params = array(
+        'userid' => $userid,
+        'courseid' => $courseid,
+        'userstatus' => ENROL_USER_ACTIVE,
+        'instancestatus' => ENROL_INSTANCE_ENABLED,
+        'now1' => $now,
+        'now2' => $now
+    );
+
+    return $DB->get_records_sql($sql, $params);
+}
 
 
 /**

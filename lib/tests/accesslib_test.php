@@ -2499,6 +2499,12 @@ class core_accesslib_testcase extends advanced_testcase {
 
         assign_capability('mod/page:view', CAP_PREVENT, $allroles['guest'], $systemcontext, true);
 
+        // Prepare for prohibit test.
+        role_assign($allroles['editingteacher'], $testusers[19], context_system::instance());
+        role_assign($allroles['teacher'], $testusers[19], context_course::instance($testcourses[17]));
+        role_assign($allroles['editingteacher'], $testusers[19], context_course::instance($testcourses[17]));
+        assign_capability('moodle/course:update', CAP_PROHIBIT, $allroles['teacher'], context_course::instance($testcourses[17]), true);
+
         accesslib_clear_all_caches_for_unit_testing(); /// Must be done after assign_capability().
 
         // Extra tests for guests and not-logged-in users because they can not be verified by cross checking
@@ -2521,6 +2527,14 @@ class core_accesslib_testcase extends advanced_testcase {
         $this->assertFalse(has_capability('moodle/course:update', context_course::instance($testcourses[1]), $testusers[9]));
         $this->assertFalse(has_capability('moodle/course:update', context_course::instance($testcourses[19]), $testusers[9]));
         $this->assertFalse(has_capability('moodle/course:update', $systemcontext, $testusers[9]));
+
+        // Test prohibits.
+        $this->assertTrue(has_capability('moodle/course:update', context_system::instance(), $testusers[19]));
+        $ids = get_users_by_capability(context_system::instance(), 'moodle/course:update', 'u.id');
+        $this->assertArrayHasKey($testusers[19], $ids);
+        $this->assertFalse(has_capability('moodle/course:update', context_course::instance($testcourses[17]), $testusers[19]));
+        $ids = get_users_by_capability(context_course::instance($testcourses[17]), 'moodle/course:update', 'u.id');
+        $this->assertArrayNotHasKey($testusers[19], $ids);
 
         // Test the list of enrolled users.
         $coursecontext = context_course::instance($course1->id);
@@ -3059,6 +3073,173 @@ class core_accesslib_testcase extends advanced_testcase {
         // The course level checks should remain the same.
         $this->assertEquals(2, count_role_users($roleid1, context_course::instance($course->id), false));
         $this->assertEquals(3, count_role_users($roleid1, context_course::instance($course->id), true));
+    }
+
+    /**
+     * TOTARA Test.
+     *
+     * Tests role_assign_bulk() with an array of user ids used for the $userids argument.
+     */
+    public function test_role_assign_bulk_userids() {
+        $this->resetAfterTest(true);
+        global $DB;
+
+        $data_generator = $this->getDataGenerator();
+        $user1 = $data_generator->create_user();
+        $user2 = $data_generator->create_user();
+        $user3 = $data_generator->create_user();
+
+        // Set the user ids to be integers.
+        $userids = array((int)$user1->id, (int)$user2->id, (int)$user3->id);
+
+        $rolestudent = $DB->get_record('role', array('shortname' => 'student'));
+
+        $course1 = $data_generator->create_course();
+        $course2 = $data_generator->create_course();
+        $contextcourse1 = context_course::instance($course1->id);
+        $contextcourse2 = context_course::instance($course2->id);
+
+        role_assign_bulk($rolestudent->id, $userids, $contextcourse1->id);
+
+        $this->assertCount(3, $DB->get_records('role_assignments'));
+
+        $this->assertEquals(1, $DB->count_records('role_assignments',
+            array('roleid' => $rolestudent->id, 'userid' => $user1->id, 'contextid' => $contextcourse1->id)));
+        $this->assertEquals(1, $DB->count_records('role_assignments',
+            array('roleid' => $rolestudent->id, 'userid' => $user2->id, 'contextid' => $contextcourse1->id)));
+        $this->assertEquals(1, $DB->count_records('role_assignments',
+            array('roleid' => $rolestudent->id, 'userid' => $user3->id, 'contextid' => $contextcourse1->id)));
+
+        // Now set the user ids to be strings. This is how they'd be when pulled from the db.
+        $userids = array((string)$user1->id, (string)$user2->id, (string)$user3->id);
+
+        // We're adding these roles to course 2 this time, so we should get new records.
+        role_assign_bulk($rolestudent->id, $userids, $contextcourse2->id);
+
+        $this->assertCount(6, $DB->get_records('role_assignments'));
+
+        $this->assertEquals(1, $DB->count_records('role_assignments',
+            array('roleid' => $rolestudent->id, 'userid' => $user1->id, 'contextid' => $contextcourse2->id)));
+        $this->assertEquals(1, $DB->count_records('role_assignments',
+            array('roleid' => $rolestudent->id, 'userid' => $user2->id, 'contextid' => $contextcourse2->id)));
+        $this->assertEquals(1, $DB->count_records('role_assignments',
+            array('roleid' => $rolestudent->id, 'userid' => $user3->id, 'contextid' => $contextcourse2->id)));
+    }
+
+    /**
+     * TOTARA Test.
+     *
+     * Tests role_assign_bulk() with an array of objects for the $userids argument.
+     */
+    public function test_role_assign_bulk_userobjects() {
+        $this->resetAfterTest(true);
+        global $DB;
+
+        $data_generator = $this->getDataGenerator();
+        $user1 = $data_generator->create_user();
+        $user2 = $data_generator->create_user();
+        $user3 = $data_generator->create_user();
+
+        // As well as arrays of ids. role_assign_bulk can take stdClass objects with userid properties.
+        $userobject1 = new stdClass();
+        $userobject1->userid = $user1->id;
+        $userobject2 = new stdClass();
+        $userobject2->userid = $user2->id;
+        $userobject3 = new stdClass();
+        $userobject3->userid = $user3->id;
+        $userids = array($userobject1, $userobject2, $userobject3);
+
+        $rolestudent = $DB->get_record('role', array('shortname' => 'student'));
+
+        $course1 = $data_generator->create_course();
+        $contextcourse1 = context_course::instance($course1->id);
+
+        role_assign_bulk($rolestudent->id, $userids, $contextcourse1->id);
+
+        $this->assertCount(3, $DB->get_records('role_assignments'));
+
+        $this->assertEquals(1, $DB->count_records('role_assignments',
+            array('roleid' => $rolestudent->id, 'userid' => $user1->id, 'contextid' => $contextcourse1->id)));
+        $this->assertEquals(1, $DB->count_records('role_assignments',
+            array('roleid' => $rolestudent->id, 'userid' => $user2->id, 'contextid' => $contextcourse1->id)));
+        $this->assertEquals(1, $DB->count_records('role_assignments',
+            array('roleid' => $rolestudent->id, 'userid' => $user3->id, 'contextid' => $contextcourse1->id)));
+    }
+
+    /**
+     * TOTARA Test.
+     *
+     * Tests role_assign_bulk() with a mixture of valid and invalid user ids.
+     *
+     * The invalid user ids should be silently ignored so that the rest of the bulk insert still goes ahead.
+     */
+    public function test_role_assign_bulk_invaliduserids() {
+        $this->resetAfterTest(true);
+        global $DB;
+
+        $data_generator = $this->getDataGenerator();
+        $user1 = $data_generator->create_user();
+        $user2 = $data_generator->create_user();
+
+        // Mix some bad 'user ids' with the valid ids.
+        $userids = array(-5, $user1->id, $user2->id, 'notanumber');
+
+        $rolestudent = $DB->get_record('role', array('shortname' => 'student'));
+
+        $course1 = $data_generator->create_course();
+        $contextcourse1 = context_course::instance($course1->id);
+
+        role_assign_bulk($rolestudent->id, $userids, $contextcourse1->id);
+
+        $this->assertCount(2, $DB->get_records('role_assignments'));
+
+        $this->assertEquals(1, $DB->count_records('role_assignments',
+            array('roleid' => $rolestudent->id, 'userid' => $user1->id, 'contextid' => $contextcourse1->id)));
+        $this->assertEquals(1, $DB->count_records('role_assignments',
+            array('roleid' => $rolestudent->id, 'userid' => $user2->id, 'contextid' => $contextcourse1->id)));
+    }
+
+    /**
+     * TOTARA Test.
+     *
+     * Tests role_assign_bulk() using all arguments available. These are to add additional data to the assignment
+     * such as component name or timemodified when you don't want to use time().
+     */
+    public function test_role_assign_bulk_fulloptions() {
+        $this->resetAfterTest(true);
+        global $DB;
+
+        $data_generator = $this->getDataGenerator();
+        $user1 = $data_generator->create_user();
+        $user2 = $data_generator->create_user();
+        $user3 = $data_generator->create_user();
+
+        $userids = array($user1->id, $user2->id, $user3->id);
+
+        $rolestudent = $DB->get_record('role', array('shortname' => 'student'));
+
+        $course1 = $data_generator->create_course();
+        $contextcourse1 = context_course::instance($course1->id);
+
+        // These settings only need to be arbitrary as the function does not need to match them up with
+        // any existing data, it simply saves them with the rest of the role assignment.
+        $component = 'some_component';
+        $itemid = 25;
+        $timemodified = 100000;
+
+        role_assign_bulk($rolestudent->id, $userids, $contextcourse1->id, $component, $itemid, $timemodified);
+
+        $this->assertCount(3, $DB->get_records('role_assignments'));
+
+        $this->assertEquals(1, $DB->count_records('role_assignments',
+            array('roleid' => $rolestudent->id, 'userid' => $user1->id, 'contextid' => $contextcourse1->id,
+                'component' => $component, 'itemid' => $itemid, 'timemodified' => $timemodified)));
+        $this->assertEquals(1, $DB->count_records('role_assignments',
+            array('roleid' => $rolestudent->id, 'userid' => $user2->id, 'contextid' => $contextcourse1->id,
+                'component' => $component, 'itemid' => $itemid, 'timemodified' => $timemodified)));
+        $this->assertEquals(1, $DB->count_records('role_assignments',
+            array('roleid' => $rolestudent->id, 'userid' => $user3->id, 'contextid' => $contextcourse1->id,
+                'component' => $component, 'itemid' => $itemid, 'timemodified' => $timemodified)));
     }
 }
 

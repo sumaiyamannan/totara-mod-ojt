@@ -313,7 +313,7 @@ class completion_completion extends data_object {
             dp_plan_item_updated($this->userid, 'course', $this->course);
 
             // Program completion hook.
-            prog_update_completion($this->userid);
+            prog_update_completion($this->userid, null, $this->course);
         }
 
         return $result;

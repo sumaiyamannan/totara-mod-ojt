@@ -364,15 +364,17 @@ class hierarchy {
     /**
      * Get custom fields for an item
      * @param int $itemid id of the item
+     * @param bool $usertype true to use personal goal '_user' tables, otherwise default false '_type'
      * @return array
      */
-    function get_custom_fields($itemid) {
+    function get_custom_fields($itemid, $usertype = false) {
         global $DB;
-        $prefix = $this->prefix;
+        $prefix = $usertype ? $this->prefix.'_user' : $this->prefix;
+        $tableprefix = $usertype ? $this->shortprefix.'_user' : $this->shortprefix.'_type';
 
-        $sql = "SELECT c.*, f.datatype, f.hidden, f.fullname
-                FROM {{$this->shortprefix}_type_info_data} c
-                INNER JOIN {{$this->shortprefix}_type_info_field} f ON c.fieldid = f.id
+        $sql = "SELECT c.*, f.datatype, f.hidden, f.fullname, f.shortname
+                FROM {{$tableprefix}_info_data} c
+                INNER JOIN {{$tableprefix}_info_field} f ON c.fieldid = f.id
                 WHERE c.{$prefix}id = ?
                 ORDER BY f.sortorder";
 
@@ -1218,14 +1220,20 @@ class hierarchy {
 
         foreach ($cols as $datatype) {
             if ($datatype == 'description') {
+                // Description is entered in a textarea
                 $value = file_rewrite_pluginfile_urls($item->$datatype, 'pluginfile.php', context_system::instance()->id, 'totara_hierarchy', $this->shortprefix, $item->id);
+                $data[] = array(
+                    'title' => get_string($datatype.'view', 'totara_hierarchy'),
+                    'value' => $value,
+                    'type' => 'textarea'
+                );
             } else {
                 $value = $item->$datatype;
+                $data[] = array(
+                    'title' => get_string($datatype.'view', 'totara_hierarchy'),
+                    'value' => $value
+                );
             }
-            $data[] = array(
-                'title' => get_string($datatype.'view', 'totara_hierarchy'),
-                'value' => $value
-            );
         }
 
         // Item's type
@@ -1344,7 +1352,13 @@ class hierarchy {
         // @todo get based on item type or better still, don't use inline styles :-(
         $cssclass = !$record->visible ? 'dimmed' : '';
         $out = html_writer::start_tag('div', array('class' => 'hierarchyitem ' . $itemdepth));
-        $out .= $OUTPUT->action_link(new moodle_url('/totara/hierarchy/item/view.php', array('prefix' => $this->prefix, 'id' => $record->id)), format_string($record->fullname), null, array('class' => $cssclass));
+        $systemcontext = context_system::instance();
+        $canview = has_capability('totara/hierarchy:view' . $this->prefix, $systemcontext);
+        if ($canview) {
+            $out .= $OUTPUT->action_link(new moodle_url('/totara/hierarchy/item/view.php', array('prefix' => $this->prefix, 'id' => $record->id)), format_string($record->fullname), null, array('class' => $cssclass));
+        } else {
+            $out .= format_string($record->fullname);
+        }
         if ($include_custom_fields) {
             $out .= html_writer::empty_tag('br');
             // Print description if available.
@@ -1491,7 +1505,13 @@ class hierarchy {
      */
     function display_hierarchy_item_extrafield($item, $extrafield) {
         global $OUTPUT;
-        return $OUTPUT->action_link(new moodle_url("item/view.php", array('prefix' => $this->prefix, 'id' => $item->id)), $item->$extrafield);
+        $systemcontext = context_system::instance();
+        $canview = has_capability('totara/hierarchy:view' . $this->prefix, $systemcontext);
+        if ($canview) {
+            return $OUTPUT->action_link(new moodle_url("item/view.php", array('prefix' => $this->prefix, 'id' => $item->id)), $item->$extrafield);
+        } else {
+            return $item->$extrafield;
+        }
     }
 
     /**

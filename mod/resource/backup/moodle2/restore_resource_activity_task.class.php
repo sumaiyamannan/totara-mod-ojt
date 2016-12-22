@@ -67,6 +67,7 @@ class restore_resource_activity_task extends restore_activity_task {
         $rules = array();
 
         $rules[] = new restore_decode_rule('RESOURCEVIEWBYID', '/mod/resource/view.php?id=$1', 'course_module');
+        $rules[] = new restore_decode_rule('RESOURCEVIEWBYR', '/mod/resource/view.php?r=$1', 'resource');
         $rules[] = new restore_decode_rule('RESOURCEINDEX', '/mod/resource/index.php?id=$1', 'course');
 
         return $rules;

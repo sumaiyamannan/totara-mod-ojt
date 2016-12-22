@@ -28,6 +28,9 @@ defined('MOODLE_INTERNAL') || die();
  */
 class create_type_customfield_testcase extends advanced_testcase {
 
+    /**
+     * @var totara_hierarchy_generator
+     */
     protected $hierarchy_generator = null;
 
     protected function setUp() {
@@ -204,5 +207,161 @@ class create_type_customfield_testcase extends advanced_testcase {
         $data = array('hierarchy' => 'competency', 'typeidnumber' => $typeid, 'value' => $defaultdata);
         $this->hierarchy_generator->create_hierarchy_type_datetime($data);
         $this->assertTrue($DB->record_exists('comp_type_info_field', array('shortname' => $shortname)));
+    }
+
+    /**
+     * Tests moving goal type customfields.
+     */
+    public function test_moving_goal_type_customfields() {
+        global $DB;
+
+        // Create first goal type.
+        $idone = $this->hierarchy_generator->create_goal_type(['idnumber' => 'type_one']);
+        if (!$typeidone = $DB->get_field('goal_type', 'idnumber', array('id' => $idone))) {
+            throw new coding_exception('Unknown hierarchy type id '.$idone.' in hierarchy definition');
+        }
+
+        // Create second goal type.
+        $idtwo = $this->hierarchy_generator->create_goal_type(['idnumber' => 'type_two']);
+        if (!$typeidtwo = $DB->get_field('goal_type', 'idnumber', array('id' => $idtwo))) {
+            throw new coding_exception('Unknown hierarchy type id '.$idtwo.' in hierarchy definition');
+        }
+
+        // Create checkbox for position type.
+        $defaultdata = 1; // Checked.
+        $shortname   = 'checkbox'.$idone;
+        $data = array('hierarchy' => 'goal', 'typeidnumber' => $typeidone, 'value' => $defaultdata);
+        $this->hierarchy_generator->create_hierarchy_type_checkbox($data);
+        $this->assertTrue($DB->record_exists('goal_type_info_field', array('shortname' => $shortname)));
+        $shortname   = 'checkbox'.$idtwo;
+        $data = array('hierarchy' => 'goal', 'typeidnumber' => $typeidtwo, 'value' => $defaultdata);
+        $this->hierarchy_generator->create_hierarchy_type_checkbox($data);
+        $this->assertTrue($DB->record_exists('goal_type_info_field', array('shortname' => $shortname)));
+
+        // Create text for goal type.
+        $defaultdata = 'Apple';
+        $shortname   = 'text'.$idone;
+        $data = array('hierarchy' => 'goal', 'typeidnumber' => $typeidone, 'value' => $defaultdata);
+        $this->hierarchy_generator->create_hierarchy_type_text($data);
+        $this->assertTrue($DB->record_exists('goal_type_info_field', array('shortname' => $shortname)));
+        $shortname   = 'text'.$idtwo;
+        $data = array('hierarchy' => 'goal', 'typeidnumber' => $typeidtwo, 'value' => $defaultdata);
+        $this->hierarchy_generator->create_hierarchy_type_text($data);
+        $this->assertTrue($DB->record_exists('goal_type_info_field', array('shortname' => $shortname)));
+
+        // Create menu of choice for goal type.
+        $defaultdata = '2345';
+        $shortname   = 'menu'.$idone;
+        $data = array('hierarchy' => 'goal', 'typeidnumber' => $typeidone, 'value' => $defaultdata);
+        $this->hierarchy_generator->create_hierarchy_type_menu($data);
+        $this->assertTrue($DB->record_exists('goal_type_info_field', array('shortname' => $shortname)));
+        $shortname   = 'menu'.$idtwo;
+        $data = array('hierarchy' => 'goal', 'typeidnumber' => $typeidtwo, 'value' => $defaultdata);
+        $this->hierarchy_generator->create_hierarchy_type_menu($data);
+        $this->assertTrue($DB->record_exists('goal_type_info_field', array('shortname' => $shortname)));
+
+        // Create text for goal type.
+        $defaultdata = '0'; // No valid value in the default data column needed.
+        $shortname   = 'datetime'.$idone;
+        $data = array('hierarchy' => 'goal', 'typeidnumber' => $typeidone, 'value' => $defaultdata);
+        $this->hierarchy_generator->create_hierarchy_type_datetime($data);
+        $this->assertSame(1, $DB->count_records('goal_type_info_field', array('shortname' => $shortname)));
+        $this->assertTrue($DB->record_exists('goal_type_info_field', array('shortname' => $shortname)));
+
+        $fields_one = [];
+        $fields_two = [];
+
+        $fields = $DB->get_records('goal_type_info_field', ['typeid' => $idone], 'sortorder ASC');
+        $expected = ['checkbox'.$idone, 'text'.$idone, 'menu'.$idone, 'datetime'.$idone];
+        $this->assertCount(count($expected), $fields);
+        foreach ($fields as $field) {
+            $fields_one[$field->shortname] = $field;
+            $this->assertSame(array_shift($expected), $field->shortname);
+        }
+
+        $fields = $DB->get_records('goal_type_info_field', ['typeid' => $idtwo], 'sortorder ASC');
+        $expected = ['checkbox'.$idtwo, 'text'.$idtwo, 'menu'.$idtwo];
+        $this->assertCount(count($expected), $fields);
+        foreach ($fields as $field) {
+            $fields_two[$field->shortname] = $field;
+            $this->assertSame(array_shift($expected), $field->shortname);
+        }
+
+        $type = get_customfield_type_instace('goal', context_system::instance(), array('typeid' => $idone, 'class' => 'company'));
+        $this->assertInstanceOf('totara_customfield\prefix\hierarchy_type', $type);
+
+        $this->assertTrue($type->move($fields_one['checkbox'.$idone]->id, 'down'));
+        $fields = $DB->get_records('goal_type_info_field', ['typeid' => $idone], 'sortorder ASC');
+        $expected = ['text'.$idone, 'checkbox'.$idone, 'menu'.$idone, 'datetime'.$idone];
+        $this->assertCount(count($expected), $fields);
+        foreach ($fields as $field) {
+            $fields_one[$field->shortname] = $field;
+            $this->assertSame(array_shift($expected), $field->shortname);
+        }
+
+        $this->assertTrue($type->move($fields_one['checkbox'.$idone]->id, 'down'));
+        $fields = $DB->get_records('goal_type_info_field', ['typeid' => $idone], 'sortorder ASC');
+        $expected = ['text'.$idone, 'menu'.$idone, 'checkbox'.$idone, 'datetime'.$idone];
+        $this->assertCount(count($expected), $fields);
+        foreach ($fields as $field) {
+            $fields_one[$field->shortname] = $field;
+            $this->assertSame(array_shift($expected), $field->shortname);
+        }
+
+        $this->assertTrue($type->move($fields_one['checkbox'.$idone]->id, 'down'));
+        $fields = $DB->get_records('goal_type_info_field', ['typeid' => $idone], 'sortorder ASC');
+        $expected = ['text'.$idone, 'menu'.$idone, 'datetime'.$idone, 'checkbox'.$idone];
+        $this->assertCount(count($expected), $fields);
+        foreach ($fields as $field) {
+            $fields_one[$field->shortname] = $field;
+            $this->assertSame(array_shift($expected), $field->shortname);
+        }
+
+        $this->assertFalse($type->move($fields_one['checkbox'.$idone]->id, 'down'));
+        $this->assertDebuggingCalled('Invalid action, the selected field cannot be moved down');
+        $fields = $DB->get_records('goal_type_info_field', ['typeid' => $idone], 'sortorder ASC');
+        $expected = ['text'.$idone, 'menu'.$idone, 'datetime'.$idone, 'checkbox'.$idone];
+        $this->assertCount(count($expected), $fields);
+        foreach ($fields as $field) {
+            $fields_one[$field->shortname] = $field;
+            $this->assertSame(array_shift($expected), $field->shortname);
+        }
+
+        $this->assertTrue($type->move($fields_one['checkbox'.$idone]->id, 'up'));
+        $fields = $DB->get_records('goal_type_info_field', ['typeid' => $idone], 'sortorder ASC');
+        $expected = ['text'.$idone, 'menu'.$idone, 'checkbox'.$idone, 'datetime'.$idone];
+        $this->assertCount(count($expected), $fields);
+        foreach ($fields as $field) {
+            $fields_one[$field->shortname] = $field;
+            $this->assertSame(array_shift($expected), $field->shortname);
+        }
+
+        $this->assertTrue($type->move($fields_one['menu'.$idone]->id, 'up'));
+        $fields = $DB->get_records('goal_type_info_field', ['typeid' => $idone], 'sortorder ASC');
+        $expected = ['menu'.$idone, 'text'.$idone, 'checkbox'.$idone, 'datetime'.$idone];
+        $this->assertCount(count($expected), $fields);
+        foreach ($fields as $field) {
+            $fields_one[$field->shortname] = $field;
+            $this->assertSame(array_shift($expected), $field->shortname);
+        }
+
+        $this->assertFalse($type->move($fields_one['menu'.$idone]->id, 'up'));
+        $this->assertDebuggingCalled('Invalid action, the selected field cannot be moved up');
+        $fields = $DB->get_records('goal_type_info_field', ['typeid' => $idone], 'sortorder ASC');
+        $expected = ['menu'.$idone, 'text'.$idone, 'checkbox'.$idone, 'datetime'.$idone];
+        $this->assertCount(count($expected), $fields);
+        foreach ($fields as $field) {
+            $fields_one[$field->shortname] = $field;
+            $this->assertSame(array_shift($expected), $field->shortname);
+        }
+
+        // Check nothing in type 2 has been moved.
+        $fields = $DB->get_records('goal_type_info_field', ['typeid' => $idtwo], 'sortorder ASC');
+        $expected = ['checkbox'.$idtwo, 'text'.$idtwo, 'menu'.$idtwo];
+        $this->assertCount(count($expected), $fields);
+        foreach ($fields as $field) {
+            $fields_two[$field->shortname] = $field;
+            $this->assertSame(array_shift($expected), $field->shortname);
+        }
     }
 }

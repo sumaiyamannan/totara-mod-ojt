@@ -16,3 +16,8 @@ select#id_listofvalues {
 .dir-rtl .cohort-editing_ruleset .cohort_rule_type {
     text-align: left;
 }
+
+#cohortruleformdialog .femptylabel .fgroup .felement {
+    float: left;
+    width: 100%;
+}

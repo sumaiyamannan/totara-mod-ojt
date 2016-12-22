@@ -190,7 +190,11 @@ if (isset($program) && $program->user_is_assigned($userid)) {
         echo $OUTPUT->header();
 
         // Trigger event.
-        $dataevent = array('id' => $programid, 'userid' => $userid, 'other' => array('section' => 'required'));
+        $dataevent = array('id' => $programid, 'other' => array('section' => 'required'));
+        if ($userid !== $USER->id) {
+            // If the current user is viewing another user, then add the relateduserid.
+            $dataevent['relateduserid'] = $userid;
+        }
         $event = \totara_program\event\program_viewed::create_from_data($dataevent)->trigger();
 
         // Program page content

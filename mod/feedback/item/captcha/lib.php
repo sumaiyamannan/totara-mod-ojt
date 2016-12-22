@@ -94,7 +94,7 @@ class feedback_item_captcha extends feedback_item_base {
     }
 
     //liefert eine Struktur ->name, ->data = array(mit Antworten)
-    public function get_analysed($item, $groupid = false, $courseid = false) {
+    public function get_analysed($item, $groupid = false, $courseid = false, $donl2br = true) {
         return null;
     }
 

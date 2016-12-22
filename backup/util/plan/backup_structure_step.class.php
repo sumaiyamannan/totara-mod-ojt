@@ -67,7 +67,8 @@ abstract class backup_structure_step extends backup_step {
         $xo = new file_xml_output($fullpath);
         $xt = null;
         if (class_exists('backup_xml_transformer')) {
-            $xt = new backup_xml_transformer($this->get_courseid());
+            // TOTARA: get_task() was added as a second argument for 2.7.22, 2.9.14, 9.2.
+            $xt = new backup_xml_transformer($this->get_courseid(), $this->get_task());
             $this->contenttransformer = $xt; // Save the reference to the transformer
                                              // as far as we are going to need it out
                                              // from xml_writer (blame serialized data!)

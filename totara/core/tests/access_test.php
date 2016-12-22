@@ -51,7 +51,7 @@ class totara_core_access_testcase extends advanced_testcase {
             }
         }
 
-        foreach ($files as $file) {
+        foreach ($files as $plugin => $file) {
             $capabilities = array();
             include($file);
             foreach ($capabilities as $capname => $data) {
@@ -63,7 +63,26 @@ class totara_core_access_testcase extends advanced_testcase {
                             $this->assertNotEquals(CAP_PROHIBIT, $permission, "CAP_PROHIBIT in $file is wrong, when defining roles use it only for guest archetype");
                         }
                         if ($archetype === 'coursecreator' and !in_array($capname, $allowedcreatorcaps)) {
-                            $this->assertContains($capname, $allowedcreatorcaps, "Course creator archetype is intended for course creation only");
+
+                            // Check if the plugin has any valid course creator plugins, exclude standard plugins.
+                            // Standard plugins MUST add there caps to $allowedcreatorcaps.
+                            // Of course that should be discussed with the team lead first!
+                            $pluginallowedcreatorcaps = [];
+                            list($plugin_type, $plugin_name) = core_component::normalize_component($plugin);
+                            $standardplugins = core_plugin_manager::standard_plugins_list($plugin_type);
+                            if (!in_array($plugin_name, $standardplugins)) {
+                                $libfile = core_component::get_plugin_directory($plugin_type, $plugin_name) . '/lib.php';
+                                if (file_exists($libfile)) {
+                                    require_once($libfile);
+                                    // Big and obtuse!
+                                    $function = $plugin . '_get_permitted_course_creator_caps_for_testing';
+                                    if (function_exists($function)) {
+                                        $pluginallowedcreatorcaps = call_user_func($function);
+                                    }
+                                }
+                            }
+
+                            $this->assertContains($capname, array_merge($allowedcreatorcaps, $pluginallowedcreatorcaps), "Course creator archetype is intended for course creation only");
                         }
                     }
                 }

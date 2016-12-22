@@ -94,9 +94,10 @@ abstract class feedback_item_base {
      * @param $item the db-object from feedback_item
      * @param $groupid if given
      * @param $courseid if given
+     * @param bool $donl2br Should nl2br be applied to the item value?
      * @return array
      */
-    abstract public function get_analysed($item, $groupid = false, $courseid = false);
+    abstract public function get_analysed($item, $groupid = false, $courseid = false, $donl2br = true);
 
     /**
      * print the item at the edit-page of feedback
@@ -173,7 +174,7 @@ class feedback_item_pagebreak extends feedback_item_base {
     }
     public function get_printval($item, $value) {
     }
-    public function get_analysed($item, $groupid = false, $courseid = false) {
+    public function get_analysed($item, $groupid = false, $courseid = false, $donl2br = true) {
     }
     public function print_item_preview($item) {
     }

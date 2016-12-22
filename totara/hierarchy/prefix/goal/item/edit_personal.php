@@ -115,7 +115,6 @@ $options = array(
     'collapsed' => true
 );
 
-$item->descriptionformat = FORMAT_HTML;
 $item = file_prepare_standard_editor($item, 'description', $options, $options['context'], 'totara_hierarchy','goal', $item->id);
 
 $datatosend = array('item' => $item, 'id' => $id, 'userid' => $userid);

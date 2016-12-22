@@ -54,8 +54,10 @@ class delete_unconfirmed_users_task extends scheduled_task {
                                             WHERE confirmed = 0 AND firstaccess > 0
                                                   AND firstaccess < ? AND deleted = 0", array($cuttime));
             foreach ($rs as $user) {
-                delete_user($user); // We MUST delete user properly first.
-                $DB->delete_records('user', array('id' => $user->id)); // This is a bloody hack, but it might work.
+                // TOTARA: we never ever delete the user record from the database, doing so can leave orphaned data in the system
+                // as things like completion data, log records, and much more is left for users, even those that have never confirmed
+                // or logged in can have records thanks to dynamic audiences, hierarchies, and HR import.
+                delete_user($user);
                 mtrace(" Deleted unconfirmed user for ".fullname($user, true)." ($user->id)");
             }
             $rs->close();

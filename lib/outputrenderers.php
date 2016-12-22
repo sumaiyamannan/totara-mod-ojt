@@ -559,7 +559,7 @@ class core_renderer extends renderer_base {
             if (isguestuser()) {
                 $loggedinas = $realuserinfo.get_string('loggedinasguest');
                 if (!$loginpage && $withlinks) {
-                    $loggedinas .= " <a href=\"$loginurl\" class=\"link-as-button\">".get_string('login').'</a>';
+                    $loggedinas .= " <a href=\"$loginurl\" class=\"link-as-button btn btn-primary btn-xs btn-small\">".get_string('login').'</a>';
                 }
             } else if (is_role_switched($course->id)) { // Has switched roles
                 $rolename = '';
@@ -574,14 +574,14 @@ class core_renderer extends renderer_base {
             } else {
                 $loggedinas = $realuserinfo.get_string('loggedinas', 'moodle', $username);
                 if ($withlinks) {
-                    $loggedinas .=  " <small><a class=\"link-as-button\" href=\"$CFG->wwwroot/login/logout.php?sesskey="
+                    $loggedinas .=  " <small><a class=\"link-as-button btn btn-primary btn-xs btn-small\" href=\"$CFG->wwwroot/login/logout.php?sesskey="
                         . sesskey() . "\">" . get_string('logout') . '</a></small>';
                 }
             }
         } else {
             $loggedinas = get_string('loggedinnot', 'moodle');
             if (!$loginpage && $withlinks) {
-                $loggedinas .= " <a href=\"$loginurl\" class=\"link-as-button\">".get_string('login').'</a>';
+                $loggedinas .= " <a href=\"$loginurl\" class=\"link-as-button btn btn-primary btn-xs btn-small\">".get_string('login').'</a>';
             }
         }
 
@@ -2934,7 +2934,7 @@ EOD;
         if (!isloggedin()) {
             $returnstr = get_string('loggedinnot', 'moodle');
             if (!$loginpage) {
-                $returnstr .= " <small><a href=\"$loginurl\" class=\"link-as-button\">" . get_string('login') . '</a></small>';
+                $returnstr .= " <small><a href=\"$loginurl\" class=\"link-as-button btn btn-primary btn-xs btn-small\">" . get_string('login') . '</a></small>';
             }
             return html_writer::div(
                 html_writer::span(
@@ -2950,7 +2950,7 @@ EOD;
         if (isguestuser()) {
             $returnstr = get_string('loggedinasguest');
             if (!$loginpage && $withlinks) {
-                $returnstr .= " <small><a href=\"$loginurl\" class=\"link-as-button\">".get_string('login').'</a></small>';
+                $returnstr .= " <small><a href=\"$loginurl\" class=\"link-as-button btn btn-primary btn-xs btn-small\">" . get_string('login') . '</a></small>';
             }
 
             return html_writer::div(

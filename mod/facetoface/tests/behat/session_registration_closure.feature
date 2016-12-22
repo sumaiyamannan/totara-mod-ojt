@@ -83,10 +83,18 @@ Feature: Seminar Event Registration Closure
     And I press "Confirm"
     And I follow "Approval required"
     And I select to approve "Sally Sal"
+    And I press "Update requests"
+    And I log out
+    And I log in as "manager"
+    And I click on "Find Learning" in the totara menu
+    And I follow "Course 1"
+    And I click on "Test facetoface name" "link"
+    And I follow "Attendees"
+    And I follow "Approval required"
     And I select to approve "Jelly Jel"
     And I press "Update requests"
-    And I select to approve "Sally Sal"
-    And I press "Update requests"
+    And I log out
+    And I log in as "admin"
 
   Scenario: Session registration closure denies all pending requests and stops updates
     Given I navigate to "Manage reports" node in "Site administration > Reports > Report builder"

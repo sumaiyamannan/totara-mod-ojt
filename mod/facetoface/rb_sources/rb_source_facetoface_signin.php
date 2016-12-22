@@ -577,8 +577,20 @@ class rb_source_facetoface_signin extends rb_facetoface_base_source {
         $requiredcolumns = array();
 
         $requiredcolumns[] = new rb_column(
-            'course',
-            'coursevisible',
+            'visibility',
+            'id',
+            '',
+            "course.id",
+            array(
+                'joins' => 'course',
+                'required' => 'true',
+                'hidden' => 'true'
+            )
+        );
+
+        $requiredcolumns[] = new rb_column(
+            'visibility',
+            'visible',
             '',
             "course.visible",
             array(
@@ -589,8 +601,8 @@ class rb_source_facetoface_signin extends rb_facetoface_base_source {
         );
 
         $requiredcolumns[] = new rb_column(
-            'course',
-            'courseaudiencevisible',
+            'visibility',
+            'audiencevisible',
             '',
             "course.audiencevisible",
             array(
@@ -809,12 +821,7 @@ class rb_source_facetoface_signin extends rb_facetoface_base_source {
         if (isset($report->embedobj->embeddedparams['userid'])) {
             $userid = $report->embedobj->embeddedparams['userid'];
         }
-        $fieldalias = 'course';
-        $fieldbaseid = $report->get_field('course', 'id', 'course.id');
-        $fieldvisible = $report->get_field('course', 'coursevisible', 'course.visible');
-        $fieldaudvis = $report->get_field('course', 'courseaudiencevisible', 'course.audiencevisible');
-        $report->set_post_config_restrictions(totara_visibility_where($userid,
-            $fieldbaseid, $fieldvisible, $fieldaudvis, $fieldalias, 'course', $report->is_cached()));
+        $report->set_post_config_restrictions($report->post_config_visibility_where('course', 'course', $userid));
     }
 
     /**

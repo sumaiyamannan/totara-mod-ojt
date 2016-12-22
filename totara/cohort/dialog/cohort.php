@@ -120,5 +120,8 @@ $dialog->searchtype = 'cohort';
 $dialog->customdata['instancetype'] = $instancetype;
 $dialog->customdata['instanceid'] = $instanceid;
 
+// Additional url parameters needed for pagination in the search tab.
+$dialog->urlparams = array('instancetype' => $instancetype, 'instanceid' => $instanceid);
+
 // Display
 echo $dialog->generate_markup();

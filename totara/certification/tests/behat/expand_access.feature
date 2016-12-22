@@ -17,8 +17,9 @@ Feature: Users can expand the certification info
     And I press "Create Certification"
     And I press "Save changes"
     And I set the following administration settings values:
-      | Enhanced catalog | 1 |
-      | Guest login button | Show |
+      | Enhanced catalog   | 1       |
+      | Guest login button | Show    |
+      | enableprograms     | Disable |
     And I log out
 
   @javascript

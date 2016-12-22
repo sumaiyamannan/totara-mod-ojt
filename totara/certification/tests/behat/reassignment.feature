@@ -20,8 +20,9 @@ Feature: User reassignment to a certification
       | Reassign Tests | reasstst  |
     And I log in as "admin"
     And I set the following administration settings values:
-      | menulifetime | 0 |
-      | enableprogramcompletioneditor | 1 |
+      | menulifetime                  | 0       |
+      | enableprogramcompletioneditor | 1       |
+      | enableprograms                | Disable |
     And I navigate to "Manage certifications" node in "Site administration > Courses"
     And I follow "Miscellaneous"
     And I click on "Settings" "link" in the "Reassign Tests" "table_row"

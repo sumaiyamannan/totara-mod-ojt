@@ -464,6 +464,9 @@ function dp_add_permissions_table_row(&$form, $name, $label, $requestable) {
 function dp_get_rol_tabs_visible($userid) {
     global $DB, $CFG;
     require_once($CFG->dirroot . '/totara/cohort/lib.php');
+    require_once($CFG->dirroot . '/totara/certification/lib.php');
+    require_once($CFG->dirroot . '/totara/program/program.class.php');
+    require_once($CFG->dirroot . '/completion/completion_completion.php');
 
     $visible = array();
 
@@ -501,7 +504,20 @@ function dp_get_rol_tabs_visible($userid) {
     }
 
     $programscount = prog_get_all_programs($userid, '', '', '', true, true, true, false);
-    if (($programscount > 0 || $show_program_tab) && totara_feature_visible('programs')) {
+    // Below we check if any program completions exist for this user.
+    // We need to make sure these are completed programs not certifications and not program cousesets.
+    $progcompletionexists = $DB->record_exists_sql(
+        "SELECT pc.id
+           FROM {prog_completion} pc
+           JOIN {prog} p
+             ON pc.programid = p.id
+          WHERE p.certifid IS NULL
+            AND pc.userid  = :userid
+            AND pc.status > :incomplete
+            AND pc.coursesetid = 0",
+        array('userid' => $userid, 'incomplete' => STATUS_PROGRAM_INCOMPLETE)
+        );
+    if (($programscount > 0 || $show_program_tab || $progcompletionexists) && totara_feature_visible('programs')) {
         $visible[] = 'programs';
     }
 
@@ -509,7 +525,9 @@ function dp_get_rol_tabs_visible($userid) {
 
     $certification_progs = prog_get_certification_programs($userid, '', '', '', true, true);
     $unassignedcertifications = $DB->record_exists('certif_completion_history', array('userid' => $userid, 'unassigned' => 1));
-    if (($certification_progs > 0 || $unassignedcertifications) && totara_feature_visible('certifications')) {
+    $certcompletionexists = $DB->record_exists_select('certif_completion', "userid = :userid AND status > :assigned",
+        array('userid' => $userid, 'assigned' => CERTIFSTATUS_ASSIGNED));
+    if (($certification_progs > 0 || $unassignedcertifications || $certcompletionexists) && totara_feature_visible('certifications')) {
         $visible[] = 'certifications';
     }
 

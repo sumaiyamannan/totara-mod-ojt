@@ -34,7 +34,7 @@ class enrol_totara_program_plugin extends enrol_plugin {
     public function get_newinstance_link($courseid) {
         global $DB;
 
-        if (!totara_feature_visible('programs')) {
+        if (!totara_feature_visible('programs') && !totara_feature_visible('certifications')) {
             return null;
         }
 
@@ -58,9 +58,9 @@ class enrol_totara_program_plugin extends enrol_plugin {
      * @return bool
      */
     public function can_delete_instance($instance) {
-        if (!totara_feature_visible('programs')) {
+        if (!totara_feature_visible('programs') && !totara_feature_visible('certifications')) {
             // Allow deleting only when programs disabled so that they can get rid of preexisting
-            // ebrolemnts before the programs were disabled.
+            // enrolemnts before the programs were disabled.
             $context = context_course::instance($instance->courseid);
             return has_capability('enrol/totara_program:unenrol', $context);
         }
@@ -74,7 +74,7 @@ class enrol_totara_program_plugin extends enrol_plugin {
      * @return int id of new instance, null if can not be created
      */
     public function add_default_instance($course) {
-        if (!totara_feature_visible('programs')) {
+        if (!totara_feature_visible('programs') && !totara_feature_visible('certifications')) {
             return null;
         }
 
@@ -164,6 +164,37 @@ class enrol_totara_program_plugin extends enrol_plugin {
     }
 
     /**
+     * Process enrolments for users who are reassigned to a program.
+     * Result here will depend on what the 'unenrolaction' config setting for the plugin was set
+     * to at the time the user was unenrolled. Only existing enrolment records are reactivated for
+     * the given users - if an enrolment record does not exist for a user then this function does
+     * not create it.
+     *
+     * @param stdClass $instance instance of the enrol_totara_program class for a particular course
+     * @param array $userids ids of users that have been assigned.
+     */
+    public function process_program_reassignments($instance, $userids = array()) {
+        global $DB;
+
+        // Do not continue if there is nothing to do or $userids is not an array.
+        if (!is_array($userids) || empty($userids)) {
+            return;
+        }
+
+        // Get all the suspended enrolments with this plugin for these users.
+        list($insql, $params) = $DB->get_in_or_equal($userids, SQL_PARAMS_NAMED);
+        $params['enrolid'] = $instance->id;
+        $params['suspended'] = ENROL_USER_SUSPENDED;
+        $suspendedenrolments = $DB->get_fieldset_select('user_enrolments', 'userid',
+            "userid $insql AND enrolid = :enrolid AND status = :suspended", $params);
+
+        foreach ($suspendedenrolments as $userid) {
+            // Reactivate the enrolment. Use the API, not db update!
+            $this->update_user_enrol($instance, $userid, ENROL_USER_ACTIVE);
+        }
+    }
+
+    /**
      * Get the instance of this plugin attached to a course if any
      * @param int $courseid id of course
      * @return object|bool $instance or false if not found
@@ -185,7 +216,7 @@ class enrol_totara_program_plugin extends enrol_plugin {
     public function try_autoenrol(stdClass $instance) {
         global $CFG, $USER, $DB;
 
-        if (!totara_feature_visible('programs')) {
+        if (!totara_feature_visible('programs') && !totara_feature_visible('certifications')) {
             return false;
         }
 

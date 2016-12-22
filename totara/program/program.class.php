@@ -776,6 +776,9 @@ class program {
      *
      * A 'program_assigned' event is triggered to notify any listening modules.
      *
+     * This function will cause users to be re-enrolled in all related courses where they
+     * have a suspended program enrolment.
+     *
      * @param array $users Keys are user ids, values are arrays with timedue and exceptions.
      * @param object $assignment_record A record from prog_assignment, only id is used.
      */
@@ -823,9 +826,31 @@ class program {
         $DB->insert_records_via_batch('prog_user_assignment', $user_assignments);
         unset($user_assignments);
 
+        $userids = array_keys($users);
+
         // Assign the student role to the user in the program context
         // This is what identifies the program as required learning.
-        role_assign_bulk($this->studentroleid, array_keys($users), $this->context->id);
+        role_assign_bulk($this->studentroleid, $userids, $this->context->id);
+
+        // Get the courses in this program or certification.
+        $sql = "SELECT DISTINCT courseid
+                  FROM {prog_courseset_course} csc
+            INNER JOIN {prog_courseset} cs
+                    ON csc.coursesetid = cs.id
+                   AND cs.programid = :programid";
+        $courses = $DB->get_fieldset_sql($sql, array('programid' => $this->id));
+
+        if (!empty($courses)) {
+            // Get program course enrolment plugin.
+            /* @var enrol_totara_program_plugin $programenrolmentplugin */
+            $programenrolmentplugin = enrol_get_plugin('totara_program');
+            foreach ($courses as $courseid) {
+                $courseinstance = $programenrolmentplugin->get_instance_for_course($courseid);
+                if ($courseinstance) {
+                    $programenrolmentplugin->process_program_reassignments($courseinstance, $userids);
+                }
+            }
+        }
     }
 
     /**

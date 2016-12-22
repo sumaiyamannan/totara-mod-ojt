@@ -46,9 +46,9 @@ Feature: Seminar Signup Admin Approval
     And I follow "Classroom Connect Course"
     And I turn editing mode on
     And I add a "Seminar" to section "1" and I fill the form with:
-      | Name              | Classroom Connect       |
-      | Description       | Classroom Connect Tests |
-      | approvaloptions   | approval_admin          |
+      | Name              | Classroom Connect Activity |
+      | Description       | Classroom Connect Tests    |
+      | approvaloptions   | approval_admin             |
     And I follow "View all events"
     And I navigate to "Edit settings" node in "Seminar administration"
     And I expand all fieldsets
@@ -84,7 +84,7 @@ Feature: Seminar Signup Admin Approval
     And I follow "Classroom Connect Course"
     And I should see "Sign-up"
     And I follow "Sign-up"
-    And I should see "Manager and Administrative approva"
+    And I should see "Manager and Administrative approval"
     Then I should see "This seminar requires manager approval, you are currently not assigned to a manager in the system. Please contact the site administrator."
 
   Scenario: Student signs up with no manager assigned with manager select enabled and admin approval required
@@ -98,7 +98,7 @@ Feature: Seminar Signup Admin Approval
     And I follow "Classroom Connect Course"
     And I should see "Sign-up"
     And I follow "Sign-up"
-    And I should see "Manager and Administrative approva"
+    And I should see "Manager and Administrative approval"
     And I press "Request approval"
     Then I should see "This seminar requires manager approval, please select a manager to request approval"
 
@@ -112,6 +112,7 @@ Feature: Seminar Signup Admin Approval
     And I log in as "manager"
     And I click on "Dashboard" in the totara menu
     And I click on "View all tasks" "link"
+    And I should see "Sally Sal" in the "td.user_namelink" "css_element"
     And I click on "Attendees" "link"
 
     Then I should see "Sally Sal"
@@ -124,6 +125,7 @@ Feature: Seminar Signup Admin Approval
     And I click on "Dashboard" in the totara menu
     Then I should see "Seminar booking admin request"
     And I click on "View all alerts" "link"
+    And I should see "Sally Sal" in the "td.user_namelink" "css_element"
     And I click on "Attendees" "link" in the "1 January 2020" "table_row"
     Then I should see "Sally Sal"
 
@@ -133,7 +135,7 @@ Feature: Seminar Signup Admin Approval
     And I follow "Classroom Connect Course"
     And I should see "Sign-up"
     And I follow "Sign-up"
-    And I should see "Manager and Administrative approva"
+    And I should see "Manager and Administrative approval"
     And I press "Request approval"
     And I log out
 
@@ -141,6 +143,7 @@ Feature: Seminar Signup Admin Approval
     And I click on "Dashboard" in the totara menu
     Then I should see "Seminar booking admin request"
     And I click on "View all tasks" "link"
+    And I should see "Jimmy Jim" in the "td.user_namelink" "css_element"
     And I click on "Attendees" "link" in the "1 January 2020" "table_row"
     Then I should see "Jimmy Jim" in the ".lastrow" "css_element"
 
@@ -155,6 +158,7 @@ Feature: Seminar Signup Admin Approval
     And I click on "Dashboard" in the totara menu
     Then I should see "Seminar booking admin request"
     And I click on "View all alerts" "link"
+    And I should see "Jimmy Jim" in the "td.user_namelink" "css_element"
     And I click on "Attendees" "link" in the "1 January 2020" "table_row"
     Then I should see "Jimmy Jim"
 
@@ -184,7 +188,7 @@ Feature: Seminar Signup Admin Approval
     And I follow "Classroom Connect Course"
     And I should see "Sign-up"
     And I follow "Sign-up"
-    And I should see "Manager and Administrative approva"
+    And I should see "Manager and Administrative approval"
     And I should see "Managers from all job assignements will be chosen if left empty"
     And I press "Request approval"
     Then I should see "Your booking has been completed but requires approval from your manager"
@@ -193,4 +197,69 @@ Feature: Seminar Signup Admin Approval
     And I log in as "manager"
     And I click on "Dashboard" in the totara menu
     And I click on "View all tasks" "link"
+    And I should see "Sammy Sam" in the "td.user_namelink" "css_element"
     And I click on "Attendees" "link"
+  Scenario: Administrator approve and deny before manager
+    # Add admin approver
+    Given I log in as "admin"
+    And I click on "Find Learning" in the totara menu
+    And I follow "Classroom Connect Course"
+    And I follow "Classroom Connect Activity"
+    # Add users
+    And I click on "Attendees" "link"
+    And I click on "Add users" "option" in the "#menuf2f-actions" "css_element"
+    And I click on "Sammy Sam, sammy@example.com" "option"
+    And I click on "Timmy Tim, timmy@example.com" "option"
+    And I click on "Jimmy Jim, jimmy@example.com" "option"
+    And I press "Add"
+    And I press "Continue"
+    And I press "Confirm"
+    And I log out
+
+    # Check alert
+    And I log in as "actapprover"
+    And I click on "Dashboard" in the totara menu
+    And I click on "View all" "link"
+    And I should see "This is to advise that Sammy Sam has requested to be booked into the following course"
+
+    And I click on "Attendees" "link"
+    And I should see "None" in the "Jimmy Jim" "table_row"
+    And I should see "None" in the "Timmy Tim" "table_row"
+    And I should see "None" in the "Sammy Sam" "table_row"
+    # Decline
+    And I click on ".c6 input" "css_element" in the "Jimmy Jim" "table_row"
+    # Approve
+    And I click on ".c7 input" "css_element" in the "Timmy Tim" "table_row"
+
+    When I press "Update requests"
+    Then I should see "Attendance requests updated"
+    And I should not see "Jimmy Jim"
+    And I should not see "Timmy Tim"
+    And I should see "Sammy Sam"
+    And I log out
+
+    # Check decline
+    When I log in as "jimmy"
+    And I click on "Find Learning" in the totara menu
+    And I follow "Classroom Connect Course"
+    And I follow "Classroom Connect Activity"
+    Then I should see "Sign-up"
+    And I log out
+
+    # Check approve
+    When I log in as "timmy"
+    And I click on "Find Learning" in the totara menu
+    And I follow "Classroom Connect Course"
+    And I follow "Classroom Connect Activity"
+    Then I should see "Booked"
+    And I should see "Cancel booking"
+    And I log out
+
+    # Check haven't decided
+    When I log in as "sammy"
+    And I click on "Find Learning" in the totara menu
+    And I follow "Classroom Connect Course"
+    And I follow "Classroom Connect Activity"
+    Then I should see "Requested"
+    And I should see "Cancel booking"
+    And I log out

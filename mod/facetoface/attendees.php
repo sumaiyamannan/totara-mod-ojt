@@ -252,18 +252,7 @@ if ($facetoface->approvaltype == APPROVAL_ROLE) {
 
 $admin_requests = array();
 if ($facetoface->approvaltype == APPROVAL_ADMIN) {
-    $sysapprovers = get_users_from_config(get_config(null, 'facetoface_adminapprovers'), 'mod/facetoface:approveanyrequest');
-    $systemapprover = false;
-
-    foreach ($sysapprovers as $sysapprover) {
-        if ($sysapprover->id == $USER->id) {
-            $systemapprover = true;
-        }
-    }
-
-    $activityapprover = in_array($USER->id, explode(',', $facetoface->approvaladmins));
-
-    if ($systemapprover || $activityapprover) {
+    if (facetoface_is_adminapprover($USER->id, $facetoface)) {
         // The current user is one of the admin approvers.
         $allowed_actions[] = 'approvalrequired';
         $available_actions[] = 'approvalrequired';
@@ -273,8 +262,9 @@ if ($facetoface->approvaltype == APPROVAL_ADMIN) {
                           JOIN {facetoface_signups_status} fss
                             ON fss.signupid = fs.id AND fss.superceded = 0
                          WHERE fs.sessionid = :sessionid
-                           AND fss.statuscode = :status";
-        $params = array('sessionid' => $session->id, 'status' => MDL_F2F_STATUS_REQUESTEDADMIN);
+                           AND (fss.statuscode = :statusadm OR fss.statuscode = :statusman)";
+        $params = array('sessionid' => $session->id, 'statusadm' => MDL_F2F_STATUS_REQUESTEDADMIN,
+                'statusman' => MDL_F2F_STATUS_REQUESTED);
         $adminreqs = $DB->get_fieldset_sql($requestssql, $params);
         if (isset($staff)) {
             $staff = array_merge($staff, $adminreqs); // Display both just in case they are managers & approvers.

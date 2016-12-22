@@ -8,6 +8,7 @@ Feature: See that program visibility affects Required Learning content correctly
       | username | firstname | lastname | email |
       | user001 | fn_001 | ln_001 | user001@example.com |
       | user002 | fn_002 | ln_002 | user002@example.com |
+      | user003 | fn_003 | ln_003 | user003@example.com |
     And the following "programs" exist in "totara_program" plugin:
       | fullname                         | shortname |
       | RoLProgVisibility Test Program 1 | testprog1 |
@@ -17,6 +18,9 @@ Feature: See that program visibility affects Required Learning content correctly
       | user001 | testprog1 |
       | user002 | testprog1 |
       | user002 | testprog2 |
+    And the following job assignments exist:
+      | idnumber     | fullname    | user      | manager   |
+      | firstjob     | firstjob    | user001   | user003   |
     # Get back the removed dashboard item for now.
     And I log in as "admin"
     And I navigate to "Main menu" node in "Site administration > Appearance"
@@ -179,3 +183,25 @@ Feature: See that program visibility affects Required Learning content correctly
     And I click on "Required Learning" in the totara menu
     Then I should see "Required Learning" in the ".breadcrumb-nav" "css_element"
     And I should see "RoLProgVisibility Test Program 2" in the ".breadcrumb-nav" "css_element"
+
+  Scenario: Manager can view their reports required programs
+    When I log in as "user003"
+    And I click on "Team" in the totara menu
+    Then I should see "fn_001 ln_001"
+    And I should not see "fn_002 ln_002"
+    And I should see "1 record shown"
+
+    When I click on "Required" "link"
+    Then I should see "RoLProgVisibility Test Program 1"
+    And I should not see "RoLProgVisibility Test Program 2"
+
+    When I click on "RoLProgVisibility Test Program 1" "link"
+    Then I should see "Required Learning"
+    And I should see "RoLProgVisibility Test Program 1"
+
+    When I log out
+    And I log in as "admin"
+    And I navigate to "Logs" node in "Site administration > Reports"
+    And I press "Get these logs"
+    Then I should see "The program 1 was viewed by user 5."
+    Then I should not see "The program 1 was viewed by user 3."

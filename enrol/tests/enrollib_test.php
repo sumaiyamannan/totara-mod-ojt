@@ -428,4 +428,113 @@ class core_enrollib_testcase extends advanced_testcase {
         $this->assertEquals('self', $event->other['enrol']);
         $this->assertEventContextNotUsed($event);
     }
+
+    /**
+     * Test the core_enrol_get_all_user_enrolments_in_course function.
+     */
+    public function test_core_enrol_get_all_user_enrolments_in_course() {
+        global $DB, $CFG;
+
+        $this->resetAfterTest(true);
+
+        $studentrole = $DB->get_record('role', array('shortname'=>'student'));
+
+        // Create users.
+        $admin = get_admin();
+        $user1 = $this->getDataGenerator()->create_user();
+        $user2 = $this->getDataGenerator()->create_user();
+        $user3 = $this->getDataGenerator()->create_user();
+
+        // Create categories.
+        $category1 = $this->getDataGenerator()->create_category();
+
+        // Create courses.
+        $course1 = $this->getDataGenerator()->create_course(array('category'=>$category1->id));
+        $course2 = $this->getDataGenerator()->create_course(array('category'=>$category1->id));
+        $course3 = $this->getDataGenerator()->create_course(array('category'=>$category1->id));
+        $course4 = $this->getDataGenerator()->create_course(array('category'=>$category1->id));
+        $course5 = $this->getDataGenerator()->create_course(array('category'=>$category1->id));
+
+        // Manual enrol instances.
+        $maninstance1 = $DB->get_record('enrol', array('courseid'=>$course1->id, 'enrol'=>'manual'), '*', MUST_EXIST);
+        $maninstance2 = $DB->get_record('enrol', array('courseid'=>$course2->id, 'enrol'=>'manual'), '*', MUST_EXIST);
+        $maninstance3 = $DB->get_record('enrol', array('courseid'=>$course3->id, 'enrol'=>'manual'), '*', MUST_EXIST);
+        $maninstance4 = $DB->get_record('enrol', array('courseid'=>$course4->id, 'enrol'=>'manual'), '*', MUST_EXIST);
+        $maninstance5 = $DB->get_record('enrol', array('courseid'=>$course5->id, 'enrol'=>'manual'), '*', MUST_EXIST);
+
+        // Self enrol instances.
+        $selfinstance1 = $DB->get_record('enrol', array('courseid'=>$course1->id, 'enrol'=>'self'), '*', MUST_EXIST);
+        $DB->set_field('enrol', 'status', ENROL_INSTANCE_ENABLED, array('id'=>$selfinstance1->id));
+        $selfinstance1 = $DB->get_record('enrol', array('courseid'=>$course1->id, 'enrol'=>'self'), '*', MUST_EXIST);
+
+        // Enrol plugins.
+        $manual = enrol_get_plugin('manual');
+        $this->assertNotEmpty($manual);
+        $self = enrol_get_plugin('self');
+        $this->assertNotEmpty($self);
+
+        // Users have no enrolments.
+        $user_enrolments = core_enrol_get_all_user_enrolments_in_course($CFG->siteguest, $course1->id);
+        $this->assertSame(array(), $user_enrolments);
+        $user_enrolments = core_enrol_get_all_user_enrolments_in_course($admin->id, $course1->id);
+        $this->assertSame(array(), $user_enrolments);
+        $user_enrolments = core_enrol_get_all_user_enrolments_in_course($user1->id, $course1->id);
+        $this->assertSame(array(), $user_enrolments);
+        $user_enrolments = core_enrol_get_all_user_enrolments_in_course($user2->id, $course1->id);
+        $this->assertSame(array(), $user_enrolments);
+
+        // Users have manual enrolments.
+        $manual->enrol_user($maninstance1, $user1->id, $studentrole->id);
+        $user_enrolments = core_enrol_get_all_user_enrolments_in_course($user1->id, $course1->id);
+        $this->assertCount(1, $user_enrolments);
+        $this->assertEquals($user1->id, current($user_enrolments)->userid);
+
+        $manual->enrol_user($maninstance1, $user2->id, $studentrole->id);
+        $user_enrolments = core_enrol_get_all_user_enrolments_in_course($user2->id, $course1->id);
+        $this->assertCount(1, $user_enrolments);
+        $this->assertEquals($user2->id, current($user_enrolments)->userid);
+
+        $user_enrolments = core_enrol_get_all_user_enrolments_in_course($user2->id, $course2->id);
+        $this->assertSame(array(), $user_enrolments);
+
+        // User1 has manual enrolment which is suspended.
+        $manual->enrol_user($maninstance2, $user1->id, 0, 0, 0, ENROL_USER_SUSPENDED);
+        $user_enrolments = core_enrol_get_all_user_enrolments_in_course($user1->id, $course2->id);
+        $this->assertSame(array(), $user_enrolments);
+
+        // User1 has manual enrolment which has ended.
+        $manual->enrol_user($maninstance3, $user1->id, 0, 1, time()-(60*60));
+        $user_enrolments = core_enrol_get_all_user_enrolments_in_course($user1->id, $course3->id);
+        $this->assertSame(array(), $user_enrolments);
+
+        // User1 has manual enrolment which is yet to start.
+        $manual->enrol_user($maninstance4, $user1->id, 0, time()+(60*60), 0);
+        $user_enrolments = core_enrol_get_all_user_enrolments_in_course($user1->id, $course4->id);
+        $this->assertSame(array(), $user_enrolments);
+
+        // User1 has manual enrolment within start and end period.
+        $manual->enrol_user($maninstance5, $user1->id, 0, time()-(60*60), time()+(60*60));
+        $user_enrolments = core_enrol_get_all_user_enrolments_in_course($user1->id, $course5->id);
+        $this->assertCount(1, $user_enrolments);
+        $this->assertEquals($user1->id, current($user_enrolments)->userid);
+        $this->assertEquals($course5->id, current($user_enrolments)->courseid);
+
+        // Disable manual enrol instance 1.
+        $DB->set_field('enrol', 'status', ENROL_INSTANCE_DISABLED, array('id'=>$maninstance1->id));
+        $user_enrolments = core_enrol_get_all_user_enrolments_in_course($user1->id, $course1->id);
+        $this->assertSame(array(), $user_enrolments);
+
+        $DB->set_field('enrol', 'status', ENROL_INSTANCE_ENABLED, array('id'=>$maninstance1->id));
+
+        // User 3 has manual and self enrolment.
+        $manual->enrol_user($maninstance1, $user3->id, $studentrole->id);
+        $self->enrol_user($selfinstance1, $user3->id, $studentrole->id);
+        $user_enrolments = core_enrol_get_all_user_enrolments_in_course($user3->id, $course1->id);
+        $user_enrolments = array_values($user_enrolments);
+        $this->assertCount(2, $user_enrolments);
+        $this->assertEquals($user3->id, $user_enrolments[0]->userid);
+        $this->assertEquals($course1->id, $user_enrolments[0]->courseid);
+        $this->assertEquals($user3->id, $user_enrolments[1]->userid);
+        $this->assertEquals($course1->id, $user_enrolments[1]->courseid);
+    }
 }

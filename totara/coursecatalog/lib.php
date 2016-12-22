@@ -249,14 +249,14 @@ function totara_get_style_visibility($component, $oldvisfield = 'visible', $audv
  * @param string $fieldbaseid The field in the base sql query which this query can link to.
  * @param string $fieldvisible The field in the base sql query which contains the visible property.
  * @param string $fieldaudvis The field in the base sql query which contains the audiencevisibile property.
- * @param string $fieldalias The field in the base sql query (This is used mainly for programs and cert which has available field)
+ * @param string $tablealias The alias for the base table (This is used mainly for programs and cert which has available field)
  * @param string $type course, program or certification.
  * @param bool $iscached True if the fields passed comes from a report which data has been cached.
  * @param bool $showhidden If using normal visibility, show items even if they are hidden.
  * @return array(sqlstring, array(sqlparams))
  */
 function totara_visibility_where($userid = null, $fieldbaseid = 'course.id', $fieldvisible = 'course.visible',
-             $fieldaudvis = 'course.audiencevisible', $fieldalias = 'course', $type = 'course', $iscached = false,
+             $fieldaudvis = 'course.audiencevisible', $tablealias = 'course', $type = 'course', $iscached = false,
              $showhidden = false) {
     global $CFG, $USER;
 
@@ -279,12 +279,12 @@ function totara_visibility_where($userid = null, $fieldbaseid = 'course.id', $fi
         case 'program':
             $capability = 'totara/program:viewhiddenprograms';
             $instancetype = COHORT_ASSN_ITEMTYPE_PROGRAM;
-            list($availabilitysql, $availabilityparams) = get_programs_availability_sql($fieldalias, $separator, $userid);
+            list($availabilitysql, $availabilityparams) = get_programs_availability_sql($tablealias, $separator, $userid);
             break;
         case 'certification':
             $capability = 'totara/certification:viewhiddencertifications';
             $instancetype = COHORT_ASSN_ITEMTYPE_CERTIF;
-            list($availabilitysql, $availabilityparams) = get_programs_availability_sql($fieldalias, $separator, $userid);
+            list($availabilitysql, $availabilityparams) = get_programs_availability_sql($tablealias, $separator, $userid);
             break;
     }
 

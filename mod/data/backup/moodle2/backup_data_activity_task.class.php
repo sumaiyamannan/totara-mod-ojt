@@ -52,27 +52,57 @@ class backup_data_activity_task extends backup_activity_task {
      * @param string $content some HTML text that eventually contains URLs to the activity instance scripts
      * @return string the content with the URLs encoded
      */
-    static public function encode_content_links($content) {
-        global $CFG;
+    static public function encode_content_links($content, backup_task $task = null) {
+        global $CFG, $DB;
 
-        $base = preg_quote($CFG->wwwroot,"/");
+        if (!self::has_scripts_in_content($content, 'mod/data', ['index.php', 'view.php'])) {
+            // No scripts present in the content, simply continue.
+            return $content;
+        }
 
-        // Link to the list of datas
-        $search="/(".$base."\/mod\/data\/index.php\?id\=)([0-9]+)/";
-        $content= preg_replace($search, '$@DATAINDEX*$2@$', $content);
+        $base = preg_quote($CFG->wwwroot.'/mod/data/view.php?d=', '#');
 
-        // Link to data view by moduleid
-        $search="/(".$base."\/mod\/data\/view.php\?id\=)([0-9]+)/";
-        $content= preg_replace($search, '$@DATAVIEWBYID*$2@$', $content);
+        if (empty($task)) {
 
-        /// Link to database view by databaseid
-        $search="/(".$base."\/mod\/data\/view.php\?d\=)([0-9]+)/";
-        $content= preg_replace($search,'$@DATAVIEWBYD*$2@$', $content);
+            // No task has been provided, lets just encode everything, must be some old school backup code.
+            $content = self::encode_content_link_basic_id($content, "/mod/data/index.php?id=", 'DATAINDEX');
+            $content = self::encode_content_link_basic_id($content, "/mod/data/view.php?id=", 'DATAVIEWBYID');
+            $content = preg_replace("#{$base}([0-9]+)(&|&amp;)rid=([0-9]+)#", '$@DATAVIEWRECORD*$1*$3@$', $content);
+            $content = self::encode_content_link_basic_id($content, "/mod/data/view.php?d=", 'DATAVIEWBYD');
 
-        /// Link to one "record" of the database
-        $search="/(".$base."\/mod\/data\/view.php\?d\=)([0-9]+)\&(amp;)rid\=([0-9]+)/";
-        $content= preg_replace($search,'$@DATAVIEWRECORD*$2*$4@$', $content);
+        } else {
+            // OK we have a valid task, we can translate just those links belonging to content that is being backed up.
 
+            $content = self::encode_content_link_basic_id($content, "/mod/data/index.php?id=", 'DATAINDEX', $task->get_courseid());
+
+            foreach ($task->get_tasks_of_type_in_plan('backup_data_activity_task') as $task) {
+                /** @var backup_data_activity_task $task */
+                $cmid = $task->get_moduleid();
+                $activityid = $task->get_activityid();
+
+                $search = "#{$base}{$activityid}(&|&amp;)rid=(?<rid>[0-9]+)#";
+                if (preg_match_all($search, $content, $matches)) {
+                    list($insql, $params) = $DB->get_in_or_equal($matches['rid'], SQL_PARAMS_NAMED);
+                    $sql = 'SELECT dr.id
+                              FROM {data_records} dr
+                             WHERE dr.dataid = :dataid
+                               AND dr.id '.$insql;
+                    $params['dataid'] = $activityid;
+                    $entries = $DB->get_records_sql($sql, $params);
+                    foreach ($entries as $entry) {
+                        $entryid = $entry->id;
+                        $search = "#{$base}{$activityid}(&|&amp;)rid={$entryid}(?!\d)#";
+                        $content = preg_replace($search, '$@DATAVIEWRECORD*'.$activityid.'*'.$entryid.'@$', $content);
+                    }
+                }
+
+                // This must be last as we must encode all view.php links that include a record arg first.
+                $content = self::encode_content_link_basic_id($content, "/mod/data/view.php?id=", 'DATAVIEWBYID', $cmid);
+                $content = self::encode_content_link_basic_id($content, "/mod/data/view.php?d=", 'DATAVIEWBYD', $activityid);
+            }
+        }
+
+        // Return the now encoded content
         return $content;
     }
 }

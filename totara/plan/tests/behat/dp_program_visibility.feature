@@ -333,3 +333,105 @@ Feature: See that program visibility affects Record of Learning: Programs conten
     Then I should see "Record of Learning for fn_002 ln_002 : All Programs"
     And I should not see "RoLProgVisibility Test Program 1" in the "#dp-plan-content" "css_element"
     And I should see "RoLProgVisibility Test Program 2" in the "#dp-plan-content" "css_element"
+
+  @javascript
+  Scenario: ROL Program: Audience visibility, no users, 1st program not completed then unassigned.
+    When I log in as "admin"
+    And I navigate to "Advanced features" node in "Site administration"
+    And I set the field "Enable audience-based visibility" to "1"
+    And I set the field "Enable program completion editor" to "1"
+    And I press "Save changes"
+    Then I should see "Changes saved"
+
+    When I click on "Programs" in the totara menu
+    And I click on "RoLProgVisibility Test Program 1" "link"
+    And I click on "Edit program details" "button"
+    And I click on "Details" "link"
+    And I set the field "Visibility" to "No users"
+    And I press "Save changes"
+    Then I should see "Program details saved successfully"
+
+    When I switch to "Completion" tab
+    Then I should see "Not complete" in the "fn_002 ln_002" "table_row"
+
+    When I switch to "Assignments" tab
+    And I click on "Delete" "link" in the "fn_002 ln_002" "table_row"
+    And I press "Save changes"
+    And I press "Save all changes"
+    Then I should see "Program assignments saved successfully"
+
+  # RoL: Progs tab should be visible but not contain the program for learner.
+    When I log out
+    And I log in as "user002"
+    And I click on "Record of Learning" in the totara menu
+    And I click on "Programs" "link" in the "#dp-plan-content" "css_element"
+    Then I should see "Record of Learning : All Programs"
+    And I should not see "RoLProgVisibility Test Program 1" in the "#dp-plan-content" "css_element"
+    And I should see "RoLProgVisibility Test Program 2" in the "#dp-plan-content" "css_element"
+
+  # RoL: Progs tab should be shown and contains the program for manager.
+    When I log out
+    And I log in as "mana003"
+    And I click on "Team" in the totara menu
+    And I click on "fn_002 ln_002" "link"
+    And I click on "Record of Learning" "link" in the ".userprofile" "css_element"
+    And I click on "Programs" "link" in the "#dp-plan-content" "css_element"
+    Then I should see "Record of Learning for fn_002 ln_002 : All Programs"
+    And I should not see "RoLProgVisibility Test Program 1" in the "#dp-plan-content" "css_element"
+    And I should see "RoLProgVisibility Test Program 2" in the "#dp-plan-content" "css_element"
+
+  @javascript
+  Scenario: ROL Program: Audience visibility, no users, 1st program completed then unassigned.
+    When I log in as "admin"
+    And I navigate to "Advanced features" node in "Site administration"
+    And I set the field "Enable audience-based visibility" to "1"
+    And I set the field "Enable program completion editor" to "1"
+    And I press "Save changes"
+    Then I should see "Changes saved"
+
+    When I click on "Programs" in the totara menu
+    And I click on "RoLProgVisibility Test Program 1" "link"
+    And I click on "Edit program details" "button"
+    And I click on "Details" "link"
+    And I set the field "Visibility" to "No users"
+    And I press "Save changes"
+    Then I should see "Program details saved successfully"
+
+    When I switch to "Completion" tab
+    And I click on "Edit completion records" "link" in the "fn_002 ln_002" "table_row"
+    And I set the following fields to these values:
+      | Status                | Program complete |
+      | timecompleted[day]    | 3                |
+      | timecompleted[month]  | September        |
+      | timecompleted[year]   | 2015             |
+      | timecompleted[hour]   | 12               |
+      | timecompleted[minute] | 30               |
+    And I click on "Save changes" "button"
+    Then I should see "Completion changes have been saved"
+
+    When I follow "Return to program"
+    And I switch to "Assignments" tab
+    And I click on "Delete" "link" in the "fn_002 ln_002" "table_row"
+    And I press "Save changes"
+    And I press "Save all changes"
+    Then I should see "Program assignments saved successfully"
+
+    # RoL: Progs tab should be visible but not contain the program for learner.
+    When I log out
+    And I log in as "user002"
+    And I click on "Record of Learning" in the totara menu
+    And I click on "Programs" "link" in the "#dp-plan-content" "css_element"
+    Then I should see "Record of Learning : All Programs"
+    And I should see "RoLProgVisibility Test Program 1" in the "#dp-plan-content" "css_element"
+    And I should see "RoLProgVisibility Test Program 2" in the "#dp-plan-content" "css_element"
+
+    # RoL: Progs tab should be shown and contains the program for manager.
+    When I log out
+    And I log in as "mana003"
+    And I click on "Team" in the totara menu
+    And I click on "fn_002 ln_002" "link"
+    And I click on "Record of Learning" "link" in the ".userprofile" "css_element"
+    And I click on "Programs" "link" in the "#dp-plan-content" "css_element"
+    Then I should see "Record of Learning for fn_002 ln_002 : All Programs"
+    And I should see "RoLProgVisibility Test Program 1" in the "#dp-plan-content" "css_element"
+    And I should see "RoLProgVisibility Test Program 2" in the "#dp-plan-content" "css_element"

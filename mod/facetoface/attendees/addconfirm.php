@@ -201,7 +201,7 @@ echo $f2frenderer->render($paging);
 echo html_writer::empty_tag('br');
 
 $returnurl = $list->get_returnurl();
-echo html_writer::link($returnurl, get_string('changeselectedusers', 'facetoface'), array('class'=>'link-as-button'));
+echo html_writer::link($returnurl, get_string('changeselectedusers', 'facetoface'), array('class'=>'link-as-button btn btn-default'));
 $mform->display();
 
 echo $OUTPUT->footer();

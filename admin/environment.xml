@@ -806,6 +806,11 @@
           <ON_CHECK message="unsupporteddbtablerowformat" />
         </FEEDBACK>
       </CUSTOM_CHECK>
+      <CUSTOM_CHECK file="lib/upgradelib.php" function="check_libcurl_version" level="optional">
+        <FEEDBACK>
+          <ON_CHECK message="libcurlwarning" />
+        </FEEDBACK>
+      </CUSTOM_CHECK>
     </CUSTOM_CHECKS>
   </MOODLE>
   <MOODLE version="3.0" requires="2.2">
@@ -957,6 +962,11 @@
           <ON_CHECK message="unsupporteddbtablerowformat" />
         </FEEDBACK>
       </CUSTOM_CHECK>
+      <CUSTOM_CHECK file="lib/upgradelib.php" function="check_libcurl_version" level="optional">
+        <FEEDBACK>
+          <ON_CHECK message="libcurlwarning" />
+        </FEEDBACK>
+      </CUSTOM_CHECK>
     </CUSTOM_CHECKS>
   </MOODLE>
   <MOODLE version="10" requires="9.0">
@@ -1105,6 +1115,11 @@
       <CUSTOM_CHECK file="lib/upgradelib.php" function="check_database_tables_row_format" level="optional">
         <FEEDBACK>
           <ON_CHECK message="unsupporteddbtablerowformat" />
+        </FEEDBACK>
+      </CUSTOM_CHECK>
+      <CUSTOM_CHECK file="lib/upgradelib.php" function="check_libcurl_version" level="optional">
+        <FEEDBACK>
+          <ON_CHECK message="libcurlwarning" />
         </FEEDBACK>
       </CUSTOM_CHECK>
     </CUSTOM_CHECKS>

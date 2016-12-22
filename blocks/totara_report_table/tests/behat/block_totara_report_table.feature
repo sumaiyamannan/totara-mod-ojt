@@ -109,7 +109,7 @@ Feature: Report builder table block
     And I should see "learner4" in the "Report sid" "block"
     And I should see "learner1" in the "Report sid" "block"
 
-    Scenario: Test block settings by user that does not have access to report
+  Scenario: Test block settings by user that does not have access to report
     # Make report public
     And I switch to "Access" tab
     And I click on "All users can view this report" "radio"
@@ -144,7 +144,7 @@ Feature: Report builder table block
     And I configure the "Report table" block
     And I should see "Current report (inaccessible)"
 
-    Scenario: Test block settings when report saved search became not public
+  Scenario: Test block settings when report saved search became not public
     # Make public saved search
     And I click on "View This Report" "link"
     And I set the following fields to these values:
@@ -204,3 +204,35 @@ Feature: Report builder table block
     # Confirm that report is not shown, but page still works fine
     When I click on "Dashboard" in the totara menu
     Then I should not see "Can not find data record in database."
+
+  Scenario: Test view full report link for none embedded report block navigation
+    And I click on "Dashboard" in the totara menu
+    And I press "Customise this page"
+    And I add the "Report table" block
+    And I configure the "Report table" block
+    And I set the following fields to these values:
+      | Block title | Report wo sid |
+      | Report | User report |
+    And I press "Save changes"
+    And I press "Stop customising this page"
+    And I click on "View full report" "link" in the "Report wo sid" "block"
+    And I should see "User report: 13 records shown"
+
+  Scenario: Test view full report link for embedded report block navigation
+    Given I am on a totara site
+    And the following "courses" exist:
+      | fullname | shortname | category |
+      | Course 1 | C1        | 0        |
+      | Course 2 | C2        | 0        |
+
+    And I click on "Dashboard" in the totara menu
+    And I press "Customise this page"
+    And I add the "Report table" block
+    And I configure the "Report table" block
+    And I set the following fields to these values:
+      | Block title | Course Catalog            |
+      | Report      | Enhanced catalog: courses |
+    And I press "Save changes"
+    And I press "Stop customising this page"
+    And I click on "View full report" "link" in the "Course Catalog" "block"
+    And I should see "Search Courses: 2 records shown"

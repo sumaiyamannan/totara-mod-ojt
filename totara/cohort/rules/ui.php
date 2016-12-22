@@ -190,7 +190,7 @@ abstract class cohort_rule_ui_form extends cohort_rule_ui {
      * @param array $hidden An array of values to be passed into the form as hidden variables
      */
     public function printDialogContent($hidden=array(), $ruleinstanceid=false) {
-        global $OUTPUT;
+        global $OUTPUT, $PAGE;
 
         if (isset($hidden['rule'])) {
             $this->rule = $hidden['rule'];
@@ -204,6 +204,7 @@ abstract class cohort_rule_ui_form extends cohort_rule_ui {
         }
         $form->display();
         echo $OUTPUT->box_end();
+        echo $PAGE->requires->get_end_code(false);
     }
 
     /**
@@ -638,9 +639,8 @@ class ruleuidateform extends emptyruleuiform {
             $errors['durationrow'] = ' ';
         }
 
-        if (
-            $data['fixedordynamic'] == 1
-            && (
+        if ($data['fixedordynamic'] == 1 && empty($data['beforeafterdatetime']) &&
+            (
                 empty($data['beforeafterdate'])
                 || !preg_match('/^[0-9]{1,2}[\/\-][0-9]{1,2}[\/\-](19|20)?[0-9]{2}$/', $data['beforeafterdate'])
             )
@@ -691,17 +691,13 @@ class cohort_rule_ui_date extends cohort_rule_ui_form {
 
         // Set up default values and stuff
         $formdata = array();
-        // default
         $formdata['fixedordynamic'] = 1;
-        // todo: make this configurable!
-        $formdata['beforeafterdate'] = get_string('datepickerlongyearplaceholder', 'totara_core');
         if (isset($this->operator)) {
             if ($this->operator == COHORT_RULE_DATE_OP_AFTER_FIXED_DATE || $this->operator == COHORT_RULE_DATE_OP_BEFORE_FIXED_DATE) {
                 $formdata['fixedordynamic'] = 1;
                 $formdata['beforeaftermenu'] = $this->operator;
                 if (!empty($this->date)) {
-                    // todo: make this configurable!
-                    $formdata['beforeafterdate'] = userdate($this->date, get_string('datepickerlongyearphpuserdate', 'totara_core'), 99, false);
+                    $formdata['beforeafterdatetime'] = $this->date;
                 }
             } else if (
                     in_array(
@@ -734,6 +730,8 @@ class cohort_rule_ui_date extends cohort_rule_ui_form {
      * @param MoodleQuickForm $mform
      */
     public function addFormFields(&$mform) {
+        global $PAGE;
+        $mform->updateAttributes(array('class' => 'dialog-nobind mform'));
 
         // Put everything on two rows to make it look cooler.
         $row = array();
@@ -743,35 +741,13 @@ class cohort_rule_ui_date extends cohort_rule_ui_form {
             'beforeaftermenu',
             '',
             array(
-                COHORT_RULE_DATE_OP_BEFORE_FIXED_DATE=>get_string('datemenufixeddatebefore', 'totara_cohort'),
-                COHORT_RULE_DATE_OP_AFTER_FIXED_DATE=>get_string('datemenufixeddateafter', 'totara_cohort')
+                COHORT_RULE_DATE_OP_BEFORE_FIXED_DATE=>get_string('datemenufixeddatebeforeandon', 'totara_cohort'),
+                COHORT_RULE_DATE_OP_AFTER_FIXED_DATE=>get_string('datemenufixeddateafterandon', 'totara_cohort')
             )
         );
-        $row[2] = $mform->createElement('text', 'beforeafterdate', '');
-        $mform->addGroup($row, 'beforeafterrow', ' ', ' ', false);
+        $row[2] = $mform->createElement('date_time_selector', 'beforeafterdatetime', '', array('showtimezone' => true));
+        $mform->addGroup($row, 'beforeafterrow', '', null, false);
 
-        $datepickerjs = <<<JS
-<script type="text/javascript">
-
-    $(function() {
-        $('#id_beforeafterdate').datepicker(
-            {
-                dateFormat: '
-JS;
-        $datepickerjs .= get_string('datepickerlongyeardisplayformat', 'totara_core');
-        $datepickerjs .= <<<JS
-',
-                showOn: 'both',
-                buttonImage: M.util.image_url('t/calendar'),
-                buttonImageOnly: true,
-                beforeShow: function() { $('#ui-datepicker-div').css('z-index', 1600); },
-                constrainInput: true
-            }
-        );
-    });
-    </script>
-JS;
-        $mform->addElement('html', $datepickerjs);
         $durationmenu = array(
             COHORT_RULE_DATE_OP_BEFORE_PAST_DURATION =>   get_string('datemenudurationbeforepast', 'totara_cohort'),
             COHORT_RULE_DATE_OP_WITHIN_PAST_DURATION =>   get_string('datemenudurationwithinpast', 'totara_cohort'),
@@ -787,10 +763,15 @@ JS;
         $row[1] = $mform->createElement('select', 'durationmenu', '', $durationmenu);
         $row[2] = $mform->createElement('text', 'durationdate', '');
         $row[3] = $mform->createElement('static', '', '', get_string('durationdays', 'totara_cohort'));
-        $mform->addGroup($row, 'durationrow', ' ', ' ', false);
+        $mform->addGroup($row, 'durationrow', '', '', false);
 
         $mform->disabledIf('beforeaftermenu','fixedordynamic','neq',1);
-        $mform->disabledIf('beforeafterdate','fixedordynamic','neq',1);
+        $mform->disabledIf('beforeafterdatetime[day]','fixedordynamic','neq',1);
+        $mform->disabledIf('beforeafterdatetime[month]','fixedordynamic','neq',1);
+        $mform->disabledIf('beforeafterdatetime[year]','fixedordynamic','neq',1);
+        $mform->disabledIf('beforeafterdatetime[hour]','fixedordynamic','neq',1);
+        $mform->disabledIf('beforeafterdatetime[minute]','fixedordynamic','neq',1);
+        $mform->disabledIf('beforeafterdatetime[calendar]','fixedordynamic','neq',1);
         $mform->disabledIf('durationmenu','fixedordynamic','neq',2);
         $mform->disabledIf('durationdate','fixedordynamic','neq',2);
     }
@@ -814,7 +795,7 @@ JS;
         switch ($this->operator) {
             case COHORT_RULE_DATE_OP_BEFORE_FIXED_DATE:
             case COHORT_RULE_DATE_OP_AFTER_FIXED_DATE:
-                $a = userdate($this->date, get_string('datepickerlongyearphpuserdate', 'totara_core'), 99, false);
+                $a = userdate($this->date, get_string('strftimedatetimelong', 'langconfig'));
                 break;
             case COHORT_RULE_DATE_OP_BEFORE_PAST_DURATION:
             case COHORT_RULE_DATE_OP_WITHIN_PAST_DURATION:
@@ -834,16 +815,16 @@ JS;
      * @param cohort_rule_sqlhandler $sqlhandler
      */
     public function handleDialogUpdate($sqlhandler){
-        $fixedordynamic = required_param('fixedordynamic', PARAM_INT);
+        $formdata = $this->form->get_data();
+        $fixedordynamic = $formdata->fixedordynamic;
         switch($fixedordynamic) {
             case 1:
-                $operator = required_param('beforeaftermenu', PARAM_INT);
-                $date = totara_date_parse_from_format(get_string('datepickerlongyearparseformat', 'totara_core'), required_param('beforeafterdate', PARAM_TEXT));
+                $operator =  $formdata->beforeaftermenu;
+                $date = $formdata->beforeafterdatetime;
                 break;
             case 2:
-                $operator = required_param('durationmenu', PARAM_INT);
-                // Convert number to seconds
-                $date = required_param('durationdate', PARAM_INT);
+                $operator =  $formdata->durationmenu;
+                $date = $formdata->durationdate;
                 break;
             default:
                 return false;

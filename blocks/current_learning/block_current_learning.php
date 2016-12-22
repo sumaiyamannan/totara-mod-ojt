@@ -309,6 +309,14 @@ class block_current_learning extends block_base {
                     continue;
                 }
 
+                // Remove courses that don't have an owner and only have the totara_program enrolment for the user.
+                // A course can get into this state if the user is in a recert path, with different courses in the cert path,
+                // where the course in question has been completed via the standard cert path.
+                if (!$item->has_owner() && $this->only_prog_enrol($item)) {
+                    unset($items[$key]);
+                    continue;
+                }
+
                 // Remove completed courses, regardless of how they got here.
                 if ($item->is_complete() === true) {
                     // Once removed continue so that we don't do anything more with this item.
@@ -387,6 +395,18 @@ class block_current_learning extends block_base {
             }
         }
         return $items;
+    }
+
+    /**
+     * Check if totara_program is the only course enrollment for the user
+     *
+     * @param \core_course\user_learning\item $item
+     * @return bool
+     */
+    public function only_prog_enrol(\core_course\user_learning\item $item) {
+        $enrol = core_enrol_get_all_user_enrolments_in_course($this->userid, $item->id);
+
+        return (count($enrol) === 1 && current($enrol)->enrol === 'totara_program');
     }
 
 

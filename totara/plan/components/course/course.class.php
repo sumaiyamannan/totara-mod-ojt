@@ -658,7 +658,7 @@ class dp_course_component extends dp_base_component {
 
         if ($approved) {
             $class = '';
-            $action_link = $OUTPUT->action_link(new moodle_url('/course/view.php', array('id' => $item->courseid)), get_string('launchcourse', 'totara_plan'), null, array('class' => 'link-as-button'));
+            $action_link = $OUTPUT->action_link(new moodle_url('/course/view.php', array('id' => $item->courseid)), get_string('launchcourse', 'totara_plan'), null, array('class' => 'link-as-button btn btn-default'));
             $launch = $OUTPUT->container(html_writer::tag('small', $action_link), "plan-launch-course-button");
         } else {
             $class = 'dimmed';

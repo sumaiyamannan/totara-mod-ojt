@@ -83,7 +83,7 @@ class block_edit_form extends moodleform {
         $last = end($weightoptions);
         $weightoptions[$last] = get_string('bracketlast', 'block', $last);
 
-        $regionoptions = $this->page->theme->get_all_block_regions();
+        $regionoptions = $this->page->theme->get_all_block_regions($this->page->pagelayout);
         foreach ($this->page->blocks->get_regions() as $region) {
             // Make sure to add all custom regions of this particular page too.
             if (!isset($regionoptions[$region])) {
@@ -217,7 +217,7 @@ class block_edit_form extends moodleform {
             }
         }
 
-        $defaultregionoptions = $regionoptions;
+        $defaultregionoptions = $this->page->theme->get_all_block_regions();
         $defaultregion = $this->block->instance->defaultregion;
         if (!array_key_exists($defaultregion, $defaultregionoptions)) {
             $defaultregionoptions[$defaultregion] = $defaultregion;
@@ -235,7 +235,11 @@ class block_edit_form extends moodleform {
 
         $blockregion = $this->block->instance->region;
         if (!array_key_exists($blockregion, $regionoptions)) {
-            $regionoptions[$blockregion] = $blockregion;
+            if (array_key_exists($blockregion, $defaultregionoptions)) {
+                $regionoptions[$blockregion] = $defaultregionoptions[$blockregion];
+            } else {
+                $regionoptions[$blockregion] = $blockregion;
+            }
         }
         $mform->addElement('select', 'bui_region', get_string('region', 'block'), $regionoptions);
 

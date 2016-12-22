@@ -54,26 +54,29 @@ class backup_feedback_activity_task extends backup_activity_task {
      * @param string $content some HTML text that eventually contains URLs to the activity instance scripts
      * @return string the content with the URLs encoded
      */
-    static public function encode_content_links($content) {
-        global $CFG;
+    static public function encode_content_links($content, backup_task $task = null) {
 
-        $base = preg_quote($CFG->wwwroot, "/");
+        if (!self::has_scripts_in_content($content, 'mod/feedback', ['index.php', 'view.php', 'analysis.php', 'show_entries.php'])) {
+            // No scripts present in the content, simply continue.
+            return $content;
+        }
 
-        // Link to the list of feedbacks
-        $search="/(".$base."\/mod\/feedback\/index.php\?id\=)([0-9]+)/";
-        $content= preg_replace($search, '$@FEEDBACKINDEX*$2@$', $content);
-
-        // Link to feedback view by moduleid
-        $search="/(".$base."\/mod\/feedback\/view.php\?id\=)([0-9]+)/";
-        $content= preg_replace($search, '$@FEEDBACKVIEWBYID*$2@$', $content);
-
-        // Link to feedback analyis by moduleid
-        $search="/(".$base."\/mod\/feedback\/analysis.php\?id\=)([0-9]+)/";
-        $content= preg_replace($search, '$@FEEDBACKANALYSISBYID*$2@$', $content);
-
-        // Link to feedback entries by moduleid
-        $search="/(".$base."\/mod\/feedback\/show_entries.php\?id\=)([0-9]+)/";
-        $content= preg_replace($search, '$@FEEDBACKSHOWENTRIESBYID*$2@$', $content);
+        if (empty($task)) {
+            // No task has been provided, lets just encode everything, must be some old school backup code.
+            $content = self::encode_content_link_basic_id($content, "/mod/feedback/index.php?id=", 'FEEDBACKINDEX');
+            $content = self::encode_content_link_basic_id($content, "/mod/feedback/view.php?id=", 'FEEDBACKVIEWBYID');
+            $content = self::encode_content_link_basic_id($content, "/mod/feedback/analysis.php?id=", 'FEEDBACKANALYSISBYID');
+            $content = self::encode_content_link_basic_id($content, "/mod/feedback/show_entries.php?id=", 'FEEDBACKSHOWENTRIESBYID');
+        } else {
+            // OK we have a valid task, we can translate just those links belonging to content that is being backed up.
+            $content = self::encode_content_link_basic_id($content, "/mod/feedback/index.php?id=", 'FEEDBACKINDEX', $task->get_courseid());
+            foreach ($task->get_tasks_of_type_in_plan('backup_feedback_activity_task') as $task) {
+                /** @var backup_feedback_activity_task $task */
+                $content = self::encode_content_link_basic_id($content, "/mod/feedback/view.php?id=", 'FEEDBACKVIEWBYID', $task->get_moduleid());
+                $content = self::encode_content_link_basic_id($content, "/mod/feedback/analysis.php?id=", 'FEEDBACKANALYSISBYID', $task->get_moduleid());
+                $content = self::encode_content_link_basic_id($content, "/mod/feedback/show_entries.php?id=", 'FEEDBACKSHOWENTRIESBYID', $task->get_moduleid());
+            }
+        }
 
         return $content;
     }

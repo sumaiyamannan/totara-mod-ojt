@@ -53,22 +53,46 @@ class backup_wiki_activity_task extends backup_activity_task {
      * @param string $content some HTML text that eventually contains URLs to the activity instance scripts
      * @return string the content with the URLs encoded
      */
-    static public function encode_content_links($content) {
-        global $CFG;
+    static public function encode_content_links($content, backup_task $task = null) {
+        global $CFG, $DB;
 
-        $base = preg_quote($CFG->wwwroot, "/");
+        if (!self::has_scripts_in_content($content, 'mod/wiki', ['index.php', 'view.php'])) {
+            // No scripts present in the content, simply continue.
+            return $content;
+        }
 
-        // Link to the list of wikis
-        $search = "/(" . $base . "\/mod\/wiki\/index.php\?id\=)([0-9]+)/";
-        $content = preg_replace($search, '$@WIKIINDEX*$2@$', $content);
+        if (empty($task)) {
+            // No task has been provided, lets just encode everything, must be some old school backup code.
+            $content = self::encode_content_link_basic_id($content, "/mod/wiki/index.php?id=", 'WIKIINDEX');
+            $content = self::encode_content_link_basic_id($content, "/mod/wiki/view.php?id=", 'WIKIVIEWBYID');
+            $content = self::encode_content_link_basic_id($content, "/mod/wiki/view.php?pageid=", 'WIKIPAGEBYID');
+        } else {
+            // OK we have a valid task, we can translate just those links belonging to content that is being backed up.
+            $content = self::encode_content_link_basic_id($content, "/mod/wiki/index.php?id=", 'WIKIINDEX', $task->get_courseid());
+            $activityids = array();
+            foreach ($task->get_tasks_of_type_in_plan('backup_wiki_activity_task') as $task) {
+                /** @var backup_wiki_activity_task $task */
+                $content = self::encode_content_link_basic_id($content, "/mod/wiki/view.php?id=", 'WIKIVIEWBYID', $task->get_moduleid());
+                $activityids[] = $task->get_activityid();
+            }
 
-        // Link to wiki view by moduleid
-        $search = "/(" . $base . "\/mod\/wiki\/view.php\?id\=)([0-9]+)/";
-        $content = preg_replace($search, '$@WIKIVIEWBYID*$2@$', $content);
+            $base = preg_quote($CFG->wwwroot.'/mod/wiki/view.php?pageid=', '#');
+            $search = "#({$base})(?<pageid>\d+)#";
+            if (preg_match_all($search, $content, $matches, PREG_SET_ORDER)) {
+                foreach ($matches as $match) {
+                    $pageid = $match['pageid'];
+                    $sql = 'SELECT s.wikiid
+                              FROM {wiki_subwikis} s
+                              JOIN {wiki_pages} p ON p.subwikiid = s.id
+                             WHERE p.id = :pageid';
+                    $wikiid = $DB->get_field_sql($sql, ['pageid' => $pageid]);
+                    if (in_array($wikiid, $activityids)) {
+                        $content = self::encode_content_link_basic_id($content, "/mod/wiki/view.php?pageid=", 'WIKIPAGEBYID', $pageid);
+                    }
+                }
 
-        // Link to wiki view by pageid
-        $search = "/(" . $base . "\/mod\/wiki\/view.php\?pageid\=)([0-9]+)/";
-        $content = preg_replace($search, '$@WIKIPAGEBYID*$2@$', $content);
+            }
+        }
 
         return $content;
     }

@@ -223,11 +223,10 @@ class block_totara_report_table extends block_base {
             return $this->content;
         }
 
-        $params = array('id' => $id);
+        $reporturl = new moodle_url($report->report_url());
         if ($sid) {
-            $params['sid'] = $sid;
+            $reporturl->param('sid', $sid);
         }
-        $reporturl = new moodle_url('/totara/reportbuilder/report.php', $params);
 
         // Use output buffering so we can call the existing display_table() function.
         ob_start();

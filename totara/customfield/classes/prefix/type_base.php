@@ -155,10 +155,11 @@ abstract class type_base {
     }
 
     /**
-     * Edit customfield.
+     * Move a customfield up or down.
      *
      * @param int $id ID of the customfield we want to move.
-     * @param string $move the direction - Up or down.
+     * @param string $move the direction - 'up' or 'down'.
+     * @return bool
      */
     public function move($id, $move) {
         global $DB;
@@ -166,30 +167,42 @@ abstract class type_base {
         $tableprefix = $this->tableprefix;
         $field = static::get_field_to_move($tableprefix, $id);
 
-        // Count the number of fields.
-        $fieldcount = $DB->count_records($tableprefix.'_info_field');
-
-        // Calculate the new sortorder.
-        if (($move == 'up') and ($field->sortorder > 1)) {
-            $neworder = $field->sortorder - 1;
-        } elseif (($move == 'down') and ($field->sortorder < $fieldcount)) {
-            $neworder = $field->sortorder + 1;
+        if ($move === 'up') {
+            $sqloperator = '<';
+            $sqldirection = 'DESC';
         } else {
+            $move = 'down';
+            $sqloperator = '>';
+            $sqldirection = 'ASC';
+        }
+        $sql = "SELECT id,sortorder
+                      FROM {{$tableprefix}_info_field} cif
+                     WHERE sortorder {$sqloperator} :sortorder
+                  ORDER BY sortorder {$sqldirection}";
+
+        $params = ['sortorder' => $field->sortorder];
+        $swapfields = $DB->get_records_sql($sql, $params, 0, 1);
+
+        if (count($swapfields) !== 1) {
+            debugging('Invalid action, the selected field cannot be moved '.$move, DEBUG_DEVELOPER);
             return false;
         }
+        $swapfield = reset($swapfields);
 
-        $subfields = static::get_conditions_swapfields($neworder, $field);
-        $swapfield = $DB->get_record($tableprefix.'_info_field', $subfields);
+        $holding = $field->sortorder;
+        $field->sortorder = $swapfield->sortorder;
+        $swapfield->sortorder = $holding;
 
-        // Swap the sortorders.
-        $swapfield->sortorder = $field->sortorder;
-        $field->sortorder     = $neworder;
-
-        // Update the field records.
+        // Always together.
+        $transaction = $DB->start_delegated_transaction();
         $DB->update_record($tableprefix.'_info_field', $field);
         $DB->update_record($tableprefix.'_info_field', $swapfield);
+        $transaction->allow_commit();
 
+        // Finally re-order all fields, just to be safe.
+        // Needed because those on earlier versions may have unbalanced sortorders to begin with.
         $this->reorder_fields();
+        return true;
     }
 
     /**
@@ -254,6 +267,25 @@ abstract class type_base {
         }
         $rs->close();
         return true;
+    }
+
+    /**
+     * Returns the sortorder value a new field should use.
+     * @return int
+     */
+    public function get_next_sortorder() {
+        global $DB;
+        $sql = "SELECT id, sortorder
+                  FROM {{$this->tableprefix}_info_field}
+              ORDER BY sortorder DESC";
+        $result = $DB->get_records_sql($sql, null, 0, 1);
+        if (empty($result)) {
+            // It will be the first field.
+            return 1;
+        } else {
+            $record = reset($result);
+            return $record->sortorder + 1;
+        }
     }
 
 }

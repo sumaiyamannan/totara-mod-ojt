@@ -140,6 +140,22 @@ class prog_content {
     }
 
     /**
+     * Determines if a course is contained in any of the coursesets of a program (or cert).
+     *
+     * @param $courseid
+     * @return bool true if the course is found in this program
+     */
+    public function contains_course($courseid) {
+        foreach ($this->coursesets as $courseset) {
+            if ($courseset->contains_course($courseid)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * Deletes all the content for this program
      *
      * @return bool true|Exception

@@ -52,22 +52,51 @@ class backup_glossary_activity_task extends backup_activity_task {
      * @param string $content some HTML text that eventually contains URLs to the activity instance scripts
      * @return string the content with the URLs encoded
      */
-    static public function encode_content_links($content) {
-        global $CFG;
+    static public function encode_content_links($content, backup_task $task = null) {
+        global $CFG, $DB;
 
-        $base = preg_quote($CFG->wwwroot,"/");
+        if (!self::has_scripts_in_content($content, 'mod/glossary', ['index.php', 'view.php', 'showentry.php'])) {
+            // No scripts present in the content, simply continue.
+            return $content;
+        }
 
-        // Link to the list of glossaries
-        $search="/(".$base."\/mod\/glossary\/index.php\?id\=)([0-9]+)/";
-        $content= preg_replace($search, '$@GLOSSARYINDEX*$2@$', $content);
+        $showentrybase = preg_quote($CFG->wwwroot.'/mod/glossary/showentry.php?courseid=', '#');
 
-        // Link to glossary view by moduleid
-        $search="/(".$base."\/mod\/glossary\/view.php\?id\=)([0-9]+)/";
-        $content= preg_replace($search, '$@GLOSSARYVIEWBYID*$2@$', $content);
+        if (empty($task)) {
+            $before = $content;
+            // No task has been provided, lets just encode everything, must be some old school backup code.
+            $content = self::encode_content_link_basic_id($content, "/mod/glossary/index.php?id=", 'GLOSSARYINDEX');
+            $content = self::encode_content_link_basic_id($content, "/mod/glossary/view.php?id=", 'GLOSSARYVIEWBYID');
+            $content = self::encode_content_link_basic_id($content, "/mod/glossary/view.php?g=", 'GLOSSARYVIEWBYG');
+            $content = preg_replace("#{$showentrybase}(\d+)(&|&amp;)eid=(\d+)#", '$@GLOSSARYSHOWENTRY*$1*$3@$', $content);
+        } else {
+            // OK we have a valid task, we can translate just those links belonging to content that is being backed up.
+            $courseid = $task->get_courseid();
+            $activityids = array();
+            $content = self::encode_content_link_basic_id($content, "/mod/glossary/index.php?id=", 'GLOSSARYINDEX', $courseid);
+            foreach ($task->get_tasks_of_type_in_plan('backup_glossary_activity_task') as $task) {
+                /** @var backup_glossary_activity_task $task */
+                $content = self::encode_content_link_basic_id($content, "/mod/glossary/view.php?id=", 'GLOSSARYVIEWBYID', $task->get_moduleid());
+                $content = self::encode_content_link_basic_id($content, "/mod/glossary/view.php?g=", 'GLOSSARYVIEWBYG', $task->get_activityid());
+                $activityids[] = $task->get_activityid();
+            }
 
-        // Link to glossary entry
-        $search="/(".$base."\/mod\/glossary\/showentry.php\?courseid=)([0-9]+)(&|&amp;)eid=([0-9]+)/";
-        $content = preg_replace($search, '$@GLOSSARYSHOWENTRY*$2*$4@$', $content);
+            $search = "#{$showentrybase}{$courseid}(&|&amp;)eid=(?<eid>\d+(?!\d))#";
+            if (preg_match_all($search, $content, $matches)) {
+                list($eidsin, $eidparams) = $DB->get_in_or_equal($matches[2], SQL_PARAMS_NAMED, 'eid');
+                list($activityidsin, $activityparams) = $DB->get_in_or_equal($activityids, SQL_PARAMS_NAMED, 'act');
+                $sql = 'SELECT ge.id
+                              FROM {glossary_entries} ge
+                             WHERE ge.id '.$eidsin.'
+                               AND ge.glossaryid '.$activityidsin;
+                $entries = $DB->get_records_sql($sql, array_merge($eidparams, $activityparams));
+                foreach ($entries as $entry) {
+                    $eid = $entry->id;
+                    $search = "#{$showentrybase}{$courseid}(&|&amp;)eid={$eid}(?!\d)#";
+                    $content = preg_replace($search, '$@GLOSSARYSHOWENTRY*'.$courseid.'*'.$eid.'@$', $content);
+                }
+            }
+        }
 
         return $content;
     }

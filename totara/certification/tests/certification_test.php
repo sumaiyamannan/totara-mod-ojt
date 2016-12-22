@@ -60,6 +60,9 @@ class totara_certification_certification_testcase extends reportcache_advanced_t
         $this->resetAfterTest(true);
         $this->setAdminUser();
 
+        // Turn off programs. This is to test that it doesn't interfere with certification completion.
+        set_config('enableprograms', TOTARA_DISABLEFEATURE);
+
         $this->actions_stage_1(); // Initial setup.
         $this->check_stage_1();
         $this->actions_stage_2(); // First completion / primary certification.

@@ -511,3 +511,72 @@ Feature: Users completion of programs and coursesets
     When I click on "Programs" "link" in the "#dp-plan-content" "css_element"
     And I click on "Completion Program Tests" "link"
     Then I should see "100%" program progress
+
+  # Completion of a program with 'some 0' content in combination with minimum score:
+  @javascript
+  Scenario: Test program completion with courseset "some 0" and minimum score
+    Given I log in as "admin"
+    And I navigate to "Custom fields" node in "Site administration > Courses"
+    And I set the field "Create a new custom field" to "Text input"
+    And I set the following fields to these values:
+      | Full name     | testcustomscore |
+      | Short name    | testcustomscore |
+    And I press "Save changes"
+
+    And I click on "Courses" in the totara menu
+    And I click on "Course 1" "link"
+    And I navigate to "Edit settings" node in "Course administration"
+    And I expand all fieldsets
+    And I set the field "testcustomscore" to "10"
+    And I press "Save and display"
+
+    And I click on "Courses" in the totara menu
+    And I click on "Course 2" "link"
+    And I navigate to "Edit settings" node in "Course administration"
+    And I expand all fieldsets
+    And I set the field "testcustomscore" to "10"
+    And I press "Save and display"
+
+    And I navigate to "Manage programs" node in "Site administration > Courses"
+    And I click on "Miscellaneous" "link"
+    And I click on "Completion Program Tests" "link"
+    And I click on "Edit program details" "button"
+    And I click on "Content" "link"
+    And I click on "addcontent_ce" "button" in the "#edit-program-content" "css_element"
+    And I click on "Miscellaneous" "link" in the "addmulticourse" "totaradialogue"
+    And I click on "Course 1" "link" in the "addmulticourse" "totaradialogue"
+    And I click on "Course 2" "link" in the "addmulticourse" "totaradialogue"
+    And I click on "Ok" "button" in the "addmulticourse" "totaradialogue"
+    And I set the following fields to these values:
+      | Learner must complete     | Some courses    |
+      | Minimum courses completed | 0               |
+      | Course score field        | testcustomscore |
+      | Minimum score             | 15              |
+    And I press "Save changes"
+    And I click on "Save all changes" "button"
+    And I run the "\totara_program\task\completions_task" task
+
+    When I log out
+    And I log in as "user001"
+    And I click on "Required Learning" in the totara menu
+    Then I should see "Completion Program Tests"
+    And I should see "Course 1"
+    And I should see "Course 2"
+    And I should see "0%" program progress
+
+    And I click on "Course 1" "link"
+    And I click on "Complete course" "link"
+    And I press "Yes"
+    And I click on "Required Learning" in the totara menu
+    Then I should see "Completion Program Tests"
+    And I should see "0%" program progress
+
+    And I click on "Course 2" "link"
+    And I click on "Complete course" "link"
+    And I press "Yes"
+    Then I should not see "Required Learning" in the totara menu
+
+    When I click on "Record of Learning" in the totara menu
+    And I click on "Programs" "link" in the "#dp-plan-content" "css_element"
+    And I click on "Completion Program Tests" "link"
+    Then I should see "100%" program progress

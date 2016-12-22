@@ -77,7 +77,7 @@ $cssql = "SELECT p.id, p.fullname, p.certifid
           JOIN {prog} p
             ON pc.programid = p.id
          WHERE pcc.courseid = :cid
-      GROUP BY p.id";
+      GROUP BY p.id, p.fullname, p.certifid";
 $csparams = array('cid' => $course->id);
 $coursesets = $DB->get_records_sql($cssql, $csparams);
 if (!empty($coursesets)) {
@@ -141,6 +141,8 @@ if (!$archive) {
 
     if (empty($users)) {
         echo $OUTPUT->box(get_string('nouserstoarchive', 'completion'));
+        $viewurl = new moodle_url('/course/view.php', array('id' => $course->id));
+        echo $OUTPUT->continue_button($viewurl);
     } else {
         $message = $strarchivecompletionscheck;
         $message .= html_writer::empty_tag('br');

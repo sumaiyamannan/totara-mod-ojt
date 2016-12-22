@@ -47,6 +47,63 @@ abstract class hierarchy_type extends type_base {
     }
 
     /**
+     * Move a customfield up or down.
+     *
+     * This has been overridden because hierarchies have types.
+     * We need to take these types into account as well.
+     * The sortorder *should* be unique by type.
+     *
+     * @param int $id ID of the customfield we want to move.
+     * @param string $move the direction - 'up' or 'down'.
+     * @return bool
+     */
+    public function move($id, $move) {
+        global $DB;
+
+        $tableprefix = $this->tableprefix;
+        $field = static::get_field_to_move($tableprefix, $id);
+
+        if ($move === 'up') {
+            $sql = "SELECT id,typeid,sortorder
+                      FROM {{$tableprefix}_info_field} cif
+                     WHERE typeid = :typeid AND
+                           sortorder < :sortorder
+                  ORDER BY sortorder DESC";
+        } else {
+            $move = 'down';
+            $sql = "SELECT id,typeid,sortorder
+                      FROM {{$tableprefix}_info_field} cif
+                     WHERE typeid = :typeid AND
+                           sortorder > :sortorder
+                  ORDER BY sortorder ASC";
+        }
+
+        $params = ['typeid' => $field->typeid, 'sortorder' => $field->sortorder];
+        $swapfields = $DB->get_records_sql($sql, $params, 0, 1);
+
+        if (count($swapfields) !== 1) {
+            debugging('Invalid action, the selected field cannot be moved '.$move, DEBUG_DEVELOPER);
+            return false;
+        }
+        $swapfield = reset($swapfields);
+
+        $holding = $field->sortorder;
+        $field->sortorder = $swapfield->sortorder;
+        $swapfield->sortorder = $holding;
+
+        // Always together.
+        $transaction = $DB->start_delegated_transaction();
+        $DB->update_record($tableprefix.'_info_field', $field);
+        $DB->update_record($tableprefix.'_info_field', $swapfield);
+        $transaction->allow_commit();
+
+        // Finally re-order all fields, just to be safe.
+        // Needed because those on earlier versions may have unbalanced sortorders to begin with.
+        $this->reorder_fields();
+        return true;
+    }
+
+    /**
      * Get an array of conditions to look for fields
      *
      * @param $neworder
@@ -96,5 +153,25 @@ abstract class hierarchy_type extends type_base {
 
     public function get_fields_sql_where() {
         return array('typeid' => $this->other['typeid']);
+    }
+
+    /**
+     * Returns the sortorder value a new field should use.
+     * @return int
+     */
+    public function get_next_sortorder() {
+        global $DB;
+        $sql = "SELECT id, sortorder
+                  FROM {{$this->tableprefix}_info_field}
+                 WHERE typeid = :typeid
+              ORDER BY sortorder DESC";
+        $result = $DB->get_records_sql($sql, ['typeid' => $this->other['typeid']], 0, 1);
+        if (empty($result)) {
+            // It will be the first field.
+            return 1;
+        } else {
+            $record = reset($result);
+            return $record->sortorder + 1;
+        }
     }
 }

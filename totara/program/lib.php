@@ -882,7 +882,7 @@ function prog_can_enter_course($user, $course) {
     $get_programs = "
         SELECT p.*
           FROM {prog} p
-          WHERE p.available = ?
+          WHERE p.available = :avl
           AND (
               p.id IN
               (
@@ -890,10 +890,10 @@ function prog_can_enter_course($user, $course) {
                   FROM {dp_plan_program_assign} pc
             INNER JOIN {dp_plan} pln ON pln.id = pc.planid
              LEFT JOIN {prog_courseset} pcs ON pc.programid = pcs.programid
-             LEFT JOIN {prog_courseset_course} pcsc ON pcs.id = pcsc.coursesetid AND pcsc.courseid = ?
-                 WHERE pc.approved >= ?
-                   AND pln.userid = ?
-                   AND pln.status = ?
+             LEFT JOIN {prog_courseset_course} pcsc ON pcs.id = pcsc.coursesetid AND pcsc.courseid = :cid
+                 WHERE pc.approved >= :app
+                   AND pln.userid = :uid
+                   AND pln.status >= :stat
              )
             OR p.id IN
              (
@@ -902,14 +902,21 @@ function prog_can_enter_course($user, $course) {
              LEFT JOIN {prog_completion} pc
                     ON pua.programid = pc.programid AND pua.userid = pc.userid
              LEFT JOIN {prog_courseset} pcs ON pua.programid = pcs.programid
-             LEFT JOIN {prog_courseset_course} pcsc ON pcs.id = pcsc.coursesetid AND pcsc.courseid = ?
-                 WHERE pua.userid = ?
-                   AND pc.coursesetid = ?
-                   AND (pc.timedue = ?
-                        OR pc.status <> ? )
+             LEFT JOIN {prog_courseset_course} pcsc ON pcs.id = pcsc.coursesetid AND pcsc.courseid = :c2id
+                 WHERE pua.userid = :u2id
+                   AND pc.coursesetid = :csid
              ))
     ";
-    $params = array(AVAILABILITY_TO_STUDENTS, $course->id, DP_APPROVAL_APPROVED, $user->id, DP_PLAN_STATUS_APPROVED, $course->id, $user->id, 0, COMPLETION_TIME_NOT_SET, STATUS_PROGRAM_COMPLETE);
+    $params = array(
+        'avl'  => AVAILABILITY_TO_STUDENTS,
+        'cid'  => $course->id,
+        'app'  => DP_APPROVAL_APPROVED,
+        'uid'  => $user->id,
+        'stat' => DP_PLAN_STATUS_APPROVED,
+        'c2id' => $course->id,
+        'u2id' => $user->id,
+        'csid' => 0
+    );
     $program_records = $DB->get_records_sql($get_programs, $params);
 
     if (!empty($program_records)) {
@@ -1301,15 +1308,20 @@ function prog_process_extensions($extensionslist, $reasonfordecision = array()) 
  *
  * @param int $userid
  * @param program $program if not set - all programs will be updated
+ * @param int $courseid if provided (and $program is not) then only programs related to this course will be updated
  */
-function prog_update_completion($userid, program $program = null) {
+function prog_update_completion($userid, program $program = null, $courseid = null) {
     global $DB;
 
     if (!$program) {
         $proglist = prog_get_all_programs($userid, '', '', '', false, true);
         $programs = array();
         foreach ($proglist as $progrow) {
-            $programs[] = new program($progrow->id);
+            $prog = new program($progrow->id);
+            // We include the program if no course filter is specified, or else if the program contains the course.
+            if (!$courseid || $prog->content->contains_course($courseid)) {
+                $programs[] = $prog;
+            }
         }
     } else {
         $programs = array($program);
@@ -2227,19 +2239,12 @@ function prog_is_inprogress($progid, $userid) {
 /**
  * Snippet to determine if a program is available based on the available fields.
  *
- * @param $fieldalias Alias for the program table used in the query
- * @param $separator Character separator between the alias and the field name
- * @param int|null $userid The user ID that wants to see the program
+ * @param string $fieldalias Alias for the program table used in the query
+ * @param string $separator Character separator between the alias and the field name
+ * @param int|null $userid The user ID that wants to see the program (Unused)
  * @return array
  */
 function get_programs_availability_sql($fieldalias, $separator, $userid = null) {
-    global $DB, $USER;
-
-    if (empty($userid)) {
-        $userid = $USER->id;
-    }
-
-    $user = $DB->get_record('user', array('id' => $userid));
     $now = time();
 
     $availabilitysql = " (({$fieldalias}{$separator}available = :available) AND

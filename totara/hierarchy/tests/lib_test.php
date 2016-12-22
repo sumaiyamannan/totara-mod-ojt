@@ -368,6 +368,7 @@ class hierarchylib_test extends advanced_testcase {
         $expectedcustomfield->datatype = $this->type_field_data->datatype;
         $expectedcustomfield->hidden = $this->type_field_data->hidden;
         $expectedcustomfield->fullname = $this->type_field_data->fullname;
+        $expectedcustomfield->shortname = $this->type_field_data->shortname;
         $expected = array($this->type_data_data->id => $expectedcustomfield);
         $this->assertEquals($expected, $customfields);
 

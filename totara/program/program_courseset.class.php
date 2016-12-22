@@ -757,14 +757,12 @@ class multi_course_set extends course_set {
      * @return int|bool
      */
     public function check_courseset_complete($userid) {
-        global $DB;
-
         $courses = $this->courses;
         $completiontype = $this->completiontype;
 
         // Check if this is an 'optional' or 'some 0' course set where the user doesn't have to complete any courses.
         if ($completiontype == COMPLETIONTYPE_OPTIONAL ||
-            $completiontype == COMPLETIONTYPE_SOME && $this->mincourses == 0) {
+            $completiontype == COMPLETIONTYPE_SOME && $this->mincourses == 0 && $this->coursesumfieldtotal == 0) {
             $completionsettings = array(
                 'status'        => STATUS_COURSESET_COMPLETE,
                 'timecompleted' => time()
@@ -780,12 +778,6 @@ class multi_course_set extends course_set {
         $completedcourses = 0;
         $coursefieldvalsum = 0;
         foreach ($courses as $course) {
-
-            $set_completed = false;
-
-            // create a new completion object for this course
-            $completion_info = new completion_info($course);
-
             $params = array('userid' => $userid, 'course' => $course->id);
             $completion_completion = new completion_completion($params);
 

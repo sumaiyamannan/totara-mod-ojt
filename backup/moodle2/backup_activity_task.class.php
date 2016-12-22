@@ -353,4 +353,47 @@ abstract class backup_activity_task extends backup_task {
     static public function encode_content_links($content) {
         throw new coding_exception('encode_content_links() method needs to be overridden in each subclass of backup_activity_task');
     }
+
+    /**
+     * Helper function to make it quick and easy to check if content has scripts in its path.
+     *
+     * This should be done before any actual repeated attempts to match and replace content.
+     * It will improve performance, particularly when executing backups on large courses.
+     *
+     * @param string $content
+     * @param string $commonpath
+     * @param array $scripts An array of scripts, see other uses for examples
+     * @return bool
+     */
+    protected static function has_scripts_in_content($content, $commonpath, array $scripts = array()) {
+        global $CFG;
+        $base = preg_quote($CFG->wwwroot.'/'.$commonpath.'/', '#');
+        foreach ($scripts as $key => $script) {
+            $scripts[$key] = preg_quote($script, '#');
+        }
+        $search = '#'.$base.'('.join('|', $scripts).')#';
+        return (preg_match($search, $content));
+    }
+
+    /**
+     * Helper function to make it quick and easy to encode a URL with a identifier as an argument.
+     *
+     * @param string $content The content to encode.
+     * @param string $url The URL to look for, up until the id, e.g. "/mod/quiz/index.php?id="
+     * @param string $placeholdername The placeholder string to use in the replacement
+     * @param int|string $id Either an ID or * to signify any.
+     * @return string
+     */
+    protected static function encode_content_link_basic_id($content, $url, $placeholdername, $id = '*') {
+        global $CFG;
+        if ($id === '*') {
+            $id = '[0-9]+';
+        } else {
+            // The exact id, ensure there are no further numbers after it was a forwards lookup.
+            $id = preg_quote($id, '#').'(?!\d)';
+        }
+        $url = $CFG->wwwroot.$url;
+        $search = '#('.preg_quote($url, '#').')('.$id.')#';
+        return preg_replace($search, '$@'.$placeholdername.'*$2@$', $content);
+    }
 }

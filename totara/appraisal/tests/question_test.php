@@ -269,14 +269,17 @@ class appraisal_question_test extends appraisal_testcase {
         $mngrassignment = appraisal_role_assignment::get_role($appraisal->id, $user1->id, 2, appraisal::ROLE_MANAGER);
         $lrnrassignment = appraisal_role_assignment::get_role($appraisal->id, $user1->id, $user1->id, appraisal::ROLE_LEARNER);
 
-        // Question Text1: Learner cannot view others, but manager can.
-        $quest1 = new appraisal_question($map['questions']['Text1']);
-        $this->assertTrue($quest1->user_can_view($lrnrassignment->id, 2));
-        $this->assertTrue($quest1->user_can_view($mngrassignment->id, $user1->id));
-        // Question Text2: Learner not view others, but manager can't.
-        $quest2 = new appraisal_question($map['questions']['Text2']);
-        $this->assertTrue($quest2->user_can_view($lrnrassignment->id, 2));
-        $this->assertFalse($quest2->user_can_view($mngrassignment->id, $user1->id));
+        $quest1 = new appraisal_question($map['questions']['Text1']); // Learner can view other answers, manager can answer and view other answers.
+        $quest2 = new appraisal_question($map['questions']['Text2']); // Learner can answer, manager can view and must answer.
+        $quest3 = new appraisal_question($map['questions']['Text3']); // Learner can answer and can view other. Manager cannot do anything.
+
+        $this->assertTrue($quest1->user_can_view($mngrassignment->id, $user1->id)); // Q1: Learner can view manager's answer.
+        $this->assertTrue($quest1->user_can_view($mngrassignment->id, 2)); // Q1: Manager can view their own answer.
+        $this->assertFalse($quest2->user_can_view($mngrassignment->id, $user1->id)); // Q2: Learner cannot view manager's answer.
+        $this->assertTrue($quest2->user_can_view($lrnrassignment->id, 2)); // Q2: Manager can view learner's answer.
+        $this->assertTrue($quest2->user_can_view($mngrassignment->id, 2)); // Q2: Manager can view their own answer.
+        $this->assertTrue($quest3->user_can_view($lrnrassignment->id, $user1->id)); // Q2: Learner can view their own answer.
+        $this->assertFalse($quest3->user_can_view($lrnrassignment->id, 2)); // Q2: Manager cannot view learner's answer.
     }
 
     public function test_get_roles_involved() {

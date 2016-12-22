@@ -1,4 +1,4 @@
-@totara @totara_program
+@totara @totara_program @javascript
 Feature: Request extensions in programs
   In order to request extensions for a specific program
   As user
@@ -46,7 +46,6 @@ Feature: Request extensions in programs
     And I press "Save changes"
     And I log out
 
-  @javascript
   Scenario: Program extension request enable (site and program level), manager assigned and program about to expire
     Given I log in as "student1"
     And I click on "Programs" in the totara menu
@@ -54,7 +53,6 @@ Feature: Request extensions in programs
     Then I should see "Request an extension"
     And I log out
 
-  @javascript
   Scenario: Program extension request enable in site level but not in the program level, manager assigned and program about to expire
     Given I log in as "admin"
     And I click on "Programs" in the totara menu
@@ -71,7 +69,6 @@ Feature: Request extensions in programs
     And I click on "Program toggle request" "link"
     Then I should not see "Request an extension"
 
-  @javascript
   Scenario: Program extension request not enable in site level but enable in the program level, manager assigned and program about to expire
     Given I log in as "admin"
     And I set the following administration settings values:
@@ -83,7 +80,6 @@ Feature: Request extensions in programs
     And I click on "Program toggle request" "link"
     Then I should not see "Request an extension"
 
-  @javascript
   Scenario: Program extension request not enable in site or program level, manager assigned and program about to expire
     Given I log in as "admin"
     And I click on "Programs" in the totara menu
@@ -102,7 +98,6 @@ Feature: Request extensions in programs
     And I click on "Program toggle request" "link"
     Then I should not see "Request an extension"
 
-  @javascript
   Scenario: Manager assigned, program about to expire, user made a extension request and
             program extension request disable in the program level.
     Given I log in as "student1"
@@ -131,7 +126,6 @@ Feature: Request extensions in programs
     Then I should not see "Pending extension request"
     And I log out
 
-  @javascript
   Scenario: Program extension request enable in site and program level, no manager assigned and program about to expire
     Given I log in as "admin"
     And I navigate to "Browse list of users" node in "Site administration > Users > Accounts"
@@ -146,7 +140,6 @@ Feature: Request extensions in programs
     And I click on "Program toggle request" "link"
     Then I should not see "Request an extension"
 
-  @javascript
   Scenario: Learner makes a request in the future. Manager is able to see it and grant it.
     Given I log in as "student1"
     And I click on "Programs" in the totara menu
@@ -181,7 +174,6 @@ Feature: Request extensions in programs
     And I click on "Program toggle request" "link"
     Then I should see "Due date: 14 January 2025, 2:55 PM"
 
-  @javascript
   Scenario: Learner makes a request in the future. Manager is able to see it and deny it.
     Given I log in as "student1"
     And I click on "Programs" in the totara menu
@@ -207,3 +199,31 @@ Feature: Request extensions in programs
     And I click on "Programs" in the totara menu
     And I click on "Program toggle request" "link"
     Then I should not see "Due date: 14 January 2025, 2:55 PM"
+
+  Scenario: Extension request setting is saved when adding a program
+    Given I log in as "admin"
+    And I click on "Programs" in the totara menu
+    And I press "Create Program"
+    And I set the following fields to these values:
+      | Allow extension requests | 0 |
+    And I press "Save changes"
+    Then I should see "Program creation successful"
+    And the following fields match these values:
+      | Allow extension requests | 0 |
+
+    When I click on "Programs" in the totara menu
+    And I press "Create Program"
+    And I set the following fields to these values:
+      | Allow extension requests | 1 |
+    And I press "Save changes"
+    Then I should see "Program creation successful"
+    And the following fields match these values:
+      | Allow extension requests | 1 |
+
+    When I set the following administration settings values:
+      | Enable program extension requests | 0 |
+    And I click on "Programs" in the totara menu
+    And I press "Create Program"
+    Then I should not see "Allow extension requests"
+    When I press "Save changes"
+    Then I should see "Program creation successful"

@@ -11,12 +11,49 @@
 .treeview .hitarea {
     background-image: url([[pix:totara_core|jquery_treeview/treeview-default]]);
     background-repeat: no-repeat;
-    background-position: -64px -24px;
     height: 16px;
     width: 16px;
     margin-left: -16px;
     float: left;
     cursor: pointer;
+
+    .dir-rtl & {
+        background-image: url([[pix:totara_core|jquery_treeview/treeview-default-rtl]]);
+    }
+
+    &.collapsable-hitarea {
+        background-position: -64px -23px;
+
+        /*rtl:ignore*/
+        .dir-rtl & {
+            background-position-x: -16px;
+        }
+    }
+
+    &.expandable-hitarea {
+        background-position: -32px -68px;
+
+        /*rtl:ignore*/
+        .dir-rtl & {
+            background-position-x: -48px;
+        }
+    }
+
+    &.lastCollapsable-hitarea {
+        background-position: 0 -112px;
+        /*rtl:ignore*/
+        .dir-rtl & {
+            background-position-x: -80px;
+        }
+    }
+
+    &.lastExpandable-hitarea {
+        background-position: -32px -68px;
+        /*rtl:ignore*/
+        .dir-rtl & {
+            background-position-x: -48px;
+        }
+    }
 }
 
 .treeview li {
@@ -35,17 +72,21 @@
     background-image: url([[pix:totara_core|jquery_treeview/treeview-default-line]]);
     background-repeat: no-repeat;
     background-position: 0 0;
+
+    .dir-rtl & {
+        background-image: url([[pix:totara_core|jquery_treeview/treeview-default-line-rtl]]);
+    }
 }
 .treeview li.collapsable, .treeview li.expandable { background-position: 0 -176px; }
 
-.treeview .expandable-hitarea { background-position: -80px -2px; }
+//.treeview .expandable-hitarea { background-position: -80px -2px; }
 
 .treeview li.last { background-position: 0 -1766px }
-.treeview li.lastCollapsable, .treeview li.lastExpandable { background-image: url([[pix:totara_core|jquery_treeview/treeview-default]]); }
-.treeview li.lastCollapsable { background-position: 0 -111px }
-.treeview li.lastExpandable { background-position: -32px -67px }
 
-.treeview div.lastCollapsable-hitarea, .treeview div.lastExpandable-hitarea { background-position: 0; }
+.treeview li.lastCollapsable,
+.treeview li.lastExpandable {
+    background-image: none;
+}
 
 .treeview-red li { background-image: url([[pix:totara_core|jquery_treeview/treeview-red-line]]); }
 .treeview-red .hitarea, .treeview-red li.lastCollapsable, .treeview-red li.lastExpandable { background-image: url([[pix:totara_core|jquery_treeview/treeview-red]]); }
@@ -74,31 +115,4 @@
     background: url([[pix:totara_core|jquery_treeview/file]]);
     background-repeat: no-repeat;
     background-position: 0 0;
-}
-.treeview li.expandable .hitarea {
-    background-position: 100% -2px;
-}
-
-.treeview div.lastExpandable-hitarea.hitarea {
-    background-position: 0;
-}
-
-//
-// RTL Dialogue Corrections
-//
-
-// Fix images for a basic tree using RTL.
-.dir-rtl .treeview li {
-    /*rtl:ignore*/
-    background-image: url([[pix:totara_core|jquery_treeview/treeview-default-line-rtl]]);
-}
-.dir-rtl .treeview .hitarea,
-.dir-rtl .treeview li.lastExpandable {
-    /*rtl:ignore*/
-    background-image: url([[pix:totara_core|jquery_treeview/treeview-default-rtl]]);
-}
-
-.dir-rtl .treeview li.collapsable .hitarea {
-    /*rtl:ignore*/
-    background-position: -16px -24px;
 }

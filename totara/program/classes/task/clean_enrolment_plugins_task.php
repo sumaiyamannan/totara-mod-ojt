@@ -48,8 +48,8 @@ class clean_enrolment_plugins_task extends \core\task\scheduled_task {
         require_once($CFG->dirroot . '/backup/util/includes/restore_includes.php');
         require_once($CFG->dirroot . '/backup/util/includes/backup_includes.php');
 
-        // Don't run programs cron if programs are disabled, certifications are irrelevant here.
-        if (totara_feature_disabled('programs')) {
+        // Don't run programs cron if programs and certifications are disabled.
+        if (totara_feature_disabled('programs') && totara_feature_disabled('certifications')) {
             // Note that managers may deleted the program enrol instances manually if necessary.
             return false;
         }

@@ -35,6 +35,7 @@ $string['goalnumberofusersassignedheading'] = 'Number assigned';
 $string['goalscalevaluescolumn'] = 'Scale Count Columns';
 $string['goalscalevaluesheading'] = 'Scale counts';
 $string['type_goal'] = 'Goal';
+$string['type_goal_type'] = 'Company Goal Type';
 
 // Embedded headings.
 $string['embeddedgoalnameheading'] = 'Goal name';

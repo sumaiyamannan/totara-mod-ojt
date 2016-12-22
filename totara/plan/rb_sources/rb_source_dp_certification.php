@@ -624,14 +624,21 @@ class rb_source_dp_certification extends rb_base_source {
         );
 
         $requiredcolumns[] = new rb_column(
-            'base',
+            'visibility',
+            'id',
+            '',
+            "base.id"
+        );
+
+        $requiredcolumns[] = new rb_column(
+            'visibility',
             'visible',
             '',
             "base.visible"
         );
 
         $requiredcolumns[] = new rb_column(
-            'base',
+            'visibility',
             'audiencevisible',
             '',
             "base.audiencevisible"
@@ -658,18 +665,28 @@ class rb_source_dp_certification extends rb_base_source {
             "base.availableuntil"
         );
 
+        $requiredcolumns[] = new rb_column(
+            'visibility',
+            'completionstatus',
+            '',
+            'certif_completion.status',
+            array(
+                'joins' => 'certif_completion'
+            )
+        );
+
         return $requiredcolumns;
     }
 
     public function post_config(reportbuilder $report) {
         // Visibility checks are only applied if viewing a single user's records.
         if ($report->get_param_value('userid')) {
-            $fieldalias = 'base';
-            $fieldbaseid = $report->get_field('base', 'id', 'base.id');
-            $fieldvisible = $report->get_field('base', 'visible', 'base.visible');
-            $fieldaudvis = $report->get_field('base', 'audiencevisible', 'base.audiencevisible');
-            $report->set_post_config_restrictions(totara_visibility_where($report->get_param_value('userid'),
-                $fieldbaseid, $fieldvisible, $fieldaudvis, $fieldalias, 'certification', $report->is_cached(), true));
+            list($visibilitysql, $whereparams) = $report->post_config_visibility_where('certification', 'base',
+                $report->get_param_value('userid'), true);
+            $completionstatus = $report->get_field('visibility', 'completionstatus', 'certif_completion.status');
+            $wheresql = "(({$visibilitysql}) OR ({$completionstatus} > :assigned))";
+            $whereparams['assigned'] = CERTIFSTATUS_ASSIGNED;
+            $report->set_post_config_restrictions(array($wheresql, $whereparams));
         }
     }
 

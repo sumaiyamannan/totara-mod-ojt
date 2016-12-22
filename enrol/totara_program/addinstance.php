@@ -38,7 +38,7 @@ require_login($course);
 require_capability('moodle/course:enrolconfig', $context);
 require_sesskey();
 
-if (!totara_feature_visible('programs')) {
+if (!totara_feature_visible('programs') && !totara_feature_visible('certifications')) {
     redirect(new moodle_url('/enrol/instances.php', array('id' => $course->id)));
 }
 

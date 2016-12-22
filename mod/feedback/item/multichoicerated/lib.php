@@ -124,7 +124,7 @@ class feedback_item_multichoicerated extends feedback_item_base {
 
     //gets an array with three values(typ, name, XXX)
     //XXX is an object with answertext, answercount and quotient
-    public function get_analysed($item, $groupid = false, $courseid = false) {
+    public function get_analysed($item, $groupid = false, $courseid = false, $donl2br = true) {
         $analysed_item = array();
         $analysed_item[] = $item->typ;
         $analysed_item[] = $item->name;
@@ -244,7 +244,7 @@ class feedback_item_multichoicerated extends feedback_item_base {
                              $xls_formats, $item,
                              $groupid, $courseid = false) {
 
-        $analysed_item = $this->get_analysed($item, $groupid, $courseid);
+        $analysed_item = $this->get_analysed($item, $groupid, $courseid, false);
 
         $data = $analysed_item[2];
 

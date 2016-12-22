@@ -99,7 +99,7 @@ $string['approvaloptions_help'] = 'Available options are defined by the approval
 <li> When <strong>Learner accepts terms and conditions</strong> is selected, a user will be presented the text defined in the text area below, and required to accept the terms and conditions.</li>
 <li> When an event role is selected, all user\'s assigned to the role in the event will be immediately sent a notification with instructions to approve the user\'s request to sign-up for the event</li>
 <li> When <strong>Manager approval</strong> is selected, the Learner\'s Manager will be immediately sent a notification with instructions to approve the user\'s request to sign-up for the event</li>
-<li>When <strong>Manager and Administrative approval</strong> is selected, all users selected on the site level and activity level will be immediately sent a notification with instructions to approve the user\'s request to sign-up for the event after the Learner\'s Manager has initially approved the request. The administrative approver can also provide final approval before the Manager responds</li>
+<li> When <strong>Manager and Administrative approval</strong> is selected, all users selected as an approver will be immediately sent a notification with instructions to approve the user\'s request to sign-up for the event. Approval can then be given by the Manager followed by the Administrator, or the Administrator may finalise the request without Manager approval.</li>
 </ul>';
 $string['approvaloptionsheader'] = 'Approval Options';
 $string['approvalrequiredby'] = 'Approval required by: ';

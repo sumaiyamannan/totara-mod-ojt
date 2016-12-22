@@ -123,6 +123,23 @@ abstract class base_task implements checksumable, executable, loggable {
     }
 
     /**
+     * Returns all tasks of the same class as this task.
+     *
+     * @since Totara 2.7.22, 2.9.14, 9.2.
+     * @param string $type A class name of the type to get.
+     * @return base_task[]
+     */
+    public function get_tasks_of_type_in_plan($type) {
+        $tasks = [];
+        foreach ($this->plan->get_tasks() as $task) {
+            if ($task instanceof $type) {
+                $tasks[] = $task;
+            }
+        }
+        return $tasks;
+    }
+
+    /**
      * Gets the progress reporter, which can be used to report progress within
      * the backup or restore process.
      *

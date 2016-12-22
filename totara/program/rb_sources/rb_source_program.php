@@ -191,14 +191,21 @@ class rb_source_program extends rb_base_source {
 
         // Visibility.
         $requiredcolumns[] = new rb_column(
-            'base',
+            'visibility',
+            'id',
+            '',
+            "base.id"
+        );
+
+        $requiredcolumns[] = new rb_column(
+            'visibility',
             'visible',
             '',
             "base.visible"
         );
 
         $requiredcolumns[] = new rb_column(
-            'base',
+            'visibility',
             'audiencevisible',
             '',
             "base.audiencevisible"
@@ -236,12 +243,7 @@ class rb_source_program extends rb_base_source {
 
     public function post_config(reportbuilder $report) {
         $reportfor = $report->reportfor; // ID of the user the report is for.
-        $fieldalias = 'base';
-        $fieldbaseid = $report->get_field('base', 'id', 'base.id');
-        $fieldvisible = $report->get_field('base', 'visible', 'base.visible');
-        $fieldaudvis = $report->get_field('base', 'audiencevisible', 'base.audiencevisible');
-        $report->set_post_config_restrictions(totara_visibility_where($reportfor,
-            $fieldbaseid, $fieldvisible, $fieldaudvis, $fieldalias, $this->instancetype, $report->is_cached()));
+        $report->set_post_config_restrictions($report->post_config_visibility_where($this->instancetype, 'base', $reportfor));
     }
 
 } // End of rb_source_courses class.

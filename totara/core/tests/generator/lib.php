@@ -245,6 +245,19 @@ class totara_core_generator extends component_generator_base {
                 throw new coding_exception('Generator requires typeid with $prefix: ' . $prefix);
             }
             $data->typeid = $record->typeid;
+
+            // Set a sortorder here, we need to ensure its correct to the type. This API SUCKS!
+            $sql = "SELECT id, sortorder
+                  FROM {{$prefix}_info_field}
+                 WHERE typeid = :typeid
+              ORDER BY sortorder DESC";
+            $result = $DB->get_records_sql($sql, ['typeid' => $data->typeid], 0, 1);
+            if (empty($result)) {
+                $data->sortorder = 1;
+            } else {
+                $record = reset($result);
+                $data->sortorder = $record->sortorder + 1;
+            }
         } else {
             throw new coding_exception('Prefix not supported in generator: ' . $prefix);
         }
