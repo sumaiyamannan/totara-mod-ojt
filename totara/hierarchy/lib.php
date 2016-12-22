@@ -823,6 +823,7 @@ class hierarchy {
             $out .= $OUTPUT->container_start('hierarchy-bulk-actions-picker');
             $select = new url_select($options, '', array('' => get_string('bulkactions', 'totara_hierarchy')));
             $select->class = 'bulkactions';
+            $select->set_label(get_string('bulkactions', 'totara_hierarchy'), array('class' => 'sr-only'));
             $out .= $OUTPUT->render($select);
             $out .= $OUTPUT->container_end();
         }

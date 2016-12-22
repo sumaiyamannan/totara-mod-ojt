@@ -55,11 +55,10 @@
     }
 }}
 <form id="{{id}}" method="get" action="{{action}}">
-    <fieldset class="coursesearchbox invisiblefieldset">
-        {{#hiddenfields}}
-        <input type="hidden" value="{{value}}" name="{{name}}">
-        {{/hiddenfields}}
-        <input id="{{inputid}}" class="search-box" type="text" {{#value}}value="{{value}}"{{/value}} alt="{{alt}}" placeholder="{{placeholder}}" name="search">
-        <input type="submit" value="{{#str}} go {{/str}}">
-    </fieldset>
+    {{#hiddenfields}}
+    <input type="hidden" value="{{value}}" name="{{name}}">
+    {{/hiddenfields}}
+    <label for="{{inputid}}" class="sr-only">{{placeholder}}</label>
+    <input id="{{inputid}}" class="search-box" type="text" {{#value}}value="{{value}}"{{/value}} alt="{{alt}}" placeholder="{{placeholder}}" name="search">
+    <input type="submit" value="{{#str}} go {{/str}}">
 </form>

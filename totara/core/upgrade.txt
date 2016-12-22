@@ -1,5 +1,8 @@
 List of upgrade and API changes in Totara core
 
+=== 9.4 ===
+
+* updated totara/core/templates/totara_search.mustache
 
 === 2.7 ===
 
