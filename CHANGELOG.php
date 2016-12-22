@@ -3,6 +3,23 @@
 
 Totara LMS Changelog
 
+Release 9.2.1 (22nd December 2016):
+===================================
+
+
+Bug fixes:
+
+    TL-12309       Fixed the display of aggregated questions within Appraisals
+
+                   This was a regression from TL-11000, included in the 2.9.14 and 9.2
+                   releases.
+                   The code in that fix used functionality first introduced in PHP 5.6, and
+                   which is not compatible with PHP5.5.
+                   The effect of the resulting bug was purely visual.
+                   We've now re-fixed this code in order to ensure it is compatible with all
+                   supported versions of PHP.
+
+
 Release 9.2 (21st December 2016):
 =================================
 
