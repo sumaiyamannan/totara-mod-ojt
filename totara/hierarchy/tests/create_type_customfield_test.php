@@ -23,6 +23,9 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+global $CFG;
+require_once($CFG->dirroot . '/totara/customfield/lib.php');
+
 /**
  * Test hierarchy type creation.
  */
