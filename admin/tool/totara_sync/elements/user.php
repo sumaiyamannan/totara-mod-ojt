@@ -98,8 +98,9 @@ class totara_sync_element_user extends totara_sync_element {
         $mform->addElement('selectyesno', 'undeletepwreset', get_string('undeletepwreset', 'tool_totara_sync'));
         $mform->addElement('static', 'undeletepwresetdesc', '', get_string('undeletepwresetdesc', 'tool_totara_sync'));
 
-        $linkjobassignmentidnumber = get_config('totara_sync', 'linkjobassignmentidnumber');
-        if (empty($linkjobassignmentidnumber)) {
+        // Check that we've never linked on job assignment id number before.
+        $previouslylinkedonjobassignmentidnumber = get_config('totara_sync_element_user', 'previouslylinkedonjobassignmentidnumber');
+        if (empty($previouslylinkedonjobassignmentidnumber)) {
             $linkopt = array();
             $linkopt[0] = get_string('linkjobassignmentidnumberfalse', 'tool_totara_sync');
             $linkopt[1] = get_string('linkjobassignmentidnumbertrue', 'tool_totara_sync');
@@ -155,6 +156,11 @@ class totara_sync_element_user extends totara_sync_element {
         $this->set_config('allow_create', !empty($data->allow_create));
         $this->set_config('allow_update', !empty($data->allow_update));
         $this->set_config('allow_delete', $data->allow_delete);
+        // If we've previously linked on job assignment id number then ignore the form data.
+        $previouslylinkedonjobassignmentidnumber = get_config('totara_sync_element_user', 'previouslylinkedonjobassignmentidnumber');
+        if (!empty($previouslylinkedonjobassignmentidnumber)) {
+            $data->linkjobassignmentidnumber = 1;
+        }
         $this->set_config('linkjobassignmentidnumber', !empty($data->linkjobassignmentidnumber));
         if (!empty($data->linkjobassignmentidnumber)) {
             if (get_config('totara_sync_source_user_csv', 'import_manageridnumber')) {
@@ -186,6 +192,14 @@ class totara_sync_element_user extends totara_sync_element {
         // Array to store the users we create or update that
         // will need to have their assignments synced.
         $assign_sync_users = array();
+
+        // Make sure that if you've linked on job assignment id number in the past, you can't link on first job assignment now.
+        $previouslylinkedonjobassignmentidnumber = get_config('totara_sync_element_user', 'previouslylinkedonjobassignmentidnumber');
+        if (empty($this->config->linkjobassignmentidnumber) && !empty($previouslylinkedonjobassignmentidnumber)) {
+            $msg = get_string('error:linkjobassignmentmismatch', 'totara_sync');
+            totara_sync_log('usr', $msg, 'error');
+            return false;
+        }
 
         try {
             // This can go wrong in many different ways - catch as a generic exception.
@@ -598,7 +612,7 @@ class totara_sync_element_user extends totara_sync_element {
 
         if (!empty($this->config->linkjobassignmentidnumber)) {
             // A sync finished and it was set to link job assignments using idnumber. Never again link by first record.
-            set_config('linkjobassignmentidnumber', true, 'totara_sync');
+            set_config('previouslylinkedonjobassignmentidnumber', true, 'totara_sync_element_user');
         }
 
         return $issane && !$problemswhileapplying;

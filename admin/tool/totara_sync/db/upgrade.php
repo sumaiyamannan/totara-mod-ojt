@@ -22,6 +22,8 @@
  * @subpackage cohort
  */
 
+require_once($CFG->dirroot . '/admin/tool/totara_sync/db/upgradelib.php');
+
 /**
  * DB upgrades for Totara Sync
  */
@@ -223,6 +225,14 @@ function xmldb_tool_totara_sync_upgrade($oldversion) {
         set_config('csvsaveemptyfields', true, 'totara_sync_element_org');
 
         upgrade_plugin_savepoint(true, 2016082500, 'tool', 'totara_sync');
+    }
+
+    // TL-12312 Rename the setting which controls whether an import has previously linked on job assignment id number and
+    // make sure that linkjobassignmentidnumber is enabled if it has previously linked on job assignment id number.
+    if ($oldversion < 2016092001) {
+        tool_totara_sync_upgrade_link_job_assignment_mismatch();
+
+        upgrade_plugin_savepoint(true, 2016092001, 'tool', 'totara_sync');
     }
 
     return true;

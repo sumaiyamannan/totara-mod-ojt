@@ -70,6 +70,7 @@ $string['removeitemsdesc'] = 'Specify what to do with internal items during HR I
 
 // User
 $string['displayname:user'] = 'User';
+$string['error:linkjobassignmentmismatch'] = '<strong>Warning:</strong> Import set to link to first job assignment, but previous import linked to job assignment id number. This indicates a problem with your HR Import configuration, please contact your site administrator.';
 $string['settings:user'] = 'User element settings';
 $string['deleted'] = 'Deleted';
 $string['deletednotforjobassign'] = '<strong>Warning:</strong> the "{$a}" field applies to deleting users. Do not set its value to 1 when you only intend to delete a job assignment.';
