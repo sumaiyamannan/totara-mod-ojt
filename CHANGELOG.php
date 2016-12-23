@@ -3,6 +3,33 @@
 
 Totara LMS Changelog
 
+Release 9.2.2 (23rd December 2016):
+===================================
+
+
+Bug fixes:
+
+    TL-12312       Fixed HR Import User Link to job assignment invalid settings
+
+                   In HR Import, after setting "Link job assignment" to "using the user's job
+                   assignment ID number", and then successfully performing an import, the
+                   setting was supposed to become locked. This is to prevent problems which
+                   could occur, where imported data is written into the wrong job assignment
+                   records.
+
+                   Due to a bug, it was possible that the setting would change to link "to the
+                   user's first job assignment" and remain locked on this setting.
+
+                   This patch ensures that, after doing an import with the setting set to link
+                   to "using the user's job assignment ID number", it will always link this way in
+                   future. The cause of the bug has been fixed, extra checks have been
+                   implemented to ensure that imports will be prevented if the settings are in
+                   an invalid state, and invalid settings were fixed on sites affected by this
+                   problem.
+
+    TL-12316       Fixed missing include in Hierarchy unit tests covering the moving of custom fields
+
+
 Release 9.2.1 (22nd December 2016):
 ===================================
 
