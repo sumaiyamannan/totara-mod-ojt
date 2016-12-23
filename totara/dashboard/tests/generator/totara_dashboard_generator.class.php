@@ -76,4 +76,51 @@ class totara_dashboard_generator extends component_generator_base {
 
         return $dashboard;
     }
+
+    /**
+     * Add block to current dashboard.
+     *
+     * @param integer $id The dashoard Id.
+     * @param string $blockname The type of block to add.
+     * @param integer $weight determines the order where this block appears in the region.
+     * @param string $region the block region on this page to add the block to.
+     * @param boolean $showinsubcontexts whether this block appears in subcontexts, or just the current context.
+     * @param string|null $pagetypepattern which page types this block should appear on. Defaults to just the current page type.
+     * @param string|default $subpagepattern which subpage this block should appear on. NULL = any (the default), otherwise only the specified subpage.
+     */
+    public function add_block($id, $blockname, $weight, $region = '', $showinsubcontexts = false, $pagetypepattern = null, $subpagepattern = 'default') {
+        global $CFG, $DB;
+        require_once($CFG->libdir . '/blocklib.php');
+
+        $page = new moodle_page();
+        $page->set_context(context_system::instance());
+        $page->set_pagelayout('dashboard');
+        $page->set_pagetype('my-totara-dashboard-' . $id);
+        $page->set_subpage($subpagepattern);
+
+        if (empty($pagetypepattern)) {
+            $pagetypepattern = $page->pagetype;
+        }
+
+        $blockinstance = new stdClass;
+        $blockinstance->blockname = $blockname;
+        $blockinstance->parentcontextid = $page->context->id;
+        $blockinstance->showinsubcontexts = !empty($showinsubcontexts);
+        $blockinstance->pagetypepattern = $pagetypepattern;
+        $blockinstance->subpagepattern = $subpagepattern;
+        $blockinstance->defaultregion = !empty($region) ? $region : $page->blocks->get_default_region();
+        $blockinstance->defaultweight = $weight;
+        $blockinstance->configdata = '';
+        $blockinstance->id = $DB->insert_record('block_instances', $blockinstance);
+
+        // Ensure the block context is created.
+        context_block::instance($blockinstance->id);
+
+        // If the new instance was created, allow it to do additional setup
+        if ($block = block_instance($blockname, $blockinstance)) {
+            $block->instance_create();
+        }
+
+        return $block;
+    }
 }

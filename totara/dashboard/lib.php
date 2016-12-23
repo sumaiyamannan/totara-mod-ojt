@@ -645,18 +645,12 @@ class totara_dashboard {
      */
     protected function delete_dashboard_blocks() {
         global $DB;
-        $context = context_system::instance();
-        if ($blocks = $DB->get_records('block_instances', array('parentcontextid' => $context->id,
-                'pagetypepattern' => 'my-totara-dashboard-' . $this->id))) {
+
+        if ($blocks = $DB->get_records('block_instances', array('pagetypepattern' => 'my-totara-dashboard-' . $this->id))) {
             foreach ($blocks as $block) {
                 blocks_delete_instance($block);
             }
         }
-
-        $DB->delete_records('block_positions', array(
-            'contextid' => $context->id,
-            'pagetype' => 'my-totara-dashboard-' . $this->id
-        ));
     }
 
     /**
