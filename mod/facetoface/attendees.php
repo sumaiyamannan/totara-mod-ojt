@@ -1072,8 +1072,17 @@ if ($show_table) {
                 }
 
                 if ($facetoface->approvaltype > APPROVAL_SELF) {
-                    $data[] = fullname($DB->get_record('user', array('id'=>$apprecord->createdby)));;
-                    $data[] = userdate($apprecord->timecreated);
+                    // It is possible for a seminar to start from a "no approval
+                    // needed" type to become a "manager approved" seminar even
+                    // after people have signed up. When this occurs, learners
+                    // will not be picked up by the SQL statement above - simply
+                    // because no approval record need to be created when they
+                    // were waitlisted or booked. Hence the check here.
+                    $approver = isset($apprecord->createdby) ? fullname($DB->get_record('user', array('id'=>$apprecord->createdby))) : '';
+                    $approval_time = isset($apprecord->timecreated) ? userdate($apprecord->timecreated) : '';
+
+                    $data[] = $approver;
+                    $data[] = $approval_time;
                 }
 
                 if (!$hidecost) {
