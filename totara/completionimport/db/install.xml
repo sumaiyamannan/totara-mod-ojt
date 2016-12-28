@@ -29,7 +29,7 @@
       <INDEXES>
         <INDEX NAME="importuserid" UNIQUE="false" FIELDS="importuserid"/>
         <INDEX NAME="compimpcou_username_ix" UNIQUE="false" FIELDS="username"/>
-        <INDEX NAME="totacompimpocour_evi_ix" UNIQUE="true" FIELDS="evidenceid"/>
+        <INDEX NAME="totacompimpocour_evi_ix" UNIQUE="false" FIELDS="evidenceid"/>
       </INDEXES>
     </TABLE>
     <TABLE NAME="totara_compl_import_cert" COMMENT="Intermediary file for importing certification completion data">
@@ -57,7 +57,7 @@
       <INDEXES>
         <INDEX NAME="importuserid" UNIQUE="false" FIELDS="importuserid"/>
         <INDEX NAME="compimpcer_username_ix" UNIQUE="false" FIELDS="username"/>
-        <INDEX NAME="totacompimpocert_evi_ix" UNIQUE="true" FIELDS="evidenceid"/>
+        <INDEX NAME="totacompimpocert_evi_ix" UNIQUE="false" FIELDS="evidenceid"/>
       </INDEXES>
     </TABLE>
   </TABLES>
