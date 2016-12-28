@@ -1192,7 +1192,7 @@ class cohorts_category extends prog_assignment_category {
 
     function get_js($programid) {
         $title = addslashes_js(get_string('addcohortstoprogram', 'totara_program'));
-        $url = 'find_cohort.php?programid='.$programid;
+        $url = 'find_cohort.php?programid='. $programid . '&sesskey=' . sesskey();
         return "M.totara_programassignment.add_category({$this->id}, 'cohorts', '{$url}', '{$title}');";
     }
     protected function _add_assignment_hook($object) {
