@@ -2605,7 +2605,7 @@ function notice ($message, $link='', $course=null) {
  * @throws moodle_exception
  */
 function redirect($url, $message='', $delay=-1) {
-    global $OUTPUT, $PAGE, $CFG;
+    global $OUTPUT, $PAGE, $CFG, $FULLME;
 
     if (CLI_SCRIPT or AJAX_SCRIPT) {
         // This is wrong - developers should not use redirect in these scripts but it should not be very likely.
@@ -2617,6 +2617,18 @@ function redirect($url, $message='', $delay=-1) {
         $PAGE->set_context(null);
         $PAGE->set_pagelayout('redirect');  // No header and footer needed.
         $PAGE->set_title(get_string('pageshouldredirect', 'moodle'));
+
+        if (!$PAGE->has_set_url() && !empty($message)) {
+            // No URL has been set for this page and we need to display a message.
+            // As this involves the output system (renderers/templates) we need to ensure a URL is set here in order to prevent
+            // a debugging notice.
+            // Don't trust $FULLME has been set, we're redirecting!
+            $selfurl = (!empty($FULLME)) ? $FULLME : '/';
+            // Copied from moodle_page::magic_get_url.
+            $selfurl = new moodle_url($selfurl);
+            $selfurl->remove_params('sesskey');
+            $PAGE->set_url($selfurl);
+        }
     }
 
     if ($url instanceof moodle_url) {
