@@ -134,6 +134,9 @@ class behat_util extends testing_util {
         // Enable web cron.
         set_config('cronclionly', 0);
 
+        // Set noreplyaddress to an example domain, as it should be valid email address and test site can be a localhost.
+        set_config('noreplyaddress', 'noreply@example.com');
+
         // Totara: Add behat filesystem repository to eliminate problematic file uploads in behat.
         // NOTE: Repository API is a total mess, let's just insert the records directly here
         //       and allow all registered users to access the repo.

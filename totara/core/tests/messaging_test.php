@@ -88,7 +88,7 @@ class totara_core_messaging_testcase extends advanced_testcase {
      * @dataProvider messages_setting
      */
     public function test_messages_from_no_reply($emailonlyfromnoreplyaddress, $noreplyaddress) {
-        global $USER;
+        global $USER, $CFG;
         $this->preventResetByRollback();
         $this->resetAfterTest(true);
         $this->setAdminUser();
@@ -115,6 +115,12 @@ class totara_core_messaging_testcase extends advanced_testcase {
 
         // Check user from.
         $fromuser = $USER;
+        if ($noreplyaddress === '') {
+            // Messaging now forces a default email address of noreply@{wwwroot} if the no reply email
+            // has not been set.
+            // Within PHPUNIT the administrators email address is set the same as the default.
+            $noreplyaddress = 'noreply@' . get_host_from_url($CFG->wwwroot);
+        }
         $expectedname = sprintf("%s %s", $fromuser->firstname, $fromuser->lastname);
         $expectedemail = $emailonlyfromnoreplyaddress ? $noreplyaddress : $fromuser->email;
         $checkformat = '%s (%s)';
