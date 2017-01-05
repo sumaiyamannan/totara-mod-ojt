@@ -883,6 +883,13 @@ $CFG->admin = 'admin';
 // (Development->Profiling) built into Totara.
 //      $CFG->pathtodot = '';
 //
+// Permitted path for completion upload files.
+// If users will be selecting files via a directory on the server for course
+// and certification completion import, you'll need to add the directory where
+// these files can be accessed. Subdirectories within the specified path
+// will also be permitted.
+//      $CFG->completionimportdir = '';
+//
 //=========================================================================
 // 14. ADD-ON COMPATIBILITY SETTINGS
 //=========================================================================

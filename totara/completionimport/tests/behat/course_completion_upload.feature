@@ -132,3 +132,11 @@ Feature: Verify course completion data can be successfully uploaded.
     And I should see "Course ID number : notacourse"
     And I should see "Grade : 100"
     And I should see "Date completed : 1 January 2015"
+
+  Scenario: Course completions can not be uploaded via a directory if config setting completionimportdir is not set
+    Given I log in as "admin"
+    When I navigate to "Upload Completion Records" node in "Site administration > Courses > Upload Completion Records"
+    And I click on "Alternatively upload csv files via a directory on the server" "link"
+    Then I should see "Additional configuration settings are required to specify a file location on the server. Please contact your system administrator."
+    When I click on "Alternatively upload csv files via a form" "link"
+    Then I should see "Choose course file to upload"
