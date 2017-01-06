@@ -290,6 +290,7 @@ class core_authlib_testcase extends advanced_testcase {
             $this->fail('\core\event\user_loggedin requires other[\'username\']');
         } catch(Exception $e) {
             $this->assertInstanceOf('coding_exception', $e);
+            $this->assertEquals("Coding error detected, it must be fixed by a programmer: The 'username' value must be set in other.", $e->getMessage());
         }
     }
 }

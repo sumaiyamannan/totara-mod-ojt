@@ -87,6 +87,7 @@ class totara_program_program_utilities_testcase extends advanced_testcase {
             $this->fail('Unsupported units should have thrown an exception');
         } catch (ProgramException $e) {
             $this->assertInstanceOf('ProgramException', $e);
+            $this->assertEquals('Unrecognised datetime', $e->getMessage());
         }
 
         try {
@@ -94,6 +95,7 @@ class totara_program_program_utilities_testcase extends advanced_testcase {
             $this->fail('Unsupported units should have thrown an exception');
         } catch (ProgramException $e) {
             $this->assertInstanceOf('ProgramException', $e);
+            $this->assertEquals('Unrecognised datetime', $e->getMessage());
         }
     }
 

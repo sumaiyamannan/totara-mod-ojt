@@ -226,6 +226,7 @@ class totara_form_model_testcase extends advanced_testcase {
                     $this->fail('Exception expected on duplicate names');
                 } catch (\moodle_exception $e) {
                     $this->assertInstanceOf('coding_exception', $e);
+                    $this->assertEquals('Coding error detected, it must be fixed by a programmer: Duplicate name "sometext6" detected!', $e->getMessage());
                 }
             });
         test_form::phpunit_set_definition($definition);
@@ -279,6 +280,7 @@ class totara_form_model_testcase extends advanced_testcase {
                     $this->fail('Exception expected');
                 } catch (\moodle_exception $e) {
                     $this->assertInstanceOf('coding_exception', $e);
+                    $this->assertEquals('Coding error detected, it must be fixed by a programmer: Model cannot have a parent!', $e->getMessage());
                 }
             });
         test_form::phpunit_set_definition($definition);
@@ -332,6 +334,7 @@ class totara_form_model_testcase extends advanced_testcase {
             $this->fail('Exception expected on direct model::finalise() use');
         } catch (\moodle_exception $e) {
             $this->assertInstanceOf('coding_exception', $e);
+            $this->assertEquals('Coding error detected, it must be fixed by a programmer: Cannot change form model, it is already finalise', $e->getMessage());
         }
     }
 
@@ -379,6 +382,7 @@ class totara_form_model_testcase extends advanced_testcase {
                     $this->fail('Exception expected');
                 } catch (\moodle_exception $e) {
                     $this->assertInstanceOf('coding_exception', $e);
+                    $this->assertEquals('Coding error detected, it must be fixed by a programmer: Invalid form model action, form is not finalised yet', $e->getMessage());
                 }
             });
         test_form::phpunit_set_definition($definition);

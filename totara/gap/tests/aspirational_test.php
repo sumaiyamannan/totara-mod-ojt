@@ -219,9 +219,11 @@ class totara_gap_aspirational_test extends advanced_testcase {
 
         // Wrong user.
         try {
-           totara_gap_assign_aspirational_position(0, $pos1->id);
+            totara_gap_assign_aspirational_position(0, $pos1->id);
+            $this->fail('Exception expected');
         } catch (moodle_exception $e) {
             $this->assertInstanceOf('coding_exception', $e);
+            $this->assertEquals('Coding error detected, it must be fixed by a programmer: User id missing for aspirational position', $e->getMessage());
         }
     }
 }

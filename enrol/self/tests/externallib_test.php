@@ -104,6 +104,7 @@ class enrol_self_external_testcase extends externallib_advanced_testcase {
         $this->setUser($user);
         try {
             enrol_self_external::get_instance_info($instanceid3);
+            $this->fail('Exception expected!');
         } catch (moodle_exception $e) {
             $this->assertEquals('coursehidden', $e->errorcode);
         }
@@ -160,6 +161,7 @@ class enrol_self_external_testcase extends externallib_advanced_testcase {
         // Try instance not enabled.
         try {
             enrol_self_external::enrol_user($course2->id);
+            $this->fail('Exception expected!');
         } catch (moodle_exception $e) {
             self::assertEquals('canntenrol', $e->errorcode);
         }

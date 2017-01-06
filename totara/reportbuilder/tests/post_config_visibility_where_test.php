@@ -84,7 +84,7 @@ class totara_reportbuilder_post_config_visibility_where_testcase extends advance
         try {
             $report->requiredcolumns['ctx-id']->field = 'base.id';
             $report->post_config_visibility_where('program', 'base', $user->id);
-            $this->assertTrue(false, 'Exception not triggered!');
+            $this->fail('Exception not triggered!');
         } catch (Exception $e) {
             $this->assertContains('Report is missing required column ctx id or field is incorrect', $e->getMessage());
         }
@@ -94,7 +94,7 @@ class totara_reportbuilder_post_config_visibility_where_testcase extends advance
         try {
             unset($report->requiredcolumns['ctx-id']);
             $report->post_config_visibility_where('program', 'base', $user->id);
-            $this->assertTrue(false, 'Exception not triggered!');
+            $this->fail('Exception not triggered!');
         } catch (Exception $e) {
             $this->assertContains('Report is missing required column ctx id or field is incorrect', $e->getMessage());
         }
@@ -104,7 +104,7 @@ class totara_reportbuilder_post_config_visibility_where_testcase extends advance
         try {
             $report->requiredcolumns['visibility-id']->field = 'ctx.id';
             $report->post_config_visibility_where('program', 'base', $user->id);
-            $this->assertTrue(false, 'Exception not triggered!');
+            $this->fail('Exception not triggered!');
         } catch (Exception $e) {
             $this->assertContains('Report is missing required column visibility id or field is incorrect', $e->getMessage());
         }
@@ -114,7 +114,7 @@ class totara_reportbuilder_post_config_visibility_where_testcase extends advance
         try {
             unset($report->requiredcolumns['visibility-id']);
             $report->post_config_visibility_where('program', 'base', $user->id);
-            $this->assertTrue(false, 'Exception not triggered!');
+            $this->fail('Exception not triggered!');
         } catch (Exception $e) {
             $this->assertContains('Report is missing required column visibility id or field is incorrect', $e->getMessage());
         }
@@ -124,7 +124,7 @@ class totara_reportbuilder_post_config_visibility_where_testcase extends advance
         try {
             $report->requiredcolumns['visibility-visible']->field = 'ctx.id';
             $report->post_config_visibility_where('program', 'base', $user->id);
-            $this->assertTrue(false, 'Exception not triggered!');
+            $this->fail('Exception not triggered!');
         } catch (Exception $e) {
             $this->assertContains('Report is missing required column visibility visible or field is incorrect', $e->getMessage());
         }
@@ -134,7 +134,7 @@ class totara_reportbuilder_post_config_visibility_where_testcase extends advance
         try {
             unset($report->requiredcolumns['visibility-visible']);
             $report->post_config_visibility_where('program', 'base', $user->id);
-            $this->assertTrue(false, 'Exception not triggered!');
+            $this->fail('Exception not triggered!');
         } catch (Exception $e) {
             $this->assertContains('Report is missing required column visibility visible or field is incorrect', $e->getMessage());
         }
@@ -144,7 +144,7 @@ class totara_reportbuilder_post_config_visibility_where_testcase extends advance
         try {
             $report->requiredcolumns['visibility-audiencevisible']->field = 'ctx.id';
             $report->post_config_visibility_where('program', 'base', $user->id);
-            $this->assertTrue(false, 'Exception not triggered!');
+            $this->fail('Exception not triggered!');
         } catch (Exception $e) {
             $this->assertContains('Report is missing required column visibility audiencevisible or field is incorrect', $e->getMessage());
         }
@@ -154,7 +154,7 @@ class totara_reportbuilder_post_config_visibility_where_testcase extends advance
         try {
             unset($report->requiredcolumns['visibility-audiencevisible']);
             $report->post_config_visibility_where('program', 'base', $user->id);
-            $this->assertTrue(false, 'Exception not triggered!');
+            $this->fail('Exception not triggered!');
         } catch (Exception $e) {
             $this->assertContains('Report is missing required column visibility audiencevisible or field is incorrect', $e->getMessage());
         }
@@ -164,7 +164,7 @@ class totara_reportbuilder_post_config_visibility_where_testcase extends advance
         try {
             $report->requiredcolumns['base-available']->field = 'ctx.id';
             $report->post_config_visibility_where('program', 'base', $user->id);
-            $this->assertTrue(false, 'Exception not triggered!');
+            $this->fail('Exception not triggered!');
         } catch (Exception $e) {
             $this->assertContains('Report is missing required column base available or field is incorrect', $e->getMessage());
         }
@@ -174,7 +174,7 @@ class totara_reportbuilder_post_config_visibility_where_testcase extends advance
         try {
             unset($report->requiredcolumns['base-available']);
             $report->post_config_visibility_where('program', 'base', $user->id);
-            $this->assertTrue(false, 'Exception not triggered!');
+            $this->fail('Exception not triggered!');
         } catch (Exception $e) {
             $this->assertContains('Report is missing required column base available or field is incorrect', $e->getMessage());
         }
@@ -184,7 +184,7 @@ class totara_reportbuilder_post_config_visibility_where_testcase extends advance
         try {
             $report->requiredcolumns['base-availablefrom']->field = 'ctx.id';
             $report->post_config_visibility_where('program', 'base', $user->id);
-            $this->assertTrue(false, 'Exception not triggered!');
+            $this->fail('Exception not triggered!');
         } catch (Exception $e) {
             $this->assertContains('Report is missing required column base availablefrom or field is incorrect', $e->getMessage());
         }
@@ -194,7 +194,7 @@ class totara_reportbuilder_post_config_visibility_where_testcase extends advance
         try {
             unset($report->requiredcolumns['base-availablefrom']);
             $report->post_config_visibility_where('program', 'base', $user->id);
-            $this->assertTrue(false, 'Exception not triggered!');
+            $this->fail('Exception not triggered!');
         } catch (Exception $e) {
             $this->assertContains('Report is missing required column base availablefrom or field is incorrect', $e->getMessage());
         }
@@ -204,7 +204,7 @@ class totara_reportbuilder_post_config_visibility_where_testcase extends advance
         try {
             $report->requiredcolumns['base-availableuntil']->field = 'ctx.id';
             $report->post_config_visibility_where('program', 'base', $user->id);
-            $this->assertTrue(false, 'Exception not triggered!');
+            $this->fail('Exception not triggered!');
         } catch (Exception $e) {
             $this->assertContains('Report is missing required column base availableuntil or field is incorrect', $e->getMessage());
         }
@@ -214,7 +214,7 @@ class totara_reportbuilder_post_config_visibility_where_testcase extends advance
         try {
             unset($report->requiredcolumns['base-availableuntil']);
             $report->post_config_visibility_where('program', 'base', $user->id);
-            $this->assertTrue(false, 'Exception not triggered!');
+            $this->fail('Exception not triggered!');
         } catch (Exception $e) {
             $this->assertContains('Report is missing required column base availableuntil or field is incorrect', $e->getMessage());
         }
@@ -232,7 +232,7 @@ class totara_reportbuilder_post_config_visibility_where_testcase extends advance
         try {
             unset($report->requiredcolumns['base-available']);
             $report->post_config_visibility_where('certification', 'base', $user->id);
-            $this->assertTrue(false, 'Exception not triggered!');
+            $this->fail('Exception not triggered!');
         } catch (Exception $e) {
             $this->assertContains('Report is missing required column base available or field is incorrect', $e->getMessage());
         }
@@ -242,7 +242,7 @@ class totara_reportbuilder_post_config_visibility_where_testcase extends advance
         try {
             unset($report->requiredcolumns['base-availablefrom']);
             $report->post_config_visibility_where('certification', 'base', $user->id);
-            $this->assertTrue(false, 'Exception not triggered!');
+            $this->fail('Exception not triggered!');
         } catch (Exception $e) {
             $this->assertContains('Report is missing required column base availablefrom or field is incorrect', $e->getMessage());
         }
@@ -252,7 +252,7 @@ class totara_reportbuilder_post_config_visibility_where_testcase extends advance
         try {
             unset($report->requiredcolumns['base-availableuntil']);
             $report->post_config_visibility_where('certification', 'base', $user->id);
-            $this->assertTrue(false, 'Exception not triggered!');
+            $this->fail('Exception not triggered!');
         } catch (Exception $e) {
             $this->assertContains('Report is missing required column base availableuntil or field is incorrect', $e->getMessage());
         }

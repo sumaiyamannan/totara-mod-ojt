@@ -75,8 +75,10 @@ class totara_competency_evidence_form extends moodleform {
             // repopulate if set but validation failed
             if (!empty($positionid)) {
                 $position_title = $DB->get_field('pos', 'fullname', array('id' => $positionid));
+            } else if (!empty($jobassignment->positionid)) {
+                $position_title = $DB->get_field('pos', 'fullname', array('id' => $jobassignment->positionid));
             } else {
-                $position_title = !empty($jobassignment->fullname) ? $jobassignment->fullname : '';
+                $position_title = '';
             }
             if (!empty($organisationid)) {
                 $organisation_title = $DB->get_field('org', 'fullname', array('id' => $organisationid));

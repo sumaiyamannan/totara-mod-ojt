@@ -67,6 +67,7 @@ class core_event_testcase extends advanced_testcase {
             $this->fail('Exception expected on event modification');
         } catch (\moodle_exception $e) {
             $this->assertInstanceOf('coding_exception', $e);
+            $this->assertEquals('Coding error detected, it must be fixed by a programmer: Event properties must not be modified.', $e->getMessage());
         }
 
         try {
@@ -74,6 +75,7 @@ class core_event_testcase extends advanced_testcase {
             $this->fail('Exception expected on event modification');
         } catch (\moodle_exception $e) {
             $this->assertInstanceOf('coding_exception', $e);
+            $this->assertEquals('Coding error detected, it must be fixed by a programmer: Event properties must not be modified.', $e->getMessage());
         }
 
         $event2 = \core_tests\event\unittest_executed::create(array('contextid'=>$system->id, 'objectid'=>5, 'anonymous'=>1, 'other'=>array('sample'=>null, 'xx'=>10)));
@@ -451,6 +453,7 @@ class core_event_testcase extends advanced_testcase {
             $this->fail('Expecting exception');
         } catch (\moodle_exception $e) {
             $this->assertInstanceOf('moodle_exception', $e);
+            $this->assertStringStartsWith('error/xxx', $e->getMessage());
         }
 
         $this->assertSame(
@@ -492,17 +495,21 @@ class core_event_testcase extends advanced_testcase {
         $this->assertCount(0, \core_tests\event\unittest_observer::$event);
 
         try {
-            $transaction2->rollback(new Exception('x'));
+            $transaction2->rollback(new Exception('xyz'));
             $this->fail('Expecting exception');
-        } catch (Exception $e) {}
+        } catch (Exception $e) {
+            $this->assertEquals('xyz', $e->getMessage());
+        }
         $this->assertCount(0, \core_tests\event\unittest_observer::$event);
 
         $this->assertTrue($DB->is_transaction_started());
 
         try {
-            $transaction1->rollback(new Exception('x'));
+            $transaction1->rollback(new Exception('xyz'));
             $this->fail('Expecting exception');
-        } catch (Exception $e) {}
+        } catch (Exception $e) {
+            $this->assertEquals('xyz', $e->getMessage());
+        }
         $this->assertCount(0, \core_tests\event\unittest_observer::$event);
 
         $this->assertFalse($DB->is_transaction_started());
@@ -662,6 +669,7 @@ class core_event_testcase extends advanced_testcase {
             $this->fail('Exception expected on double trigger');
         } catch (\moodle_exception $e) {
             $this->assertInstanceOf('coding_exception', $e);
+            $this->assertEquals('Coding error detected, it must be fixed by a programmer: Can not trigger event twice', $e->getMessage());
         }
 
         $data = $event->get_data();
@@ -674,6 +682,7 @@ class core_event_testcase extends advanced_testcase {
             $this->fail('Exception expected on triggering of restored event');
         } catch (\moodle_exception $e) {
             $this->assertInstanceOf('coding_exception', $e);
+            $this->assertEquals('Coding error detected, it must be fixed by a programmer: Can not trigger restored event', $e->getMessage());
         }
 
         $event = \core_tests\event\unittest_executed::create(array('context'=>\context_system::instance(), 'other'=>array('sample'=>5, 'xx'=>10)));
@@ -682,6 +691,7 @@ class core_event_testcase extends advanced_testcase {
             $this->fail('Exception expected on manual event dispatching');
         } catch (\moodle_exception $e) {
             $this->assertInstanceOf('coding_exception', $e);
+            $this->assertEquals('Coding error detected, it must be fixed by a programmer: Illegal event dispatching attempted.', $e->getMessage());
         }
     }
 
@@ -693,22 +703,25 @@ class core_event_testcase extends advanced_testcase {
             $this->fail('Exception expected when context and contextid missing');
         } catch (\moodle_exception $e) {
             $this->assertInstanceOf('coding_exception', $e);
+            $this->assertEquals('Coding error detected, it must be fixed by a programmer: context (or contextid) is a required event property, system context may be hardcoded in init() method.', $e->getMessage());
         }
 
-        $event = \core_tests\event\bad_event1::create(array('context'=>\context_system::instance()));
+        $event = \core_tests\event\bad_event1::create(array('context'=>\context_system::instance())); // Missing crud.
         try {
             $event->trigger();
             $this->fail('Exception expected when $data not valid');
         } catch (\moodle_exception $e) {
             $this->assertInstanceOf('\coding_exception', $e);
+            $this->assertEquals('Coding error detected, it must be fixed by a programmer: crud must be specified in init() method of each method', $e->getMessage());
         }
 
-        $event = \core_tests\event\bad_event2::create(array('context'=>\context_system::instance()));
+        $event = \core_tests\event\bad_event2::create(array('context'=>\context_system::instance())); // Missing edulevel.
         try {
             $event->trigger();
             $this->fail('Exception expected when $data not valid');
         } catch (\moodle_exception $e) {
             $this->assertInstanceOf('\coding_exception', $e);
+            $this->assertEquals('Coding error detected, it must be fixed by a programmer: edulevel must be specified in init() method of each method', $e->getMessage());
         }
 
         $event = \core_tests\event\bad_event2b::create(array('context'=>\context_system::instance()));
@@ -737,6 +750,7 @@ class core_event_testcase extends advanced_testcase {
             $this->fail('Exception expected when $data contains objectid but objecttable not specified');
         } catch (\moodle_exception $e) {
             $this->assertInstanceOf('\coding_exception', $e);
+            $this->assertEquals('Coding error detected, it must be fixed by a programmer: objecttable must be specified in init() method if objectid present', $e->getMessage());
         }
 
         $event = \core_tests\event\bad_event8::create(array('context'=>\context_system::instance()));
@@ -818,6 +832,7 @@ class core_event_testcase extends advanced_testcase {
             $this->fail('Updating of snapshots after trigger is not ok');;
         } catch (\moodle_exception $e) {
             $this->assertInstanceOf('\coding_exception', $e);
+            $this->assertEquals('Coding error detected, it must be fixed by a programmer: It is not possible to add snapshots after triggering of events', $e->getMessage());
         }
 
         $event2 = \core_tests\event\unittest_executed::restore($event->get_data(), array());
@@ -826,6 +841,7 @@ class core_event_testcase extends advanced_testcase {
             $this->fail('Reading of snapshots from restored events is not ok');;
         } catch (\moodle_exception $e) {
             $this->assertInstanceOf('\coding_exception', $e);
+            $this->assertEquals('Coding error detected, it must be fixed by a programmer: It is not possible to get snapshots from restored events', $e->getMessage());
         }
     }
 

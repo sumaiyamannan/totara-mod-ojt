@@ -66,6 +66,7 @@ class totara_form_group_buttons_testcase extends advanced_testcase {
                     $this->fail('Exception expected, only buttons can be added');
                 } catch (\moodle_exception $e) {
                     $this->assertInstanceOf('coding_exception', $e);
+                    $this->assertEquals('Coding error detected, it must be fixed by a programmer: Button group can contain action_buttons only!', $e->getMessage());
                 }
             });
         test_form::phpunit_set_definition($definition);

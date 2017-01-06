@@ -83,11 +83,7 @@ class core_messageinbound_testcase extends advanced_testcase {
                 continue;
             }
 
-            try {
-                $testdata = $this->read_test_file($file, $fixturesdir);
-            } catch (\Exception $e) {
-                die($e->getMessage());
-            }
+            $testdata = $this->read_test_file($file, $fixturesdir);
 
             $test = array(
                     // The filename.

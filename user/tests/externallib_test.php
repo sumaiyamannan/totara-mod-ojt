@@ -189,8 +189,6 @@ class core_user_externallib_testcase extends externallib_advanced_testcase {
             $this->fail('Expecting \'keyalreadyset\' moodle_exception to be thrown.');
         } catch (moodle_exception $e) {
             $this->assertEquals('keyalreadyset', $e->errorcode);
-        } catch (Exception $e) {
-            $this->fail('Expecting \'keyalreadyset\' moodle_exception to be thrown.');
         }
     }
 

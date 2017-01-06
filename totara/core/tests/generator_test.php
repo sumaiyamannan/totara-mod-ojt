@@ -68,6 +68,7 @@ class totara_core_generator_testcase extends advanced_testcase {
             $this->fail('Exception expected when invalid type specified');
         } catch (moodle_exception $e) {
             $this->assertInstanceOf('coding_exception', $e);
+            $this->assertEquals('Coding error detected, it must be fixed by a programmer: Invalid custom profile field type in $record->datatype: xxasa', $e->getMessage());
         }
 
         try {
@@ -75,6 +76,7 @@ class totara_core_generator_testcase extends advanced_testcase {
             $this->fail('Exception expected when no type specified');
         } catch (moodle_exception $e) {
             $this->assertInstanceOf('coding_exception', $e);
+            $this->assertEquals('Coding error detected, it must be fixed by a programmer: Must specify custom profile field data type in $record->datatype', $e->getMessage());
         }
 
         $this->assertCount(1, $DB->get_records('user_info_category'));
@@ -250,12 +252,14 @@ class totara_core_generator_testcase extends advanced_testcase {
             $this->fail('Exception expected when menu options not set');
         } catch (moodle_exception $e) {
             $this->assertInstanceOf('coding_exception', $e);
+            $this->assertEquals('Coding error detected, it must be fixed by a programmer: Menu field requires at least 2 options in $record->param1', $e->getMessage());
         }
         try {
             $field = $generator->create_custom_profile_field(array('datatype' => 'menu', 'param1' => "aa\nbb", 'defaultdata' => 'cc'));
             $this->fail('Exception expected when menu options not set');
         } catch (moodle_exception $e) {
             $this->assertInstanceOf('coding_exception', $e);
+            $this->assertEquals('Coding error detected, it must be fixed by a programmer: Menu field requires default to be one of the options in $record->param1', $e->getMessage());
         }
     }
 
@@ -306,6 +310,7 @@ class totara_core_generator_testcase extends advanced_testcase {
             $this->fail('Exception expected when invalid type specified');
         } catch (moodle_exception $e) {
             $this->assertInstanceOf('coding_exception', $e);
+            $this->assertEquals('Coding error detected, it must be fixed by a programmer: Invalid custom Totara field type in $record->datatype: xxasa', $e->getMessage());
         }
 
         try {
@@ -313,6 +318,7 @@ class totara_core_generator_testcase extends advanced_testcase {
             $this->fail('Exception expected when no type specified');
         } catch (moodle_exception $e) {
             $this->assertInstanceOf('coding_exception', $e);
+            $this->assertEquals('Coding error detected, it must be fixed by a programmer: Must specify custom Totara field data type in $record->datatype', $e->getMessage());
         }
 
         $this->assertCount(0, $DB->get_records('course_info_field'));
@@ -451,12 +457,14 @@ class totara_core_generator_testcase extends advanced_testcase {
             $this->fail('Exception expected when menu options not set');
         } catch (moodle_exception $e) {
             $this->assertInstanceOf('coding_exception', $e);
+            $this->assertEquals('Coding error detected, it must be fixed by a programmer: Menu field requires at least 2 options in $record->param1', $e->getMessage());
         }
         try {
             $field = $generator->create_custom_course_field(array('datatype' => 'menu', 'param1' => "aa\nbb", 'defaultdata' => 'cc'));
             $this->fail('Exception expected when menu options not set');
         } catch (moodle_exception $e) {
             $this->assertInstanceOf('coding_exception', $e);
+            $this->assertEquals('Coding error detected, it must be fixed by a programmer: Menu field requires default to be one of the options in $record->param1', $e->getMessage());
         }
     }
 
@@ -533,6 +541,7 @@ class totara_core_generator_testcase extends advanced_testcase {
             $this->fail('Exception expected when invalid type specified');
         } catch (moodle_exception $e) {
             $this->assertInstanceOf('coding_exception', $e);
+            $this->assertEquals('Coding error detected, it must be fixed by a programmer: Invalid custom Totara field type in $record->datatype: xxasa', $e->getMessage());
         }
 
         try {
@@ -540,6 +549,7 @@ class totara_core_generator_testcase extends advanced_testcase {
             $this->fail('Exception expected when no type specified');
         } catch (moodle_exception $e) {
             $this->assertInstanceOf('coding_exception', $e);
+            $this->assertEquals('Coding error detected, it must be fixed by a programmer: Must specify custom Totara field data type in $record->datatype', $e->getMessage());
         }
 
         $this->assertCount(0, $DB->get_records('prog_info_field'));
@@ -644,12 +654,14 @@ class totara_core_generator_testcase extends advanced_testcase {
             $this->fail('Exception expected when menu options not set');
         } catch (moodle_exception $e) {
             $this->assertInstanceOf('coding_exception', $e);
+            $this->assertEquals('Coding error detected, it must be fixed by a programmer: Menu field requires at least 2 options in $record->param1', $e->getMessage());
         }
         try {
             $field = $generator->create_custom_program_field(array('datatype' => 'menu', 'param1' => "aa\nbb", 'defaultdata' => 'cc'));
             $this->fail('Exception expected when menu options not set');
         } catch (moodle_exception $e) {
             $this->assertInstanceOf('coding_exception', $e);
+            $this->assertEquals('Coding error detected, it must be fixed by a programmer: Menu field requires default to be one of the options in $record->param1', $e->getMessage());
         }
     }
 

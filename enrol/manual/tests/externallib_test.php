@@ -278,6 +278,7 @@ class enrol_manual_externallib_testcase extends externallib_advanced_testcase {
             $this->fail('Exception expected: invalid student id');
         } catch (Exception $ex) {
             $this->assertTrue($ex instanceof moodle_exception);
+            $this->assertEquals('Manual enrolment plugin instance doesn\'t exist or is disabled for the course (id = {$a->courseid})', $ex->getMessage());
         }
     }
 }

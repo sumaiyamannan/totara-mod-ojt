@@ -222,6 +222,7 @@ class core_phpunit_advanced_testcase extends advanced_testcase {
         $DB->set_field('user', 'confirmed', 0, array('id'=>2));
         try {
             self::resetAllData(true);
+            $this->fail('Exception expected!');
         } catch (Exception $e) {
             $this->assertInstanceOf('PHPUnit_Framework_Error_Warning', $e);
         }
@@ -233,6 +234,7 @@ class core_phpunit_advanced_testcase extends advanced_testcase {
         $CFG->rolesactive = 0;
         try {
             self::resetAllData(true);
+            $this->fail('Exception expected!');
         } catch (Exception $e) {
             $this->assertInstanceOf('PHPUnit_Framework_Error_Warning', $e);
             $this->assertContains('xx', $e->getMessage());
@@ -275,6 +277,7 @@ class core_phpunit_advanced_testcase extends advanced_testcase {
         $COURSE->id = 7;
         try {
             self::resetAllData(true);
+            $this->fail('Exception expected!');
         } catch (Exception $e) {
             $this->assertInstanceOf('PHPUnit_Framework_Error_Warning', $e);
             $this->assertEquals(1, $SITE->id);
@@ -286,6 +289,7 @@ class core_phpunit_advanced_testcase extends advanced_testcase {
         $this->setUser(2);
         try {
             self::resetAllData(true);
+            $this->fail('Exception expected!');
         } catch (Exception $e) {
             $this->assertInstanceOf('PHPUnit_Framework_Error_Warning', $e);
             $this->assertEquals(0, $USER->id);
@@ -518,6 +522,7 @@ class core_phpunit_advanced_testcase extends advanced_testcase {
             $this->fail('coding expcetion expected if invalid component specified');
         } catch (moodle_exception $e) {
             $this->assertInstanceOf('coding_exception', $e);
+            $this->assertEquals('Coding error detected, it must be fixed by a programmer: Invalid component specified in message-send(): xxxx_yyyyy', $e->getMessage());
         }
 
         $message3->component = 'moodle';
@@ -526,6 +531,7 @@ class core_phpunit_advanced_testcase extends advanced_testcase {
             message_send($message3);
             $this->fail('coding expcetion expected if invalid name specified');
         } catch (moodle_exception $e) {
+            $this->assertEquals("Coding error detected, it must be fixed by a programmer: Missing messaging defaults for event 'yyyyyy' in 'moodle' messages.php file", $e->getMessage());
             $this->assertInstanceOf('coding_exception', $e);
         }
 
@@ -595,18 +601,21 @@ class core_phpunit_advanced_testcase extends advanced_testcase {
 
         try {
             $this->setTimezone('Pacific/Auckland', '');
+            $this->fail('Exception expected!');
         } catch (Exception $e) {
             $this->assertInstanceOf('PHPUnit_Framework_Error_Warning', $e);
         }
 
         try {
             $this->setTimezone('Pacific/Auckland', 'xxxx');
+            $this->fail('Exception expected!');
         } catch (Exception $e) {
             $this->assertInstanceOf('PHPUnit_Framework_Error_Warning', $e);
         }
 
         try {
             $this->setTimezone('Pacific/Auckland', null);
+            $this->fail('Exception expected!');
         } catch (Exception $e) {
             $this->assertInstanceOf('PHPUnit_Framework_Error_Warning', $e);
         }
@@ -632,6 +641,7 @@ class core_phpunit_advanced_testcase extends advanced_testcase {
 
         try {
             self::resetAllData(true);
+            $this->fail('Exception expected!');
         } catch (Exception $e) {
             $this->assertInstanceOf('PHPUnit_Framework_Error_Warning', $e);
         }

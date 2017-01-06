@@ -105,7 +105,6 @@ class totara_job_dialog_assign_manager extends totara_dialog_content {
         foreach ($managers as $manager) {
             $manager->fullname = fullname($manager);
             $jobassignments = \totara_job\job_assignment::get_all($manager->id);
-            $manager_assignments_count = count($jobassignments);
 
             if ($this->allowcreate) {
                 // Can the current user create the empty placeholder job assignments for this manager.
@@ -116,7 +115,7 @@ class totara_job_dialog_assign_manager extends totara_dialog_content {
 
             $item = new stdClass();
             $item->id = $this->prefix_managerid($manager->id);
-            if ($manager_assignments_count === 0) {
+            if (empty($jobassignments)) {
                 // There's no job assignments for this manager. Whether they are selectable or not
                 // depends on whether the current user has permissions to create a job assignment for them.
                 if ($canedit) {
@@ -131,10 +130,10 @@ class totara_job_dialog_assign_manager extends totara_dialog_content {
                     $this->disabled_items[$item->id] = $item;
                 }
                 $this->managers[$item->id] = $item;
-            } else if (!$canedit and (($manager_assignments_count === 1) or !$multiplejobsenabled)) {
+            } else if (!$canedit and (count($jobassignments) == 1 or !$multiplejobsenabled)) {
                 // There's one job to display. There's no other options available to the user. So they can
                 // select this manager and this job. No need to make the node expandable.
-                $firstjob = \totara_job\job_assignment::get_first($manager->id);
+                $firstjob = reset($jobassignments);
                 $item->id = $manager->id . '-' . $firstjob->id;
                 $item->userid = $manager->id;
                 $item->jaid = $firstjob->id;

@@ -436,12 +436,14 @@ class core_group_externallib_testcase extends externallib_advanced_testcase {
         $this->setUser($student1);
         try {
             $groups = core_group_external::get_course_user_groups($course->id, $student2->id);
+            $this->fail('Exception expected!');
         } catch (moodle_exception $e) {
             $this->assertEquals('accessdenied', $e->errorcode);
         }
 
         try {
             $groups = core_group_external::get_course_user_groups($emptycourse->id, $student2->id);
+            $this->fail('Exception expected!');
         } catch (moodle_exception $e) {
             $this->assertEquals('requireloginerror', $e->errorcode);
         }
@@ -506,12 +508,14 @@ class core_group_externallib_testcase extends externallib_advanced_testcase {
         // First try possible errors.
         try {
             $data = core_group_external::get_activity_allowed_groups($cm2->id);
+            $this->fail('Exception expected!');
         } catch (moodle_exception $e) {
             $this->assertEquals('requireloginerror', $e->errorcode);
         }
 
         try {
             $data = core_group_external::get_activity_allowed_groups($cm3->id);
+            $this->fail('Exception expected!');
         } catch (moodle_exception $e) {
             $this->assertEquals('requireloginerror', $e->errorcode);
         }
@@ -578,12 +582,14 @@ class core_group_externallib_testcase extends externallib_advanced_testcase {
 
         try {
             $data = core_group_external::get_activity_groupmode($cm2->id);
+            $this->fail('Exception expected!');
         } catch (moodle_exception $e) {
             $this->assertEquals('requireloginerror', $e->errorcode);
         }
 
         try {
             $data = core_group_external::get_activity_groupmode($cm3->id);
+            $this->fail('Exception expected!');
         } catch (moodle_exception $e) {
             $this->assertEquals('requireloginerror', $e->errorcode);
         }

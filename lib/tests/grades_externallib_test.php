@@ -200,7 +200,7 @@ class core_grades_external_testcase extends externallib_advanced_testcase {
             );
             $this->fail('moodle_exception expected');
         } catch (moodle_exception $ex) {
-            $this->assertTrue(true);
+            $this->assertEquals('Sorry, but you do not currently have permissions to do that (View hidden grades for owner)', $ex->getMessage());
         }
 
         // Parent requesting their child's grade for the assignment (should fail).
@@ -214,7 +214,7 @@ class core_grades_external_testcase extends externallib_advanced_testcase {
             );
             $this->fail('moodle_exception expected');
         } catch (moodle_exception $ex) {
-            $this->assertTrue(true);
+            $this->assertEquals('Sorry, but you do not currently have permissions to do that (View hidden grades for owner)', $ex->getMessage());
         }
 
         // Parent requesting another student's grade for the assignment(should fail).
@@ -227,7 +227,7 @@ class core_grades_external_testcase extends externallib_advanced_testcase {
             );
             $this->fail('moodle_exception expected');
         } catch (moodle_exception $ex) {
-            $this->assertTrue(true);
+            $this->assertEquals('Sorry, but you do not currently have permissions to do that (View hidden grades for owner)', $ex->getMessage());
         }
 
         // Student requesting all other student grades for the assignment (should fail).
@@ -240,7 +240,7 @@ class core_grades_external_testcase extends externallib_advanced_testcase {
             );
             $this->fail('moodle_exception expected');
         } catch (moodle_exception $ex) {
-            $this->assertTrue(true);
+            $this->assertEquals('Sorry, but you do not currently have permissions to do that (View hidden grades for owner)', $ex->getMessage());
         }
 
         // Student requesting only grade item information (should fail).
@@ -253,7 +253,7 @@ class core_grades_external_testcase extends externallib_advanced_testcase {
             );
             $this->fail('moodle_exception expected');
         } catch (moodle_exception $ex) {
-            $this->assertTrue(true);
+            $this->assertEquals('Sorry, but you do not currently have permissions to do that (View hidden grades for owner)', $ex->getMessage());
         }
 
         // Teacher requesting student grades for a course.
@@ -472,7 +472,7 @@ class core_grades_external_testcase extends externallib_advanced_testcase {
             );
             $this->fail('moodle_exception expected');
         } catch (moodle_exception $ex) {
-            $this->assertTrue(true);
+            $this->assertEquals('Can not view grades. (moodle/grade:edit required to edit grades)', $ex->getMessage());
         }
 
         // Parent attempting to update their child's grade (should fail).
@@ -489,7 +489,7 @@ class core_grades_external_testcase extends externallib_advanced_testcase {
             );
             $this->fail('moodle_exception expected');
         } catch (moodle_exception $ex) {
-            $this->assertTrue(true);
+            $this->assertEquals('Can not view grades. (moodle/grade:edit required to edit grades)', $ex->getMessage());
         }
 
         // Student trying to hide a grade item (should fail).
@@ -506,7 +506,7 @@ class core_grades_external_testcase extends externallib_advanced_testcase {
             );
             $this->fail('moodle_exception expected');
         } catch (moodle_exception $ex) {
-            $this->assertTrue(true);
+            $this->assertEquals('Can not view grades. (moodle/grade:hide required to hide grade items)', $ex->getMessage());
         }
 
         // Give the student role 'moodle/grade:hide' and they should now be able to hide the grade item.

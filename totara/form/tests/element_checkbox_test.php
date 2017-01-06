@@ -283,6 +283,7 @@ class totara_form_element_checkbox_testcase extends advanced_testcase {
                     $this->fail('Exception expected when unchecked and checked values match!');
                 } catch (\moodle_exception $e) {
                     $this->assertInstanceOf('coding_exception', $e);
+                    $this->assertEquals('Coding error detected, it must be fixed by a programmer: The checked and unchecked values must be different!', $e->getMessage());
                 }
             });
         test_form::phpunit_set_definition($definition);

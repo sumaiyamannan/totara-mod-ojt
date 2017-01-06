@@ -156,7 +156,8 @@ class core_cache_administration_helper_testcase extends advanced_testcase {
             $form = cache_administration_helper::get_add_store_form('somethingstupid');
             $this->fail('You should not be able to create an add form for a store plugin that does not exist.');
         } catch (moodle_exception $e) {
-            $this->assertInstanceOf('coding_exception', $e, 'Needs to be: ' .get_class($e)." ::: ".$e->getMessage());
+            $this->assertInstanceOf('coding_exception', $e);
+            $this->assertEquals('Coding error detected, it must be fixed by a programmer: Invalid cache plugin used when trying to create an edit form.', $e->getMessage());
         }
     }
 
@@ -175,6 +176,7 @@ class core_cache_administration_helper_testcase extends advanced_testcase {
             $this->fail('You should not be able to create an edit form for a store plugin that does not exist.');
         } catch (moodle_exception $e) {
             $this->assertInstanceOf('coding_exception', $e);
+            $this->assertEquals('Coding error detected, it must be fixed by a programmer: Invalid cache plugin used when trying to create an edit form.', $e->getMessage());
         }
 
         try {
@@ -182,6 +184,7 @@ class core_cache_administration_helper_testcase extends advanced_testcase {
             $this->fail('You should not be able to create an edit form for a store plugin that does not exist.');
         } catch (moodle_exception $e) {
             $this->assertInstanceOf('coding_exception', $e);
+            $this->assertEquals('Coding error detected, it must be fixed by a programmer: Invalid store name given when trying to create an edit form.', $e->getMessage());
         }
     }
 

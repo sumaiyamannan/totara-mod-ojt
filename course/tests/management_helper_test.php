@@ -146,6 +146,7 @@ class core_course_management_helper_test extends advanced_testcase {
             \core_course\management\helper::action_category_hide($category);
             $this->fail('Expected exception did not occur when trying to hide a category without permission.');
         } catch (moodle_exception $ex) {
+            $this->assertStringStartsWith('error/permissiondenied (coursecat::can_change_visbility)', $ex->getMessage());
             // The category must still be visible.
             $cat = coursecat::get($category->id);
             $subcat = coursecat::get($subcategory->id);
@@ -177,6 +178,7 @@ class core_course_management_helper_test extends advanced_testcase {
             \core_course\management\helper::action_category_show($category);
             $this->fail('Expected exception did not occur when trying to show a category without permission.');
         } catch (moodle_exception $ex) {
+            $this->assertStringStartsWith('error/permissiondenied (coursecat::can_change_visbility)', $ex->getMessage());
             // The category must still be hidden.
             $cat = coursecat::get($category->id);
             $subcat = coursecat::get($subcategory->id);
@@ -224,6 +226,7 @@ class core_course_management_helper_test extends advanced_testcase {
             \core_course\management\helper::action_category_hide($category);
             $this->fail('Expected exception did not occur when trying to hide a category without permission.');
         } catch (moodle_exception $ex) {
+            $this->assertStringStartsWith('error/permissiondenied (coursecat::can_change_visbility)', $ex->getMessage());
             // The category must still be visible.
             $this->assertEquals(1, coursecat::get($category->id)->visible);
         }
@@ -304,6 +307,7 @@ class core_course_management_helper_test extends advanced_testcase {
             \core_course\management\helper::action_category_hide_by_id($category->id);
             $this->fail('Expected exception did not occur when trying to hide a category without permission.');
         } catch (moodle_exception $ex) {
+            $this->assertStringStartsWith('error/permissiondenied (coursecat::can_change_visbility)', $ex->getMessage());
             // The category must still be visible.
             $cat = coursecat::get($category->id);
             $subcat = coursecat::get($subcategory->id);
@@ -334,6 +338,7 @@ class core_course_management_helper_test extends advanced_testcase {
             \core_course\management\helper::action_category_show_by_id($category->id);
             $this->fail('Expected exception did not occur when trying to show a category without permission.');
         } catch (moodle_exception $ex) {
+            $this->assertStringStartsWith('error/permissiondenied (coursecat::can_change_visbility)', $ex->getMessage());
             // The category must still be hidden.
             $cat = coursecat::get($category->id);
             $subcat = coursecat::get($subcategory->id);
@@ -381,6 +386,7 @@ class core_course_management_helper_test extends advanced_testcase {
             \core_course\management\helper::action_category_hide_by_id($category->id);
             $this->fail('Expected exception did not occur when trying to hide a category without permission.');
         } catch (moodle_exception $ex) {
+            $this->assertStringStartsWith('error/permissiondenied (coursecat::can_change_visbility)', $ex->getMessage());
             // The category must still be visible.
             $this->assertEquals(1, coursecat::get($category->id)->visible);
         }
@@ -457,6 +463,7 @@ class core_course_management_helper_test extends advanced_testcase {
             \core_course\management\helper::action_category_move_courses_into($cat2, $sub2, array($course4->id));
             $this->fail('Moved a course from a category it wasn\'t within');
         } catch (moodle_exception $exception) {
+            $this->assertEquals('The course doesn\'t belong to this category', $exception->getMessage());
             // Check that everything is as it was.
             $this->assertEquals(1, $cat1->get_courses_count());
             $this->assertEquals(0, $cat2->get_courses_count());
@@ -469,6 +476,7 @@ class core_course_management_helper_test extends advanced_testcase {
             \core_course\management\helper::action_category_move_courses_into($cat2, $sub2, array($course4->id, $course1->id));
             $this->fail('Moved a course from a category it wasn\'t within');
         } catch (moodle_exception $exception) {
+            $this->assertEquals('The course doesn\'t belong to this category', $exception->getMessage());
             // Check that everything is as it was. Nothing should have been moved.
             $this->assertEquals(1, $cat1->get_courses_count());
             $this->assertEquals(0, $cat2->get_courses_count());
@@ -636,7 +644,9 @@ class core_course_management_helper_test extends advanced_testcase {
         course_capability_assignment::prevent(self::CATEGORY_MANAGE, $roleid, $parent->get_context()->id);
         try {
             \core_course\management\helper::action_category_change_sortorder_up_one($cat1);
+            $this->fail('Exception expected!');
         } catch (moodle_exception $exception) {
+            $this->assertStringStartsWith('error/permissiondenied (coursecat::can_change_sortorder)', $exception->getMessage());
             // Check everything is still where it should be.
             $this->assertEquals(
                 array('Three', 'One', 'Two'),
@@ -645,7 +655,9 @@ class core_course_management_helper_test extends advanced_testcase {
         }
         try {
             \core_course\management\helper::action_category_change_sortorder_down_one($cat3);
+            $this->fail('Exception expected!');
         } catch (moodle_exception $exception) {
+            $this->assertStringStartsWith('error/permissiondenied (coursecat::can_change_sortorder)', $exception->getMessage());
             // Check everything is still where it should be.
             $this->assertEquals(
                 array('Three', 'One', 'Two'),
@@ -714,6 +726,7 @@ class core_course_management_helper_test extends advanced_testcase {
             \core_course\management\helper::action_category_resort_courses($category, 'category');
             $this->fail('Category courses resorted by invalid sort field.');
         } catch (coding_exception $exception) {
+            $this->assertEquals('Coding error detected, it must be fixed by a programmer: Invalid field requested', $exception->getMessage());
             // Test things are as they were before.
             $courses = $category->get_courses();
             $this->assertInternalType('array', $courses);
@@ -727,6 +740,7 @@ class core_course_management_helper_test extends advanced_testcase {
             \core_course\management\helper::action_category_resort_courses($category, 'monkeys');
             $this->fail('Category courses resorted by completely ridiculous field.');
         } catch (coding_exception $exception) {
+            $this->assertEquals('Coding error detected, it must be fixed by a programmer: Invalid field requested', $exception->getMessage());
             // Test things are as they were before.
             $courses = $category->get_courses();
             $this->assertInternalType('array', $courses);
@@ -801,6 +815,7 @@ class core_course_management_helper_test extends advanced_testcase {
             \core_course\management\helper::action_category_resort_subcategories($parent, 'summary');
             $this->fail('Categories resorted by invalid field.');
         } catch (coding_exception $exception) {
+            $this->assertEquals('Coding error detected, it must be fixed by a programmer: Invalid field requested', $exception->getMessage());
             // Check that nothing was changed.
             $categories = $parent->get_children();
             $this->assertInternalType('array', $categories);
@@ -814,6 +829,7 @@ class core_course_management_helper_test extends advanced_testcase {
             \core_course\management\helper::action_category_resort_subcategories($parent, 'monkeys');
             $this->fail('Categories resorted by completely bogus field.');
         } catch (coding_exception $exception) {
+            $this->assertEquals('Coding error detected, it must be fixed by a programmer: Invalid field requested', $exception->getMessage());
             // Check that nothing was changed.
             $categories = $parent->get_children();
             $this->assertInternalType('array', $categories);
@@ -910,6 +926,7 @@ class core_course_management_helper_test extends advanced_testcase {
 
         try {
             \core_course\management\helper::action_course_show($course);
+            $this->fail('Exception expected!');
         } catch (moodle_exception $exception) {
             $this->assertEquals('course_in_list::can_change_visbility', $exception->debuginfo);
         }
@@ -974,6 +991,7 @@ class core_course_management_helper_test extends advanced_testcase {
 
         try {
             \core_course\management\helper::action_course_show_by_record($course);
+            $this->fail('Exception expected!');
         } catch (moodle_exception $exception) {
             $this->assertEquals('course_in_list::can_change_visbility', $exception->debuginfo);
         }
@@ -1075,6 +1093,7 @@ class core_course_management_helper_test extends advanced_testcase {
             \core_course\management\helper::action_course_change_sortorder_down_one(new course_in_list(get_course($course2->id)), $category);
             $this->fail('Course moved without having the required permissions.');
         } catch (moodle_exception $exception) {
+            $this->assertStringStartsWith('error/permissiondenied (coursecat::can_resort)', $exception->getMessage());
             // Check nothing has changed.
             $courses = $category->get_courses();
             $this->assertInternalType('array', $courses);
