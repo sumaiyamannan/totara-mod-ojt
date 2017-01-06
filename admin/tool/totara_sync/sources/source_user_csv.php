@@ -364,11 +364,23 @@ class totara_sync_source_user_csv extends totara_sync_source_user {
 
             $datefields = array('jobassignmentstartdate', 'jobassignmentenddate');
             foreach ($datefields as $datefield) {
-                if (!empty($dbrow[$datefield])) {
+                if (!empty($csvrow[$datefield])) {
                     // Try to parse the contents - if parse fails assume a unix timestamp and leave unchanged.
                     $parsed_date = totara_date_parse_from_format($csvdateformat, trim($csvrow[$datefield]), true);
                     if ($parsed_date) {
                         $dbrow[$datefield] = $parsed_date;
+                    } elseif (!is_numeric($dbrow[$datefield])) {
+                        // Bad date format.
+                        if (empty($dbrow['idnumber'])) {
+                            $msg = get_string('invaliddateformatforfield', 'tool_totara_sync', $datefield);
+                        } else {
+                            $msg = get_string('invaliddateformatforfieldforuser', 'tool_totara_sync',
+                                array('field' => $datefield, 'user' => $dbrow['idnumber']));
+                        }
+                        totara_sync_log($this->get_element_name(), $msg, 'warn', 'updateusers', false);
+
+                        // Set date to null. We don't want to unset as this will stop the Assignment being added.
+                        $dbrow[$datefield] = null;
                     }
                 }
             }

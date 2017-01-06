@@ -3291,3 +3291,33 @@ Feature: Use user source to import job assignments data in HR sync
     And I should see "OrganisationZ"
     And I should see "manz manz (managerz@example.com) - fullz"
     And I should see "appz appz"
+
+  Scenario: Upload CSV to test that job assignment start and end dates are validated correctly
+    # Configure.
+    When I set the following fields to these values:
+    | Organisation              | 0      |
+    | Position                  | 0      |
+    | Manager                   | 0      |
+    | Appraiser                 | 0      |
+    And I press "Save changes"
+    And I set the following administration settings values:
+      | csvdateformat           | d/m/Y  |
+
+    # Import.
+    And I navigate to "Upload HR Import files" node in "Site administration > HR Import > Sources"
+    And I upload "admin/tool/totara_sync/tests/fixtures/users_ja_with_dates.csv" file to "CSV" filemanager
+    And I press "Upload"
+    And I should see "HR Import files uploaded successfully"
+    And I navigate to "Run HR Import" node in "Site administration > HR Import"
+    And I press "Run HR Import"
+    And I should see "Running HR Import cron...Done! However, there have been some problems"
+    And I navigate to "HR Import Log" node in "Site administration > HR Import"
+
+    # Check the results.
+    Then I should see "HR Import finished" in the "#totarasynclog" "css_element"
+    And I should see "created user id1"
+    And I should not see "Invalid date format for field jobassignmentstartdate for user id1"
+    And I should see "created user id2"
+    And I should not see "Invalid date format for field jobassignmentstartdate for user id2"
+    And I should see "created user id3"
+    And I should see "Invalid date format for field jobassignmentstartdate for user id3"
