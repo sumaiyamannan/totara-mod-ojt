@@ -1732,17 +1732,14 @@ function facetoface_message_substitutions($msg, $coursename, $facetofacename, $u
     $msg = facetoface_notification_loop_session_placeholders($msg, $data, $rooms, $roomcustomfields, $user);
     $msg = facetoface_notification_substitute_deprecated_placeholders($msg, $data, $rooms, $roomcustomfields);
 
-    if (empty($data->details)) {
-        // Replace.
-        $msg = str_replace('[details]', '', $msg);
-        // Legacy.
-        $msg = str_replace(get_string('placeholder:details', 'facetoface'), '', $msg);
-    } else {
-        // Replace.
-        $msg = str_replace('[details]', html_to_text($data->details), $msg);
-        // Legacy.
-        $msg = str_replace(get_string('placeholder:details', 'facetoface'), html_to_text($data->details), $msg);
+    $details = '';
+    if (!empty($data->details)) {
+        $details = format_text($data->details);
     }
+    // Replace.
+    $msg = str_replace('[details]', $details, $msg);
+    // Legacy.
+    $msg = str_replace(get_string('placeholder:details', 'facetoface'), $details, $msg);
 
     // Replace more meta data
     $attendees_url = new moodle_url('/mod/facetoface/attendees.php', array('s' => $sessionid, 'action' => 'approvalrequired'));
