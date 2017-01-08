@@ -1474,6 +1474,26 @@ function facetoface_is_session_in_progress($session, $timenow) {
 }
 
 /**
+ * Returns true if the session is over.
+ *
+ * @param class $session record from the facetoface_sessions table
+ * @param integer $timenow current time
+ *
+ * @return bool
+ */
+function facetoface_is_session_over($session, $timenow) {
+    if (empty($session->sessiondates)) {
+        return false;
+    }
+    $startedsessions = totara_search_for_value($session->sessiondates, 'timestart', TOTARA_SEARCH_OP_LESS_THAN, $timenow);
+    $unfinishedsessions = totara_search_for_value($session->sessiondates, 'timefinish', TOTARA_SEARCH_OP_GREATER_THAN, $timenow);
+    if (!empty($startedsessions) && empty($unfinishedsessions)) {
+        return true;
+    }
+    return false;
+}
+
+/**
  * Get all of the dates for a given session
  */
 function facetoface_get_session_dates($sessionid) {
@@ -2999,25 +3019,40 @@ function facetoface_cm_info_view(cm_info $coursemodule) {
     $declareinterest_url = new moodle_url('/mod/facetoface/interest.php', array('f' => $facetoface->id));
     $declareinterest_link = html_writer::link($declareinterest_url, $declareinterest_label, array('class' => 'f2fsessionlinks f2fviewallsessions', 'title' => $declareinterest_label));
 
+    // User has signedup for the instance.
     if ($submissions = facetoface_get_user_submissions($facetoface->id, $USER->id)) {
-        // User has signedup for the instance.
         if (!$facetoface->multiplesessions) {
             // First submission only.
             $submissions = array(array_shift($submissions));
         }
 
         $sessions = array();
-
         foreach ($submissions as $submission) {
             if ($session = facetoface_get_session($submission->sessionid)) {
 
-                if (facetoface_has_session_started($session, $timenow)) {
+                if (facetoface_is_session_over($session, $timenow)) {
                     continue;
                 }
 
                 $session->bookedsession = $submission;
-                $sessions[] = $session;
+                $sessions[$session->id] = $session;
             }
+        }
+
+        // If the user can sign up for multiple events, we should show all upcoming events in this seminar.
+        // Otherwise it doesn't make sense to do so because the user has already signedup for the instance.
+        if ($facetoface->multiplesessions) {
+            $allsessions = facetoface_get_sessions($facetoface->id);
+            foreach ($allsessions as $id => $session) {
+                if (array_key_exists($id, $sessions)) {
+                    $allsessions[$id] = $sessions[$id];
+                }
+                // Don't show events that are over.
+                if (facetoface_is_session_over($session, $timenow)) {
+                    unset($allsessions[$id]);
+                }
+            }
+            $sessions = $allsessions;
         }
 
         if (!empty($facetoface->managerreserve)) {
@@ -3040,7 +3075,7 @@ function facetoface_cm_info_view(cm_info $coursemodule) {
     } else if ($sessions = facetoface_get_sessions($facetoface->id)) {
         if ($facetoface->display > 0) {
             foreach($sessions as $id => $session) {
-                if (facetoface_has_session_started($session, $timenow)) {
+                if (facetoface_is_session_over($session, $timenow)) {
                     // We only want upcoming sessions (or those with no date set).
                     // For now, we've cut down the sessions to loop through to just those displayed.
                     // Todo: we need a version of facetoface_get_sessions that will return only upcoming in the first place.
@@ -3717,14 +3752,9 @@ function facetoface_print_session_list($courseid, $facetoface, $sessions) {
 
     $upcomingarray = array();
     $previousarray = array();
-    $upcomingtbdarray = array();
 
     if ($sessions) {
         foreach ($sessions as $session) {
-
-            $sessionstarted = false;
-            $sessionwaitlisted = false;
-
             $sessiondata = $session;
             if ($facetoface->multiplesessions) {
                 $submission = facetoface_get_user_submissions($facetoface->id, $USER->id,
@@ -3735,23 +3765,16 @@ function facetoface_print_session_list($courseid, $facetoface, $sessions) {
 
             // Is session waitlisted
             if (!$session->cntdates ) {
-                $sessionwaitlisted = true;
-            }
-
-            // Check if session is started
-            if ($session->cntdates  && facetoface_has_session_started($session, $timenow) && facetoface_is_session_in_progress($session, $timenow)) {
-                $sessionstarted = true;
-            } else if ($session->cntdates  && facetoface_has_session_started($session, $timenow)) {
-                $sessionstarted = true;
-            }
-
-            // Put the row in the right table
-            if ($sessionstarted) {
-                $previousarray[] = $sessiondata;
-            } else if ($sessionwaitlisted) {
-                $upcomingtbdarray[] = $sessiondata;
-            } else { // Normal scheduled session
                 $upcomingarray[] = $sessiondata;
+            } else {
+                // Only sessions that are over should go to the previous session section.
+                if (facetoface_is_session_over($session, $timenow)) {
+                    $previousarray[] = $sessiondata;
+                } else {
+                    // Session is in progress or has not yet started.
+                    // Normal scheduled session.
+                    $upcomingarray[] = $sessiondata;
+                }
             }
         }
     }
@@ -3767,10 +3790,9 @@ function facetoface_print_session_list($courseid, $facetoface, $sessions) {
 
     // Upcoming sessions
     $output .= $OUTPUT->heading(get_string('upcomingsessions', 'facetoface'), 3);
-    if (empty($upcomingarray) && empty($upcomingtbdarray)) {
+    if (empty($upcomingarray)) {
         print_string('noupcoming', 'facetoface');
     } else {
-        $upcomingarray = array_merge($upcomingarray, $upcomingtbdarray);
         $reserveinfo = array();
         if (!empty($facetoface->managerreserve)) {
             // Include information about reservations when drawing the list of sessions.
@@ -3778,17 +3800,19 @@ function facetoface_print_session_list($courseid, $facetoface, $sessions) {
             $output .= html_writer::tag('p', get_string('lastreservation', 'mod_facetoface', $facetoface));
         }
 
-        $output .= $f2f_renderer->print_session_list_table(
+        $sessionlist = $f2f_renderer->print_session_list_table(
             $upcomingarray, $viewattendees, $editevents, $displaytimezones, $reserveinfo, $PAGE->url
         );
+        $output .= html_writer::div($sessionlist, 'upcomingsessionlist');
     }
 
     // Previous sessions
     if (!empty($previousarray)) {
         $output .= $OUTPUT->heading(get_string('previoussessions', 'facetoface'), 3);
-        $output .= $f2f_renderer->print_session_list_table(
+        $sessionlist = $f2f_renderer->print_session_list_table(
             $previousarray, $viewattendees, $editevents, $displaytimezones, [], $PAGE->url
         );
+        $output .= html_writer::div($sessionlist, 'previoussessionlist');
     }
 
     return $output;
