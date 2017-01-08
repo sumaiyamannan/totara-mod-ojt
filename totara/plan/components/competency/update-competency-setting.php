@@ -58,11 +58,6 @@ if ($result !== true) {
     die(get_string($result[0],$result[1]));
 }
 
-// Log it
-$competencyname = $DB->get_field('comp', 'fullname', array('id' => $competencyid));
-\totara_plan\event\component_updated::create_from_component(
-    $plan, 'competencyproficiency', $competencyid, $competencyname)->trigger();
-
 // Update the competency evidence
 $details = new stdClass();
 
@@ -79,7 +74,25 @@ $details->assessorid = $USER->id;
 $result = hierarchy_add_competency_evidence($competencyid, $userid, $prof, $component, $details);
 
 if ($result) {
+    // Log it.
+    $competencyname = $DB->get_field('comp', 'fullname', array('id' => $competencyid));
+    $data = array(
+        'objectid' => $plan->id,
+        'context' => \context_system::instance(),
+        'relateduserid' => $plan->userid,
+        'other' => array(
+            'name' => $plan->name,
+            'component' => 'competencyproficiency',
+            'componentid' => $competencyid,
+            'componentname' => $competencyname,
+            'proficiencyvalue' => $prof,
+        ),
+    );
+    \totara_plan\event\component_updated::create($data)->trigger();
+
+    // Check if any plans this competency belongs to are complete.
     dp_plan_item_updated($userid, 'competency', $competencyid);
+
     echo "OK";
 } else {
     echo "FAIL";
