@@ -42,11 +42,11 @@ function hierarchy_can_add_competency_evidence($plan, $component, $userid, $comp
     global $DB;
 
     $systemcontext = context_system::instance();
-    if (!has_capability('totara/plan:accessanyplan', $systemcontext) && ($plan->get_setting('view') < DP_PERMISSION_ALLOW)) {
+    if (!has_capability('totara/plan:accessanyplan', $systemcontext) && (empty($plan->role) || ($plan->get_setting('view') < DP_PERMISSION_ALLOW))) {
         return array('error:nopermissions', 'totara_plan');
     }
 
-    if ($component->get_setting('setproficiency') != DP_PERMISSION_ALLOW) {
+    if (empty($plan->role) || $component->get_setting('setproficiency') != DP_PERMISSION_ALLOW) {
         return array('error:competencystatuspermission', 'totara_plan');
     }
 
@@ -67,7 +67,7 @@ function hierarchy_can_add_competency_evidence($plan, $component, $userid, $comp
     }
 
     // Check whether the plan's competencies can still be updated
-    if (!$component->can_update_competency_evidence($compassign)) {
+    if (empty($plan->role) || !$component->can_update_competency_evidence($compassign)) {
         return array('error:cannotupdatecompetencies','totara_plan');
     }
 
