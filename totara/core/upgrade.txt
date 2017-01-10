@@ -3,6 +3,11 @@ List of upgrade and API changes in Totara core
 === 9.4 ===
 
 * updated totara/core/templates/totara_search.mustache
+* totara/core/templates/totara_search.mustache context object has changed, the property ->alt has been deprecated
+
+=== 9.3 ===
+
+* totara_dialog_content_manager has been deprecated, please use totara_job_dialog_assign_manager instead.
 
 === 2.7 ===
 
@@ -14,7 +19,3 @@ List of upgrade and API changes in Totara core
 
 * MDL-48282 was backported. Do not update user->firstaccess from any auth plugin,
   the complete_user_login() does it automatically.
-
-=== 9.3 ===
-
-* totara_dialog_content_manager has been deprecated, please use totara_job_dialog_assign_manager instead.
