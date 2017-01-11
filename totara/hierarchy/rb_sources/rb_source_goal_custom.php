@@ -51,6 +51,7 @@ class rb_source_goal_custom extends rb_base_source {
         $this->joinlist = $this->define_joinlist();
         $this->columnoptions = $this->define_columnoptions();
         $this->filteroptions = $this->define_filteroptions();
+        $this->contentoptions = $this->define_contentoptions();
         $this->paramoptions = $this->define_paramoptions();
         $this->defaultcolumns = $this->define_defaultcolumns();
         $this->defaultfilters = $this->define_defaultfilters();
@@ -203,6 +204,20 @@ class rb_source_goal_custom extends rb_base_source {
         $this->add_user_fields_to_columns($columnoptions);
 
         return $columnoptions;
+    }
+
+
+    /**
+     * Creates the array of rb_content_option object required for $this->contentoptions
+     * @return array
+     */
+    protected function define_contentoptions() {
+        $contentoptions = array();
+
+        // Add the manager/position/organisation content options.
+        $this->add_basic_user_content_options($contentoptions, 'buser');
+
+        return $contentoptions;
     }
 
     protected function define_filteroptions() {
