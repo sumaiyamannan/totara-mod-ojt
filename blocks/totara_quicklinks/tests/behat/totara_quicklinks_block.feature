@@ -131,6 +131,7 @@ Feature: Test Quick Links block
     Given I log in as "admin"
     And I click on "Dashboard" in the totara menu
     And I press "Customise this page"
+    And I navigate to "Calendar" node in "Site pages"
     And I add the "Quick Links" block
     And I configure the "Quick Links" block
     And I expand all fieldsets
@@ -144,9 +145,9 @@ Feature: Test Quick Links block
     And I follow "Configure My Links block"
     And I click on "Manage links" "link"
     And I set the field "linktitle" to "My calendar link"
-    And I set the field "linkurl" to "/calendar/view.php?view=month&time=151934400"
+    And I set the field "linkurl" to "view.php?view=month&time=151934400"
     And I click on "Add link" "button"
-    And I click on "Dashboard" in the totara menu
+    And I navigate to "Calendar" node in "Site pages"
     Then I should see "My Links"
     And I should see "My calendar link" in the "My Links" "block"
 
