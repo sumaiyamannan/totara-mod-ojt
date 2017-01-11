@@ -1705,4 +1705,50 @@ class mod_facetoface_notifications_testcase extends advanced_testcase {
         return $alldates;
     }
 
+    /**
+     * Test sending notifications when "facetoface_oneemailperday" is enabled,
+     * with a event without a date and the learner is waitlisted.
+     */
+    public function test_oneperday_waitlisted_no_events() {
+        global $DB;
+        $this->resetAfterTest(true);
+        $this->setAdminUser();
+
+        set_config('facetoface_oneemailperday', true);
+
+        $student1 = $this->getDataGenerator()->create_user();
+
+        $course = $this->getDataGenerator()->create_course();
+        $studentrole = $DB->get_record('role', array('shortname' => 'student'));
+        $this->getDataGenerator()->enrol_user($student1->id, $course->id, $studentrole->id);
+
+        /** @var mod_facetoface_generator $facetofacegenerator */
+        $facetofacegenerator = $this->getDataGenerator()->get_plugin_generator('mod_facetoface');
+
+        $facetofacedata = array(
+            'name' => 'facetoface',
+            'course' => $course->id
+        );
+        $facetoface = $facetofacegenerator->create_instance($facetofacedata);
+
+        $sessiondata = array(
+            'facetoface' => $facetoface->id,
+            'capacity' => 3,
+            'allowoverbook' => 1,
+            'sessiondates' => [],
+            'datetimeknown' => '0',
+            'mincapacity' => '1'
+        );
+
+        $session = facetoface_get_session($facetofacegenerator->add_session($sessiondata));
+
+        $emailsink = $this->redirectEmails();
+        facetoface_user_import($course, $facetoface, $session, $student1->id);
+        $emailsink->close();
+
+        $preemails = $emailsink->get_messages();
+        foreach($preemails as $preemail) {
+            $this->assertContains("This is to advise that you have been added to the waitlist", $preemail->body);
+        }
+    }
 }

@@ -1163,6 +1163,25 @@ class facetoface_notification extends data_object {
     }
 }
 
+/**
+ * Gets the session date for the specified session. THIS FUNCTION IS NOT PUBLIC
+ * AND IS MEANT FOR USE WITHIN THIS FILE ONLY.
+ *
+ * @param \stdClass $session session for which to get dates.
+ *
+ * @return \stdClass session with updated dates.
+ */
+function facetoface_notification_session_dates(\stdClass $session) {
+    if (!isset($session->sessiondates)) {
+        // Annoying, inconsistently implemented API.
+        // We add the session dates to the session object as quite possibly other session lib funcs will need them also, and we don't want
+        // to continuously load them.
+        // This is sadly consistently inconsistent behaviour.
+        $session->sessiondates = facetoface_get_session_dates($session->id);
+    }
+
+    return $session;
+}
 
 /**
  * Send a notice (all session dates in one message).
@@ -1199,7 +1218,15 @@ function facetoface_send_notice($facetoface, $session, $userid, $params, $icalat
         debugging("Duplicate notifications found for (excluding id): " . json_encode($params), DEBUG_DEVELOPER);
     }
 
-    if (get_config(null, 'facetoface_oneemailperday')) {
+    // By definition, the send one email per day feature works on sessions with
+    // dates. However, the current system allows sessions to be created without
+    // dates and it allows people to sign up to those sessions. In this cases,
+    // the sign ups still need to get email notifications; hence the checking of
+    // the existence of dates before allowing the send one email per day part.
+    $session = facetoface_notification_session_dates($session);
+    if (get_config(null, 'facetoface_oneemailperday')
+        && isset($session->sessiondates)
+        && count($session->sessiondates) > 0) {
         return facetoface_send_oneperday_notice($facetoface, $session, $userid, $params, $icalattachmenttype, $icalattachmentmethod, $fromuser, $olddates);
     }
 
@@ -1260,13 +1287,7 @@ function facetoface_send_oneperday_notice($facetoface, $session, $userid, $param
         $session->notifyuser = true;
     }
 
-    if (!isset($session->sessiondates)) {
-        // Annoying, inconsistently implemented API.
-        // We add the session dates to the session object as quite possibly other session lib funcs will need them also, and we don't want
-        // to continuously load them.
-        // This is sadly consistently inconsistent behaviour.
-        $session->sessiondates = facetoface_get_session_dates($session->id);
-    }
+    $session = facetoface_notification_session_dates($session);
 
     // Keep track of all sessiondates.
     $sessiondates = $session->sessiondates;
