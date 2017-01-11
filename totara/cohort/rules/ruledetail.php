@@ -193,7 +193,7 @@ if ($update) {
                 $mform->addElement(
                     'selectgroups',
                     "addrulemenu{$id}",
-                    '',
+                    get_string('addrule', 'totara_cohort'),
                     cohort_rules_get_menu_options(),
                     array(
                         'class' => 'rule_selector new_rule_selector',

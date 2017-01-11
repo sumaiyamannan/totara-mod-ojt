@@ -100,11 +100,10 @@ class cohort_rules_form extends moodleform {
             $ruledata = cohort_ruleset_form_template_object($ruleset);
             $mform->addElement('html', $OUTPUT->render_from_template('totara_cohort/editing_ruleset', $ruledata));
 
-            // todo: what should the label for this select be?
             $mform->addElement(
                 'selectgroups',
                 "addrulemenu{$id}",
-                '',
+                get_string('addrule', 'totara_cohort'),
                 cohort_rules_get_menu_options(),
                 array(
                     'class' => 'rule_selector new_rule_selector ignoredirty',
@@ -119,7 +118,7 @@ class cohort_rules_form extends moodleform {
         $mform->addElement(
             'selectgroups',
             'addrulesetmenu',
-            '',
+            get_string('addrule', 'totara_cohort'),
             cohort_rules_get_menu_options(),
             array(
                 'class' => 'rule_selector new_rule_selector ignoredirty',
