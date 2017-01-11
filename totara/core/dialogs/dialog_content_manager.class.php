@@ -27,6 +27,14 @@ require_once(dirname(dirname(dirname(dirname(__FILE__)))) . '/config.php');
 require_once($CFG->dirroot.'/totara/core/dialogs/dialog_content.class.php');
 require_once($CFG->dirroot.'/totara/hierarchy/prefix/position/lib.php');
 
+/**
+ * Class totara_dialog_content_manager
+ *
+ * @deprecated Since Totara 9.3. Use totara_job_dialog_assign_manager instead.
+ *
+ * Note that method get_items_by_parent in this class does not return all sub-managers for the
+ * given manager. It only returns those relating to the given manager's first job assignment.
+ */
 class totara_dialog_content_manager extends totara_dialog_content {
 
     /**
@@ -110,6 +118,10 @@ class totara_dialog_content_manager extends totara_dialog_content {
 
     /**
      * Get all managers who are themselves managed by the specified parent manager
+     *
+     * Note that only sub-managers of the given manager's first job assignment are considered. To get all
+     * sub-managers, use class totara_job_dialog_assign_manager instead of this one. As this class has been
+     * deprecated, this behaviour will not be changed.
      *
      * @param int|bool $parentmanagerid
      * @return array
