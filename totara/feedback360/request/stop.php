@@ -25,6 +25,9 @@
 require_once(dirname(dirname(dirname(dirname(__FILE__)))) . '/config.php');
 require_once($CFG->dirroot . '/totara/feedback360/lib.php');
 
+require_login();
+feedback360::check_feature_enabled();
+
 // This page cancels and unreplied feedback.
 $userformid = required_param('userformid', PARAM_INT);
 $confirmation = optional_param('confirm', null, PARAM_ALPHANUM);

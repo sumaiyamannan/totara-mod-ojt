@@ -23,6 +23,10 @@
  */
 
 require_once(dirname(dirname(dirname(dirname(__FILE__)))) . '/config.php');
+require_once($CFG->dirroot . '/totara/feedback360/lib.php');
+
+require_login();
+feedback360::check_feature_enabled();
 
 $respid = required_param('respid', PARAM_INT); // The id for a resp_assignment record.
 $email = optional_param('email', '', PARAM_EMAIL); // The email field to check against.

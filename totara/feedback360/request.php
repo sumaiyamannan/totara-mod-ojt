@@ -27,7 +27,7 @@ require_once($CFG->dirroot . '/totara/feedback360/feedback360_forms.php');
 require_once($CFG->dirroot . '/totara/feedback360/lib.php');
 require_once($CFG->dirroot . '/totara/message/messagelib.php');
 
-// Check if 360 Feedbacks are enabled.
+require_login();
 feedback360::check_feature_enabled();
 
 $userid = required_param('userid', PARAM_INT);
@@ -35,7 +35,6 @@ $action = required_param('action', PARAM_ALPHA);
 
 $systemcontext = context_system::instance();
 $usercontext = context_user::instance($userid);
-$strrequestfeedback = get_string('requestfeedback360', 'totara_feedback360');
 
 // Set up the page.
 $PAGE->set_url(new moodle_url('/totara/feedback360/index.php'));
@@ -48,17 +47,25 @@ $owner = $DB->get_record('user', array('id' => $userid));
 if ($USER->id == $userid) {
     require_capability('totara/feedback360:manageownfeedback360', $systemcontext);
     $asmanager = false;
-
-    $strmyfeedback = get_string('myfeedback', 'totara_feedback360');
-    $PAGE->set_totara_menu_selected('feedback360');
-    $PAGE->navbar->add(get_string('feedback360', 'totara_feedback360'), new moodle_url('/totara/feedback360/index.php'));
-    $PAGE->navbar->add($strmyfeedback);
-    $PAGE->set_title($strrequestfeedback);
-    $PAGE->set_heading($strrequestfeedback);
 } else if (\totara_job\job_assignment::is_managing($USER->id, $userid)) {
     require_capability('totara/feedback360:managestafffeedback', $usercontext);
     $asmanager = true;
+} else {
+    print_error('error:accessdenied', 'totara_feedback');
+}
 
+if ($action != 'form') {
+    // Unless a user is on the page for selecting which feedback360 to request for, we need a formid and
+    // it must be valid for the given user id.
+    $formid = required_param('formid', PARAM_INT); // Note: formid is actually feedback360_user_assignment.id.
+    if (!feedback360::validate_user_to_assignment_id($userid, $formid)) {
+        print_error('error:accessdenied', 'totara_feedback');
+    }
+}
+
+// Now we can set up the rest of the page.
+$strrequestfeedback = get_string('requestfeedback360', 'totara_feedback360');
+if ($asmanager) {
     $userxfeedback = get_string('userxfeedback360', 'totara_feedback360', fullname($owner));
     if (totara_feature_visible('myteam')) {
         $PAGE->set_totara_menu_selected('myteam');
@@ -68,7 +75,12 @@ if ($USER->id == $userid) {
     $PAGE->set_title($userxfeedback);
     $PAGE->set_heading($userxfeedback);
 } else {
-    print_error('error:accessdenied', 'totara_feedback');
+    $strmyfeedback = get_string('myfeedback', 'totara_feedback360');
+    $PAGE->set_totara_menu_selected('feedback360');
+    $PAGE->navbar->add(get_string('feedback360', 'totara_feedback360'), new moodle_url('/totara/feedback360/index.php'));
+    $PAGE->navbar->add($strmyfeedback);
+    $PAGE->set_title($strrequestfeedback);
+    $PAGE->set_heading($strrequestfeedback);
 }
 
 $PAGE->navbar->add($strrequestfeedback);
@@ -100,7 +112,6 @@ if ($action == 'form') {
         $mform->set_data($data);
     }
 } else if ($action == 'users') {
-    $formid = required_param('formid', PARAM_INT); // Note: formid is actually feedback360_user_assignment.id.
     $update = optional_param('update', 0, PARAM_INT);
     $selected = optional_param('selected', '', PARAM_SEQUENCE);
     $nojs = optional_param('nojs', false, PARAM_BOOL);
@@ -176,7 +187,6 @@ if ($action == 'form') {
     $emailnew = required_param('emailnew', PARAM_TEXT);
     $emailcancel = required_param('emailcancel', PARAM_TEXT);
     $emailkeep = required_param('emailkeep', PARAM_TEXT);
-    $formid = required_param('formid', PARAM_INT);
     $newduedate = required_param('duedate', PARAM_INT);
     $oldduedate = required_param('oldduedate', PARAM_INT);
     $mform = new request_confirmation();
@@ -204,7 +214,18 @@ if ($mform->is_cancelled()) {
     $cancelurl = new moodle_url('/totara/feedback360/index.php', array('userid' => $userid));
     redirect($cancelurl);
 } else if ($data = $mform->get_data()) {
+    if (!empty($formid)) {
+        // There was a formid that we validated at the beginning of this page.
+        // This won't happen if the user is selecting a form to choose users for.
+        if ($formid != $data->formid) {
+            // It doesn't match. No need to validate against user again as this shouldn't happen.
+            print_error('error:accessdenied', 'totara_feedback');
+        }
+    }
+
     if ($action == 'form') {
+        // This is the only time we actually need to get the 'formid' from the $data, otherwise
+        // we'd use the already validated $formid.
         $params = array('userid' => $userid, 'action' => 'users', 'formid' => $data->formid);
         $url = $CFG->wwwroot . '/totara/feedback360/request.php';
         redirect(new moodle_url($url, $params));
@@ -263,7 +284,7 @@ if ($mform->is_cancelled()) {
                 $data->duedate != $data->oldduedate) {
             $params = array('userid' => $data->userid,
                 'action' => 'confirm',
-                'formid' => $data->formid,
+                'formid' => $formid,
                 'systemnew' => implode(',', $newsystem),
                 'systemkeep' => implode(',', $keepsystem),
                 'systemcancel' => implode(',', $cancelsystem),
@@ -278,7 +299,7 @@ if ($mform->is_cancelled()) {
             redirect($url);
         } else {
             $params = array('userid' => $data->userid,
-                'formid' => $data->formid,
+                'formid' => $formid,
                 'action' => 'users'
             );
 
@@ -288,12 +309,17 @@ if ($mform->is_cancelled()) {
         }
     } else if ($action == 'confirm') {
         // Update the timedue in the user_assignment.
-        feedback360_responder::update_timedue($data->duedate, $data->formid);
+        $timeduevalidation = feedback360_responder::validate_new_timedue_timestamp($data->duedate, $formid);
+        // We're updating if it's still valid. If it's not, then ignore, the date entered by the user
+        // in the interface should have been found during the 'users' action so something else is happening here.
+        if (empty($timeduevalidation)) {
+            feedback360_responder::update_timedue($data->duedate, $formid);
+        }
 
         if ($data->duenotifications) {
             // Set up some variables for use lower down in the send update notification loops.
             $userfrom = $DB->get_record('user', array('id' => $USER->id));
-            $user_assignment = $DB->get_record('feedback360_user_assignment', array('id' => $data->formid));
+            $user_assignment = $DB->get_record('feedback360_user_assignment', array('id' => $formid));
             $feedback360 = $DB->get_record('feedback360', array('id' => $user_assignment->feedback360id));
 
             $strvars = new stdClass();
