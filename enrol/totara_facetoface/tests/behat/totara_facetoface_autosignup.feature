@@ -26,9 +26,9 @@ Feature: Users can enrol on courses that have autosignup enabled and get signed 
     And I follow "Course 1"
     And I turn editing mode on
     And I add a "Seminar" to section "1" and I fill the form with:
-      | Name             | Test seminar name 1        |
-      | Description      | Test seminar description 1 |
-      | Manager Approval | 0                          |
+      | Name        | Test seminar name 1        |
+      | Description | Test seminar description 1 |
+      | No Approval | 1                          |
     And I follow "Test seminar name 1"
     And I follow "Add a new event"
     And I click on "Edit date" "link"
@@ -47,9 +47,9 @@ Feature: Users can enrol on courses that have autosignup enabled and get signed 
     And I press "Save changes"
     And I follow "Course 1"
     And I add a "Seminar" to section "1" and I fill the form with:
-      | Name             | Test seminar name 2        |
-      | Description      | Test seminar description 2 |
-      | Manager Approval | 0                          |
+      | Name        | Test seminar name 2        |
+      | Description | Test seminar description 2 |
+      | No Approval | 1                          |
     And I follow "Test seminar name 2"
     And I follow "Add a new event"
     And I click on "Edit date" "link"
@@ -86,7 +86,7 @@ Feature: Users can enrol on courses that have autosignup enabled and get signed 
     And I add a "Seminar" to section "1" and I fill the form with:
       | Name                       | Test seminar name 1        |
       | Description                | Test seminar description 1 |
-      | Manager Approval           | 0                          |
+      | No Approval                | 1                          |
       | Allow manager reservations | Yes                        |
     And I follow "Test seminar name 1"
     And I follow "Add a new event"
