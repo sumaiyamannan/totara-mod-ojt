@@ -19,12 +19,15 @@
  *
  * @author Aaron Wells <aaronw@catalyst.net.nz>
  * @author Eugene Venter <eugene@catalyst.net.nz>
- * @package totara
- * @subpackage cohort
+ * @package totara_cohort
  */
+
 /**
- * This file is the ajax handler which adds the selected course/program to a cohort's learning items
+ * This file is the ajax handler which adds the selected course/program/cert to a cohort's learning items
  */
+
+define('AJAX_SCRIPT', true);
+
 require_once(dirname(dirname(dirname(dirname(__FILE__)))) .'/config.php');
 require_once($CFG->dirroot .'/cohort/lib.php');
 require_once($CFG->dirroot . '/enrol/cohort/locallib.php');
@@ -33,43 +36,78 @@ require_once($CFG->dirroot . '/enrol/cohort/locallib.php');
 core_php_time_limit::raise(0);
 
 $context = context_system::instance();
+require_login();
 require_capability('moodle/cohort:manage', $context);
-
 require_sesskey();
 
-$type = required_param('type', PARAM_TEXT);
 $cohortid = required_param('cohortid', PARAM_INT);
-
-$updateids = optional_param('u', 0, PARAM_SEQUENCE);
+$type = required_param('type', PARAM_TEXT); // The association type, one of course, program, or certification.
+$updateids = optional_param('u', 0, PARAM_SEQUENCE); // A comma separated list of {type} id's to associate with the given cohort.
+$delid = optional_param('d', 0, PARAM_INT); // An id relating to an association to delete.
 $value = optional_param('v', COHORT_ASSN_VALUE_ENROLLED, PARAM_INT);
 
-// List of courses where we need to resync enrolments.
-$courseids = array();
+$iscourses = ($type == COHORT_ASSN_ITEMTYPE_COURSE);
+$isprograms = ($type == COHORT_ASSN_ITEMTYPE_PROGRAM);
+$iscertifications = ($type == COHORT_ASSN_ITEMTYPE_CERTIF);
 
-if (!empty($updateids)) {
+// This script only deals with courses, programs, and certifications.
+if (!$iscourses && !$isprograms && !$iscertifications) {
+    throw new coding_exception('Invalid type passed.');
+}
+
+// List of courses/progs/certs that have already been associated.
+$knownassociations = totara_cohort_get_associations($cohortid, $type, $value);
+$knowninstanceids = array();
+foreach ($knownassociations as $association) {
+    $knowninstanceids[$association->instanceid] = $association->id;
+}
+$newassociations = array();
+
+if (!empty($type)) {
     $updateids = explode(',', $updateids);
     foreach ($updateids as $instanceid) {
-        if ($type == COHORT_ASSN_ITEMTYPE_COURSE) {
-            if ($course = $DB->get_record('course', array('id' => $instanceid), 'id')) {
-                $courseids[$course->id] = $course->id;
+        if (isset($knowninstanceids[$instanceid])) {
+            // The association is already known, just continue on past it, no change here.
+            continue;
+        }
+        if ($iscourses && !$DB->record_exists('course', array('id' => $instanceid))) {
+            // Its not a real course Jim.
+            continue;
+        }
+        if ($isprograms && !$DB->record_exists('prog', array('id' => $instanceid, 'certifid' => null))) {
+            // Its not a real program Jim.
+            continue;
+        }
+        if ($iscertifications) {
+            $sql = "SELECT p.certifid
+                      FROM {prog} p
+                INNER JOIN {certif} c ON c.id = p.certifid
+                     WHERE p.id = :instanceid";
+            if (!$DB->record_exists_sql($sql, array('instanceid' => $instanceid))) {
+                // Its not a real certification Jim.
+                continue;
             }
         }
+        // Its a new association Jim, send it to the archives.
         totara_cohort_add_association($cohortid, $instanceid, $type, $value);
     }
 }
 
-$delid = optional_param('d', 0, PARAM_INT);
 if (!empty($delid)) {
-    if (!empty($type) && !empty($delid)) {
-        if ($type == COHORT_ASSN_ITEMTYPE_COURSE) {
-            if ($enrolinstance = $DB->get_record('enrol', array('id' => $delid), 'id, courseid')) {
-                $courseids[$enrolinstance->courseid] = $enrolinstance->courseid;
-            }
-        }
-        totara_cohort_delete_association($cohortid, $delid, $type, $value);
+    // We don't need to check this exists in the database, we just need to check that it is a known association.
+    if (!in_array($delid, $knowninstanceids)) {
+        // You cannot delete an unknown association!
+        throw new coding_exception('Invalid association specified for deletion.');
     }
+    totara_cohort_delete_association($cohortid, $delid, $type, $value);
 }
 
-foreach ($courseids as $courseid) {
-    enrol_cohort_sync(new null_progress_trace(), $courseid, $cohortid);
-}
+// All new associations have been added, and if one was removed it has been so now.
+// Do not wait for the membership updates, let cron do the thing asap.
+$adhoctask = new \totara_cohort\task\sync_dynamic_cohort_task();
+$adhoctask->set_custom_data($cohortid);
+$adhoctask->set_component('totara_cohort');
+\core\task\manager::queue_adhoc_task($adhoctask);
+
+// This is an JSON script, in order for it to be valid we need to return some JSON.
+echo "{}";
