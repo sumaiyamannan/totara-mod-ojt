@@ -852,8 +852,9 @@ function prog_fix_program_sortorder($categoryid=0, $n=0, $safe=0, $depth=0, $pat
 
 /**
  * Checks whether or not a user should have access to a course that belongs to a
- * program in the user's required learning. If so, the user will be automatically
- * enrolled onto the course as a student.
+ * program in the user's required learning.
+ *
+ * Note: the user will be automatically enrolled onto the course as a student.
  *
  * @global object $CFG
  * @param object $user
@@ -931,12 +932,19 @@ function prog_can_enter_course($user, $course) {
                     $instanceid = $program_plugin->add_instance($course);
                     $instance = $DB->get_record('enrol', array('id' => $instanceid));
                 }
-                //check if user is already enroled under the program plugin
-                if (!$ue = $DB->get_record('user_enrolments', array('enrolid' => $instance->id, 'userid' => $user->id))) {
+                // Check if user is already enroled under the program plugin.
+                // We also check for suspended enrolments that need to be re-enrolled
+                $ue = $DB->get_record('user_enrolments', array('enrolid' => $instance->id, 'userid' => $user->id));
+                if (!$ue) {
                     //enrol them
                     $program_plugin->enrol_user($instance, $user->id, $defaultrole);
                     $result->enroled = true;
                     $result->notify = true;
+                    $result->program = $program->fullname;
+                } else if ($ue->status != ENROL_USER_ACTIVE) {
+                    $program_plugin->enrol_user($instance, $user->id, $defaultrole, $ue->timestart, $ue->timeend, ENROL_USER_ACTIVE);
+                    $result->enroled = true;
+                    $result->notify = false;
                     $result->program = $program->fullname;
                 } else {
                     //already enroled
@@ -1873,7 +1881,8 @@ function prog_format_seconds($seconds, $timeonly = false) {
 }
 
 /**
- * updates the course enrolments for a program enrolment plugin, unenrolling students if the program is unavailable.
+ * updates the course enrolments for a program enrolment plugin, unenrolling students if the program is unavailable
+ * and re-enrol students if the program is available again.
  *
  * @param enrol_totara_program_plugin $program_plugin
  * @param int $programid
@@ -1885,13 +1894,21 @@ function prog_update_available_enrolments(enrol_totara_program_plugin $program_p
     // Get all the courses in all the coursesets of the program.
     $coursesql = "SELECT c.*
                     FROM {course} c
-                   WHERE c.id IN (SELECT DISTINCT(pcc.courseid)
+                   WHERE c.id IN (SELECT DISTINCT pcc.courseid
                                     FROM {prog_courseset_course} pcc
                                     JOIN {prog_courseset} pc
                                       ON pcc.coursesetid = pc.id
-                                   WHERE pc.programid = :pid
+                                   WHERE pc.programid = :pid1
+                                     AND pc.competencyid = 0
+                                  UNION
+                                  SELECT DISTINCT cc.iteminstance as courseid
+                                    FROM {prog_courseset} pc
+                                    JOIN {comp_criteria} cc
+                                      ON cc.competencyid = pc.competencyid AND cc.itemtype = :itemtype
+                                   WHERE pc.programid = :pid2
+                                     AND pc.competencyid != 0
                                  )";
-    $courseparams = array('pid' => $programid);
+    $courseparams = array('pid1' => $programid, 'itemtype' => 'coursecompletion', 'pid2' => $programid);
     $courses = $DB->get_records_sql($coursesql, $courseparams);
 
     foreach ($courses as $course) {
@@ -1918,6 +1935,8 @@ function prog_update_available_enrolments(enrol_totara_program_plugin $program_p
             }
 
             $user = $DB->get_record('user', array('id' => $enrolment->userid));
+
+            // NOTE: This function enrols the user in the course if he has access
             $access = prog_can_enter_course($user, $course);
             if (!$access->enroled) {
                 // If they can't, then add the user to the list of users to suspend.
