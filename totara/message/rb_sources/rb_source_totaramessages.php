@@ -457,10 +457,20 @@ class rb_source_totaramessages extends rb_base_source {
     function rb_filter_message_type_list() {
         global $OUTPUT;
         $out = array();
-        foreach (array('competency', 'course', 'evidence',
-                'facetoface', 'learningplan', 'objective', 'resource', 'program')
-            as $type) {
 
+        $componentskeys = array_flip(array('competency', 'course', 'evidence', 'facetoface', 'learningplan', 'objective', 'resource', 'program'));
+        if (totara_feature_disabled('competencies')) {
+            unset($componentskeys['competency']);
+        }
+        if (totara_feature_disabled('learningplans')) {
+            unset($componentskeys['learningplan']);
+        }
+        if (totara_feature_disabled('programs') && totara_feature_disabled('certifications')) {
+            unset($componentskeys['program']);
+        }
+        $components = array_flip($componentskeys);
+
+        foreach ($components as $type) {
             $typename = get_string($type, 'totara_message');
             $out[$type] = $OUTPUT->pix_icon('/msgicons/' . $type . '-regular', $typename, 'totara_core') . '&nbsp;' . $typename;
         }
