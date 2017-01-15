@@ -360,13 +360,17 @@ class totara_feedback360_renderer extends plugin_renderer_base {
     /**
      * Returns the base markup for a paginated user table widget
      *
+     * @param  boolean $show_assignedvia    Show the "Assigned Via" column?
      * @return string HTML
      */
-    public function display_user_datatable() {
+    public function display_user_datatable($show_assignedvia=true) {
         $table = new html_table();
         $table->id = 'datatable';
         $table->attributes['class'] = 'generaltable clearfix';
-        $table->head = array(get_string('learner'), get_string('assignedvia', 'totara_core'));
+        $table->head = array(get_string('learner'));
+        if ($show_assignedvia) {
+            $table->head[] = get_string('assignedvia', 'totara_core');
+        }
         $out = $this->output->container(html_writer::table($table), 'clearfix', 'assignedusers');
         return $out;
     }

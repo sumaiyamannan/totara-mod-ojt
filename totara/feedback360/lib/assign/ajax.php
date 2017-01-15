@@ -76,8 +76,10 @@ foreach ($userdata as $userid => $user) {
     $link = html_writer::link($url, fullname($user));
 
     $assignvia = array();
-    foreach ($groupinfo[$userid] as $groupid => $groupstring) {
-        $assignvia[] = $groupstring;
+    if (isset($groupinfo[$userid])) {
+        foreach ($groupinfo[$userid] as $groupid => $groupstring) {
+            $assignvia[] = $groupstring;
+        }
     }
     $assignviastring = implode(', ', $assignvia);
 

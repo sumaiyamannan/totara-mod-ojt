@@ -70,10 +70,9 @@ if ($feedback360->id) {
 
 echo $output->feedback360_management_tabs($feedback360->id, 'assignments');
 
-echo $output->heading(get_string('assigncurrentgroups', 'totara_feedback360'));
-
 if ($canassign) {
     if ($feedback360->status == feedback360::STATUS_DRAFT) {
+        echo $output->heading(get_string('assigncurrentgroups', 'totara_feedback360'));
         $groups = $assign->get_assignable_grouptype_names();
         // If hierarchy positions are disabled then don't included them in the options.
         if (totara_feature_disabled('positions')) {
@@ -91,12 +90,14 @@ if ($canassign) {
 
 $currentassignments = $assign->get_current_assigned_groups();
 
-echo $output->display_assigned_groups($currentassignments, $itemid);
+if ($feedback360->status == feedback360::STATUS_DRAFT) {
+    echo $output->display_assigned_groups($currentassignments, $itemid);
+}
 
 echo $output->heading(get_string('assigncurrentusers', 'totara_feedback360'));
 
 if ($canviewusers) {
-    echo $output->display_user_datatable();
+    echo $output->display_user_datatable($feedback360->status == feedback360::STATUS_DRAFT);
 }
 
 echo $output->footer();
