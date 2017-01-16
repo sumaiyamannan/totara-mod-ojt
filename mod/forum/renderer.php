@@ -120,17 +120,18 @@ class mod_forum_renderer extends plugin_renderer_base {
             $strparams = new stdclass();
             $strparams->name = format_string($forum->name);
             $strparams->count = count($users);
-            $output .= $this->output->heading(get_string("subscriberstowithcount", "forum", $strparams));
-            $table = new html_table();
-            $table->data = array();
+            $output .= $this->output->heading(get_string("subscriberstowithcount", "forum", $strparams), 3);
+
+            $subscribers = array();
+
             foreach ($users as $user) {
-                $info = array($this->output->user_picture($user, array('courseid'=>$course->id)), fullname($user));
+                $subscriber = $this->output->user_picture($user, array('courseid'=>$course->id)) . fullname($user);
                 if ($canviewemail) {
-                    array_push($info, $user->email);
+                    $subscriber .= ' (' . $user->email . ')';
                 }
-                $table->data[] = $info;
+                $subscribers[] = $subscriber;
             }
-            $output .= html_writer::table($table);
+            $output .= html_writer::alist($subscribers, array('class' => 'unlist mod_forum-subscribers'));
         }
         return $output;
     }
