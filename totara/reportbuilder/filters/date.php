@@ -53,6 +53,12 @@ class rb_filter_date extends rb_filter_type {
         if (!isset($this->options['includebetween'])) {
             $this->options['includebetween'] = true;
         }
+        // When true - "is after" timestamp will be switched to selected date + 1 day at 00:00 of users timezone
+        // E.g. "is after 17 Jan 2017" will be compared as "[field] >= (18 Jan 2017 00:00 in current user's timezone)
+        // has effect only when includetime == false
+        if (!isset($this->options['castdate'])) {
+            $this->options['castdate'] = false;
+        }
     }
 
     /**
@@ -298,6 +304,14 @@ class rb_filter_date extends rb_filter_type {
      */
     function get_sql_filter($data) {
         $after  = $data['after'];
+        if ($this->options['castdate'] && !$this->options['includetime']) {
+            // Cast to + 1 day at 00:00:00 in user's timezone
+            $afterdate =  new DateTime();
+            $afterdate->setTimestamp($after);
+            $afterdate->setTimezone(core_date::get_user_timezone_object());
+            $afterdate->modify('+1 day 00:00:00');
+            $after = $afterdate->getTimestamp();
+        }
         $before = $data['before'];
         $datetodayobj = new DateTime('now', core_date::get_user_timezone_object());
         $datetodayobj->setTime(0, 0, 0);
@@ -323,7 +337,6 @@ class rb_filter_date extends rb_filter_type {
         $res = "{$query} != :{$uniqueparam}";
         $params[$uniqueparam] = 0;
         $resdaysbefore = "$query <= $datetoday";
-        $resdaysafter = "$query >= $datetoday";
 
         if (isset($after) && isset($data['after_applied'])) {
             $uniqueparam = rb_unique_param('fdafter');
