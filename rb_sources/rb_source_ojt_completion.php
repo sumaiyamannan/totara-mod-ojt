@@ -479,6 +479,51 @@ class rb_source_ojt_completion extends rb_base_source {
 
         return $typelist;
     }
+
+    /**
+     * Unit test data
+     */
+
+    /**
+     * Inject column_test data into database.
+     * @param totara_reportbuilder_column_testcase $testcase
+     */
+    public function phpunit_column_test_add_data(totara_reportbuilder_column_testcase $testcase) {
+       if (!PHPUNIT_TEST) {
+           throw new coding_exception('phpunit_prepare_test_data() cannot be used outside of unit tests');
+       }
+       $testcase->loadDataSet($testcase->createArrayDataset(array(
+            'ojt' => array(
+                array('id' => 1, 'course' => 1, 'name' => 'test ojt', 'intro' => '', 'timecreated' => 1)
+            ),
+            'ojt_topic' => array(
+                array('id' => 1, 'ojtid' => 1, 'name' => 'test ojt topic')
+            ),
+            'ojt_topic_item' => array(
+                array('id' => 1, 'ojtid' => 1, 'topicid' => 1, 'name' => 'test ojt topic item')
+            ),
+            'ojt_completion' => array(
+                array('id' => 1, 'userid' => 2, 'type' => 0, 'ojtid' => 1, 'status' => 1, 'modifiedby' => 1),
+                array('id' => 2, 'userid' => 2, 'type' => 1, 'ojtid' => 1, 'topicid' => 1, 'status' => 1, 'modifiedby' => 1),
+                array('id' => 3, 'userid' => 2, 'type' => 2, 'ojtid' => 1, 'topicid' => 1, 'topicitemid' => 1, 'status' => 1, 'modifiedby' => 1),
+            ),
+            'user_enrolments' => array(
+                array('id' => 1, 'status' => 0, 'enrolid' => 1, 'userid' => 2)
+            ),
+        )));
+    }
+
+    /**
+     * Returns expected result for column_test.
+     * @param rb_column_option $columnoption
+     * @return int
+     */
+    public function phpunit_column_test_expected_count($columnoption) {
+        if (!PHPUNIT_TEST) {
+            throw new coding_exception('phpunit_column_test_expected_count() cannot be used outside of unit tests');
+        }
+        return 2;
+    }
 } // end of rb_source_course_completion class
 
 
