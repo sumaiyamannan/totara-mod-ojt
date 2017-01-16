@@ -72,6 +72,7 @@ $PAGE->navbar->add(fullname($user));
 $args = array('args' => '{"ojtid":'.$userojt->id.
     ', "userid":'.$userid.
     ', "OJT_COMPLETE":'.OJT_COMPLETE.
+    ', "OJT_REQUIREDCOMPLETE":'.OJT_REQUIREDCOMPLETE.
     ', "OJT_INCOMPLETE":'.OJT_INCOMPLETE.
     '}');
 $jsmodule = array(
