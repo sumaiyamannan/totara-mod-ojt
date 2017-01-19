@@ -32,6 +32,7 @@ global $CFG;
 require_once($CFG->dirroot . '/totara/reportbuilder/lib.php');
 require_once($CFG->dirroot . '/totara/reportbuilder/classes/rb_base_content.php');
 require_once($CFG->dirroot . '/totara/core/lib/scheduler.php');
+require_once($CFG->dirroot . '/totara/reportbuilder/email_setting_schedule.php');
 
 class totara_reportbuilder_lib_testcase extends advanced_testcase {
     use totara_reportbuilder\phpunit\report_testing;
@@ -1522,5 +1523,48 @@ class totara_reportbuilder_lib_testcase extends advanced_testcase {
 
         // Revert CFG changes.
         $CFG->fullnamedisplay = $origfullnamedisplay;
+    }
+
+    /**
+     * Test reportbuilder_get_all_scheduled_reports_without_recipients
+     */
+    public function test_reportbuilder_get_all_scheduled_reports_without_recipients() {
+        global $DB, $CFG;
+
+        $user = $this->getDataGenerator()->create_user(array('username' => 'test', 'firstname'=>'first', 'lastname'=>'last'));
+
+        $todb = new stdClass();
+        $todb->reportid = $this->rb->_id;
+        $todb->savedsearchid = $this->savedsearch->id;
+        $todb->userid = $user->id;
+        $todb->format = 'csv';
+        $todb->exporttofilesystem = 0;
+        $todb->frequency = 1;
+        $todb->schedule = 0;
+        $todb->nextreport = 0;
+        $newid = $DB->insert_record('report_builder_schedule', $todb);
+
+        // Create scheduled report by the user.
+        $scheduleemail = new email_setting_schedule($newid);
+
+        // Check when no recipients.
+        $reportschedules = reportbuilder_get_all_scheduled_reports_without_recipients();
+        $this->assertCount(1, $reportschedules);
+        $this->assertEquals($user->id, $reportschedules[$newid]->userid);
+
+        $this->setAdminUser();
+
+        // Check when audience recipient.
+        $scheduleemail->set_email_settings(array(1), array(), array());
+        $this->assertEmpty(reportbuilder_get_all_scheduled_reports_without_recipients());
+
+        // Check when external email recipient.
+        $scheduleemail->set_email_settings(array(), array(1), array());
+        $this->assertEmpty(reportbuilder_get_all_scheduled_reports_without_recipients());
+
+        // Check when system user recipient.
+        $scheduleemail->set_email_settings(array(), array(), array(1));
+        $this->assertEmpty(reportbuilder_get_all_scheduled_reports_without_recipients());
+
     }
 }
