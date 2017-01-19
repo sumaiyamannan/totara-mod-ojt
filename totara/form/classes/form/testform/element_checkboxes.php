@@ -67,6 +67,8 @@ class element_checkboxes extends form {
         $checkboxes_required = $this->model->add(new checkboxes('checkboxes_required', 'Required basic checkboxes', $defaultoptions));
         $checkboxes_required->set_attribute('required', true);
         $checkboxes_required->add_help_button('cachejs', 'core_admin'); // Just a random help string.
+        $checkboxes_horizontal = $this->model->add(new checkboxes('checkboxes_horizontal', 'Horizontal checkboxes', $defaultoptions));
+        $checkboxes_horizontal->set_attribute('horizontal', true);
         $this->model->add(new checkboxes('checkboxes_with_current_data', 'checkboxes with current data', ['whatever' => 'Yeah?', 'yes' => 'Oh yea!', 'nah' => 'Never!']))->add_help_button('cachejs', 'core_admin'); // Just a random help string.;
         $this->model->add(new checkboxes('checkboxes_frozen_empty', 'Empty frozen checkboxes', $defaultoptions))->set_frozen(true);
         $this->model->add(new checkboxes('checkboxes_frozen_with_current_data', 'Frozen checkboxes with current data', ['true' => '1', 'false' => '0']))->set_frozen(true);

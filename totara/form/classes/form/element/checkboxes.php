@@ -60,6 +60,7 @@ class checkboxes extends element {
         $this->attributes = array(
             'size' => null,
             'required' => false, // This is a group of elements, 'required' means user must select at least one.
+            'horizontal' => false,
         );
 
         if (empty($options)) {

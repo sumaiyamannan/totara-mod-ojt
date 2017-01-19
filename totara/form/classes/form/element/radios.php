@@ -57,6 +57,7 @@ class radios extends element {
         parent::__construct($name, $label);
         $this->attributes = array(
             'required' => false, // This is a group of elements, 'required' means user must select at least one.
+            'horizontal' => false,
         );
 
         if (empty($options)) {

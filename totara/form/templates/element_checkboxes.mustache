@@ -78,7 +78,10 @@
     <div id="{{id}}" class="tf_element_input" {{#required}}required{{/required}}>{{> totara_form/validation_errors}}
         {{^frozen}}<input type="hidden" name="{{name}}[-1]" value="" />{{/frozen}}
         {{#options}}
-            <input type="checkbox" id="{{oid}}" {{#frozen}}disabled data-{{/frozen}}name="{{name}}[]" value="{{value}}" {{#checked}}checked{{/checked}} /><label for="{{oid}}">{{{text}}}</label>
+            <div class="totara_form_element_checkboxes_checkbox{{#horizontal}} totara_form_element_checkboxes_checkbox_inline{{/horizontal}}">
+                <input type="checkbox" id="{{oid}}" {{#frozen}}disabled data-{{/frozen}}name="{{name}}[]" value="{{value}}" {{#checked}}checked{{/checked}} />
+                <label for="{{oid}}">{{{text}}}</label>
+            </div>
         {{/options}}
     </div>
 </div>
