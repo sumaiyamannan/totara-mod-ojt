@@ -668,4 +668,17 @@ class core_phpunit_advanced_testcase extends advanced_testcase {
             $this->assertSame('en_AU.UTF-8', setlocale(LC_TIME, 0));
         }
     }
+
+    /**
+     * Test the two core user email addresses are as we expect them.
+     */
+    public function test_core_user_email_addresses() {
+        global $USER;
+        $this->resetAfterTest();
+        $this->setGuestUser();
+        $this->assertSame('root@localhost', $USER->email);
+
+        $this->setAdminUser();
+        $this->assertSame('admin@example.com', $USER->email);
+    }
 }

@@ -287,6 +287,8 @@ class totara_job_job_assignment_testcase extends advanced_testcase {
     public function test_update_and_update_internal() {
         global $USER;
 
+        $updatinguser = $this->getDataGenerator()->create_user();
+
         $createtimebefore = time();
         $jobassignment = \totara_job\job_assignment::create_default($this->users[4]->id);
         $managerja = \totara_job\job_assignment::create_default($this->users[2]->id);
@@ -308,7 +310,7 @@ class totara_job_job_assignment_testcase extends advanced_testcase {
             'appraiserid' => $this->users[4]->id,
         );
 
-        $this->setGuestUser(); // A different user is doing the update.
+        $this->setUser($updatinguser); // A different user is doing the update.
         sleep(1); // Ensure that the time has moved forward.
         $updatetimebefore = time();
         $jobassignment->update($updatedata);
