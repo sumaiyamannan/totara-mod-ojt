@@ -337,6 +337,7 @@ class rb_filter_date extends rb_filter_type {
         $res = "{$query} != :{$uniqueparam}";
         $params[$uniqueparam] = 0;
         $resdaysbefore = "$query <= $datetoday";
+        $resdaysafter = "$query >= $datetoday";
 
         if (isset($after) && isset($data['after_applied'])) {
             $uniqueparam = rb_unique_param('fdafter');
