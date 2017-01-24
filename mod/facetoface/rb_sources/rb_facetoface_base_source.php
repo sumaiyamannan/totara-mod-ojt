@@ -358,23 +358,25 @@ abstract class rb_facetoface_base_source extends rb_base_source {
      */
     public function add_session_status_to_columns(&$columnoptions, $joindates = 'base', $joinsessions = 'sessions') {
         $now = time();
-        // TODO: TL-8187 Cancellation status ("Face-to-face cancellations" specification).
+            // TODO: TL-8187 Cancellation status ("Face-to-face cancellations" specification).
         $columnoptions[] = new rb_column_option(
             'session',
             'overallstatus',
             get_string('overallstatus', 'rb_source_facetoface_summary'),
+
             "( CASE WHEN cancelledstatus <> 0 THEN 'cancelled'
-                    WHEN eventdateinfo.eventstart IS NULL OR eventdateinfo.eventstart = 0 OR eventdateinfo.eventstart > {$now} THEN 'upcoming'
-                    WHEN {$now} > eventdateinfo.eventstart AND {$now} < eventdateinfo.eventfinish THEN 'started'
-                    WHEN {$now} > eventdateinfo.eventfinish THEN 'ended'
+                    WHEN timestart IS NULL OR timestart = 0 OR timestart > {$now} THEN 'upcoming'
+                    WHEN {$now} > timestart AND {$now} < timefinish THEN 'started'
+                    WHEN {$now} > timefinish THEN 'ended'
                     ELSE NULL END
              )",
             array(
-                'joins' => array('eventdateinfo', $joinsessions),
+                'joins' => array($joindates, $joinsessions),
                 'displayfunc' => 'overall_status',
                 'extrafields' => array(
-                    'timestart' => "eventdateinfo.eventstart",
-                    'timefinish' => "eventdateinfo.eventfinish",
+                    'timestart' => "{$joindates}.timestart",
+                    'timefinish' => "{$joindates}.timefinish",
+                    'timezone' => "{$joindates}.sessiontimezone",
                 )
             )
         );
@@ -383,7 +385,7 @@ abstract class rb_facetoface_base_source extends rb_base_source {
             'session',
             'bookingstatus',
             get_string('bookingstatus', 'rb_source_facetoface_summary'),
-            "(CASE WHEN {$now} > eventdateinfo.eventfinish AND cntsignups < {$joinsessions}.capacity THEN 'ended'
+            "(CASE WHEN {$now} > {$joindates}.timefinish AND cntsignups < {$joinsessions}.capacity THEN 'ended'
                    WHEN cancelledstatus <> 0 THEN 'cancelled'
                    WHEN cntsignups < {$joinsessions}.mincapacity THEN 'underbooked'
                    WHEN cntsignups < {$joinsessions}.capacity THEN 'available'
@@ -391,14 +393,12 @@ abstract class rb_facetoface_base_source extends rb_base_source {
                    WHEN cntsignups > {$joinsessions}.capacity THEN 'overbooked'
                    ELSE NULL END)",
             array(
-                'joins' => array('eventdateinfo', 'cntbookings', $joinsessions),
+                'joins' => array($joindates, 'cntbookings', $joinsessions),
                 'displayfunc' => 'booking_status',
                 'dbdatatype' => 'char',
                 'extrafields' => array(
                     'mincapacity' => "{$joinsessions}.mincapacity",
-                    'capacity' => "{$joinsessions}.capacity",
-                    'timestart' => "eventdateinfo.eventstart",
-                    'timefinish' => "eventdateinfo.eventfinish"
+                    'capacity' => "{$joinsessions}.capacity"
                 )
             )
         );
@@ -427,16 +427,6 @@ abstract class rb_facetoface_base_source extends rb_base_source {
             "cntbookings.sessionid = {$join}.{$field}",
             REPORT_BUILDER_RELATION_ONE_TO_ONE,
             $join
-        );
-
-        $joinlist[] = new rb_join(
-            'eventdateinfo',
-            'LEFT',
-            '( SELECT sessionid, MIN(timestart) AS eventstart, MAX(timefinish) AS eventfinish
-               FROM {facetoface_sessions_dates}
-               GROUP BY sessionid)',
-            'eventdateinfo.sessionid = base.id',
-            REPORT_BUILDER_RELATION_ONE_TO_MANY
         );
     }
 
