@@ -21,10 +21,30 @@
 // @author    Simon Player<simon.player@totaralearning.com>
 // @package   totara_feedback360
 
-@import "legacy.less";
+@import "roots.less";
 
 @alert-padding: 15px;
 
 #feedbackhead .viewing-xs-feedback360 td {
   padding-right: @alert-padding;
+}
+
+.dir-rtl .feedback360-previewer {
+  float: left;
+}
+
+.dir-rtl .requestbutton {
+  float: left;
+}
+
+.dir-rtl .feedback360-quest-actions {
+  float: left;
+}
+
+.dir-rtl #show-systemrequest-dialog {
+    margin-right: 0;
+}
+
+.dir-rtl .feedback360-save {
+  float: left;
 }
