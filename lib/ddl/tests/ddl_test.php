@@ -162,12 +162,12 @@ class core_ddl_testcase extends database_driver_testcase {
 
         try {
             $result = $DB->get_records('test_table0');
-        } catch (dml_exception $e) {
-            $result = false;
+            $this->fail('Exception expected!');
+        } catch (dml_read_exception $e) {
+            // Can't test for specific message because it is DB specific.
+            $this->assertEquals('dmlreadexception', $e->errorcode);
         }
         $this->resetDebugging();
-
-        $this->assertFalse($result);
 
         $this->assertFalse($dbman->table_exists('test_table0')); // By name..
         $this->assertFalse($dbman->table_exists($table));        // By xmldb_table..
@@ -184,12 +184,12 @@ class core_ddl_testcase extends database_driver_testcase {
 
         try {
             $result = $DB->get_records('test_table0');
-        } catch (dml_exception $e) {
-            $result = false;
+            $this->fail('Exception expected!');
+        } catch (dml_read_exception $e) {
+            // Can't test for specific message because it is DB specific.
+            $this->assertEquals('dmlreadexception', $e->errorcode);
         }
         $this->resetDebugging();
-
-        $this->assertFalse($result);
 
         $this->assertFalse($dbman->table_exists('test_table0')); // By name.
         $this->assertFalse($dbman->table_exists($table));        // By xmldb_table.
@@ -316,6 +316,8 @@ class core_ddl_testcase extends database_driver_testcase {
             $this->fail('Exception expected');
         } catch (moodle_exception $e) {
             $this->assertInstanceOf('coding_exception', $e);
+            $max = xmldb_table::NAME_MAX_LENGTH;
+            $this->assertEquals("Coding error detected, it must be fixed by a programmer: Invalid table name {test_table0123456789_____xyz9_djkfskjldfsjkhdfjksjkhdfshjkldfshjkhjkldfshkjldfshjklf}: name is too long. Limit is {$max} chars.", $e->getMessage());
         }
 
         // Invalid table name.
@@ -332,6 +334,7 @@ class core_ddl_testcase extends database_driver_testcase {
             $this->fail('Exception expected');
         } catch (moodle_exception $e) {
             $this->assertInstanceOf('coding_exception', $e);
+            $this->assertEquals("Coding error detected, it must be fixed by a programmer: Invalid table name {test_tableCD}: name includes invalid characters.", $e->getMessage());
         }
 
         // Weird column names - the largest allowed.
@@ -361,6 +364,8 @@ class core_ddl_testcase extends database_driver_testcase {
             $this->fail('Exception expected');
         } catch (moodle_exception $e) {
             $this->assertInstanceOf('coding_exception', $e);
+            $max = xmldb_field::NAME_MAX_LENGTH;
+            $this->assertEquals("Coding error detected, it must be fixed by a programmer: Invalid field name in table {test_table4}: field \"abcdeabcdeabcdeabcdeabcdeabcdez\" name is too long. Limit is {$max} chars.", $e->getMessage());
         }
 
         // Invalid field name.
@@ -377,6 +382,7 @@ class core_ddl_testcase extends database_driver_testcase {
             $this->fail('Exception expected');
         } catch (moodle_exception $e) {
             $this->assertInstanceOf('coding_exception', $e);
+            $this->assertEquals('Coding error detected, it must be fixed by a programmer: Invalid field name in table {test_table4}: field "abCD" name includes invalid characters.', $e->getMessage());
         }
 
         // Invalid integer length.
@@ -393,6 +399,7 @@ class core_ddl_testcase extends database_driver_testcase {
             $this->fail('Exception expected');
         } catch (moodle_exception $e) {
             $this->assertInstanceOf('coding_exception', $e);
+            $this->assertEquals('Coding error detected, it must be fixed by a programmer: Invalid field definition in table {test_table4}: XMLDB_TYPE_INTEGER field "course" has invalid length', $e->getMessage());
         }
 
         // Invalid integer default.
@@ -409,6 +416,7 @@ class core_ddl_testcase extends database_driver_testcase {
             $this->fail('Exception expected');
         } catch (moodle_exception $e) {
             $this->assertInstanceOf('coding_exception', $e);
+            $this->assertEquals('Coding error detected, it must be fixed by a programmer: Invalid field definition in table {test_table4}: XMLDB_TYPE_INTEGER field "course" has invalid default', $e->getMessage());
         }
 
         // Invalid decimal length.
@@ -425,6 +433,7 @@ class core_ddl_testcase extends database_driver_testcase {
             $this->fail('Exception expected');
         } catch (moodle_exception $e) {
             $this->assertInstanceOf('coding_exception', $e);
+            $this->assertEquals('Coding error detected, it must be fixed by a programmer: Invalid field definition in table {test_table4}: XMLDB_TYPE_NUMBER field "num" has invalid length', $e->getMessage());
         }
 
         // Invalid decimal decimals.
@@ -441,6 +450,7 @@ class core_ddl_testcase extends database_driver_testcase {
             $this->fail('Exception expected');
         } catch (moodle_exception $e) {
             $this->assertInstanceOf('coding_exception', $e);
+            $this->assertEquals('Coding error detected, it must be fixed by a programmer: Invalid field definition in table {test_table4}: XMLDB_TYPE_NUMBER field "num" has invalid decimals', $e->getMessage());
         }
 
         // Invalid decimal default.
@@ -457,6 +467,7 @@ class core_ddl_testcase extends database_driver_testcase {
             $this->fail('Exception expected');
         } catch (moodle_exception $e) {
             $this->assertInstanceOf('coding_exception', $e);
+            $this->assertEquals('Coding error detected, it must be fixed by a programmer: Invalid field definition in table {test_table4}: XMLDB_TYPE_NUMBER field "num" has invalid default', $e->getMessage());
         }
 
         // Invalid float length.
@@ -473,6 +484,7 @@ class core_ddl_testcase extends database_driver_testcase {
             $this->fail('Exception expected');
         } catch (moodle_exception $e) {
             $this->assertInstanceOf('coding_exception', $e);
+            $this->assertEquals('Coding error detected, it must be fixed by a programmer: Invalid field definition in table {test_table4}: XMLDB_TYPE_FLOAT field "num" has invalid length', $e->getMessage());
         }
 
         // Invalid float decimals.
@@ -489,6 +501,7 @@ class core_ddl_testcase extends database_driver_testcase {
             $this->fail('Exception expected');
         } catch (moodle_exception $e) {
             $this->assertInstanceOf('coding_exception', $e);
+            $this->assertEquals('Coding error detected, it must be fixed by a programmer: Invalid field definition in table {test_table4}: XMLDB_TYPE_FLOAT field "num" has invalid decimals', $e->getMessage());
         }
 
         // Invalid float default.
@@ -505,6 +518,7 @@ class core_ddl_testcase extends database_driver_testcase {
             $this->fail('Exception expected');
         } catch (moodle_exception $e) {
             $this->assertInstanceOf('coding_exception', $e);
+            $this->assertEquals('Coding error detected, it must be fixed by a programmer: Invalid field definition in table {test_table4}: XMLDB_TYPE_FLOAT field "num" has invalid default', $e->getMessage());
         }
     }
 
@@ -678,6 +692,7 @@ class core_ddl_testcase extends database_driver_testcase {
             $this->fail('Exception expected');
         } catch (moodle_exception $e) {
             $this->assertInstanceOf('moodle_exception', $e);
+            $this->assertEquals('Table "nonexistenttable" does not exist', $e->getMessage());
         }
 
         // Give a nonexistent field as second param (return false).
@@ -696,6 +711,7 @@ class core_ddl_testcase extends database_driver_testcase {
             $this->fail('Exception expected');
         } catch (moodle_exception $e) {
             $this->assertInstanceOf('moodle_exception', $e);
+            $this->assertEquals('Table "nonexistenttable" does not exist', $e->getMessage());
         }
 
         // Give a nonexistent field as second param (return false).
@@ -715,12 +731,14 @@ class core_ddl_testcase extends database_driver_testcase {
             $this->fail('Exception expected');
         } catch (moodle_exception $e) {
             $this->assertInstanceOf('moodle_exception', $e);
+            $this->assertEquals('Table "nonexistenttable" does not exist', $e->getMessage());
         }
         try {
             $this->assertFalse($dbman->field_exists('nonexistenttable', $realfield));
             $this->fail('Exception expected');
         } catch (moodle_exception $e) {
             $this->assertInstanceOf('moodle_exception', $e);
+            $this->assertEquals('Table "nonexistenttable" does not exist', $e->getMessage());
         }
         // Non existing fields (return false).
         $this->assertFalse($dbman->field_exists($table, 'nonexistentfield'));
@@ -1228,11 +1246,12 @@ class core_ddl_testcase extends database_driver_testcase {
 
         try {
             $result = $DB->insert_record('test_table_cust0', $record, false);
-        } catch (dml_exception $e) {
-            $result = false;
+            $this->fail('Exception expected!');
+        } catch (dml_write_exception $e) {
+            // Can't test for specific message because it is DB specific.
+            $this->assertEquals('dmlwriteexception', $e->errorcode);
         }
         $this->resetDebugging();
-        $this->assertFalse($result);
 
         $field = new xmldb_field('name');
         $field->set_attributes(XMLDB_TYPE_CHAR, '30', null, null, null, null);
@@ -1249,11 +1268,12 @@ class core_ddl_testcase extends database_driver_testcase {
 
         try {
             $result = $DB->insert_record('test_table_cust0', $record, false);
-        } catch (dml_exception $e) {
-            $result = false;
+            $this->fail('Exception expected!');
+        } catch (dml_write_exception $e) {
+            // Can't test for specific message because it is DB specific.
+            $this->assertEquals('dmlwriteexception', $e->errorcode);
         }
         $this->resetDebugging();
-        $this->assertFalse($result);
 
         $dbman->drop_table($table);
     }
@@ -1316,11 +1336,12 @@ class core_ddl_testcase extends database_driver_testcase {
 
         try {
             $result = $DB->insert_record('test_table_cust0', $record, false);
-        } catch (dml_exception $e) {
-            $result = false;
+            $this->fail('Exception expected!');
+        } catch (dml_write_exception $e) {
+            // Can't test for specific message because it is DB specific.
+            $this->assertEquals('dmlwriteexception', $e->errorcode);
         }
         $this->resetDebugging();
-        $this->assertFalse($result);
 
         $dbman->drop_table($table);
     }
@@ -1362,6 +1383,7 @@ class core_ddl_testcase extends database_driver_testcase {
             $this->fail('Coding exception expected');
         } catch (moodle_exception $e) {
             $this->assertInstanceOf('coding_exception', $e);
+            $this->assertEquals("Coding error detected, it must be fixed by a programmer: Key onenumber collides with indexonenumber specified in table test_table_cust0", $e->getMessage());
         }
 
         $table = new xmldb_table('test_table_cust0');
@@ -1376,6 +1398,7 @@ class core_ddl_testcase extends database_driver_testcase {
             $this->fail('Coding exception expected');
         } catch (moodle_exception $e) {
             $this->assertInstanceOf('coding_exception', $e);
+            $this->assertEquals('Coding error detected, it must be fixed by a programmer: Index onenumber collides with keyonenumber specified in table test_table_cust0', $e->getMessage());
         }
 
     }
@@ -1546,6 +1569,7 @@ class core_ddl_testcase extends database_driver_testcase {
         } catch (moodle_exception $e) {
             $this->resetDebugging();
             $this->assertInstanceOf('moodle_exception', $e);
+            $this->assertEquals('XML database file errors found (File does not exist)', $e->getMessage());
         }
 
         try {
@@ -1554,6 +1578,7 @@ class core_ddl_testcase extends database_driver_testcase {
         } catch (moodle_exception $e) {
             $this->resetDebugging();
             $this->assertInstanceOf('moodle_exception', $e);
+            $this->assertEquals('XML database file errors found (Errors found in XMLDB file: Problem loading table test_table1, Problem loading field id, Missing TYPE attribute)', $e->getMessage());
         }
 
         // Check that the table has not been deleted from DB.
@@ -1577,6 +1602,7 @@ class core_ddl_testcase extends database_driver_testcase {
         } catch (moodle_exception $e) {
             $this->resetDebugging();
             $this->assertInstanceOf('moodle_exception', $e);
+            $this->assertEquals('XML database file errors found (File does not exist)', $e->getMessage());
         }
 
         try {
@@ -1585,6 +1611,7 @@ class core_ddl_testcase extends database_driver_testcase {
         } catch (moodle_exception $e) {
             $this->resetDebugging();
             $this->assertInstanceOf('moodle_exception', $e);
+            $this->assertEquals('XML database file errors found (Errors found in XMLDB file: Problem loading table test_table1, Problem loading field id, Missing TYPE attribute)', $e->getMessage());
         }
 
         // Check that the table has not yet been created in DB.
@@ -1890,6 +1917,7 @@ class core_ddl_testcase extends database_driver_testcase {
             $this->fail('Exception expected');
         } catch (moodle_exception $e) {
             $this->assertInstanceOf('coding_exception', $e);
+            $this->assertEquals("Coding error detected, it must be fixed by a programmer: Invalid index definition in table {testtable}: XMLDB_TYPE_CHAR field \"name\" can not be indexed because it is too long. Limit is 255 chars.", $e->getMessage());
         }
     }
 
@@ -1949,6 +1977,7 @@ class core_ddl_testcase extends database_driver_testcase {
             $this->fail('Exception expected');
         } catch (moodle_exception $e) {
             $this->assertInstanceOf('coding_exception', $e);
+            $this->assertEquals('Coding error detected, it must be fixed by a programmer: Invalid index definition in table {testtable}: the composed index on fields "name1,name2" is too long. Limit is 999 bytes / 333 chars.', $e->getMessage());
         }
     }
 
@@ -2024,6 +2053,7 @@ class core_ddl_testcase extends database_driver_testcase {
             $this->fail('Exception expected');
         } catch (moodle_exception $e) {
             $this->assertInstanceOf('coding_exception', $e);
+            $this->assertEquals('Coding error detected, it must be fixed by a programmer: Invalid field definition in table {testtable}: XMLDB_TYPE_CHAR field "name" is too long. Limit is 1333 chars.', $e->getMessage());
         }
     }
 

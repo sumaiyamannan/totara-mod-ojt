@@ -77,6 +77,7 @@ class totara_reportbuilder_rb_global_restriction_testcase extends advanced_testc
             $this->fail('Exception expected on double insert');
         } catch (moodle_exception $e) {
             $this->assertInstanceOf('coding_exception', $e);
+            $this->assertEquals('Coding error detected, it must be fixed by a programmer: Cannot insert over existing restriction', $e->getMessage());
         }
     }
 
@@ -126,6 +127,7 @@ class totara_reportbuilder_rb_global_restriction_testcase extends advanced_testc
             $this->fail('Exception expected on invalid update');
         } catch (moodle_exception $e) {
             $this->assertInstanceOf('coding_exception', $e);
+            $this->assertEquals('Coding error detected, it must be fixed by a programmer: Cannot update non-existent restriction', $e->getMessage());
         }
     }
 

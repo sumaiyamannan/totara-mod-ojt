@@ -26,9 +26,9 @@ Feature: Users can auto-enrol themself in courses where seminar direct enrolment
     And I follow "Course 1"
     And I turn editing mode on
     And I add a "Seminar" to section "1" and I fill the form with:
-      | Name             | Test seminar name        |
-      | Description      | Test seminar description |
-      | Manager Approval | 0                           |
+      | Name        | Test seminar name        |
+      | Description | Test seminar description |
+      | No Approval | 1                        |
     And I follow "View all events"
     And I follow "Add a new event"
     And I click on "Edit date" "link"

@@ -31,7 +31,7 @@ Feature: Seminar calendar
     And I add a "Seminar" to section "1" and I fill the form with:
       | Name                                    | Test seminar name        |
       | Description                             | Test seminar description |
-      | Users can sign-up to multiple sessions  | 1                           |
+      | Users can sign-up to multiple events    | 1                           |
       | Show entry on user's calendar           | 1                           |
     And I follow "View all events"
     And I follow "Add a new event"

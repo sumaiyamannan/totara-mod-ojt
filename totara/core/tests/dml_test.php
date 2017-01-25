@@ -258,6 +258,7 @@ class totara_core_dml_testcase extends database_driver_testcase {
 
         } catch (moodle_exception $e) {
             $this->assertInstanceOf('coding_exception', $e);
+            $this->assertEquals('Coding error detected, it must be fixed by a programmer: sql_group_concat method requires $orderby parameter', $e->getMessage());
         }
     }
 }

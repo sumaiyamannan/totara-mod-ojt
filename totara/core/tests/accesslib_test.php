@@ -85,6 +85,7 @@ class totara_core_accesslib_testcase extends advanced_testcase {
             $this->fail('Exception expected when contextid parameter missing.');
         } catch (moodle_exception $e) {
             $this->assertInstanceOf('coding_exception', $e);
+            $this->assertEquals('Coding error detected, it must be fixed by a programmer: Missing parameters in role_unsassign_all_bulk() call', $e->getMessage());
         }
 
         try {
@@ -92,6 +93,7 @@ class totara_core_accesslib_testcase extends advanced_testcase {
             $this->fail('Exception expected when unknown parameter present.');
         } catch (moodle_exception $e) {
             $this->assertInstanceOf('coding_exception', $e);
+            $this->assertEquals('Coding error detected, it must be fixed by a programmer: Unknown role_unsassign_all_bulk() parameter key (key:xxx)', $e->getMessage());
         }
     }
 

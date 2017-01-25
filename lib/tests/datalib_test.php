@@ -460,6 +460,7 @@ class core_datalib_testcase extends advanced_testcase {
             $this->fail('coding_exception expected');
         } catch (moodle_exception $e) {
             $this->assertInstanceOf('coding_exception', $e);
+            $this->assertEquals('Coding error detected, it must be fixed by a programmer: Invalid modulename parameter', $e->getMessage());
         }
 
         try {
@@ -467,6 +468,7 @@ class core_datalib_testcase extends advanced_testcase {
             $this->fail('coding_exception expected');
         } catch (moodle_exception $e) {
             $this->assertInstanceOf('coding_exception', $e);
+            $this->assertEquals('Coding error detected, it must be fixed by a programmer: Invalid modulename parameter', $e->getMessage());
         }
 
         try {
@@ -536,6 +538,7 @@ class core_datalib_testcase extends advanced_testcase {
             $this->fail('coding_exception expected');
         } catch (moodle_exception $e) {
             $this->assertInstanceOf('coding_exception', $e);
+            $this->assertEquals('Coding error detected, it must be fixed by a programmer: Invalid modulename parameter', $e->getMessage());
         }
 
         try {
@@ -591,6 +594,7 @@ class core_datalib_testcase extends advanced_testcase {
             $this->fail('coding_exception expected');
         } catch (moodle_exception $e) {
             $this->assertInstanceOf('coding_exception', $e);
+            $this->assertEquals('Coding error detected, it must be fixed by a programmer: Invalid modulename parameter', $e->getMessage());
         }
 
         try {
@@ -598,6 +602,7 @@ class core_datalib_testcase extends advanced_testcase {
             $this->fail('coding_exception expected');
         } catch (moodle_exception $e) {
             $this->assertInstanceOf('coding_exception', $e);
+            $this->assertEquals('Coding error detected, it must be fixed by a programmer: Invalid modulename parameter', $e->getMessage());
         }
     }
 
@@ -644,6 +649,7 @@ class core_datalib_testcase extends advanced_testcase {
             $this->fail('coding_exception expected');
         } catch (moodle_exception $e) {
             $this->assertInstanceOf('coding_exception', $e);
+            $this->assertEquals('Coding error detected, it must be fixed by a programmer: Invalid modulename parameter', $e->getMessage());
         }
 
         try {
@@ -651,6 +657,7 @@ class core_datalib_testcase extends advanced_testcase {
             $this->fail('coding_exception expected');
         } catch (moodle_exception $e) {
             $this->assertInstanceOf('coding_exception', $e);
+            $this->assertEquals('Coding error detected, it must be fixed by a programmer: Invalid modulename parameter', $e->getMessage());
         }
     }
 }

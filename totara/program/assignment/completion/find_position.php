@@ -70,5 +70,8 @@ $dialog->show_treeview_only = $treeonly;
 // Load items to display
 $dialog->load_items($parentid);
 
+// Addition url parameters.
+$dialog->urlparams = array('programid' => $programid);
+
 // Display page
 echo $dialog->generate_markup();

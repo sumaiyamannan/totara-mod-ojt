@@ -29,10 +29,15 @@ require_once($CFG->libdir . '/csvlib.class.php');
 
 class upload_form extends moodleform {
     public function definition() {
-        global $DB;
+        global $DB, $CFG;
         $mform =& $this->_form;
 
         $data = $this->_customdata;
+
+        if (($data->filesource == TCI_SOURCE_EXTERNAL) and empty($CFG->completionimportdir)) {
+            // We need the config setting when using external files.
+            return;
+        }
 
         switch ($data->importname) {
             case 'course':
@@ -56,10 +61,15 @@ class upload_form extends moodleform {
         $mform->setType('filesource', PARAM_INT);
 
         if ($data->filesource == TCI_SOURCE_EXTERNAL) {
-            $mform->addElement('text', 'sourcefile', get_string('sourcefile', 'totara_completionimport'));
-            $mform->setType('sourcefile', PARAM_TEXT);
-            $mform->addHelpButton('sourcefile', 'sourcefile', 'totara_completionimport');
-            $mform->addRule('sourcefile', get_string('sourcefilerequired', 'totara_completionimport'), 'required');
+            $sourcefilegroup = array();
+            $stringbeginwith = '<p>' . get_string('sourcefile_beginwith', 'totara_completionimport', $CFG->completionimportdir) . '</p>';
+            $sourcefilegroup[] = $mform->createElement('static', '', '', $stringbeginwith);
+            $sourcefilegroup[] = $mform->createElement('text', 'sourcefile', '');
+            $mform->setType('sourcefile', PARAM_PATH);
+
+            $mform->addGroup($sourcefilegroup, 'sourcefilegrp', get_string('sourcefile', 'totara_completionimport'), array(''), false);
+            $mform->addHelpButton('sourcefilegrp', 'sourcefile', 'totara_completionimport');
+            $mform->addRule('sourcefilegrp', get_string('sourcefilerequired', 'totara_completionimport'), 'required');
         } else if ($data->filesource == TCI_SOURCE_UPLOAD) {
             $mform->addElement('filepicker',
                     $upload_field,
@@ -133,5 +143,22 @@ class upload_form extends moodleform {
     protected function get_form_identifier() {
         $formid = $this->_customdata->importname . '_' . get_class($this);
         return $formid;
+    }
+
+    public function validation($data, $files) {
+        global $CFG;
+        $errors = parent::validation($data, $files);
+
+        if (isset($data['sourcefile'])) {
+            if (empty($CFG->completionimportdir)) {
+                // This form shouldn't have been shown in the first place, but just in case.
+                $errors['sourcefilegrp'] = get_string('sourcefile_noconfig', 'totara_completionimport');
+            } else if (strpos($data['sourcefile'], $CFG->completionimportdir) !== 0) {
+                $errors['sourcefilegrp'] = get_string('sourcefile_validation', 'totara_completionimport',
+                    $CFG->completionimportdir);
+            }
+        }
+
+        return $errors;
     }
 }

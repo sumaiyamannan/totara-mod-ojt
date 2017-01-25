@@ -63,6 +63,7 @@ class totara_user extends \core_user {
             self::$externaluser->lang = $CFG->lang;
             self::$externaluser->maildisplay = 1;
             self::$externaluser->emailstop = 0;
+            self::$externaluser->mailformat = 1;
         }
 
         // Set some fields for this external user object.

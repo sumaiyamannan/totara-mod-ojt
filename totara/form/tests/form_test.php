@@ -695,49 +695,67 @@ class totara_form_form_testcase extends advanced_testcase {
 
         try {
             $form->no_submit_button_pressed();
+            $this->fail('Exception expected!');
         } catch (moodle_exception $e) {
             $this->assertInstanceOf('coding_exception', $e);
+            $this->assertEquals('Coding error detected, it must be fixed by a programmer: Invalid form method call (form::no_submit_button_pressed() is not available any more, use form::is_reloaded() instead)', $e->getMessage());
         }
 
         try {
             $form->get_submitted_data();
+            $this->fail('Exception expected!');
         } catch (moodle_exception $e) {
             $this->assertInstanceOf('coding_exception', $e);
+            $this->assertEquals('Coding error detected, it must be fixed by a programmer: Invalid form method call (form::get_submitted_data() is not available any more, use element::get_field_value() in form definition instead)', $e->getMessage());
         }
         try {
             $form->repeat_elements();
+            $this->fail('Exception expected!');
         } catch (moodle_exception $e) {
             $this->assertInstanceOf('coding_exception', $e);
+            $this->assertEquals('Coding error detected, it must be fixed by a programmer: Invalid form method call (form::repeat_elements() is not supported any more, use your own PHP code to construct repeated elements in form definition)', $e->getMessage());
         }
         try {
             $form->add_checkbox_controller();
+            $this->fail('Exception expected!');
         } catch (moodle_exception $e) {
             $this->assertInstanceOf('coding_exception', $e);
+            $this->assertEquals('Coding error detected, it must be fixed by a programmer: Invalid form method call (form::add_checkbox_controller() is not available any more)', $e->getMessage());
         }
         try {
             $form->save_files();
+            $this->fail('Exception expected!');
         } catch (moodle_exception $e) {
             $this->assertInstanceOf('coding_exception', $e);
+            $this->assertEquals('Coding error detected, it must be fixed by a programmer: Invalid form method call (form::save_files() is not available any more)', $e->getMessage());
         }
         try {
             $form->get_form_identifier();
+            $this->fail('Exception expected!');
         } catch (moodle_exception $e) {
             $this->assertInstanceOf('coding_exception', $e);
+            $this->assertEquals('Coding error detected, it must be fixed by a programmer: Invalid form method call (form::get_form_identifier() is not available any more, use $idsuffix instead)', $e->getMessage());
         }
         try {
             $form->set_data();
+            $this->fail('Exception expected!');
         } catch (moodle_exception $e) {
             $this->assertInstanceOf('coding_exception', $e);
+            $this->assertEquals('Coding error detected, it must be fixed by a programmer: Invalid form method call (form::set_data() is not available any more, current data must be used in form constructor instead)', $e->getMessage());
         }
         try {
             $form->definition_after_data();
+            $this->fail('Exception expected!');
         } catch (moodle_exception $e) {
             $this->assertInstanceOf('coding_exception', $e);
+            $this->assertEquals('Coding error detected, it must be fixed by a programmer: Invalid form method call (form::definition_after_data() is not available any more, form::definition() has all data, so use it instead)', $e->getMessage());
         }
         try {
             $form->xxxxx();
+            $this->fail('Exception expected!');
         } catch (moodle_exception $e) {
             $this->assertInstanceOf('coding_exception', $e);
+            $this->assertEquals("Coding error detected, it must be fixed by a programmer: Invalid form method call (method 'xxxxx' does not exit in class totara_form\\test\\test_form)", $e->getMessage());
         }
     }
 }

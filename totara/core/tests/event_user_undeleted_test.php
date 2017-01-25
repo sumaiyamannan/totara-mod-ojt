@@ -44,18 +44,18 @@ class totara_core_event_user_undeleted_testcase extends advanced_testcase {
         $this->assertEventLegacyData($user, $event);
         $this->assertEventLegacyLogData(array(SITEID, 'user', 'undelete', "view.php?id=".$user->id, $user->firstname.' '.$user->lastname), $event);
 
+        $data = array(
+            'objectid' => $user->id,
+            'context' => \context_user::instance($user->id),
+            'other' => array(
+            )
+        );
         try {
-            $data = array(
-                'objectid' => $user->id,
-                'context' => \context_user::instance($user->id),
-                'other' => array(
-                )
-            );
             $event = \totara_core\event\user_undeleted::create($data);
-            $event->trigger();
             $this->fail('coding_exception expected when username missing');
         } catch (moodle_exception $ex) {
             $this->assertInstanceOf('coding_exception', $ex);
+            $this->assertEquals('Coding error detected, it must be fixed by a programmer: username must be set in $other.', $ex->getMessage());
         }
     }
 

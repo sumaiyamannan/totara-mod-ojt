@@ -465,7 +465,9 @@ class cache implements cache_loader {
         // Final step is to check strictness.
         if ($strictness === MUST_EXIST) {
             foreach ($keys as $key) {
-                if (!array_key_exists($key, $fullresult)) {
+                // If the store doesn't know about the key it will return false.
+                // We need to handle unset and false as missing.
+                if (!array_key_exists($key, $fullresult) || $fullresult[$key] === false) {
                     throw new coding_exception('Not all the requested keys existed within the cache stores.');
                 }
             }
@@ -1975,7 +1977,7 @@ class cache_session extends cache {
             }
         }
         if ($hasmissingkeys && $strictness === MUST_EXIST) {
-            throw new coding_exception('Requested key did not exist in any cache stores and could not be loaded.');
+            throw new coding_exception('Not all the requested keys existed within the cache stores.');
         }
         if ($this->perfdebug) {
             $hits = 0;

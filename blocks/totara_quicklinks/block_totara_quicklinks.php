@@ -79,8 +79,10 @@ class block_totara_quicklinks extends block_base {
                 $classes = 'odd';
             }
 
+            $url = clean_param($link->url, PARAM_URL);
+
             $linksoutput .= html_writer::start_tag('li', array('class' => $classes));
-            $linksoutput .= html_writer::link(format_string($link->url), format_string($link->title));
+            $linksoutput .= html_writer::link($url, format_string($link->title));
             $linksoutput .= html_writer::end_tag('li');
             $odd = !$odd;
         }

@@ -233,6 +233,7 @@ class totara_form_element_text_testcase extends advanced_testcase {
             $this->fail('Coding exception expected when type not specified');
         } catch (\moodle_exception $e) {
             $this->assertInstanceOf('coding_exception', $e);
+            $this->assertEquals('Coding error detected, it must be fixed by a programmer: $paramtype parameter must be specified', $e->getMessage());
         }
 
         // Warn developers if there are too many parameters in constructor.

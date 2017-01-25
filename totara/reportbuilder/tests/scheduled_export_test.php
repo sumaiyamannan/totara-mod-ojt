@@ -70,6 +70,7 @@ class totara_reportbuilder_scheduled_export_testcase extends advanced_testcase {
             $this->fail('Exception expected');
         } catch (moodle_exception $e) {
             $this->assertInstanceOf('coding_exception', $e);
+            $this->assertEquals('Coding error detected, it must be fixed by a programmer: Invalid parameters', $e->getMessage());
         }
     }
 
@@ -188,9 +189,10 @@ class totara_reportbuilder_scheduled_export_testcase extends advanced_testcase {
         $this->setUser($user2);
         try {
             reportbuilder_send_scheduled_report($schedule4);
-            $this->fail('Exception expectreded when users not matching');
+            $this->fail('Exception expected when users not matching');
         } catch (moodle_exception $e) {
             $this->assertInstanceOf('coding_exception', $e);
+            $this->assertEquals('Coding error detected, it must be fixed by a programmer: reportbuilder_send_scheduled_report() requires $USER->id to be the same as sched->userid!', $e->getMessage());
         }
         $this->setUser($user1);
         ob_start();
@@ -205,9 +207,10 @@ class totara_reportbuilder_scheduled_export_testcase extends advanced_testcase {
         $this->setUser($user1);
         try {
             reportbuilder_send_scheduled_report($schedule4);
-            $this->fail('Exception expectreded when user suspended');
+            $this->fail('Exception expected when user suspended');
         } catch (moodle_exception $e) {
             $this->assertInstanceOf('coding_exception', $e);
+            $this->assertEquals('Coding error detected, it must be fixed by a programmer: reportbuilder_send_scheduled_report() requires active user!', $e->getMessage());
         }
 
         $DB->set_field('user', 'suspended', 0, array('id' => $user1->id));
@@ -217,9 +220,10 @@ class totara_reportbuilder_scheduled_export_testcase extends advanced_testcase {
         $this->setUser($user1);
         try {
             reportbuilder_send_scheduled_report($schedule4);
-            $this->fail('Exception expectreded when user suspended');
+            $this->fail('Exception expected when user suspended');
         } catch (moodle_exception $e) {
             $this->assertInstanceOf('coding_exception', $e);
+            $this->assertEquals('Coding error detected, it must be fixed by a programmer: reportbuilder_send_scheduled_report() requires active user!', $e->getMessage());
         }
     }
 

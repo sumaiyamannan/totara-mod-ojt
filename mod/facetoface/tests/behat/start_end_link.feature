@@ -16,7 +16,7 @@ Feature: Confirm end date is adjusted when start date is altered
     And I add a "Seminar" to section "1" and I fill the form with:
       | Name                                    | Test seminar name        |
       | Description                             | Test seminar description |
-      | Users can sign-up to multiple sessions  | 1                        |
+      | Users can sign-up to multiple events    | 1                        |
       | Allow manager reservations              | Yes                      |
       | Maximum reservations                    | 10                       |
     And I follow "View all events"

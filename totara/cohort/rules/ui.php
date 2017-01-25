@@ -2157,12 +2157,12 @@ class cohort_rule_ui_managersja extends cohort_rule_ui {
 }
 
 require_once($CFG->dirroot . '/totara/core/dialogs/dialog_content_manager.class.php');
-class totara_dialog_content_manager_cohortmember extends totara_dialog_content_manager {
+class totara_dialog_content_manager_cohortmember extends totara_dialog_content {
     /**
     * Returns markup to be used in the selected pane of a multi-select dialog
     *
-    * @param   $elements    array elements to be created in the pane
-    * @return  $html
+    * @param array $elements elements to be created in the pane
+    * @return string $html
     */
     public function populate_selected_items_pane($elements) {
 

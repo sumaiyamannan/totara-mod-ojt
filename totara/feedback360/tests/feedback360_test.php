@@ -561,4 +561,71 @@ class feedback360_test extends feedback360_testcase {
             $this->assertFalse($DB->record_exists('feedback360_resp_assignment', $params));
         }
     }
+
+    /**
+     * Tests feedback360::validate_user_to_assignment_id().
+     */
+    public function test_validate_user_to_assignment_id() {
+        $this->resetAfterTest(true);
+        global $DB;
+
+        $generator = $this->getDataGenerator();
+
+        $user1 = $generator->create_user();
+        $user2 = $generator->create_user();
+        $user3 = $generator->create_user();
+        $user4 = $generator->create_user();
+
+        $feedback1users = array($user1, $user2);
+        $feedback2users = array($user2);
+        $feedback3users = array($user3);
+
+        /** @var feedback360 $feedback1*/
+        list($feedback1) = $this->prepare_feedback_with_users($feedback1users);
+        /** @var feedback360 $feedback2*/
+        list($feedback2) = $this->prepare_feedback_with_users($feedback2users);
+        /** @var feedback360 $feedback3*/
+        list($feedback3) = $this->prepare_feedback_with_users($feedback3users);
+
+        $feedback1->activate();
+        $feedback2->activate();
+        // $feedback3 will not be activated. Check that hasn't already happened.
+        $this->assertEquals(feedback360::STATUS_DRAFT, $DB->get_field('feedback360', 'status', array('id' => $feedback3->id)));
+
+        // Fetching the user assignment ids.
+        $user1feedback1 = $DB->get_field('feedback360_user_assignment', 'id',
+            array('feedback360id' => $feedback1->id, 'userid' => $user1->id));
+        $user2feedback1 = $DB->get_field('feedback360_user_assignment', 'id',
+            array('feedback360id' => $feedback1->id, 'userid' => $user2->id));
+        $user2feedback2 = $DB->get_field('feedback360_user_assignment', 'id',
+            array('feedback360id' => $feedback2->id, 'userid' => $user2->id));
+        $user3feedback3 = $DB->get_field('feedback360_user_assignment', 'id',
+            array('feedback360id' => $feedback3->id, 'userid' => $user3->id));
+
+        // Checking feedback1 assigments.
+        $this->assertEquals(true, feedback360::validate_user_to_assignment_id($user1->id, $user1feedback1));
+        $this->assertEquals(true, feedback360::validate_user_to_assignment_id($user2->id, $user2feedback1));
+        $this->assertEquals(false, feedback360::validate_user_to_assignment_id($user2->id, $user1feedback1));
+        $this->assertEquals(false, feedback360::validate_user_to_assignment_id($user4->id, $user1feedback1));
+
+        // Checking feedback2 assignments.
+        $this->assertEquals(true, feedback360::validate_user_to_assignment_id($user2->id, $user2feedback2));
+        $this->assertEquals(false, feedback360::validate_user_to_assignment_id($user1->id, $user2feedback2));
+
+        // Checking feedback 3 assignments. Even user3's assignment should return false since it's not active.
+        $this->assertEquals(false, feedback360::validate_user_to_assignment_id($user3->id, $user3feedback3));
+        $this->assertEquals(false, feedback360::validate_user_to_assignment_id($user1->id, $user3feedback3));
+
+        $feedback1->close();
+
+        // Running feedback1 checks again. All should now be false since it's not active.
+        $this->assertEquals(false, feedback360::validate_user_to_assignment_id($user1->id, $user1feedback1));
+        $this->assertEquals(false, feedback360::validate_user_to_assignment_id($user2->id, $user2feedback1));
+        $this->assertEquals(false, feedback360::validate_user_to_assignment_id($user2->id, $user1feedback1));
+        $this->assertEquals(false, feedback360::validate_user_to_assignment_id($user4->id, $user1feedback1));
+
+        // But feedback2 should not have been affected.
+        $this->assertEquals(true, feedback360::validate_user_to_assignment_id($user2->id, $user2feedback2));
+        $this->assertEquals(false, feedback360::validate_user_to_assignment_id($user1->id, $user2feedback2));
+    }
 }

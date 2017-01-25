@@ -107,6 +107,7 @@ class core_coursecatlib_testcase extends advanced_testcase {
             $this->fail('Missing category name exception expected in coursecat::create');
         } catch (moodle_exception $e) {
             $this->assertInstanceOf('moodle_exception', $e);
+            $this->assertEquals('Category name is required', $e->getMessage());
         }
         $cat1 = coursecat::create(array('name' => 'Cat1', 'idnumber' => '1'));
         try {
@@ -114,12 +115,14 @@ class core_coursecatlib_testcase extends advanced_testcase {
             $this->fail('Missing category name exception expected in coursecat::update');
         } catch (moodle_exception $e) {
             $this->assertInstanceOf('moodle_exception', $e);
+            $this->assertEquals('Category name is required', $e->getMessage());
         }
         try {
             coursecat::create(array('name' => 'Cat2', 'idnumber' => '1'));
             $this->fail('Duplicate idnumber exception expected in coursecat::create');
         } catch (moodle_exception $e) {
             $this->assertInstanceOf('moodle_exception', $e);
+            $this->assertEquals('ID number is already used for another category', $e->getMessage());
         }
         $cat2 = coursecat::create(array('name' => 'Cat2', 'idnumber' => '2'));
         try {
@@ -127,6 +130,7 @@ class core_coursecatlib_testcase extends advanced_testcase {
             $this->fail('Duplicate idnumber exception expected in coursecat::update');
         } catch (moodle_exception $e) {
             $this->assertInstanceOf('moodle_exception', $e);
+            $this->assertEquals('ID number is already used for another category', $e->getMessage());
         }
     }
 
@@ -223,6 +227,7 @@ class core_coursecatlib_testcase extends advanced_testcase {
             $this->fail('Exception expected - can not move category');
         } catch (moodle_exception $e) {
             $this->assertInstanceOf('moodle_exception', $e);
+            $this->assertEquals('Cannot move category', $e->getMessage());
         }
 
         $category4->change_parent(0);

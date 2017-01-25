@@ -1756,6 +1756,7 @@ class core_accesslib_testcase extends advanced_testcase {
             $this->fail('Exception expected when non course/category context passed to guess_if_creator_will_have_course_capability()');
         } catch (moodle_exception $e) {
             $this->assertInstanceOf('coding_exception', $e);
+            $this->assertEquals('Coding error detected, it must be fixed by a programmer: Only course or course category context expected', $e->getMessage());
         }
     }
 
@@ -2203,7 +2204,7 @@ class core_accesslib_testcase extends advanced_testcase {
             context::instance_by_id(-1);
             $this->fail('exception expected');
         } catch (moodle_exception $e) {
-            $this->assertTrue(true);
+            $this->assertInstanceOf('dml_missing_record_exception', $e);
         }
         $this->assertInstanceOf('context_system', context_system::instance());
         $this->assertInstanceOf('context_coursecat', context_coursecat::instance($testcategories[0]));
@@ -2219,25 +2220,25 @@ class core_accesslib_testcase extends advanced_testcase {
             context_coursecat::instance(-1);
             $this->fail('exception expected');
         } catch (moodle_exception $e) {
-            $this->assertTrue(true);
+            $this->assertInstanceOf('dml_missing_record_exception', $e);
         }
         try {
             context_course::instance(-1);
             $this->fail('exception expected');
         } catch (moodle_exception $e) {
-            $this->assertTrue(true);
+            $this->assertInstanceOf('dml_missing_record_exception', $e);
         }
         try {
             context_module::instance(-1);
             $this->fail('exception expected');
         } catch (moodle_exception $e) {
-            $this->assertTrue(true);
+            $this->assertInstanceOf('dml_missing_record_exception', $e);
         }
         try {
             context_block::instance(-1);
             $this->fail('exception expected');
         } catch (moodle_exception $e) {
-            $this->assertTrue(true);
+            $this->assertInstanceOf('dml_missing_record_exception', $e);
         }
 
 
@@ -2273,6 +2274,7 @@ class core_accesslib_testcase extends advanced_testcase {
             $this->fail('exception expected');
         } catch (moodle_exception $e) {
             $this->assertInstanceOf('coding_exception', $e);
+            $this->assertEquals('Coding error detected, it must be fixed by a programmer: Context does not belong to any course.', $e->getMessage());
         }
         $context = context_coursecat::instance($testcategories[0]);
         $this->assertFalse($context->get_course_context(false));
@@ -2281,6 +2283,7 @@ class core_accesslib_testcase extends advanced_testcase {
             $this->fail('exception expected');
         } catch (moodle_exception $e) {
             $this->assertInstanceOf('coding_exception', $e);
+            $this->assertEquals('Coding error detected, it must be fixed by a programmer: Context does not belong to any course.', $e->getMessage());
         }
         $this->assertEquals($frontpagecontext, $frontpagecontext->get_course_context(true));
         $this->assertEquals($frontpagecontext, $frontpagepagecontext->get_course_context(true));

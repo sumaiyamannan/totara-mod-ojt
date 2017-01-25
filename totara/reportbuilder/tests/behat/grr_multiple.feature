@@ -252,7 +252,7 @@ Feature: Global report restrictions multiple interactions
     And I should see "User Six" in the ".reportbuilder-table" "css_element"
 
     When I click on "change" "link" in the ".globalrestrictionscontainer" "css_element"
-    And I set the field "no restriction" to "0"
+    And I set the field "no restriction" to ""
     And I set the field "dynamic static" to "1"
     And I click on "Save" "button" in the "Viewing records for:" "totaradialogue"
     And I wait "1" seconds
@@ -265,7 +265,7 @@ Feature: Global report restrictions multiple interactions
     And I should not see "User Six" in the ".reportbuilder-table" "css_element"
 
     When I click on "change" "link" in the ".globalrestrictionscontainer" "css_element"
-    And I set the field "dynamic static" to "0"
+    And I set the field "dynamic static" to ""
     And I set the field "org static" to "1"
     And I click on "Save" "button" in the "Viewing records for:" "totaradialogue"
     And I wait "1" seconds

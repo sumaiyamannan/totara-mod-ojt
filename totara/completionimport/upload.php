@@ -74,6 +74,16 @@ admin_externalpage_setup('totara_completionimport_upload');
 echo $OUTPUT->header();
 echo $OUTPUT->heading($heading);
 
+if (($filesource == TCI_SOURCE_EXTERNAL) and empty($CFG->completionimportdir)) {
+    // To set an external file on the server, the setting $CFG->completionimportdir must be set in the config file.
+    echo $OUTPUT->notification(get_string('sourcefile_noconfig', 'totara_completionimport'), 'notifyproblem');
+
+    $importurl = new moodle_url('/totara/completionimport/upload.php', array('filesource' => TCI_SOURCE_UPLOAD));
+    echo html_writer::link($importurl, format_string(get_string('uploadvia_form', 'totara_completionimport')));
+    echo $OUTPUT->footer();
+    exit;
+}
+
 if (!empty($importname)) {
     // Lets do it!
     require_sesskey();

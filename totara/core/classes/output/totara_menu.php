@@ -81,7 +81,7 @@ class totara_menu implements \renderable, \templatable {
                     'class_islast' => $class_islast,
                     'class_isselected' => $class_isselected,
                     'linktext' => $menuitem->linktext,
-                    'url' => (string) new \moodle_url($menuitem->url),
+                    'url' => $url->out(false),
                     'target' => $menuitem->target,
                     'haschildren' => $haschildren,
                     'children' => $children->get_items()

@@ -24,11 +24,23 @@
 global $CFG;
 require_once($CFG->dirroot.'/totara/feedback360/tests/feedback360_testcase.php');
 
+/**
+ * Class feedback360_responder_test
+ *
+ * Tests methods from the feedback360_repsonder class.
+ */
 class feedback360_responder_test extends feedback360_testcase {
+
+    /**
+     * @var testing_data_generator
+     */
+    private $data_generator;
 
     public function setUp() {
         parent::setUp();
-        $this->preventResetByRollback();
+        $this->resetAfterTest(true);
+
+        $this->data_generator = $this->getDataGenerator();
     }
 
     public function test_edit() {
@@ -173,5 +185,579 @@ class feedback360_responder_test extends feedback360_testcase {
         feedback360_responder::update_timedue($newtimedue, $userassignment->id);
         $resptest = new feedback360_responder($respid);
         $this->assertEquals($newtimedue, $resptest->timedue);
+    }
+
+    /**
+     * Tests the load() method with system users (users selected based on their Totara user records,
+     * rather than by email).
+     */
+    public function test_load_systemusers() {
+        global $DB;
+
+        // Create feedback360 and assign a user for requesting feedback and users for responding.
+        list($feedback360, $requesters, $questions) = $this->prepare_feedback_with_users();
+        $requester = reset($requesters);
+
+        $this->setCurrentTimeStart();
+
+        // Creating 2 system user assignments.
+        $user1 = $this->data_generator->create_user();
+        $user2 = $this->data_generator->create_user();
+        $systemresponder1 = $this->assign_resp($feedback360, $requester->id, $user1->id);
+        $systemresponder2 = $this->assign_resp($feedback360, $requester->id, $user2->id);
+
+        $userassignment = $DB->get_record('feedback360_user_assignment', array('feedback360id' => $feedback360->id,
+            'userid' => $requester->id));
+
+        // Creating 2 email user assignments.
+        feedback360_responder::update_external_assignments(
+            array('email1@example.com', 'email2@example.com'),
+            array(),
+            $userassignment->id,
+            0
+        );
+
+        // Grab db records for system users assigned to be responders to feedback.
+        $dbrecords = $DB->get_records_select('feedback360_resp_assignment', 'feedback360emailassignmentid IS NULL');
+        // We'll just use the first for our comparisons.
+        $dbrecord = array_pop($dbrecords);
+
+        $result = new feedback360_responder();
+        $result->load($dbrecord->id);
+
+        // Confirm data loaded is correct.
+        $this->assertEquals($dbrecord->id, $result->id);
+        $this->assertEquals($feedback360->id, $result->feedback360id);
+        $this->assertEquals($userassignment->id, $result->feedback360userassignmentid);
+        $this->assertEquals($requester->id, $result->subjectid);
+        $this->assertEquals(0, $result->viewed);
+        $this->assertTimeCurrent($result->timeassigned);
+        $this->assertEquals(0, $result->timecompleted);
+        $this->assertTimeCurrent($result->timedue);
+        $this->assertNull($result->feedback360emailassignmentid);
+        $this->assertEquals('', $result->get_email());
+        $this->assertEquals('', $result->token);
+        $this->assertEquals(feedback360_responder::TYPE_USER, $result->type);
+        $this->assertEquals($dbrecord->userid, $result->userid);
+    }
+
+    /**
+     * Tests the load() method with email-based responders. No user in Totara is specified with these
+     * users, instead requests for feedback are based on email addresses only.
+     */
+    public function test_load_emailresponders() {
+        global $DB;
+
+        // Create feedback360 and assign a user for requesting feedback and users for responding.
+        list($feedback360, $requesters, $questions) = $this->prepare_feedback_with_users();
+        $requester = reset($requesters);
+
+        $this->setCurrentTimeStart();
+
+        // Creating 2 system user assignments.
+        $user1 = $this->data_generator->create_user();
+        $user2 = $this->data_generator->create_user();
+        $systemresponder1 = $this->assign_resp($feedback360, $requester->id, $user1->id);
+        $systemresponder2 = $this->assign_resp($feedback360, $requester->id, $user2->id);
+
+        $userassignment = $DB->get_record('feedback360_user_assignment', array('feedback360id' => $feedback360->id,
+            'userid' => $requester->id));
+
+        // Creating 2 email user assignments.
+        feedback360_responder::update_external_assignments(
+            array('email1@example.com', 'email2@example.com'),
+            array(),
+            $userassignment->id,
+            0
+        );
+
+        // Grab db records for an email user assigned to be responder to feedback.
+        $email1assignmentrecord =  $DB->get_record('feedback360_email_assignment', array('email' => 'email1@example.com'));
+        $dbrecord = $DB->get_record('feedback360_resp_assignment', array('feedback360emailassignmentid' => $email1assignmentrecord->id));
+
+        $result = new feedback360_responder();
+        $result->load($dbrecord->id);
+
+        // Confirm data loaded is correct.
+        $this->assertEquals($dbrecord->id, $result->id);
+        $this->assertEquals($feedback360->id, $result->feedback360id);
+        $this->assertEquals($userassignment->id, $result->feedback360userassignmentid);
+        $this->assertEquals($requester->id, $result->subjectid);
+        $this->assertEquals(0, $result->viewed);
+        $this->assertTimeCurrent($result->timeassigned);
+        $this->assertEquals(0, $result->timecompleted);
+        $this->assertTimeCurrent($result->timedue);
+        $this->assertNull($result->feedback360emailassignmentid);
+        $this->assertEquals('email1@example.com', $result->get_email());
+        $this->assertEquals($email1assignmentrecord->token, $result->token);
+        $this->assertEquals(feedback360_responder::TYPE_EMAIL, $result->type);
+        $this->assertEquals(0, $result->userid);
+    }
+
+    /**
+     * Tests feedback360_responder::sort_system_userids().
+     *
+     * In this case, we are adding an empty array of user ids. The assignee to the feedback360
+     * has no existing requests.
+     */
+    public function test_sort_system_userids_empty_no_existing_users() {
+        $this->resetAfterTest(true);
+        global $DB;
+
+        $user1 = $this->data_generator->create_user();
+
+        /** @var feedback360 $feedback1*/
+        list($feedback1) = $this->prepare_feedback_with_users(array($user1));
+
+        $user1feedback1 = $DB->get_field('feedback360_user_assignment', 'id',
+            array('feedback360id' => $feedback1->id, 'userid' => $user1->id));
+
+        list($new, $keep, $cancel) = feedback360_responder::sort_system_userids(array(), $user1feedback1);
+
+        $this->assertEquals(array(), $new);
+        $this->assertEquals(array(), $keep);
+        $this->assertEquals(array(), $cancel);
+    }
+
+    /**
+     * Tests feedback360_responder::sort_system_userids().
+     *
+     * In this case, the array of users we are adding are all invalid and the assignee
+     * has made no previous requests.
+     */
+    public function test_sort_system_userids_invalid_ids_only() {
+        $this->resetAfterTest(true);
+        global $DB;
+
+        $user1 = $this->data_generator->create_user();
+
+        /** @var feedback360 $feedback1*/
+        list($feedback1) = $this->prepare_feedback_with_users(array($user1));
+        $feedback1->activate();
+
+        $user1feedback1 = $DB->get_field('feedback360_user_assignment', 'id',
+            array('feedback360id' => $feedback1->id, 'userid' => $user1->id));
+
+        // Assignees can not request feedback from themselves.
+        $invalidids = array($user1->id);
+
+        $deleteduser = $this->data_generator->create_user();
+        $DB->set_field('user', 'deleted', 1, array('id' => $deleteduser->id));
+        $invalidids[] = $deleteduser->id;
+
+        $suspendeduser = $this->data_generator->create_user();
+        $DB->set_field('user', 'suspended', 1, array('id' => $suspendeduser->id));
+        $invalidids[] = $suspendeduser->id;
+
+        $guestuser = guest_user();
+        $invalidids[] = $guestuser->id;
+
+        list($new, $keep, $cancel) = feedback360_responder::sort_system_userids($invalidids, $user1feedback1);
+
+        $this->assertEquals(array(), $new);
+        $this->assertEquals(array(), $keep);
+        $this->assertEquals(array(), $cancel);
+    }
+
+    /**
+     * Tests feedback360_responder::sort_system_userids().
+     *
+     * In this case, the assignee has several existing response requests already.
+     *
+     * An array of user ids is supplied and should see:
+     * - new users added to $new
+     * - existing users that were in the array added to $keep
+     * - existing users missing from the array added to $cancel
+     * - invalid users not added to new, the one which was already is kept.
+     */
+    public function test_sort_system_userids_full_sort() {
+        $this->resetAfterTest(true);
+        global $DB;
+
+        $assignee = $this->data_generator->create_user();
+
+        /** @var feedback360 $feedback1*/
+        list($feedback1) = $this->prepare_feedback_with_users(array($assignee));
+        $feedback1->activate();
+
+        /** @var feedback360 $feedback2*/
+        list($feedback2) = $this->prepare_feedback_with_users(array($assignee));
+        $feedback2->activate();
+
+        // Below we get the user assignment id for feedback1.
+        // We're not testing what's returned by feedback2, just making sure that doesn't
+        // affect feedback1.
+        $feedback1userassignmentid = $DB->get_field('feedback360_user_assignment', 'id',
+            array('feedback360id' => $feedback1->id, 'userid' => $assignee->id));
+
+        $existing1 = $this->data_generator->create_user();
+        $existing2 = $this->data_generator->create_user();
+        $existing3 = $this->data_generator->create_user();
+
+        // This user will only be pre-existing in feedback2, not feedback1.
+        $existing_in_feedback2 = $this->data_generator->create_user();
+
+        // 'Request feedback' from the above users.
+        $this->assign_resp($feedback1, $assignee->id, $existing1->id);
+        $this->assign_resp($feedback1, $assignee->id, $existing2->id);
+        $this->assign_resp($feedback1, $assignee->id, $existing3->id);
+        $this->assign_resp($feedback2, $assignee->id, $existing_in_feedback2->id);
+
+        // Also add an email assignment. We need to make sure this doesn't cause any errors.
+        feedback360_responder::update_external_assignments(
+            array('email1@example.com'),
+            array(),
+            $feedback1userassignmentid,
+            0
+        );
+        // Make sure that email assignment was added.
+        $email1assignmentrecord =  $DB->get_record('feedback360_email_assignment', array('email' => 'email1@example.com'));
+        $this->assertEquals(true,
+            $DB->record_exists('feedback360_resp_assignment', array('feedback360emailassignmentid' => $email1assignmentrecord->id)));
+
+        // Now add new users to add plus the invalid users.
+
+        $newuser1 = $this->data_generator->create_user();
+        $newuser2 = $this->data_generator->create_user();
+        $newuser3 = $this->data_generator->create_user();
+
+        // Assignees can not request feedback from themselves.
+        $invalidids = array($assignee->id);
+
+        $deleteduser = $this->data_generator->create_user();
+        $DB->set_field('user', 'deleted', 1, array('id' => $deleteduser->id));
+        $invalidids[] = $deleteduser->id;
+
+        $suspendeduser = $this->data_generator->create_user();
+        $DB->set_field('user', 'suspended', 1, array('id' => $suspendeduser->id));
+        $invalidids[] = $suspendeduser->id;
+
+        // Also make the suspended user pre-assigned.
+        $this->assign_resp($feedback1, $assignee->id, $suspendeduser->id);
+
+        $guestuser = guest_user();
+        $invalidids[] = $guestuser->id;
+
+        // Create the array of users that we want assigned as responders (which includes new
+        // and existing).
+        $userids_to_sort = $invalidids;
+
+        $userids_to_sort[] = $newuser1->id;
+        $userids_to_sort[] = $newuser2->id;
+        $userids_to_sort[] = $existing1->id;
+
+        // See that we've left out $existing2 and $existing3. So these should be added to cancel.
+        // $newuser3 was also never included anywhere.
+
+        list($new, $keep, $cancel) = feedback360_responder::sort_system_userids($userids_to_sort, $feedback1userassignmentid);
+
+        $this->assertContains($newuser1->id, $new);
+        $this->assertContains($newuser2->id, $new);
+        // As such, we can just check the size of the array is 2 and we'll know it's working,
+        // but a few extra assertions below may help if debugging is necessary.
+        $this->assertNotContains($existing1->id, $new);
+        $this->assertNotContains($assignee->id, $new);
+        $this->assertNotContains($suspendeduser->id, $new);
+        $this->assertNotContains($newuser3, $new);
+        $this->assertEquals(2, count($new));
+
+        $this->assertContains($existing1->id, $keep);
+        $this->assertContains($suspendeduser->id, $keep);
+        $this->assertNotContains($newuser1->id, $keep);
+        $this->assertNotContains($deleteduser->id, $keep);
+        $this->assertNotContains($existing2->id, $keep);
+        $this->assertNotContains($existing_in_feedback2->id, $keep);
+        $this->assertEquals(2, count($keep));
+
+        $this->assertContains($existing2->id, $cancel);
+        $this->assertContains($existing3->id, $cancel);
+        $this->assertNotContains($suspendeduser->id, $cancel);
+        $this->assertNotContains($existing1->id, $cancel);
+        $this->assertNotContains($existing_in_feedback2, $cancel);
+        $this->assertNotContains($assignee->id, $cancel);
+        $this->assertEquals(2, count($cancel));
+    }
+
+    /**
+     * Tests feedback360_responder::get_system_users_by_assignment().
+     */
+    public function test_get_system_users_by_assignment() {
+        $this->resetAfterTest(true);
+        global $DB;
+
+        $assignee = $this->data_generator->create_user();
+
+        /** @var feedback360 $feedback1*/
+        list($feedback1) = $this->prepare_feedback_with_users(array($assignee));
+        $feedback1->activate();
+
+        /** @var feedback360 $feedback2*/
+        list($feedback2) = $this->prepare_feedback_with_users(array($assignee));
+        $feedback2->activate();
+
+        // Below we get the user assignment id for feedback1.
+        // We're not testing what's returned by feedback2, just making sure that doesn't
+        // affect feedback1.
+        $feedback1userassignmentid = $DB->get_field('feedback360_user_assignment', 'id',
+            array('feedback360id' => $feedback1->id, 'userid' => $assignee->id));
+
+        $existing1 = $this->data_generator->create_user();
+        $existing2 = $this->data_generator->create_user();
+
+        // We will delete this user after assigning as a responder.
+        $deleteduser  = $this->data_generator->create_user();
+
+        // This user will only be pre-existing in feedback2, not feedback1.
+        $existing_in_feedback2 = $this->data_generator->create_user();
+
+        // 'Request feedback' from the above users.
+        $this->assign_resp($feedback1, $assignee->id, $existing1->id);
+        $this->assign_resp($feedback1, $assignee->id, $existing2->id);
+        $this->assign_resp($feedback1, $assignee->id, $deleteduser->id);
+        $this->assign_resp($feedback2, $assignee->id, $existing_in_feedback2->id);
+
+        $newuser1 = $this->data_generator->create_user();
+        $newuser2 = $this->data_generator->create_user();
+
+        $DB->set_field('user', 'deleted', 1, array('id' => $deleteduser->id));
+
+        $returned = feedback360_responder::get_system_users_by_assignment($feedback1userassignmentid);
+
+        $this->assertContains($existing1->id, array_keys($returned));
+        $this->assertContains($existing2->id, array_keys($returned));
+        $this->assertContains($deleteduser->id, array_keys($returned));
+        $this->assertNotContains($existing_in_feedback2->id, array_keys($returned));
+        $this->assertNotContains($newuser1->id, array_keys($returned));
+        $this->assertNotContains($newuser2->id, array_keys($returned));
+        $this->assertNotContains($assignee->id, array_keys($returned));
+        $this->assertEquals(3, count($returned));
+
+        // We'll also make sure that the array keys do indeed match their user id.
+        foreach($returned as $id => $user) {
+            $this->assertEquals($id, $user->id);
+        }
+    }
+
+    /**
+     * Tests feedback360_responder::sort_responder_emails().
+     *
+     * In this case, we are adding an empty array of emails. The assignee to the feedback360
+     * has no existing requests.
+     */
+    public function test_sort_responder_emails_empty_no_existing_users() {
+        $this->resetAfterTest(true);
+        global $DB;
+
+        $user1 = $this->data_generator->create_user();
+
+        /** @var feedback360 $feedback1*/
+        list($feedback1) = $this->prepare_feedback_with_users(array($user1));
+
+        $user1feedback1 = $DB->get_field('feedback360_user_assignment', 'id',
+            array('feedback360id' => $feedback1->id, 'userid' => $user1->id));
+
+        list($new, $keep, $cancel) = feedback360_responder::sort_responder_emails(array(), $user1feedback1);
+
+        $this->assertEquals(array(), $new);
+        $this->assertEquals(array(), $keep);
+        $this->assertEquals(array(), $cancel);
+    }
+
+    /**
+     * Tests feedback360_responder::sort_responder_emails().
+     *
+     * In this case, the assignee has several existing response requests already.
+     *
+     * An array of emails is supplied and should see:
+     * - new emails added to $new
+     * - existing emails that were in the array added to $keep
+     * - existing emails missing from the array added to $cancel
+     */
+    public function test_sort_responder_emails_full_sort() {
+        $this->resetAfterTest(true);
+        global $DB;
+
+        $assignee = $this->data_generator->create_user();
+
+        /** @var feedback360 $feedback1*/
+        list($feedback1) = $this->prepare_feedback_with_users(array($assignee));
+        $feedback1->activate();
+
+        /** @var feedback360 $feedback2*/
+        list($feedback2) = $this->prepare_feedback_with_users(array($assignee));
+        $feedback2->activate();
+
+        // Below we get the user assignment id for feedback1.
+        // We're not testing what's returned by feedback2, just making sure that doesn't
+        // affect feedback1.
+        $feedback1userassignmentid = $DB->get_field('feedback360_user_assignment', 'id',
+            array('feedback360id' => $feedback1->id, 'userid' => $assignee->id));
+        $feedback2userassignmentid = $DB->get_field('feedback360_user_assignment', 'id',
+            array('feedback360id' => $feedback2->id, 'userid' => $assignee->id));
+
+        // We're creating system users as well, just to ensure that doesn't cause an exception.
+        $existing1 = $this->data_generator->create_user();
+        $existing_in_feedback2 = $this->data_generator->create_user();
+        $this->assign_resp($feedback1, $assignee->id, $existing1->id);
+        $this->assign_resp($feedback2, $assignee->id, $existing_in_feedback2->id);
+
+
+        feedback360_responder::update_external_assignments(
+            array('existing1@example.com', 'existing2@example.com', 'existing3@example.com'),
+            array(),
+            $feedback1userassignmentid,
+            0
+        );
+
+        // Add an email assignment to feedback2 also.
+        feedback360_responder::update_external_assignments(
+            array('existing_in_feedback2@example.com'),
+            array(),
+            $feedback2userassignmentid,
+            0
+        );
+
+        $emails_to_sort  = array('new1@example.com', 'new2@exameple.com', 'existing1@example.com');
+
+        list($new, $keep, $cancel) = feedback360_responder::sort_responder_emails($emails_to_sort, $feedback1userassignmentid);
+
+        $this->assertContains('new1@example.com', $new);
+        $this->assertContains('new2@exameple.com', $new);
+        // As such, we can just check the size of the array is 2 and we'll know it's working,
+        // but a few extra assertions below may help if debugging is necessary.
+        $this->assertNotContains('existing1@example.com', $new);
+        $this->assertNotContains('existing2@example.com', $new);
+        $this->assertNotContains('existing3@example.com', $new);
+        $this->assertNotContains('existing_in_feedback2@example.com', $new);
+        $this->assertEquals(2, count($new));
+
+        $this->assertContains('existing1@example.com', $keep);
+        $this->assertNotContains('new1@example.com', $keep);
+        $this->assertNotContains('new2@exameple.com', $keep);
+        $this->assertNotContains('existing2@example.com', $keep);
+        $this->assertNotContains('existing3@example.com', $keep);
+        $this->assertNotContains('existing_in_feedback2@example.com', $keep);
+        $this->assertEquals(1, count($keep));
+
+        $this->assertContains('existing2@example.com', $cancel);
+        $this->assertContains('existing3@example.com', $cancel);
+        $this->assertNotContains('existing1@example.com', $cancel);
+        $this->assertNotContains('new1@example.com', $cancel);
+        $this->assertNotContains('new2@exameple.com', $cancel);
+        $this->assertNotContains('existing_in_feedback2@example.com', $cancel);
+        $this->assertEquals(2, count($cancel));
+    }
+
+    /**
+     * Tests feedback360_responder::get_emails_by_assignment().
+     */
+    public function test_get_emails_by_assignment() {
+        $this->resetAfterTest(true);
+        global $DB;
+
+        $assignee = $this->data_generator->create_user();
+
+        /** @var feedback360 $feedback1*/
+        list($feedback1) = $this->prepare_feedback_with_users(array($assignee));
+        $feedback1->activate();
+
+        /** @var feedback360 $feedback2*/
+        list($feedback2) = $this->prepare_feedback_with_users(array($assignee));
+        $feedback2->activate();
+
+        // Below we get the user assignment id for feedback1.
+        // We're not testing what's returned by feedback2, just making sure that doesn't
+        // affect feedback1.
+        $feedback1userassignmentid = $DB->get_field('feedback360_user_assignment', 'id',
+            array('feedback360id' => $feedback1->id, 'userid' => $assignee->id));
+        $feedback2userassignmentid = $DB->get_field('feedback360_user_assignment', 'id',
+            array('feedback360id' => $feedback2->id, 'userid' => $assignee->id));
+
+        // We're creating system users as well, just to ensure that doesn't cause an exception.
+        $existing1 = $this->data_generator->create_user();
+        $existing_in_feedback2 = $this->data_generator->create_user();
+        $this->assign_resp($feedback1, $assignee->id, $existing1->id);
+        $this->assign_resp($feedback2, $assignee->id, $existing_in_feedback2->id);
+
+
+        feedback360_responder::update_external_assignments(
+            array('existing1@example.com', 'existing2@example.com'),
+            array(),
+            $feedback1userassignmentid,
+            0
+        );
+
+        // Add an email assignment to feedback2 also.
+        feedback360_responder::update_external_assignments(
+            array('existing_in_feedback2@example.com'),
+            array(),
+            $feedback2userassignmentid,
+            0
+        );
+
+        $returned = feedback360_responder::get_emails_by_assignment($feedback1userassignmentid);
+
+        $this->assertContains('existing1@example.com', $returned);
+        $this->assertContains('existing2@example.com', $returned);
+        $this->assertNotContains('existing_in_feedback2@example.com', $returned);
+        $this->assertEquals(2, count($returned));
+
+        // Make sure the keys for the array are ids from the feedback360_resp_assignment.
+        foreach($returned as $id => $email) {
+            $resp_record = $DB->get_record('feedback360_resp_assignment', array('id' => $id));
+            $email_record = $DB->get_record('feedback360_email_assignment',
+                array('id' => $resp_record->feedback360emailassignmentid));
+            $this->assertEquals($email, $email_record->email);
+        }
+    }
+
+    /**
+     * Tests feedback360_responder::validate_new_timedue_timestamp().
+     */
+    public function test_validate_new_timedue_timestamp() {
+        $this->resetAfterTest(true);
+        global $DB;
+
+        $user1 = $this->data_generator->create_user();
+
+        /** @var feedback360 $feedback1*/
+        list($feedback1) = $this->prepare_feedback_with_users(array($user1));
+        $feedback1->activate();
+
+        $feedback1userassignment = $DB->get_record('feedback360_user_assignment',
+            array('feedback360id' => $feedback1->id, 'userid' => $user1->id));
+
+        // To begin with the timedue should be 0, which means 'not set'.
+        $this->assertEquals(0, $feedback1userassignment->timedue);
+
+        // The validation function should only prevent non-zero values that are less than the time
+        // now from being added.
+        $errors = feedback360_responder::validate_new_timedue_timestamp(0, $feedback1userassignment->id);
+        $this->assertEmpty($errors);
+        $errors = feedback360_responder::validate_new_timedue_timestamp((time() - 1), $feedback1userassignment->id);
+        $this->assertEquals('Due date is in the past, please select a value in the future.', $errors['duedate']);
+        // The method should generally take a fraction of a second, but just going overkill with avoiding
+        // random failures on slow tests as the concept of adding a few seconds or 1 hour is the same really.
+        $errors = feedback360_responder::validate_new_timedue_timestamp(time() + HOURSECS, $feedback1userassignment->id);
+        $this->assertEmpty($errors);
+
+        // Update the timedue and make sure that worked.
+        $newtime = time() + 2 * HOURSECS;
+        feedback360_responder::update_timedue($newtime, $feedback1userassignment->id);
+
+        $feedback1userassignment = $DB->get_record('feedback360_user_assignment',
+            array('feedback360id' => $feedback1->id, 'userid' => $user1->id));
+        $this->assertEquals($newtime, $feedback1userassignment->timedue);
+
+        // The validation function should still allow the timedue to be unset (via 0) or otherwise
+        // times that are later than the current time due.
+        $errors = feedback360_responder::validate_new_timedue_timestamp(0, $feedback1userassignment->id);
+        $this->assertEmpty($errors);
+        $errors = feedback360_responder::validate_new_timedue_timestamp((time() - 1), $feedback1userassignment->id);
+        $this->assertEquals('The due date can not be set to an earlier date, please set it to a date equal to or after the existing due date.', $errors['duedate']);
+        $errors = feedback360_responder::validate_new_timedue_timestamp((time() + HOURSECS), $feedback1userassignment->id);
+        $this->assertEquals('The due date can not be set to an earlier date, please set it to a date equal to or after the existing due date.', $errors['duedate']);
+        $errors = feedback360_responder::validate_new_timedue_timestamp(time() + 3 * HOURSECS, $feedback1userassignment->id);
+        $this->assertEmpty($errors);
     }
 }

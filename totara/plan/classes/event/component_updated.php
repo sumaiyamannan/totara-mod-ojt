@@ -38,16 +38,15 @@ defined('MOODLE_INTERNAL') || die();
  *
  */
 class component_updated extends \core\event\base {
-    /**
-     * Flag for prevention of direct create() call.
-     * @var bool
-     */
-    protected static $preventcreatecall = true;
     /** @var \development_plan */
     protected $plan;
 
     /**
      * Create component event for plan.
+     *
+     * When creating a component_updated event for a competencyproficiency, function create should be used instead,
+     * and you should ensure that proficiencyvalue is included in the 'other' data.
+     *
      * @param \development_plan $plan
      * @param string $component
      * @param int $componentid
@@ -66,11 +65,9 @@ class component_updated extends \core\event\base {
                 'componentname' => $componentname)
         );
 
-        self::$preventcreatecall = false;
         /** @var component_updated $event */
         $event = self::create($data);
         $event->plan = $plan;
-        self::$preventcreatecall = true;
 
         return $event;
     }
@@ -163,9 +160,6 @@ class component_updated extends \core\event\base {
      * @return void
      */
     public function validate_data() {
-        if (self::$preventcreatecall) {
-            throw new \coding_exception('cannot call create() directly');
-        }
         parent::validate_data();
 
         if (!isset($this->other['componentid'])) {
@@ -179,6 +173,9 @@ class component_updated extends \core\event\base {
         }
         if (!isset($this->other['name'])) {
             throw new \coding_exception('name must be set in $other');
+        }
+        if ($this->other['component'] == 'competencyproficiency' && !isset($this->other['proficiencyvalue'])) {
+            throw new \coding_exception('proficiencyvalue must be set in $other');
         }
     }
 }

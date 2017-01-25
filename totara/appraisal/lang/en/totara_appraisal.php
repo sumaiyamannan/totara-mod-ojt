@@ -217,6 +217,7 @@ $string['error:invalidquestiontype'] = 'Invalid question type, only numeric or c
 $string['error:messagetitleyrequired'] = 'Message title is required';
 $string['error:messagebodyrequired'] = 'Message body is required';
 $string['error:nopermissions'] = 'You do not have permissions to perform that action';
+$string['error:noquestionstoaggregate'] = 'No questions to aggregate were found';
 $string['error:pagenotfound'] = 'Page not found';
 $string['error:pagepermissions'] = 'You do not have permissions to view this page';
 $string['error:redisplayoutoforder'] = 'Redisplay question must be placed on a page after the question it links to';

@@ -47,6 +47,28 @@ function latest_runid() {
 }
 
 /**
+ * Search the sync log for any errors or warnings from the last run.
+ *
+ * @return bool true if errors found
+ */
+function latest_run_has_errors() {
+    global $DB;
+
+    $sql = "SELECT id
+              FROM {totara_sync_log}
+             WHERE runid = :runid
+               AND (logtype = :logtype1 OR logtype = :logtype2)";
+
+    $params = array(
+        'runid' => latest_runid(),
+        'logtype1' => 'warn',
+        'logtype2' => 'error'
+    );
+
+    return $DB->record_exists_sql($sql, $params);
+}
+
+/**
  * Sync Totara elements with external sources
  *
  * @access public

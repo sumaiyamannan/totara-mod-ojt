@@ -24,16 +24,25 @@
 
 require_once(dirname(dirname(dirname(dirname(__FILE__)))) . '/config.php');
 require_once($CFG->dirroot.'/totara/core/dialogs/dialog_content.class.php');
+require_once($CFG->dirroot . '/totara/feedback360/lib.php');
+
+require_login();
+feedback360::check_feature_enabled();
 
 $userid = required_param('userid', PARAM_INT);
 $selected = optional_param('selected', null, PARAM_SEQUENCE);
 
-$formid = optional_param('formid', 0, PARAM_INT);
+$formid = required_param('formid', PARAM_INT);
 $nojs = optional_param('nojs', false, PARAM_BOOL);
 $returnurl = optional_param('returnurl', '', PARAM_LOCALURL);
 
 $systemcontext = context_system::instance();
 $usercontext = context_user::instance($userid);
+
+// Make sure the user assignment exists and that it relates to the given userid.
+if (!$user_assignment = $DB->get_record('feedback360_user_assignment', array('id' => $formid, 'userid' => $userid))) {
+    print_error('userassignmentnotfound', 'totara_feedback360');
+}
 
 // Check user has permission to request feedback.
 if ($USER->id == $userid) {
@@ -47,9 +56,6 @@ if ($USER->id == $userid) {
 }
 
 $PAGE->set_context($systemcontext);
-
-// Setup page.
-require_login();
 
 // Get guest user for exclusion purposes.
 $guest = guest_user();
@@ -115,6 +121,7 @@ if (!$nojs) {
     $dialog->items = $availableusers;
     $dialog->customdata['current_user'] = $userid;
     $dialog->urlparams['userid'] = $userid;
+    $dialog->urlparams['formid'] = $formid;
 
     if (!empty($selected)) {
         $selected_users = explode(',', $selected);

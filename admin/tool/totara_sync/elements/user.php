@@ -589,20 +589,43 @@ class totara_sync_element_user extends totara_sync_element {
             }
         }
         // Process dependant fields after processing all job assignments, so the job assignments (should) already exist.
-        foreach ($assign_sync_users as $suser) {
-            try {
-                $this->sync_user_dependant_job_assignment_fields($suser->uid, $suser);
-            } catch (Exception $e) {
-                // We don't want this exception to stop processing so we will continue.
-                // The code may have started a transaction. If it did then roll back the transaction.
-                if ($DB->is_transaction_started()) {
-                    $DB->force_transaction_rollback();
+        // Repeats until all records are processed or no records are successfully processed in a single iteration.
+        $tryagain = true;
+        while ($tryagain && !empty($assign_sync_users)) {
+            $tryagain = false;
+            foreach ($assign_sync_users as $key => $suser) {
+                try {
+                    $this->sync_user_dependant_job_assignment_fields($suser->uid, $suser);
+                    unset($assign_sync_users[$key]);
+                    $tryagain = true;
+                } catch (Exception $e) {
+                    // We don't want this exception to stop processing so we will continue.
+                    // The code may have started a transaction. If it did then roll back the transaction.
+                    if ($DB->is_transaction_started()) {
+                        $DB->force_transaction_rollback();
+                    }
+                    continue; // Continue processing users.
                 }
-                $this->addlog(get_string('cannotimportjobassignments', 'tool_totara_sync', $suser->idnumber) . ': ' .
-                    $e->getMessage(), 'warn', 'updateusers');
-                $problemswhileapplying = true;
-                continue; // Continue processing users.
             }
+        }
+        if (!empty($assign_sync_users)) {
+            // Try syncing these records again, just so that this time we can record the problem. No records should succeed.
+            foreach ($assign_sync_users as $key => $suser) {
+                try {
+                    $this->sync_user_dependant_job_assignment_fields($suser->uid, $suser);
+                    unset($assign_sync_users[$key]);
+                } catch (Exception $e) {
+                    // We don't want this exception to stop processing so we will continue.
+                    // The code may have started a transaction. If it did then roll back the transaction.
+                    if ($DB->is_transaction_started()) {
+                        $DB->force_transaction_rollback();
+                    }
+                    $this->addlog(get_string('cannotimportjobassignments', 'tool_totara_sync', $suser->idnumber) . ': ' .
+                        $e->getMessage(), 'warn', 'updateusers');
+                    continue; // Continue processing users.
+                }
+            }
+            $problemswhileapplying = true;
         }
         // Free memory used by user assignment array.
         unset($assign_sync_users);

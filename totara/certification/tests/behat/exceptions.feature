@@ -108,10 +108,10 @@ Feature: Generation of certification assignment exceptions
     And I click on "Edit certification details" "button"
     And I click on "Exception Report (1)" "link"
     Then I should see "fn_001 ln_001"
-    And I should see "Already assigned to a different certification that contains one of the same courses used in this certification"
+    And I should see "Duplicate course in different certifications" in the "fn_001 ln_001" "table_row"
 
-    When I click on "All \"duplicate course in certifications\" issues" "option" in the "#selectiontype" "css_element"
-    And I click on "Dismiss and take no action" "option" in the "#selectionaction" "css_element"
+    When I click on "Duplicate course in different certifications" "option" in the "#selectiontype" "css_element"
+    And I click on "Do not assign" "option" in the "#selectionaction" "css_element"
     And I click on "Proceed with this action" "button"
     And I click on "OK" "button"
     Then I should see "No exceptions"

@@ -548,7 +548,7 @@ class cache_definition {
      *   - overrideclass : The class to use as the loader.
      *   - staticacceleration : If set to true the cache will hold onto data passing through it.
      *   - staticaccelerationsize : Set it to an int to limit the size of the staticacceleration cache.
-     * @return cache_application|cache_session|cache_request
+     * @return cache_definition
      */
     public static function load_adhoc($mode, $component, $area, array $options = array()) {
         $id = 'adhoc/'.$component.'_'.$area;

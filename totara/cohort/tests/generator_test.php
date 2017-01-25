@@ -76,14 +76,18 @@ class totara_cohort_generator_testcase extends advanced_testcase {
 
         try {
             $generator->create_cohort_enrolment(array('courseid' => $course->id));
+            $this->fail('Exception expected!');
         } catch (moodle_exception $e) {
             $this->assertInstanceOf('coding_exception', $e);
+            $this->assertEquals('Coding error detected, it must be fixed by a programmer: cohortid is required in totara_cohort_generator::create_cohort_enrolment() $record', $e->getMessage());
         }
 
         try {
             $generator->create_cohort_enrolment(array('cohortid' => $cohort2->id));
+            $this->fail('Exception expected!');
         } catch (moodle_exception $e) {
             $this->assertInstanceOf('coding_exception', $e);
+            $this->assertEquals('Coding error detected, it must be fixed by a programmer: courseid is required in totara_cohort_generator::create_cohort_enrolment() $record', $e->getMessage());
         }
     }
 
@@ -109,14 +113,18 @@ class totara_cohort_generator_testcase extends advanced_testcase {
 
         try {
             $generator->create_cohort_member(array('userid' => $user2->id));
+            $this->fail('Exception expected!');
         } catch (moodle_exception $e) {
             $this->assertInstanceOf('coding_exception', $e);
+            $this->assertEquals('Coding error detected, it must be fixed by a programmer: cohortid is required in totara_cohort_generator::create_cohort_member() $record', $e->getMessage());
         }
 
         try {
             $generator->create_cohort_member(array('cohortid' => $cohort2->id));
+            $this->fail('Exception expected!');
         } catch (moodle_exception $e) {
             $this->assertInstanceOf('coding_exception', $e);
+            $this->assertEquals('Coding error detected, it must be fixed by a programmer: userid is required in totara_cohort_generator::create_cohort_member() $record', $e->getMessage());
         }
     }
 

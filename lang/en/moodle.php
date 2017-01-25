@@ -817,7 +817,6 @@ $string['format'] = 'Format';
 $string['format_help'] = 'The course format determines the layout of the course page.
 
 * Demo format   - A simple format with minimum styling organised into sections
-* SCORM format  - For displaying a SCORM package in the first section of the course page (as an alternative to using the SCORM/AICC module)
 * Single activity format - For displaying a single activity or resource (such as a Quiz or SCORM package) on the course page
 * Social format - A forum is displayed on the course page
 * Topics format - The course page is organised into topic sections

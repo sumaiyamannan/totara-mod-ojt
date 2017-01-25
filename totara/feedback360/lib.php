@@ -777,6 +777,32 @@ class feedback360 {
     }
 
     /**
+     * Given an id from the table feedback360_user_assignment, ensure that a given user's id
+     * matches the userid on that assignment and that it is active.
+     *
+     * In a number of places the user assignment id is placed into a variable called $formid.
+     *
+     * @param $userid
+     * @param $userassignmentid
+     * @return bool true if user is assigned with this assignment id
+     */
+    public static function validate_user_to_assignment_id($userid, $userassignmentid) {
+        global $DB;
+
+        $sql = "SELECT fa.id
+                FROM {feedback360_user_assignment} fa
+                JOIN {feedback360} f
+                ON fa.feedback360id = f.id
+                WHERE fa.userid = :userid
+                AND fa.id = :assignmentid
+                AND f.status = :status
+                ";
+        $params = array('userid' => $userid, 'assignmentid' => $userassignmentid, 'status' => self::STATUS_ACTIVE);
+
+        return $DB->record_exists_sql($sql, $params);
+    }
+
+    /**
      * Checks if a user is the manager of someone assigned to a feedback360
      *
      * @param int feedback360id     The id of the feedback to check for
@@ -1419,6 +1445,93 @@ class feedback360_responder {
     }
 
     /**
+     * Takes an array of users that are intended to be assigned as responders to feedback360
+     * assignment.  This means it should include users being added as well as users being kept.
+     *
+     * Returns an array of 3 arrays to be used for further processing:
+     * - 0 => users who are not already assigned and are being added.
+     * - 1 => users who are already assigned are being kept.
+     * - 2 => users who were assigned but are not being kept.
+     *
+     * Users who are currently assigned but are now invalid will be added to the array of
+     * cancelled users.
+     *
+     * @param array $userids - ids of all users that are intended to be assigned as responders.
+     * @param int $userassignmentid - id from feedback360_user_assignment table.
+     * @return array[] of the form (array $newusers, array $keptusers, array $cancelusers).
+     */
+    public static function sort_system_userids($userids, $userassignmentid) {
+        global $DB;
+
+        $new = array();
+        $keep = array();
+        $cancel = array();
+
+        if (empty($userids)) {
+            $invaliduserids = array();
+        } else {
+            list($insql, $inparams) = $DB->get_in_or_equal($userids);
+            $invaliduserids = $DB->get_fieldset_select('user', 'id', '(suspended = 1 OR deleted = 1) AND id '.$insql, $inparams);
+        }
+
+        $guest = guest_user();
+        $invaliduserids[] = $guest->id;
+        $requesteruserid = $DB->get_field('feedback360_user_assignment', 'userid', array('id' => $userassignmentid));
+        if (!empty($requesteruserid)) {
+            $invaliduserids[] = $requesteruserid;
+        }
+
+        $existingusers = self::get_system_users_by_assignment($userassignmentid);
+
+        foreach($userids as $userid) {
+            if (isset($existingusers[$userid])) {
+                // No check for invalid ids here. Current behaviour is to keep them.
+                $keep[$userid] = $userid;
+            } else {
+                if (in_array($userid, $invaliduserids)) {
+                    // Invalid id, don't add to new.
+                    continue;
+                }
+                $new[$userid] = $userid;
+            }
+        }
+
+        // Any existing users not in keep are added to cancel.
+        foreach($existingusers as $id => $user) {
+            if (!isset($keep[$id])) {
+                $cancel[$id] = $id;
+            }
+        }
+
+        return array($new, $keep, $cancel);
+    }
+
+    /**
+     * Gets user records for system users (meaning not assigned via email)
+     * who are responders to the given feedback360 user assignment.
+     *
+     * This will include users that should be invalid but are currently still assigned.
+     *
+     * @param $userassignmentid
+     * @return array of user records, with user id as key.
+     */
+    public static function get_system_users_by_assignment($userassignmentid) {
+        global $DB;
+        $userfields = get_all_user_name_fields(true, 'u');
+        $sql = "
+            SELECT u.id, $userfields
+              FROM {feedback360_resp_assignment} fra
+              JOIN {user} u
+                ON fra.userid = u.id
+             WHERE fra.feedback360userassignmentid = :userassignmentid
+               AND fra.feedback360emailassignmentid IS NULL
+        ";
+        $params = array('userassignmentid' => $userassignmentid);
+
+        return $DB->get_records_sql($sql, $params);
+    }
+
+    /**
      * Create the records for feedback360_resp_assignment for system users and sends notifications.
      *
      * @param stdClass $data Data about assignments.
@@ -1432,7 +1545,10 @@ class feedback360_responder {
         // Create new resp_assignments for all users selected in the system.
         $systemnew = !empty($data->systemnew) ? explode(',', $data->systemnew) : array();
         $systemkeep = !empty($data->systemkeep) ? explode(',', $data->systemkeep) : array();
-        $systemcancel = !empty($data->systemcancel) ? explode(',', $data->systemcancel) : array();
+
+        // We need to validate the data to ensure new, keep and cancel lists are genuine.
+        $newandkeep = array_merge($systemnew, $systemkeep);
+        list($systemnew, $systemkeep, $systemcancel) = self::sort_system_userids($newandkeep, $data->formid);
 
         self::update_system_assignments($systemnew, $systemcancel, $data->formid, $data->duedate, $asmanager);
 
@@ -1562,6 +1678,67 @@ class feedback360_responder {
     }
 
     /**
+     * Given an array of emails sorts them into three other arrays based on the following:
+     * - 0 => emails in the supplied list that ARE NOT already assigned as responders to this user assignment (new).
+     * - 1 => emails in the supplied list that ARE already assigned as responders to this user assignment (keep).
+     * - 2 => emails that are already assigned as responders but are not in the supplied list (cancel).
+     *
+     * @param array $emails - should be for emails that are intended to be assigned, including new and existing.
+     * @param int $userassignmentid id from the feedback360_user_assignment table.
+     * @return array[] of the form (array new, array keep, array cancel).
+     */
+    public static function sort_responder_emails($emails, $userassignmentid) {
+
+        $new = array();
+        $keep = array();
+        $cancel = array();
+
+        $existingemails = self::get_emails_by_assignment($userassignmentid);
+
+        foreach($emails as $email) {
+            if ($responderid = array_search($email, $existingemails)) {
+                // Current behaviour is not to validate emails that are existing, this is to
+                // reduce the risk of data loss.
+                $keep[$responderid] = $email;
+            } else {
+                // If the email is invalid, don't add it.
+                if (validate_email($email)) {
+                    $new[] = $email;
+                }
+            }
+        }
+
+        // Any existing users not in keep are added to cancel.
+        foreach($existingemails as $id => $email) {
+            if (!isset($keep[$id])) {
+                $cancel[$id] = $email;
+            }
+        }
+
+        return array($new, $keep, $cancel);
+    }
+
+    /**
+     * Get all emails currently assigned as responders to a given feedback360 user assignment.
+     * @param int $userassignmentid - id from the feedback360_user_assignment.
+     * @return array of emails, with the corresponding feedback360_resp_assignment id as keys.
+     */
+    public static function get_emails_by_assignment($userassignmentid) {
+        global $DB;
+
+        $sql = "
+            SELECT fra.id, fea.email
+              FROM {feedback360_resp_assignment} fra
+        INNER JOIN {feedback360_email_assignment} fea
+                ON fra.feedback360emailassignmentid = fea.id
+             WHERE fra.feedback360userassignmentid = :userassignmentid
+        ";
+        $params = array('userassignmentid' => $userassignmentid);
+
+        return $DB->get_records_sql_menu($sql, $params);
+    }
+
+    /**
      * Create the records for feedback360_resp_assignment for external users and sends notifications.
      *
      * @param stdClass $data Data about assignments.
@@ -1574,7 +1751,10 @@ class feedback360_responder {
         // Create new email and resp assignments for emails given.
         $emailnew = !empty($data->emailnew) ? explode(',', $data->emailnew) : array();
         $emailkeep = !empty($data->emailkeep) ? explode(',', $data->emailkeep) : array();
-        $emailcancel = !empty($data->emailcancel) ? explode(',', $data->emailcancel) : array();
+
+        $newandkeep = array_merge($emailnew, $emailkeep);
+        list($emailnew, $emailkeep, $emailcancel) = self::sort_responder_emails($newandkeep, $data->formid);
+
         self::update_external_assignments($emailnew, $emailcancel, $data->formid, $data->duedate, $asmanager);
 
         if ($data->duenotifications && !empty($emailkeep)) {
@@ -1707,6 +1887,40 @@ class feedback360_responder {
                 feedback360::cancel_resp_assignment($resp_assign, $asmanager);
             }
         }
+    }
+
+    /**
+     * Checks that the timestamp for a given due date is valid in terms of being further in future
+     * than now and the current due date if there is one.
+     *
+     * The timestamp should be cleaned as an integer before this (e.g. by setting the type on a form element).
+     *
+     * 0 is equivalent to not set. This allows timestamps to go from being set to not set.
+     *
+     * @param int $newduedate - timestamp intended to be
+     * @param int $userformid - id from the feedback360_user_assignment table.
+     * @return array containing any error. This will have the key of 'duedate' to correspond to the form element.
+     */
+    public static function validate_new_timedue_timestamp($newduedate, $userformid) {
+        global $DB;
+        $errors = array();
+
+        // We currently allow setting of empty values.
+        if (!empty($newduedate)) {
+            // If they have set a due date check that it is in the future.
+            if ($newduedate < time()) {
+                $errors['duedate'] = get_string('error:duedatepast', 'totara_feedback360');
+            }
+
+            $oldduedate = $DB->get_field('feedback360_user_assignment', 'timedue', array('id' => $userformid));
+
+            // If we are updating an existing request, check that the due date is the same or further in the future.
+            if (!empty($oldduedate) and ($oldduedate > $newduedate)) {
+                $errors['duedate'] = get_string('error:newduedatebeforeold', 'totara_feedback360');
+            }
+        }
+
+        return $errors;
     }
 
     public static function update_timedue($duedate, $userformid) {

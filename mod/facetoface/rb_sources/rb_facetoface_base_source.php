@@ -68,7 +68,7 @@ abstract class rb_facetoface_base_source extends rb_base_source {
             "facetoface.name",
             array(
                 'joins' => array('facetoface', $joinsessions),
-                'displayfunc' => 'link_f2f',
+                'displayfunc' => 'seminar_name_link',
                 'defaultheading' => get_string('ftfname', 'rb_source_facetoface_sessions'),
                 'extrafields' => array('activity_id' => $joinsessions . '.facetoface'),
             )
@@ -527,6 +527,32 @@ abstract class rb_facetoface_base_source extends rb_base_source {
      */
     function rb_display_f2f_approval($approvaltype, $row) {
         return facetoface_get_approvaltype_string($approvaltype, $row->approvalrole);
+    }
+
+    //
+    /**
+     * Convert a f2f date into a link to that session
+     *
+     * @param int $date
+     * @param object $row
+     * @return string
+     */
+    function rb_display_link_f2f_session($date, $row) {
+        global $OUTPUT, $CFG;
+
+        if (!$date || !is_numeric($date)) {
+            return '';
+        }
+
+        if (empty($row->timezone) || (int)$row->timezone == 99 || empty($CFG->facetoface_displaysessiontimezones)) {
+            $targetTZ = core_date::get_user_timezone();
+        } else {
+            $targetTZ = core_date::normalise_timezone($row->timezone);
+        }
+
+        $sessionid = $row->session_id;
+        $strdate = userdate($date, get_string('strftimedate', 'langconfig'), $targetTZ);
+        return $OUTPUT->action_link(new moodle_url('/mod/facetoface/attendees.php', array('s' => $sessionid)), $strdate);
     }
 
     /**

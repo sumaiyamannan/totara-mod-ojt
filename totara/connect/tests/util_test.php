@@ -320,6 +320,7 @@ class totara_connect_util_testcase extends advanced_testcase {
             $this->fail('coding exception expected when purging active client.');
         } catch (\moodle_exception $ex) {
             $this->assertInstanceOf('coding_exception', $ex);
+            $this->assertEquals('Coding error detected, it must be fixed by a programmer: Cannot purge active client', $ex->getMessage());
         }
 
         // Make sure purge deletes all related data.

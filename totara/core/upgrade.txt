@@ -11,3 +11,7 @@ List of upgrade and API changes in Totara core
 
 * MDL-48282 was backported. Do not update user->firstaccess from any auth plugin,
   the complete_user_login() does it automatically.
+
+=== 9.3 ===
+
+* totara_dialog_content_manager has been deprecated, please use totara_job_dialog_assign_manager instead.

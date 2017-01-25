@@ -28,12 +28,18 @@ if ($primaryadmin) {
     $primaryadminemail = NULL;
     $primaryadminname  = NULL;
 }
-$temp->add(new admin_setting_configtext('supportname', new lang_string('supportname', 'admin'), new lang_string('configsupportname', 'admin'), $primaryadminname, PARAM_NOTAGS));
-$temp->add(new admin_setting_configtext('supportemail', new lang_string('supportemail', 'admin'), new lang_string('configsupportemail', 'admin'), $primaryadminemail, PARAM_NOTAGS));
-$temp->add(new admin_setting_configtext('supportpage', new lang_string('supportpage', 'admin'), new lang_string('configsupportpage', 'admin'), '', PARAM_URL));
-$temp->add(new admin_setting_configtext('orgname', new lang_string('orgname', 'admin'), new lang_string('orgnamehelp', 'admin'), '', PARAM_NOTAGS));
-$temp->add(new admin_setting_configtext('techsupportemail', new lang_string('techsupportemail', 'admin'), new lang_string('techsupportemailhelp', 'admin'), '', PARAM_NOTAGS));
-$temp->add(new admin_setting_configtext('techsupportphone', new lang_string('techsupportphone', 'admin'), new lang_string('techsupportphonehelp', 'admin'), '', PARAM_NOTAGS));
+$temp->add(new admin_setting_configtext('supportname', new lang_string('supportname', 'admin'),
+    new lang_string('configsupportname', 'admin'), $primaryadminname, PARAM_NOTAGS));
+$temp->add(new admin_setting_configtext('supportemail', new lang_string('supportemail', 'admin'),
+    new lang_string('configsupportemail', 'admin'), $primaryadminemail, PARAM_EMAIL));
+$temp->add(new admin_setting_configtext('supportpage', new lang_string('supportpage', 'admin'),
+    new lang_string('configsupportpage', 'admin'), '', PARAM_URL));
+$temp->add(new admin_setting_configtext('orgname', new lang_string('orgname', 'admin'),
+    new lang_string('orgnamehelp', 'admin'), '', PARAM_NOTAGS));
+$temp->add(new admin_setting_configtext('techsupportemail', new lang_string('techsupportemail', 'admin'),
+    new lang_string('techsupportemailhelp', 'admin'), '', PARAM_NOTAGS));
+$temp->add(new admin_setting_configtext('techsupportphone', new lang_string('techsupportphone', 'admin'),
+    new lang_string('techsupportphonehelp', 'admin'), '', PARAM_NOTAGS));
 $ADMIN->add('server', $temp);
 
 

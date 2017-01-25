@@ -320,7 +320,7 @@ class totara_sync_source_org_csv extends totara_sync_source_org {
             }
 
             if (empty($row['timemodified'])) {
-                $row['timemodified'] = $now;
+                $row['timemodified'] = 0;
             } else {
                 // Try to parse the contents - if parse fails assume a unix timestamp and leave unchanged
                 $parsed_date = totara_date_parse_from_format($csvdateformat, trim($row['timemodified']), true);

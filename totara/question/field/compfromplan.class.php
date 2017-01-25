@@ -255,8 +255,19 @@ class question_compfromplan extends reviewrating {
 
         // Log it.
         $competencyname = $DB->get_field('comp', 'fullname', array('id' => $compassign->competencyid));
-        \totara_plan\event\component_updated::create_from_component(
-            $plan, 'competencyproficiency', $compassign->competencyid, $competencyname)->trigger();
+        $data = array(
+            'objectid' => $plan->id,
+            'context' => \context_system::instance(),
+            'relateduserid' => $plan->userid,
+            'other' => array(
+                'name' => $plan->name,
+                'component' => 'competencyproficiency',
+                'componentid' => $compassign->competencyid,
+                'componentname' => $competencyname,
+                'proficiencyvalue' => $scalevalueid,
+            ),
+        );
+        \totara_plan\event\component_updated::create($data)->trigger();
     }
 
     /**

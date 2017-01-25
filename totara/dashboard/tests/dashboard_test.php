@@ -431,6 +431,12 @@ class totara_dashboard_testcase extends advanced_testcase {
         $dashboard2id = $dashboard2->get_id();
         $dashboard3id = $dashboard3->get_id();
 
+        $blockhtml1 = $dashboard_gen->add_block($dashboard2id, 'html', 1);
+        $blockhtml2 = $dashboard_gen->add_block($dashboard2id, 'html', 2);
+        $blockhtml3 = $dashboard_gen->add_block($dashboard2id, 'html', 3);
+        $count2 = $DB->count_records('block_instances', array('pagetypepattern' => 'my-totara-dashboard-' . $dashboard2id));
+        $this->assertEquals(5, $count2);
+
         $dashboard2->delete();
         unset($dashboard2);
 

@@ -53,6 +53,7 @@ class restore_facetoface_activity_task extends restore_activity_task {
         $contents = array();
 
         $contents[] = new restore_decode_content('facetoface', array('intro'), 'facetoface');
+        $contents[] = new restore_decode_content('facetoface_notification', array('body', 'managerprefix'));
 
         return $contents;
     }

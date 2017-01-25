@@ -328,6 +328,7 @@ class core_blog_lib_testcase extends advanced_testcase {
                 'objectid' => 3,
                 'relateduserid' => 2,
                 'other' => array('associateid' => 2 , 'blogid' => 3, 'subject' => 'blog subject')));
+            $this->fail('Exception expected!');
         } catch (coding_exception $e) {
             $this->assertContains('The \'associatetype\' value must be set in other and be a valid type.', $e->getMessage());
         }
@@ -337,6 +338,7 @@ class core_blog_lib_testcase extends advanced_testcase {
                 'objectid' => 3,
                 'relateduserid' => 2,
                 'other' => array('associateid' => 2 , 'blogid' => 3, 'associatetype' => 'random', 'subject' => 'blog subject')));
+            $this->fail('Exception expected!');
         } catch (coding_exception $e) {
             $this->assertContains('The \'associatetype\' value must be set in other and be a valid type.', $e->getMessage());
         }
@@ -347,6 +349,7 @@ class core_blog_lib_testcase extends advanced_testcase {
                 'objectid' => 3,
                 'relateduserid' => 2,
                 'other' => array('blogid' => 3, 'associatetype' => 'course', 'subject' => 'blog subject')));
+            $this->fail('Exception expected!');
         } catch (coding_exception $e) {
             $this->assertContains('The \'associateid\' value must be set in other.', $e->getMessage());
         }
@@ -357,6 +360,7 @@ class core_blog_lib_testcase extends advanced_testcase {
                 'objectid' => 3,
                 'relateduserid' => 2,
                 'other' => array('associateid' => 3, 'associatetype' => 'course', 'subject' => 'blog subject')));
+            $this->fail('Exception expected!');
         } catch (coding_exception $e) {
             $this->assertContains('The \'blogid\' value must be set in other.', $e->getMessage());
         }
@@ -367,6 +371,7 @@ class core_blog_lib_testcase extends advanced_testcase {
                 'objectid' => 3,
                 'relateduserid' => 2,
                 'other' => array('blogid' => 3, 'associateid' => 3, 'associatetype' => 'course')));
+            $this->fail('Exception expected!');
         } catch (coding_exception $e) {
             $this->assertContains('The \'subject\' value must be set in other.', $e->getMessage());
         }

@@ -321,7 +321,7 @@ class rb_source_facetoface_sessions extends rb_facetoface_base_source {
                 "facetoface.name",
                 array(
                     'joins' => array('facetoface','sessions'),
-                    'displayfunc' => 'link_f2f',
+                    'displayfunc' => 'seminar_name_link',
                     'defaultheading' => get_string('ftfname', 'rb_source_facetoface_sessions'),
                     'extrafields' => array('activity_id' => 'sessions.facetoface'),
                 )
@@ -1079,30 +1079,21 @@ class rb_source_facetoface_sessions extends rb_facetoface_base_source {
         return get_string('type' . $POSITION_TYPES[$position], 'totara_hierarchy');
     }
 
-    // convert a f2f activity name into a link to that activity
+    /**
+     * Convert a f2f activity name into a link to that activity.
+     * @deprecated since Totara 9.2
+     *
+     * @param $name Seminar name
+     * @param $row Extra data from the report row.
+     * @return string The content to display.
+     */
     function rb_display_link_f2f($name, $row) {
         global $OUTPUT;
+
+        debugging('The rb_display_link_f2f function has been deprecated. Please use \'seminar_name_link\' for the display function instead.', DEBUG_DEVELOPER);
+
         $activityid = $row->activity_id;
         return $OUTPUT->action_link(new moodle_url('/mod/facetoface/view.php', array('f' => $activityid)), $name);
-    }
-
-    // convert a f2f date into a link to that session
-    function rb_display_link_f2f_session($date, $row) {
-        global $OUTPUT, $CFG;
-
-        if (!$date || !is_numeric($date)) {
-            return '';
-        }
-
-        if (empty($row->timezone) || (int)$row->timezone == 99 || empty($CFG->facetoface_displaysessiontimezones)) {
-            $targetTZ = core_date::get_user_timezone();
-        } else {
-            $targetTZ = core_date::normalise_timezone($row->timezone);
-        }
-
-        $sessionid = $row->session_id;
-        $strdate = userdate($date, get_string('strftimedate', 'langconfig'), $targetTZ);
-        return $OUTPUT->action_link(new moodle_url('/mod/facetoface/attendees.php', array('s' => $sessionid)), $strdate);
     }
 
     // Override user display function to show 'Reserved' for reserved spaces.

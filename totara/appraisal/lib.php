@@ -1292,6 +1292,11 @@ class appraisal {
 
         global $USER, $DB;
 
+        // Check the format of paramids (pararm1 in db). It should be an array with the questions to aggregate.
+        if (empty($paramids) || is_null($paramids)) {
+            print_error('error:noquestionstoaggregate', 'totara_appraisal');
+        }
+
         // Get the appraisalid from the pageid.
         $appsql = "SELECT a.id
                      FROM {appraisal} a
@@ -1809,7 +1814,7 @@ class appraisal {
         // Redirect aggregate questions to the new appraisal.
         $newaggregate = appraisal_question::fetch_appraisal($newappraisal->id, null, null, array('aggregate'));
         foreach ($newaggregate as $aggregate) {
-            $oldqids = explode(',', $aggregate->param1);
+            $oldqids = json_decode($aggregate->param1);
             $newqids = array();
 
             foreach ($oldqids as $oldqid) {
@@ -1817,7 +1822,7 @@ class appraisal {
                 $newqids[] = $newkeys[$originalindex];
             }
 
-            $aggregate->param1 = implode(',', $newqids);
+            $aggregate->param1 = json_encode($newqids);
             $DB->update_record('appraisal_quest_field', $aggregate);
         }
 

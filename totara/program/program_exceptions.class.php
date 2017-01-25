@@ -69,10 +69,10 @@ class prog_exceptions_manager {
 
         $this->exceptiontype_descriptors = array(
             EXCEPTIONTYPE_TIME_ALLOWANCE    => get_string('timeallowance', 'totara_program'),
-            EXCEPTIONTYPE_ALREADY_ASSIGNED  => get_string('currentlyassigned', 'totara_program'),
+            EXCEPTIONTYPE_ALREADY_ASSIGNED  => get_string('exceptiontypealreadyassigned', 'totara_program'),
             EXCEPTIONTYPE_COMPLETION_TIME_UNKNOWN  => get_string('completiontimeunknown', 'totara_program'),
             EXCEPTIONTYPE_UNKNOWN => get_string('unknownexception', 'totara_program'),
-            EXCEPTIONTYPE_DUPLICATE_COURSE  => get_string('duplicatecourse', 'totara_program')
+            EXCEPTIONTYPE_DUPLICATE_COURSE  => get_string('exceptiontypeduplicatecourse', 'totara_program')
         );
 
         $this->exception_actions = array(

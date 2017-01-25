@@ -497,20 +497,23 @@ class core_cache_testcase extends advanced_testcase {
             $cache->get('exception', MUST_EXIST);
             $this->fail('Exception expected from cache::get using MUST_EXIST');
         } catch (Exception $e) {
-            $this->assertTrue(true);
+            $this->assertInstanceOf('coding_exception', $e);
+            $this->assertSame('Coding error detected, it must be fixed by a programmer: Requested key did not exist in any cache stores and could not be loaded.', $e->getMessage());
         }
         try {
             $cache->get_many(array('exception1', 'exception2'), MUST_EXIST);
             $this->fail('Exception expected from cache::get_many using MUST_EXIST');
         } catch (Exception $e) {
-            $this->assertTrue(true);
+            $this->assertInstanceOf('coding_exception', $e);
+            $this->assertSame('Coding error detected, it must be fixed by a programmer: Not all the requested keys existed within the cache stores.', $e->getMessage());
         }
         $cache->set('test', 'test');
         try {
             $cache->get_many(array('test', 'exception'), MUST_EXIST);
             $this->fail('Exception expected from cache::get_many using MUST_EXIST');
         } catch (Exception $e) {
-            $this->assertTrue(true);
+            $this->assertInstanceOf('coding_exception', $e);
+            $this->assertSame('Coding error detected, it must be fixed by a programmer: Not all the requested keys existed within the cache stores.', $e->getMessage());
         }
     }
 

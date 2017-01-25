@@ -129,6 +129,7 @@ class progressive_parser_test extends advanced_testcase {
         $pp->set_file($CFG->dirroot . '/backup/util/xml/parser/tests/fixtures/test2.xml');
         try {
             $pp->process();
+            $this->fail('Exception expected!');
         } catch (exception $e) {
             $this->assertTrue($e instanceof progressive_parser_exception);
             $this->assertEquals($e->errorcode, 'xml_parsing_error');

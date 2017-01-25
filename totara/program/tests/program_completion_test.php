@@ -218,30 +218,30 @@ class totara_program_program_completion_testcase extends reportcache_advanced_te
         $progcompletion = $DB->get_record('prog_completion', array('programid' => $prog1->id, 'userid' => $user1->id));
         unset($progcompletion->id);
         try {
-            $result = prog_write_completion($progcompletion);
-            $this->assertEquals("Shouldn't reach this code, exception not triggered!", $result);
+            prog_write_completion($progcompletion);
+            $this->fail("Shouldn't reach this code, exception not triggered!");
         } catch (exception $e) {
-            // Do nothing, successfully triggered exception.
+            $this->assertStringStartsWith('error/Call to prog_write_completion with completion record that does not match the existing record', $e->getMessage());
         }
 
         // Update, but records don't match the database #1.
         $progcompletion = $DB->get_record('prog_completion', array('programid' => $prog1->id, 'userid' => $user1->id));
         $progcompletion->programid = $prog2->id;
         try {
-            $result = prog_write_completion($progcompletion);
-            $this->assertEquals("Shouldn't reach this code, exception not triggered!", $result);
+            prog_write_completion($progcompletion);
+            $this->fail("Shouldn't reach this code, exception not triggered!");
         } catch (exception $e) {
-            // Do nothing, successfully triggered exception.
+            $this->assertStringStartsWith('error/Call to prog_write_completion with completion record that does not match the existing record', $e->getMessage());
         }
 
         // Update, but records don't match the database #2.
         $progcompletion = $DB->get_record('prog_completion', array('programid' => $prog1->id, 'userid' => $user1->id));
         $progcompletion->userid = $user2->id;
         try {
-            $result = prog_write_completion($progcompletion);
-            $this->assertEquals("Shouldn't reach this code, exception not triggered!", $result);
+            prog_write_completion($progcompletion);
+            $this->fail("Shouldn't reach this code, exception not triggered!");
         } catch (exception $e) {
-            // Do nothing, successfully triggered exception.
+            $this->assertStringStartsWith('error/Call to prog_write_completion with completion record that does not match the existing record', $e->getMessage());
         }
     }
 

@@ -155,4 +155,124 @@ class totara_completionimport_lib_testcase extends advanced_testcase {
             $this->assertEquals($expectedresults[$key], $result, 'Failed for completion date with format: ' . $key);
         }
     }
+
+    /**
+     * Tests move_sourcefile().
+     *
+     * If the config setting 'completionimportdir' has not been set, the function should return
+     * false as it we don't want to move files without it.
+     */
+    public function test_move_sourcefile_noconfig() {
+        $this->resetAfterTest(true);
+        global $CFG;
+
+        // Config setting should be empty by default.
+        $this->assertTrue(empty($CFG->completionimportdir));
+
+        $dirpath = $CFG->dirroot . '/totara/completionimport/tests/fixtures/';
+        $filename = $dirpath . 'course_single_upload.csv';
+
+        // The temp file name shouldn't be used as the function will return true before using it in
+        // a php unit test. But we'll set it somewhere safe in case that doesn't happen.
+        $tempfilename = $dirpath . 'new_course_single_upload.csv';
+
+        ob_start();
+        $result = move_sourcefile($filename, $tempfilename);
+        $this->assertFalse($result);
+        $output = ob_get_clean();
+        $this->assertContains('Additional configuration settings are required', $output);
+
+        // No temp file should have been created whether this was a unit test or not.
+        $this->assertFalse(is_readable($tempfilename));
+    }
+
+    /**
+     * Tests move_sourcefile().
+     *
+     * The config setting is given a value. The file supplied to the function we're testing
+     * is in the directory given in the config setting. The function should return true.
+     */
+    public function test_move_sourcefile_configset_valid_no_subdir() {
+        $this->resetAfterTest(true);
+        global $CFG;
+
+        $dirpath = $CFG->dirroot . '/totara/completionimport/tests/fixtures/';
+
+        $CFG->completionimportdir = $dirpath;
+
+        $filename = $dirpath . 'course_single_upload.csv';
+
+        // The temp file name shouldn't be used as the function will return true before using it in
+        // a php unit test. But we'll set it somewhere safe in case that doesn't happen.
+        $tempfilename = $dirpath . 'new_course_single_upload.csv';
+
+        ob_start();
+        $result = move_sourcefile($filename, $tempfilename);
+        $this->assertTrue($result);
+        $output = ob_get_clean();
+        $this->assertEmpty($output);
+
+        // For a live site, the temp file would have been created. But this should not happen for a unit test.
+        $this->assertFalse(is_readable($tempfilename));
+    }
+
+    /**
+     * Tests move_sourcefile().
+     *
+     * The config setting is given a value. The file supplied to the function we're testing
+     * is in a subdirectory of the what's in the config setting. The function should return true.
+     */
+    public function test_move_sourcefile_configset_valid_in_subdir() {
+        $this->resetAfterTest(true);
+        global $CFG;
+
+        $dirpath = $CFG->dirroot . '/totara/completionimport/tests/fixtures/';
+
+        $CFG->completionimportdir = $dirpath;
+
+        $filename = $dirpath . 'subdir/course_single_upload.csv';
+
+        // The temp file name shouldn't be used as the function will return true before using it in
+        // a php unit test. But we'll set it somewhere safe in case that doesn't happen.
+        $tempfilename = $dirpath . 'new_course_single_upload.csv';
+
+        ob_start();
+        $result = move_sourcefile($filename, $tempfilename);
+        $this->assertTrue($result);
+        $output = ob_get_clean();
+        $this->assertEmpty($output);
+
+        // For a live site, the temp file would have been created. But this should not happen for a unit test.
+        $this->assertFalse(is_readable($tempfilename));
+    }
+
+    /**
+     * Tests move_sourcefile().
+     *
+     * The config setting is set. But the filename supplied to the function we're
+     * testing has a different path.
+     */
+    public function test_move_sourcefile_configset_invalid() {
+        $this->resetAfterTest(true);
+        global $CFG;
+
+        $dirpath = $CFG->dirroot . '/totara/completionimport/tests/fixtures/';
+
+        $CFG->completionimportdir = $dirpath;
+
+        $filename = '/totara/completionimport/tests/behat/course_single_upload.csv';
+
+        // The temp file name shouldn't be used as the function will return true before using it in
+        // a php unit test. But we'll set it somewhere safe in case that doesn't happen.
+        $tempfilename = $dirpath . 'new_course_single_upload.csv';
+
+        ob_start();
+        $result = move_sourcefile($filename, $tempfilename);
+        $this->assertFalse($result);
+        $output = ob_get_clean();
+        $this->assertContains('The source file name must include the full path to the file and begin with ', $output);
+
+        // No temp file should have been created whether this was a unit test or not.
+        $this->assertFalse(is_readable($tempfilename));
+    }
 }

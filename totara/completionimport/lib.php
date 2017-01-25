@@ -1727,7 +1727,17 @@ function set_config_data($data, $importname) {
  * @return boolean true if successful, false if fails
  */
 function move_sourcefile($filename, $tempfilename) {
-    global $OUTPUT;
+    global $OUTPUT, $CFG;
+
+    if (empty($CFG->completionimportdir)) {
+        echo $OUTPUT->notification(get_string('sourcefile_noconfig', 'totara_completionimport'), 'notifyproblem');
+        return false;
+    } else if (strpos($filename, $CFG->completionimportdir) !== 0) {
+        echo $OUTPUT->notification(get_string('sourcefile_beginwith', 'totara_completionimport',
+            $CFG->completionimportdir), 'notifyproblem');
+        return false;
+    }
+
     // Check if file is accessible.
     $handle = false;
     if (!is_readable($filename)) {
@@ -1743,6 +1753,11 @@ function move_sourcefile($filename, $tempfilename) {
     }
     // Don't need the handle any more so close it.
     fclose($handle);
+
+    if (PHPUNIT_TEST) {
+        // If this is a unit test, we won't actually move any files.
+        return true;
+    }
 
     if (!rename($filename, $tempfilename)) {
         $a = new stdClass();

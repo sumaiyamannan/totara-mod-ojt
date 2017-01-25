@@ -65,6 +65,7 @@ class totara_form_group_section_testcase extends advanced_testcase {
                     $this->fail('Exception expected, sections cannot be nested');
                 } catch (\moodle_exception $e) {
                     $this->assertInstanceOf('coding_exception', $e);
+                    $this->assertEquals('Coding error detected, it must be fixed by a programmer: Section cannot be added to another section!', $e->getMessage());
                 }
 
             });

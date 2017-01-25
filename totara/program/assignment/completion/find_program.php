@@ -60,5 +60,8 @@ $dialog->selected_title = 'currentlyselected';
 // Add data
 $dialog->load_programs();
 
+// Addition url parameters.
+$dialog->urlparams = array('programid' => $programid);
+
 // Display page
 echo $dialog->generate_markup();

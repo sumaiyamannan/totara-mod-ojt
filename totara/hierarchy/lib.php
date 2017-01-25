@@ -2206,6 +2206,9 @@ class hierarchy {
                     if (strpos($fieldid, 'cf_') === 0) {
                         $data = $this->parse_customfield($fieldid, $datarow->$fieldid, true);
                         $worksheet[0]->write($row, $curcol++, htmlspecialchars_decode($data));
+                    } elseif ($fieldid === 'hierarchyidnumber') {
+                        // Explicitly set the idnumber field as a string to avoid the type being incorrectly detected.
+                        $worksheet[0]->write_string($row, $curcol++, htmlspecialchars_decode($datarow->$fieldid));
                     } else {
                         $worksheet[0]->write($row, $curcol++, htmlspecialchars_decode($datarow->$fieldid));
                     }
@@ -2282,6 +2285,9 @@ class hierarchy {
                     if (strpos($fieldid, 'cf_') === 0) {
                         $data = $this->parse_customfield($fieldid, $datarow->$fieldid, true);
                         $worksheet[0]->write($row, $curcol++, htmlspecialchars_decode($data));
+                    } elseif ($fieldid === 'hierarchyidnumber') {
+                        // Explicitly set the idnumber field as a string to avoid the type being incorrectly detected.
+                        $worksheet[0]->write_string($row, $curcol++, htmlspecialchars_decode($datarow->$fieldid));
                     } else {
                         $worksheet[0]->write($row, $curcol++, htmlspecialchars_decode($datarow->$fieldid));
                     }

@@ -211,6 +211,7 @@ class core_dml_testcase extends database_driver_testcase {
             $this->fail('An Exception is missing, expected due to empty array of items');
         } catch (moodle_exception $e) {
             $this->assertInstanceOf('coding_exception', $e);
+            $this->assertEquals('Coding error detected, it must be fixed by a programmer: moodle_database::get_in_or_equal() does not accept empty arrays', $e->getMessage());
         }
 
         // Test using $onemptyitems.
@@ -343,6 +344,7 @@ class core_dml_testcase extends database_driver_testcase {
             $this->fail("Expecting an exception, none occurred");
         } catch (moodle_exception $e) {
             $this->assertInstanceOf('dml_exception', $e);
+            $this->assertEquals('ERROR: Mixed types of sql query parameters!!', $e->getMessage());
         }
 
         // Mixed param types (question and dollar).
@@ -353,6 +355,7 @@ class core_dml_testcase extends database_driver_testcase {
             $this->fail("Expecting an exception, none occurred");
         } catch (moodle_exception $e) {
             $this->assertInstanceOf('dml_exception', $e);
+            $this->assertEquals('ERROR: Mixed types of sql query parameters!!', $e->getMessage());
         }
 
         // Too few params in sql.
@@ -363,6 +366,7 @@ class core_dml_testcase extends database_driver_testcase {
             $this->fail("Expecting an exception, none occurred");
         } catch (moodle_exception $e) {
             $this->assertInstanceOf('dml_exception', $e);
+            $this->assertEquals('ERROR: Incorrect number of query parameters. Expected 3, got 2.', $e->getMessage());
         }
 
         // Too many params in array: no error, just use what is necessary.
@@ -380,6 +384,7 @@ class core_dml_testcase extends database_driver_testcase {
             $this->fail("Expecting an exception, none occurred");
         } catch (moodle_exception $e) {
             $this->assertInstanceOf('dml_exception', $e);
+            $this->assertEquals('ERROR: missing param "name" in query', $e->getMessage());
         }
 
         // Duplicate named param in query - this is a very important feature!!
@@ -391,6 +396,7 @@ class core_dml_testcase extends database_driver_testcase {
             $this->fail("Expecting an exception, none occurred");
         } catch (moodle_exception $e) {
             $this->assertInstanceOf('dml_exception', $e);
+            $this->assertEquals('ERROR: duplicate parameter name in query', $e->getMessage());
         }
 
         // Extra named param is ignored.
@@ -408,6 +414,7 @@ class core_dml_testcase extends database_driver_testcase {
             $this->fail("Expecting an exception, none occurred");
         } catch (moodle_exception $e) {
             $this->assertInstanceOf('coding_exception', $e);
+            $this->assertStringStartsWith("Coding error detected, it must be fixed by a programmer: Placeholder names must be 30 characters or shorter. 'long_placeholder_with_more_than_30' is too long.", $e->getMessage());
         }
 
         // Booleans in NAMED params are casting to 1/0 int.
@@ -877,7 +884,8 @@ class core_dml_testcase extends database_driver_testcase {
             $DB->execute($sql);
             $this->fail("Expecting an exception, none occurred");
         } catch (moodle_exception $e) {
-            $this->assertInstanceOf('dml_exception', $e);
+            // Can't test for specific message because it is DB specific.
+            $this->assertInstanceOf('dml_write_exception', $e);
         }
 
         // Update records.
@@ -1411,10 +1419,7 @@ class core_dml_testcase extends database_driver_testcase {
         $conditions = array('onetext' => '1');
         try {
             $records = $DB->get_records($tablename, $conditions);
-            if (debugging()) {
-                // Only in debug mode - hopefully all devs test code in debug mode...
-                $this->fail('An Exception is missing, expected due to equating of text fields');
-            }
+            $this->fail('An Exception is missing, expected due to equating of text fields');
         } catch (moodle_exception $e) {
             $this->assertInstanceOf('dml_exception', $e);
             $this->assertSame('textconditionsnotallowed', $e->errorcode);
@@ -1427,10 +1432,7 @@ class core_dml_testcase extends database_driver_testcase {
             $this->fail('An Exception is missing, expected due to query against non-existing table');
         } catch (moodle_exception $e) {
             $this->assertInstanceOf('dml_exception', $e);
-            if (debugging()) {
-                // Information for developers only, normal users get general error message.
-                $this->assertSame('ddltablenotexist', $e->errorcode);
-            }
+            $this->assertSame('ddltablenotexist', $e->errorcode);
         }
 
         try {
@@ -1438,10 +1440,7 @@ class core_dml_testcase extends database_driver_testcase {
             $this->fail('An Exception is missing, expected due to query against non-existing table');
         } catch (moodle_exception $e) {
             $this->assertInstanceOf('dml_exception', $e);
-            if (debugging()) {
-                // Information for developers only, normal users get general error message.
-                $this->assertSame('ddltablenotexist', $e->errorcode);
-            }
+            $this->assertSame('ddltablenotexist', $e->errorcode);
         }
 
         // Test get_records passing non-existing column.
@@ -1450,10 +1449,7 @@ class core_dml_testcase extends database_driver_testcase {
             $this->fail('An Exception is missing, expected due to query against non-existing column');
         } catch (moodle_exception $e) {
             $this->assertInstanceOf('dml_exception', $e);
-            if (debugging()) {
-                // Information for developers only, normal users get general error message.
-                $this->assertSame('ddlfieldnotexist', $e->errorcode);
-            }
+            $this->assertSame('ddlfieldnotexist', $e->errorcode);
         }
 
         // Note: delegate limits testing to test_get_records_sql().
@@ -1780,7 +1776,7 @@ class core_dml_testcase extends database_driver_testcase {
             $DB->get_record_sql("SELECT * FROM {{$tablename}} WHERE id = ?", array(666), MUST_EXIST);
             $this->fail("Exception expected");
         } catch (dml_missing_record_exception $e) {
-            $this->assertTrue(true);
+            // Expected exception type is caught here, others are not.
         }
 
         $this->assertNotEmpty($DB->get_record_sql("SELECT * FROM {{$tablename}}", array(), IGNORE_MISSING));
@@ -1798,7 +1794,7 @@ class core_dml_testcase extends database_driver_testcase {
             $DB->get_record_sql("SELECT * FROM {{$tablename}}", array(), MUST_EXIST);
             $this->fail("Exception expected");
         } catch (dml_multiple_records_exception $e) {
-            $this->assertTrue(true);
+            $this->assertStringStartsWith('Multiple records found, only one record expected.', $e->getMessage());
         }
     }
 
@@ -1826,8 +1822,8 @@ class core_dml_testcase extends database_driver_testcase {
         try {
             $DB->get_field($tablename, 'course', array('course' => 4), MUST_EXIST);
             $this->fail('Exception expected due to missing record');
-        } catch (dml_exception $ex) {
-            $this->assertTrue(true);
+        } catch (dml_missing_record_exception $ex) {
+            // Expected exception type is caught here, others are not.
         }
 
         $this->assertEquals(5, $DB->get_field($tablename, 'course', array('course' => 5), IGNORE_MULTIPLE));
@@ -1980,15 +1976,15 @@ class core_dml_testcase extends database_driver_testcase {
             $DB->insert_record_raw($tablename, array('course' => 3, 'onechar' => 'bb'), true, false, true);
             $this->fail('Exception expected due to missing record');
         } catch (coding_exception $ex) {
-            $this->assertTrue(true);
+            $this->assertEquals('Coding error detected, it must be fixed by a programmer: moodle_database::insert_record_raw() id field must be specified if custom sequences used.', $ex->getMessage());
         }
 
         // Wrong column error.
         try {
             $DB->insert_record_raw($tablename, array('xxxxx' => 3, 'onechar' => 'bb'));
             $this->fail('Exception expected due to invalid column');
-        } catch (dml_exception $ex) {
-            $this->assertTrue(true);
+        } catch (dml_write_exception $ex) {
+            // Expected exception type is caught here, others are not.
         }
 
         // Create something similar to "context_temp" with id column without sequence.
@@ -2099,7 +2095,8 @@ class core_dml_testcase extends database_driver_testcase {
             $DB->insert_record($tablename, $record);
             $this->fail("Expecting an exception, none occurred");
         } catch (moodle_exception $e) {
-            $this->assertInstanceOf('dml_exception', $e);
+            $this->assertInstanceOf('dml_write_exception', $e);
+            $this->assertEquals('dmlwriteexception', $e->errorcode);
         }
         $record = new stdClass();
         $record->oneint = 0;
@@ -2108,7 +2105,8 @@ class core_dml_testcase extends database_driver_testcase {
             $DB->insert_record($tablename, $record);
             $this->fail("Expecting an exception, none occurred");
         } catch (moodle_exception $e) {
-            $this->assertInstanceOf('dml_exception', $e);
+            $this->assertInstanceOf('dml_write_exception', $e);
+            $this->assertEquals('dmlwriteexception', $e->errorcode);
         }
 
         // Check empty string data is stored as 0 in numeric datatypes.
@@ -2268,7 +2266,8 @@ class core_dml_testcase extends database_driver_testcase {
             $DB->insert_record($tablename, $record, false);
             $this->fail("Expecting an exception, none occurred");
         } catch (moodle_exception $e) {
-            $this->assertInstanceOf('dml_exception', $e);
+            $this->assertInstanceOf('dml_write_exception', $e);
+            $this->assertEquals('dmlwriteexception', $e->errorcode);
         }
 
         // Re-insert same record, returning id. dml_exception expected.
@@ -2276,7 +2275,8 @@ class core_dml_testcase extends database_driver_testcase {
             $DB->insert_record($tablename, $record, true);
             $this->fail("Expecting an exception, none occurred");
         } catch (moodle_exception $e) {
-            $this->assertInstanceOf('dml_exception', $e);
+            $this->assertInstanceOf('dml_write_exception', $e);
+            $this->assertEquals('dmlwriteexception', $e->errorcode);
         }
 
         // Try to insert a record into a non-existent table. dml_exception expected.
@@ -2284,7 +2284,8 @@ class core_dml_testcase extends database_driver_testcase {
             $DB->insert_record('nonexistenttable', $record, true);
             $this->fail("Expecting an exception, none occurred");
         } catch (exception $e) {
-            $this->assertTrue($e instanceof dml_exception);
+            $this->assertInstanceOf('dml_exception', $e);
+            $this->assertEquals('Table "nonexistenttable" does not exist', $e->getMessage());
         }
     }
 
@@ -2366,6 +2367,7 @@ class core_dml_testcase extends database_driver_testcase {
             $this->fail('coding_exception expected when insert_records receives different object data structures');
         } catch (moodle_exception $e) {
             $this->assertInstanceOf('coding_exception', $e);
+            $this->assertEquals('Coding error detected, it must be fixed by a programmer: All dataobjects in insert_records() must have the same structure!', $e->getMessage());
         }
 
         unset($rec2['xx']);
@@ -2377,6 +2379,7 @@ class core_dml_testcase extends database_driver_testcase {
             $this->fail('coding_exception expected when insert_records receives different object data structures');
         } catch (moodle_exception $e) {
             $this->assertInstanceOf('coding_exception', $e);
+            $this->assertEquals('Coding error detected, it must be fixed by a programmer: All dataobjects in insert_records() must have the same structure!', $e->getMessage());
         }
 
         $records = 1;
@@ -2385,6 +2388,7 @@ class core_dml_testcase extends database_driver_testcase {
             $this->fail('coding_exception expected when insert_records receives non-traversable data');
         } catch (moodle_exception $e) {
             $this->assertInstanceOf('coding_exception', $e);
+            $this->assertEquals('Coding error detected, it must be fixed by a programmer: insert_records() passed non-traversable object', $e->getMessage());
         }
 
         $records = array(1);
@@ -2393,6 +2397,7 @@ class core_dml_testcase extends database_driver_testcase {
             $this->fail('coding_exception expected when insert_records receives non-objet record');
         } catch (moodle_exception $e) {
             $this->assertInstanceOf('coding_exception', $e);
+            $this->assertEquals('Coding error detected, it must be fixed by a programmer: insert_records() passed invalid record object', $e->getMessage());
         }
     }
 
@@ -2469,7 +2474,8 @@ class core_dml_testcase extends database_driver_testcase {
             $DB->import_record($tablename, $record);
             $this->fail("Expecting an exception, none occurred");
         } catch (moodle_exception $e) {
-            $this->assertInstanceOf('dml_exception', $e);
+            $this->assertInstanceOf('dml_write_exception', $e);
+            $this->assertEquals('dmlwriteexception', $e->errorcode);
         }
         $record = new stdClass();
         $record->id = 35;
@@ -2479,7 +2485,8 @@ class core_dml_testcase extends database_driver_testcase {
             $DB->import_record($tablename, $record);
             $this->fail("Expecting an exception, none occurred");
         } catch (moodle_exception $e) {
-            $this->assertInstanceOf('dml_exception', $e);
+            $this->assertInstanceOf('dml_write_exception', $e);
+            $this->assertEquals('dmlwriteexception', $e->errorcode);
         }
 
         // Check empty strings are set properly in string types.
@@ -2589,8 +2596,9 @@ class core_dml_testcase extends database_driver_testcase {
         try {
             $DB->update_record_raw($tablename, $record);
             $this->fail("Expecting an exception, none occurred");
-        } catch (moodle_exception $e) {
+        } catch (dml_write_exception $e) {
             $this->assertInstanceOf('moodle_exception', $e);
+            $this->assertEquals('dmlwriteexception', $e->errorcode);
         }
 
         $record = $DB->get_record($tablename, array('course' => 3));
@@ -2600,6 +2608,7 @@ class core_dml_testcase extends database_driver_testcase {
             $this->fail("Expecting an exception, none occurred");
         } catch (moodle_exception $e) {
             $this->assertInstanceOf('coding_exception', $e);
+            $this->assertEquals('Coding error detected, it must be fixed by a programmer: moodle_database::update_record_raw() id field must be specified.', $e->getMessage());
         }
     }
 
@@ -2689,7 +2698,8 @@ class core_dml_testcase extends database_driver_testcase {
             $DB->update_record($tablename, $record);
             $this->fail("Expecting an exception, none occurred");
         } catch (moodle_exception $e) {
-            $this->assertInstanceOf('dml_exception', $e);
+            $this->assertInstanceOf('dml_write_exception', $e);
+            $this->assertEquals('dmlwriteexception', $e->errorcode);
         }
         $record->oneint = 0;
         $record->onenum = 'onestring';
@@ -2697,7 +2707,8 @@ class core_dml_testcase extends database_driver_testcase {
             $DB->update_record($tablename, $record);
             $this->fail("Expecting an exception, none occurred");
         } catch (moodle_exception $e) {
-            $this->assertInstanceOf('dml_exception', $e);
+            $this->assertInstanceOf('dml_write_exception', $e);
+            $this->assertEquals('dmlwriteexception', $e->errorcode);
         }
 
         // Check empty string data is stored as 0 in numeric datatypes.
@@ -2854,10 +2865,7 @@ class core_dml_testcase extends database_driver_testcase {
         $conditions = array('onetext' => '1');
         try {
             $DB->set_field($tablename, 'onechar', 'frog', $conditions);
-            if (debugging()) {
-                // Only in debug mode - hopefully all devs test code in debug mode...
-                $this->fail('An Exception is missing, expected due to equating of text fields');
-            }
+            $this->fail('An Exception is missing, expected due to equating of text fields');
         } catch (moodle_exception $e) {
             $this->assertInstanceOf('dml_exception', $e);
             $this->assertSame('textconditionsnotallowed', $e->errorcode);
@@ -2965,13 +2973,15 @@ class core_dml_testcase extends database_driver_testcase {
             $DB->set_field_select($tablename, 'oneint', 'onestring', 'id = ?', array(1));
             $this->fail("Expecting an exception, none occurred");
         } catch (moodle_exception $e) {
-            $this->assertInstanceOf('dml_exception', $e);
+            $this->assertInstanceOf('dml_write_exception', $e);
+            $this->assertEquals('dmlwriteexception', $e->errorcode);
         }
         try {
             $DB->set_field_select($tablename, 'onenum', 'onestring', 'id = ?', array(1));
             $this->fail("Expecting an exception, none occurred");
         } catch (moodle_exception $e) {
-            $this->assertInstanceOf('dml_exception', $e);
+            $this->assertInstanceOf('dml_write_exception', $e);
+            $this->assertEquals('dmlwriteexception', $e->errorcode);
         }
 
         // Check empty string data is stored as 0 in numeric datatypes.
@@ -3030,13 +3040,7 @@ class core_dml_testcase extends database_driver_testcase {
         $newchar = 'frog';
         // Test for exception throwing on text conditions being compared. (MDL-24863, unwanted auto conversion of param to int).
         $params = array('onetext' => '1');
-        try {
-            $DB->set_field_select($tablename, 'onechar', $newchar, $DB->sql_compare_text('onetext') . ' = ?', $params);
-            $this->assertTrue(true, 'No exceptions thrown with numerical text param comparison for text field.');
-        } catch (dml_exception $e) {
-            $this->assertFalse(true, 'We have an unexpected exception.');
-            throw $e;
-        }
+        $DB->set_field_select($tablename, 'onechar', $newchar, $DB->sql_compare_text('onetext') . ' = ?', $params);
     }
 
     public function test_count_records() {
@@ -3065,10 +3069,7 @@ class core_dml_testcase extends database_driver_testcase {
         $conditions = array('onetext' => '1');
         try {
             $DB->count_records($tablename, $conditions);
-            if (debugging()) {
-                // Only in debug mode - hopefully all devs test code in debug mode...
-                $this->fail('An Exception is missing, expected due to equating of text fields');
-            }
+            $this->fail('An Exception is missing, expected due to equating of text fields');
         } catch (moodle_exception $e) {
             $this->assertInstanceOf('dml_exception', $e);
             $this->assertSame('textconditionsnotallowed', $e->errorcode);
@@ -3124,6 +3125,7 @@ class core_dml_testcase extends database_driver_testcase {
             $this->fail('Exception expected when non-number field used in count_records_sql');
         } catch (moodle_exception $e) {
             $this->assertInstanceOf('coding_exception', $e);
+            $this->assertEquals("Coding error detected, it must be fixed by a programmer: count_records_sql() expects the first field to contain non-negative number from COUNT(), 'a' found instead.", $e->getMessage());
         }
 
         try {
@@ -3131,6 +3133,7 @@ class core_dml_testcase extends database_driver_testcase {
             $this->fail('Exception expected when non-number field used in count_records_sql');
         } catch (moodle_exception $e) {
             $this->assertInstanceOf('coding_exception', $e);
+            $this->assertEquals("Coding error detected, it must be fixed by a programmer: count_records_sql() expects the first field to contain non-negative number from COUNT(), '' found instead.", $e->getMessage());
         }
     }
 
@@ -3158,10 +3161,7 @@ class core_dml_testcase extends database_driver_testcase {
         $conditions = array('onetext' => '1');
         try {
             $DB->record_exists($tablename, $conditions);
-            if (debugging()) {
-                // Only in debug mode - hopefully all devs test code in debug mode...
-                $this->fail('An Exception is missing, expected due to equating of text fields');
-            }
+            $this->fail('An Exception is missing, expected due to equating of text fields');
         } catch (moodle_exception $e) {
             $this->assertInstanceOf('dml_exception', $e);
             $this->assertSame('textconditionsnotallowed', $e->errorcode);
@@ -3309,10 +3309,7 @@ class core_dml_testcase extends database_driver_testcase {
         $conditions = array('onetext'=>'1');
         try {
             $DB->delete_records($tablename, $conditions);
-            if (debugging()) {
-                // Only in debug mode - hopefully all devs test code in debug mode...
-                $this->fail('An Exception is missing, expected due to equating of text fields');
-            }
+            $this->fail('An Exception is missing, expected due to equating of text fields');
         } catch (moodle_exception $e) {
             $this->assertInstanceOf('dml_exception', $e);
             $this->assertSame('textconditionsnotallowed', $e->errorcode);
@@ -3322,10 +3319,7 @@ class core_dml_testcase extends database_driver_testcase {
         $conditions = array('onetext' => 1);
         try {
             $DB->delete_records($tablename, $conditions);
-            if (debugging()) {
-                // Only in debug mode - hopefully all devs test code in debug mode...
-                $this->fail('An Exception is missing, expected due to equating of text fields');
-            }
+            $this->fail('An Exception is missing, expected due to equating of text fields');
         } catch (moodle_exception $e) {
             $this->assertInstanceOf('dml_exception', $e);
             $this->assertSame('textconditionsnotallowed', $e->errorcode);
@@ -3392,6 +3386,7 @@ class core_dml_testcase extends database_driver_testcase {
             $this->fail('coding_exception expected');
         } catch (moodle_exception $e) {
             $this->assertInstanceOf('coding_exception', $e);
+            $this->assertEquals('Coding error detected, it must be fixed by a programmer: Invalid database query parameter value (Objects are are not allowed: stdClass)', $e->getMessage());
         }
 
         // Objects with __toString() forbidden everywhere since 2.3.
@@ -3401,6 +3396,7 @@ class core_dml_testcase extends database_driver_testcase {
             $this->fail('coding_exception expected');
         } catch (moodle_exception $e) {
             $this->assertInstanceOf('coding_exception', $e);
+            $this->assertEquals('Coding error detected, it must be fixed by a programmer: Invalid database query parameter value (Objects are are not allowed: dml_test_object_one)', $e->getMessage());
         }
 
         try {
@@ -3408,6 +3404,7 @@ class core_dml_testcase extends database_driver_testcase {
             $this->fail('coding_exception expected');
         } catch (moodle_exception $e) {
             $this->assertInstanceOf('coding_exception', $e);
+            $this->assertEquals('Coding error detected, it must be fixed by a programmer: Invalid database query parameter value (Objects are are not allowed: dml_test_object_one)', $e->getMessage());
         }
 
         try {
@@ -3415,6 +3412,7 @@ class core_dml_testcase extends database_driver_testcase {
             $this->fail('coding_exception expected');
         } catch (moodle_exception $e) {
             $this->assertInstanceOf('coding_exception', $e);
+            $this->assertEquals('Coding error detected, it must be fixed by a programmer: Invalid database query parameter value (Objects are are not allowed: dml_test_object_one)', $e->getMessage());
         }
 
         try {
@@ -3422,6 +3420,7 @@ class core_dml_testcase extends database_driver_testcase {
             $this->fail('coding_exception expected');
         } catch (moodle_exception $e) {
             $this->assertInstanceOf('coding_exception', $e);
+            $this->assertEquals('Coding error detected, it must be fixed by a programmer: Invalid database query parameter value (Objects are are not allowed: dml_test_object_one)', $e->getMessage());
         }
 
         try {
@@ -3431,6 +3430,7 @@ class core_dml_testcase extends database_driver_testcase {
             $this->fail('coding_exception expected');
         } catch (moodle_exception $e) {
             $this->assertInstanceOf('coding_exception', $e);
+            $this->assertEquals('Coding error detected, it must be fixed by a programmer: Invalid database query parameter value (Objects are are not allowed: dml_test_object_one)', $e->getMessage());
         }
 
         try {
@@ -3440,15 +3440,18 @@ class core_dml_testcase extends database_driver_testcase {
             $this->fail('coding_exception expected');
         } catch (moodle_exception $e) {
             $this->assertInstanceOf('coding_exception', $e);
+            $this->assertEquals('Coding error detected, it must be fixed by a programmer: Invalid database query parameter value (Objects are are not allowed: dml_test_object_one)', $e->getMessage());
         }
 
         try {
             $record = new stdClass();
+            $record->id = 1;
             $record->course = $o;
             $DB->import_record($tablename, $record);
             $this->fail('coding_exception expected');
         } catch (moodle_exception $e) {
             $this->assertInstanceOf('coding_exception', $e);
+            $this->assertEquals('Coding error detected, it must be fixed by a programmer: Invalid database query parameter value (Objects are are not allowed: dml_test_object_one)', $e->getMessage());
         }
 
         try {
@@ -3459,6 +3462,7 @@ class core_dml_testcase extends database_driver_testcase {
             $this->fail('coding_exception expected');
         } catch (moodle_exception $e) {
             $this->assertInstanceOf('coding_exception', $e);
+            $this->assertEquals('Coding error detected, it must be fixed by a programmer: Invalid database query parameter value (Objects are are not allowed: dml_test_object_one)', $e->getMessage());
         }
 
         try {
@@ -3469,6 +3473,7 @@ class core_dml_testcase extends database_driver_testcase {
             $this->fail('coding_exception expected');
         } catch (moodle_exception $e) {
             $this->assertInstanceOf('coding_exception', $e);
+            $this->assertEquals('Coding error detected, it must be fixed by a programmer: Invalid database query parameter value (Objects are are not allowed: dml_test_object_one)', $e->getMessage());
         }
 
         try {
@@ -3476,6 +3481,7 @@ class core_dml_testcase extends database_driver_testcase {
             $this->fail('coding_exception expected');
         } catch (moodle_exception $e) {
             $this->assertInstanceOf('coding_exception', $e);
+            $this->assertEquals('Coding error detected, it must be fixed by a programmer: Invalid database query parameter value (Objects are are not allowed: dml_test_object_one)', $e->getMessage());
         }
 
         try {
@@ -3483,6 +3489,7 @@ class core_dml_testcase extends database_driver_testcase {
             $this->fail('coding_exception expected');
         } catch (moodle_exception $e) {
             $this->assertInstanceOf('coding_exception', $e);
+            $this->assertEquals('Coding error detected, it must be fixed by a programmer: Invalid database query parameter value (Objects are are not allowed: dml_test_object_one)', $e->getMessage());
         }
     }
 
@@ -3923,7 +3930,6 @@ class core_dml_testcase extends database_driver_testcase {
         try {
             $DB->insert_record($tablename, array('name'=>'aäa'));
             $DB->insert_record($tablename, array('name'=>'aáa'));
-            $this->assertTrue(true);
         } catch (moodle_exception $e) {
             $family = $DB->get_dbfamily();
             if ($family === 'mysql' or $family === 'mssql') {
@@ -3932,7 +3938,6 @@ class core_dml_testcase extends database_driver_testcase {
                 // This should not happen, PostgreSQL and Oracle do not support accent insensitive uniqueness.
                 $this->fail("Unique index is accent insensitive, this may cause problems for non-ascii languages.");
             }
-            throw($e);
         }
     }
 
@@ -4328,6 +4333,7 @@ class core_dml_testcase extends database_driver_testcase {
             $this->fail("Expecting an exception, none occurred");
         } catch (moodle_exception $e) {
             $this->assertInstanceOf('coding_exception', $e);
+            $this->assertEquals('Coding error detected, it must be fixed by a programmer: moodle_database::sql_substr() requires at least two parameters (Originally this function was only returning name of SQL substring function, it now requires all parameters.)', $e->getMessage());
         }
 
         // Cover the function using placeholders in all positions.
@@ -4806,8 +4812,10 @@ class core_dml_testcase extends database_driver_testcase {
         $this->assertEquals(1, $DB->count_records($tablename));
         try {
             $DB->insert_record($tablename, (object)array('course'=>1));
-        } catch (Exception $e) {
-            // This must be ignored and it must not roll back the whole transaction.
+            $this->fail('Exception expected!');
+        } catch (dml_write_exception $e) {
+            // Can't test for specific message because it is DB specific.
+            $this->assertEquals('dmlwriteexception', $e->errorcode);
         }
         $DB->insert_record($tablename, (object)array('course'=>2));
         $this->assertEquals(2, $DB->count_records($tablename));
@@ -4823,8 +4831,10 @@ class core_dml_testcase extends database_driver_testcase {
         $this->assertEquals(1, $DB->count_records($tablename));
         try {
             $DB->get_records_sql('s e l e c t');
-        } catch (moodle_exception $e) {
-            // This must be ignored and it must not roll back the whole transaction.
+            $this->fail('Exception expected!');
+        } catch (dml_read_exception $e) {
+            // Can't test for specific message because it is DB specific.
+            $this->assertEquals('dmlreadexception', $e->errorcode);
         }
         $DB->insert_record($tablename, (object)array('course'=>2));
         $this->assertEquals(2, $DB->count_records($tablename));
@@ -4840,8 +4850,10 @@ class core_dml_testcase extends database_driver_testcase {
         $this->assertEquals(1, $DB->count_records($tablename));
         try {
             $DB->execute('xxxx');
-        } catch (moodle_exception $e) {
-            // This must be ignored and it must not roll back the whole transaction.
+            $this->fail('Exception expected!');
+        } catch (dml_write_exception $e) {
+            // Can't test for specific message because it is DB specific.
+            $this->assertEquals('dmlwriteexception', $e->errorcode);
         }
         $DB->insert_record($tablename, (object)array('course'=>2));
         $this->assertEquals(2, $DB->count_records($tablename));
@@ -4857,8 +4869,10 @@ class core_dml_testcase extends database_driver_testcase {
         $this->assertEquals(1, $DB->count_records($tablename));
         try {
             $DB->change_database_structure('xxxx');
-        } catch (moodle_exception $e) {
-            // This must be ignored and it must not roll back the whole transaction.
+            $this->fail('Exception expected!');
+        } catch (ddl_change_structure_exception $e) {
+            // Can't test for specific message because it is DB specific.
+            $this->assertEquals('ddlexecuteerror', $e->errorcode);
         }
         $DB->insert_record($tablename, (object)array('course'=>2));
         $this->assertEquals(2, $DB->count_records($tablename));
@@ -4892,7 +4906,7 @@ class core_dml_testcase extends database_driver_testcase {
             $transaction->rollback(new Exception('test'));
             $this->fail('transaction rollback must rethrow exception');
         } catch (Exception $e) {
-            // Ignored.
+            $this->assertEquals('test', $e->getMessage());
         }
         $this->assertEquals(0, $DB->count_records($tablename));
     }
@@ -4939,6 +4953,7 @@ class core_dml_testcase extends database_driver_testcase {
             $this->fail('transaction rollback must rethrow exception');
         } catch (Exception $e) {
             $this->assertEquals(get_class($e), 'Exception');
+            $this->assertEquals('test', $e->getMessage());
         }
         $this->assertEquals(0, $DB->count_records($tablename));
 
@@ -4956,12 +4971,15 @@ class core_dml_testcase extends database_driver_testcase {
             $this->fail('transaction rollback must rethrow exception');
         } catch (Exception $e) {
             $this->assertEquals(get_class($e), 'Exception');
+            $this->assertEquals('test', $e->getMessage());
         }
         $this->assertEquals(2, $DB->count_records($tablename)); // Not rolled back yet.
         try {
             $transaction1->allow_commit();
+            $this->fail('Exception expected!');
         } catch (moodle_exception $e) {
             $this->assertInstanceOf('dml_transaction_exception', $e);
+            $this->assertEquals('Database transaction error (Tried to commit transaction after lower level rollback)', $e->getMessage());
         }
         $this->assertEquals(2, $DB->count_records($tablename)); // Not rolled back yet.
         // The forced rollback is done from the default_exception handler and similar places,
@@ -5058,8 +5076,10 @@ class core_dml_testcase extends database_driver_testcase {
         $DB->insert_record($tablename, $data);
         try {
             $DB->transactions_forbidden();
+            $this->fail('Exception expected!');
         } catch (moodle_exception $e) {
             $this->assertInstanceOf('dml_transaction_exception', $e);
+            $this->assertEquals('Database transaction error (This code can not be excecuted in transaction)', $e->getMessage());
         }
         // The previous test does not force rollback.
         $transaction->allow_commit();
@@ -5091,12 +5111,14 @@ class core_dml_testcase extends database_driver_testcase {
             $this->fail('wrong order of commits must throw exception');
         } catch (moodle_exception $e) {
             $this->assertInstanceOf('dml_transaction_exception', $e);
+            $this->assertEquals('Database transaction error (Invalid transaction commit attempt)', $e->getMessage());
         }
         try {
             $transaction2->allow_commit();
             $this->fail('first wrong commit forces rollback');
         } catch (moodle_exception $e) {
             $this->assertInstanceOf('dml_transaction_exception', $e);
+            $this->assertEquals('Database transaction error (Tried to commit transaction after lower level rollback)', $e->getMessage());
         }
         // This is done in default exception handler usually.
         $this->assertTrue($DB->is_transaction_started());
@@ -5115,18 +5137,24 @@ class core_dml_testcase extends database_driver_testcase {
         try {
             // This first rollback should prevent all other rollbacks.
             $transaction1->rollback(new Exception('test'));
+            $this->fail('Exception expected!');
         } catch (Exception $e) {
             $this->assertEquals(get_class($e), 'Exception');
+            $this->assertEquals('test', $e->getMessage());
         }
         try {
             $transaction2->rollback(new Exception('test'));
+            $this->fail('Exception expected!');
         } catch (Exception $e) {
             $this->assertEquals(get_class($e), 'Exception');
+            $this->assertEquals('test', $e->getMessage());
         }
         try {
             $transaction1->rollback(new Exception('test'));
+            $this->fail('Exception expected!');
         } catch (moodle_exception $e) {
             $this->assertInstanceOf('dml_transaction_exception', $e);
+            $this->assertEquals('Database transaction error (Transactions already disposed)', $e->getMessage());
         }
         // This is done in default exception handler usually.
         $this->assertTrue($DB->is_transaction_started());
@@ -5143,12 +5171,14 @@ class core_dml_testcase extends database_driver_testcase {
             $this->fail('foreign transaction must fail');
         } catch (moodle_exception $e) {
             $this->assertInstanceOf('dml_transaction_exception', $e);
+            $this->assertEquals('Database transaction error (Invalid transaction commit attempt)', $e->getMessage());
         }
         try {
             $transaction1->allow_commit();
             $this->fail('first wrong commit forces rollback');
         } catch (moodle_exception $e) {
             $this->assertInstanceOf('dml_transaction_exception', $e);
+            $this->assertEquals('Database transaction error (Tried to commit transaction after lower level rollback)', $e->getMessage());
         }
         $DB->force_transaction_rollback();
         $DB->delete_records($tablename);

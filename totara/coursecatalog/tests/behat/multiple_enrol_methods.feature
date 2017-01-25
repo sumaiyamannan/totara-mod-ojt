@@ -57,9 +57,9 @@ Feature: Users can auto-enrol themself in courses where self enrolment is allowe
 
     Given I follow "Course 1"
     And I add a "Seminar" to section "1" and I fill the form with:
-      | Name             | Test seminar name 2        |
-      | Description      | Test seminar description 2 |
-      | Manager Approval | 0                             |
+      | Name        | Test seminar name 2        |
+      | Description | Test seminar description 2 |
+      | No Approval | 1                          |
     And I follow "Test seminar name 2"
     And I follow "Add a new event"
     And I click on "Edit date" "link"

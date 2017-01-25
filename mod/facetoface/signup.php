@@ -103,7 +103,7 @@ $session->trainers     = facetoface_get_trainers($session->id);
 
 if ($facetoface->approvaltype == APPROVAL_ROLE) {
     if (!$session->trainerroles || !$session->trainers) {
-        print_error('error:missingrequiredrole', 'facetoface', $returnurl);
+        totara_set_notification(get_string('error:missingrequiredrole', 'facetoface'), $returnurl);
     }
 }
 

@@ -121,7 +121,10 @@ function xmldb_totara_completionimport_upgrade($oldversion) {
             $dbman->add_field($table, $field);
         }
 
-        $index = new xmldb_index('totacompimpocour_evi_ix', XMLDB_INDEX_UNIQUE, array('evidenceid'));
+        // This originally added a unique index. This was incompatible with MSSQL.
+        // Sites that already applied this upgrade step prior to the change have the unique index replaced
+        // in a later upgrade step (version 2016092001).
+        $index = new xmldb_index('totacompimpocour_evi_ix', XMLDB_INDEX_NOTUNIQUE, array('evidenceid'));
         if (!$dbman->index_exists($table, $index)) {
             $dbman->add_index($table, $index);
         }
@@ -152,7 +155,10 @@ function xmldb_totara_completionimport_upgrade($oldversion) {
             $dbman->add_field($table, $field);
         }
 
-        $index = new xmldb_index('totacompimpocert_evi_ix', XMLDB_INDEX_UNIQUE, array('evidenceid'));
+        // This originally added a unique index. This was incompatible with MSSQL.
+        // Sites that already applied this upgrade step prior to the change have the unique index replaced
+        // in a later upgrade step (version 2016092001).
+        $index = new xmldb_index('totacompimpocert_evi_ix', XMLDB_INDEX_NOTUNIQUE, array('evidenceid'));
         if (!$dbman->index_exists($table, $index)) {
             $dbman->add_index($table, $index);
         }
@@ -170,6 +176,50 @@ function xmldb_totara_completionimport_upgrade($oldversion) {
         }
 
         upgrade_plugin_savepoint(true, 2016082600, 'totara', 'completionimport');
+    }
+
+    if ($oldversion < 2016092001) {
+
+        // Define index totacompimpocour_evi_ix (unique) to be dropped from totara_compl_import_course.
+        $table = new xmldb_table('totara_compl_import_course');
+        $index = new xmldb_index('totacompimpocour_evi_ix', XMLDB_INDEX_UNIQUE, array('evidenceid'));
+
+        // Conditionally launch drop index totacompimpocour_evi_ix.
+        if ($dbman->index_exists($table, $index)) {
+            $dbman->drop_index($table, $index);
+        }
+
+        // Define index totacompimpocert_evi_ix (unique) to be dropped from totara_compl_import_cert.
+        $table = new xmldb_table('totara_compl_import_cert');
+        $index = new xmldb_index('totacompimpocert_evi_ix', XMLDB_INDEX_UNIQUE, array('evidenceid'));
+
+        // Conditionally launch drop index totacompimpocert_evi_ix.
+        if ($dbman->index_exists($table, $index)) {
+            $dbman->drop_index($table, $index);
+        }
+
+        // Add non-unique index to each table.
+
+        // Define index totacompimpocour_evi_ix (not unique) to be added to totara_compl_import_course.
+        $table = new xmldb_table('totara_compl_import_course');
+        $index = new xmldb_index('totacompimpocour_evi_ix', XMLDB_INDEX_NOTUNIQUE, array('evidenceid'));
+
+        // Conditionally launch add index totacompimpocour_evi_ix.
+        if (!$dbman->index_exists($table, $index)) {
+            $dbman->add_index($table, $index);
+        }
+
+        // Define index totacompimpocert_evi_ix (not unique) to be added to totara_compl_import_cert.
+        $table = new xmldb_table('totara_compl_import_cert');
+        $index = new xmldb_index('totacompimpocert_evi_ix', XMLDB_INDEX_NOTUNIQUE, array('evidenceid'));
+
+        // Conditionally launch add index totacompimpocert_evi_ix.
+        if (!$dbman->index_exists($table, $index)) {
+            $dbman->add_index($table, $index);
+        }
+
+        // Completionimport savepoint reached.
+        upgrade_plugin_savepoint(true, 2016092001, 'totara', 'completionimport');
     }
 
     return true;

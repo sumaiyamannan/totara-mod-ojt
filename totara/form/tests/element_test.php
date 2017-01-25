@@ -52,6 +52,7 @@ class totara_form_element_testcase extends advanced_testcase {
                     $testcase->fail('Coding exception expected when invalid name specified');
                 } catch (\moodle_exception $e) {
                     $testcase->assertInstanceOf('coding_exception', $e);
+                    $this->assertEquals('Coding error detected, it must be fixed by a programmer: Invalid element name', $e->getMessage());
                 }
             });
         test_form::phpunit_set_definition($definition);
@@ -66,6 +67,7 @@ class totara_form_element_testcase extends advanced_testcase {
                     $testcase->fail('Coding exception expected when invalid name specified');
                 } catch (\moodle_exception $e) {
                     $testcase->assertInstanceOf('coding_exception', $e);
+                    $this->assertEquals('Coding error detected, it must be fixed by a programmer: Invalid element name', $e->getMessage());
                 }
             });
         test_form::phpunit_set_definition($definition);
@@ -79,6 +81,7 @@ class totara_form_element_testcase extends advanced_testcase {
                     $testcase->fail('Coding exception expected when invalid name specified');
                 } catch (\moodle_exception $e) {
                     $testcase->assertInstanceOf('coding_exception', $e);
+                    $this->assertEquals('Coding error detected, it must be fixed by a programmer: Invalid element name', $e->getMessage());
                 }
             });
         test_form::phpunit_set_definition($definition);
@@ -92,6 +95,7 @@ class totara_form_element_testcase extends advanced_testcase {
                     $testcase->fail('Coding exception expected when invalid name specified');
                 } catch (\moodle_exception $e) {
                     $testcase->assertInstanceOf('coding_exception', $e);
+                    $this->assertEquals('Coding error detected, it must be fixed by a programmer: Invalid element name', $e->getMessage());
                 }
             });
         test_form::phpunit_set_definition($definition);
@@ -108,6 +112,7 @@ class totara_form_element_testcase extends advanced_testcase {
                     $testcase->fail('Coding exception expected when invalid name specified');
                 } catch (\moodle_exception $e) {
                     $testcase->assertInstanceOf('coding_exception', $e);
+                    $this->assertEquals('Coding error detected, it must be fixed by a programmer: Duplicate name "someelement" detected!', $e->getMessage());
                 }
             });
         test_form::phpunit_set_definition($definition);

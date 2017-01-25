@@ -3033,7 +3033,8 @@ abstract class rb_base_source {
             'course',
             'startdate',
             get_string('coursestartdate', 'totara_reportbuilder'),
-            'date'
+            'date',
+            array('castdate' => true)
         );
         $filteroptions[] = new rb_filter_option(
             'course',

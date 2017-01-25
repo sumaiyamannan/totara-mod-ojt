@@ -484,6 +484,7 @@ class core_enrol_externallib_testcase extends externallib_advanced_testcase {
         $this->setUser($user);
         try {
             core_enrol_external::get_course_enrolment_methods($course2->id);
+            $this->fail('Exception expected!');
         } catch (moodle_exception $e) {
             $this->assertEquals('coursehidden', $e->errorcode);
         }

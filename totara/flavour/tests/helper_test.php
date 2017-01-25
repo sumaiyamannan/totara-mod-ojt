@@ -350,6 +350,7 @@ class totara_flavour_helper_testcase extends advanced_testcase {
             $this->fail('coding_exception expected for invalid flavour name');
         } catch (moodle_exception $ex) {
             $this->assertInstanceOf('coding_exception', $ex);
+            $this->assertEquals('Coding error detected, it must be fixed by a programmer: Invalid flavour component name', $ex->getMessage());
         }
     }
 }

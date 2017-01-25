@@ -40,7 +40,7 @@ else if ($action == SELECTIONACTION_OVERRIDE_EXCEPTION) {
     $html .= get_string('choseoverrideexception', 'totara_program');
 }
 else if ($action == SELECTIONACTION_DISMISS_EXCEPTION) {
-    $html .= get_string('chosedismissexception', 'totara_program');
+    $html .= get_string('exceptionchosennotassign', 'totara_program');
 }
 $html .= html_writer::end_tag('div');
 

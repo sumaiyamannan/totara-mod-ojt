@@ -39,6 +39,9 @@ class rb_source_facetoface_interest extends rb_base_source {
         // Apply global user restrictions.
         $this->add_global_report_restriction_join('base', 'userid');
 
+        // Autoload the local components.
+        $this->usedcomponents[] = 'mod_facetoface';
+
         $this->base = '{facetoface_interest}';
         $this->joinlist = $this->define_joinlist();
         $this->columnoptions = $this->define_columnoptions();
@@ -122,7 +125,7 @@ class rb_source_facetoface_interest extends rb_base_source {
                 "facetoface.name",
                 array(
                     'joins' => array('facetoface'),
-                    'displayfunc' => 'link_f2f',
+                    'displayfunc' => 'seminar_name_link',
                     'defaultheading' => get_string('ftfname', 'rb_source_facetoface_sessions'),
                     'extrafields' => array('activity_id' => 'facetoface.id'),
                 )
@@ -251,9 +254,19 @@ class rb_source_facetoface_interest extends rb_base_source {
         return $defaultcolumns;
     }
 
-    // Convert a f2f activity name into a link to that activity.
+    /**
+     * Convert a f2f activity name into a link to that activity.
+     * @deprecated since Totara 9.2
+     *
+     * @param $name Seminar name
+     * @param $row Extra data from the report row.
+     * @return string The content to display.
+     */
     public function rb_display_link_f2f($name, $row) {
         global $OUTPUT;
+
+        debugging('The rb_display_link_f2f function has been deprecated. Please use \'seminar_name_link\' for the display function instead.', DEBUG_DEVELOPER);
+
         $activityid = $row->activity_id;
         return $OUTPUT->action_link(new moodle_url('/mod/facetoface/view.php', array('f' => $activityid)), $name);
     }

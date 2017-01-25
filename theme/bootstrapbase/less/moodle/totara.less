@@ -121,6 +121,9 @@ pre {
         #font > .shorthand(@baseFontSize,bold,@baseLineHeight);
         border-bottom: none;
         margin-bottom: 5px;
+        // When removed this float causes the regression detailed
+        // in TL-12339 affecting mform element groups viewed in Edge / IE.
+        float: left;
     }
 }
 

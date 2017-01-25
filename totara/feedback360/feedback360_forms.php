@@ -616,24 +616,8 @@ class request_select_users extends moodleform {
             }
         }
 
-        // Validate the due date field.
-        if (!empty($data['duedate'])) {
-            // If they have set a due date check that it is in the future.
-            if (empty($data['duedate'])) {
-                // Carry on, the due date can be empty.
-            } else {
-                if ($data['duedate'] < time()) {
-                    $errors['duedate'] = get_string('error:duedatepast', 'totara_feedback360');
-                }
-                // If we are updating an existing request, check that the due date is the same or further in the future.
-                if (!empty($data['oldduedate'])) {
-                    $olddue = $data['oldduedate'];
-                    if ($olddue > $data['duedate']) {
-                        $errors['duedate'] = get_string('error:newduedatebeforeold', 'totara_feedback360');
-                    }
-                }
-            }
-        }
+        $duedateerrors = feedback360_responder::validate_new_timedue_timestamp($data['duedate'], $data['formid']);
+        $errors = array_merge($errors, $duedateerrors);
 
         return $errors;
     }

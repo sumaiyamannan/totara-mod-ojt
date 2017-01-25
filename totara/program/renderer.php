@@ -380,10 +380,10 @@ class totara_program_renderer extends plugin_renderer_base {
         $options = array();
         $options[SELECTIONTYPE_NONE] = get_string('select', 'totara_program');
         $options[SELECTIONTYPE_ALL] = get_string('alllearners', 'totara_program');
-        $options[SELECTIONTYPE_TIME_ALLOWANCE] = get_string('alltimeallowanceissues', 'totara_program');
-        $options[SELECTIONTYPE_ALREADY_ASSIGNED] = get_string('allcurrentlyassignedissues', 'totara_program');
-        $options[SELECTIONTYPE_COMPLETION_TIME_UNKNOWN] = get_string('allcompletiontimeunknownissues', 'totara_program');
-        $options[SELECTIONTYPE_DUPLICATE_COURSE] = get_string('allduplicatecourseissues', 'totara_program');
+        $options[SELECTIONTYPE_TIME_ALLOWANCE] = get_string('timeallowance', 'totara_program');
+        $options[SELECTIONTYPE_ALREADY_ASSIGNED] = get_string('exceptiontypealreadyassigned', 'totara_program');
+        $options[SELECTIONTYPE_COMPLETION_TIME_UNKNOWN] = get_string('completiontimeunknown', 'totara_program');
+        $options[SELECTIONTYPE_DUPLICATE_COURSE] = get_string('exceptiontypeduplicatecourse', 'totara_program');
         $out .= html_writer::start_tag('div');
         $out .= html_writer::select($options, 'selectiontype', $selectiontype, null, array('id' => 'selectiontype'));
         $out .= html_writer::end_tag('div');
@@ -399,9 +399,9 @@ class totara_program_renderer extends plugin_renderer_base {
         $out = '';
         $options = array();
         $options[SELECTIONACTION_NONE] = get_string('action', 'totara_program');
-        $options[SELECTIONACTION_AUTO_TIME_ALLOWANCE] = get_string('setrealistictimeallowance', 'totara_program');
-        $options[SELECTIONACTION_OVERRIDE_EXCEPTION] = get_string('overrideandaddprogram', 'totara_program');
-        $options[SELECTIONACTION_DISMISS_EXCEPTION] = get_string('dismissandtakenoaction', 'totara_program');
+        $options[SELECTIONACTION_AUTO_TIME_ALLOWANCE] = get_string('exceptionactionsetduedate', 'totara_program');
+        $options[SELECTIONACTION_OVERRIDE_EXCEPTION] = get_string('exceptionactionassign', 'totara_program');
+        $options[SELECTIONACTION_DISMISS_EXCEPTION] = get_string('exceptionactiondonotassign', 'totara_program');
         $out .= html_writer::start_tag('div');
         $out .= html_writer::select($options, 'selectionaction', null, null, array('id' => 'selectionaction'));
         $out .= html_writer::end_tag('div');

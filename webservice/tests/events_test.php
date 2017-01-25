@@ -101,6 +101,7 @@ class core_webservice_events_testcase extends advanced_testcase {
             $event = \core\event\webservice_login_failed::create($params);
             $this->fail('The token cannot be allowed in \core\event\webservice_login_failed');
         } catch (coding_exception $e) {
+            $this->assertEquals("Coding error detected, it must be fixed by a programmer: The 'token' value must not be set in other.", $e->getMessage());
         }
         $this->assertEventContextNotUsed($event);
     }

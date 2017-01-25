@@ -45,8 +45,7 @@ class totara_assign_feedback360 extends totara_assign_core {
      * @return bool whether or not users have been stored in the user_assignments table.
      */
     public function assignments_are_stored() {
-        return ($this->moduleinstance->status == feedback360::STATUS_ACTIVE ||
-                $this->moduleinstance->status == feedback360::STATUS_COMPLETED);
+        return ($this->moduleinstance->status != feedback360::STATUS_DRAFT);
     }
 
     public function delete_user_assignments() {

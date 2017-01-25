@@ -122,3 +122,93 @@ Feature: Normal feedback
     And I should see "User Six"
     When I click on "Remove feedback request from User Three" "link"
     Then I should not see "User three"
+    When I press "Update"
+    Then I should see "Cancel existing requests for:"
+    And I should see "User Three"
+    When I press "Confirm"
+    Then I should see "2 Responses (out of 4)" in the "Normal feedback" "table_row"
+    When I follow "Normal feedback"
+    Then I should see "View Response" in the "User Two" "table_row"
+    And I should see "Not Completed" in the "User Four" "table_row"
+    And I should not see "View Response" in the "User Four" "table_row"
+    And I should see "View Response" in the "User Five" "table_row"
+    And I should not see "View Response" in the "User Six" "table_row"
+    And I should see "Not Completed" in the "User Six" "table_row"
+    And "User Three" "table_row" should not exist
+
+  Scenario: Add new request via search tab when finding users
+    Given I log in as "user1"
+    And I click on "360° Feedback" in the totara menu
+    And I click on "Edit" "link" in the "Normal feedback" "table_row"
+    And I press "Add user(s)"
+    And I click on "Search" "link" in the "Add user(s)" "totaradialogue"
+    And I set the following fields to these values:
+      | Search | User |
+    And I press "Search"
+    And I click on "User Seven" "link" in the "#search-tab" "css_element"
+    And I click on "Save" "button" in the "Add user(s)" "totaradialogue"
+    And I wait "1" seconds
+    When I press "Update"
+    Then I should see "User Seven"
+    When I press "Confirm"
+    Then I should see "2 Responses (out of 6)" in the "Normal feedback" "table_row"
+    When I follow "Normal feedback"
+    And I should see "Not Completed" in the "User Seven" "table_row"
+
+  Scenario: Cancel requests to feedback360 responders
+    Given I log in as "user1"
+    And I click on "360° Feedback" in the totara menu
+    And I click on "stop" "link" in the "Normal feedback" "table_row"
+    Then I should see "Are you sure you want to cancel this feedback request?"
+    When I press "Continue"
+    Then I should see "Request successfully cancelled"
+    And I should see "2 Responses (out of 2)" in the "Normal feedback" "table_row"
+
+  Scenario: Remind feedback360 responders
+    Given I log in as "user1"
+    And I click on "360° Feedback" in the totara menu
+    When I click on "remind" "link" in the "Normal feedback" "table_row"
+    Then I should see "This will send a reminder message to everyone you have requested feedback from that has yet to respond:"
+    And I should see "User Three"
+    And I should see "User Four"
+    And I should see "User Six"
+    And I should not see "User Two"
+    And I should not see "User Five"
+    When I press "Continue"
+    Then I should see "Reminders sent for Normal feedback"
+
+  Scenario: Set and update time due for feedback360 requests
+    Given I log in as "user1"
+    And I click on "360° Feedback" in the totara menu
+    And I click on "Edit" "link" in the "Normal feedback" "table_row"
+    And I set the following fields to these values:
+     | duedate[enabled] | 1     |
+     | duedate[year]    | 2030  |
+     | duedate[month]   | March |
+     | duedate[day]     | 15    |
+    And I press "Update"
+    And I press "Confirm"
+    Then I should see "15 March 2030" in the "Normal feedback" "table_row"
+    When I click on "Edit" "link" in the "Normal feedback" "table_row"
+    And I set the following fields to these values:
+      | duedate[enabled] | 1     |
+      | duedate[year]    | 1980  |
+      | duedate[month]   | March |
+      | duedate[day]     | 15    |
+    And I press "Update"
+    Then I should see "The due date can not be set to an earlier date, please set it to a date equal to or after the existing due date."
+    And I set the following fields to these values:
+      | duedate[enabled] | 1     |
+      | duedate[year]    | 2031  |
+      | duedate[month]   | March |
+      | duedate[day]     | 15    |
+    # The "Update" button is changed to "Request" after validation because it's missing a url param when reloading the form.
+    And I press "Request"
+    And I press "Confirm"
+    Then I should see "15 March 2031" in the "Normal feedback" "table_row"
+    When I click on "Edit" "link" in the "Normal feedback" "table_row"
+    And I set the following fields to these values:
+      | duedate[enabled] | 0     |
+    And I press "Update"
+    And I press "Confirm"
+    Then I should not see "15 March 2031" in the "Normal feedback" "table_row"
