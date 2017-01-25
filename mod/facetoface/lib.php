@@ -6432,7 +6432,7 @@ function facetoface_activity_can_declare_interest($facetoface, $userid = null) {
 
         $now = time();
         $sql = "
-            SELECT fs.id
+            SELECT DISTINCT fs.id
             FROM {facetoface_sessions} fs
                 INNER JOIN {facetoface_sessions_dates} fsd ON (fsd.sessionid = fs.id)
             WHERE fsd.timestart > :now
