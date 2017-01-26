@@ -465,11 +465,16 @@ class program_assignments_nonedit_form extends moodleform {
         $mform =& $this->_form;
 
         $program = $this->_customdata['program'];
+        /** @var prog_assignments $assignments */
         $assignments = $program->get_assignments();
 
 // form definition
 //--------------------------------------------------------------------------------
         $mform->addElement('header','programassignments', get_string('programassignments', 'totara_program'));
+
+        // Above table indicating group numbers, display real current total assignments.
+        $mform->addElement('static', 'realassignments', get_string('totallearnersassigned', 'totara_program'), $assignments->count_total_user_assignments());
+        $mform->addHelpButton('realassignments', 'totallearnersassigned', 'totara_program');
 
         $elementname = 'assignments';
         $formlabel = $assignments->display_form_label();

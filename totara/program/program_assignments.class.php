@@ -262,14 +262,8 @@ class prog_assignments {
 
                 $categoryrow++;
             }
-            $helpbutton = $OUTPUT->help_icon('totalassignments', 'totara_program');
-            $table->data[] = array(
-                html_writer::tag('strong', get_string('totalassignments', 'totara_program')),
-                html_writer::tag('strong', $usertotal)
-            );
-            $table->rowclass[] = 'total';
 
-            $out .= html_writer::table($table, true);
+            $out .= $OUTPUT->render($table);
 
         } else {
             $out .= get_string('noprogramassignments', 'totara_program');
@@ -310,7 +304,7 @@ class prog_assignments {
     }
 
     public static function get_confirmation_template() {
-        global $ASSIGNMENT_CATEGORY_CLASSNAMES;
+        global $ASSIGNMENT_CATEGORY_CLASSNAMES, $OUTPUT;
 
         $table = new html_table();
         $table->head = array('', get_string('added', 'totara_program'), get_string('removed', 'totara_program'));
@@ -322,11 +316,7 @@ class prog_assignments {
             $table->data[] = array($category->name, $spanadded, $spanremoved);
         }
 
-        $spanTotalAdded = html_writer::tag('strong', html_writer::tag('span', '0', array('class' => 'total_added')));
-        $spanTotalRemoved = html_writer::tag('strong', html_writer::tag('span', '0', array('class' => 'total_removed')));
-        $table->data[] = array(html_writer::tag('strong', get_string('total')), $spanTotalAdded, $spanTotalRemoved);
-
-        $tableHTML = html_writer::table($table, true);
+        $tableHTML = $OUTPUT->render($table);
         // Strip new lines as they screw up the JS
         $order   = array("\r\n", "\n", "\r");
         $table = str_replace($order, '', $tableHTML);

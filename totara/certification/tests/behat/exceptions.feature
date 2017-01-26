@@ -58,7 +58,7 @@ Feature: Generation of certification assignment exceptions
     And I wait "2" seconds
     And I click on "Save changes" "button"
     And I click on "Save all changes" "button"
-    Then I should see "1 learner(s) assigned. 1 learner(s) are active, 0 with exception(s)"
+    Then I should see "1 learner(s) assigned: 1 active, 0 exception(s)"
 
     When I navigate to "Manage certifications" node in "Site administration > Courses"
     And I click on "Miscellaneous" "link"
@@ -87,7 +87,7 @@ Feature: Generation of certification assignment exceptions
     And I wait "2" seconds
     And I click on "Save changes" "button"
     And I click on "Save all changes" "button"
-    Then I should see "2 learner(s) assigned. 1 learner(s) are active, 1 with exception(s)"
+    Then I should see "2 learner(s) assigned: 1 active, 1 exception(s)"
 
     When I log out
     And I log in as "user001"
@@ -115,7 +115,7 @@ Feature: Generation of certification assignment exceptions
     And I click on "Proceed with this action" "button"
     And I click on "OK" "button"
     Then I should see "No exceptions"
-    And I should see "2 learner(s) assigned. 1 learner(s) are active, 0 with exception(s)"
+    And I should see "2 learner(s) assigned: 1 active, 0 exception(s)"
 
     When I click on "Assignments" "link"
     And I click on "Add individuals to program" "button"
@@ -124,4 +124,4 @@ Feature: Generation of certification assignment exceptions
     And I wait "2" seconds
     And I click on "Save changes" "button"
     And I click on "Save all changes" "button"
-    Then I should see "3 learner(s) assigned. 2 learner(s) are active, 0 with exception(s)"
+    Then I should see "3 learner(s) assigned: 2 active, 0 exception(s)"

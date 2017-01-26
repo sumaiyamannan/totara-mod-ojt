@@ -26,7 +26,7 @@ Feature: Behat generators for programs work
     And I should see "Generator Program Tests"
     And I click on "Generator Program Tests" "link"
     And I press "Edit program details"
-    Then I should see "2 learner(s) assigned. 2 learner(s) are active, 0 with exception(s)"
+    Then I should see "2 learner(s) assigned: 2 active, 0 exception(s)"
 
   @javascript
   Scenario: Verify the user interface works the same as program generators
@@ -47,6 +47,6 @@ Feature: Behat generators for programs work
     And I wait "1" seconds
     And I press "Save changes"
     And I press "Save all changes"
-    Then I should see "2 learner(s) assigned. 2 learner(s) are active, 0 with exception(s)"
+    Then I should see "2 learner(s) assigned: 2 active, 0 exception(s)"
     And I click on "Programs" in the totara menu
     Then I should see "Generator Program Tests"

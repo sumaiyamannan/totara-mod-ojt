@@ -78,7 +78,7 @@ Feature: Users assignments to a program
     And I wait "1" seconds
     And I press "Save changes"
     And I press "Save all changes"
-    Then I should see "2 learner(s) assigned. 2 learner(s) are active, 0 with exception(s)"
+    Then I should see "2 learner(s) assigned: 2 active, 0 exception(s)"
 
     When I log out
     And I log in as "user001"
@@ -127,7 +127,7 @@ Feature: Users assignments to a program
     And I wait "1" seconds
     And I press "Save changes"
     And I press "Save all changes"
-    Then I should see "2 learner(s) assigned. 2 learner(s) are active, 0 with exception(s)"
+    Then I should see "2 learner(s) assigned: 2 active, 0 exception(s)"
 
     When I log out
     And I log in as "user002"
@@ -205,7 +205,7 @@ Feature: Users assignments to a program
     And I wait "1" seconds
     And I press "Save changes"
     And I press "Save all changes"
-    Then I should see "2 learner(s) assigned. 2 learner(s) are active, 0 with exception(s)"
+    Then I should see "2 learner(s) assigned: 2 active, 0 exception(s)"
 
     When I log out
     And I log in as "user001"
@@ -278,7 +278,7 @@ Feature: Users assignments to a program
     And I wait "1" seconds
     And I press "Save changes"
     And I press "Save all changes"
-    Then I should see "2 learner(s) assigned. 2 learner(s) are active, 0 with exception(s)"
+    Then I should see "2 learner(s) assigned: 2 active, 0 exception(s)"
 
     When I log out
     And I log in as "user001"
@@ -352,7 +352,7 @@ Feature: Users assignments to a program
     And I wait "1" seconds
     And I press "Save changes"
     And I press "Save all changes"
-    Then I should see "2 learner(s) assigned. 2 learner(s) are active, 0 with exception(s)"
+    Then I should see "2 learner(s) assigned: 2 active, 0 exception(s)"
 
     When I log out
     And I log in as "user002"

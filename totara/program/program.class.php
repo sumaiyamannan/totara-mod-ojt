@@ -1809,6 +1809,15 @@ class program {
             $data->statusstr = 'programnotavailable';
         }
 
+        $now = time();
+        if (!empty($this->availablefrom) and ($now < $this->availablefrom)) {
+            $data->statusstr = 'notduetostartuntil';
+        }
+
+        if (!empty($this->availableuntil) and ($now > $this->availableuntil)) {
+            $data->statusstr = 'nolongeravailabletolearners';
+        }
+
         $renderer = $PAGE->get_renderer('totara_program');
         return $renderer->render_current_status($data);
     }
@@ -2172,6 +2181,15 @@ class program {
      */
     public function is_certif() {
         return !empty($this->certifid);
+    }
+
+    /**
+     * Returns whether a program has passed its end date.
+     *
+     * @return bool true if program no longer available.
+     */
+    public function has_expired() {
+        return (!empty($this->availableuntil) and (time() > $this->availableuntil));
     }
 }
 
