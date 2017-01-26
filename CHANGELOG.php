@@ -1059,7 +1059,7 @@ New features - Seminar:
 
 New features - Multiple jobs:
 
-    TL-8945        Multiple job assignments
+    TL-2082        Multiple job assignments
 
                    Multiple job assignments can be defined for each user. Existing data in primary and secondary positions was converted to
                    job assignments. See the related changelog entries for specific uses of this feature.
@@ -1872,7 +1872,7 @@ API change details:
     TL-8895        *  rb_facetoface_base_source::add_facetoface_common_to_columns added a second argument $joinsessions
                    *  rb_facetoface_base_source::add_session_status_to_joinlist second argument $sessionidfield was split into two
                       arguments $join and $field
-    TL-8945        *  After upgrade, Primary position assignment records will be the users' first job assignment (sortorder = 1) and
+    TL-2082        *  After upgrade, Primary position assignment records will be the users' first job assignment (sortorder = 1) and
                       Secondary records will be the users' second job assignment (sortorder = 2). Aspirational records are moved to the
                       new gap_aspirational table.
                    *  Strings relating to position assignments were deprecated from totara_hierarchy and totara_core and added into the
@@ -1980,8 +1980,8 @@ API change details:
                    *  totara/hierarchy/prefix/position/settings.php has been removed, including the function update_pos_settings
                    *  user/positions_form.php has been removed, including the class user_position_assignment_form
 
-                   *  The position_assignment table was renamed to job_assignment. This maintains record ids, so if you have a table which
-                      referenced position_assignment.id, e.g. "posassignid", then that field does not need to be updated (although you
+                   *  The pos_assignment table was renamed to job_assignment. This maintains record ids, so if you have a table which
+                      referenced pos_assignment.id, e.g. "posassignid", then that field does not need to be updated (although you
                       probably want to change the field name and fix the foreign key specification). Several other changes were made to
                       this table, including making idnumber user-unique and cannot be null (and it is editable in the user interface),
                       added fields for temporary manager, added a field for position assignment date (indicates when position was last
@@ -1989,6 +1989,8 @@ API change details:
                       managerjaid and managerjapath (note that these new fields store job assignment data, not manager ids), and fullname
                       can now be empty (if accessed through the job_assignment class, a default string containing the user-unique idnumber
                       will be returned).
+                   *  The pos_assignment_history table was unused so was removed, but only if it contained no data (in case it was in use
+                      by some customisation).
                    *  The temporary_manager table has been removed. Temporary manager data was moved into the job_assignment table.
                    *  The prog_pos_assignment table has been removed. The data in this table, which indicates on which date a user was
                       last assigned to their current position, has been moved into the job_assignment table, in the positionassignmentdate
