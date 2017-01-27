@@ -24,7 +24,7 @@ Feature: Check previous and upcomings sections are right populated
     And I add a "Seminar" to section "1" and I fill the form with:
       | Name                                   | Test seminar in progress |
       | Description                            | Test seminar in progress |
-      | Users can sign-up to multiple sessions | 1                        |
+      | Users can sign-up to multiple events   | 1                        |
     And I follow "View all events"
     And I follow "Add a new event"
     And I click on "Edit date" "link"
@@ -137,7 +137,7 @@ Feature: Check previous and upcomings sections are right populated
     And I follow "Course 1"
     And I follow "View all events"
     And I press "Update this Seminar"
-    And I set the field "Users can sign-up to multiple sessions" to "0"
+    And I set the field "Users can sign-up to multiple events" to "0"
     And I press "Save and return to course"
     And I log out
 
