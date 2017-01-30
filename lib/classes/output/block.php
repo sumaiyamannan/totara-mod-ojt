@@ -104,18 +104,18 @@ class block implements renderable {
         if ($bc->controls) {
             $controls['control_output'] = $output->block_controls($bc->controls, $blockid);
         }
-        if ($title || $controls) {
-            $block->header = array(
-                'title' => false,
-                'controls' => false
-            );
-            if ($title) {
-                $block->header['title'] = $title;
-            }
-            if ($controls) {
-                $block->header['controls'] = $controls;
-            }
+
+        $block->header = array(
+            'title' => false,
+            'controls' => false
+        );
+        if ($title) {
+            $block->header['title'] = $title;
         }
+        if ($controls) {
+            $block->header['controls'] = $controls;
+        }
+
 
         $block->content = $bc->content;
 
