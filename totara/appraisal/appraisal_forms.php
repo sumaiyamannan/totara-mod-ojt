@@ -172,7 +172,13 @@ class appraisal_answer_form extends moodleform {
                 }
 
                 $viewerroles = $question->get_roles_involved(appraisal::ACCESS_CANVIEWOTHER);
-                $elem->label = get_string('role_answer_you', 'totara_appraisal');
+                // As the learner's managers and appraiser may have changed and you may not have been the
+                // one providing the answers, do not use 'you' unless you can change the answers
+                if ($showformfields || $roleassignment->appraisalrole == appraisal::ROLE_LEARNER) {
+                    $elem->label = get_string('role_answer_you', 'totara_appraisal');
+                } else {
+                    $elem->label = get_string('role_answer_' . $rolecodestrings[$roleassignment->appraisalrole], 'totara_appraisal');
+                }
 
                 if (!empty($viewerroles)) {
                     $elem->viewers = array();

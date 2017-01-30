@@ -23,6 +23,7 @@
 
 @padding-small-horizontal: 10px;
 @padding-small-vertical: 5px;
+@gray-light: #6e6e6e;
 
 div.appraisal-content {
     padding-left:1em;
@@ -508,4 +509,14 @@ form.print-stages-form .fitem .fitemtitle {
 
 .plan_box a {
     text-decoration: none;
+}
+
+
+
+.appraisal-disabled {
+  color: @gray-light;
+
+  &:after {
+    content: " ";
+  }
 }

@@ -50,6 +50,8 @@ class totara_assign_appraisal extends totara_assign_core {
     /**
      * Create appraisal role assignment records for all appraisees associated
      * with the current appraisal.
+     *
+     * @return array $removedroleassignments list of removed role_assignments
      */
     public function store_role_assignments() {
         $appraiseeids = $this->get_current_appraisee_ids();
@@ -70,11 +72,13 @@ class totara_assign_appraisal extends totara_assign_core {
                 []
             );
 
-            $this->update_role_assignments($allassignments);
+            $removedroleassignments = $this->update_role_assignments($allassignments);
             $transaction->allow_commit();
+            return $removedroleassignments;
         }
         catch (Exception $e) {
             $transaction->rollback($e);
+            return array();
         }
     }
 
@@ -188,12 +192,13 @@ class totara_assign_appraisal extends totara_assign_core {
      * transaction management to the caller.
      *
      * @param array $allassignments list of \appraisal_assignments.
+     * @return array $removedroleassignmentss list of removed role_assignments
      */
     private function update_role_assignments(array $allassignments) {
         global $DB;
 
         if (empty($allassignments)) {
-            return;
+            return array();
         }
 
         $auditlogs = array_reduce(
@@ -208,13 +213,15 @@ class totara_assign_appraisal extends totara_assign_core {
 
         $toupdate = [];
         $toinsert = [];
+        $removedroleassignments = [];
         foreach ($allassignments as $assignments) {
             $assignid = $assignments->id();
             $current = \appraisal_assignments::from_db($assignid);
-            list($ins, $upd) = $this->update_roles($assignments, $current);
+            list($ins, $upd, $rem) = $this->update_roles($assignments, $current);
 
             $toinsert = array_merge($toinsert, $ins);
             $toupdate = array_merge($toupdate, $upd);
+            $removedroleassignments = array_merge($removedroleassignments, $rem);
         }
 
         $table = 'appraisal_role_assignment';
@@ -224,6 +231,8 @@ class totara_assign_appraisal extends totara_assign_core {
 
         $DB->insert_records_via_batch($table, $toinsert);
         $DB->insert_records_via_batch('appraisal_role_changes', $auditlogs);
+
+        return $removedroleassignments;
     }
 
     /**
@@ -238,6 +247,7 @@ class totara_assign_appraisal extends totara_assign_core {
     ) {
         $toinsert = [];
         $toupdate = [];
+        $toremove = [];
         $appraisalroles = [
             appraisal::ROLE_LEARNER,
             appraisal::ROLE_MANAGER,
@@ -256,14 +266,20 @@ class totara_assign_appraisal extends totara_assign_core {
                 $toinsert[] = $newuser;
             }
             else {
-                // This means there is an existing database record, but it has
-                // to be updated with the new details.
-                $newuser->id = $existinguser->id;
-                $toupdate[] = $newuser;
+                if ($newuser->userid != $existinguser->userid) {
+                    if ($newuser->userid == 0) {
+                        $toremove[] = $existinguser;
+                    }
+
+                    // This means there is an existing database record, but it has
+                    // to be updated with the new details.
+                    $newuser->id = $existinguser->id;
+                    $toupdate[] = $newuser;
+                }
             }
         }
 
-        return [$toinsert, $toupdate];
+        return [$toinsert, $toupdate, $toremove];
     }
 
     /**

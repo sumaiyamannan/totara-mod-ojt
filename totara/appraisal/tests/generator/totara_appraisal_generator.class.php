@@ -530,11 +530,32 @@ class totara_appraisal_generator extends component_generator_base {
             $data['name'] = self::DEFAULT_NAME_QUESTION . ' ' . $i;
         }
 
-        $data['roles'] = array(
-            appraisal::ROLE_LEARNER => appraisal::ACCESS_CANANSWER,
-            appraisal::ROLE_MANAGER => appraisal::ACCESS_CANANSWER + appraisal::ACCESS_CANVIEWOTHER,
-            appraisal::ROLE_APPRAISER => appraisal::ACCESS_CANANSWER + appraisal::ACCESS_CANVIEWOTHER
-        );
+        if (isset($data['roles'])) {
+            // For now - learner gets cananswer, other gets cananswer and canviewother
+            $roles = explode(',', $data['roles']);
+            unset($data['roles']);
+            $data['roles'] = array(appraisal::ROLE_LEARNER => appraisal::ACCESS_CANANSWER);
+
+            foreach ($roles as $role) {
+                switch ($role) {
+                    case 'manager':
+                        $data['roles'][appraisal::ROLE_MANAGER] = appraisal::ACCESS_CANANSWER + appraisal::ACCESS_CANVIEWOTHER;
+                        break;
+                    case 'teamlead':
+                        $data['roles'][appraisal::ROLE_TEAM_LEAD] = appraisal::ACCESS_CANANSWER + appraisal::ACCESS_CANVIEWOTHER;
+                        break;
+                    case 'appraiser':
+                        $data['roles'][appraisal::ROLE_APPRAISER] = appraisal::ACCESS_CANANSWER + appraisal::ACCESS_CANVIEWOTHER;
+                        break;
+                }
+            }
+        } else {
+            $data['roles'] = array(
+                appraisal::ROLE_LEARNER => appraisal::ACCESS_CANANSWER,
+                appraisal::ROLE_MANAGER => appraisal::ACCESS_CANANSWER + appraisal::ACCESS_CANVIEWOTHER,
+                appraisal::ROLE_APPRAISER => appraisal::ACCESS_CANANSWER + appraisal::ACCESS_CANVIEWOTHER
+            );
+        }
 
         if (!isset($data['type'])) {
             $data['type'] = 'text';

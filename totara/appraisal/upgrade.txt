@@ -1,6 +1,12 @@
 This files describes API changes for code that uses the question API,
 information provided here is intended especially for developers.
 
+=== 9.5 ===
+
+* store_role_assignments() function returns array of removed appraisal_role_assignments
+* update_role_assignments() function returns array of removed appraisal_role_assignments
+* update_roles() function also return a list of removed role assignments
+
 === 9.4 ===
 
 * Reduced specificy of CSS selectors to improve RTL support
