@@ -22,9 +22,9 @@ Feature: Check previous and upcomings sections are right populated
     And I follow "Course 1"
     And I turn editing mode on
     And I add a "Seminar" to section "1" and I fill the form with:
-      | Name                                   | Test seminar in progress |
-      | Description                            | Test seminar in progress |
-      | Users can sign-up to multiple events   | 1                        |
+      | Name                                 | Test seminar in progress |
+      | Description                          | Test seminar in progress |
+      | Users can sign-up to multiple events | 1                        |
     And I follow "View all events"
     And I follow "Add a new event"
     And I click on "Edit date" "link"
@@ -131,7 +131,7 @@ Feature: Check previous and upcomings sections are right populated
     And I should not see "1 January 1999"
     And I log out
 
-    # Change sign up for multiple sessions setting.
+    # Change sign up for multiple events setting.
     And I log in as "admin"
     And I click on "Find Learning" in the totara menu
     And I follow "Course 1"
