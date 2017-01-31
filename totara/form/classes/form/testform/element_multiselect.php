@@ -70,6 +70,7 @@ class element_multiselect extends form {
         $this->model->add(new multiselect('multiselect_with_current_data', 'multiselect with current data', ['whatever' => 'Yeah?', 'yes' => 'Oh yea!', 'nah' => 'Never!']))->add_help_button('cachejs', 'core_admin'); // Just a random help string.;
         $this->model->add(new multiselect('multiselect_frozen_empty', 'Empty frozen multiselect', $defaultoptions))->set_frozen(true);
         $this->model->add(new multiselect('multiselect_frozen_with_current_data', 'Frozen multiselect with current data', ['true' => '1', 'false' => '0']))->set_frozen(true);
+        $this->model->add(new multiselect('multiselect_with_html_labels', 'Multiselect with HTML labels', ['1' => '<b style="color:blue">Bold &amp; blue</b>', '2' => '<i style="color:green">Italic & green</i>']));
 
         $section = $this->model->add(new section('test_hiddenif', 'Testing Hiddenif'));
         $hiddenif_primary = $section->add(new multiselect('hiddenif_primary', 'Hidden if reference', ['a' => 'Alpha', 'b' => 'Bravo', 'c' => 'Charlie']));

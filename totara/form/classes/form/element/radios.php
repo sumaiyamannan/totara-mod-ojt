@@ -180,7 +180,7 @@ class radios extends element {
         $i = 0;
         foreach ($this->options as $value => $text) {
             $value = (string)$value; // PHP converts type of numeric keys it seems.
-            $text = clean_param($text, PARAM_CLEANHTML);
+            $text = clean_text($text);
             $oid = $id . '___rd_' . $i;
             $result['options'][] = array('value' => $value, 'oid' => $oid, 'text' => $text, 'checked' => ($checked === $value));
             $i++;
