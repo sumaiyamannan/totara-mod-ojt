@@ -146,6 +146,7 @@ class rb_source_dp_program_recurring extends rb_base_source {
             get_string('programidnumber', 'totara_program'),
             "prog.idnumber",
             array('joins' => 'prog',
+                  'displayfunc' => 'plaintext',
                   'dbdatatype' => 'char',
                   'outputformat' => 'text')
         );

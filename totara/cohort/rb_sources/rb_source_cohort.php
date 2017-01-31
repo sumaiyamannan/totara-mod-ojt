@@ -162,6 +162,7 @@ class rb_source_cohort extends rb_base_source {
             get_string('idnumber', 'totara_cohort'),
             'base.idnumber',
             array('dbdatatype' => 'char',
+                  'displayfunc' => 'plaintext',
                   'outputformat' => 'text')
         );
         $columnoptions[] = new rb_column_option(

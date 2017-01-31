@@ -635,9 +635,19 @@ abstract class rb_base_source {
         return implode($items, "\n");
     }
 
-    // Displays a delimited list of strings as one string per line.
-    // Assumes you used "'grouping' => 'sql_aggregate'", which concatenates with $uniquedelimiter to construct a pre-ordered string.
+    /**
+     * Displays a delimited list of strings as one string per line.
+     * Assumes you used "'grouping' => 'sql_aggregate'", which concatenates with $uniquedelimiter to construct a pre-ordered string.
+     *
+     * @deprecated Since 9.0
+     * @param $list
+     * @param $row
+     * @return string
+     */
     function rb_display_orderedlist_to_newline($list, $row) {
+        // This function is deprecated since 9.0.
+        // debugging('The orderedlist_to_newline report builder display function has been deprecated and replaced by totara_reportbuilder\rb\display\orderedlist_to_newline', DEBUG_DEVELOPER);
+
         $output = array();
         $items = explode($this->uniquedelimiter, $list);
         foreach ($items as $item) {
@@ -2488,7 +2498,6 @@ abstract class rb_base_source {
             'lastnamephonetic' => get_string('userlastnamephonetic', 'totara_reportbuilder'),
             'alternatename' => get_string('useralternatename', 'totara_reportbuilder'),
             'username' => get_string('username', 'totara_reportbuilder'),
-            'idnumber' => get_string('useridnumber', 'totara_reportbuilder'),
             'phone1' => get_string('userphone', 'totara_reportbuilder'),
             'institution' => get_string('userinstitution', 'totara_reportbuilder'),
             'department' => get_string('userdepartment', 'totara_reportbuilder'),
@@ -2502,12 +2511,25 @@ abstract class rb_base_source {
                 $name,
                 "$join.$field",
                 array('joins' => $join,
+                      'displayfunc' => 'plaintext',
                       'dbdatatype' => 'char',
                       'outputformat' => 'text',
                       'addtypetoheading' => $addtypetoheading
                 )
             );
         }
+
+        $columnoptions[] = new rb_column_option(
+            $groupname,
+            'idnumber',
+            get_string('useridnumber', 'totara_reportbuilder'),
+            "$join.idnumber",
+            array('joins' => $join,
+                'displayfunc' => 'plaintext',
+                'dbdatatype' => 'char',
+                'outputformat' => 'text')
+        );
+
         $columnoptions[] = new rb_column_option(
             $groupname,
             'id',
@@ -2903,6 +2925,7 @@ abstract class rb_base_source {
             get_string('courseidnumber', 'totara_reportbuilder'),
             "$join.idnumber",
             array('joins' => $join,
+                  'displayfunc' => 'plaintext',
                   'dbdatatype' => 'char',
                   'outputformat' => 'text')
         );
@@ -3168,6 +3191,7 @@ abstract class rb_base_source {
             get_string('programidnumber', $langfile),
             "$join.idnumber",
             array('joins' => $join,
+                  'displayfunc' => 'plaintext',
                   'dbdatatype' => 'char',
                   'outputformat' => 'text')
         );
@@ -3520,6 +3544,7 @@ abstract class rb_base_source {
             "$catjoin.idnumber",
             array(
                 'joins' => $catjoin,
+                'displayfunc' => 'plaintext',
                 'dbdatatype' => 'char',
                 'outputformat' => 'text'
             )
@@ -5784,6 +5809,15 @@ abstract class rb_base_source {
      */
     public function get_custom_export_header(reportbuilder $report, $format) {
         return null;
+    }
+
+    /**
+     * Get the uniquedelimiter.
+     *
+     * @return string
+     */
+    public function get_uniquedelimiter() {
+        return $this->uniquedelimiter;
     }
 
     /**

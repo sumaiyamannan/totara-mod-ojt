@@ -219,6 +219,7 @@ class rb_source_dp_certification_history extends rb_base_source {
                 'prog.idnumber',
                 array(
                     'joins' => 'prog',
+                    'displayfunc' => 'plaintext',
                     'dbdatatype' => 'char',
                     'outputformat' => 'text'
                 )

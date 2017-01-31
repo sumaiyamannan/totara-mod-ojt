@@ -244,6 +244,7 @@ class rb_source_dp_certification extends rb_base_source {
                 'base.idnumber',
                 array(
                     'joins' => 'base',
+                    'displayfunc' => 'plaintext',
                     'dbdatatype' => 'char',
                     'outputformat' => 'text'
                 )

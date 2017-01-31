@@ -1,5 +1,8 @@
 This file descripts API changes in reportbuilder.
 
+=== 2.9 ===
+
+* rb_display_orderedlist_to_newline() is now deprecated.
 
 === 2.6 ===
 

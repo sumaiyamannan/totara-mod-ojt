@@ -395,6 +395,7 @@ class rb_source_program_overview extends rb_base_source {
             'cplposition.idnumber',
             array(
                 'joins' => 'cplposition',
+                'displayfunc' => 'plaintext',
                 'dbdatatype' => 'char',
                 'outputformat' => 'text'
             )

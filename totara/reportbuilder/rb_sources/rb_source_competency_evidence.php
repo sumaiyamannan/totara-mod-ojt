@@ -250,6 +250,7 @@ class rb_source_competency_evidence extends rb_base_source {
                 get_string('competencyid', 'rb_source_competency_evidence'),
                 'competency.idnumber',
                 array('joins' => 'competency',
+                      'displayfunc' => 'plaintext',
                       'dbdatatype' => 'char',
                       'outputformat' => 'text')
             ),

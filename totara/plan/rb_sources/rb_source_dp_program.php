@@ -176,6 +176,7 @@ class rb_source_dp_program extends rb_base_source {
            get_string('programidnumber', 'totara_program'),
             "base.idnumber",
             array('joins' => 'base',
+                  'displayfunc' => 'plaintext',
                   'dbdatatype' => 'char',
                   'outputformat' => 'text')
         );

@@ -86,6 +86,7 @@ class rb_source_connect_servers extends rb_base_source {
             get_string('idnumber'),
             'base.serveridnumber',
             array(
+                'displayfunc' => 'plaintext',
                 'dbdatatype' => 'char',
                 'outputformat' => 'text',
             )

@@ -145,6 +145,7 @@ class rb_source_cohort_members extends rb_base_source {
             get_string('idnumber', 'totara_cohort'),
             'cohort.idnumber',
             array('joins'=>array('cohort'),
+                  'displayfunc' => 'plaintext',
                   'dbdatatype' => 'char',
                   'outputformat' => 'text')
         );
