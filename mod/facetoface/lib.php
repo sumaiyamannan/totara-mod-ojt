@@ -5565,42 +5565,38 @@ function facetoface_get_customfield_filters() {
  */
 function facetoface_pluginfile($course, $cm, $context, $filearea, $args, $forcedownload, array $options=array()) {
     global $DB;
-    $fs = get_file_storage();
+
+    $sessionid = (int)array_shift($args);
+    if (!$DB->get_record('facetoface_sessions', array('id' => $sessionid, 'facetoface' => $cm->instance))) {
+        return false;
+    }
+
+    $fileinstance = function() use($context, $filearea, $args, $sessionid) {
+        $fs = get_file_storage();
+        $relativepath = implode('/', $args);
+        $fullpath = "/$context->id/mod_facetoface/$filearea/$sessionid/$relativepath";
+        if (!$file = $fs->get_file_by_hash(sha1($fullpath))) {
+            return false;
+        }
+        return $file;
+    };
 
     if ($context->contextlevel == CONTEXT_SYSTEM && ($filearea === 'room' || $filearea === 'asset')) {
         // NOTE: we do not know where is the room and asset description visible,
         //       this means we cannot do any strict access control, bad luck.
-        $itemid = (int)array_shift($args);
-        $relativepath = implode('/', $args);
-        $fullpath = "/$context->id/mod_facetoface/$filearea/$itemid/$relativepath";
-        if (!$file = $fs->get_file_by_hash(sha1($fullpath)) or $file->is_directory()) {
-            return false;
-        }
-
+        $storedfile = $fileinstance();
         // This function will stop code.
-        send_stored_file($file, 360, 0, true, $options);
+        send_stored_file($storedfile, 360, 0, true, $options);
     }
 
     if ($context->contextlevel != CONTEXT_MODULE || $filearea !== 'session') {
         return false;
     }
 
-    require_login($course, true, $cm);
     // NOTE: we do not know where is the session details text displayed,
     //       this means we cannot do any strict access control, bad luck.
-
-    $sessionid = (int)array_shift($args);
-    if (!$session = $DB->get_record('facetoface_sessions', array('id' => $sessionid, 'facetoface' => $cm->instance))) {
-        return false;
-    }
-
-    $relativepath = implode('/', $args);
-    $fullpath = "/$context->id/mod_facetoface/$filearea/$sessionid/$relativepath";
-    if (!$file = $fs->get_file_by_hash(sha1($fullpath)) or $file->is_directory()) {
-        return false;
-    }
-
-    send_stored_file($file, 360, 0, true, $options);
+    $storedfile = $fileinstance();
+    send_stored_file($storedfile, 360, 0, true, $options);
 }
 
 /**
