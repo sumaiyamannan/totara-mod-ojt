@@ -237,7 +237,7 @@ class totara_sync_source_pos_database extends totara_sync_source_pos {
             }
 
             if (empty($extdbrow['timemodified'])) {
-                $dbrow['timemodified'] = 0;
+                $dbrow['timemodified'] = $now; // This should probably be 0, but it causes repeated sync_item calls to parents.
             } else {
                 //try to parse the contents - if parse fails assume a unix timestamp and leave unchanged
                 $parsed_date = totara_date_parse_from_format($csvdateformat, trim($extdbrow['timemodified']), true);
