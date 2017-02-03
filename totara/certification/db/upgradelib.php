@@ -125,3 +125,21 @@ function certif_upgrade_fix_reassigned_users() {
     }
 }
 
+// TL-12606 Recalculate non-zero course set group completion records.
+function totara_certification_upgrade_non_zero_prog_completions() {
+    global $CFG, $DB;
+
+    require_once($CFG->dirroot . '/totara/program/lib.php');
+
+    // Magic number 2 is STATUS_COURSESET_INCOMPLETE.
+    $sql = "DELETE FROM {prog_completion}
+             WHERE status = 2
+               AND timestarted = 0
+               AND timedue = 0
+               AND timecompleted = 0
+               AND coursesetid <> 0
+               AND programid IN (SELECT id
+                                   FROM {prog}
+                                  WHERE certifid IS NOT NULL)";
+    $DB->execute($sql);
+}

@@ -401,6 +401,11 @@ function recertify_window_opens_stage() {
                 $message->send_message($user);
             }
         }
+
+        // Recalculate program completion, in case the user already meets the criteria. Unlikely, but could happen due to
+        // something like f2f sessions. Also, create the first non-zero course set group completion record, with timedue.
+        $program = new program($user->progid);
+        prog_update_completion($user->id, $program);
     }
 
     return count($results);
@@ -514,6 +519,12 @@ function recertify_expires_stage() {
         certif_write_completion_log($user->progid, $user->id,
             'Certification expired, changed to primary certification path'
         );
+
+        // Recalculate program completion, in case the user already meets the criteria. Possible since we are switching paths
+        // and the user may already have progress in the recert path. Also, create the first non-zero course set group
+        // completion record, with timedue.
+        $program = new program($user->progid);
+        prog_update_completion($user->id, $program);
     }
 
     return count($results);
@@ -1558,15 +1569,11 @@ function reset_certifcomponent_completions($certifcompletion, $courses=null) {
     // This clears both courseset paths as could end up having to
     // do certification path if recertification expires.
     // Note: historic import does not have prog_completion records where coursesetid is not 0.
-    $sql = "UPDATE {prog_completion}
-        SET status = ?,
-            timestarted = 0,
-            timedue = 0,
-            timecompleted = 0
+    $sql = "DELETE FROM {prog_completion}
         WHERE programid = ?
             AND userid = ?
             AND coursesetid <> 0";
-    $DB->execute($sql, array(STATUS_COURSESET_INCOMPLETE, $prog->id, $userid));
+    $DB->execute($sql, array($prog->id, $userid));
 
     // Course_completions (get list of courses if not done in calling function).
     // Note: course_completion.renewalstatus is set to due at this point - would need to add that flag to cc processing
