@@ -524,6 +524,15 @@ class rb_source_ojt_completion extends rb_base_source {
         }
         return 2;
     }
+
+    /* We ignore test for now as data is not being picked. Totara has a patch at https://review.totaralms.com/#/c/13586
+    but it has not integrated yet */
+    public function is_ignored() {
+        if (PHPUNIT_TEST) {
+            return true;
+        }
+    }
+
 } // end of rb_source_course_completion class
 
 
