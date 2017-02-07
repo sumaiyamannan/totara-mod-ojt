@@ -47,6 +47,8 @@ class totara_core_task_send_reminder_messages_test extends reportcache_advanced_
     protected $learner1;
     /** @var stdClass */
     protected $learner2;
+    /** @var stdClass */
+    protected $learner3;
 
     /**
      * Set up for each test.
@@ -90,6 +92,7 @@ class totara_core_task_send_reminder_messages_test extends reportcache_advanced_
         $this->manager = $generator->create_user(array('username' => 'manager'));
         $this->learner1 = $generator->create_user(array('username' => 'learner1', 'managerid' => $this->manager->id));
         $this->learner2 = $generator->create_user(array('username' => 'learner2', 'managerid' => $this->manager->id));
+        $this->learner3 = $generator->create_user(array('username' => 'learner3', 'managerid' => $this->manager->id));
 
         // Give each user a second manager.
         $secondmanager = $generator->create_user(['username' => 'butter_manager']);
@@ -100,6 +103,7 @@ class totara_core_task_send_reminder_messages_test extends reportcache_advanced_
         // Enrol the user into the course.
         $generator->enrol_user($this->learner1->id, $this->course->id);
         $generator->enrol_user($this->learner2->id, $this->course->id);
+        $generator->enrol_user($this->learner3->id, $this->course->id);
 
         // Test the reminder structure.
         $reminders = get_course_reminders($this->course->id);
@@ -233,6 +237,80 @@ class totara_core_task_send_reminder_messages_test extends reportcache_advanced_
         foreach($messages as $message) {
             if (($message->subject === 'Subject for type escalation') and ($message->useridto == $this->manager->id)) {
                 $managergotemail = true;
+            }
+        }
+        $this->assertTrue($managergotemail);
+
+        $sink->close();
+    }
+
+    /**
+     * Test course reminders do not get sent to users who were unenrolled or whose enrolments were
+     * suspended. But this should not prevent messages to a valid user.
+     */
+    public function test_reminders_not_sent_to_unenrolled_or_suspended() {
+        global $DB;
+
+        $sink = $this->redirectMessages();
+
+        $completion = new completion_info($this->course);
+        $completion = $completion->get_completion($this->learner1->id, COMPLETION_CRITERIA_TYPE_SELF);
+        $this->assertFalse($completion->is_complete());
+        $completion->mark_complete(time() - DAYSECS);
+        $this->assertTrue($completion->is_complete());
+
+        $completion = new completion_info($this->course);
+        $completion = $completion->get_completion($this->learner2->id, COMPLETION_CRITERIA_TYPE_SELF);
+        $this->assertFalse($completion->is_complete());
+        $completion->mark_complete(time() - DAYSECS);
+        $this->assertTrue($completion->is_complete());
+
+        $completion = new completion_info($this->course);
+        $completion = $completion->get_completion($this->learner3->id, COMPLETION_CRITERIA_TYPE_SELF);
+        $this->assertFalse($completion->is_complete());
+        $completion->mark_complete(time() - DAYSECS);
+        $this->assertTrue($completion->is_complete());
+
+        $plugin = enrol_get_plugin('manual');
+        $enrolinstance = $DB->get_record('enrol', array('courseid' => $this->course->id, 'enrol' => 'manual'));
+
+        $context = context_course::instance($this->course->id);
+
+        // Keep learner 1 fully enrolled.
+        // Suspend learner 2's enrolment.
+        $plugin->update_user_enrol($enrolinstance, $this->learner2->id, ENROL_USER_SUSPENDED);
+        // Unenrol learner 3.
+        $plugin->unenrol_user($enrolinstance, $this->learner3->id);
+
+        // Let's check the enrolments are correct.
+        // Learner 1 continues to have an active enrolment.
+        $this->assertTrue(is_enrolled($context, $this->learner1, '', true)); // Check for active enrolment only.
+        // Learner 2's enrolment is suspended.
+        $this->assertTrue(is_enrolled($context, $this->learner2, '', false)); // Check for any enrolment.
+        $this->assertFalse(is_enrolled($context, $this->learner2, '', true)); // Check for active enrolment only.
+        // Learner 3 is unenrolled.
+        $this->assertFalse(is_enrolled($context, $this->learner3, '', false)); // Check for any enrolment.
+
+        $task = new \totara_core\task\send_reminder_messages_task();
+        ob_start();
+        $task->execute();
+        $output = ob_get_clean();
+
+        // There should be four messages, three to the learner and 1 to the learners manager.
+        $this->assertSame(4, $sink->count());
+        $this->assertContains('1 "invitation" type messages sent', $output);
+        $this->assertContains('1 "reminder" type messages sent', $output);
+        $this->assertContains('2 "escalation" type messages sent', $output);
+
+        // Make sure that an escalation email did indeed go to the manager.
+        $messages = $sink->get_messages();
+        $managergotemail = false;
+        foreach($messages as $message) {
+            if (($message->subject === 'Subject for type escalation') and ($message->useridto == $this->manager->id)) {
+                $managergotemail = true;
+            } else if ($message->useridto != $this->learner1->id) {
+                // If it's not for the manager, then these should be for learner1. Learner2 or 3 should not get any message.
+                $this->fail('Messages sent to learner that were not to learner1.');
             }
         }
         $this->assertTrue($managergotemail);
@@ -565,6 +643,7 @@ class totara_core_task_send_reminder_messages_test extends reportcache_advanced_
         $sink = $this->redirectMessages();
 
         // Complete the course with completion date 1 day before today.
+        $this->getDataGenerator()->enrol_user($learner3->id, $this->course->id);
         $completion = new completion_info($this->course);
         $completion = $completion->get_completion($learner3->id, COMPLETION_CRITERIA_TYPE_SELF);
         $this->assertFalse($completion->is_complete());

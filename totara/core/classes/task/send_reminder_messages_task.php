@@ -73,6 +73,7 @@ class send_reminder_messages_task extends \core\task\scheduled_task {
 
                     // Check completion is still enabled in this course.
                     $course = $DB->get_record('course', array('id' => $reminder->courseid));
+                    $coursecontext = \context_course::instance($course->id);
                     $completion = new \completion_info($course);
 
                     if (!$completion->is_enabled()) {
@@ -152,12 +153,16 @@ class send_reminder_messages_task extends \core\task\scheduled_task {
                             $evalcompletionperiod = $now - ($CFG->reminder_maxtimesincecompletion * DAYSECS);
                         }
 
+                        // We only want to retrieve users with active enrolments in this course.
+                        list($eusql, $euparams) = get_enrolled_sql($coursecontext, '', 0, true);
+
                         // Get anyone that needs a reminder sent that hasn't had one already
                         // and has yet to complete the required feedback.
                         $sql = "
                             SELECT u.*, cc.timecompleted
                               FROM {user} u
                                   {$tsql}
+                              JOIN ({$eusql}) eu on eu.id = u.id
                          LEFT JOIN {reminder_sent} rs
                                 ON rs.userid = u.id
                                AND rs.reminderid = :reminderid
@@ -171,7 +176,7 @@ class send_reminder_messages_task extends \core\task\scheduled_task {
                                AND (cc.timecompleted + :periodsecs1) >= :timecreated
                                AND (cc.timecompleted + :periodsecs2) < :now
                         ";
-                        $params = array_merge($tparams,
+                        $params = array_merge($tparams, $euparams,
                             array(
                                 'reminderid' => $reminder->id,
                                 'messageid' => $message->id,
@@ -241,11 +246,10 @@ class send_reminder_messages_task extends \core\task\scheduled_task {
                             // Get course contact.
                             $rusers = array();
                             if (!empty($CFG->coursecontact)) {
-                                $context = \context_course::instance($course->id);
                                 $croles = explode(',', $CFG->coursecontact);
                                 list($sort, $sortparams) = users_order_by_sql('u');
                                 // Totara: we only use the first user - ignore hacks from MDL-22309.
-                                $rusers = get_role_users($croles, $context, true, '', 'r.sortorder ASC, ' . $sort, null,
+                                $rusers = get_role_users($croles, $coursecontext, true, '', 'r.sortorder ASC, ' . $sort, null,
                                         '', 0, 1, '', $sortparams);
                             }
                             if ($rusers) {
