@@ -267,6 +267,10 @@ There are also placeholders available for user custom profile fields that can be
 
 For example if you have a user custom profile field with the shortname "suburb" that you wish to use in the notification you would [user:suburb] as the placeholder.
 
+### 7. Trusted content
+
+To use placeholders in URL\'s, an admin will need to enable the "Enable trusted content" setting and grant "Trust submitted content" capability to approved roles.
+
 ';
 $string['booked'] = 'Booked';
 $string['bookingcancelled'] = 'Your booking has been cancelled.';
