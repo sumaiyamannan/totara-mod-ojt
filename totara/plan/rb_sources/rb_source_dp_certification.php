@@ -370,6 +370,7 @@ class rb_source_dp_certification extends rb_base_source {
                     'defaultheading' => get_string('historylink', 'rb_source_dp_certification'),
                     'displayfunc' => 'historylink',
                     'extrafields' => array(
+                        'fullname' => 'base.fullname',
                         'certifid' => 'certif_completion.certifid',
                         'userid' => 'certif_completion.userid',
                     ),
@@ -699,10 +700,16 @@ class rb_source_dp_certification extends rb_base_source {
         return prog_display_link_icon($row->programid, $row->userid);
     }
 
-    public function rb_display_historylink($name, $row) {
+    public function rb_display_historylink($count, $row) {
         global $OUTPUT;
+
+        if (!$count) {
+            return 0;
+        }
+
+        $description = html_writer::span(get_string('viewpreviouscompletions', 'rb_source_dp_certification', $row->fullname), 'sr-only');
         return $OUTPUT->action_link(new moodle_url('/totara/plan/record/certifications.php',
-                array('certifid' => $row->certifid, 'userid' => $row->userid, 'history' => 1)), $name);
+                array('certifid' => $row->certifid, 'userid' => $row->userid, 'history' => 1)), $count . $description);
     }
 
     /**
