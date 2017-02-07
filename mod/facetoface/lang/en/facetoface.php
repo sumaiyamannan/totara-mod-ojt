@@ -2107,6 +2107,7 @@ $string['venue'] = 'Venue';
 $string['versioncontrol'] = 'Version control';
 $string['viewallsessions'] = 'View all events';
 $string['viewasset'] = 'View asset';
+$string['viewattendees'] = 'View attendees';
 $string['viewresults'] = 'View results';
 $string['viewroom'] = 'View room';
 $string['viewsubmissions'] = 'View submissions';
