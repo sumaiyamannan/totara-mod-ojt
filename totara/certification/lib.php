@@ -385,7 +385,7 @@ function recertify_window_opens_stage() {
             array('certifid' => $user->certifid, 'userid' => $user->id));
 
         certif_write_completion_log($user->progid, $user->id,
-            'Window opened, current certification completion archived, all courses reset'
+            'Window opened, current certification completion archived, certif_completion updated (step 1 of 2)'
         );
 
         // Reset course_completions, course_module_completions, program_completion records.
@@ -1550,6 +1550,10 @@ function reset_certifcomponent_completions($certifcompletion, $courses=null) {
     } else {
         print_error('error:missingprogcompletion', 'totara_certification', '', $certifcompletion);
     }
+
+    certif_write_completion_log($prog->id, $userid,
+        'Window opened, prog_completion updated, course and activity completion will be archived (step 2 of 2)'
+    );
 
     // This clears both courseset paths as could end up having to
     // do certification path if recertification expires.
