@@ -477,6 +477,9 @@ abstract class form implements \templatable {
      * @return array
      */
     public function export_for_template(\renderer_base $output) {
+        // Make sure we have everything initialised before rendering.
+        $this->is_valid_submission();
+
         return $this->model->export_for_template($output);
     }
 
