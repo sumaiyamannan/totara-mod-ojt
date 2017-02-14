@@ -503,3 +503,206 @@ Feature: Evidence custom fields.
     And I press "Continue"
     Then I should see "Evidence deleted"
     And I should see "There are no records in this report"
+
+  Scenario: As an admin I need to add a custom field for evidence where it's value is unique.
+
+    Given I log in as "admin"
+    And I navigate to "Evidence custom fields" node in "Site administration > Learning Plans"
+
+    # Create a text input custom field.
+    When I set the field "Create a new custom field" to "Text input"
+    And I set the following fields to these values:
+      | Full name                   | Unique input test |
+      | Short name (must be unique) | textinputtest     |
+      | Should the data be unique?  | Yes               |
+    And I press "Save changes"
+    Then I should see "Available Evidence Custom Fields"
+    And I should see "Unique input test"
+
+    # Create a checkbox custom field.
+    When I set the field "Create a new custom field" to "Checkbox"
+    And I set the following fields to these values:
+      | Full name                   | Unique checkbox test |
+      | Short name (must be unique) | checkboxtest         |
+      | Should the data be unique?  | Yes                  |
+    And I press "Save changes"
+    Then I should see "Available Evidence Custom Fields"
+    And I should see "Unique checkbox test"
+
+    # Create a date/time custom field.
+    When I set the field "Create a new custom field" to "Date/time"
+    And I set the following fields to these values:
+      | Full name                   | Unique date/time test |
+      | Short name (must be unique) | datetimetest          |
+      | Should the data be unique?  | Yes                   |
+    And I press "Save changes"
+    Then I should see "Available Evidence Custom Fields"
+    And I should see "Unique date/time test"
+
+    # Create a menu of choices custom field.
+    When I set the field "Create a new custom field" to "Menu of choices"
+    And I set the following fields to these values:
+      | Full name                   | Unique menu of choices test |
+      | Short name (must be unique) | menutest                    |
+      | Should the data be unique?  | Yes                         |
+    And I set the field "Menu options (one per line)" to multiline
+      """
+      optionone
+      optiontwo
+      optionthree
+      """
+    And I press "Save changes"
+    Then I should see "Available Evidence Custom Fields"
+    And I should see "Unique menu of choices test"
+
+    # Create a multi-select custom field.
+    When I set the field "Create a new custom field" to "Multi-select"
+    And I set the following fields to these values:
+      | Full name                   | Unique multi-select test |
+      | Short name (must be unique) | multiselecttest          |
+      | Should the data be unique?  | Yes                      |
+      | multiselectitem[0][option]  | optionone                |
+      | multiselectitem[1][option]  | optiontwo                |
+      | multiselectitem[2][option]  | optionthree              |
+    And I press "Save changes"
+    Then I should see "Available Evidence Custom Fields"
+    And I should see "Unique multi-select test"
+
+    # Create a piece of evidence using the custom fields.
+    When I click on "Record of Learning" in the totara menu
+    And I press "Add evidence"
+    And I set the following fields to these values:
+      | Evidence name                   | Unique input test 1 |
+      | Unique input test               | Test 1              |
+      | Unique checkbox test            | Yes                 |
+      | customfield_datetimetest[day]   | 19                  |
+      | customfield_datetimetest[month] | 7                   |
+      | customfield_datetimetest[year]  | 2027                |
+      | Unique menu of choices test     | optiontwo           |
+      | customfield_multiselecttest[1]  | 1                   |
+    And I press "Add evidence"
+    Then I should see "Unique input test 1"
+
+    # Create another piece of evidence using the same custom field values, setting it as not unique.
+    When I press "Add evidence"
+    And I set the following fields to these values:
+      | Evidence name                   | Unique input test 2 |
+      | Unique input test               | Test 1              |
+      | Unique checkbox test            | Yes                 |
+      | customfield_datetimetest[day]   | 19                  |
+      | customfield_datetimetest[month] | 7                   |
+      | customfield_datetimetest[year]  | 2027                |
+      | Unique menu of choices test     | optiontwo           |
+      | customfield_multiselecttest[1]  | 1                   |
+    And I press "Add evidence"
+
+
+    Then I should see the form validation error "This value has already been used." for the "textinputtest" custom field
+    And I should see the form validation error "This value has already been used." for the "checkboxtest" custom field
+    And I should see the form validation error "The 'datetimetest' date/time custom field contains a non-unique date" for the "datetimetest" custom field
+    And I should see the form validation error "This value has already been used." for the "menutest" custom field
+    # TODO: Add support for multiselect custom fields.
+    # And I should see the form .phpvalidation error "This value has already been used." for the "multiselecttest" custom field
+
+    # Update the custom field values to be unique.
+    When I set the following fields to these values:
+      | Unique input test               | Test 2    |
+      | Unique checkbox test            | 0         |
+      | customfield_datetimetest[day]   | 20        |
+      | customfield_datetimetest[month] | 8         |
+      | customfield_datetimetest[year]  | 2028      |
+      | Unique menu of choices test     | optionone |
+      | customfield_multiselecttest[1]  | 0         |
+      | customfield_multiselecttest[2]  | 1         |
+    And I press "Add evidence"
+    Then I should not see "This value has already been used."
+    And I should not see "The 'datetimetest' date/time custom field contains a non-unique date"
+
+  Scenario: As an admin I need to add a custom field for evidence where it's value is locked.
+
+    Given I log in as "admin"
+    And I navigate to "Evidence custom fields" node in "Site administration > Learning Plans"
+
+    # Create a text input custom field.
+    When I set the field "Create a new custom field" to "Text input"
+    And I set the following fields to these values:
+      | Full name                   | Locked input test |
+      | Short name (must be unique) | textinputtest     |
+      | Is this field locked?       | Yes               |
+    And I press "Save changes"
+    Then I should see "Available Evidence Custom Fields"
+    And I should see "Locked input test"
+
+    # Create a checkbox custom field.
+    When I set the field "Create a new custom field" to "Checkbox"
+    And I set the following fields to these values:
+      | Full name                   | Locked checkbox test |
+      | Short name (must be unique) | checkboxtest         |
+      | Is this field locked?       | Yes                  |
+    And I press "Save changes"
+    Then I should see "Available Evidence Custom Fields"
+    And I should see "Locked checkbox test"
+
+    # Create a date/time custom field.
+    When I set the field "Create a new custom field" to "Date/time"
+    And I set the following fields to these values:
+      | Full name                   | Locked date/time test |
+      | Short name (must be unique) | datetimetest          |
+      | Is this field locked?       | Yes                   |
+    And I press "Save changes"
+    Then I should see "Available Evidence Custom Fields"
+    And I should see "Locked date/time test"
+
+    # Create a menu of choices custom field.
+    When I set the field "Create a new custom field" to "Menu of choices"
+    And I set the following fields to these values:
+      | Full name                   | Locked menu of choices test |
+      | Short name (must be unique) | menutest                    |
+      | Is this field locked?       | Yes                         |
+    And I set the field "Menu options (one per line)" to multiline
+      """
+      menuoptionone
+      menuoptiontwo
+      menuoptionthree
+      """
+    And I press "Save changes"
+    Then I should see "Available Evidence Custom Fields"
+    And I should see "Locked menu of choices test"
+
+    # Create a multi-select custom field.
+    When I set the field "Create a new custom field" to "Multi-select"
+    And I set the following fields to these values:
+      | Full name                   | Locked multi-select test |
+      | Short name (must be unique) | multiselecttest          |
+      | Is this field locked?       | Yes                      |
+      | multiselectitem[0][option]  | optionone                |
+      | multiselectitem[1][option]  | optiontwo                |
+      | multiselectitem[2][option]  | optionthree              |
+    And I press "Save changes"
+    Then I should see "Available Evidence Custom Fields"
+    And I should see "Locked multi-select test"
+
+    # Create a piece of evidence to check the fields are locked after first input.
+    When I click on "Record of Learning" in the totara menu
+    And I press "Add evidence"
+    And I set the following fields to these values:
+      | Evidence name                   | Locked input test 1 |
+      | Locked input test               | Test 1              |
+      | Locked checkbox test            | Yes                 |
+      | customfield_datetimetest[day]   | 19                  |
+      | customfield_datetimetest[month] | 7                   |
+      | customfield_datetimetest[year]  | 2027                |
+      | Locked menu of choices test     | menuoptiontwo       |
+      | customfield_multiselecttest[1]  | 1                   |
+    And I press "Add evidence"
+    Then I should see "Locked input test 1"
+    When I follow "Locked input test 1"
+    And I click on "Edit details" "button"
+    Then the "Locked input test" "field" should be readonly
+    And the "Locked checkbox test" "checkbox" should be disabled
+    And I should see "menuoptiontwo"
+    And "customfield_datetimetest[day]" "select" should not exist
+    And the "id_customfield_multiselecttest_0" "checkbox" should be disabled
+    # TODO: All the inputs in the multiselect custom field should be locked. See TL-12769.
+    # And the "id_customfield_multiselecttest_1" "checkbox" should be disabled
+    # And the "id_customfield_multiselecttest_2" "checkbox" should be disabled
