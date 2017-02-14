@@ -1344,6 +1344,7 @@ class report_builder_course_expand_form extends moodleform {
         $courseid = $this->_customdata['courseid'];
         $action = $this->_customdata['action'];
         $url = $this->_customdata['url'];
+        $viewcourse = isset($this->_customdata['viewcourse']) ? $this->_customdata['viewcourse'] : false;
 
         if (count($inlineenrolmentelements) > 0) {
             $notices = totara_get_notifications();
@@ -1383,17 +1384,19 @@ class report_builder_course_expand_form extends moodleform {
         $mform->addElement('hidden', 'courseid', $courseid);
         $mform->setType('courseid', PARAM_INT);
 
+        if (empty($inlineenrolmentelements) && $viewcourse == true) {
+            $action = get_string('viewcourse', 'totara_program');
+            $url = new moodle_url('/course/view.php', array('id' => $courseid));
+            $mform->addElement('static', 'viewcourse', '', html_writer::link($url, $action,
+                array('class' => 'btn btn-default')));
+        }
+
         foreach ($inlineenrolmentelements as $inlineenrolmentelement) {
             $mform->addElement($inlineenrolmentelement);
 
             if ($inlineenrolmentelement->_type == 'header') { // Headers are collapsed by default and we want them open.
                 $mform->setExpanded($inlineenrolmentelement->getName());
             }
-        }
-
-        if ($url != '') {
-            $mform->addElement('static', 'enrol', '', html_writer::link($url, $action,
-                array('class' => 'link-as-button btn btn-primary')));
         }
     }
 }

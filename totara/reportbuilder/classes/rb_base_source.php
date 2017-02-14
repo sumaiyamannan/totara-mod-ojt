@@ -1153,7 +1153,6 @@ abstract class rb_base_source {
             $instances = enrol_get_instances($courseid, true);
             $plugins = enrol_get_plugins(true);
 
-            $cansignup = false;
             $enrolmethodlist = array();
             foreach ($instances as $instance) {
                 if (!isset($plugins[$instance->enrol])) {
@@ -1176,21 +1175,10 @@ abstract class rb_base_source {
             $inlineenrolmentelements = $this->get_inline_enrolment_elements($inlineenrolments);
             $formdata['inlineenrolmentelements'] = $inlineenrolmentelements;
             $formdata['courseid'] = $course->id;
+            $formdata['enroltype'] = $enrolmethodstr;
 
-            // Enrolling methods.
-
-            if ($cansignup) {
-                $formdata['enroltype'] = get_string('courseenrolavailable', 'totara_reportbuilder');
-                $formdata['action'] = get_string('enrol', 'enrol');
-                $formdata['url'] = new moodle_url('/enrol/index.php', array('id' => $courseid));
-            } else if (is_viewing($coursecontext, $realuser->id) || is_siteadmin($realuser->id)) {
-                $formdata['enroltype'] = $enrolmethodstr;
-                $formdata['action'] = get_string('viewcourse', 'totara_program');
-                $formdata['url'] = new moodle_url('/course/view.php', array('id' => $courseid));
-            } else {
-                $formdata['enroltype'] = $enrolmethodstr;
-                $formdata['action'] = get_string('notenrollable', 'enrol');
-                $formdata['url'] = '';
+            if (is_viewing($coursecontext, $realuser->id) || is_siteadmin($realuser->id)) {
+                $formdata['viewcourse'] = true;
             }
         }
 
@@ -1218,7 +1206,9 @@ abstract class rb_base_source {
 
             $nameprefix = 'instanceid_' . $instance->id . '_';
 
-            if (is_string($enrolform)) {
+            // Currently, course_expand_get_form_hook check if the user can self enrol before creating the form, if not, it will
+            // return the result of the can_self_enrol function which could be false or a string.
+            if (!$enrolform || is_string($enrolform)) {
                 $retval[] = new HTML_QuickForm_static(null, null, $enrolform);
                 continue;
             }
