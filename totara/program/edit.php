@@ -45,7 +45,17 @@ $program = new program($id);
 $iscertif = $program->is_certif();
 $program->check_enabled();
 $programcontext = $program->get_context();
-require_capability('totara/program:configuredetails', $programcontext);
+
+if ($action == 'edit') {
+    require_capability('totara/program:configuredetails', $programcontext);
+    $currenttab = 'details';
+    $pageid = 'program-overview-details';
+} else {
+    if (!$program->has_capability_for_overview_page()) {
+        print_error('nopermissions');
+    }
+    $currenttab = 'overview';
+}
 
 $PAGE->set_context($programcontext);
 
@@ -165,6 +175,10 @@ if ($detailsform->is_cancelled()) {
 
 // Handle form submits
 if ($data = $detailsform->get_data()) {
+    // They shouldn't have been able to submit the form without passing this check already.
+    // But safest just to do it again here before data is changed.
+    require_capability('totara/program:configuredetails', $programcontext);
+
     if (isset($data->edit)) {
         redirect($editurl);
     } else if (isset($data->savechanges)) {
@@ -248,13 +262,6 @@ $event = \totara_program\event\program_viewed::create_from_data($dataevent)->tri
 
 $programpagelinks = '';
 $pageid = 'program-overview';
-
-if ($action == 'edit') {
-    $currenttab = 'details';
-    $pageid = 'program-overview-details';
-} else {
-    $currenttab = 'overview';
-}
 
 echo $OUTPUT->header();
 

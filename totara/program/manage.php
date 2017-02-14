@@ -591,8 +591,7 @@ if (!$programs) {
 
         $icons = array();
         // "Update program" icon.
-        $capability = ($viewtype == 'program') ? 'totara/program:configuredetails' : 'totara/certification:configuredetails';
-        if (has_capability($capability, $programcontext)) {
+        if (has_capability('totara/program:configuredetails', $programcontext)) {
             $url = new moodle_url('/totara/program/edit.php', array('id' => $aprogram->id, 'category' => $id));
             $icons[] = $OUTPUT->action_icon($url, new pix_icon('t/edit', get_string('settings')));
         }

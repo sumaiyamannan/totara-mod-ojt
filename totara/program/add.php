@@ -251,12 +251,6 @@ if ($data = $form->get_data()) {
 
             $transaction->allow_commit();
 
-            if (has_capability('totara/certification:configuredetails', $programcontext)) {
-                $viewurl = "{$CFG->wwwroot}/totara/program/edit.php?id={$newid}";
-            } else {
-                $viewurl = "{$CFG->wwwroot}/totara/program/view.php?id={$newid}";
-            }
-
             $successmsg = get_string('certifprogramcreatesuccess', 'totara_certification');
         } else {
             $successmsg = get_string('programcreatesuccess', 'totara_program');

@@ -90,7 +90,12 @@ class rb_program_membership_embedded extends rb_base_embedded {
     public function is_capable($reportfor, $report) {
         global $CFG;
 
-        $context = context_system::instance();
+        if (empty($this->embeddedparams['programid'])) {
+            $context = context_system::instance();
+        } else {
+            $context = context_program::instance($this->embeddedparams['programid']);
+        }
+
         return !empty($CFG->enableprogramcompletioneditor) && has_capability('totara/program:editcompletion', $context, $reportfor);
     }
 }

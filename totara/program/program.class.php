@@ -2191,6 +2191,36 @@ class program {
     public function has_expired() {
         return (!empty($this->availableuntil) and (time() > $this->availableuntil));
     }
+    
+    /**
+     * Checks if a user has one of the capabilities that allows them to view the program
+     * or cert overview page for the relevant context.
+     *
+     * @param null|integer|stdClass $user to check the capability for. Is passed straight in to
+     *  has_any_capability.
+     * @return bool true if the user is allowed to access the page.
+     */
+    public function has_capability_for_overview_page($user = null) {
+        global $CFG;
+
+        $allowed_capabilities = array(
+            'totara/program:configuredetails',
+            'totara/program:configurecontent',
+            'totara/program:configuremessages',
+            'totara/program:configureassignments',
+            'totara/program:handleexceptions'
+        );
+
+        if ($this->is_certif()) {
+            $allowed_capabilities[] = 'totara/certification:configurecertification';
+        }
+
+        if (!empty($CFG->enableprogramcompletioneditor)) {
+            $allowed_capabilities[] = 'totara/program:editcompletion';
+        }
+
+        return has_any_capability($allowed_capabilities, $this->get_context(), $user);
+    }
 }
 
 /**
