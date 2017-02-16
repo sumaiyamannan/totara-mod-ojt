@@ -19,6 +19,17 @@ Feature: Manage language packs
     And the "Installed language packs" select box should contain "English - Pirate (en_ar)"
     And I navigate to "Live logs" node in "Site administration > Reports"
     And I should see "The language pack 'en_ar' was installed."
+    # Check the language pack is visible by default in User menu.
+    When I click on "Admin User" "link"
+    Then I should see "English - Pirate (en_ar)"
+    And I should see "English (en)"
+    # Check the language pack is not visible when the setting is disabled.
+    And I navigate to "Language settings" node in "Site administration > Language"
+    And I set the field "Display language menu" to "0"
+    And I press "Save changes"
+    When I click on "Admin User" "link"
+    Then I should not see "English - Pirate (en_ar)"
+    And I should not see "English (en)"
     And I log out
 
   Scenario: Update language pack

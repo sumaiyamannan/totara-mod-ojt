@@ -914,7 +914,7 @@ function user_get_user_navigation_info($user, $page, $options = array()) {
     // Load languages
     $langs = get_string_manager()->get_list_of_translations();
 
-    if (count($langs) > 1) {
+    if (!empty($CFG->langmenu) && count($langs) > 1) {
         $divider = new stdClass();
         $divider->itemtype = 'divider';
         $returnobject->navitems[] = $divider;
