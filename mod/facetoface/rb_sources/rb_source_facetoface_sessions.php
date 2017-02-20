@@ -725,7 +725,7 @@ class rb_source_facetoface_sessions extends rb_facetoface_base_source {
         $contentoptions[] = new rb_content_option(
             'date',
             get_string('thedate', 'rb_source_facetoface_sessions'),
-            'sessiondate.timestart',
+            'sessiondate.timefinish',
             'sessiondate'
         );
 
