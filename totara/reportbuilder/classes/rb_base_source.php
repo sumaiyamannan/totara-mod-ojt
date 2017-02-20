@@ -5482,6 +5482,10 @@ abstract class rb_base_source {
      */
     protected function add_cohort_user_fields_to_filters(&$filteroptions) {
 
+        if (!has_capability('moodle/cohort:view', context_system::instance())) {
+            return true;
+        }
+
         $filteroptions[] = new rb_filter_option(
             'cohort',
             'usercohortids',
@@ -5500,6 +5504,10 @@ abstract class rb_base_source {
      * @return True
      */
     protected function add_cohort_course_fields_to_filters(&$filteroptions) {
+
+        if (!has_capability('moodle/cohort:view', context_system::instance())) {
+            return true;
+        }
 
         $filteroptions[] = new rb_filter_option(
             'cohort',
@@ -5523,6 +5531,10 @@ abstract class rb_base_source {
      * @return True
      */
     protected function add_cohort_program_fields_to_filters(&$filteroptions, $langfile) {
+
+        if (!has_capability('moodle/cohort:view', context_system::instance())) {
+            return true;
+        }
 
         $filteroptions[] = new rb_filter_option(
             'cohort',
