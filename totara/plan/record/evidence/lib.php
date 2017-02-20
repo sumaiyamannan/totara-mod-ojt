@@ -152,7 +152,8 @@ function display_evidence_detail($evidenceid, $delete = false) {
             e.name,
             e.evidencetypeid,
             et.name as evidencetypename,
-            e.userid
+            e.userid,
+            e.readonly
         FROM {dp_plan_evidence} e
         LEFT JOIN {dp_evidence_type} et on e.evidencetypeid = et.id
         WHERE e.id = ?";
@@ -177,8 +178,12 @@ function display_evidence_detail($evidenceid, $delete = false) {
 
     $out .= $OUTPUT->heading($img . $item->name, 4);
 
-    if (($USER->id == $item->userid && has_capability('totara/plan:editownsiteevidence', $usercontext) ||
-            $USER->id != $item->userid && has_capability('totara/plan:editsiteevidence', $usercontext)) && !$delete) {
+    $caneditown = has_capability('totara/plan:editownsiteevidence', $usercontext);
+    $canedit = has_capability('totara/plan:editsiteevidence', $usercontext);
+
+    if (($USER->id == $item->userid && $caneditown && (!$item->readonly || $canedit) ||
+            $USER->id != $item->userid && $canedit) && !$delete) {
+
         // Can edit
         $buttonlabel = get_string('editdetails', 'totara_plan');
         $editurl = new moodle_url('/totara/plan/record/evidence/edit.php',

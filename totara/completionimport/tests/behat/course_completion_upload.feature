@@ -110,6 +110,19 @@ Feature: Verify course completion data can be successfully uploaded.
     And I should see "Grade : 100"
     And I should see "Date completed : 1 January 2015"
 
+    # As admin I am able to edit the evidence.
+    And "Edit details" "button" should exist
+    When I click on "Edit details" "button"
+    Then I should see "Edit evidence"
+    And I log out
+
+    # As the learner I should not be able to edit the evidence.
+    When I log in as "learner1"
+    And I click on "Record of Learning" in the totara menu
+    And I follow "Other Evidence"
+    And I click on "Completed course : thisisevidence" "link" in the "tbody" "css_element"
+    Then "Edit details" "button" should not exist
+
   Scenario: Course completions can be successfully uploaded with a file that uses CR for line endings
     Given I log in as "admin"
     When I navigate to "Upload Completion Records" node in "Site administration > Courses > Upload Completion Records"
