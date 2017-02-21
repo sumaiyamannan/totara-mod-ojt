@@ -234,14 +234,30 @@ class totaralib_test extends advanced_testcase {
         $moduleinfo->completionunlocked = 1;
         $moduleinfo->completionunlockednoreset = 0;
 
+        // Clear out any logs that might have been created earlier.
+        $DB->delete_records('course_completion_log');
+
         totara_core_update_module_completion_data($cminfo, $moduleinfo, $course, $completion);
+
+        // Check that some logs were created.
+        $this->assertEquals(1, $DB->count_records('course_completion_log'));
+        $this->assertEquals(1, $DB->count_records('course_completion_log',
+            array('courseid' => $course->id, 'userid' => $learner->id)));
 
         // With unlock and delete, all activity completions should be set to incomplete.
         $this->assertEquals(true, $DB->record_exists('course_modules_completion',
             array('coursemoduleid' => $cminfo->id, 'userid' => $learner->id, 'completionstate' => COMPLETION_INCOMPLETE)));
 
+        // Clear out any logs that might have been created earlier.
+        $DB->delete_records('course_completion_log');
+
         $this->waitForSecond();
         totara_core_reaggregate_course_modules_completion();
+
+        // Check that some logs were created.
+        $this->assertEquals(1, $DB->count_records('course_completion_log'));
+        $this->assertEquals(1, $DB->count_records('course_completion_log',
+            array('courseid' => $course->id, 'userid' => $learner->id)));
 
         // MANUAL COMPLETIONS - Cron will not update to complete again.
         $this->assertEquals(true, $DB->record_exists('course_modules_completion',
@@ -294,14 +310,30 @@ class totaralib_test extends advanced_testcase {
         $moduleinfo->completionunlocked = 1;
         $moduleinfo->completionunlockednoreset = 0;
 
+        // Clear out any logs that might have been created earlier.
+        $DB->delete_records('course_completion_log');
+
         totara_core_update_module_completion_data($cminfo, $moduleinfo, $course, $completion);
+
+        // Check that some logs were created.
+        $this->assertEquals(1, $DB->count_records('course_completion_log'));
+        $this->assertEquals(1, $DB->count_records('course_completion_log',
+            array('courseid' => $course->id, 'userid' => $learner->id)));
 
         // With unlock and delete, all activity completions should be set to incomplete.
         $this->assertEquals(true, $DB->record_exists('course_modules_completion',
             array('coursemoduleid' => $cminfo->id, 'userid' => $learner->id, 'completionstate' => COMPLETION_INCOMPLETE)));
 
+        // Clear out any logs that might have been created earlier.
+        $DB->delete_records('course_completion_log');
+
         $this->waitForSecond();
         totara_core_reaggregate_course_modules_completion();
+
+        // Check that some logs were created.
+        $this->assertEquals(1, $DB->count_records('course_completion_log'));
+        $this->assertEquals(1, $DB->count_records('course_completion_log',
+            array('courseid' => $course->id, 'userid' => $learner->id)));
 
         // VIEWED COMPLETIONS - should be reaggregated to complete again.
         $this->assertEquals(true, $DB->record_exists('course_modules_completion',
@@ -588,9 +620,20 @@ class totaralib_test extends advanced_testcase {
         // We'll test the course module with id = 1.
         $cm = new stdClass();
         $cm->id = 1;
+        $cm->course = $this->getDataGenerator()->create_course()->id;
+
+        // Clear out any logs that might have been created earlier.
+        $DB->delete_records('course_completion_log');
 
         $now = time();
         totara_core_uncomplete_course_modules_completion($cm, $completion, $now);
+
+        // Check that some logs were created.
+        $this->assertEquals(2, $DB->count_records('course_completion_log'));
+        $this->assertEquals(1, $DB->count_records('course_completion_log',
+            array('courseid' => $cm->course, 'userid' => 1)));
+        $this->assertEquals(1, $DB->count_records('course_completion_log',
+            array('courseid' => $cm->course, 'userid' => 2)));
 
         // Updating the initial arrays to what we expect the records to be.
 

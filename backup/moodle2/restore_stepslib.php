@@ -3171,12 +3171,18 @@ class restore_course_completion_structure_step extends restore_structure_step {
             // MDL-46651 - If cron writes out a new record before we get to it
             // then we should replace it with the Truth data from the backup.
             // This may be obsolete after MDL-48518 is resolved
+            $transaction = $DB->start_delegated_transaction();
             if ($existing) {
                 $params['id'] = $existing->id;
                 $DB->update_record('course_completions', $params);
+                \core_completion\helper::log_course_completion($data->course, $data->userid,
+                    "Updated completion in restore_course_completion_structure_step->process_course_completions");
             } else {
                 $DB->insert_record('course_completions', $params);
+                \core_completion\helper::log_course_completion($data->course, $data->userid,
+                    "Created completion in restore_course_completion_structure_step->process_course_completions");
             }
+            $transaction->allow_commit();
         }
     }
 

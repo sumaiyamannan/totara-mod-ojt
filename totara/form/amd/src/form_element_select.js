@@ -130,6 +130,14 @@ define(['jquery', 'totara_form/form'], function($, Form) {
         return this.input.val();
     };
 
+    SelectElement.prototype.showLoading = function() {
+        this.input.siblings('.tf_loading').show();
+    };
+
+    SelectElement.prototype.hideLoading = function () {
+        this.siblings('.tf_loading').hide();
+    };
+
     return SelectElement;
 
 });

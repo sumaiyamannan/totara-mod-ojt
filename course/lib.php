@@ -3823,8 +3823,14 @@ function archive_course_activities($userid, $courseid, $windowopens = NULL) {
                     // Get all instances doesn't return the completion columns.
                     $cm = get_coursemodule_from_id($mod->name, $cm->coursemodule, $courseid);
 
-                    // Delete the course module completion.
-                    $DB->delete_records('course_modules_completion', array('coursemoduleid' => $cm->id, 'userid' => $userid));
+                    // Delete the course module completion, if it exists.
+                    $cmcid = $DB->get_field('course_modules_completion', 'id', array('coursemoduleid' => $cm->id, 'userid' => $userid));
+                    if (!empty($cmcid)) {
+                        $transaction = $DB->start_delegated_transaction();
+                        $DB->delete_records('course_modules_completion', array('coursemoduleid' => $cm->id, 'userid' => $userid));
+                        \core_completion\helper::save_completion_log($courseid, $userid, "Deleted module completion in archive_course_activities<br><ul><li>CMCID: {$cmcid}</li></ul>");
+                        $transaction->allow_commit();
+                    }
 
                     $completion->invalidatecache($courseid, $userid, true);
 
@@ -3896,7 +3902,10 @@ function archive_course_completion($userid, $courseid) {
     }
 
     // Copy
-    $DB->insert_record('course_completion_history', $history);
+    $transaction = $DB->start_delegated_transaction();
+    $chid = $DB->insert_record('course_completion_history', $history);
+    \core_completion\helper::log_course_completion_history($chid, 'History created in archive_course_completion');
+    $transaction->allow_commit();
 
     // Reset course completion.
     $course = $DB->get_record('course', array('id' => $courseid));

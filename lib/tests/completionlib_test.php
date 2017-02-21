@@ -346,6 +346,8 @@ class core_completionlib_testcase extends advanced_testcase {
     }
 
     public function test_delete_all_state() {
+        $this->markTestSkipped('TODO: TL-13942 write proper completion tests!');
+
         global $DB, $SESSION;
         $this->mock_setup();
 
@@ -378,6 +380,8 @@ class core_completionlib_testcase extends advanced_testcase {
     }
 
     public function test_reset_all_state() {
+        $this->markTestSkipped('TODO: TL-13942 write proper completion tests!');
+
         global $DB;
         $this->mock_setup();
 
@@ -590,9 +594,11 @@ class core_completionlib_testcase extends advanced_testcase {
         $forum2 = $this->getDataGenerator()->create_module('forum', array('course' => $this->course->id), $completionauto);
         $cm2 = get_coursemodule_from_instance('forum', $forum2->id);
         $newuser = $this->getDataGenerator()->create_user();
+        $data->userid = $newuser->id;
+        $d2id = $DB->insert_record('course_modules_completion', $data);
 
         $d2 = new stdClass();
-        $d2->id = 7;
+        $d2->id = $d2id;
         $d2->userid = $newuser->id;
         $d2->coursemoduleid = $cm2->id;
         $d2->completionstate = COMPLETION_COMPLETE;
@@ -970,6 +976,246 @@ class core_completionlib_testcase extends advanced_testcase {
         $this->setUser($student);
         $this->assertTrue(completion_can_view_data($student->id, $this->course->id));
         $this->assertFalse(completion_can_view_data($this->user->id, $this->course->id));
+    }
+
+    public function test_delete_course_completion_data_including_rpl() {
+        global $CFG, $DB, $USER;
+
+        $this->resetAfterTest(true);
+
+        $CFG->enablecompletion = COMPLETION_ENABLED;
+
+        // Create data, including controls.
+        $user1 = $this->getDataGenerator()->create_user();
+        $user2 = $this->getDataGenerator()->create_user();
+        $course1 = $this->getDataGenerator()->create_course(array('enablecompletion' => COMPLETION_ENABLED));
+        $course2 = $this->getDataGenerator()->create_course(array('enablecompletion' => COMPLETION_ENABLED));
+
+        // Course completion.
+        $this->getDataGenerator()->enrol_user($user1->id, $course1->id);
+        $this->getDataGenerator()->enrol_user($user2->id, $course1->id);
+        $this->getDataGenerator()->enrol_user($user1->id, $course2->id);
+        $this->getDataGenerator()->enrol_user($user2->id, $course2->id);
+
+        // Criteria completion. Just fake it.
+        $sql = "INSERT INTO {course_completion_crit_compl} (userid, course, criteriaid)
+                SELECT userid, course, 1
+                  FROM {course_completions}";
+        $DB->execute($sql);
+
+        // Block stats. Just fake it.
+        $DB->delete_records('block_totara_stats');
+        $sql = "INSERT INTO {block_totara_stats} (userid, timestamp, eventtype, data, data2)
+                SELECT userid, 123, " . STATS_EVENT_COURSE_STARTED . ", 0, course
+                  FROM {course_completions}";
+        $DB->execute($sql);
+        $sql = "INSERT INTO {block_totara_stats} (userid, timestamp, eventtype, data, data2)
+                SELECT userid, 123, " . STATS_EVENT_COURSE_COMPLETE . ", 0, course
+                  FROM {course_completions}";
+        $DB->execute($sql);
+        $sql = "INSERT INTO {block_totara_stats} (userid, timestamp, eventtype, data, data2)
+                SELECT userid, 123, " . STATS_EVENT_TIME_SPENT . ", 0, course
+                  FROM {course_completions}";
+        $DB->execute($sql);
+
+        // Clear out any logs that might have been created above.
+        $DB->delete_records('course_completion_log');
+
+        // Check state of data before running the function.
+        $this->assertEquals(4, $DB->count_records('course_completions'));
+        $this->assertEquals(4, $DB->count_records('course_completion_crit_compl'));
+        $this->assertEquals(12, $DB->count_records('block_totara_stats'));
+
+        // Run the function.
+        $completioninfo = new completion_info($course1);
+        $completioninfo->delete_course_completion_data_including_rpl();
+
+        // Check that the control data hasn't been affected.
+        $this->assertEquals(2, $DB->count_records('course_completions'));
+        $this->assertEquals(2, $DB->count_records('course_completions', array('course' => $course2->id)));
+
+        $this->assertEquals(2, $DB->count_records('course_completion_crit_compl'));
+        $this->assertEquals(2, $DB->count_records('course_completion_crit_compl', array('course' => $course2->id)));
+
+        $this->assertEquals(8, $DB->count_records('block_totara_stats'));
+        $this->assertEquals(6, $DB->count_records('block_totara_stats', array('data2' => $course2->id)));
+        $this->assertEquals(2, $DB->count_records('block_totara_stats', array('data2' => $course1->id, 'eventtype' => STATS_EVENT_TIME_SPENT)));
+
+        $logs = $DB->get_records('course_completion_log', array(), 'id');
+        $this->assertCount(1,$logs);
+        $log = reset($logs);
+
+        $this->assertEquals(0, $log->userid);
+        $this->assertEquals($course1->id, $log->courseid);
+        $this->assertEquals($USER->id, $log->changeuserid);
+        $this->assertContains('Deleted current completion and all crit compl records in delete_course_completion_data_including_rpl', $log->description);
+    }
+
+    public function test_delete_course_completion_data() {
+        global $CFG, $DB, $USER;
+
+        $this->resetAfterTest(true);
+
+        $CFG->enablecompletion = COMPLETION_ENABLED;
+
+        // Create data, including controls.
+        $user1 = $this->getDataGenerator()->create_user();
+        $user2 = $this->getDataGenerator()->create_user();
+        $course1 = $this->getDataGenerator()->create_course(array('enablecompletion' => COMPLETION_ENABLED));
+        $course2 = $this->getDataGenerator()->create_course(array('enablecompletion' => COMPLETION_ENABLED));
+
+        // Course completion.
+        $this->getDataGenerator()->enrol_user($user1->id, $course1->id);
+        $this->getDataGenerator()->enrol_user($user2->id, $course1->id);
+        $this->getDataGenerator()->enrol_user($user1->id, $course2->id);
+        $this->getDataGenerator()->enrol_user($user2->id, $course2->id);
+
+        // Criteria completion. Just fake it.
+        $sql = "INSERT INTO {course_completion_crit_compl} (userid, course, criteriaid)
+                SELECT userid, course, 1
+                  FROM {course_completions}";
+        $DB->execute($sql);
+        $sql = "UPDATE {course_completions}
+                   SET status = " . COMPLETION_STATUS_COMPLETEVIARPL . "
+                 WHERE userid = :userid";
+        $DB->execute($sql, array('userid' => $user1->id));
+
+        // Block stats. Just fake it.
+        $DB->delete_records('block_totara_stats');
+        $sql = "INSERT INTO {block_totara_stats} (userid, timestamp, eventtype, data, data2)
+                SELECT userid, 123, " . STATS_EVENT_COURSE_STARTED . ", 0, course
+                  FROM {course_completions}";
+        $DB->execute($sql);
+        $sql = "INSERT INTO {block_totara_stats} (userid, timestamp, eventtype, data, data2)
+                SELECT userid, 123, " . STATS_EVENT_COURSE_COMPLETE . ", 0, course
+                  FROM {course_completions}";
+        $DB->execute($sql);
+        $sql = "INSERT INTO {block_totara_stats} (userid, timestamp, eventtype, data, data2)
+                SELECT userid, 123, " . STATS_EVENT_TIME_SPENT . ", 0, course
+                  FROM {course_completions}";
+        $DB->execute($sql);
+
+        // Clear out any logs that might have been created above.
+        $DB->delete_records('course_completion_log');
+
+        // Check state of data before running the function.
+        $this->assertEquals(4, $DB->count_records('course_completions'));
+        $this->assertEquals(4, $DB->count_records('course_completion_crit_compl'));
+        $this->assertEquals(12, $DB->count_records('block_totara_stats'));
+
+        // Run the function with a userid. This will affect only records for that user, INCLUDING rpl completions.
+        $completioninfo = new completion_info($course1);
+        $completioninfo->delete_course_completion_data($user1->id);
+
+        // Check that the control data hasn't been affected.
+        $this->assertEquals(3, $DB->count_records('course_completions'));
+        $this->assertEquals(2, $DB->count_records('course_completions', array('course' => $course2->id)));
+        $this->assertEquals(1, $DB->count_records('course_completions', array('course' => $course1->id, 'userid' => $user2->id)));
+
+        $this->assertEquals(3, $DB->count_records('course_completion_crit_compl'));
+        $this->assertEquals(2, $DB->count_records('course_completion_crit_compl', array('course' => $course2->id)));
+        $this->assertEquals(1, $DB->count_records('course_completion_crit_compl', array('course' => $course1->id, 'userid' => $user2->id)));
+
+        $this->assertEquals(10, $DB->count_records('block_totara_stats'));
+        $this->assertEquals(6, $DB->count_records('block_totara_stats', array('data2' => $course2->id)));
+        $this->assertEquals(3, $DB->count_records('block_totara_stats', array('data2' => $course1->id, 'userid' => $user2->id)));
+        $this->assertEquals(1, $DB->count_records('block_totara_stats', array('data2' => $course1->id, 'userid' => $user1->id, 'eventtype' => STATS_EVENT_TIME_SPENT)));
+
+        $logs = $DB->get_records('course_completion_log', array(), 'id');
+        $this->assertCount(1,$logs);
+        $log = reset($logs);
+
+        $this->assertEquals($user1->id, $log->userid);
+        $this->assertEquals($course1->id, $log->courseid);
+        $this->assertEquals($USER->id, $log->changeuserid);
+        $this->assertContains('Deleted current completion and all crit compl records in delete_course_completion_data', $log->description);
+
+        // Clear out any logs that might have been created above.
+        $DB->delete_records('course_completion_log');
+
+        // Run the function with no userid. This will affect all records for course2, EXCLUDING rpl completions,
+        // which means that just user2's course2 records will be affected.
+        $completioninfo = new completion_info($course2);
+        $completioninfo->delete_course_completion_data();
+
+        // Check that the control data hasn't been affected.
+        $this->assertEquals(2, $DB->count_records('course_completions'));
+        $this->assertEquals(1, $DB->count_records('course_completions', array('course' => $course2->id, 'userid' => $user1->id)));
+        $this->assertEquals(1, $DB->count_records('course_completions', array('course' => $course1->id, 'userid' => $user2->id)));
+
+        $this->assertEquals(2, $DB->count_records('course_completion_crit_compl'));
+        $this->assertEquals(1, $DB->count_records('course_completion_crit_compl', array('course' => $course2->id, 'userid' => $user1->id)));
+        $this->assertEquals(1, $DB->count_records('course_completion_crit_compl', array('course' => $course1->id, 'userid' => $user2->id)));
+
+        $this->assertEquals(8, $DB->count_records('block_totara_stats'));
+        $this->assertEquals(3, $DB->count_records('block_totara_stats', array('data2' => $course2->id, 'userid' => $user1->id)));
+        $this->assertEquals(3, $DB->count_records('block_totara_stats', array('data2' => $course1->id, 'userid' => $user2->id)));
+        $this->assertEquals(1, $DB->count_records('block_totara_stats', array('data2' => $course1->id, 'userid' => $user1->id, 'eventtype' => STATS_EVENT_TIME_SPENT)));
+        $this->assertEquals(1, $DB->count_records('block_totara_stats', array('data2' => $course2->id, 'userid' => $user2->id, 'eventtype' => STATS_EVENT_TIME_SPENT)));
+
+        $logs = $DB->get_records('course_completion_log', array(), 'id');
+        $this->assertCount(1,$logs);
+        $log = reset($logs);
+
+        $this->assertEquals(0, $log->userid);
+        $this->assertEquals($course2->id, $log->courseid);
+        $this->assertEquals($USER->id, $log->changeuserid);
+        $this->assertContains('Deleted current completion and all crit compl records except where the current completion was RPL in delete_course_completion_data', $log->description);
+    }
+
+    /**
+     * Tests delete_all_completion_data.
+     */
+    public function test_course_completion_reset() {
+        global $DB;
+
+        $this->resetAfterTest();
+        set_config('enablecompletion', 1);
+
+        $course1 = $this->getDataGenerator()->create_course(array('enablecompletion' => true));
+        $course2 = $this->getDataGenerator()->create_course(array('enablecompletion' => true));
+        $user1 = $this->getDataGenerator()->create_user();
+        $user2 = $this->getDataGenerator()->create_user();
+
+        $cm1 = $this->getDataGenerator()->create_module('forum', array('course' => $course1->id));
+        $cm2 = $this->getDataGenerator()->create_module('forum', array('course' => $course2->id));
+
+        // Fake some module completion records.
+        $cmc = new stdClass();
+        $cmc->coursemoduleid = 123;
+        $cmc->timemodified = 234;
+
+        $cmc->userid = $user1->id;
+        $cmc->coursemoduleid = $cm1->id;
+        $cmc->completionstate = COMPLETION_STATUS_NOTYETSTARTED;
+        $DB->insert_record('course_modules_completion', $cmc);
+
+        $cmc->userid = $user1->id;
+        $cmc->coursemoduleid = $cm2->id;
+        $cmc->completionstate = COMPLETION_COMPLETE;
+        $DB->insert_record('course_modules_completion', $cmc);
+
+        $cmc->userid = $user2->id;
+        $cmc->coursemoduleid = $cm1->id;
+        $cmc->completionstate = COMPLETION_COMPLETE_PASS;
+        $DB->insert_record('course_modules_completion', $cmc);
+
+        $cmc->userid = $user2->id;
+        $cmc->coursemoduleid = $cm2->id;
+        $cmc->completionstate = COMPLETION_COMPLETE_FAIL;
+        $DB->insert_record('course_modules_completion', $cmc);
+
+        // Clear out any existing logs that might have been created.
+        $DB->delete_records('course_completion_log');
+
+        // Run the function.
+        $completioninfo = new completion_info($course1);
+        $completioninfo->delete_all_completion_data();
+
+        // Check that two logs were created, only for the course that was reset.
+        $this->assertEquals(2, $DB->count_records('course_completion_log'));
+        $this->assertEquals(2, $DB->count_records('course_completion_log',
+            array('courseid' => $course1->id, 'userid' => null)));
     }
 }
 

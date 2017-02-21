@@ -4603,6 +4603,7 @@ function facetoface_supports($feature) {
         case FEATURE_COMPLETION_TRACKS_VIEWS: return true;
         case FEATURE_ARCHIVE_COMPLETION:      return true;
         case FEATURE_COMPLETION_HAS_RULES:    return true;
+        case FEATURE_COMPLETION_TIME_IN_TIMECOMPLETED: return true;
 
         default: return null;
     }
