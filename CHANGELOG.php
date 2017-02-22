@@ -3,6 +3,140 @@
 
 Totara LMS Changelog
 
+Release 9.4 (27th February 2017):
+=================================
+
+
+Security issues:
+
+    TL-6810        Added sesskey checks to the programs complete course code
+
+Improvements:
+
+    TL-11291       Replaced the input button with text when editing a users messaging preferences
+    TL-11317       Added labels to the add rule dropdown when editing the rules of a dynamic audience
+    TL-11318       Added accessibility labels to Hierarchy framework searches and bulk actions
+    TL-12314       Improved HTML validation when searching within a Hierarchy framework
+    TL-12594       Added default html clean up to the static_html form element
+
+                   Developers need to use
+                   \totara_form\form\element\static_html::set_allow_xss(true) if they want to
+                   include JavaScript code in static HTML forms element.
+
+Bug fixes:
+
+    TL-8375        Fixed issues with audiences in the table for restricting access to a menu item
+
+                   Added the correct module to the url when rendering the table rows through
+                   ajax. Also, when the form is saved, if "Restrict access by audience" is not
+                   checked then it will remove all audience restrictions from the database so
+                   they will not be incorrectly loaded later.
+
+    TL-9264        Fixed a fatal error encountered in the Audience dialog for Program assignments
+    TL-10082       Fixed the display of description images in the 360° Feedback request selection list
+    TL-10871       Fixed duplicated error message displayed when creating Seminar sessions with multiple dates
+    TL-11062       Seminar events that are in progress are now shown under the upcoming sessions tab
+
+                   Previously events that were in progress were being shown under the previous
+                   events tab. This lead to them being easily lost, and after a UX review it
+                   was decided that this was indeed the wrong place to put them and they were
+                   moved back to the upcoming events until the event has been completed.
+
+                   In the course view page, if "sign-up for multiple events" is disabled, then
+                   users who are signed-up will see only the event where they are signed-up to
+                   as they won't be able to sign-up for another event within that Seminar. If
+                   "sign-up for multiple events" is enabled, then the signed-up users will see
+                   all upcoming events ("in progress" and "upcoming" ones).
+
+    TL-11106       Fixed row duplication of Seminar events within the Seminar events report source
+    TL-11186       Changed user completion icons into font icons
+    TL-11230       Fixed disabled program course enrolments being re-enabled on cron
+
+                   The clean_enrolment_plugins_task scheduled task now suspends and re-enables
+                   user enrolments properly
+
+    TL-12252       Disabled selection dialogs for Hierarchy report filters when the filter is set to "is any value"
+    TL-12286       Corrected the table class used in Course administration > Competencies
+    TL-12298       Fixed RTL CSS flipping in Appraisals
+
+                   Previously there were a number of anomalies when viewing appraisals in
+                   right to left languages such as Hebrew. This fixes the CSS so that they are
+                   now displayed correctly.
+
+    TL-12341       Removed unnecessary code to prevent page jump on click of action menu
+
+                   Removed a forced jQuery repaint of the action menu which was originally
+                   required to work around a Chrome display bug, but which is no longer
+                   required.
+
+    TL-12342       Moved the block hide icon to the right in Roots and Basis themes
+    TL-12443       Fixed RTL CSS flipping in 360° Feedback
+
+                   Previously there were a number of anomalies when viewing 360° feedback in
+                   right to left languages such as Hebrew. This issue alters CSS so that they
+                   are now displayed correctly.
+
+    TL-12445       Fixed completion recording for some SCORMs with deep navigation structure (3+ levels)
+    TL-12455       Backport TL-11198 - Added support for add-on report builder sources in column tests
+
+                   Add-on developers may now add phpunit_column_test_add_data() and
+                   phpunit_column_test_expected_count() methods to their report sources to
+                   pass the full phpunit test suit with add-ons installed.
+
+    TL-12458       Fixed the visibility permissions for images in the event details field
+    TL-12463       Prevented the submission of text longer than 255 characters on Appraisal and 360° Feedback short text questions
+    TL-12464       Fixed a HTML validation issue on the user/preferences.php page
+    TL-12465       Fixed the display of multi-lang custom field names on the edit program and certification forms
+    TL-12585       Fixed a fatal error when trying to configure the Stats block without having staff
+    TL-12593       Fixed double escaping in the select and multiselect forms elements
+    TL-12596       Reverted change which caused potential HR Import performance cost
+
+                   A change in TL-12262 made it likely that imported Positions and
+                   Organisations in a Hierarchy framework would be processed multiple times,
+                   rather than just once each. No data problems were caused, but the
+                   additional database operations were unnecessary. That change has been
+                   reverted.
+
+    TL-12603       Course reminders are no longer sent to unenrolled users
+
+                   Email reminders for course feedback activities were previously being sent
+                   to users who were unenrolled or whose enrolments had been suspended.
+
+    TL-12606       Fixed resending certification course set messages
+
+                   The course set Due, Overdue and Completed messages were only being sent the
+                   first time that they were triggered on each certification path. Now, they
+                   will be triggered when appropriate on subsequent recertifications,
+                   including after a user has expired.
+
+    TL-12616       Fixed the Certification window open transaction log entry
+
+                   It was possible that the Certification window opening log entry was being
+                   recorded out of order, could be recorded even if the window open function
+                   did not complete successfully, and could contain incorrect data. These
+                   problems have now been fixed by splitting the window open log entry into
+                   two parts.
+
+    TL-12649       Fixed the rendering of Totara form errors when get_data() is not called
+    TL-12656       Remove incorrect quotations from mustache template strings
+
+                   Quotations around template strings have been removed to avoid prevention of
+                   key usage in string arrays.
+
+    TL-12680       Made the user menu hide languages when the "Display language menu" setting is disabled
+
+API changes:
+
+    TL-10990       Ensured JS Flex Icon options are equivalent to PHP API
+
+                   The core/templates function renderIcon may alternatively be called with two
+                   parameters, the second being a custom data object.
+
+Contributions:
+
+    * Eugene Venter, Catalyst - TL-12596
+
+
 Release 9.3 (25th January 2017):
 ================================
 
