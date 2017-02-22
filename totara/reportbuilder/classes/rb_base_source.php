@@ -1541,6 +1541,9 @@ abstract class rb_base_source {
             case DP_PLAN_STATUS_UNAPPROVED:
                 return get_string('unapproved', 'totara_plan');
                 break;
+            case DP_PLAN_STATUS_PENDING:
+                return get_string('pendingapproval', 'totara_plan');
+                break;
             case DP_PLAN_STATUS_APPROVED:
                 return get_string('approved', 'totara_plan');
                 break;
@@ -2068,6 +2071,19 @@ abstract class rb_base_source {
             $coursetypeoptions[$v] = get_string($k, 'totara_core');
         }
         return $coursetypeoptions;
+    }
+
+    /*
+     * Generate a list of options for the plan status menu.
+     * @return array plan status menu options.
+     */
+    public function rb_filter_plan_status() {
+        return array (
+            DP_PLAN_STATUS_UNAPPROVED => get_string('unapproved', 'totara_plan'),
+            DP_PLAN_STATUS_PENDING => get_string('pendingapproval', 'totara_plan'),
+            DP_PLAN_STATUS_APPROVED => get_string('approved', 'totara_plan'),
+            DP_PLAN_STATUS_COMPLETE => get_string('complete', 'totara_plan')
+        );
     }
 
     //

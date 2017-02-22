@@ -390,16 +390,4 @@ class rb_source_dp_plan extends rb_base_source {
 
         return $defaultfilters;
     }
-
-    function rb_filter_plan_status() {
-        $out = array();
-        $out[DP_PLAN_STATUS_UNAPPROVED] = get_string('unapproved', 'totara_plan');
-        $out[DP_PLAN_STATUS_PENDING] = get_string('unapproved', 'totara_plan');
-        $out[DP_PLAN_STATUS_APPROVED] = get_string('approved', 'totara_plan');
-        $out[DP_PLAN_STATUS_COMPLETE] = get_string('complete', 'totara_plan');
-
-        return $out;
-
-    }
-
 }
