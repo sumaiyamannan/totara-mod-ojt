@@ -1211,6 +1211,12 @@ class totara_sync_element_user extends totara_sync_element {
             $invalidids = array_merge($invalidids, $badids);
         }
 
+        // Check invalid auth types.
+        if (property_exists($syncfields, 'auth')) {
+            $badids = $this->get_invalid_auth($synctable);
+            $invalidids = array_merge($invalidids, $badids);
+        }
+
         if (empty($this->config->allow_create)) {
             $badids = $this->check_users_unable_to_revive($synctable);
             $invalidids = array_merge($invalidids, $badids);
@@ -1786,6 +1792,46 @@ class totara_sync_element_user extends totara_sync_element {
             // Put a dummy record in here to flag a problem without skipping the user.
             $invalidids[] = 0;
         }
+
+        return $invalidids;
+    }
+
+    /**
+     * Get invalid auth types
+     *
+     * @param string $synctable sync table name
+     *
+     * @return array with ids of any rows with invalid auth types
+     */
+    public function get_invalid_auth($synctable) {
+        global $DB;
+
+        $params = array();
+        $invalidids = array();
+
+        // Avoid users who will be deleted.
+        $extracondition = '';
+        if (empty($this->config->sourceallrecords)) {
+            $extracondition = "AND deleted = :deleted";
+            $params['deleted'] = 0;
+        }
+
+        $sql = "SELECT id, idnumber, auth
+                  FROM {{$synctable}}
+                WHERE auth != '' AND auth IS NOT NULL {$extracondition}";
+        $rs = $DB->get_recordset_sql($sql, $params);
+
+        foreach ($rs as $r) {
+
+            if (!exists_auth_plugin($r->auth)) {
+                $this->addlog(get_string('invalidauthxforuserx', 'tool_totara_sync', $r), 'error', 'checksanity');
+                $invalidids[] = $r->id;
+            }
+
+            unset($r);
+        }
+
+        $rs->close();
 
         return $invalidids;
     }
