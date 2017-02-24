@@ -9,7 +9,7 @@
  * the Free Software Foundation; either version 3 of the License, or
  * (at your option) any later version.
  *
- * This program is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it willv be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
@@ -102,7 +102,7 @@ class visible_learning_item_added extends \core\event\base {
      * @return \moodle_url
      */
     public function get_url() {
-        return new \moodle_url('/totara/cohort/visibilelearning.php', array('id' => $this->other['cohortid']));
+        return new \moodle_url('/totara/cohort/visiblelearning.php', array('id' => $this->other['cohortid']));
     }
 
     /**
