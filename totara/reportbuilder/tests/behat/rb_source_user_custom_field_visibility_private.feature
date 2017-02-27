@@ -11,54 +11,63 @@ Feature: Per user visibility of user report source custom field values
       | agent99  | Agent     | 99       | agent99@example.com |
       | kaos     | Kaos      | Inc      | kaos@example.com    |
       | chief    | The       | Chief    | chief@example.com   |
+    And the following "roles" exist:
+      | shortname  |
+      | BigBrother |
+    And the following "role assigns" exist:
+      | user  | role       | contextlevel | reference |
+      | chief | BigBrother | System       |           |
+    And the following "permission overrides" exist:
+      | capability                                | permission | role       | contextlevel | reference |
+      | totara/core:viewhiddenusercustomfielddata | Allow      | BigBrother | System       |           |
 
     Given I log in as "admin"
     And I navigate to "User profile fields" node in "Site administration > Users > Accounts"
     And I set the following fields to these values:
       | datatype | checkbox |
     And I set the following fields to these values:
-      | Short name                   | TestCheckbox        |
-      | Name                         | TestCheckbox        |
-      | Is this field required       | No                  |
-      | Is this field locked         | No                  |
-      | Should the data be unique    | No                  |
-      | Who is this field visible to | Visible to user     |
-      | Checked by default           | No                  |
+      | Short name                   | TestCheckbox          |
+      | Name                         | TestCheckbox          |
+      | Is this field required       | No                    |
+      | Is this field locked         | No                    |
+      | Should the data be unique    | No                    |
+      | Who is this field visible to | Restricted visibility |
+      | Checked by default           | No                    |
     And I press "Save changes"
 
     Given I set the following fields to these values:
       | datatype | date |
     And I set the following fields to these values:
-      | Short name                   | TestDate            |
-      | Name                         | TestDate            |
-      | Is this field required       | No                  |
-      | Is this field locked         | No                  |
-      | Should the data be unique    | No                  |
-      | Who is this field visible to | Visible to user     |
+      | Short name                   | TestDate              |
+      | Name                         | TestDate              |
+      | Is this field required       | No                    |
+      | Is this field locked         | No                    |
+      | Should the data be unique    | No                    |
+      | Who is this field visible to | Restricted visibility |
     And I press "Save changes"
 
     Given I set the following fields to these values:
       | datatype | datetime |
     And I set the following fields to these values:
-      | Short name                   | TestDT              |
-      | Name                         | TestDT              |
-      | Is this field required       | No                  |
-      | Is this field locked         | No                  |
-      | Should the data be unique    | No                  |
-      | Who is this field visible to | Visible to user     |
-      | Start year                   | 2000                |
+      | Short name                   | TestDT                |
+      | Name                         | TestDT                |
+      | Is this field required       | No                    |
+      | Is this field locked         | No                    |
+      | Should the data be unique    | No                    |
+      | Who is this field visible to | Restricted visibility |
+      | Start year                   | 2000                  |
     And I press "Save changes"
 
     Given I set the following fields to these values:
       | datatype | menu |
     And I set the following fields to these values:
-      | Short name                   | TestMenu            |
-      | Name                         | TestMenu            |
-      | Is this field required       | No                  |
-      | Is this field locked         | No                  |
-      | Should the data be unique    | No                  |
-      | Who is this field visible to | Visible to user     |
-      | Default value                | CCC                 |
+      | Short name                   | TestMenu              |
+      | Name                         | TestMenu              |
+      | Is this field required       | No                    |
+      | Is this field locked         | No                    |
+      | Should the data be unique    | No                    |
+      | Who is this field visible to | Restricted visibility |
+      | Default value                | CCC                   |
     And I set the field "Menu options (one per line)" to multiline
       """
       AAA
@@ -75,7 +84,7 @@ Feature: Per user visibility of user report source custom field values
       | Is this field required       | No                         |
       | Is this field locked         | No                         |
       | Should the data be unique    | No                         |
-      | Who is this field visible to | Visible to user            |
+      | Who is this field visible to | Restricted visibility      |
       | Default value                | TestTextArea default value |
     And I press "Save changes"
 
@@ -87,7 +96,7 @@ Feature: Per user visibility of user report source custom field values
       | Is this field required       | No                          |
       | Is this field locked         | No                          |
       | Should the data be unique    | No                          |
-      | Who is this field visible to | Visible to user             |
+      | Who is this field visible to | Restricted visibility       |
       | Default value                | TestTextField default value |
     And I press "Save changes"
 
@@ -284,26 +293,26 @@ Feature: Per user visibility of user report source custom field values
     And I log in as "chief"
 
     When I navigate to my "Per user visibility user report" report
-    Then I should see "<hidden>" in the "user_custom_field_1" report column for "Maxwell Smart"
-    Then I should see "<hidden>" in the "user_custom_field_2" report column for "Maxwell Smart"
-    Then I should see "<hidden>" in the "user_custom_field_3" report column for "Maxwell Smart"
-    Then I should see "<hidden>" in the "user_custom_field_4" report column for "Maxwell Smart"
-    Then I should see "<hidden>" in the "user_custom_field_5" report column for "Maxwell Smart"
-    Then I should see "<hidden>" in the "user_custom_field_6" report column for "Maxwell Smart"
+    Then I should see "Yes" in the "user_custom_field_1" report column for "Maxwell Smart"
+    Then I should see "16 Oct 2005" in the "user_custom_field_2" report column for "Maxwell Smart"
+    Then I should see "10 Oct 2008 at 00:00" in the "user_custom_field_3" report column for "Maxwell Smart"
+    Then I should see "AAA" in the "user_custom_field_4" report column for "Maxwell Smart"
+    Then I should see "agent86 textarea value" in the "user_custom_field_5" report column for "Maxwell Smart"
+    Then I should see "agent86 text value" in the "user_custom_field_6" report column for "Maxwell Smart"
 
-    Then I should see "<hidden>" in the "user_custom_field_1" report column for "Agent 99"
-    Then I should see "<hidden>" in the "user_custom_field_2" report column for "Agent 99"
-    Then I should see "<hidden>" in the "user_custom_field_3" report column for "Agent 99"
-    Then I should see "<hidden>" in the "user_custom_field_4" report column for "Agent 99"
-    Then I should see "<hidden>" in the "user_custom_field_5" report column for "Agent 99"
-    Then I should see "<hidden>" in the "user_custom_field_6" report column for "Agent 99"
+    Then I should see "No" in the "user_custom_field_1" report column for "Agent 99"
+    Then I should see "16 Oct 2015" in the "user_custom_field_2" report column for "Agent 99"
+    Then I should see "10 Oct 2010 at 00:00" in the "user_custom_field_3" report column for "Agent 99"
+    Then I should see "BBB" in the "user_custom_field_4" report column for "Agent 99"
+    Then I should see "agent99 textarea value" in the "user_custom_field_5" report column for "Agent 99"
+    Then I should see "agent99 text value" in the "user_custom_field_6" report column for "Agent 99"
 
-    Then I should see "<hidden>" in the "user_custom_field_1" report column for "Kaos Inc"
-    Then I should see "<hidden>" in the "user_custom_field_2" report column for "Kaos Inc"
-    Then I should see "<hidden>" in the "user_custom_field_3" report column for "Kaos Inc"
-    Then I should see "<hidden>" in the "user_custom_field_4" report column for "Kaos Inc"
-    Then I should see "<hidden>" in the "user_custom_field_5" report column for "Kaos Inc"
-    Then I should see "<hidden>" in the "user_custom_field_6" report column for "Kaos Inc"
+    Then I should see "No" in the "user_custom_field_1" report column for "Kaos Inc"
+    Then I should see "" in the "user_custom_field_2" report column for "Kaos Inc"
+    Then I should see "" in the "user_custom_field_3" report column for "Kaos Inc"
+    Then I should see "CCC" in the "user_custom_field_4" report column for "Kaos Inc"
+    Then I should see "TestTextArea default value" in the "user_custom_field_5" report column for "Kaos Inc"
+    Then I should see "TestTextField default value" in the "user_custom_field_6" report column for "Kaos Inc"
 
     Then I should see "No" in the "user_custom_field_1" report column for "The Chief"
     Then I should see "" in the "user_custom_field_2" report column for "The Chief"

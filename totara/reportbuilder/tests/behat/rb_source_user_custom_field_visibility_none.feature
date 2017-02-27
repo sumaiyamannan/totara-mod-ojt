@@ -1,5 +1,5 @@
 @totara @totara_reportbuilder @javascript
-Feature: Per user visibility of user report source custom field values
+Feature: No visibility of user report source custom field values
     Depending on the visibility settings for a user profile custom field,
     its value will be shown or masked in a report.
 
@@ -11,6 +11,15 @@ Feature: Per user visibility of user report source custom field values
       | agent99  | Agent     | 99       | agent99@example.com |
       | kaos     | Kaos      | Inc      | kaos@example.com    |
       | chief    | The       | Chief    | chief@example.com   |
+    And the following "roles" exist:
+      | shortname  |
+      | BigBrother |
+    And the following "role assigns" exist:
+      | user  | role       | contextlevel | reference |
+      | chief | BigBrother | System       |           |
+    And the following "permission overrides" exist:
+      | capability                                | permission | role       | contextlevel | reference |
+      | totara/core:viewhiddenusercustomfielddata | Allow      | BigBrother | System       |           |
 
     Given I log in as "admin"
     And I navigate to "User profile fields" node in "Site administration > Users > Accounts"
