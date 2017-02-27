@@ -152,6 +152,27 @@ class login_signup_form extends moodleform {
 
     function validation($data, $files) {
         global $CFG, $DB;
+
+        if ($this->signup_captcha_enabled()) {
+            $recaptcha_element = $this->_form->getElement('recaptcha_element');
+            if (!empty($this->_form->_submitValues['recaptcha_challenge_field'])) {
+                $challenge_field = $this->_form->_submitValues['recaptcha_challenge_field'];
+                $response_field = $this->_form->_submitValues['recaptcha_response_field'];
+                if (true !== ($result = $recaptcha_element->verify($challenge_field, $response_field))) {
+                    $errors['recaptcha_element']
+                        = $result == 'incorrect-captcha-sol'
+                        ? get_string('incorrectpleasetryagain', 'auth')
+                        : $result;
+                }
+            } else {
+                $errors['recaptcha_element'] = get_string('missingrecaptchachallengefield');
+            }
+
+            if (!empty($errors['recaptcha_element'])) {
+                return $errors;
+            }
+        }
+
         $errors = parent::validation($data, $files);
 
         $authplugin = get_auth_plugin($CFG->registerauth);
@@ -199,19 +220,6 @@ class login_signup_form extends moodleform {
         $errmsg = '';
         if (!check_password_policy($data['password'], $errmsg)) {
             $errors['password'] = $errmsg;
-        }
-
-        if ($this->signup_captcha_enabled()) {
-            $recaptcha_element = $this->_form->getElement('recaptcha_element');
-            if (!empty($this->_form->_submitValues['recaptcha_challenge_field'])) {
-                $challenge_field = $this->_form->_submitValues['recaptcha_challenge_field'];
-                $response_field = $this->_form->_submitValues['recaptcha_response_field'];
-                if (true !== ($result = $recaptcha_element->verify($challenge_field, $response_field))) {
-                    $errors['recaptcha'] = $result;
-                }
-            } else {
-                $errors['recaptcha'] = get_string('missingrecaptchachallengefield');
-            }
         }
 
         // TOTARA: We need to validate that managerid is correct for the managerjaid specified.
