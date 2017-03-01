@@ -1660,11 +1660,14 @@ class totara_appraisal_renderer extends plugin_renderer_base {
             $pagesurl->param('stageid', $stage->id);
             $button = new single_button($pagesurl, get_string('preview', 'totara_appraisal'), 'get');
             $action .= $this->output->render($button);
-        } else if ($userassignment->is_closed()) {
-            $button = new single_button($pagesurl, get_string('view', 'totara_appraisal'), 'get');
-            $action .= $this->output->render($button);
-        } else if ($stage->is_completed($userassignment)) {
 
+        } else if ($userassignment->is_closed()) {
+            if (isset($stage->firstpage)) {
+                $button = new single_button($pagesurl, get_string('view', 'totara_appraisal'), 'get');
+                $action .= $this->output->render($button);
+            }
+
+        } else if ($stage->is_completed($userassignment)) {
             if (isset($stage->firstpage)) {
                 $pagesurl->param('pageid', $stage->firstpage);
                 $button = new single_button($pagesurl, get_string('view', 'totara_appraisal'), 'get');
@@ -1672,10 +1675,9 @@ class totara_appraisal_renderer extends plugin_renderer_base {
             }
             $action .= $this->output->pix_icon('tick2', get_string('completed', 'totara_appraisal'), 'totara_appraisal',
                     array('class' => 'stage-complete'));
-        }
-        else if ($stage->id == $userassignment->activestageid && !empty($userassignment->jobassignmentid)) {
-            if ($appraisal->status == appraisal::STATUS_CLOSED ||
-                    $stage->is_completed($roleassignment)) {
+
+        } else if ($stage->id == $userassignment->activestageid && !empty($userassignment->jobassignmentid) && isset($stage->firstpage)) {
+            if ($appraisal->status == appraisal::STATUS_CLOSED || $stage->is_completed($roleassignment)) {
                 $button = new single_button($pagesurl, get_string('view', 'totara_appraisal'), 'get');
                 $action .= $this->output->render($button);
             } else if ($roleassignment->activepageid) {
@@ -1787,10 +1789,11 @@ class totara_appraisal_renderer extends plugin_renderer_base {
      * Display stage header and visible pages for a given subject and role.
      * Do all loading of objects here and pass to child renderer functions.
      *
-     * @param array of appraisal_page $pages
+     * @param array $pages of appraisal_page
      * @param appraisal_page $page The currently selected page, or null if pages is empty
      * @param appraisal_role_assignment $roleassignment
      * @param boolean $preview
+     * @param boolean $includewrapper
      * @return string HTML
      */
     public function display_pages($pages, $page, appraisal_role_assignment $roleassignment, $preview = false,
@@ -1808,6 +1811,7 @@ class totara_appraisal_renderer extends plugin_renderer_base {
         }
 
         // Display stage header.
+        $out .= $this->heading(get_string('currentstage', 'totara_appraisal'));
         $showsaveprogress = !$preview && isset($page) && ($roleassignment->activepageid == $page->id) &&
                 !$appraisal->is_locked($userassignment) &&
                 !$page->is_completed($roleassignment);
@@ -1819,6 +1823,9 @@ class totara_appraisal_renderer extends plugin_renderer_base {
         if (empty($pages)) {
             return $out . get_string('nopagestoview', 'totara_appraisal');
         }
+
+        $out .= html_writer::empty_tag('hr');
+        $out .= $this->heading(get_string('appraisalcontent', 'totara_appraisal'));
 
         // Display pages tabs for a given stage, with the specified page selected.
         $rows = array();
