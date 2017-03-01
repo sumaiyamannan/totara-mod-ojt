@@ -116,7 +116,7 @@ class core_message_renderer extends plugin_renderer_base {
         $table = new html_table();
         $table->attributes['class'] = 'generaltable';
         $table->data        = array();
-        $table->head        = array('');
+        $table->head        = array(get_string('provider', 'core_message'));
 
         // Populate the header row
         foreach ($processors as $processor) {
@@ -188,9 +188,10 @@ class core_message_renderer extends plugin_renderer_base {
                 }
                 $row->cells[] = new html_table_cell($cellcontent);
             }
+            $disableproviderlabel = html_writer::label(get_string('enablex', 'core_message', $providername), $disableprovidersetting, '', array('class' => 'sr-only'));
             $disableprovider = html_writer::checkbox($disableprovidersetting, 1, !$providerdisabled, '',
                     array('id' => $disableprovidersetting, 'class' => 'messagedisable'));
-            $disableprovider = html_writer::tag('div', $disableprovider);
+            $disableprovider = html_writer::tag('div', $disableproviderlabel . $disableprovider);
             $row->cells[] = new html_table_cell($disableprovider);
             $table->data[] = $row;
         }
