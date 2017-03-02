@@ -4652,7 +4652,9 @@ class appraisal_message {
         }
 
         // Get all user assignments currently in the appraisal.
-        $userassignments = $DB->get_records('appraisal_user_assignment', array('appraisalid' => $this->appraisalid));
+        $userassignments = $DB->get_records_select('appraisal_user_assignment',
+            'appraisalid = :appraisalid AND status != :statusclosed',
+            array('appraisalid' => $this->appraisalid, 'statusclosed' => appraisal::STATUS_CLOSED));
 
         $this->send($userassignments, $managers_only);
 
@@ -4677,7 +4679,9 @@ class appraisal_message {
         $userassignment = $DB->get_record('appraisal_user_assignment',
             array('userid' => $userid, 'appraisalid' => $this->appraisalid));
 
-        $this->send(array($userassignment), $managers_only);
+        if ($userassignment->status != appraisal::STATUS_CLOSED) { // Skip sending if the user's appraisal is closed.
+            $this->send(array($userassignment), $managers_only);
+        }
 
         // TODO: Need better handling for managers_only messages
         if (!$managers_only) {
@@ -4698,6 +4702,11 @@ class appraisal_message {
 
         $sentaddress = array();
         foreach ($userassignments as $userassignment) {
+            // Skip it if the user's assignment is closed.
+            if ($userassignment->status == appraisal::STATUS_CLOSED) {
+                continue;
+            }
+
             // Get all applicable roles that are involved in the appraisal.
             list($rolessql, $params) = $DB->get_in_or_equal($this->roles, SQL_PARAMS_NAMED, 'role');
             $sql = "SELECT appraisalrole, userid
