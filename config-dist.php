@@ -561,6 +561,12 @@ $CFG->admin = 'admin';
 //      $CFG->calendar_adminallcourseslimit = 50;
 //
 //
+// Fast hashing can be enabled to more quickly hash users' passwords when being
+// imported via HR Import at the cost of security. Due to the nature of this setting
+// we strongly recommend against enabling it.
+//
+//      $CFG->tool_totara_sync_enable_fasthash = true;
+//
 //=========================================================================
 // 7. SETTINGS FOR DEVELOPMENT SERVERS - not intended for production use!!!
 //=========================================================================

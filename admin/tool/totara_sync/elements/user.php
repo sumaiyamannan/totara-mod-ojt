@@ -494,7 +494,16 @@ class totara_sync_element_user extends totara_sync_element {
                 if ($updatepassword) {
                     $userauth = get_auth_plugin(strtolower($user->auth));
                     if ($userauth->can_change_password()) {
-                        if (!$userauth->user_update_password($user, $suser->password)) {
+                        $passwordupdateproblem = false;
+                        if (strtolower($user->auth) === 'manual' && !empty($CFG->tool_totara_sync_enable_fasthash)) {
+                            if (!update_internal_user_password($user, $newpassword, true)) {
+                                $passwordupdateproblem = true;
+                            }
+                        } else if (!$userauth->user_update_password($user, $suser->password)) {
+                            $passwordupdateproblem = true;
+                        }
+
+                        if ($passwordupdateproblem) {
                             $this->addlog(get_string('cannotsetuserpassword', 'tool_totara_sync', $user->idnumber),
                                     'warn', 'updateusers');
                             $problemswhileapplying = true;
@@ -688,10 +697,19 @@ class totara_sync_element_user extends totara_sync_element {
                     set_user_preference('create_password',          1, $user->id);
                 } else {
                     // Set user password.
-                    if (!$userauth->user_update_password($user, $suser->password)) {
-                        $this->addlog(get_string('cannotsetuserpassword', 'tool_totara_sync', $user->idnumber), 'warn', 'createusers');
+                    $passwordupdateproblem = false;
+                    if (strtolower($user->auth) === 'manual' && !empty($CFG->tool_totara_sync_enable_fasthash)) {
+                            if (!update_internal_user_password($user, $suser->password, true)) {
+                                $passwordupdateproblem = true;
+                            }
+                    } else if (!$userauth->user_update_password($user, $suser->password)) {
+                        $passwordupdateproblem = true;
                     } else if (!empty($this->config->forcepwchange)) {
                         set_user_preference('auth_forcepasswordchange', 1, $user->id);
+                    }
+
+                    if ($passwordupdateproblem) {
+                        $this->addlog(get_string('cannotsetuserpassword', 'tool_totara_sync', $user->idnumber), 'warn', 'createusers');
                     }
                 }
             }
