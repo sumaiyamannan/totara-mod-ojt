@@ -54,6 +54,7 @@ class totara_program_messages_testcase extends reportcache_advanced_testcase {
     private $program_generator = null;
     private $program1, $program2;
     private $user1, $user2, $user3, $user4, $user5, $user6;
+    private $manager, $managerja;
     private $sink;
 
     public function setUp() {
@@ -77,10 +78,11 @@ class totara_program_messages_testcase extends reportcache_advanced_testcase {
 
         // Create users.
         $this->assertEquals(2, $DB->count_records('user'));
+        $this->manager = $this->getDataGenerator()->create_user();
         for ($i = 1; $i <= 6; $i++) {
-            $this->{'user'.$i} = $this->getDataGenerator()->create_user();
+            $this->{'user'.$i} = $this->getDataGenerator()->create_user(array('managerid' => $this->manager->id));
         }
-        $this->assertEquals(6 + 2, $DB->count_records('user'));
+        $this->assertEquals(6 + 3, $DB->count_records('user'));
 
         // Create two programs.
         $this->assertEquals(0, $DB->count_records('prog'));
@@ -1111,5 +1113,84 @@ class totara_program_messages_testcase extends reportcache_advanced_testcase {
             array('userid' => $this->user1->id, 'messageid' => $messageid)));
         $this->assertEquals(1, $DB->count_records('prog_messagelog',
             array('userid' => $this->user3->id, 'messageid' => $messageid)));
+    }
+
+    /**
+     * Test messages to managers and staff members when the staff member is suspended
+     */
+    public function test_program_suspended_enrolment_messages() {
+        global $DB;
+
+        $this->sink->clear();
+        // User 1 is not suspended, user 2 is suspended, and the manager for both is not suspended.
+        $this->user1->suspended = 0;
+        $DB->update_record('user', $this->user1);
+        $this->user2->suspended = 1;
+        $DB->update_record('user', $this->user2);
+
+        // Set up the messages.
+        $programmessagemanager = $this->program1->get_messagesmanager();
+        $programmessagemanager->add_message(MESSAGETYPE_UNENROLMENT);
+        $programmessagemanager->save_messages();
+        prog_messages_manager::get_program_messages_manager($this->program1->id, true); // Causes static cache to be reset.
+
+        $enrolmentmessage = $DB->get_record('prog_message', array('programid' => $this->program1->id, 'messagetype' => MESSAGETYPE_ENROLMENT));
+        $unenrolmentmessage = $DB->get_record('prog_message', array('programid' => $this->program1->id, 'messagetype' => MESSAGETYPE_UNENROLMENT));
+
+        // Some quick edits to the enrolment message content.
+        $enrolmentmessage->managersubject = '';
+        $enrolmentmessage->managermessage = 'Staff Program Assignment';
+        $enrolmentmessage->notifymanager = 1;
+        $DB->update_record('prog_message', $enrolmentmessage);
+        prog_messages_manager::get_program_messages_manager($this->program1->id, true); // Causes static cache to be reset.
+
+        // Assign users to program1.
+        $usersprogram1 = array($this->user1->id, $this->user2->id);
+        $this->program_generator->assign_program($this->program1->id, $usersprogram1);
+
+        // Attempt to send any program messages.
+        sleep(1); // Messages are only sent if they were created before "now", so we need to wait one second.
+        ob_start(); // Start a buffer to catch all the mtraces in the task.
+        $task = new \totara_program\task\send_messages_task();
+        $task->execute();
+        ob_end_clean(); // Throw away the buffer content.
+
+        /*
+         * Expectations is that user 1 will get a message, and the manager will recieve a copy.
+         * However user 2 will not get a message, and the manager will not recieve a copy.
+         *
+         */
+        $emails = $this->sink->get_messages();
+
+        // Annoyingly the sink catches the email to the suspended learner before it gets stopped.
+        $this->assertCount(3, $emails);
+        $this->sink->clear();
+
+        // Check the emails content.
+        $managercount = 0;
+        $learnercount = 0;
+        foreach ($emails as $email) {
+            if (in_array($email->useridto, $usersprogram1)) {
+                $learnercount++;
+                $this->assertEquals($email->subject, 'You have been enrolled on program Program Fullname', 'unexpected default learner enrolment subject');
+                $this->assertEquals($email->fullmessage, 'You are now enrolled on program Program Fullname.', 'unexpected default learner enrolment message');
+            } else {
+                $managercount++;
+                $this->assertEquals($email->useridto, $this->manager->id, 'unexpected user recieving message');
+                $this->assertEquals($email->subject, 'Learner enrolled', 'unexpected default manager enrolment subject');
+                $this->assertEquals($email->fullmessage, 'Staff Program Assignment', 'unexpected custom manager enrolment message');
+            }
+
+            $this->assertEquals($email->fromemail, 'admin@example.com', 'unexpected default userfrom email address');
+        }
+        $this->assertEquals(1, $managercount);
+        $this->assertEquals(2, $learnercount);
+
+        // Check that they all had logs created.
+        $this->assertEquals(2, $DB->count_records('prog_messagelog'));
+        $this->assertEquals(1, $DB->count_records('prog_messagelog',
+            array('userid' => $this->user1->id, 'messageid' => $enrolmentmessage->id)));
+        $this->assertEquals(1, $DB->count_records('prog_messagelog',
+            array('userid' => $this->user2->id, 'messageid' => $enrolmentmessage->id)));
     }
 }
