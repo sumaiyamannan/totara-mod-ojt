@@ -51,7 +51,7 @@ class totara_core_observer {
     }
 
     /**
-     * Triggered by the user_enrolled event,  this function is run when a user is enrolled in the course
+     * Triggered by the user_enrolled event, this function is run when a user is enrolled in the course
      * and creates a completion_completion record for the user if completion is enabled for this course
      *
      * @param  \core\event\user_enrolment_created $event
