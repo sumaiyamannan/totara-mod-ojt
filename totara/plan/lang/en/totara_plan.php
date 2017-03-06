@@ -969,6 +969,7 @@ $string['selectedlinkedevidenceremovedfromcompetency'] = 'The selected linked ev
 $string['selectedlinkedevidenceremovedfromcourse'] = 'The selected linked evidence have been removed from this course';
 $string['selectedlinkedevidenceremovedfromobjective'] = 'The selected linked evidence have been removed from this objective';
 $string['selectedlinkedevidenceremovedfromprogram'] = 'The selected linked evidence have been removed from this program';
+$string['selectlinked'] = 'Select linked {$a->name} {$a->component}';
 $string['sendapprovalrequest'] = 'Send approval request';
 $string['set'] = 'Set';
 $string['setcompetencystatus'] = 'Set competency status';
