@@ -136,6 +136,7 @@ $string['approvalovercapacity'] = 'There are {$a->waiting} learners awaiting app
 $string['approvalovercapacitywaitlist'] = 'There are {$a->waiting} learners awaiting approval but only {$a->available} spaces available.<br /> Only the first {$a->available} learners you approve will be added to the event - additional approvals will be added to the waitlist.';
 $string['potentialattendees'] = 'Potential Attendees';
 $string['attendeestablesummary'] = 'People planning on or having attended this event.';
+$string['available'] = 'Available';
 $string['requeststablesummary'] = 'People requesting to attended this event.';
 $string['beforeregistrationends'] = 'before registration closes';
 $string['beforestartofsession'] = 'before start of event';
