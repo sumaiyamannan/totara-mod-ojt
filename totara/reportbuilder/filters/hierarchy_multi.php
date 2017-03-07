@@ -225,9 +225,6 @@ class rb_filter_hierarchy_multi extends rb_filter_type {
  */
 function display_selected_hierarchy_item($item, $filtername) {
     global $OUTPUT;
-
-    $deletestr = get_string('delete');
-
     $out = html_writer::start_tag('div', array('data-filtername' =>  $filtername,
         'data-id' => $item->id, 'class' => 'multiselect-selected-item'));
     $out .= format_string($item->fullname);

@@ -128,12 +128,20 @@ function totara_stats_manager_stats($user, $config=null) {
 
     // return users with this user as manager
     $staff = \totara_job\job_assignment::get_staff_userids($user->id);
-    list($staffsqlin, $params) = $DB->get_in_or_equal($staff, SQL_PARAMS_NAMED, 'stf');
-    $commonsql = " AND userid {$staffsqlin}
-                   AND timestamp > :from AND timestamp < :to ";
-    $params['from'] = $from;
-    $params['to'] = $to;
-    unset($staff, $staffsqlin);
+
+    $params = array();
+    if (count($staff)) {
+        list($staffsqlin, $params) = $DB->get_in_or_equal($staff, SQL_PARAMS_NAMED, 'stf');
+        $commonsql = " AND userid {$staffsqlin}
+                       AND timestamp > :from AND timestamp < :to ";
+        $params['from'] = $from;
+        $params['to'] = $to;
+        unset($staff, $staffsqlin);
+    } else {
+        // They have no staff, consequently we need to ensure that this block does not return any stats.
+        // No staff === No staff stats.
+        $commonsql = ' AND 1 <> 1';
+    }
 
     $statssql = array();
     if (empty($config) || !empty($config->statlearnerhours)) {

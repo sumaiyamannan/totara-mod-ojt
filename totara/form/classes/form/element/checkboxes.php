@@ -60,6 +60,7 @@ class checkboxes extends element {
         $this->attributes = array(
             'size' => null,
             'required' => false, // This is a group of elements, 'required' means user must select at least one.
+            'horizontal' => false,
         );
 
         if (empty($options)) {
@@ -173,7 +174,7 @@ class checkboxes extends element {
         $i = 0;
         foreach ($this->options as $value => $text) {
             $value = (string)$value; // PHP converts type of numeric keys it seems.
-            $text = clean_param($text, PARAM_CLEANHTML); // No JS allowed in checkbox labels!
+            $text = clean_text($text); // No JS allowed in checkbox labels!
             $oid = $id . '___chb_' . $i;
             $result['options'][] = array('value' => $value, 'oid' => $oid, 'text' => $text, 'checked' => in_array($value, $selected, true));
             $i++;

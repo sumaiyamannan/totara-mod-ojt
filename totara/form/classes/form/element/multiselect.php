@@ -164,7 +164,7 @@ class multiselect extends element {
         $selected = $this->get_field_value();
         foreach ($this->options as $value => $text) {
             $value = (string)$value; // PHP converts type of numeric keys it seems.
-            $text = clean_param($text, PARAM_CLEANHTML); // No JS allowed in select options!
+            $text = clean_text($text); // No JS allowed in select options!
             $result['options'][] = array('value' => $value, 'text' => $text, 'selected' => in_array($value, $selected, true));
         }
 

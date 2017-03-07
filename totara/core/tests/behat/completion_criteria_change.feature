@@ -94,19 +94,19 @@ Feature: Test reaggregating completion data when changing course completion sett
     And I log in as "user1"
     And I click on "Find Learning" in the totara menu
     And I follow "Course 1"
-    And I press "Mark as complete: Assignment 1"
+    And I click on "Not completed: Assignment 1. Select to mark as complete." "link"
     And I click on "Complete course" "link"
     And I press "Yes"
     And I should see "You have already completed this course"
     And I click on "Find Learning" in the totara menu
     And I follow "Course 2"
-    And I press "Mark as complete: Assignment 2"
+    And I click on "Not completed: Assignment 2. Select to mark as complete." "link"
     And I click on "Complete course" "link"
     And I press "Yes"
     And I should see "You have already completed this course"
     And I click on "Find Learning" in the totara menu
     And I follow "Course 3"
-    And I press "Mark as complete: Assignment 3"
+    And I click on "Not completed: Assignment 3. Select to mark as complete." "link"
     # Confirm the status of the courses for user1.
     And I click on "Record of Learning" in the totara menu
     Then I should see "Complete" in the "Course 1" "table_row"
@@ -117,13 +117,13 @@ Feature: Test reaggregating completion data when changing course completion sett
     And I log in as "user2"
     And I click on "Find Learning" in the totara menu
     And I follow "Course 1"
-    And I press "Mark as complete: Assignment 1"
+    And I click on "Not completed: Assignment 1. Select to mark as complete." "link"
     And I click on "Find Learning" in the totara menu
     And I follow "Course 2"
-    And I press "Mark as complete: Assignment 2"
+    And I click on "Not completed: Assignment 2. Select to mark as complete." "link"
     And I click on "Find Learning" in the totara menu
     And I follow "Course 3"
-    And I press "Mark as complete: Assignment 3"
+    And I click on "Not completed: Assignment 3. Select to mark as complete." "link"
     # Confirm the status of the courses for user2.
     When I click on "Record of Learning" in the totara menu
     Then I should see "In progress" in the "Course 1" "table_row"

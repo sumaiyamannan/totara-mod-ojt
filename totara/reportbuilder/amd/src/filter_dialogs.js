@@ -28,6 +28,27 @@
  */
 
 define(['jquery', 'core/config', 'core/str'], function ($, mdlcfg, mdlstrings) {
+    var disable_filter_controls = function(event) {
+        var name = $(this).attr('name');
+        name = name.substr(0, name.length - 3);// Remove _op.
+
+        if ($(this).val() === '0') {
+            $('#show-'+name+'-dialog').addClass("disabled");
+            $('#show-'+name+'-dialog').prop('disabled', true);
+            $('#show-'+name+'-dialog').removeAttr('href');
+            $('*[data-filtername="' + name + '"] a').addClass("disabled");
+            $('*[data-filtername="' + name + '"] a').prop('disabled', true);
+            $('*[data-filtername="' + name + '"] a').removeAttr('href');
+        } else {
+            $('#show-'+name+'-dialog').removeClass("disabled");
+            $('#show-'+name+'-dialog').prop('disabled', false);
+            $('#show-'+name+'-dialog').attr('href', '#');
+            $('*[data-filtername="' + name + '"] a').removeClass("disabled");
+            $('*[data-filtername="' + name + '"] a').prop('disabled', false);
+            $('*[data-filtername="' + name + '"] a').attr('href', '#');
+        }
+    }
+
     var handler = {
 
         // Holds items that need to be initialised.
@@ -106,12 +127,14 @@ define(['jquery', 'core/config', 'core/str'], function ($, mdlcfg, mdlstrings) {
                 var container = $(this).parents('div.multiselect-selected-item');
                 var filtername = container.data('filtername');
                 var id = container.data('id');
-                var hiddenfield = $('input[name='+filtername+']');
+                var hiddenfield = $('input[name=' + filtername + ']');
 
                 // Take this element's ID out of the hidden form field.
                 var ids = hiddenfield.val();
                 var id_array = ids.split(',');
-                var new_id_array = $.grep(id_array, function(index) { return index != id; });
+                var new_id_array = $.grep(id_array, function (index) {
+                    return index != id;
+                });
                 var new_ids = new_id_array.join(',');
                 hiddenfield.val(new_ids);
 
@@ -232,6 +255,10 @@ define(['jquery', 'core/config', 'core/str'], function ($, mdlcfg, mdlstrings) {
                 // Remove 'show-' and '-dialog' from ID.
                 id = id.substr(5, id.length - 12);
 
+                // Disable dialogs and other controls when filter is disabled
+                disable_filter_controls.call($('#id_' + id + '_op'));
+                $(document).on('change', '#id_' + id + '_op', disable_filter_controls);
+
                 var url = mdlcfg.wwwroot + '/totara/job/assignfilter/manager/';
 
                 mdlstrings.get_string('choosemanplural', 'totara_reportbuilder').done(function (choosemanplural) {
@@ -249,6 +276,10 @@ define(['jquery', 'core/config', 'core/str'], function ($, mdlcfg, mdlstrings) {
                 var id = $(this).attr('id');
                 // Remove 'show-' and '-dialog' from ID.
                 id = id.substr(5, id.length - 12);
+
+                // Disable dialogs and other controls when filter is disabled
+                disable_filter_controls.call($('#id_' + id + '_op'));
+                $(document).on('change', '#id_' + id + '_op', disable_filter_controls);
 
                 var url = mdlcfg.wwwroot + '/totara/job/assignfilter/appraiser/';
 
@@ -270,6 +301,10 @@ define(['jquery', 'core/config', 'core/str'], function ($, mdlcfg, mdlstrings) {
                 // Remove 'show-' and '-dialog' from ID.
                 id = id.substr(5, id.length - 12);
 
+                // Disable dialogs and other controls when filter is disabled
+                disable_filter_controls.call($('#id_' + id + '_op'));
+                $(document).on('change', '#id_' + id + '_op', disable_filter_controls);
+
                 var url = mdlcfg.wwwroot + '/totara/hierarchy/prefix/organisation/assignfilter/';
 
                 mdlstrings.get_string('chooseorgplural', 'totara_reportbuilder').done(function (chooseorgplural) {
@@ -288,6 +323,10 @@ define(['jquery', 'core/config', 'core/str'], function ($, mdlcfg, mdlstrings) {
                 // Remove 'show-' and '-dialog' from ID.
                 id = id.substr(5, id.length - 12);
 
+                // Disable dialogs and other controls when filter is disabled
+                disable_filter_controls.call($('#id_' + id + '_op'));
+                $(document).on('change', '#id_' + id + '_op', disable_filter_controls);
+
                 var url = mdlcfg.wwwroot + '/totara/hierarchy/prefix/position/assignfilter/';
 
                 mdlstrings.get_string('chooseposplural', 'totara_reportbuilder').done(function (chooseposplural) {
@@ -305,6 +344,10 @@ define(['jquery', 'core/config', 'core/str'], function ($, mdlcfg, mdlstrings) {
                 var id = $(this).attr('id');
                 // Remove 'show-' and '-dialog' from ID.
                 id = id.substr(5, id.length - 12);
+
+                // Disable dialogs and other controls when filter is disabled
+                disable_filter_controls.call($('#id_' + id + '_op'));
+                $(document).on('change', '#id_' + id + '_op', disable_filter_controls);
 
                 var url = mdlcfg.wwwroot + '/totara/hierarchy/prefix/competency/assignfilter/';
 

@@ -107,7 +107,7 @@ class rb_source_facetoface_events extends rb_facetoface_base_source {
             REPORT_BUILDER_RELATION_ONE_TO_MANY
         );
 
-        $this->add_session_status_to_joinlist($joinlist, 'base', 'id');
+        $this->add_grouped_session_status_to_joinlist($joinlist, 'base', 'id');
         $this->add_course_table_to_joinlist($joinlist, 'facetoface', 'course');
         $this->add_course_category_table_to_joinlist($joinlist, 'course', 'category');
         $this->add_job_assignment_tables_to_joinlist($joinlist, 'allattendees', 'userid');
@@ -302,7 +302,7 @@ class rb_source_facetoface_events extends rb_facetoface_base_source {
                 )
             )
         );
-        $this->add_session_status_to_columns($columnoptions, 'sessiondate', 'base');
+        $this->add_grouped_session_status_to_columns($columnoptions, 'base');
         $this->add_facetoface_common_to_columns($columnoptions, 'base');
         $this->add_facetoface_session_roles_to_columns($columnoptions);
 
@@ -311,6 +311,105 @@ class rb_source_facetoface_events extends rb_facetoface_base_source {
         $this->add_course_fields_to_columns($columnoptions);
 
         return $columnoptions;
+    }
+
+
+    /**
+     * Add joins required by @see rb_source_facetoface_events::add_grouped_session_status_to_columns()
+     * @param array $joinlist
+     * @param string $join 'sessions' table to join to
+     * @param string $field 'id' field (from sessions table) to join to
+     */
+    protected function add_grouped_session_status_to_joinlist(&$joinlist, $join, $field) {
+        // No global restrictions here because status is absolute (e.g if it is overbooked then it is overbooked, even if user
+        // cannot see all participants).
+        $joinlist[] =  new rb_join(
+            'cntbookings',
+            'LEFT',
+            "(SELECT s.id sessionid, COUNT(ss.id) cntsignups
+                FROM {facetoface_sessions} s
+                LEFT JOIN {facetoface_signups} su ON (su.sessionid = s.id)
+                LEFT JOIN {facetoface_signups_status} ss
+                    ON (su.id = ss.signupid AND ss.superceded = 0 AND ss.statuscode >= " . MDL_F2F_STATUS_BOOKED . ")
+                WHERE 1=1
+                GROUP BY s.id)",
+
+            "cntbookings.sessionid = {$join}.{$field}",
+            REPORT_BUILDER_RELATION_ONE_TO_ONE,
+            $join
+        );
+
+        $joinlist[] = new rb_join(
+            'eventdateinfo',
+            'LEFT',
+            '( SELECT sessionid, MIN(timestart) AS eventstart, MAX(timefinish) AS eventfinish
+               FROM {facetoface_sessions_dates}
+               GROUP BY sessionid)',
+            "eventdateinfo.sessionid = {$join}.{$field}",
+            REPORT_BUILDER_RELATION_ONE_TO_MANY
+        );
+    }
+
+    /**
+     * Add session booking and overall status columns for sessions (so it also groups all sessions (dates) in an event)
+     * Requires 'eventdateinfo' join, and 'cntbookings' join provided by
+     * @see rb_source_facetoface_events::add_grouped_session_status_to_joinlist()
+     *
+     * If you call this function in order to get the correct highlighting you will need to extend the CSS rules in
+     * mod/facetoface/styles.css and add a line like the following:
+     *     .reportbuilder-table[data-source="rb_source_facetoface_summary"] tr
+     *
+     * Search for that and you'll see what you need to do.
+     *
+     * @param array $columnoptions
+     * @param string $joinsessions Join name that provide {facetoface_sessions}
+     */
+    protected function add_grouped_session_status_to_columns(&$columnoptions, $joinsessions = 'sessions') {
+        $now = time();
+
+        $columnoptions[] = new rb_column_option(
+            'session',
+            'overallstatus',
+            get_string('overallstatus', 'rb_source_facetoface_summary'),
+            "( CASE WHEN cancelledstatus <> 0 THEN 'cancelled'
+                    WHEN eventdateinfo.eventstart IS NULL OR eventdateinfo.eventstart = 0 OR eventdateinfo.eventstart > {$now} THEN 'upcoming'
+                    WHEN {$now} > eventdateinfo.eventstart AND {$now} < eventdateinfo.eventfinish THEN 'started'
+                    WHEN {$now} > eventdateinfo.eventfinish THEN 'ended'
+                    ELSE NULL END
+             )",
+            array(
+                'joins' => array('eventdateinfo'),
+                'displayfunc' => 'overall_status',
+                'extrafields' => array(
+                    'timestart' => "eventdateinfo.eventstart",
+                    'timefinish' => "eventdateinfo.eventfinish",
+                )
+            )
+        );
+
+        $columnoptions[] = new rb_column_option(
+            'session',
+            'bookingstatus',
+            get_string('bookingstatus', 'rb_source_facetoface_summary'),
+            "(CASE WHEN {$now} > eventdateinfo.eventfinish AND cntsignups < {$joinsessions}.capacity THEN 'ended'
+                   WHEN cancelledstatus <> 0 THEN 'cancelled'
+                   WHEN cntsignups < {$joinsessions}.mincapacity THEN 'underbooked'
+                   WHEN cntsignups < {$joinsessions}.capacity THEN 'available'
+                   WHEN cntsignups = {$joinsessions}.capacity THEN 'fullybooked'
+                   WHEN cntsignups > {$joinsessions}.capacity THEN 'overbooked'
+                   ELSE NULL END)",
+            array(
+                'joins' => array('eventdateinfo', 'cntbookings', $joinsessions),
+                'displayfunc' => 'booking_status',
+                'dbdatatype' => 'char',
+                'extrafields' => array(
+                    'mincapacity' => "{$joinsessions}.mincapacity",
+                    'capacity' => "{$joinsessions}.capacity",
+                    'timestart' => "eventdateinfo.eventstart",
+                    'timefinish' => "eventdateinfo.eventfinish"
+                )
+            )
+        );
     }
 
     protected function define_filteroptions() {

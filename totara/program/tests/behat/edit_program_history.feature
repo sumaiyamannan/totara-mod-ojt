@@ -32,8 +32,8 @@ Background:
   And I click on "Edit completion records" "link" in the "fn_001 ln_001" "table_row"
   And I click on "Add history" "button"
   And I set the following fields to these values:
-    | timecompleted[day]     | 30     |
     | timecompleted[month]   | July   |
+    | timecompleted[day]     | 30     |
     | timecompleted[year]    | 2029   |
     | timecompleted[hour]    | 12     |
     | timecompleted[minute]  | 10     |
@@ -43,8 +43,8 @@ Background:
 Scenario: Test completion history date
   Given I click on "Add history" "button"
   And I set the following fields to these values:
-    | timecompleted[day]     | 22     |
     | timecompleted[month]   | August |
+    | timecompleted[day]     | 22     |
     | timecompleted[year]    | 2015   |
     | timecompleted[hour]    | 5      |
     | timecompleted[minute]  | 30     |
@@ -55,14 +55,14 @@ Scenario: Test completion history date
   # Test editing of a historical record
   When I click on "Edit" "link" in the "22 August 2015" "table_row"
   Then the following fields match these values:
-    | timecompleted[day]     | 22     |
     | timecompleted[month]   | August |
+    | timecompleted[day]     | 22     |
     | timecompleted[year]    | 2015   |
     | timecompleted[hour]    | 5      |
     | timecompleted[minute]  | 30     |
   When I set the following fields to these values:
-    | timecompleted[day]     | 3         |
     | timecompleted[month]   | September |
+    | timecompleted[day]     | 3         |
     | timecompleted[year]    | 2011      |
     | timecompleted[hour]    | 13        |
     | timecompleted[minute]  | 35        |

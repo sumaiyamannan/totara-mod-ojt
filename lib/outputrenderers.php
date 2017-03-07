@@ -3685,9 +3685,9 @@ EOD;
             $i++;
         }
 
-        $html .= html_writer::end_tag('div');
-
-        $html .= html_writer::end_tag('ul');
+        if ($open) {
+            $html .= html_writer::end_tag('div');
+        }
         $html .= html_writer::end_tag('div');
         $html .= html_writer::end_div();
         return $html;

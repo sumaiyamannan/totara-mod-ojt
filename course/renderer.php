@@ -677,7 +677,7 @@ class core_course_renderer extends plugin_renderer_base {
                 $output .= html_writer::empty_tag('input', array(
                     'type' => 'hidden', 'name' => 'sesskey', 'value' => sesskey()));
                 $output .= html_writer::empty_tag('input', array(
-                    'type' => 'hidden', 'name' => 'modulename', 'value' => $mod->name));
+                    'type' => 'hidden', 'name' => 'modulename', 'value' => $formattedname));
                 $output .= html_writer::empty_tag('input', array(
                     'type' => 'hidden', 'name' => 'completionstate', 'value' => $newstate));
                 $output .= html_writer::empty_tag('input', array(
@@ -687,6 +687,14 @@ class core_course_renderer extends plugin_renderer_base {
                     'aria-live' => 'polite'));
                 $output .= html_writer::end_tag('div');
                 $output .= html_writer::end_tag('form');
+
+                // Now to add the font icon
+                $data = array(
+                    'alt' => $imgalt,
+                    'title' => $imgtitle
+                );
+                $output .= html_writer::link('#', $this->render(new \core\output\flex_icon('completion-' . $completionicon, $data)), array('class' =>'completion-icon'));
+
             } else {
                 // In auto mode, the icon is just an image.
                 $completionpixicon = new pix_icon('i/completion-'.$completionicon, $imgalt, '',

@@ -40,13 +40,13 @@ Scenario: Confirm that the program incomplete is saved correctly
   And I set the field "Status" to "Program complete"
   And I set the following fields to these values:
     | timedue[enabled]       | 1      |
-    | timedue[day]           | 22     |
     | timedue[month]         | August |
+    | timedue[day]           | 22     |
     | timedue[year]          | 2030   |
     | timedue[hour]          | 15     |
     | timedue[minute]        | 05     |
-    | timecompleted[day]     | 30     |
     | timecompleted[month]   | July   |
+    | timecompleted[day]     | 30     |
     | timecompleted[year]    | 2029   |
     | timecompleted[hour]    | 12     |
     | timecompleted[minute]  | 10     |
@@ -55,13 +55,13 @@ Scenario: Confirm that the program incomplete is saved correctly
   And I should see "Completion date: 30 July 2029" in the "Transactions" "fieldset"
   And the following fields match these values:
     | timedue[enabled]       | 1      |
-    | timedue[day]           | 22     |
     | timedue[month]         | August |
+    | timedue[day]           | 22     |
     | timedue[year]          | 2030   |
     | timedue[hour]          | 15     |
     | timedue[minute]        | 05     |
-    | timecompleted[day]     | 30     |
     | timecompleted[month]   | July   |
+    | timecompleted[day]     | 30     |
     | timecompleted[year]    | 2029   |
     | timecompleted[hour]    | 12     |
     | timecompleted[minute]  | 10     |
@@ -73,8 +73,8 @@ Scenario: Confirm that the program incomplete is saved correctly
   And I set the field "Status" to "Program incomplete"
   And I set the following fields to these values:
     | timedue[enabled] | 1      |
-    | timedue[day]     | 22     |
     | timedue[month]   | August |
+    | timedue[day]     | 22     |
     | timedue[year]    | 2030   |
     | timedue[hour]    | 15     |
     | timedue[minute]  | 05     |
@@ -83,8 +83,8 @@ Scenario: Confirm that the program incomplete is saved correctly
   And I should see "Completion date: Not set" in the "Transactions" "fieldset"
   And the following fields match these values:
     | timedue[enabled] | 1      |
-    | timedue[day]     | 22     |
     | timedue[month]   | August |
+    | timedue[day]     | 22     |
     | timedue[year]    | 2030   |
     | timedue[hour]    | 15     |
     | timedue[minute]  | 05     |

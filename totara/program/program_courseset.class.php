@@ -1023,12 +1023,27 @@ class multi_course_set extends course_set {
                     $markcourse = has_capability('moodle/course:markcomplete', $coursecontext);
                     if ($showcourseset && ($markstaff || $markuser || $markcourse)) {
                         $completion = new completion_info($course);
-                        $indicator = ($completion->is_course_complete($userid) ? 'y' : 'n');
-                        $url = new moodle_url('/totara/program/content/completecourse.php',
-                                array('userid' => $userid, 'courseid' => $course->id, 'progid' => $this->programid));
-                        $pix = new pix_icon('i/completion-manual-' . $indicator, get_string('completion-alt-manual-' . $indicator, 'completion',
-                                format_string($course->fullname)), '', array('class' => 'iconsmall'));
-                        $link = $OUTPUT->action_icon($url, $pix);
+
+                        if ($completion->is_course_complete($userid)) {
+                            $ticked = 'y';
+                            $action = 'delete';
+                        } else {
+                            $ticked = 'n';
+                            $action = 'add';
+                        }
+
+                        $urlparams = array(
+                            'userid' => $userid,
+                            'courseid' => $course->id,
+                            'progid' => $this->programid,
+                            'sesskey' => sesskey()
+                        );
+
+                        $url = new moodle_url('/totara/program/content/completecourse.php', $urlparams);
+                        $pix = new pix_icon('i/completion-manual-' . $ticked, get_string('completion-alt-manual-' . $ticked,
+                                'completion', format_string($course->fullname)), '', array('class' => 'iconsmall'));
+                        $link = $OUTPUT->action_icon($url, $pix, null, array('class' => $action . 'completion'));
+
                         $cells[] = new html_table_cell($link);
                         if (!$completeheading) {
                             $table->head[] = get_string('markcompletheading', 'totara_program');

@@ -29,15 +29,15 @@ Feature: Seminar sign-up periods
     And I click on "Delete" "link" in the ".f2fmanagedates" "css_element"
     And I set the following fields to these values:
       | registrationtimestart[enabled]  | <periodopen>  |
-      | registrationtimestart[day]      | 30            |
       | registrationtimestart[month]    | June          |
+      | registrationtimestart[day]      | 30            |
       | registrationtimestart[year]     | <startyear>   |
       | registrationtimestart[hour]     | 01            |
       | registrationtimestart[minute]   | 00            |
       | registrationtimestart[timezone] | <startzone>   |
       | registrationtimefinish[enabled] | <periodclose> |
-      | registrationtimefinish[day]     | 30            |
       | registrationtimefinish[month]   | June          |
+      | registrationtimefinish[day]     | 30            |
       | registrationtimefinish[year]    | <endyear>     |
       | registrationtimefinish[hour]    | 01            |
       | registrationtimefinish[minute]  | 00            |
@@ -66,29 +66,29 @@ Feature: Seminar sign-up periods
     Given I follow "Add a new event"
     And I set the following fields to these values:
       | registrationtimestart[enabled]   | 1                  |
-      | registrationtimestart[day]       | <periodstartday>   |
       | registrationtimestart[month]     | June               |
+      | registrationtimestart[day]       | <periodstartday>   |
       | registrationtimestart[year]      | 2030               |
       | registrationtimestart[hour]      | <periodstarthour>  |
       | registrationtimestart[minute]    | 00                 |
       | registrationtimestart[timezone]  | <periodstartzone>  |
       | registrationtimefinish[enabled]  | 1                  |
-      | registrationtimefinish[day]      | <periodendday>     |
       | registrationtimefinish[month]    | June               |
+      | registrationtimefinish[day]      | <periodendday>     |
       | registrationtimefinish[year]     | 2030               |
       | registrationtimefinish[hour]     | <periodendhour>    |
       | registrationtimefinish[minute]   | 00                 |
       | registrationtimefinish[timezone] | <periodendzone>    |
     And I click on "Edit date" "link"
     And I set the following fields to these values:
-      | timestart[day]       | <sessionstartday>  |
       | timestart[month]     | June               |
+      | timestart[day]       | <sessionstartday>  |
       | timestart[year]      | 2030               |
       | timestart[hour]      | <sessionstarthour> |
       | timestart[minute]    | 00                 |
       | timestart[timezone]  | <sessionstartzone> |
-      | timefinish[day]      | <sessionendday>    |
       | timefinish[month]    | June               |
+      | timefinish[day]      | <sessionendday>    |
       | timefinish[year]     | 2030               |
       | timefinish[hour]     | <sessionendhour>   |
       | timefinish[minute]   | 00                 |
@@ -125,15 +125,15 @@ Feature: Seminar sign-up periods
     And I click on "Delete" "link" in the ".f2fmanagedates" "css_element"
     And I set the following fields to these values:
       | registrationtimestart[enabled]   | <periodopen>  |
-      | registrationtimestart[day]       | 30            |
       | registrationtimestart[month]     | June          |
+      | registrationtimestart[day]       | 30            |
       | registrationtimestart[year]      | <startyear>   |
       | registrationtimestart[hour]      | 01            |
       | registrationtimestart[minute]    | 00            |
       | registrationtimestart[timezone]  | <startzone>   |
       | registrationtimefinish[enabled]  | <periodclose> |
-      | registrationtimefinish[day]      | 30            |
       | registrationtimefinish[month]    | June          |
+      | registrationtimefinish[day]      | 30            |
       | registrationtimefinish[year]     | <endyear>     |
       | registrationtimefinish[hour]     | 01            |
       | registrationtimefinish[minute]   | 00            |

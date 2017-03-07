@@ -438,4 +438,16 @@ class rb_source_dp_certification_history extends rb_base_source {
     public function is_ignored() {
         return (!totara_feature_visible('recordoflearning') or !totara_feature_visible('certifications'));
     }
+
+    /**
+     * Returns expected result for column_test.
+     * @param rb_column_option $columnoption
+     * @return int
+     */
+    public function phpunit_column_test_expected_count($columnoption) {
+        if (!PHPUNIT_TEST) {
+            throw new coding_exception('phpunit_column_test_expected_count() cannot be used outside of unit tests');
+        }
+        return 2;
+    }
 }

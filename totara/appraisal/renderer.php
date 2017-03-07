@@ -751,7 +751,7 @@ class totara_appraisal_renderer extends plugin_renderer_base {
 
         // Render preview button, opening in a popup window.
         $button = new single_button($previewurl, $strpreviewappraisal);
-        $button->class .= ' previewer';
+        $button->class .= ' appraisal-previewer';
         $popupaction = new popup_action('click', $previewurl, 'previewappraisal',
             array('toolbar' => false, 'height' => 800, 'width' => 1000));
         $button->actions[] = $popupaction;
@@ -1871,7 +1871,7 @@ class totara_appraisal_renderer extends plugin_renderer_base {
         $previewurl = new moodle_url('/totara/appraisal/myappraisal.php', $urlparams);
         $select = new single_select($previewurl, 'role', $roles);
         $select->set_label(get_string('previewappraisalas', 'totara_appraisal'));
-        $select->class .= ' previewer';
+        $select->class .= ' appraisal-previewer';
         $select->nothing = '';
         $select->selected = $role;
         $rolecontrol = $this->render($select);

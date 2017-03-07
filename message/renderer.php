@@ -375,11 +375,10 @@ class core_message_renderer extends plugin_renderer_base {
 
         $redirect = new moodle_url("/user/preferences.php", array('userid' => $userid));
         $output .= html_writer::end_tag('fieldset');
-        $output .= html_writer::start_tag('div', array('class' => 'mdl-align'));
+        $output .= html_writer::start_tag('div', array('class' => 'btn-toolbar mdl-align'));
         $output .= html_writer::empty_tag('input', array('type' => 'submit',
-            'value' => get_string('savechanges'), 'class' => 'form-submit'));
-        $output .= html_writer::link($redirect, html_writer::empty_tag('input', array('type' => 'button',
-            'value' => get_string('cancel'), 'class' => 'btn-cancel')));
+            'value' => get_string('savechanges'), 'class' => 'btn form-submit'));
+        $output .= html_writer::link($redirect, get_string('cancel'), array('class' => 'btn btn-default'));
         $output .= html_writer::end_tag('div');
 
         $output .= html_writer::end_tag('form');

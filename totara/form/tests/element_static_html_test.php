@@ -72,4 +72,28 @@ class totara_form_element_static_html_testcase extends advanced_testcase {
         $data = $form->get_data();
         $this->assertNull($data);
     }
+
+    public function test_set_allow_xss() {
+        $definition = new test_definition($this,
+            function (model $model, advanced_testcase $testcase) {
+                /** @var static_html $static_html1 */
+                $static_html1 = $model->add(new static_html('somestatic_html1', 'label', 'some plain & text'));
+                /** @var static_html  $static_html2 */
+                $static_html2 = $model->add(new static_html('somestatic_html2', 'label', 'some cleaned <javascript>alert(666)</javascript> text'));
+                /** @var static_html $static_html3 */
+                $static_html3 = $model->add(new static_html('somestatic_html3', 'label', 'some not cleaned <javascript>alert(666)</javascript>text'));
+                $static_html3->set_allow_xss(true);
+
+                // Test the form field values.
+                $testcase->assertSame(null, $static_html1->get_field_value());
+            });
+        test_form::phpunit_set_definition($definition);
+
+        $form = new test_form();
+
+        $output = $form->render();
+        $this->assertContains('some plain &amp; text', $output);
+        $this->assertContains('some cleaned alert(666) text', $output);
+        $this->assertContains('some not cleaned <javascript>alert(666)</javascript>text', $output);
+    }
 }

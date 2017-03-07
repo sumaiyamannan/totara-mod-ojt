@@ -65,7 +65,7 @@ Feature: Completion report rpl
     # As a student, complete one activity
     When I log in as "student1"
     And I follow "Course 1"
-    Then I click on "Mark as complete: label1" "button"
+    Then I click on "Not completed: label1. Select to mark as complete." "link"
     And I log out
 
     # Set course completion via RPL

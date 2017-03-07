@@ -823,6 +823,7 @@ class hierarchy {
             $out .= $OUTPUT->container_start('hierarchy-bulk-actions-picker');
             $select = new url_select($options, '', array('' => get_string('bulkactions', 'totara_hierarchy')));
             $select->class = 'bulkactions';
+            $select->set_label(get_string('bulkactions', 'totara_hierarchy'), array('class' => 'sr-only'));
             $out .= $OUTPUT->render($select);
             $out .= $OUTPUT->container_end();
         }
@@ -1944,7 +1945,7 @@ class hierarchy {
         $hiddenfields = array('prefix' => $this->prefix, 'frameworkid' => $this->frameworkid);
 
         $renderer = $PAGE->get_renderer('totara_core');
-        $out = $renderer->totara_search('', $hiddenfields, $placeholdertext, $query, 'hierarchy-search-form', 'hierarchy-search-text-field');
+        $out = $renderer->totara_search('#', $hiddenfields, $placeholdertext, $query, 'hierarchy-search-form', 'hierarchy-search-text-field');
         return $out;
     }
 

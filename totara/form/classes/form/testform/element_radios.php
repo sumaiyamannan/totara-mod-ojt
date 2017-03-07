@@ -64,12 +64,15 @@ class element_radios extends form {
         $defaultoptions = ['1' => 'Yes', '0' => 'No'];
 
         $this->model->add(new radios('radios_basic', 'Basic radios', $defaultoptions));
+        $radios_horizontal = $this->model->add(new radios('radios_horizontal', 'Horizontal radios', $defaultoptions));
+        $radios_horizontal->set_attribute('horizontal', true);
         $radios_required = $this->model->add(new radios('radios_required', 'Required basic radios', $defaultoptions));
         $radios_required->set_attribute('required', true);
         $radios_required->add_help_button('cachejs', 'core_admin'); // Just a random help string.
         $this->model->add(new radios('radios_with_current_data', 'radios with current data', $defaultoptions))->add_help_button('cachejs', 'core_admin'); // Just a random help string.;
         $this->model->add(new radios('radios_frozen_empty', 'Empty frozen radios', $defaultoptions))->set_frozen(true);
         $this->model->add(new radios('radios_frozen_with_current_data', 'Frozen radios with current data', $defaultoptions))->set_frozen(true);
+        $this->model->add(new radios('radios_with_html_labels', 'Radios with HTML labels', ['1' => '<b style="color:blue">Bold &amp; blue</b>', '2' => '<i style="color:green">Italic & green</i>']));
 
         $section = $this->model->add(new section('test_hiddenif', 'Testing Hiddenif'));
         $hiddenif_primary = $section->add(new radios('hiddenif_primary', 'Hidden if reference', $defaultoptions));

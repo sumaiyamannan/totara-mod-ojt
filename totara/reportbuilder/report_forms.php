@@ -1381,6 +1381,7 @@ class report_builder_course_expand_form extends moodleform {
         }
 
         $mform->addElement('hidden', 'courseid', $courseid);
+        $mform->setType('courseid', PARAM_INT);
 
         foreach ($inlineenrolmentelements as $inlineenrolmentelement) {
             $mform->addElement($inlineenrolmentelement);

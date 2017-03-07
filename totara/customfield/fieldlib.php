@@ -652,7 +652,7 @@ function customfield_get_fields($item, $tableprefix, $prefix) {
         $newfield = 'customfield_'.$field->datatype;
         $formfield = new $newfield($field->id, $item, $prefix, $tableprefix);
         if (!$formfield->is_hidden() and !$formfield->is_empty()) {
-            $out[s($formfield->field->fullname)] = $formfield->display_data();
+            $out[format_string($formfield->field->fullname)] = $formfield->display_data();
         }
     }
     return $out;

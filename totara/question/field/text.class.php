@@ -23,6 +23,12 @@
  */
 
 class question_text extends question_base{
+
+    /**
+     * Maximum length of value that can be saved via this question type.
+     */
+    const MAX_VALUE_LENGTH = 255;
+
     public static function get_info() {
         return array('group' => question_manager::GROUP_QUESTION,
                      'type' => get_string('questiontypetext', 'totara_question'));
@@ -36,7 +42,7 @@ class question_text extends question_base{
      */
     public function get_xmldb() {
         $fields = array();
-        $fields[$this->get_prefix_form()] = new xmldb_field($this->get_prefix_db(), XMLDB_TYPE_CHAR, '255');
+        $fields[$this->get_prefix_form()] = new xmldb_field($this->get_prefix_db(), XMLDB_TYPE_CHAR, self::MAX_VALUE_LENGTH);
         return $fields;
     }
 
@@ -48,6 +54,7 @@ class question_text extends question_base{
      */
     public function add_field_specific_edit_elements(MoodleQuickForm $form) {
         $form->addElement('text', $this->get_prefix_form(), $this->label);
+        $form->addRule($this->get_prefix_form(), get_string('maximumchars', '', self::MAX_VALUE_LENGTH), 'maxlength', self::MAX_VALUE_LENGTH);
         if ($this->required) {
             $form->addRule($this->get_prefix_form(), get_string('required'), 'required');
         }

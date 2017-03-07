@@ -748,13 +748,13 @@ class feedback360 {
     }
 
     /**
-     * Return feedback360's that assigned to user, but not assigned for response
+     * Return feedback360s that are assigned to the user, but not assigned for response
      *
      * @param int $userid
      * @return array
      */
     public static function get_available_forms($userid) {
-        global $DB;
+        global $DB, $TEXTAREA_OPTIONS;
 
         $sql = "SELECT f.*, fa.id AS assigid
                 FROM {feedback360_user_assignment} fa
@@ -770,6 +770,8 @@ class feedback360 {
             if ($existingrequests > 0) {
                 continue;
             }
+            $form->description = file_rewrite_pluginfile_urls($form->description, 'pluginfile.php',
+                $TEXTAREA_OPTIONS['context']->id, 'totara_feedback360', 'feedback360', $form->id);
             $available_forms[$form->id] = $form;
         }
 

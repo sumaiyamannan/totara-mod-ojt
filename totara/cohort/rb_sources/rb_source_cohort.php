@@ -481,6 +481,21 @@ class rb_source_cohort extends rb_base_source {
 
         return '';
     }
+
+    /**
+     * Returns expected result for column_test.
+     * @param rb_column_option $columnoption
+     * @return int
+     */
+    public function phpunit_column_test_expected_count($columnoption) {
+        if (!PHPUNIT_TEST) {
+            throw new coding_exception('phpunit_column_test_expected_count() cannot be used outside of unit tests');
+        }
+        if (strpos("{$columnoption->type}_{$columnoption->value}", 'course_category_') === 0) {
+            return 0;
+        }
+        return parent::phpunit_column_test_expected_count($columnoption);
+    }
 }
 
 // End of rb_source_user class

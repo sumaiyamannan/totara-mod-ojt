@@ -1095,6 +1095,7 @@ abstract class rb_base_source {
         $enrolled = is_enrolled($coursecontext);
         $formdata['url'] = new moodle_url('/course/view.php', array('id' => $courseid));
 
+        $inlineenrolments = array();
         if ($enrolled) {
             $ccompl = new completion_completion(array('userid' => $userid, 'course' => $courseid));
             $complete = $ccompl->is_complete();
@@ -1144,7 +1145,6 @@ abstract class rb_base_source {
 
             $cansignup = false;
             $enrolmethodlist = array();
-            $inlineenrolments = array();
             foreach ($instances as $instance) {
                 if (!isset($plugins[$instance->enrol])) {
                     continue;
@@ -1223,7 +1223,12 @@ abstract class rb_base_source {
                             if ($subelement->_type == 'button' || $subelement->_type == 'submit') {
                                 continue;
                             }
-                            $subelement->setName($nameprefix . $element->getName());
+                            $elementname = $subelement->getName();
+                            $newelement  = $nameprefix . $elementname;
+                            $subelement->setName($newelement);
+                            if (!empty($enrolform->_form->_types[$elementname]) && $subelement instanceof MoodleQuickForm_hidden) {
+                                $subelement->setType($newelement, $enrolform->_form->_types[$elementname]);
+                            }
                             $newelements[] = $subelement;
                         }
                         if (count($newelements)>0) {
@@ -1231,7 +1236,12 @@ abstract class rb_base_source {
                             $retval[] = $element;
                         }
                     } else {
-                        $element->setName($nameprefix . $element->getName());
+                        $elementname = $element->getName();
+                        $newelement  = $nameprefix . $elementname;
+                        $element->setName($newelement);
+                        if (!empty($enrolform->_form->_types[$elementname]) && $element instanceof MoodleQuickForm_hidden) {
+                            $element->setType($newelement, $enrolform->_form->_types[$elementname]);
+                        }
                         $retval[] = $element;
                     }
                 }
@@ -5740,5 +5750,28 @@ abstract class rb_base_source {
      */
     public function get_custom_export_header(reportbuilder $report, $format) {
         return null;
+    }
+
+    /**
+     * Inject column_test data into database.
+     * @param totara_reportbuilder_column_testcase $testcase
+     */
+    public function phpunit_column_test_add_data(totara_reportbuilder_column_testcase $testcase) {
+       if (!PHPUNIT_TEST) {
+           throw new coding_exception('phpunit_prepare_test_data() cannot be used outside of unit tests');
+       }
+       // Nothing to do by default.
+    }
+
+    /**
+     * Returns expected result for column_test.
+     * @param rb_column_option $columnoption
+     * @return int
+     */
+    public function phpunit_column_test_expected_count($columnoption) {
+        if (!PHPUNIT_TEST) {
+            throw new coding_exception('phpunit_column_test_expected_count() cannot be used outside of unit tests');
+        }
+        return 1;
     }
 }

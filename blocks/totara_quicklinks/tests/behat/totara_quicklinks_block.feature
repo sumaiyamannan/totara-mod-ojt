@@ -125,7 +125,7 @@ Feature: Test Quick Links block
     And I should see "Totara" in the "Course Links" "block"
     And I log out
 
-  @calendar
+  @core_calendar
   Scenario: As an admin Links that contain query strings can be added
     # First, add the quick links block.
     Given I log in as "admin"

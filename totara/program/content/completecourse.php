@@ -83,6 +83,8 @@ $PAGE->navbar->add($heading);
 
 $completion = new completion_completion(array('userid' => $userid, 'course' => $courseid));
 if ($completion->is_complete()) {
+    confirm_sesskey();
+
     // Toggle as incomplete
     $completion->delete();
     if ($program->certifid) {
@@ -100,6 +102,8 @@ $mform = new completecourse_form();
 if ($mform->is_cancelled()) {
     redirect($progurl);
 } else if ($data = $mform->get_data()) {
+    confirm_sesskey();
+
     // Save and return to prog
     $completion->rpl = $data->rpl;
     $completion->rplgrade = $data->rplgrade;

@@ -352,7 +352,6 @@ switch ($searchtype) {
             $contextids = array('0');
             $equal = false;
         }
-        list($contextssql, $contextparams) = $DB->get_in_or_equal($contextids, SQL_PARAMS_QM, 'param', $equal);
 
         $search_info->fullname = "(
             CASE WHEN {cohort}.idnumber IS NULL
@@ -367,9 +366,15 @@ switch ($searchtype) {
             FROM
                 {cohort}
             WHERE
-                {$searchsql} AND {cohort}.contextid {$contextssql}
+                {$searchsql}
         ";
-        $params = array_merge($params, $contextparams);
+
+        if (!empty($contextids)) {
+            list($contextssql, $contextparams) = $DB->get_in_or_equal($contextids, SQL_PARAMS_QM, 'param', $equal);
+            $search_info->sql .= $searchsql ? "AND {cohort}.contextid {$contextssql}" : "{cohort}.contextid {$contextssql}";
+            $params = array_merge($params, $contextparams);
+        }
+
         if (!empty($this->customdata['current_cohort_id'])) {
             $search_info->sql .= ' AND {cohort}.id != ? ';
             $params[] = $this->customdata['current_cohort_id'];

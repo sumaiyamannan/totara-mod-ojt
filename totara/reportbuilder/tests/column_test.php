@@ -727,9 +727,9 @@ class totara_reportbuilder_column_testcase extends reportcache_advanced_testcase
         $reportname = 'Test Report';
         $filtername = 'filtering_testreport';
 
-        $sourcecheck = in_array($sourcename, array('dp_certification_history', 'program_membership', 'user'));
-
         $src = reportbuilder::get_source_object($sourcename, true); // Caching here is completely fine.
+        $src->phpunit_column_test_add_data($this);
+
         $sortorder = 1;
         foreach ($src->columnoptions as $column) {
             // Create a report.
@@ -762,17 +762,12 @@ class totara_reportbuilder_column_testcase extends reportcache_advanced_testcase
             // Get the column option object.
             $columnoption = reportbuilder::get_single_item($rb->columnoptions, $column->type, $column->value);
 
-            // The answer here depends on if the column we are testing is grouped or not.
-            if ($sourcecheck) {
-                $this->assertEquals('2', $rb->get_full_count(), $message);
-            } else if (
-                ($sourcename === 'certification_overview' and ($col->type === 'course' or "{$col->type}_{$col->value}" === 'certif_completion_progress'))
-                or ($sourcename === 'cohort' and strpos("{$col->type}_{$col->value}", 'course_category_') === 0)
-            ) {
-                // TODO: Add more test data.
-                $this->assertEquals(0, $rb->get_full_count(), $message);
-            } else {
-                $this->assertEquals('1', $rb->get_full_count(), $message);
+            // The answer here depends on if the column we are testing.
+            $expectedcount = $src->phpunit_column_test_expected_count($columnoption);
+            $this->assertEquals($expectedcount, $rb->get_full_count(), $message);
+
+            if (!$src->cacheable) {
+                continue;
             }
 
             // Now, test the same with report caching.
@@ -789,18 +784,9 @@ class totara_reportbuilder_column_testcase extends reportcache_advanced_testcase
             // Get the column option object.
             $columnoption = reportbuilder::get_single_item($rb->columnoptions, $column->type, $column->value);
 
-            // The answer here depends on if the column we are testing is grouped or not.
-            if ($sourcecheck) {
-                $this->assertEquals('2', $rb->get_full_count(), $message);
-            } else if (
-                ($sourcename === 'certification_overview' and ($col->type === 'course' or "{$col->type}_{$col->value}" === 'certif_completion_progress'))
-                or ($sourcename === 'cohort' and strpos("{$col->type}_{$col->value}", 'course_category_') === 0)
-            ) {
-                // TODO: Add more test data.
-                $this->assertEquals(0, $rb->get_full_count(), $message);
-            } else {
-                $this->assertEquals('1', $rb->get_full_count(), $message);
-            }
+            // The answer here depends on if the column we are testing.
+            $expectedcount = $src->phpunit_column_test_expected_count($columnoption);
+            $this->assertEquals($expectedcount, $rb->get_full_count(), $message);
         }
 
         $sortorder = 1;

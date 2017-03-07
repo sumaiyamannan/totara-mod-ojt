@@ -37,6 +37,9 @@ class static_html extends element {
     /** @var string $html */
     private $html;
 
+    /** @var bool $allowxss */
+    private $allowxss = false;
+
     /**
      * Static html constructor.
      *
@@ -77,6 +80,19 @@ class static_html extends element {
     }
 
     /**
+     * Call with true if you need to use JavaScript
+     * in this static html element.
+     *
+     * If true is used, then developer is responsible for XSS protection,
+     * otherwise the supplied html is cleaned before output.
+     *
+     * @param bool $state
+     */
+    public function set_allow_xss($state) {
+        $this->allowxss = (bool)$state;
+    }
+
+    /**
      * Get Mustache template data.
      *
      * @param \renderer_base $output
@@ -96,7 +112,11 @@ class static_html extends element {
         );
 
         $attributes = array();
-        $attributes['html'] = (string)$this->html;
+        if ($this->allowxss) {
+            $attributes['html'] = (string)$this->html;
+        } else {
+            $attributes['html'] = clean_text($this->html);
+        }
         $this->set_attribute_template_data($result, $attributes);
 
         // Add errors if found, tweak attributes by validators.

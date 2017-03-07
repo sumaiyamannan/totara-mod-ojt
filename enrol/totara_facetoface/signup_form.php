@@ -162,6 +162,7 @@ class enrol_totara_facetoface_signup_form extends moodleform {
             global $CFG;
             $url = $CFG->wwwroot . '/theme/yui_combo.php?m/-1/mod_facetoface/signupform/signupform.js';
             $mform->addElement('hidden', 'eventhandlers', $url);
+            $mform->setType('eventhandlers', PARAM_URL);
 
             $url = $CFG->wwwroot . '/mod/facetoface/signup_tsandcs_ajax.js';
             $mform->addElement('html', '<script src=' . $url . '></script>');

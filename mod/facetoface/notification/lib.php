@@ -722,7 +722,7 @@ class facetoface_notification extends data_object {
         if (empty($this->_sessions[$sessionid])) {
             $this->_sessions[$sessionid] = facetoface_get_session($sessionid);
         }
-
+        $this->_sessions[$sessionid]->course = $this->_facetoface->course;
         if (!empty($sessiondate)) {
             $this->_sessions[$sessionid]->sessiondates = array($sessiondate);
         }
@@ -1755,7 +1755,11 @@ function facetoface_message_substitutions($msg, $coursename, $facetofacename, $u
 
     $details = '';
     if (!empty($data->details)) {
-        $details = format_text($data->details);
+        if ($cm = get_coursemodule_from_instance('facetoface', $data->facetoface, $data->course)) {
+            $context = context_module::instance($cm->id);
+            $data->details = file_rewrite_pluginfile_urls($data->details, 'pluginfile.php', $context->id, 'mod_facetoface', 'session', $data->id);
+            $details = format_text($data->details, FORMAT_HTML);
+        }
     }
     // Replace.
     $msg = str_replace('[details]', $details, $msg);
@@ -1763,7 +1767,7 @@ function facetoface_message_substitutions($msg, $coursename, $facetofacename, $u
     $msg = str_replace(get_string('placeholder:details', 'facetoface'), $details, $msg);
 
     // Replace more meta data
-    $attendees_url = new moodle_url('/mod/facetoface/attendees.php', array('s' => $sessionid, 'action' => 'approvalrequired'));
+    $attendees_url = new moodle_url('/mod/facetoface/attendees.php', array('s' => $data->id, 'action' => 'approvalrequired'));
     $link = html_writer::link($attendees_url, $attendees_url, array('title' => get_string('attendees', 'facetoface')));
     // Replace.
     $msg = str_replace('[attendeeslink]', $link, $msg);
@@ -1783,14 +1787,13 @@ function facetoface_message_substitutions($msg, $coursename, $facetofacename, $u
     }
 
     // Custom session fields (they look like "session:shortname" in the templates)
-    $session = facetoface_get_session($sessionid);
-    $customfields = customfield_get_data($session, 'facetoface_session', 'facetofacesession', false);
+    $customfields = customfield_get_data($data, 'facetoface_session', 'facetofacesession', false);
     foreach ($customfields as $cftitle => $cfvalue) {
         $placeholder = "[session:{$cftitle}]";
         $msg = str_replace($placeholder, $cfvalue, $msg);
     }
 
-    $sessioncancellationcustomfields = customfield_get_data($session, 'facetoface_sessioncancel', 'facetofacesessioncancel', false);
+    $sessioncancellationcustomfields = customfield_get_data($data, 'facetoface_sessioncancel', 'facetofacesessioncancel', false);
     foreach ($sessioncancellationcustomfields as $cftitle => $cfvalue) {
         $placeholder = "[sessioncancel:{$cftitle}]";
         $msg = str_replace($placeholder, $cfvalue, $msg);

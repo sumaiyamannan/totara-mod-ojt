@@ -1,4 +1,4 @@
-@mod @mod_facetoface @totara @calendar
+@mod @mod_facetoface @totara @core_calendar
 Feature: Seminar calendar
   In order to verify seminar events in the calendar
   As a teacher

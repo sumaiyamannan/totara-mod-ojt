@@ -118,7 +118,7 @@ function cohort_rules_get_menu_options() {
         $rulesmenu = array_merge(
             array(
                 get_string('new') => array(
-                    '' => get_string('addrule', 'totara_cohort')
+                    '' => get_string('choose', 'totara_cohort')
                 )
             ),
             $rulesmenu

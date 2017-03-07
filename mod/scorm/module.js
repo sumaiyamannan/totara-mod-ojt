@@ -66,9 +66,21 @@ M.mod_scorm.init = function(Y, nav_display, navposition_left, navposition_top, h
         };
 
         Y.TreeView.prototype.openAll = function () {
+            var changed = false;
             this.get('container').all('.yui3-treeview-can-have-children').each(function(target) {
-                this.getNodeById(target.get('id')).open();
+                var node = this.getNodeById(target.get('id'));
+                if (node.isOpen()) {
+                   return;
+                }
+                node.open();
+                if (node.isOpen()) {
+                    changed = true; // Was not open before, but now it is.
+                }
             }, this);
+
+            if (changed) {
+                this.openAll(); // Keep opening until nothing changes.
+            }
         };
 
         Y.TreeView.prototype.closeAll = function () {
@@ -440,6 +452,15 @@ M.mod_scorm.init = function(Y, nav_display, navposition_left, navposition_top, h
             } else if (node.parent && node.parent.parent && typeof scoes_nav[launch_sco].parentscoid !== 'undefined') {
                 var parentscoid = scoes_nav[launch_sco].parentscoid;
                 var parent = node.parent;
+                if (!update_launch_sco) {
+                    // If launch_sco not changed we will end up in infinite cycle.
+                    if (typeof  parent.scoid !== 'undefined') {
+                        parentscoid = parent.scoid;
+                    } else {
+                        return parent;
+                    }
+                }
+
                 if (parent.title !== scoes_nav[parentscoid].url) {
                     parent = scorm_tree_node.getNodeByAttribute('title', scoes_nav[parentscoid].url);
                     if (parent === null) {

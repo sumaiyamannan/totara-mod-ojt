@@ -193,11 +193,11 @@ if ($fromform = $mform->get_data()) { // Form submitted
         switch ($facetoface->approvaltype) {
             case APPROVAL_NONE:
                $message = get_string('bookingcompleted', 'facetoface');
-               $cssclass = 'notifymessage';
+               $cssclass = 'notifysuccess';
                break;
             case APPROVAL_SELF:
                 $message = get_string('bookingcompleted', 'facetoface');
-                $cssclass = 'notifymessage';
+                $cssclass = 'notifysuccess';
                 break;
             case APPROVAL_ROLE:
                 $rolenames = role_fix_names(get_all_roles());

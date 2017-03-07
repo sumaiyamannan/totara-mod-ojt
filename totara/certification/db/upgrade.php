@@ -385,5 +385,14 @@ function xmldb_totara_certification_upgrade($oldversion) {
         totara_upgrade_mod_savepoint(true, 2016082600, 'totara_certification');
     }
 
+    // TL-12606 Recalculate non-zero course set group completion records.
+    if ($oldversion < 2016092001) {
+
+        totara_certification_upgrade_non_zero_prog_completions();
+
+        // Savepoint reached.
+        upgrade_plugin_savepoint(true, 2016092001, 'totara', 'certification');
+    }
+
     return true;
 }

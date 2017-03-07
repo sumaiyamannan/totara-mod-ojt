@@ -294,7 +294,7 @@ class enrol_totara_facetoface_plugin extends enrol_plugin {
                 $message .= html_writer::end_tag('p');
             }
 
-            return array('result' => true, 'needapproval' => $needapproval, 'message' => $message);
+            return array('result' => true, 'needapproval' => $needapproval, 'message' => $message, 'class' => 'notifysuccess');
 
         } else {
             if ((isset($result['conflict']) && $result['conflict']) || isset($result['result'])) {

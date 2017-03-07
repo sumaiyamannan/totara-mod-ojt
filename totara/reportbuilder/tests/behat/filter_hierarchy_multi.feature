@@ -1,4 +1,4 @@
-@totara @totara_reportbuilder
+@javascript @totara @totara_reportbuilder @totara_hierarchy
 Feature: Use the multi-item hierarchy filter
   To filter the courses in a report
   by several positions and/or organisations at a time
@@ -36,7 +36,6 @@ Feature: Use the multi-item hierarchy filter
     And I log in as "admin"
     And I navigate to "Manage reports" node in "Site administration > Reports > Report builder"
 
-  @javascript
   Scenario: Use position filter with User report source
     Given I set the field "Report Name" to "Users"
     And I set the field "Source" to "user"
@@ -84,7 +83,6 @@ Feature: Use the multi-item hierarchy filter
     And I should see "user4" in the ".reportbuilder-table" "css_element"
     And I should not see "user5" in the ".reportbuilder-table" "css_element"
 
-  @javascript
   Scenario: Use organisation filter with User report source
     Given I set the field "Report Name" to "Users"
     And I set the field "Source" to "User"
@@ -120,3 +118,94 @@ Feature: Use the multi-item hierarchy filter
     And I should see "user3" in the ".reportbuilder-table" "css_element"
     And I should see "user4" in the ".reportbuilder-table" "css_element"
     And I should not see "user5" in the ".reportbuilder-table" "css_element"
+
+  Scenario: Hierachy filters controls are disabled when filter is not used
+    Given I set the field "Report Name" to "Users"
+    And I set the field "Source" to "User"
+    And I press "Create report"
+    And I switch to "Filters" tab
+    And I select "User's Organisation(s)" from the "newstandardfilter" singleselect
+    And I press "Add"
+    And I select "User's Position(s)" from the "newstandardfilter" singleselect
+    And I press "Add"
+    And I select "User's Manager(s)" from the "newstandardfilter" singleselect
+    And I press "Save changes"
+    And I follow "View This Report"
+    # Check that initially when filters not set - controls are disabled
+    And I wait until the page is ready
+    When I click on "Choose Organisations" "text" in the "Search by" "fieldset"
+    Then I should not see "Items to add"
+    And  I click on "Choose Positions" "text" in the "Search by" "fieldset"
+    And  I should not see "Items to add"
+    And  I click on "Choose Managers" "text" in the "Search by" "fieldset"
+    And  I should not see "Items to add"
+
+    # Check that when filters was set and then unset - controls are enabled and then disabled
+    # Org
+    When I select "Any of the selected" from the "User's Organisation(s) field limiter" singleselect
+    And I click on "Choose Organisations" "text" in the "Search by" "fieldset"
+    Then I should see "Items to add"
+    And I click on "Cancel" "button" in the "Choose Organisations" "totaradialogue"
+    When I select "is any value" from the "User's Organisation(s) field limiter" singleselect
+    And I click on "Choose Organisations" "text" in the "Search by" "fieldset"
+    Then I should not see "Items to add"
+    # Pos
+    When I select "Any of the selected" from the "User's Position(s) field limiter" singleselect
+    And I click on "Choose Positions" "text" in the "Search by" "fieldset"
+    Then I should see "Items to add"
+    And I click on "Cancel" "button" in the "Choose Positions" "totaradialogue"
+    When I select "is any value" from the "User's Position(s) field limiter" singleselect
+    And I click on "Choose Positions" "text" in the "Search by" "fieldset"
+    Then I should not see "Items to add"
+    # Manager
+    When I select "Any of the selected" from the "User's Manager(s) field limiter" singleselect
+    And I click on "Choose Managers" "text" in the "Search by" "fieldset"
+    Then I should see "Items to add"
+    And I click on "Cancel" "button" in the "Choose Managers" "totaradialogue"
+    When I select "is any value" from the "User's Manager(s) field limiter" singleselect
+    And I click on "Choose Managers" "text" in the "Search by" "fieldset"
+    Then I should not see "Items to add"
+
+    # check that when filter is applied - controls are enabled
+    And I select "Any of the selected" from the "User's Organisation(s) field limiter" singleselect
+    And I click on "Choose Organisations" "text" in the "Search by" "fieldset"
+    And I click on "Organisation One" "link" in the "Choose Organisations" "totaradialogue"
+    And I click on "Save" "button" in the "Choose Organisations" "totaradialogue"
+    # Pos
+    And I select "Any of the selected" from the "User's Position(s) field limiter" singleselect
+    And I click on "Choose Positions" "text" in the "Search by" "fieldset"
+    And I should see "Items to add"
+    And I click on "Position One" "link" in the "Choose Positions" "totaradialogue"
+    And I click on "Save" "button" in the "Choose Positions" "totaradialogue"
+    # Manager
+    And I select "Any of the selected" from the "User's Manager(s) field limiter" singleselect
+    And I click on "Choose Managers" "text" in the "Search by" "fieldset"
+    And I should see "Items to add"
+    And I click on "First5 Last5 (user5@example.com)" "link" in the "Choose Managers" "totaradialogue"
+    And I click on "Save" "button" in the "Choose Managers" "totaradialogue"
+    And I press "Search"
+
+    # check that when filter is applies and then unset - controls are disabled
+    # Org
+    And I wait until the page is ready
+    And I click on "Search by" "link" in the "legend.ftoggler" "css_element"
+        When I click on "Choose Organisations" "text" in the "Search by" "fieldset"
+    Then I should see "Items to add"
+    And I click on "Cancel" "button" in the "Choose Organisations" "totaradialogue"
+    When I select "is any value" from the "User's Organisation(s) field limiter" singleselect
+    And I click on "Choose Organisations" "text" in the "Search by" "fieldset"
+    Then I should not see "Items to add"
+    # Pos
+    When I click on "Choose Positions" "text" in the "Search by" "fieldset"
+    Then I should see "Items to add"
+    And I click on "Cancel" "button" in the "Choose Positions" "totaradialogue"
+    When I select "is any value" from the "User's Position(s) field limiter" singleselect
+    And I click on "Choose Positions" "text" in the "Search by" "fieldset"
+    Then I should not see "Items to add"
+    # Manager
+    When I click on "Choose Managers" "text" in the "Search by" "fieldset"
+    Then I should see "Items to add"
+    And I click on "Cancel" "button" in the "Choose Managers" "totaradialogue"
+    When I select "is any value" from the "User's Manager(s) field limiter" singleselect
+    And I click on "Choose Managers" "text" in the "Search by" "fieldset"
+    Then I should not see "Items to add"
