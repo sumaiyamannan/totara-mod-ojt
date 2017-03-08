@@ -264,6 +264,29 @@ class mod_assign_mod_form extends moodleform_mod {
             $errors['attemptreopenmethod'] = get_string('reopenuntilpassincompatiblewithblindmarking', 'assign');
         }
 
+        // If you wan to use 'Student must receive a grade to complete this activity' then you need to enable either
+        // a grade type, or the default grade book feedback plugin. Otherwise, a grade_items record is not created.
+        if (empty($data['grade']) &&
+            !empty($data['completion']) && $data['completion'] == COMPLETION_TRACKING_AUTOMATIC &&
+            !empty($data['completionusegrade']) && $data['completionusegrade'] == 1) {
+            $ctx = null;
+            if ($this->current && $this->current->coursemodule) {
+                $cm = get_coursemodule_from_instance('assign', $this->current->id, 0, false, MUST_EXIST);
+                $ctx = context_module::instance($cm->id);
+            }
+            $assignment = new assign($ctx, null, null);
+
+            // Get default grade book feedback plugin.
+            $adminconfig = $assignment->get_admin_config();
+            $gradebookplugin = $adminconfig->feedback_plugin_for_gradebook;
+
+            if (empty($data[$gradebookplugin . '_enabled'])) {
+                $gradebookplugin = str_replace('assignfeedback_', '', $gradebookplugin);
+                $plugin = $assignment->get_feedback_plugin_by_type($gradebookplugin);
+                $errors['completionusegrade'] = get_string('completionusegradewithoutgradeenabled', 'assign', $plugin->get_name());
+            }
+        }
+
         return $errors;
     }
 
