@@ -92,9 +92,9 @@ M.totara_email_scheduled_report = M.totara_email_scheduled_report || {
             var email = $('.reportbuilder_scheduled_addexternal'),
                 emailvalue = email.val().toLowerCase();
 
-            if ($.trim(emailvalue).length == 0 || !validEmail(emailvalue)) {
+            if ($.trim(emailvalue).length == 0 || !M.util.validate_email(emailvalue)) {
                 alert(M.util.get_string('err_email', 'form'));
-            } else if (external_emails.search(emailvalue) != -1) {
+            } else if (external_emails.indexOf(emailvalue) != -1) {
                 alert(M.util.get_string('emailexternaluserisonthelist', 'totara_reportbuilder'));
             } else{
                 module.rb_add_external_email(emailvalue);
@@ -192,11 +192,13 @@ rbDialog = function(name, title, find_url, save_url, selected) {
     );
 }
 
+/**
+ * This function has been deprecated and will be removed in the future.
+ * Please call M.util.validate_email() instead.
+ * @deprecated
+ * @param {string} email
+ * @returns {boolean}
+ */
 validEmail = function(email) {
-    var filter = /^[\w\-\.\+]+\@[a-zA-Z0-9\.\-]+\.[a-zA-z0-9]{2,4}$/;
-    if (filter.test(email)) {
-        return true;
-    } else {
-        return false;
-    }
+    return M.util.validate_email(email);
 }

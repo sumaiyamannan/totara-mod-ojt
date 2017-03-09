@@ -1043,12 +1043,15 @@ function page_get_doc_link_path(moodle_page $page) {
  */
 function validate_email($address) {
 
-    return (preg_match('#^[-!\#$%&\'*+\\/0-9=?A-Z^_`a-z{|}~]+'.
-                 '(\.[-!\#$%&\'*+\\/0-9=?A-Z^_`a-z{|}~]+)*'.
-                  '@'.
-                  '[-!\#$%&\'*+\\/0-9=?A-Z^_`a-z{|}~]+\.'.
-                  '[-!\#$%&\'*+\\./0-9=?A-Z^_`a-z{|}~]+$#',
-                  $address));
+    // The following regex is taken from both the WebKit source code and the WHATWG recommendation. Both of which use the same
+    // regex that we are now using ourselves.
+    // You can find these regexs at the following locations:
+    //  - http://trac.webkit.org/browser/trunk/Source/WebCore/html/EmailInputType.cpp
+    //  - https://html.spec.whatwg.org/multipage/forms.html#e-mail-state-(type=email)
+    // This same regex if altered must also be altered in javascript-static.js--M.util.validate_email
+
+    $regex = "/^[a-zA-Z0-9.!#$%&'*+\\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/";
+    return (bool)(preg_match($regex, $address));
 }
 
 /**
