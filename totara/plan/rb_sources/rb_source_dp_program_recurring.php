@@ -209,7 +209,11 @@ class rb_source_dp_program_recurring extends rb_base_source {
         return $columnoptions;
     }
 
-    function rb_display_link_program_icon($programname, $row) {
+    function rb_display_link_program_icon($programname, $row, $isexport = false) {
+        if ($isexport) {
+            return $programname;
+        }
+
         return prog_display_link_icon($row->programid, $row->userid);
     }
 

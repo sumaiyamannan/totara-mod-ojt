@@ -5,3 +5,6 @@ This file descripts API changes in reportbuilder.
 
 * add 'dbdatatype' option to timestamp and numeric rb source column options
 
+=== 9 ===
+
+* Added isexport param to rb_base_source::rb_display_link_program_icon.

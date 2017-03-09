@@ -212,7 +212,7 @@ class rb_source_dp_certification extends rb_base_source {
         $columnoptions[] = new rb_column_option(
                 'base',
                 'fullnamelink',
-                get_string('certificationname', 'totara_program'),
+                get_string('certfullnamelink', 'rb_source_dp_certification'),
                 "base.fullname",
                 array(
                     'joins' => array('base', 'certif_completion'),
@@ -690,7 +690,11 @@ class rb_source_dp_certification extends rb_base_source {
         }
     }
 
-    function rb_display_link_program_icon($certificationname, $row) {
+    function rb_display_link_program_icon($certificationname, $row, $isexport = false) {
+        if ($isexport) {
+            return $certificationname;
+        }
+
         return prog_display_link_icon($row->programid, $row->userid);
     }
 

@@ -1801,8 +1801,13 @@ abstract class rb_base_source {
         return implode($output, "\n");
     }
 
-    function rb_display_link_program_icon($program, $row) {
+    function rb_display_link_program_icon($program, $row, $isexport = false) {
         global $OUTPUT;
+
+        if ($isexport) {
+            return $program;
+        }
+
         $programid = $row->program_id;
         $programicon = !empty($row->program_icon) ? $row->program_icon : 'default';
         $programobj = (object) $row;
