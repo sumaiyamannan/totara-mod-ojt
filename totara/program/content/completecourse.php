@@ -56,7 +56,7 @@ $usercontext = context_user::instance($userid);
 $coursecontext = context_course::instance($course->id);
 $markstaff = (\totara_job\job_assignment::is_managing($USER->id, $userid) && has_capability('totara/program:markstaffcoursecomplete', $usercontext));
 $markuser = has_capability('totara/core:markusercoursecomplete', $usercontext);
-$markcourse = has_capability('moodle/course:markcomplete', $coursecontext);
+$markcourse = has_capability('totara/program:markcoursecomplete', $coursecontext);
 if (!($markstaff || $markuser || $markcourse)) {
     // If this doesn't then we have show a permissions error.
     print_error('error:notmanagerornopermissions', 'totara_program');

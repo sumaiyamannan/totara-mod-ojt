@@ -813,6 +813,7 @@ $string['program:editcompletion'] = 'Edit program completion records';
 $string['programenrolledincohort'] = 'Program is enrolled in by audience';
 $string['program:handleexceptions'] = 'Handle program exceptions';
 $string['program:manageextensions'] = 'Manage extensions';
+$string['program:markcoursecomplete'] = 'Mark a course in a program complete via a user\'s required learning';
 $string['program:markstaffcoursecomplete'] = 'Mark staff course as complete';
 $string['program:viewhiddenprograms'] = 'View hidden programs';
 $string['program:viewprogram'] = 'View programs';
