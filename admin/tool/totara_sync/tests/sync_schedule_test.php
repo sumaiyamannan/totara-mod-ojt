@@ -46,6 +46,42 @@ class test_sync_schedule extends advanced_testcase {
         // 4 - Every X Hours
         // 5 - Every X Minutes
 
+        // Every Minute, using '*'
+        $task = new \totara_core\task\tool_totara_sync_task();
+        $task->set_minute('*');
+        $task->set_hour('*');
+        $task->set_month('*');
+        $task->set_day('*');
+        $task->set_day_of_week('*');
+        $task->set_disabled(false);
+
+        list($complexschedule, $scheduleconfig) = get_schedule_form_data($task);
+
+        $testdata1 = array();
+        $testdata1['frequency'] = 5; // Every x minutes.
+        $testdata1['schedule'] = 1;
+
+        $this->assertFalse($complexschedule);
+        $this->assertEquals($testdata1, $scheduleconfig);
+
+        // Every Minute, using '*/1'.
+        $task = new \totara_core\task\tool_totara_sync_task();
+        $task->set_minute('*/1'); # Note this is written differently than the above that just used '*'.
+        $task->set_hour('*');
+        $task->set_month('*');
+        $task->set_day('*');
+        $task->set_day_of_week('*');
+        $task->set_disabled(false);
+
+        list($complexschedule, $scheduleconfig) = get_schedule_form_data($task);
+
+        $testdata1 = array();
+        $testdata1['frequency'] = 5; // Every x minutes.
+        $testdata1['schedule'] = 1;
+
+        $this->assertFalse($complexschedule);
+        $this->assertEquals($testdata1, $scheduleconfig);
+
         // Every 5 Minutes.
         $task = new \totara_core\task\tool_totara_sync_task();
         $task->set_minute('*/5');
@@ -82,7 +118,7 @@ class test_sync_schedule extends advanced_testcase {
 
         // Every 3 hours.
         $task = new \totara_core\task\tool_totara_sync_task();
-        $task->set_minute('*');
+        $task->set_minute('0');
         $task->set_hour('*/3');
         $task->set_month('*');
         $task->set_day('*');
@@ -116,7 +152,7 @@ class test_sync_schedule extends advanced_testcase {
 
         // At 5:00am Everyday.
         $task = new \totara_core\task\tool_totara_sync_task();
-        $task->set_minute('*');
+        $task->set_minute('0');
         $task->set_hour('5');
         $task->set_month('*');
         $task->set_day('*');
@@ -135,8 +171,8 @@ class test_sync_schedule extends advanced_testcase {
 
         // Weekly on Wednesday.
         $task = new \totara_core\task\tool_totara_sync_task();
-        $task->set_minute('*');
-        $task->set_hour('*');
+        $task->set_minute('0');
+        $task->set_hour('0');
         $task->set_month('*');
         $task->set_day('*');
         $task->set_day_of_week('3');
@@ -154,8 +190,8 @@ class test_sync_schedule extends advanced_testcase {
 
         // Monthly on the 7th.
         $task = new \totara_core\task\tool_totara_sync_task();
-        $task->set_minute('*');
-        $task->set_hour('*');
+        $task->set_minute('0');
+        $task->set_hour('0');
         $task->set_month('*');
         $task->set_day('7');
         $task->set_day_of_week('*');
@@ -346,13 +382,7 @@ class test_sync_schedule extends advanced_testcase {
 
         $task = \core\task\manager::get_scheduled_task('\totara_core\task\tool_totara_sync_task');
 
-        $minute = $task->get_minute();
-        $hour = $task->get_hour();
-        $month = $task->get_month();
-        $day = $task->get_day();
-        $dow = $task->get_day_of_week();
-
-        $this->assertEquals('*', $task->get_minute());
+        $this->assertEquals('0', $task->get_minute());
         $this->assertEquals('4', $task->get_hour());
         $this->assertEquals('*', $task->get_month());
         $this->assertEquals('*', $task->get_day());
@@ -369,14 +399,8 @@ class test_sync_schedule extends advanced_testcase {
 
         $task = \core\task\manager::get_scheduled_task('\totara_core\task\tool_totara_sync_task');
 
-        $minute = $task->get_minute();
-        $hour = $task->get_hour();
-        $month = $task->get_month();
-        $day = $task->get_day();
-        $dow = $task->get_day_of_week();
-
-        $this->assertEquals('*', $task->get_minute());
-        $this->assertEquals('*', $task->get_hour());
+        $this->assertEquals('0', $task->get_minute());
+        $this->assertEquals('0', $task->get_hour());
         $this->assertEquals('*', $task->get_month());
         $this->assertEquals('*', $task->get_day());
         $this->assertEquals('5', $task->get_day_of_week());
@@ -392,14 +416,8 @@ class test_sync_schedule extends advanced_testcase {
 
         $task = \core\task\manager::get_scheduled_task('\totara_core\task\tool_totara_sync_task');
 
-        $minute = $task->get_minute();
-        $hour = $task->get_hour();
-        $month = $task->get_month();
-        $day = $task->get_day();
-        $dow = $task->get_day_of_week();
-
-        $this->assertEquals('*', $task->get_minute());
-        $this->assertEquals('*', $task->get_hour());
+        $this->assertEquals('0', $task->get_minute());
+        $this->assertEquals('0', $task->get_hour());
         $this->assertEquals('*', $task->get_month());
         $this->assertEquals('21', $task->get_day());
         $this->assertEquals('*', $task->get_day_of_week());
@@ -415,13 +433,7 @@ class test_sync_schedule extends advanced_testcase {
 
         $task = \core\task\manager::get_scheduled_task('\totara_core\task\tool_totara_sync_task');
 
-        $minute = $task->get_minute();
-        $hour = $task->get_hour();
-        $month = $task->get_month();
-        $day = $task->get_day();
-        $dow = $task->get_day_of_week();
-
-        $this->assertEquals('*', $task->get_minute());
+        $this->assertEquals('0', $task->get_minute());
         $this->assertEquals('*/6', $task->get_hour());
         $this->assertEquals('*', $task->get_month());
         $this->assertEquals('*', $task->get_day());
@@ -438,13 +450,23 @@ class test_sync_schedule extends advanced_testcase {
 
         $task = \core\task\manager::get_scheduled_task('\totara_core\task\tool_totara_sync_task');
 
-        $minute = $task->get_minute();
-        $hour = $task->get_hour();
-        $month = $task->get_month();
-        $day = $task->get_day();
-        $dow = $task->get_day_of_week();
-
         $this->assertEquals('*/10', $task->get_minute());
+        $this->assertEquals('*', $task->get_hour());
+        $this->assertEquals('*', $task->get_month());
+        $this->assertEquals('*', $task->get_day());
+        $this->assertEquals('*', $task->get_day_of_week());
+
+        // Every minute.
+        $data = new stdClass();
+        $data->frequency = 5;
+        $data->schedule = 1;
+        $data->cronenable = 1;
+
+        save_scheduled_task_from_form($data);
+
+        $task = \core\task\manager::get_scheduled_task('\totara_core\task\tool_totara_sync_task');
+
+        $this->assertEquals('*', $task->get_minute());
         $this->assertEquals('*', $task->get_hour());
         $this->assertEquals('*', $task->get_month());
         $this->assertEquals('*', $task->get_day());

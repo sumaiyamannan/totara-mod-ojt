@@ -36,10 +36,10 @@ function get_schedule_form_data (\core\task\scheduled_task $task) {
     // Detect if this is to complex to display.
     $count = 0;
 
-    if ($task->get_minute() != '*') {
+    if ($task->get_minute() != '*' && $task->get_minute() != '0') {
         $count++;
     }
-    if ($task->get_hour() != '*') {
+    if ($task->get_hour() != '*' && $task->get_minute() != '0') {
         $count++;
     }
     if ($task->get_day() != '*') {
@@ -52,69 +52,103 @@ function get_schedule_form_data (\core\task\scheduled_task $task) {
         $count++;
     }
 
-    $complexscheduling = $count > 1 ? true : false;
-    $scheduleconfig = array();
-
-    if (!$complexscheduling) {
-        // If not a complex setting fill form elements.
-        if ($task->get_minute() != '*') {
-            $minute = $task->get_minute();
-            // Every x minutes;
-            preg_match('/^\*\/[0-9]*/', $minute, $matches);
-            if (isset($matches[0]) && $matches[0] == $minute) {
-                $validminutes = array(1,2,3,4,5,10,15,20,30);
-                $minute = substr($minute, strpos($minute, '/') + 1);
-                if (in_array($minute, $validminutes)) {
-                    $scheduleconfig['frequency'] = 5;
-                    $scheduleconfig['schedule'] =  $minute;
-                } else {
-                    $complexscheduling = true;
-                }
-            } else {
-                $complexscheduling = true;
-            }
-        } else if ($task->get_hour() != '*') {
-            $hour = $task->get_hour();
-            preg_match('/^\*\/[0-9]*/', $hour, $matches);
-            if (isset($matches[0]) && $matches[0] == $hour) {
-                $validhours = array(1,2,3,4,6,8,12);
-                $hour = substr($hour, strpos($hour, '/') + 1);
-                if (in_array($hour, $validhours)) {
-                    $scheduleconfig['frequency'] = 4;
-                    $scheduleconfig['schedule'] = $hour;
-                } else {
-                    $complexscheduling = true;
-                }
-            } else if (count(explode(',', $hour)) == 1 && is_numeric($hour)) {
-                // Only one hour is specified, we can display this.
-                $scheduleconfig['frequency'] = 1;
-                $scheduleconfig['schedule'] = $hour;
-            } else {
-                $complexscheduling = true;
-            }
-        } else if ($task->get_day() != '*') {
-            $day = $task->get_day();
-            if (count(explode(',', $day)) == 1 && is_numeric($day)) {
-                $scheduleconfig['frequency'] = 3;
-                $scheduleconfig['schedule'] = $day;
-            } else {
-                $complexscheduling = true;
-            }
-        } else if ($task->get_month() != '*') {
-            // We cannot display this in the basic scheduler.
-            $complexscheduling = true;
-        } else if ($task->get_day_of_week() != '*') {
-            $dow = $task->get_day_of_week();
-            if (count(explode(',', $dow)) == 1 && is_numeric($dow)) {
-                $scheduleconfig['frequency'] = 2;
-                $scheduleconfig['schedule'] = $dow;
-            } else {
-                $complexscheduling = true;
-            }
-        }
+    if ($count > 1) {
+        // Complex scheduling.
+        return array(true, array());
     }
 
-    return array($complexscheduling, $scheduleconfig);
+    // Frequency 1.
+    // Daily at x hour.
+    if ($task->get_minute() == '0' &&
+        $task->get_hour() != '*' &&
+        strpos($task->get_hour(), '*/') === false &&
+        $task->get_day() == '*' &&
+        $task->get_month() == '*' &&
+        $task->get_day_of_week() == '*') {
+
+        $scheduleconfig = array(
+            'frequency' => 1,
+            'schedule' => $task->get_hour()
+        );
+
+        return array(false, $scheduleconfig);
+    }
+
+    // Frequency 2.
+    // Weekly on x day of week.
+    if ($task->get_minute() == '0' &&
+        $task->get_hour() == '0' &&
+        $task->get_day() == '*' &&
+        $task->get_month() == '*' &&
+        $task->get_day_of_week() != '*') {
+
+        $scheduleconfig = array(
+            'frequency' => 2,
+            'schedule' => $task->get_day_of_week()
+        );
+
+        return array(false, $scheduleconfig);
+    }
+
+    // Frequency 3.
+    // Monthly on x day of month.
+    if ($task->get_minute() == '0' &&
+        $task->get_hour() == '0' &&
+        $task->get_day() != '*' &&
+        $task->get_month() == '*' &&
+        $task->get_day_of_week() == '*') {
+
+        $scheduleconfig = array(
+            'frequency' => 3,
+            'schedule' => $task->get_day()
+        );
+
+        return array(false, $scheduleconfig);
+    }
+
+    // Frequency 4.
+    // Every x hours.
+    $validhours = array(1,2,3,4,6,8,12);
+    $hour = str_replace("*/", "", $task->get_hour());
+    $hour = $hour === "*" ? 1 : $hour;
+
+    if (in_array($hour, $validhours) &&
+        $task->get_minute() == '0' &&
+        $task->get_day() == '*' &&
+        $task->get_month() == '*' &&
+        $task->get_day_of_week() == '*') {
+
+        $scheduleconfig = array(
+            'frequency' => 4,
+            'schedule' => $hour
+        );
+
+        return array(false, $scheduleconfig);
+    }
+
+    // Frequency 5.
+    // Every x minutes.
+    $validminutes = array(1,2,3,4,5,10,15,20,30);
+    $minute = str_replace("*/", "", $task->get_minute());
+    $minute = $minute === "*" ? 1 : $minute;
+
+    if ((substr($task->get_minute(), 0, 2) == '*/' || $task->get_minute() == '*') &&
+        in_array($minute, $validminutes) &&
+        $task->get_hour() == '*' &&
+        $task->get_day() == '*' &&
+        $task->get_month() == '*' &&
+        $task->get_day_of_week() == '*') {
+
+        $scheduleconfig = array(
+            'frequency' => 5,
+            'schedule' => $minute
+        );
+
+        return array(false, $scheduleconfig);
+    }
+
+    // A valid schedule for output could not be found so return as complex scheduling.
+    return array(true, array());
 }
 
 
@@ -133,41 +167,41 @@ function save_scheduled_task_from_form ($data) {
             case scheduler::DAILY:
                 $hour = $data->schedule;
                 $task->set_hour($hour);
-                // Set all other schedule variables to '*'.
+                // Set other schedule variables to ensure this only runs once in the hour.
                 $task->set_day('*');
-                $task->set_minute('*');
+                $task->set_minute('0');
                 $task->set_day_of_week('*');
                 $task->set_month('*');
                 break;
             case scheduler::WEEKLY:
                 $dayofweek = $data->schedule;
                 $task->set_day_of_week($dayofweek);
-                // Set all other schedule variables to '*'.
-                $task->set_hour('*');
-                $task->set_minute('*');
+                // Set other schedule variables to ensure this only runs once in the week.
+                $task->set_hour('0');
+                $task->set_minute('0');
                 $task->set_day('*');
                 $task->set_month('*');
                 break;
             case scheduler::MONTHLY:
                 $day = $data->schedule;
                 $task->set_day($day);
-                // Set all other schedule variables to '*'.
-                $task->set_hour('*');
-                $task->set_minute('*');
+                // Set other schedule variables to ensure this only runs once in the week.
+                $task->set_hour('0');
+                $task->set_minute('0');
                 $task->set_day_of_week('*');
                 $task->set_month('*');
                 break;
             case scheduler::HOURLY:
-                $hour = '*/' . $data->schedule;
+                $hour = $data->schedule == 1 ? '*' : '*/' . $data->schedule;
                 $task->set_hour($hour);
-                // Set all other schedule variables to '*'.
+                // Set other schedule variables to ensure this only runs once in the selected hours.
                 $task->set_day('*');
-                $task->set_minute('*');
+                $task->set_minute('0');
                 $task->set_day_of_week('*');
                 $task->set_month('*');
                 break;
             case scheduler::MINUTELY:
-                $minute = '*/' . $data->schedule;
+                $minute = $data->schedule == 1 ? '*' : '*/' . $data->schedule;
                 $task->set_minute($minute);
                 // Set all other schedule variables to '*'.
                 $task->set_hour('*');
