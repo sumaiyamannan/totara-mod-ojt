@@ -111,6 +111,27 @@ Scenario: Verify audiences can be successfully added and removed from a goal typ
   And I should not see "Audience 2" in the "#goal-cohorts-table-enrolled" "css_element"
   And I should see "Audience 3" in the "#goal-cohorts-table-enrolled" "css_element"
 
+Scenario: Verify the Show Details button show the details of the personal goal
+  When I log in as "learner1"
+  And I click on "Goals" in the totara menu
+  Then I should see "Personal Goals"
+
+  # Create a new personal goal
+  When I press "Add personal goal"
+  Then I should see "Create new personal goal"
+
+  # Create the personal goal.
+  When I set the following fields to these values:
+    | Name | Personal Goal 1      |
+    | Description | Personal Goal 1 description |
+  And I press "Save changes"
+  Then I should see "Personal Goal 1" in the ".personal_table" "css_element"
+  And I should not see "Personal Goal 1 description" in the ".personal_table" "css_element"
+  And I press "Show details"
+  And I should see "Personal Goal 1 description" in the ".personal_table" "css_element"
+  And I press "Hide details"
+  And I should not see "Personal Goal 1 description" in the ".personal_table" "css_element"
+
 @_file_upload @totara_customfield
 Scenario: Verify custom fields can be successfully added to a personal goal type and personal goal.
 
