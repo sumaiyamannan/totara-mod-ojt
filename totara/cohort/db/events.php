@@ -65,5 +65,6 @@ $observers = array(
     array(
         'eventname'   => '\core\event\user_confirmed',
         'callback' => 'totara_cohort_observer::user_confirmed',
+        'priority'  => 2500,
     ),
 );
