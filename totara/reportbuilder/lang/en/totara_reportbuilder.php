@@ -703,7 +703,7 @@ This filter allows you to filter information based on a hierarchy. The filter ha
 
 Once a framework item has been selected you can use the \'Include children?\' checkbox to choose whether to match only that item, or match that item and any sub-items belonging to that item.';
 $string['reportbuilderexportoptions'] = 'Report Export Settings';
-$string['reportbuilderexportoptions_help'] = 'Report export settings allows a user with the appropriate permissions to specify the export options that are available for users at the bottom of a report page. This setting affects all Report builder reports.
+$string['reportbuilderexportoptions_help'] = 'Report export settings allows a user to specify the export options that are available for users at the bottom of a report page. This setting affects all Report builder reports.
 
 When multiple options are selected the user can choose their preferred options from the export dropdown menu.
 
