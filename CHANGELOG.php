@@ -3,6 +3,158 @@
 
 Totara LMS Changelog
 
+Release 9.5 (22nd March 2017):
+==============================
+
+
+Security issues:
+
+    TL-2986        Added checks for the moodle/cohort:view capability to the audience filter in user, course, and program report sources
+    TL-12452       Added validation to the background colour setting for TeX notation
+    TL-12733       Email self-registration now validates recaptcha first and hides error messages relating to username and email if they exist
+    TL-12907       Fixed user preference handling to prevent malicious serialised object attacks
+
+Improvements:
+
+    TL-11292       Added accessible text to the "Number of Attendees (linked to attendee page)" column when viewing Seminar events embedded report
+    TL-11311       Added labels to the default messages page to improve accessibility
+    TL-11320       Added accessible text when exporting a hierarchy
+    TL-12366       Improved the usability of the program assignments interface
+
+                   There were some totals in the program assignments interface which could be
+                   misleading given that they may not take into account whether the program is
+                   active or not and may count users multiple times if they are in multiple
+                   assigned groups. The number of assigned learners is now only shown while a
+                   program is active (within available from and until dates, if they are
+                   enabled).
+
+    TL-12396       Upgraded jQuery to 2.2.4 and jQuery Migrate to 1.2.1
+    TL-12398       Created a new plaintext display class to ensure correct formatting in Report Builder exports
+
+                   A new Report builder display class "plaintext" has been introduced to serve
+                   two specific functions:
+
+                   1. Ensure that plaintext columns such as "idnumber" are correctly formatted
+                      in Report builder exports to formats such as Excel and ODS.
+                   2. To improve the rendering performance of the above columns by avoiding
+                       unnecessary formatting applied to text content by default.
+
+    TL-12402       Added a CLI script to automatically fix scheduled reports without recipients
+
+                   Prior to Totara 2.7.2 scheduled reports which were configured without any
+                   recipients would be emailed to the creator despite them not being an actual
+                   recipient.
+                   In Totara 2.7.2 this was fixed and the scheduled report was sent
+                   recipients.
+                   This change in behaviour left some sites with scheduled reports that were
+                   not being sent to the original creator.
+                   To aid those affected by this behaviour we have created a script that will
+                   find scheduled reports that have no recipients and add the creator of the
+                   report as a recipient.
+                   To run this report simply execute "php admin/cli/fix_scheduled_reports.php"
+                   as the web user on your Totara installation.
+
+    TL-12637       Introduced a new capability allowing users to view private custom field data within user reports
+
+                   TL-9405 fixed a bug in user reports in which the users themselves could not
+                   see custom field values when the visibility of the custom field was set to
+                   "visible to user". In the original code however, while the users themselves
+                   could not see the values, their managers could.
+
+                   This patch creates a new capability
+                   "totara/core:viewhiddenusercustomfielddata" to allow the code to work like
+                   the original but with the fix from TL-9045. Now not only can the users
+                   themselves see the values, everyone with the new capability can also do so.
+
+    TL-12662       Ensured users with program management capabilities can always access management interface
+
+                   Previously, users could have capabilities to modify various aspects of
+                   programs, such as assigning users. They could access the relevant page by
+                   entering the correct url but could not access them via the interface if
+                   they did not have 'totara/program:configuredetails'. That capability was
+                   only necessary to use the 'Edit' tab and should not prevent other access.
+
+                   Users may now see the 'Edit program details' button when they have any
+                   program edit capabilities for a given program. They may also access the
+                   overview page via that button and the tabs they have access to from there.
+
+    TL-12665       Added a page title when completing a learning plan
+    TL-12689       Removed 'View' button for appraisal stages without any visible pages
+    TL-12745       Added unit tests to report builder date filter.
+
+Bug fixes:
+
+    TL-11255       Fixed incorrect indication that manager must complete an appraisal after completion
+    TL-12451       Fixed the display of graphs within Report Builder when using the sidebar filter
+    TL-12454       Corrected handling when organisation parentid equals 0
+
+                   Before the fix, if a parentidnumber of 0 was used when importing
+                   organisation data using HR Import it would be ignored and treated as an
+                   empty value. Consequently, if you had an organisation structure where
+                   idnumber for the top most level was 0, when the second level of
+                   organisations are imported, they would be added at the top level (because
+                   HR import consider them to have no parent). This has now been fixed.
+
+    TL-12615       Stopped managers receiving Program emails for their suspended staff members
+    TL-12621       Fixed navigation for multilevel SCORM packages
+    TL-12643       Fixed guest access throwing error when using the enhanced catalog
+    TL-12645       Fixed cache warnings on Windows systems occurring due to fopen and rename system command
+    TL-12669       Ensured Evidence Custom Fields unique and locked setting worked correctly
+    TL-12681       Replaced duplicate 'Draft' Plan Status filter option with 'Pending Approval' in learning plan report source.
+    TL-12696       Ensured that read only evidence displays the "Edit details" button only when the user has the correct edit capability
+    TL-12721       Fixed misspelt URL when adding visible learning to an audience
+    TL-12734       Fixed how room conflicts are handled when restoring a Seminar activity
+    TL-12739       Improved performance when using the progress column within a Certification overview report
+    TL-12747       Ensured User Profile fields set as unique do not include empty values when determining uniqueness
+    TL-12762       Prevented appraisal messages from being sent to unassigned users
+    TL-12774       Added validation to prevent invalid Assignment grade setting combination
+
+                   You must now select a Grade Type or the default Feedback Type if you want
+                   to enable the 'Student must receive a grade to complete this activity'
+                   completion setting.
+
+    TL-12778       Fixed the display of the "add another option" link in Appraisals and 360 Feedback multi-choice questions
+
+                   Previously the "add another option" link would correctly be removed when
+                   you added the tenth option to a multi-choice question, but would be
+                   displayed again when you edited the question. Clicking the link when you
+                   already had the maximum amount of options would make the link disappear
+                   again without doing anything, now the link will not be displayed at all.
+
+    TL-12787       Added new capability: totara/program:markcoursecomplete
+
+                   From 2.9.0 onwards, if a user had the capability moodle/course:markcomplete
+                   set to allow in course or system contexts, they were able to mark courses
+                   complete when viewing a users program page (accessed via required
+                   learning). This was incorrect use of this capability, as that action would
+                   only be valid if marking complete was enabled in course completion
+                   criteria. This capability no longer allows marking complete via the program
+                   page.
+
+                   To allow for use cases described above, a new capability,
+                   totara/program:markcoursecomplete, was added. This will allow marking a
+                   course complete on a user's program page, regardless of course completion
+                   criteria. This capability is checked in the course and system contexts. The
+                   Site Manager role will receive this capability following upgrade.
+
+    TL-12793       Fixed a bug when trying to remove a regular expression validation from a text custom field
+    TL-12795       Fixed 'Program Name and Linked Icon' report column when exporting
+
+                   The "Program Name and Linked Icon" report column, contained in several
+                   report sources, now only contains the program name when exporting. Also,
+                   the "Record of Learning: Certifications" report source had two columns
+                   named "Certification name". One of them has now been renamed to
+                   "Certification Name and Linked Icon", and likewise only contains the
+                   certification name when exporting.
+
+    TL-12798       Fixed the display of description for personal goals on the My Goals page
+    TL-12801       Fixed exporting course completion reports to excel after filtering by organisation
+
+Contributions:
+
+    * Russell England - TL-12669
+
+
 Release 9.4 (27th February 2017):
 =================================
 
