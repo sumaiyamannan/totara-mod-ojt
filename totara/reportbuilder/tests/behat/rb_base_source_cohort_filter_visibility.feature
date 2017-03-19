@@ -125,7 +125,7 @@ Feature: Test the capability to see and use audience filter for report builder
     And I click on "Ok" "button" in the "Add audiences to program" "totaradialogue"
     And I press "Save changes"
     And I press "Save all changes"
-    Then I should see "4 learner(s) assigned. 4 learner(s) are active, 0 with exception(s)"
+    Then I should see "4 learner(s) assigned: 4 active, 0 exception(s)"
 
     And I navigate to "Manage reports" node in "Site administration > Reports > Report builder"
     And I set the following fields to these values:

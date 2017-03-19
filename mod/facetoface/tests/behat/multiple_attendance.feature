@@ -1,4 +1,4 @@
-@mod @mod_facetoface @totara @javascript
+@mod @mod_facetoface @totara @javascript @totara_certification
 Feature: Take attendance for a seminar with multiple sessions
   Ensure that the correct session is being used to mark activity completion when a seminar has multiple sessions
   To test whether the old or new session date is the current completion date, we run cron, and the older date will expire,
@@ -145,7 +145,7 @@ Feature: Take attendance for a seminar with multiple sessions
     And I wait until the page is ready
     And I click on "Save changes" "button"
     And I click on "Save all changes" "button"
-    Then I should see "1 learner(s) assigned. 1 learner(s) are active, 0 with exception(s)"
+    Then I should see "1 learner(s) assigned: 1 active, 0 exception(s)."
 
   Scenario: Complete older session, archive cert, complete newer session, see newer completion date on cert
     # Complete older session.
