@@ -138,6 +138,7 @@ class profile_field_menu extends profile_field_base {
         }
 
         // Now get the corresponding option for that value.
+        $value = format_string($value); // format_string already applied to $option so adding here for accurate comparison.
         $selected = null;
         foreach ($this->options as $key => $option) {
             // Totara Sync matches with case insensitivity, do the same in sync preprocess for consistency.
