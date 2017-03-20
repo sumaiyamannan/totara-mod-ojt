@@ -32,7 +32,9 @@ Feature: Open calendar popup
     When I hover over day "1" of this month in the calendar
     Then I should see "Event 1:1"
     And I should see "Event 1:2"
-    And I follow "Home"
+    # Replaced 'follow "Home"' with am on homepage to prevent failure
+    # when Home button is hidden in the dropdown menu
+    And I am on homepage
     And I hover over day "1" of this month in the calendar
     And I should see "Event 1:1"
     And I should see "Event 1:2"
@@ -45,6 +47,8 @@ Feature: Open calendar popup
       | Event title       | Today's event |
     When I hover over today in the calendar
     Then I should see "Today's event"
-    And I follow "Home"
+    # Replaced 'follow "Home"' with am on homepage to prevent failure
+    # when Home button is hidden in the dropdown menu
+    And I am on homepage
     And I hover over today in the calendar
     And I should see "Today's event"
