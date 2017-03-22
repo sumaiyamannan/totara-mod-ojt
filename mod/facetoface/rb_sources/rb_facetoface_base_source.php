@@ -621,7 +621,15 @@ abstract class rb_facetoface_base_source extends rb_base_source {
         if ($isexport) {
             return $cntattendees;
         }
-        return html_writer::link(new moodle_url('/mod/facetoface/attendees.php', array('s' => $row->session)), $cntattendees);
+        if (!$cntattendees) {
+            $cntattendees = '0';
+        }
+
+        $viewattendees = get_string('viewattendees', 'mod_facetoface');
+
+        $description = html_writer::span($viewattendees, 'sr-only');
+        return html_writer::link(new moodle_url('/mod/facetoface/attendees.php', array('s' => $row->session)), $cntattendees . $description, array('title' => $viewattendees));
+
     }
 
     /**

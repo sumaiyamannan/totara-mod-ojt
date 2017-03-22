@@ -627,6 +627,7 @@ $string['managetemplates'] = 'Manage templates';
 $string['mandatory'] = 'Mandatory';
 $string['manualcomplete'] = 'Manually, by a user with \'complete\' permission';
 $string['manuallycreated'] = 'Manually created plans';
+$string['markplancomplete'] = 'Mark plan {$a} complete';
 $string['missingobjectivescalevaluename'] = 'Objective Scale Value name is Required';
 $string['missingpriorityscalevaluename'] = 'Missing priority scale value name';
 $string['na'] = 'N/A';

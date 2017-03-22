@@ -117,6 +117,15 @@ define(['jquery', 'core/config', 'core/templates'], function ($, mdlcfg, templat
                 // Replace contents.
                 $('.rb-display-table-container').replaceWith($(data).find('.rb-display-table-container'));
                 $('.rb-record-count').replaceWith($(data).find('.rb-record-count'));
+                // All browsers, except MSIE 6-7-8.
+                $('.rb-report-svggraph').replaceWith($(data).find('.rb-report-svggraph'));
+                if ($.trim($('.rb-report-svggraph').html()) == '') {
+                    $('.rb-report-svggraph').attr('padding-bottom', '0%');
+                } else {
+                    $('.rb-report-svggraph').attr('padding-bottom', '40%');
+                }
+                // Keep happy MSIE 6-7-8.
+                $('.rb-report-pdfgraph').replaceWith($(data).find('.rb-report-pdfgraph'));
                 // Update sidebar filter counts.
                 $(data).find('.rb-sidebar.mform label').each(function (ind, elem) {
                     var $elem = $(elem);

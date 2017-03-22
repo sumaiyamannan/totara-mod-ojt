@@ -64,7 +64,12 @@ final class user_customfield extends base {
         }
         else if ($visibility === PROFILE_VISIBLE_PRIVATE
                  && $USER->id != $row->id
-                 && !$isadmin) {
+                 && !$isadmin
+                 && !has_capability(
+                    'totara/core:viewhiddenusercustomfielddata',
+                    \context_system::instance()
+                 )
+        ) {
             return $hiddenmsg;
         }
 

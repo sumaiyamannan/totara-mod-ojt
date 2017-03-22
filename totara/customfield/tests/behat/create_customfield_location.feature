@@ -100,7 +100,7 @@ Feature: Administrators can add a custom location field to complete during room 
 
   Scenario: Confirm invalid location displays error message
     Given I click on "Edit" "link" in the "Custom Location Field 1" "table_row"
-    And I set the field "addresslookup" to "abcdefghijklmnop"
+    And I set the field "addresslookup" to "abcdefghijklmnopqr"
     And I click on "Search" "button" in the "Set map location" "fieldset"
     Then I should see "Location not found" in the "Set map location" "fieldset"
 

@@ -181,6 +181,7 @@ class rb_source_cohort_associations extends rb_base_source {
             get_string('idnumber', 'totara_cohort'),
             'cohort.idnumber',
             array('joins' => 'cohort',
+                  'displayfunc' => 'plaintext',
                   'dbdatatype' => 'char',
                   'outputformat' => 'text')
         );

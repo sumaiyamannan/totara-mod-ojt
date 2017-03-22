@@ -176,6 +176,7 @@ class rb_source_dp_program extends rb_base_source {
            get_string('programidnumber', 'totara_program'),
             "base.idnumber",
             array('joins' => 'base',
+                  'displayfunc' => 'plaintext',
                   'dbdatatype' => 'char',
                   'outputformat' => 'text')
         );
@@ -358,7 +359,11 @@ class rb_source_dp_program extends rb_base_source {
         return get_string('no');
     }
 
-    function rb_display_link_program_icon($programname, $row) {
+    function rb_display_link_program_icon($programname, $row, $isexport = false) {
+        if ($isexport) {
+            return $programname;
+        }
+
         return prog_display_link_icon($row->programid, $row->userid);
     }
 

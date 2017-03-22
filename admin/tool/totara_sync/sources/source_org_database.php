@@ -229,8 +229,9 @@ class totara_sync_source_org_database extends totara_sync_source_org {
                 }
             }
 
-            $dbrow['parentidnumber'] = !empty($dbrow['parentidnumber']) ? $dbrow['parentidnumber'] : '0';
-            $dbrow['parentidnumber'] = $dbrow['parentidnumber'] == $dbrow['idnumber'] ? '0' : $dbrow['parentidnumber'];
+            // The condition must use a combination of isset and !== '' because it needs to process 0 as a valid parentidnumber.
+            $dbrow['parentidnumber'] = isset($dbrow['parentidnumber']) && $dbrow['parentidnumber'] !== '' ? $dbrow['parentidnumber'] : '';
+            $dbrow['parentidnumber'] = $dbrow['parentidnumber'] === $dbrow['idnumber'] ? '' : $dbrow['parentidnumber'];
 
             if ($this->config->{'import_typeidnumber'} == '0') {
                 unset($dbrow['typeidnumber']);

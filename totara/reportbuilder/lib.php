@@ -3932,15 +3932,20 @@ class reportbuilder {
                 }
                 $svgurl = $svgurl . '#toolbar=0&navpanes=0&scrollbar=0&statusbar=0&viewrect=20,20,400,300';
                 $nopdf = get_string('error:nopdf', 'totara_reportbuilder');
-                echo "<div class=\"rb-report-pdfgraph\"><object type=\"application/pdf\" data=\"$svgurl\" width=\"100%\" height=\"400\">$nopdf</object>";
-
+                $attrs   = array('type' => 'application/pdf', 'data' => $svgurl, 'width'=> '100%', 'height' => '400');
+                $objhtml = html_writer::tag('object', $nopdf, $attrs);
+                echo html_writer::div($objhtml, 'rb-report-pdfgraph');
             } else {
                 // The SVGGraph supports only one SVG per page when embedding directly,
                 // it should be fine here because there are no blocks on this page.
-                echo '<div class="rb-report-svggraph">';
-                echo $graphdata;
-                echo '</div>';
+                echo html_writer::div($graphdata, 'rb-report-svggraph');
             }
+        } else {
+            // Keep the instantfilter.js happy, we use it with side filter js.
+            // MSIE 6-7-8.
+            echo html_writer::div('', 'rb-report-pdfgraph');
+            // All browsers, except MSIE 6-7-8.
+            echo html_writer::div('', 'rb-report-svggraph');
         }
 
         echo $tablehmtml;
@@ -5621,6 +5626,30 @@ function reportbuilder_export_schduled_report(stdClass $sched, reportbuilder $re
     $writer->save_file($tempfilepathname);
 
     return $tempfilepathname;
+}
+
+/**
+ * Get all scheduled reports that don't have any recipients
+ * @return array of report ids and
+ */
+function reportbuilder_get_all_scheduled_reports_without_recipients() {
+    global $DB;
+
+    $sql = '
+      SELECT
+        rbs.id, rbs.userid,
+        count(rbsea.id) AS audience_cnt,
+        count(rbsee.id) AS external_cnt,
+        count(rbses.id) AS systemuser_cnt
+      FROM {report_builder_schedule} rbs
+      LEFT JOIN {report_builder_schedule_email_audience} rbsea ON (rbsea.scheduleid = rbs.id)
+      LEFT JOIN {report_builder_schedule_email_external} rbsee ON (rbsee.scheduleid = rbs.id)
+      LEFT JOIN {report_builder_schedule_email_systemuser} rbses ON (rbses.scheduleid = rbs.id)
+      GROUP BY rbs.id, rbs.userid
+      HAVING count(rbsea.id) = 0 AND count(rbsee.id) = 0 AND count(rbses.id) = 0
+    ';
+
+    return $DB->get_records_sql($sql, array());
 }
 
 /**

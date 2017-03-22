@@ -635,9 +635,19 @@ abstract class rb_base_source {
         return implode($items, "\n");
     }
 
-    // Displays a delimited list of strings as one string per line.
-    // Assumes you used "'grouping' => 'sql_aggregate'", which concatenates with $uniquedelimiter to construct a pre-ordered string.
+    /**
+     * Displays a delimited list of strings as one string per line.
+     * Assumes you used "'grouping' => 'sql_aggregate'", which concatenates with $uniquedelimiter to construct a pre-ordered string.
+     *
+     * @deprecated Since 9.0
+     * @param $list
+     * @param $row
+     * @return string
+     */
     function rb_display_orderedlist_to_newline($list, $row) {
+        // This function is deprecated since 9.0.
+        // debugging('The orderedlist_to_newline report builder display function has been deprecated and replaced by totara_reportbuilder\rb\display\orderedlist_to_newline', DEBUG_DEVELOPER);
+
         $output = array();
         $items = explode($this->uniquedelimiter, $list);
         foreach ($items as $item) {
@@ -1143,7 +1153,6 @@ abstract class rb_base_source {
             $instances = enrol_get_instances($courseid, true);
             $plugins = enrol_get_plugins(true);
 
-            $cansignup = false;
             $enrolmethodlist = array();
             foreach ($instances as $instance) {
                 if (!isset($plugins[$instance->enrol])) {
@@ -1166,21 +1175,10 @@ abstract class rb_base_source {
             $inlineenrolmentelements = $this->get_inline_enrolment_elements($inlineenrolments);
             $formdata['inlineenrolmentelements'] = $inlineenrolmentelements;
             $formdata['courseid'] = $course->id;
+            $formdata['enroltype'] = $enrolmethodstr;
 
-            // Enrolling methods.
-
-            if ($cansignup) {
-                $formdata['enroltype'] = get_string('courseenrolavailable', 'totara_reportbuilder');
-                $formdata['action'] = get_string('enrol', 'enrol');
-                $formdata['url'] = new moodle_url('/enrol/index.php', array('id' => $courseid));
-            } else if (is_viewing($coursecontext, $realuser->id) || is_siteadmin($realuser->id)) {
-                $formdata['enroltype'] = $enrolmethodstr;
-                $formdata['action'] = get_string('viewcourse', 'totara_program');
-                $formdata['url'] = new moodle_url('/course/view.php', array('id' => $courseid));
-            } else {
-                $formdata['enroltype'] = $enrolmethodstr;
-                $formdata['action'] = get_string('notenrollable', 'enrol');
-                $formdata['url'] = '';
+            if (is_viewing($coursecontext, $realuser->id) || is_siteadmin($realuser->id)) {
+                $formdata['viewcourse'] = true;
             }
         }
 
@@ -1208,7 +1206,9 @@ abstract class rb_base_source {
 
             $nameprefix = 'instanceid_' . $instance->id . '_';
 
-            if (is_string($enrolform)) {
+            // Currently, course_expand_get_form_hook check if the user can self enrol before creating the form, if not, it will
+            // return the result of the can_self_enrol function which could be false or a string.
+            if (!$enrolform || is_string($enrolform)) {
                 $retval[] = new HTML_QuickForm_static(null, null, $enrolform);
                 continue;
             }
@@ -1541,6 +1541,9 @@ abstract class rb_base_source {
             case DP_PLAN_STATUS_UNAPPROVED:
                 return get_string('unapproved', 'totara_plan');
                 break;
+            case DP_PLAN_STATUS_PENDING:
+                return get_string('pendingapproval', 'totara_plan');
+                break;
             case DP_PLAN_STATUS_APPROVED:
                 return get_string('approved', 'totara_plan');
                 break;
@@ -1798,8 +1801,13 @@ abstract class rb_base_source {
         return implode($output, "\n");
     }
 
-    function rb_display_link_program_icon($program, $row) {
+    function rb_display_link_program_icon($program, $row, $isexport = false) {
         global $OUTPUT;
+
+        if ($isexport) {
+            return $program;
+        }
+
         $programid = $row->program_id;
         $programicon = !empty($row->program_icon) ? $row->program_icon : 'default';
         $programobj = (object) $row;
@@ -2068,6 +2076,19 @@ abstract class rb_base_source {
             $coursetypeoptions[$v] = get_string($k, 'totara_core');
         }
         return $coursetypeoptions;
+    }
+
+    /*
+     * Generate a list of options for the plan status menu.
+     * @return array plan status menu options.
+     */
+    public function rb_filter_plan_status() {
+        return array (
+            DP_PLAN_STATUS_UNAPPROVED => get_string('unapproved', 'totara_plan'),
+            DP_PLAN_STATUS_PENDING => get_string('pendingapproval', 'totara_plan'),
+            DP_PLAN_STATUS_APPROVED => get_string('approved', 'totara_plan'),
+            DP_PLAN_STATUS_COMPLETE => get_string('complete', 'totara_plan')
+        );
     }
 
     //
@@ -2467,7 +2488,6 @@ abstract class rb_base_source {
             'lastnamephonetic' => get_string('userlastnamephonetic', 'totara_reportbuilder'),
             'alternatename' => get_string('useralternatename', 'totara_reportbuilder'),
             'username' => get_string('username', 'totara_reportbuilder'),
-            'idnumber' => get_string('useridnumber', 'totara_reportbuilder'),
             'phone1' => get_string('userphone', 'totara_reportbuilder'),
             'institution' => get_string('userinstitution', 'totara_reportbuilder'),
             'department' => get_string('userdepartment', 'totara_reportbuilder'),
@@ -2481,12 +2501,25 @@ abstract class rb_base_source {
                 $name,
                 "$join.$field",
                 array('joins' => $join,
+                      'displayfunc' => 'plaintext',
                       'dbdatatype' => 'char',
                       'outputformat' => 'text',
                       'addtypetoheading' => $addtypetoheading
                 )
             );
         }
+
+        $columnoptions[] = new rb_column_option(
+            $groupname,
+            'idnumber',
+            get_string('useridnumber', 'totara_reportbuilder'),
+            "$join.idnumber",
+            array('joins' => $join,
+                'displayfunc' => 'plaintext',
+                'dbdatatype' => 'char',
+                'outputformat' => 'text')
+        );
+
         $columnoptions[] = new rb_column_option(
             $groupname,
             'id',
@@ -2882,6 +2915,7 @@ abstract class rb_base_source {
             get_string('courseidnumber', 'totara_reportbuilder'),
             "$join.idnumber",
             array('joins' => $join,
+                  'displayfunc' => 'plaintext',
                   'dbdatatype' => 'char',
                   'outputformat' => 'text')
         );
@@ -3147,6 +3181,7 @@ abstract class rb_base_source {
             get_string('programidnumber', $langfile),
             "$join.idnumber",
             array('joins' => $join,
+                  'displayfunc' => 'plaintext',
                   'dbdatatype' => 'char',
                   'outputformat' => 'text')
         );
@@ -3499,6 +3534,7 @@ abstract class rb_base_source {
             "$catjoin.idnumber",
             array(
                 'joins' => $catjoin,
+                'displayfunc' => 'plaintext',
                 'dbdatatype' => 'char',
                 'outputformat' => 'text'
             )
@@ -4239,6 +4275,7 @@ abstract class rb_base_source {
             get_string('usersorgall', 'totara_reportbuilder'),
             'grpconcat_jobassignment',
             array(
+                'hierarchytype' => 'org',
                 'jobfield' => 'organisationid',                             // Jobfield, map to the column in the job_assignments table.
                 'jobjoin' => 'org',                                         // The table that the job join information can be found in.
             ),
@@ -5466,6 +5503,10 @@ abstract class rb_base_source {
      */
     protected function add_cohort_user_fields_to_filters(&$filteroptions) {
 
+        if (!has_capability('moodle/cohort:view', context_system::instance())) {
+            return true;
+        }
+
         $filteroptions[] = new rb_filter_option(
             'cohort',
             'usercohortids',
@@ -5484,6 +5525,10 @@ abstract class rb_base_source {
      * @return True
      */
     protected function add_cohort_course_fields_to_filters(&$filteroptions) {
+
+        if (!has_capability('moodle/cohort:view', context_system::instance())) {
+            return true;
+        }
 
         $filteroptions[] = new rb_filter_option(
             'cohort',
@@ -5507,6 +5552,10 @@ abstract class rb_base_source {
      * @return True
      */
     protected function add_cohort_program_fields_to_filters(&$filteroptions, $langfile) {
+
+        if (!has_capability('moodle/cohort:view', context_system::instance())) {
+            return true;
+        }
 
         $filteroptions[] = new rb_filter_option(
             'cohort',
@@ -5750,6 +5799,15 @@ abstract class rb_base_source {
      */
     public function get_custom_export_header(reportbuilder $report, $format) {
         return null;
+    }
+
+    /**
+     * Get the uniquedelimiter.
+     *
+     * @return string
+     */
+    public function get_uniquedelimiter() {
+        return $this->uniquedelimiter;
     }
 
     /**

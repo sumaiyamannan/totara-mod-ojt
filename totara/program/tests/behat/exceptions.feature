@@ -66,7 +66,7 @@ Feature: Generation of program assignment exceptions
     And I wait "2" seconds
     And I click on "Save changes" "button"
     And I click on "Save all changes" "button"
-    Then I should see "2 learner(s) assigned. 1 learner(s) are active, 1 with exception(s)"
+    Then I should see "2 learner(s) assigned: 1 active, 1 exception(s)"
 
     When I log out
     And I log in as "user001"
@@ -96,7 +96,7 @@ Feature: Generation of program assignment exceptions
     And I click on "Proceed with this action" "button"
     And I click on "OK" "button"
     Then I should see "No exceptions"
-    And I should see "2 learner(s) assigned. 2 learner(s) are active, 0 with exception(s)"
+    And I should see "2 learner(s) assigned: 2 active, 0 exception(s)"
 
     When I click on "Assignments" "link"
     And I click on "Add individuals to program" "button"
@@ -111,7 +111,7 @@ Feature: Generation of program assignment exceptions
     And I click on "Set time relative to event" "button"
     And I click on "Save changes" "button"
     And I click on "Save all changes" "button"
-    Then I should see "3 learner(s) assigned. 3 learner(s) are active, 0 with exception(s)"
+    Then I should see "3 learner(s) assigned: 3 active, 0 exception(s)"
 
     When I log out
     And I log in as "user001"
@@ -153,7 +153,7 @@ Feature: Generation of program assignment exceptions
     And I wait "2" seconds
     And I click on "Save changes" "button"
     And I click on "Save all changes" "button"
-    Then I should see "2 learner(s) assigned. 1 learner(s) are active, 1 with exception(s)"
+    Then I should see "2 learner(s) assigned: 1 active, 1 exception(s)"
 
     When I log out
     And I log in as "user001"
@@ -182,7 +182,7 @@ Feature: Generation of program assignment exceptions
     And I click on "Proceed with this action" "button"
     And I click on "OK" "button"
     Then I should see "No exceptions"
-    And I should see "2 learner(s) assigned. 2 learner(s) are active, 0 with exception(s)"
+    And I should see "2 learner(s) assigned: 2 active, 0 exception(s)"
 
     When I click on "Assignments" "link"
     And I click on "Add individuals to program" "button"
@@ -191,7 +191,7 @@ Feature: Generation of program assignment exceptions
     And I wait "2" seconds
     And I click on "Save changes" "button"
     And I click on "Save all changes" "button"
-    Then I should see "3 learner(s) assigned. 3 learner(s) are active, 0 with exception(s)"
+    Then I should see "3 learner(s) assigned: 3 active, 0 exception(s)"
 
     When I log out
     And I log in as "user001"
@@ -232,7 +232,7 @@ Feature: Generation of program assignment exceptions
     And I click on "Set time relative to event" "button" in the "completion-dialog" "totaradialogue"
     And I click on "Save changes" "button"
     And I click on "Save all changes" "button"
-    Then I should see "2 learner(s) assigned. 1 learner(s) are active, 1 with exception(s)"
+    Then I should see "2 learner(s) assigned: 1 active, 1 exception(s)"
 
     When I log out
     And I log in as "user001"
@@ -261,7 +261,7 @@ Feature: Generation of program assignment exceptions
     And I click on "Proceed with this action" "button"
     And I click on "OK" "button"
     Then I should see "No exceptions"
-    And I should see "2 learner(s) assigned. 1 learner(s) are active, 0 with exception(s)"
+    And I should see "2 learner(s) assigned: 1 active, 0 exception(s)"
 
     When I click on "Assignments" "link"
     And I click on "Add individuals to program" "button"
@@ -270,7 +270,7 @@ Feature: Generation of program assignment exceptions
     And I wait "2" seconds
     And I click on "Save changes" "button"
     And I click on "Save all changes" "button"
-    Then I should see "3 learner(s) assigned. 2 learner(s) are active, 0 with exception(s)"
+    Then I should see "3 learner(s) assigned: 2 active, 0 exception(s)"
 
     When I log out
     And I log in as "user001"
@@ -331,7 +331,7 @@ Feature: Generation of program assignment exceptions
     And I wait until the page is ready
     And I click on "Save changes" "button"
     And I click on "Save all changes" "button"
-    Then I should see "4 learner(s) assigned. 1 learner(s) are active, 3 with exception(s)"
+    Then I should see "4 learner(s) assigned: 1 active, 3 exception(s)"
 
     When I click on "Exception Report (3)" "link"
     And I should see "fn_001 ln_001"
@@ -343,26 +343,26 @@ Feature: Generation of program assignment exceptions
     And I click on "Set realistic due date and assign" "option" in the "#selectionaction" "css_element"
     And I click on "Proceed with this action" "button"
     And I click on "OK" "button"
-    Then I should see "4 learner(s) assigned. 2 learner(s) are active, 2 with exception(s)"
+    Then I should see "4 learner(s) assigned: 2 active, 2 exception(s)"
 
     Then I click on "exceptionid" "checkbox"
     And I wait until the page is ready
     And I click on "Assign" "option" in the "#selectionaction" "css_element"
     And I click on "Proceed with this action" "button"
     And I click on "OK" "button"
-    Then I should see "4 learner(s) assigned. 3 learner(s) are active, 1 with exception(s)"
+    Then I should see "4 learner(s) assigned: 3 active, 1 exception(s)"
 
     Then I click on "exceptionid" "checkbox"
     And I wait until the page is ready
     And I click on "Do not assign" "option" in the "#selectionaction" "css_element"
     And I click on "Proceed with this action" "button"
     And I click on "OK" "button"
-    Then I should see "4 learner(s) assigned. 3 learner(s) are active, 0 with exception(s)"
+    Then I should see "4 learner(s) assigned: 3 active, 0 exception(s)"
 
     When I click on "Assignments" "link"
     And I wait until the page is ready
     And I click on "Save changes" "button"
-    Then I should see "4 learner(s) assigned. 3 learner(s) are active, 0 with exception(s)"
+    Then I should see "4 learner(s) assigned: 3 active, 0 exception(s)"
 
     And I should not see "No due date" in the "fn_001" "table_row"
     And I should not see "Not yet known" in the "fn_001" "table_row"
@@ -391,7 +391,7 @@ Feature: Generation of program assignment exceptions
 
     And I wait until the page is ready
     And I click on "Save changes" "button"
-    Then I should see "4 learner(s) assigned. 3 learner(s) are active, 1 with exception(s)"
+    Then I should see "4 learner(s) assigned: 3 active, 1 exception(s)"
 
     When I click on "Exception Report (1)" "link"
     Then I click on "exceptionid" "checkbox"
@@ -399,7 +399,7 @@ Feature: Generation of program assignment exceptions
     And I click on "Do not assign" "option" in the "#selectionaction" "css_element"
     And I click on "Proceed with this action" "button"
     And I click on "OK" "button"
-    Then I should see "4 learner(s) assigned. 3 learner(s) are active, 0 with exception(s)"
+    Then I should see "4 learner(s) assigned: 3 active, 0 exception(s)"
 
     Then I click on "Assignments" "link"
     And I click on "Set due date" "link" in the ".completionlink_6" "css_element"
@@ -411,7 +411,7 @@ Feature: Generation of program assignment exceptions
 
     And I wait until the page is ready
     And I click on "Save changes" "button"
-    Then I should see "4 learner(s) assigned. 2 learner(s) are active, 1 with exception(s)"
+    Then I should see "4 learner(s) assigned: 2 active, 1 exception(s)"
 
     Then I click on "Assignments" "link"
     And I should not see "No due date" in the "fn_001" "table_row"
@@ -452,7 +452,7 @@ Feature: Generation of program assignment exceptions
 
     And I wait until the page is ready
     And I click on "Save changes" "button"
-    Then I should see "4 learner(s) assigned. 3 learner(s) are active, 1 with exception(s)"
+    Then I should see "4 learner(s) assigned: 3 active, 1 exception(s)"
 
     And I should not see "No due date" in the "fn_004" "table_row"
     And I should not see "Not yet known" in the "fn_004" "table_row"
@@ -465,7 +465,7 @@ Feature: Generation of program assignment exceptions
 
     And I wait until the page is ready
     And I click on "Save changes" "button"
-    Then I should see "4 learner(s) assigned. 4 learner(s) are active, 0 with exception(s)"
+    Then I should see "4 learner(s) assigned: 4 active, 0 exception(s)"
 
   @javascript
   Scenario: Time allowance exceptions are not generated when moving the due date backwards (because due dates done't move backwards)
@@ -510,7 +510,7 @@ Feature: Generation of program assignment exceptions
     And I wait until the page is ready
     And I click on "Save changes" "button"
     And I click on "Save all changes" "button"
-    Then I should see "2 learner(s) assigned. 1 learner(s) are active, 1 with exception(s)"
+    Then I should see "2 learner(s) assigned: 1 active, 1 exception(s)"
 
     When I click on "Exception Report (1)" "link"
     Then I should see "fn_001 ln_001"
@@ -519,7 +519,7 @@ Feature: Generation of program assignment exceptions
     And I click on "Assign" "option" in the "#selectionaction" "css_element"
     And I click on "Proceed with this action" "button"
     And I click on "OK" "button"
-    Then I should see "2 learner(s) assigned. 2 learner(s) are active, 0 with exception(s)"
+    Then I should see "2 learner(s) assigned: 2 active, 0 exception(s)"
 
     Then I click on "Assignments" "link"
     And I should not see "No due date" in the "fn_001" "table_row"
@@ -533,7 +533,7 @@ Feature: Generation of program assignment exceptions
 
     And I wait until the page is ready
     And I click on "Save changes" "button"
-    Then I should see "2 learner(s) assigned. 2 learner(s) are active, 0 with exception(s)"
+    Then I should see "2 learner(s) assigned: 2 active, 0 exception(s)"
 
     Then I should not see "No due date" in the "fn_001" "table_row"
     And I should not see "Not yet known" in the "fn_001" "table_row"
@@ -555,4 +555,4 @@ Feature: Generation of program assignment exceptions
 
     And I wait until the page is ready
     And I click on "Save changes" "button"
-    Then I should see "2 learner(s) assigned. 2 learner(s) are active, 0 with exception(s)"
+    Then I should see "2 learner(s) assigned: 2 active, 0 exception(s)"

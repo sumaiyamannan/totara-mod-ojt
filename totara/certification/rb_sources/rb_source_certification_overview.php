@@ -343,7 +343,6 @@ class rb_source_certification_overview extends rb_source_program_overview {
         global $PAGE;
 
         $now = time();
-        $totara_renderer = $PAGE->get_renderer('totara_core');
 
         if ($row->window < $now) {
             // The window is open, use the current record.
@@ -381,6 +380,13 @@ class rb_source_certification_overview extends rb_source_program_overview {
                 // They havent had a chance to do anything yet, or did not previously complete.
                 $percentage = 0;
             }
+        }
+
+        /* @var totara_core_renderer $totara_renderer */
+        static $totara_renderer;
+
+        if (empty($totara_renderer)) {
+            $totara_renderer = $PAGE->get_renderer('totara_core');
         }
 
         // Get relevant progress bar and return for display.

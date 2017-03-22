@@ -27,6 +27,7 @@ $string['sourcetitle'] = 'Record of Learning: Certifications';
 // columns
 $string['fullnamelink'] = 'Full name (linked to detail page)';
 $string['status'] = 'Status';
+$string['certfullnamelink'] = 'Certification Name and Linked Icon';
 $string['certifpath'] = 'Certification path';
 $string['certificationid'] = 'Certification ID';
 $string['renewalstatus'] = 'Renewal status';

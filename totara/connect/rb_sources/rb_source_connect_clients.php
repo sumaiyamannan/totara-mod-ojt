@@ -91,6 +91,7 @@ class rb_source_connect_clients extends rb_base_source {
             'base.clientidnumber',
             array(
                 'dbdatatype' => 'char',
+                'displayfunc' => 'plaintext',
                 'outputformat' => 'text',
             )
         );

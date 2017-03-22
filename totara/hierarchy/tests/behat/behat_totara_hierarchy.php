@@ -31,7 +31,9 @@
 
 // NOTE: no MOODLE_INTERNAL test here, this file may be required by behat before including /config.php.
 
-use Behat\Gherkin\Node\TableNode;
+use Behat\Behat\Context\Step\Then as Then;
+use Behat\Gherkin\Node\TableNode as TableNode;
+use Behat\Behat\Exception\PendingException as PendingException;
 
 class behat_totara_hierarchy extends behat_base {
 
@@ -317,4 +319,50 @@ class behat_totara_hierarchy extends behat_base {
             \totara_job\job_assignment::create_default($userid, $record);
         }
     }
+
+    /**
+     * Check that a list of hierarchy items follow the correct structure and depth.
+     *
+     * @Then /^I should see these hierarchy items at the following depths:$/
+     */
+    public function iShouldSeeTheseHierarchyItemsAtTheFollowingDepths(TableNode $table)
+    {
+        $commands = array();
+        $data = $table->getRows();
+
+        foreach ($data as $row => $columns) {
+            if (!isset($columns[0]) || !$columns[0]) {
+                throw new Exception("The name of the hierarchy item you want to see is missing.");
+            }
+            if (!isset($columns[1]) || !$columns[1]) {
+                throw new Exception("The depth of hierarchy item \"{$columns[0]}\" is zero or missing. It must be a value or 1 or higher.");
+            }
+
+            $commands[] = new Then("I should see hierarchy item \"{$columns[0]}\" in the \"" . ($row + 1) . "\" table row at depth \"{$columns[1]}\"");
+        }
+
+        return $commands;
+    }
+
+    /**
+     * Check that a hierarchy item has been created in the correct position and depth.
+     *
+     * @Then /^I should see hierarchy item "([^"]*)" in the "([^"]*)" table row at depth "([^"]*)"$/
+     */
+    public function iShouldSeeHierarchyItemInTheTableRowAtDepth($itemname, $tablerow, $depth) {
+        if (!$itemname) {
+            throw new Exception("The name of the hierarchy item you want to see is missing.");
+        }
+        if (!$tablerow) {
+            throw new Exception("The number of the table row you expect to see hierarchy item '{$itemname}' in is zero or missing. You must provide a value of 1 or higher.");
+        }
+        if (!$itemname) {
+            throw new Exception("The depth of '{$itemname}' heirarchy item is zero or missing. You must provide a value of 1 or higher.");
+        }
+
+        return array(
+            new Then("I should see \"{$itemname}\" in the \"//table/tbody/tr[{$tablerow}]/td[1]/div[contains(@class, 'depth{$depth}')]/a\" \"xpath_element\"")
+        );
+    }
+
 }

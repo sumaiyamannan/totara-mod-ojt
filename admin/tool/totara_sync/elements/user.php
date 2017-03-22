@@ -1518,7 +1518,7 @@ class totara_sync_element_user extends totara_sync_element {
                             $this->addlog(get_string('optionxnotexist', 'tool_totara_sync', (object)array('idnumber' => $r->idnumber, 'option' => $value, 'fieldname' => $name)), 'warn', 'checksanity');
                             $forcewarning = true;
                         }
-                    } else if ($this->customfieldsdb[$name]['forceunique']) {
+                    } else if ($this->customfieldsdb[$name]['forceunique'] && $value !== '') {
                         // Note: Skipping this for menu custom fields as the UI does not enforce uniqueness for them.
 
                         $sql = "SELECT uid.data

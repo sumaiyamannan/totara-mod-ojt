@@ -254,6 +254,7 @@ class rb_source_completionimport_certification extends rb_base_source {
                 get_string('columnbasecertificationidnumber', 'rb_source_completionimport_certification'),
                 'base.certificationidnumber',
                 array('dbdatatype' => 'char',
+                      'displayfunc' => 'plaintext',
                       'outputformat' => 'text')
         );
 

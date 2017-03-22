@@ -677,22 +677,25 @@ abstract class prog_noneventbased_message extends prog_message {
             $DB->insert_record('prog_messagelog', $ob);
         }
 
-        // Send the message to all of the recipients managers.
-        $managers = \totara_job\job_assignment::get_all_manager_userids($recipient->id);
-        if ($result && $this->notifymanager && !empty($managers)) {
-            foreach ($managers as $managerid) {
-                $manager = core_user::get_user($managerid, '*', MUST_EXIST);
+        // Don't send to the manager if the recipient is suspended.
+        if (!$recipient->suspended) {
+            // Send the message to all of the recipients managers.
+            $managers = \totara_job\job_assignment::get_all_manager_userids($recipient->id);
+            if ($result && $this->notifymanager && !empty($managers)) {
+                foreach ($managers as $managerid) {
+                    $manager = core_user::get_user($managerid, '*', MUST_EXIST);
 
-                $managerdata = new stdClass();
-                $managerdata->userto = $manager;
-                //ensure the message is actually coming from $user, default to support
-                $managerdata->userfrom = ($USER->id == $recipient->id) ? $recipient : core_user::get_support_user();
-                $managerdata->subject = $this->replacevars($this->managermessagedata->subject);
-                $managerdata->fullmessage = $this->replacevars($this->managermessagedata->fullmessage);
-                $managerdata->contexturl = $CFG->wwwroot.'/totara/program/view.php?id='.$this->programid.'&amp;userid='.$recipient->id;
-                $managerdata->icon = 'program-regular';
-                $managerdata->msgtype = TOTARA_MSG_TYPE_PROGRAM;
-                $result = $result && tm_alert_send($managerdata);
+                    $managerdata = new stdClass();
+                    $managerdata->userto = $manager;
+                    //ensure the message is actually coming from $user, default to support
+                    $managerdata->userfrom = ($USER->id == $recipient->id) ? $recipient : core_user::get_support_user();
+                    $managerdata->subject = $this->replacevars($this->managermessagedata->subject);
+                    $managerdata->fullmessage = $this->replacevars($this->managermessagedata->fullmessage);
+                    $managerdata->contexturl = $CFG->wwwroot.'/totara/program/view.php?id='.$this->programid.'&amp;userid='.$recipient->id;
+                    $managerdata->icon = 'program-regular';
+                    $managerdata->msgtype = TOTARA_MSG_TYPE_PROGRAM;
+                    $result = $result && tm_alert_send($managerdata);
+                }
             }
         }
 
@@ -813,22 +816,25 @@ abstract class prog_eventbased_message extends prog_message {
             $DB->insert_record('prog_messagelog', $ob);
         }
 
-        // Send the message to all of the recipients managers.
-        $managers = \totara_job\job_assignment::get_all_manager_userids($recipient->id);
-        if ($result && $this->notifymanager && !empty($managers)) {
-            foreach ($managers as $managerid) {
-                $manager = core_user::get_user($managerid, '*', MUST_EXIST);
+        // Don't send to the manager if the recipient is suspended.
+        if (!$recipient->suspended) {
+            // Send the message to all of the recipients managers.
+            $managers = \totara_job\job_assignment::get_all_manager_userids($recipient->id);
+            if ($result && $this->notifymanager && !empty($managers)) {
+                foreach ($managers as $managerid) {
+                    $manager = core_user::get_user($managerid, '*', MUST_EXIST);
 
-                $managerdata = new stdClass();
-                $managerdata->userto = $manager;
-                //ensure the message is actually coming from $user, default to support
-                $managerdata->userfrom = ($USER->id == $recipient->id) ? $recipient : core_user::get_support_user();
-                $managerdata->subject = $this->replacevars($this->managermessagedata->subject);
-                $managerdata->fullmessage = $this->replacevars($this->managermessagedata->fullmessage);
-                $managerdata->contexturl = $CFG->wwwroot.'/totara/program/view.php?id='.$this->programid.'&amp;userid='.$recipient->id;
-                $managerdata->icon = 'program-regular';
-                $managerdata->msgtype = TOTARA_MSG_TYPE_PROGRAM;
-                $result = $result && tm_alert_send($managerdata);
+                    $managerdata = new stdClass();
+                    $managerdata->userto = $manager;
+                    //ensure the message is actually coming from $user, default to support
+                    $managerdata->userfrom = ($USER->id == $recipient->id) ? $recipient : core_user::get_support_user();
+                    $managerdata->subject = $this->replacevars($this->managermessagedata->subject);
+                    $managerdata->fullmessage = $this->replacevars($this->managermessagedata->fullmessage);
+                    $managerdata->contexturl = $CFG->wwwroot.'/totara/program/view.php?id='.$this->programid.'&amp;userid='.$recipient->id;
+                    $managerdata->icon = 'program-regular';
+                    $managerdata->msgtype = TOTARA_MSG_TYPE_PROGRAM;
+                    $result = $result && tm_alert_send($managerdata);
+                }
             }
         }
 

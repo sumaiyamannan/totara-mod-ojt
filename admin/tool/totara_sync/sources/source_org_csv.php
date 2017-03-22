@@ -310,8 +310,9 @@ class totara_sync_source_org_csv extends totara_sync_source_org {
             // Encode and clean the data.
             $row = totara_sync_clean_fields($row);
 
-            $row['parentidnumber'] = !empty($row['parentidnumber']) ? $row['parentidnumber'] : '';
-            $row['parentidnumber'] = $row['parentidnumber'] == $row['idnumber'] ? '' : $row['parentidnumber'];
+            // The condition must use a combination of isset and !== '' because it needs to process 0 as a valid parentidnumber.
+            $row['parentidnumber'] = isset($row['parentidnumber']) && $row['parentidnumber'] !== '' ? $row['parentidnumber'] : '';
+            $row['parentidnumber'] = $row['parentidnumber'] === $row['idnumber'] ? '' : $row['parentidnumber'];
 
             if ($this->config->{'import_typeidnumber'} == '0') {
                 unset($row['typeidnumber']);

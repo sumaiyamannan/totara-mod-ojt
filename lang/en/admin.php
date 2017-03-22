@@ -896,11 +896,11 @@ $string['profilesignup'] = 'Display on signup page?';
 $string['profilespecificsettings'] = 'Specific settings';
 $string['profilevisible'] = 'Who is this field visible to?';
 $string['profilevisible_help'] = '* Not visible - For private data only viewable by administrators
-* Visible to user - For private data only viewable by the user and by administrators
+* Restricted visibility - For private data only viewable by the user, the administrators and anyone with the "totara/core:viewhiddenusercustomfielddata" capability.
 * Visible to everyone';
 $string['profilevisibleall'] = 'Visible to everyone';
 $string['profilevisiblenone'] = 'Not visible';
-$string['profilevisibleprivate'] = 'Visible to user';
+$string['profilevisibleprivate'] = 'Restricted visibility';
 $string['profiling'] = 'Profiling';
 $string['profilingallowall'] = 'Continuous profiling';
 $string['profilingallowall_help'] = 'If you enable this setting, then, at any moment, you can use the PROFILEALL parameter anywhere (PGC) to enable profiling for all the executed scripts along the Totara session life. Analogously, you can use the PROFILEALLSTOP parameter to stop it.';

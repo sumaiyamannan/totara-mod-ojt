@@ -991,6 +991,475 @@ class appraisal_test extends appraisal_testcase {
         $this->assertEquals(4, $DB->count_records_sql($u2sql, $u2param));
     }
 
+    public function test_single_stage_all_role_removal_after_learner_completion() {
+        global $DB;
+
+        $this->resetAfterTest();
+        $this->setAdminUser();
+
+        // Set up appraisal.
+        $roles = array();
+        $roles[appraisal::ROLE_LEARNER] = 6;
+        $roles[appraisal::ROLE_MANAGER] = 6;
+
+        $def = array('name' => 'Appraisal', 'stages' => array(
+            array('name' => 'Stage', 'timedue' => time() + 86400, 'pages' => array(
+                array('name' => 'Page', 'questions' => array(
+                    array('name' => 'Text', 'type' => 'text', 'roles' => $roles)
+                ))
+            ))
+        ));
+        $appraisal = appraisal::build($def);
+
+        // Set up group.
+        $manager = $this->getDataGenerator()->create_user();
+        $user1 = $this->getDataGenerator()->create_user();
+
+        $managerja = \totara_job\job_assignment::create_default($manager->id);
+
+        $jobassignmentmanagers = [
+            'managerjaid' => $managerja->id
+        ];
+
+        $user1ja = \totara_job\job_assignment::create_default($user1->id, $jobassignmentmanagers);
+
+        $cohort = $this->getDataGenerator()->create_cohort();
+        cohort_add_member($cohort->id, $user1->id);
+
+        // Assign group and activate.
+        $urlparams = array('includechildren' => false, 'listofvalues' => array($cohort->id));
+        $assign = new totara_assign_appraisal('appraisal', $appraisal);
+        $grouptypeobj = $assign->load_grouptype('cohort');
+        $grouptypeobj->handle_item_selector($urlparams);
+
+        $appraisal->activate();
+        $this->update_job_assignments($appraisal);
+
+        // That should have created a user assignment.
+        $userassignments = $DB->get_records('appraisal_user_assignment', array('appraisalid' => $appraisal->id));
+        $this->assertEquals(1, count($userassignments));
+
+        // And 4 role assignments per userassignment.
+        foreach ($userassignments as $aua) {
+            $countrole = $DB->count_records('appraisal_role_assignment', array('appraisaluserassignmentid' => $aua->id));
+            $this->assertEquals(4, $countrole);
+        }
+
+        // Now answer the question
+        $ra1 = appraisal_role_assignment::get_role($appraisal->id, $user1->id, $user1->id,
+                appraisal::ROLE_LEARNER);
+        $this->answer_question($appraisal, $ra1, '', 'completestage');
+        $map = $this->map($appraisal);
+
+        // user1 completed the stage, but other roles still need to complete
+        $this->assertEquals(1, $DB->count_records('appraisal_stage_data',
+            array('appraisalroleassignmentid' => $ra1->id, 'appraisalstageid' => $map['stages']['Stage'])));
+        $this->assertEquals(appraisal::STATUS_ACTIVE, $DB->get_field('appraisal_user_assignment', 'status',
+            array('appraisalid' => $appraisal->id, 'userid' => $user1->id)));
+
+        // Now Change user1s job assignment.
+        $removedroles = [
+            appraisal::ROLE_MANAGER => 'managerjaid'
+        ];
+
+        $jobroleupdates = [];
+        foreach ($removedroles as $role => $jobrolefield) {
+            if (!empty($jobrolefield)) {
+                $jobroleupdates[$jobrolefield] = null;
+            }
+        }
+
+        // To forestall unnecessary computation, the appraisal looks up the last
+        // modified time for a linked job assignment. If there was no change in
+        // the last modified time => the job assignment has no change => no role
+        // computation needs to be done. But timestamp precision is in seconds
+        // and occasionally, PHPUnit runs so fast that the timestamp is updated
+        // in the same second it was created. Thus, there is a sleep() here to
+        // stop the test from failing further down.
+        sleep(1);
+        $user1ja->update($jobroleupdates);
+
+        // Simulate a cron run.
+        $appraisal->check_assignment_changes();
+
+        // user_assignment should now be shown as completed as no other roles currently exist that can complete the stage
+        $this->assertEquals(appraisal::STATUS_COMPLETED, $DB->get_field('appraisal_user_assignment', 'status',
+            array('appraisalid' => $appraisal->id, 'userid' => $user1->id)));
+        // Check the appraisal should still be active.
+        $this->assertEquals(appraisal::STATUS_ACTIVE, $DB->get_field('appraisal', 'status', array('id' => $appraisal->id)));
+    }
+
+    /**
+     * Test removing some position assignments of an assigned user
+     * after it completed the stage but before the user's position assignments
+     * completed it
+     *
+     * User position assignment structure
+     * $user1   ----| Manager   | $manager      -> 0
+     *              | Teamlead  | $teamlead     -> 0
+     *              | Appraiser | $appraiser
+     */
+    public function test_single_stage_some_role_removal_after_learner_completion() {
+        global $DB;
+
+        $this->resetAfterTest();
+        $this->setAdminUser();
+
+        // Set up appraisal.
+        $roles = array();
+        $roles[appraisal::ROLE_LEARNER] = 6;
+        $roles[appraisal::ROLE_MANAGER] = 6;
+        $roles[appraisal::ROLE_TEAM_LEAD] = 6;
+        $roles[appraisal::ROLE_APPRAISER] = 6;
+
+        $def = array('name' => 'Appraisal', 'stages' => array(
+            array('name' => 'Stage', 'timedue' => time() + 86400, 'pages' => array(
+                array('name' => 'Page', 'questions' => array(
+                    array('name' => 'Text', 'type' => 'text', 'roles' => $roles)
+                ))
+            ))
+        ));
+        $appraisal = appraisal::build($def);
+
+        // Set up group.
+        $teamlead1 = $this->getDataGenerator()->create_user();
+        $manager1 = $this->getDataGenerator()->create_user();
+        $appraiser = $this->getDataGenerator()->create_user();
+        $user1 = $this->getDataGenerator()->create_user();
+
+        $teamlead1ja = \totara_job\job_assignment::create_default($teamlead1->id);
+
+        $manager1ja = \totara_job\job_assignment::create_default(
+            $manager1->id,
+            [
+                'managerjaid' => $teamlead1ja->id
+            ]
+        );
+
+        $user1ja = \totara_job\job_assignment::create_default(
+            $user1->id,
+            [
+                'managerjaid' => $manager1ja->id,
+                'appraiserid' => $appraiser->id
+            ]
+        );
+
+        $cohort = $this->getDataGenerator()->create_cohort();
+        cohort_add_member($cohort->id, $user1->id);
+
+        // Assign group and activate.
+        $urlparams = array('includechildren' => false, 'listofvalues' => array($cohort->id));
+        $assign = new totara_assign_appraisal('appraisal', $appraisal);
+        $grouptypeobj = $assign->load_grouptype('cohort');
+        $grouptypeobj->handle_item_selector($urlparams);
+
+        $appraisal->activate();
+        $this->update_job_assignments($appraisal);
+
+        // That should have created a user assignment
+        $userassignments = $DB->get_records('appraisal_user_assignment', array('appraisalid' => $appraisal->id));
+        $this->assertEquals(1, count($userassignments));
+
+        // And 4 role assignments per userassignment.
+        foreach ($userassignments as $aua) {
+            $countrole = $DB->count_records('appraisal_role_assignment', array('appraisaluserassignmentid' => $aua->id));
+            $this->assertEquals(4, $countrole);
+        }
+
+        // Now answer the question
+        $ra1 = appraisal_role_assignment::get_role($appraisal->id, $user1->id, $user1->id,
+                appraisal::ROLE_LEARNER);
+        $this->answer_question($appraisal, $ra1, '', 'completestage');
+        $map = $this->map($appraisal);
+
+        // user1 completed the stage, but other roles still need to complete
+        $this->assertEquals(1, $DB->count_records('appraisal_stage_data',
+            array('appraisalroleassignmentid' => $ra1->id, 'appraisalstageid' => $map['stages']['Stage'])));
+        $this->assertEquals(appraisal::STATUS_ACTIVE, $DB->get_field('appraisal_user_assignment', 'status',
+            array('appraisalid' => $appraisal->id, 'userid' => $user1->id)));
+
+        // Now Change user1s job assignment.
+        $removedroles = [
+            appraisal::ROLE_MANAGER => 'managerjaid',
+            appraisal::ROLE_TEAM_LEAD => ''
+        ];
+
+        $jobroleupdates = [];
+        foreach ($removedroles as $role => $jobrolefield) {
+            if (!empty($jobrolefield)) {
+                $jobroleupdates[$jobrolefield] = null;
+            }
+        }
+
+        // To forestall unnecessary computation, the appraisal looks up the last
+        // modified time for a linked job assignment. If there was no change in
+        // the last modified time => the job assignment has no change => no role
+        // computation needs to be done. But timestamp precision is in seconds
+        // and occasionally, PHPUnit runs so fast that the timestamp is updated
+        // in the same second it was created. Thus, there is a sleep() here to
+        // stop the test from failing further down.
+        sleep(1);
+        $user1ja->update($jobroleupdates);
+
+        // Simulate a cron run.
+        $appraisal->check_assignment_changes();
+
+        // user_assignment should still not be completed as appraiser still needs to complete the stage
+        $ua1 = $DB->get_record('appraisal_user_assignment', array('appraisalid' => $appraisal->id, 'userid' => $user1->id));
+        $this->assertEquals(appraisal::STATUS_ACTIVE, $ua1->status);
+        $this->assertEquals($map['stages']['Stage'], $ua1->activestageid);
+    }
+
+    /**
+     * Test removing the position assignments of an assigned user
+     * after it completed first stage but before the user's position assignments
+     * completed it
+     *
+     * User position assignment structure
+     * $user1 ------| Manager   | $manager     -> 0
+     */
+    public function test_multi_stage_all_role_removal_after_learner_completion() {
+        global $DB;
+
+        $this->resetAfterTest();
+        $this->setAdminUser();
+
+        // Set up appraisal.
+        $roles = array();
+        $roles[appraisal::ROLE_LEARNER] = 6;
+        $roles[appraisal::ROLE_MANAGER] = 6;
+
+        $def = array('name' => 'Appraisal', 'stages' => array(
+            array('name' => 'Stage1', 'timedue' => time() + 86400, 'pages' => array(
+                array('name' => 'Page1', 'questions' => array(
+                    array('name' => 'Text1', 'type' => 'text', 'roles' => $roles)
+                ))
+            )),
+            array('name' => 'Stage2', 'timedue' => time() + 2 * 86400, 'pages' => array(
+                array('name' => 'Page2', 'questions' => array(
+                    array('name' => 'Text2', 'type' => 'text', 'roles' => $roles)
+                ))
+            )),
+            array('name' => 'Stage3', 'timedue' => time() + 3 * 86400, 'pages' => array(
+                array('name' => 'Page3', 'questions' => array(
+                    array('name' => 'Text3', 'type' => 'text', 'roles' => $roles)
+                ))
+            ))
+        ));
+        $appraisal = appraisal::build($def);
+
+        // Set up group.
+        $manager = $this->getDataGenerator()->create_user();
+        $user1 = $this->getDataGenerator()->create_user();
+
+        $managerja = \totara_job\job_assignment::create_default($manager->id);
+
+        $jobassignmentmanagers = [
+            'managerjaid' => $managerja->id
+        ];
+
+        $user1ja = \totara_job\job_assignment::create_default($user1->id, $jobassignmentmanagers);
+
+        $cohort = $this->getDataGenerator()->create_cohort();
+        cohort_add_member($cohort->id, $user1->id);
+
+        // Assign group and activate.
+        $urlparams = array('includechildren' => false, 'listofvalues' => array($cohort->id));
+        $assign = new totara_assign_appraisal('appraisal', $appraisal);
+        $grouptypeobj = $assign->load_grouptype('cohort');
+        $grouptypeobj->handle_item_selector($urlparams);
+
+        $appraisal->activate();
+        $this->update_job_assignments($appraisal);
+
+        // That should have created a user assignment.
+        $userassignments = $DB->get_records('appraisal_user_assignment', array('appraisalid' => $appraisal->id));
+        $this->assertEquals(1, count($userassignments));
+
+        // And 4 role assignments per userassignment.
+        foreach ($userassignments as $aua) {
+            $countrole = $DB->count_records('appraisal_role_assignment', array('appraisaluserassignmentid' => $aua->id));
+            $this->assertEquals(4, $countrole);
+        }
+
+        // Now answer the first question in the first stage
+        $ra1 = appraisal_role_assignment::get_role($appraisal->id, $user1->id, $user1->id,
+                appraisal::ROLE_LEARNER);
+        $this->answer_question($appraisal, $ra1, '', 'completestage');
+        $map = $this->map($appraisal);
+
+        // user1 completed the first stage, but other roles still need to complete
+        $this->assertEquals(1, $DB->count_records('appraisal_stage_data',
+            array('appraisalroleassignmentid' => $ra1->id, 'appraisalstageid' => $map['stages']['Stage1'])));
+        $this->assertEquals(0, $DB->count_records('appraisal_stage_data',
+            array('appraisalroleassignmentid' => $ra1->id, 'appraisalstageid' => $map['stages']['Stage2'])));
+        $ua1 = $DB->get_record('appraisal_user_assignment', array('appraisalid' => $appraisal->id, 'userid' => $user1->id));
+        $this->assertEquals(appraisal::STATUS_ACTIVE, $ua1->status);
+        $this->assertEquals($map['stages']['Stage1'], $ua1->activestageid);
+
+        // Now Change user1s job assignment.
+        $removedroles = [
+            appraisal::ROLE_MANAGER => 'managerjaid'
+        ];
+
+        $jobroleupdates = [];
+        foreach ($removedroles as $role => $jobrolefield) {
+            if (!empty($jobrolefield)) {
+                $jobroleupdates[$jobrolefield] = null;
+            }
+        }
+
+        // To forestall unnecessary computation, the appraisal looks up the last
+        // modified time for a linked job assignment. If there was no change in
+        // the last modified time => the job assignment has no change => no role
+        // computation needs to be done. But timestamp precision is in seconds
+        // and occasionally, PHPUnit runs so fast that the timestamp is updated
+        // in the same second it was created. Thus, there is a sleep() here to
+        // stop the test from failing further down.
+        sleep(1);
+        $user1ja->update($jobroleupdates);
+
+        // Simulate a cron run.
+        $appraisal->check_assignment_changes();
+
+        // user_assignment should still be active, but activepage should have been moved to the next page
+        $ua1 = $DB->get_record('appraisal_user_assignment', array('appraisalid' => $appraisal->id, 'userid' => $user1->id));
+        $this->assertEquals(appraisal::STATUS_ACTIVE, $ua1->status);
+        $this->assertEquals($map['stages']['Stage2'], $ua1->activestageid);
+    }
+
+    /**
+     * Test removing some position assignments of an assigned user
+     * after it completed the first stage but before the user's position assignments
+     * completed it
+     *
+     * User position assignment structure
+     * $user1   ----| Manager   | $manager      -> 0
+     *              | Teamlead  | $teamlead     -> 0
+     *              | Appraiser | $appraiser
+     */
+    public function test_multi_stage_some_role_removal_after_learner_completion() {
+        global $DB;
+
+        $this->resetAfterTest();
+        $this->setAdminUser();
+
+        // Set up appraisal.
+        $roles = array();
+        $roles[appraisal::ROLE_LEARNER] = 6;
+        $roles[appraisal::ROLE_MANAGER] = 6;
+        $roles[appraisal::ROLE_TEAM_LEAD] = 6;
+        $roles[appraisal::ROLE_APPRAISER] = 6;
+
+        $def = array('name' => 'Appraisal', 'stages' => array(
+            array('name' => 'Stage1', 'timedue' => time() + 86400, 'pages' => array(
+                array('name' => 'Page1', 'questions' => array(
+                    array('name' => 'Text1', 'type' => 'text', 'roles' => $roles)
+                ))
+            )),
+            array('name' => 'Stage2', 'timedue' => time() + 2 * 86400, 'pages' => array(
+                array('name' => 'Page2', 'questions' => array(
+                    array('name' => 'Text2', 'type' => 'text', 'roles' => $roles)
+                ))
+            )),
+            array('name' => 'Stage3', 'timedue' => time() + 3 * 86400, 'pages' => array(
+                array('name' => 'Page3', 'questions' => array(
+                    array('name' => 'Text3', 'type' => 'text', 'roles' => $roles)
+                ))
+            ))
+        ));
+        $appraisal = appraisal::build($def);
+
+        // Set up group.
+        $teamlead1 = $this->getDataGenerator()->create_user();
+        $manager1 = $this->getDataGenerator()->create_user();
+        $appraiser = $this->getDataGenerator()->create_user();
+        $user1 = $this->getDataGenerator()->create_user();
+
+        $teamlead1ja = \totara_job\job_assignment::create_default($teamlead1->id);
+
+        $manager1ja = \totara_job\job_assignment::create_default(
+            $manager1->id,
+            [
+                'managerjaid' => $teamlead1ja->id
+            ]
+        );
+
+        $user1ja = \totara_job\job_assignment::create_default(
+            $user1->id,
+            [
+                'managerjaid' => $manager1ja->id,
+                'appraiserid' => $appraiser->id
+            ]
+        );
+
+        $cohort = $this->getDataGenerator()->create_cohort();
+        cohort_add_member($cohort->id, $user1->id);
+
+        // Assign group and activate.
+        $urlparams = array('includechildren' => false, 'listofvalues' => array($cohort->id));
+        $assign = new totara_assign_appraisal('appraisal', $appraisal);
+        $grouptypeobj = $assign->load_grouptype('cohort');
+        $grouptypeobj->handle_item_selector($urlparams);
+
+        $appraisal->activate();
+        $this->update_job_assignments($appraisal);
+
+        // That should have created a user assignment
+        $userassignments = $DB->get_records('appraisal_user_assignment', array('appraisalid' => $appraisal->id));
+        $this->assertEquals(1, count($userassignments));
+
+        // And 4 role assignments per userassignment.
+        foreach ($userassignments as $aua) {
+            $countrole = $DB->count_records('appraisal_role_assignment', array('appraisaluserassignmentid' => $aua->id));
+            $this->assertEquals(4, $countrole);
+        }
+
+        // Now answer the question
+        $ra1 = appraisal_role_assignment::get_role($appraisal->id, $user1->id, $user1->id,
+                appraisal::ROLE_LEARNER);
+        $this->answer_question($appraisal, $ra1, '', 'completestage');
+        $map = $this->map($appraisal);
+
+        // user1 completed the stage, but other roles still need to complete
+        $this->assertEquals(1, $DB->count_records('appraisal_stage_data',
+            array('appraisalroleassignmentid' => $ra1->id, 'appraisalstageid' => $map['stages']['Stage1'])));
+        $this->assertEquals(appraisal::STATUS_ACTIVE, $DB->get_field('appraisal_user_assignment', 'status',
+            array('appraisalid' => $appraisal->id, 'userid' => $user1->id)));
+
+        // Now Change user1s job assignment.
+        $removedroles = [
+            appraisal::ROLE_MANAGER => 'managerjaid',
+            appraisal::ROLE_TEAM_LEAD => ''
+        ];
+
+        $jobroleupdates = [];
+        foreach ($removedroles as $role => $jobrolefield) {
+            if (!empty($jobrolefield)) {
+                $jobroleupdates[$jobrolefield] = null;
+            }
+        }
+
+        // To forestall unnecessary computation, the appraisal looks up the last
+        // modified time for a linked job assignment. If there was no change in
+        // the last modified time => the job assignment has no change => no role
+        // computation needs to be done. But timestamp precision is in seconds
+        // and occasionally, PHPUnit runs so fast that the timestamp is updated
+        // in the same second it was created. Thus, there is a sleep() here to
+        // stop the test from failing further down.
+        sleep(1);
+        $user1ja->update($jobroleupdates);
+
+        // Simulate a cron run.
+        $appraisal->check_assignment_changes();
+
+        // user_assignment should still not be completed as appraiser still needs to complete the stage
+        // activestage should still be on Stage1
+        $ua1 = $DB->get_record('appraisal_user_assignment', array('appraisalid' => $appraisal->id, 'userid' => $user1->id));
+        $this->assertEquals(appraisal::STATUS_ACTIVE, $ua1->status);
+        $this->assertEquals($map['stages']['Stage1'], $ua1->activestageid);
+    }
+
     public function test_cleanup_task() {
         global $DB;
         $this->resetAfterTest();

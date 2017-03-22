@@ -354,7 +354,7 @@ class cachestore_file extends cache_store implements cache_is_key_aware, cache_i
             return false;
         }
         // Open ensuring the file for reading in binary format.
-        if (!$handle = fopen($file, 'rb')) {
+        if (!$handle = @fopen($file, 'rb')) {
             return false;
         }
         // Lock it up!
@@ -718,7 +718,15 @@ class cachestore_file extends cache_store implements cache_is_key_aware, cache_i
         }
 
         // Finally rename the temp file to the desired file, returning the true|false result.
-        $result = rename($tempfile, $file);
+        $result = @rename($tempfile, $file);
+        if (!$result) {
+            // Windows specific hack.
+            // rename() does not follow the *nix rename convention on Windows with PHP 5.
+            // If the $newname exists, it will return FALSE and $oldname and $newname will remain in their original state.
+            if (@copy($tempfile, $file)) {
+                $result = true;
+            }
+        }
         @chmod($file, $this->cfg->filepermissions);
         if (!$result) {
             // Failed to rename, don't leave files lying around.

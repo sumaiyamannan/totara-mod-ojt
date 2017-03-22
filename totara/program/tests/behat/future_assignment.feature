@@ -66,7 +66,7 @@ Feature: User assignments with due date base on first login
 
     And I press "Save changes"
     And I press "Save all changes"
-    Then I should see "3 learner(s) assigned. 3 learner(s) are active, 0 with exception(s)"
+    Then I should see "3 learner(s) assigned: 3 active, 0 exception(s)"
     And I should see "Complete within 4 Week(s) of First login"
     And I should see "View dates"
     And I should see "Not yet known"
@@ -151,7 +151,7 @@ Feature: User assignments with due date base on first login
 
     And I press "Save changes"
     And I press "Save all changes"
-    Then I should see "3 learner(s) assigned. 3 learner(s) are active, 0 with exception(s)"
+    Then I should see "3 learner(s) assigned: 3 active, 0 exception(s)"
     And I should see "Set due date"
     And I should see "View dates"
     And I should see "No due date"
@@ -175,7 +175,7 @@ Feature: User assignments with due date base on first login
     And I wait "1" seconds
 
     And I press "Save changes"
-    Then I should see "3 learner(s) assigned. 3 learner(s) are active, 0 with exception(s)"
+    Then I should see "3 learner(s) assigned: 3 active, 0 exception(s)"
     And I should see "Complete within 4 Week(s) of First login"
     And I should see "View dates"
     And I should see "Not yet known"
@@ -283,7 +283,7 @@ Feature: User assignments with due date base on first login
 
     And I press "Save changes"
     And I press "Save all changes"
-    Then I should see "3 learner(s) assigned. 3 learner(s) are active, 0 with exception(s)"
+    Then I should see "3 learner(s) assigned: 3 active, 0 exception(s)"
     And I should see "Complete within 4 Week(s) of First login"
     And I should see "View dates"
     And I should not see "Not yet known"
@@ -335,7 +335,7 @@ Feature: User assignments with due date base on first login
 
     And I press "Save changes"
     And I press "Save all changes"
-    Then I should see "3 learner(s) assigned. 3 learner(s) are active, 0 with exception(s)"
+    Then I should see "3 learner(s) assigned: 3 active, 0 exception(s)"
     And I should see "Set due date"
     And I should see "View dates"
     And I should see "No due date"
@@ -359,7 +359,7 @@ Feature: User assignments with due date base on first login
     And I wait "1" seconds
 
     And I press "Save changes"
-    Then I should see "3 learner(s) assigned. 3 learner(s) are active, 0 with exception(s)"
+    Then I should see "3 learner(s) assigned: 3 active, 0 exception(s)"
     And I should see "Complete within 4 Week(s) of First login"
     And I should see "View dates"
     And I should not see "Not yet known"

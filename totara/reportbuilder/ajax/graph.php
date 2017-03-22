@@ -35,6 +35,7 @@ $sid = optional_param('sid', '0', PARAM_INT);
 
 require_login();
 $context = context_system::instance();
+$PAGE->set_context($context);
 
 $reportrecord = $DB->get_record('report_builder', array('id' => $id));
 
@@ -59,7 +60,7 @@ if (empty($graphrecord->type)) {
 $graph = new \totara_reportbuilder\local\graph($graphrecord, $report, false);
 list($sql, $params, $cache) = $report->build_query(false, true, true);
 
-$records = $DB->get_recordset_sql($sql.$order, $params, 0, $graph->get_max_records());
+$records = $DB->get_recordset_sql($sql, $params, 0, $graph->get_max_records());
 foreach ($records as $record) {
     $graph->add_record($record);
 }

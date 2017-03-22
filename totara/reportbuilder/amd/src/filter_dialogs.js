@@ -30,6 +30,12 @@
 define(['jquery', 'core/config', 'core/str'], function ($, mdlcfg, mdlstrings) {
     var disable_filter_controls = function(event) {
         var name = $(this).attr('name');
+
+        if (typeof name === 'undefined') {
+            // Well we can't find the matching filter, we can't disable it!
+            return;
+        }
+
         name = name.substr(0, name.length - 3);// Remove _op.
 
         if ($(this).val() === '0') {

@@ -507,7 +507,78 @@ class appraisal {
         }
 
         // Role (re)assignments.
-        $assign->store_role_assignments();
+        $removedroleassignments = $assign->store_role_assignments();
+
+        // If roles were removed we need to check stage completion for affected user_assignments
+        if (!empty ($removedroleassignments)) {
+            // Get distinct user_assignment ids with removed roles
+            $userassignmentids = array();
+            foreach ($removedroleassignments as $removedroleassignment) {
+                if (!in_array($removedroleassignment->appraisaluserassignmentid, $userassignmentids)) {
+                    $userassignmentids[] = $removedroleassignment->appraisaluserassignmentid;
+                }
+            }
+
+            foreach ($userassignmentids as $userassignmentid) {
+                // If all remaining role_assignments for this stage have completed the stage,
+                // we can mark the stage complete
+                $userassignment = new appraisal_user_assignment($userassignmentid);
+                if (!isset($userassignment->timecompleted)) {
+                    $allcompleted = true;
+
+                    $stages = appraisal_stage::get_stages($userassignment->appraisalid);
+                    // This return stages in completion order
+                    // We may need to know the id of the next stage
+
+                    $stageids = array_keys($stages);
+                    $nxtstage = array_shift($stageids);
+
+                    foreach ($stages as $stage) {
+                        $nxtstage = array_shift($stageids);
+
+                        // Check whether there are role_assignments for which there are no appraisal_stage_data
+                        $sql = "SELECT ara.id
+                                  FROM {appraisal_role_assignment} ara
+                             LEFT JOIN {appraisal_stage_data} asd ON ara.id = asd.appraisalroleassignmentid and asd.appraisalstageid = :stageid
+                                 WHERE ara.appraisaluserassignmentid = :userassignmentid
+                                   AND ara.userid != 0
+                                   AND asd.id IS NULL";
+                        $params = array('stageid' => $stage->id, 'userassignmentid' => $userassignmentid);
+                        if ($DB->record_exists_sql($sql, $params)) {
+                            // We do not need to check following stages - we already know all were not completed
+                            $allcompleted = false;
+                            break;
+                        }
+                        else {
+                            // If this user's active stage is now completed we need to move this forward to the next stage
+                            if ($userassignment->activestageid == $stage->id && !is_null($nxtstage)) {
+                                $sql = "UPDATE {appraisal_user_assignment}
+                                           SET activestageid = :newstageid
+                                         WHERE id = :userassignmentid";
+                                $params = array('newstageid' => $nxtstage, 'userassignmentid' => $userassignmentid);
+                                $DB->execute($sql, $params);
+
+                                // We now know that there are uncompleted stages - so we can stop that loop
+                                $allcompleted = false;
+                                break;
+                            }
+                        }
+                    }
+
+                    if ($allcompleted) {
+                        // Update user
+                        $sql = "UPDATE {appraisal_user_assignment}
+                                   SET timecompleted = :timecompleted,
+                                       status = :statuscompleted
+                                 WHERE id = :userassignmentid";
+                        $params = array('timecompleted' => time(),
+                                        'statuscompleted' => self::STATUS_COMPLETED,
+                                        'userassignmentid' => $userassignmentid);
+                        $DB->execute($sql, $params);
+                    }
+                }
+            }
+        }
     }
 
     /**
@@ -4581,7 +4652,9 @@ class appraisal_message {
         }
 
         // Get all user assignments currently in the appraisal.
-        $userassignments = $DB->get_records('appraisal_user_assignment', array('appraisalid' => $this->appraisalid));
+        $userassignments = $DB->get_records_select('appraisal_user_assignment',
+            'appraisalid = :appraisalid AND status != :statusclosed',
+            array('appraisalid' => $this->appraisalid, 'statusclosed' => appraisal::STATUS_CLOSED));
 
         $this->send($userassignments, $managers_only);
 
@@ -4606,7 +4679,9 @@ class appraisal_message {
         $userassignment = $DB->get_record('appraisal_user_assignment',
             array('userid' => $userid, 'appraisalid' => $this->appraisalid));
 
-        $this->send(array($userassignment), $managers_only);
+        if ($userassignment->status != appraisal::STATUS_CLOSED) { // Skip sending if the user's appraisal is closed.
+            $this->send(array($userassignment), $managers_only);
+        }
 
         // TODO: Need better handling for managers_only messages
         if (!$managers_only) {
@@ -4627,6 +4702,11 @@ class appraisal_message {
 
         $sentaddress = array();
         foreach ($userassignments as $userassignment) {
+            // Skip it if the user's assignment is closed.
+            if ($userassignment->status == appraisal::STATUS_CLOSED) {
+                continue;
+            }
+
             // Get all applicable roles that are involved in the appraisal.
             list($rolessql, $params) = $DB->get_in_or_equal($this->roles, SQL_PARAMS_NAMED, 'role');
             $sql = "SELECT appraisalrole, userid

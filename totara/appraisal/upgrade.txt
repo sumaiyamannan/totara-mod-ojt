@@ -1,5 +1,13 @@
-This files describes API changes for code that uses the question API,
+This files describes API changes for code that uses the appraisal API,
 information provided here is intended especially for developers.
+
+=== 9.5 ===
+
+* store_role_assignments() function returns array of removed appraisal_role_assignments
+* update_role_assignments() function returns array of removed appraisal_role_assignments
+* update_roles() function also return a list of removed role assignments
+* totara_appraisal_renderer::display_pages() has changed
+* totara_appraisal_renderer::display_stage_actions_for_stages() has changed
 
 === 9.4 ===
 

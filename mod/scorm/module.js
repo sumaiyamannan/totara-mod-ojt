@@ -379,19 +379,10 @@ M.mod_scorm.init = function(Y, nav_display, navposition_left, navposition_top, h
         };
 
         var scorm_skipprev = function(node, update_launch_sco) {
-            if (node.previous() && typeof scoes_nav[launch_sco].prevsibling !== 'undefined') {
-                var prevsibling = scoes_nav[launch_sco].prevsibling;
-                var previous = node.previous();
-                var prevscoid = scoes_nav[launch_sco].prevscoid;
-                if (previous.title !== scoes_nav[prevscoid].url) {
-                    previous = scorm_tree_node.getNodeByAttribute('title', scoes_nav[prevsibling].url);
-                    if (previous === null) {
-                        previous = scorm_tree_node.rootNode.children[0];
-                        previous.title = scoes_nav[prevsibling].url;
-                    }
-                }
+            var previous = node.previous();
+            if (previous && previous.title) {
                 if (update_launch_sco) {
-                    launch_sco = prevsibling;
+                    launch_sco = previous.scoid;
                 }
                 return previous;
             } else if (node.parent && node.parent.parent && typeof scoes_nav[launch_sco].parentscoid !== 'undefined') {
@@ -436,17 +427,9 @@ M.mod_scorm.init = function(Y, nav_display, navposition_left, navposition_top, h
 
         var scorm_skipnext = function(node, update_launch_sco) {
             var next = node.next();
-            if (next && next.title && typeof scoes_nav[launch_sco] !== 'undefined' && typeof scoes_nav[launch_sco].nextsibling !== 'undefined') {
-                var nextsibling = scoes_nav[launch_sco].nextsibling;
-                if (next.title !== scoes_nav[nextsibling].url) {
-                    next = scorm_tree_node.getNodeByAttribute('title', scoes_nav[nextsibling].url);
-                    if (next === null) {
-                        next = scorm_tree_node.rootNode.children[0];
-                        next.title = scoes_nav[nextsibling].url;
-                    }
-                }
+            if (next && next.title) {
                 if (update_launch_sco) {
-                    launch_sco = nextsibling;
+                    launch_sco = next.scoid;
                 }
                 return next;
             } else if (node.parent && node.parent.parent && typeof scoes_nav[launch_sco].parentscoid !== 'undefined') {

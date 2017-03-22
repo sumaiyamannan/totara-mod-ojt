@@ -1809,6 +1809,15 @@ class program {
             $data->statusstr = 'programnotavailable';
         }
 
+        $now = time();
+        if (!empty($this->availablefrom) and ($now < $this->availablefrom)) {
+            $data->statusstr = 'notduetostartuntil';
+        }
+
+        if (!empty($this->availableuntil) and ($now > $this->availableuntil)) {
+            $data->statusstr = 'nolongeravailabletolearners';
+        }
+
         $renderer = $PAGE->get_renderer('totara_program');
         return $renderer->render_current_status($data);
     }
@@ -2172,6 +2181,45 @@ class program {
      */
     public function is_certif() {
         return !empty($this->certifid);
+    }
+
+    /**
+     * Returns whether a program has passed its end date.
+     *
+     * @return bool true if program no longer available.
+     */
+    public function has_expired() {
+        return (!empty($this->availableuntil) and (time() > $this->availableuntil));
+    }
+    
+    /**
+     * Checks if a user has one of the capabilities that allows them to view the program
+     * or cert overview page for the relevant context.
+     *
+     * @param null|integer|stdClass $user to check the capability for. Is passed straight in to
+     *  has_any_capability.
+     * @return bool true if the user is allowed to access the page.
+     */
+    public function has_capability_for_overview_page($user = null) {
+        global $CFG;
+
+        $allowed_capabilities = array(
+            'totara/program:configuredetails',
+            'totara/program:configurecontent',
+            'totara/program:configuremessages',
+            'totara/program:configureassignments',
+            'totara/program:handleexceptions'
+        );
+
+        if ($this->is_certif()) {
+            $allowed_capabilities[] = 'totara/certification:configurecertification';
+        }
+
+        if (!empty($CFG->enableprogramcompletioneditor)) {
+            $allowed_capabilities[] = 'totara/program:editcompletion';
+        }
+
+        return has_any_capability($allowed_capabilities, $this->get_context(), $user);
     }
 }
 

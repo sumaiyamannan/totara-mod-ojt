@@ -196,4 +196,14 @@ $capabilities = array(
         'captype' => 'write',
         'contextlevel' => CONTEXT_PROGRAM,
     ),
+
+    // Mark a course complete via a user's required learning view of the program
+    'totara/program:markcoursecomplete' => array(
+        'riskbitmask' => RISK_DATALOSS,
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_COURSE,
+        'archetypes' => array(
+            'manager' => CAP_ALLOW,
+        )
+    ),
 );

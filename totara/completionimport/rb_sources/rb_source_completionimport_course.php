@@ -246,6 +246,7 @@ class rb_source_completionimport_course extends rb_base_source {
                 get_string('columnbasecourseidnumber', 'rb_source_completionimport_course'),
                 'base.courseidnumber',
                 array('dbdatatype' => 'char',
+                      'displayfunc' => 'plaintext',
                       'outputformat' => 'text')
         );
 

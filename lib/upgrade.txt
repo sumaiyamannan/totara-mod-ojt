@@ -1,6 +1,10 @@
 This files describes API changes in core libraries and APIs,
 information provided here is intended especially for developers.
 
+=== 9.5 ===
+
+* Upgraded jQuery 2.2.1 to 2.2.4
+
 === 9.4 ===
 
 * core/templates method property renderIcon may alternatively be called with two parameters the second being a custom data object

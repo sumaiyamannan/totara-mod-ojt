@@ -107,6 +107,7 @@ M.totara_question_multichoice = M.totara_question_multichoice || {
             $this.find('fieldset').append($makeDefault);
             $this.find('fieldset').append($unselect);
         }
+
     });
 
     // Select default options.
@@ -120,7 +121,12 @@ M.totara_question_multichoice = M.totara_question_multichoice || {
     }
 
     // Make visible #addoptionlink_$jsid
-    $container.find('a.addoptionlink').show();
+    if (numVisible < max) {
+        $container.find('a.addoptionlink').show();
+    } else {
+        $container.find('a.addoptionlink').addClass('disabled');
+        $container.find('a.addoptionlink').hide();
+    }
     $container.find('a.addoptionlink').on('click', function(){
         if ($(this).hasClass('disabled')) {
             return false;

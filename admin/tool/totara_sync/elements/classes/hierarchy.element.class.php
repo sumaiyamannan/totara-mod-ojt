@@ -167,8 +167,10 @@ abstract class totara_sync_hierarchy extends totara_sync_element {
             throw new totara_sync_exception($elname, 'syncitem', 'frameworkxnotfound',
                 $newitem->frameworkidnumber);
         }
-        // Ensure newitem's parent is synced first - only non-existent or not already synced parent items
-        if (!empty($newitem->parentidnumber)
+
+        // Ensure newitem's parent is synced first - only non-existent or not already synced parent items.
+        // The condition must use !== '' because it needs to handle 0 as a valid parentidnumber.
+        if ($newitem->parentidnumber !== ''
             && !$parentid = $DB->get_field_select($elname, 'id', "idnumber = ? AND timemodified = ?", array($newitem->parentidnumber, $newitem->timemodified))) {
 
             // Sync parent first (recursive)
@@ -188,7 +190,8 @@ abstract class totara_sync_hierarchy extends totara_sync_element {
             // Update parentid with the newly-created one
             $parentid = $DB->get_field($elname, 'id', array('idnumber' => $newitem->parentidnumber));
         }
-        $newitem->parentid = !empty($parentid) ? $parentid : 0;
+
+        $newitem->parentid = isset($parentid) && $parentid !== '' ? $parentid : 0;
 
         if (!isset($newitem->typeidnumber) || (($newitem->typeidnumber === "") && !$saveemptyfields)) {
             unset($newitem->typeid);

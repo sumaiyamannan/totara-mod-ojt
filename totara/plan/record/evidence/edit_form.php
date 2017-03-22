@@ -86,4 +86,40 @@ class plan_evidence_edit_form extends moodleform {
                 get_string('addevidence', 'totara_plan') : get_string('updateevidence', 'totara_plan'));
     }
 
+    /**
+     * If there are errors return array ("fieldname"=>"error message"),
+     * otherwise true if ok.
+     *
+     * @param array $data array of ("fieldname"=>value) of submitted data
+     * @param array $files array of uploaded files "element_name"=>tmp_file_path
+     * @return array of "element_name"=>"error_description" if there are errors,
+     *         or an empty array if everything is OK (true allowed for backwards compatibility too).
+     */
+    public function validation($data, $files) {
+
+        $errors = parent::validation($data, $files);
+
+        $errors += customfield_validation((object)$data, 'evidence', 'dp_plan_evidence');
+
+        return $errors;
+    }
+
+    /**
+     * This method is called after definition(), data submission and set_data().
+     * All form setup that is dependent on form values should go in here.
+     */
+    public function definition_after_data() {
+        global $DB;
+
+        $mform = $this->_form;
+
+        $evidenceid = $mform->elementExists('id') ? $mform->getElementValue('id') : 0;
+
+        if (!empty($evidenceid)) {
+            if ($evidence = $DB->get_record('dp_plan_evidence', array('id' => $evidenceid))) {
+                customfield_definition_after_data($mform, $evidence, 'evidence', 0, 'dp_plan_evidence');
+            }
+        }
+    }
+
 }
