@@ -838,7 +838,14 @@ abstract class rb_base_source {
      * @return string The percentage with 1 decimal place
      */
     function rb_display_course_grade_percent($item, $row) {
-        return ($item === null or $item === '') ? '-' : sprintf('%.1f%%', $item);
+        if ($item === null || $item === '' || empty($row->maxgrade)) {
+            return '-';
+        }
+
+        // Create a percentage using the max grade.
+        $percent = ($item / $row->maxgrade) * 100;
+
+        return sprintf('%.1f%%', $percent);
     }
 
     /**
