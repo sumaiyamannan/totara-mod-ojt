@@ -78,6 +78,6 @@
     <div class="tf_element_input">{{> totara_form/validation_errors}}<input type="number" autocomplete="off" id="{{id}}" {{#frozen}}disabled data-{{/frozen}}name="{{name}}" value="{{value}}"
         {{#required}}required{{/required}} {{#size}}size="{{.}}"{{/size}} {{#maxlength}}maxlength="{{.}}"{{/maxlength}}
         {{#placeholder}}placeholder="{{.}}"{{/placeholder}}
-        {{#min}}min="{{.}}"{{/min}} {{#max}}max="{{.}}"{{/max}} {{#step}}step="{{.}}"{{/step}}
+        min="{{min}}" max="{{max}}" step="{{step}}"
     /></div>
 </div>

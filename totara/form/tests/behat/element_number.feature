@@ -328,3 +328,32 @@ Feature: Totara form number element tests
     And "hiddenif_required_b" row "Value" column of "form_results" table should contain "123456789"
     And "form_select" row "Value" column of "form_results" table should contain "totara_form\form\testform\element_number"
     And "submitbutton" row "Value" column of "form_results" table should contain "1"
+
+  @javascript
+  Scenario: Test min and max in number elements in Totara forms
+    When I select "Basic number element [totara_form\form\testform\element_number]" from the "Test form" singleselect
+    Then I should see "Form: Basic number element"
+    When I set the following Totara form fields to these values:
+      | Required basic number | 123 |
+      | Positive number | 66 |
+      | Positive or zero number | 0 |
+      | Negative number | -77 |
+      | Negative or zero number | 0 |
+
+    And I press "Save changes"
+    Then I should see "The form has been submit"
+    And "number_positive" row "Value" column of "form_results" table should contain "66"
+    And "number_positive_or_zero" row "Value" column of "form_results" table should contain "0"
+    And "number_negative" row "Value" column of "form_results" table should contain "-77"
+    And "number_negative_or_zero" row "Value" column of "form_results" table should contain "0"
+
+  @javascript
+  Scenario: Test step in number elements in Totara forms
+    When I select "Basic number element [totara_form\form\testform\element_number]" from the "Test form" singleselect
+    Then I should see "Form: Basic number element"
+    When I set the following Totara form fields to these values:
+      | Required basic number | 123 |
+      | Number with step three from minus 1 | 2 |
+    And I press "Save changes"
+    Then I should see "The form has been submit"
+    And "number_step_three" row "Value" column of "form_results" table should contain "2"

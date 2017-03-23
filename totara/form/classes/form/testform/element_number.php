@@ -68,6 +68,11 @@ class element_number extends form {
         $this->model->add(new number('number_with_current_data', 'number with current data'))->add_help_button('cachejs', 'core_admin'); // Just a random help string.;
         $this->model->add(new number('number_frozen_empty', 'Empty frozen number'))->set_frozen(true);
         $this->model->add(new number('number_frozen_with_current_data', 'Frozen number with current data'))->set_frozen(true);
+        $this->model->add(new number('number_positive', 'Positive number'))->set_attribute('min', 1);
+        $this->model->add(new number('number_positive_or_zero', 'Positive or zero number'))->set_attribute('min', 0);
+        $this->model->add(new number('number_negative', 'Negative number'))->set_attribute('max', -1);
+        $this->model->add(new number('number_negative_or_zero', 'Negative or zero number'))->set_attribute('max', 0);
+        $this->model->add(new number('number_step_three', 'Number with step three from minus 1'))->set_attributes(array('min' => -1, 'step' => 3));
 
         $section = $this->model->add(new section('test_hiddenif', 'Testing Hiddenif'));
         $hiddenif_primary = $section->add(new number('hiddenif_primary', 'Hidden if reference'));

@@ -105,10 +105,10 @@ class element_number extends element_validator {
                 }
             }
 
-            $step = (int)$this->element->get_attribute('step');
+            $step = $this->element->get_attribute('step');
             if ($step > 1) {
                 $mod = ($value - (int)$min) % $step;
-                if ($mod > 0) {
+                if ($mod !== 0) {
                     break;
                 }
             }
