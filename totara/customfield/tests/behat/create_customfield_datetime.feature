@@ -27,6 +27,7 @@ Feature: Administrators can add a custom date/time field to complete during cour
 
     When I expand all fieldsets
     Then I should see "Custom Date Field"
+    And "customfield_customdate[enabled]" "checkbox" should exist
     And "customfield_customdate[day]" "select" should exist
     And "customfield_customdate[month]" "select" should exist
     And "customfield_customdate[year]" "select" should exist
@@ -39,20 +40,22 @@ Feature: Administrators can add a custom date/time field to complete during cour
 
 
     When I set the following fields to these values:
-      | fullname                      | Course One |
-      | shortname                     | course1    |
-      | customfield_customdate[day]   | 15         |
-      | customfield_customdate[month] | 10         |
-      | customfield_customdate[year]  | 2005       |
+      | fullname                        | Course One |
+      | shortname                       | course1    |
+      | customfield_customdate[enabled] | 1          |
+      | customfield_customdate[day]     | 15         |
+      | customfield_customdate[month]   | 10         |
+      | customfield_customdate[year]    | 2005       |
     And I press "Save and display"
     Then I should see "Course One" in the page title
 
     When I navigate to "Edit settings" node in "Course administration"
     And I expand all fieldsets
     Then the following fields match these values:
-      | customfield_customdate[day]   | 15         |
-      | customfield_customdate[month] | 10         |
-      | customfield_customdate[year]  | 2005       |
+      | customfield_customdate[enabled] | 1          |
+      | customfield_customdate[day]     | 15         |
+      | customfield_customdate[month]   | 10         |
+      | customfield_customdate[year]    | 2005       |
 
     When I set the field "customfield_customdate[enabled]" to "0"
     Then the "customfield_customdate[day]" "select" should be disabled
@@ -90,6 +93,7 @@ Feature: Administrators can add a custom date/time field to complete during cour
 
     When I expand all fieldsets
     Then I should see "Custom Date/Time Field"
+    And "customfield_customdatetime[enabled]" "checkbox" should exist
     And "customfield_customdatetime[day]" "select" should exist
     And "customfield_customdatetime[month]" "select" should exist
     And "customfield_customdatetime[year]" "select" should exist
@@ -97,24 +101,26 @@ Feature: Administrators can add a custom date/time field to complete during cour
     And "customfield_customdatetime[minute]" "select" should exist
 
     When I set the following fields to these values:
-      | fullname                           | Course One |
-      | shortname                          | course1    |
-      | customfield_customdatetime[day]    | 15         |
-      | customfield_customdatetime[month]  | 10         |
-      | customfield_customdatetime[year]   | 2005       |
-      | customfield_customdatetime[hour]   | 02         |
-      | customfield_customdatetime[minute] | 40         |
+      | fullname                            | Course One |
+      | shortname                           | course1    |
+      | customfield_customdatetime[enabled] | 1          |
+      | customfield_customdatetime[day]     | 15         |
+      | customfield_customdatetime[month]   | 10         |
+      | customfield_customdatetime[year]    | 2005       |
+      | customfield_customdatetime[hour]    | 02         |
+      | customfield_customdatetime[minute]  | 40         |
     And I press "Save and display"
     Then I should see "Course One" in the page title
 
     When I navigate to "Edit settings" node in "Course administration"
     And I expand all fieldsets
     Then the following fields match these values:
-      | customfield_customdatetime[day]    | 15         |
-      | customfield_customdatetime[month]  | 10         |
-      | customfield_customdatetime[year]   | 2005       |
-      | customfield_customdatetime[hour]   | 02         |
-      | customfield_customdatetime[minute] | 40         |
+      | customfield_customdatetime[enabled] | 1          |
+      | customfield_customdatetime[day]     | 15         |
+      | customfield_customdatetime[month]   | 10         |
+      | customfield_customdatetime[year]    | 2005       |
+      | customfield_customdatetime[hour]    | 02         |
+      | customfield_customdatetime[minute]  | 40         |
 
     When I set the field "customfield_customdatetime[enabled]" to "0"
     Then the "customfield_customdatetime[day]" "select" should be disabled

@@ -51,8 +51,6 @@ class customfield_datetime extends customfield_base {
         } else {
             $mform->addElement('date_selector', $this->inputname, format_string($this->field->fullname), $attributes);
         }
-
-        $mform->setDefault($this->inputname, time());
     }
 
     /**

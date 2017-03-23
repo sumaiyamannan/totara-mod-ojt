@@ -131,15 +131,16 @@ Feature: Administrators can add multiple custom fields of various types to compl
     And the "size" attribute of "customfield_textinput2" "field" should contain "18"
     And the "maxlength" attribute of "customfield_textinput2" "field" should contain "20"
 
-
     When I set the following fields to these values:
       | fullname                           | Course One                    |
       | shortname                          | course1                       |
       | customfield_customcheckbox1        | 1                             |
       | customfield_customcheckbox2        | 0                             |
+      | customfield_customdate[enabled]    | 1                             |
       | customfield_customdate[day]        | 15                            |
       | customfield_customdate[month]      | 10                            |
       | customfield_customdate[year]       | 2005                          |
+      | customfield_customdatetime[enabled]| 1                             |
       | customfield_customdatetime[day]    | 14                            |
       | customfield_customdatetime[month]  | 11                            |
       | customfield_customdatetime[year]   | 2003                          |

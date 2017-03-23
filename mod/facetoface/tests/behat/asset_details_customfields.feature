@@ -82,6 +82,7 @@ Feature: Check asset details with all possible custom fields
       | Asset menu of choices | Orange      |
       | Asset text area       | Lorem ipsum dolor sit amet, consectetur adipisicing elit |
       | Asset text input      | Duis aute irure dolor in reprehenderit in voluptate      |
+      | customfield_datetime[enabled] | 1    |
       | customfield_datetime[day]     | 2    |
       | customfield_datetime[month]   | 3    |
       | customfield_datetime[year]    | 2020 |

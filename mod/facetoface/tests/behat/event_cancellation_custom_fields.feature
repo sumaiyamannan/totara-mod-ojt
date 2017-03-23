@@ -143,16 +143,17 @@ Feature: Seminar event cancellation custom fields
     And I follow "View all events"
     And I click on "Cancel event" "link" in the "10:00 AM - 4:00 PM Pacific/Auckland" "table_row"
     And I set the following fields to these values:
-      | customfield_cancelcheckbox        | 1                  |
-      | customfield_canceldatetime[day]   | 1                  |
-      | customfield_canceldatetime[month] | December           |
-      | customfield_canceldatetime[year]  | 2030               |
-      | customfield_cancellocationaddress | Kensington         |
-      | customfield_cancelmenu            | Nein               |
-      | customfield_cancelmulti[0]        | 1                  |
-      | customfield_cancelmulti[1]        | 1                  |
-      | customfield_canceltextinput       | hi                 |
-      | customfield_cancelURL[url]        | http://example.org |
+      | customfield_cancelcheckbox          | 1                  |
+      | customfield_canceldatetime[enabled] | 1                  |
+      | customfield_canceldatetime[day]     | 1                  |
+      | customfield_canceldatetime[month]   | December           |
+      | customfield_canceldatetime[year]    | 2030               |
+      | customfield_cancellocationaddress   | Kensington         |
+      | customfield_cancelmenu              | Nein               |
+      | customfield_cancelmulti[0]          | 1                  |
+      | customfield_cancelmulti[1]          | 1                  |
+      | customfield_canceltextinput         | hi                 |
+      | customfield_cancelURL[url]          | http://example.org |
     And I press "Yes"
 
 

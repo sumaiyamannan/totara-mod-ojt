@@ -288,6 +288,7 @@ Feature: Evidence custom fields.
     And I press "Add evidence"
     And I set the following fields to these values:
       | Evidence name                     | Date test |
+      | customfield_datetimetest[enabled] | 1         |
       | customfield_datetimetest[day]     | 15        |
       | customfield_datetimetest[month]   | 3         |
       | customfield_datetimetest[year]    | 1982      |
@@ -572,28 +573,30 @@ Feature: Evidence custom fields.
     When I click on "Record of Learning" in the totara menu
     And I press "Add evidence"
     And I set the following fields to these values:
-      | Evidence name                   | Unique input test 1 |
-      | Unique input test               | Test 1              |
-      | Unique checkbox test            | Yes                 |
-      | customfield_datetimetest[day]   | 19                  |
-      | customfield_datetimetest[month] | 7                   |
-      | customfield_datetimetest[year]  | 2027                |
-      | Unique menu of choices test     | optiontwo           |
-      | customfield_multiselecttest[1]  | 1                   |
+      | Evidence name                     | Unique input test 1 |
+      | Unique input test                 | Test 1              |
+      | Unique checkbox test              | Yes                 |
+      | customfield_datetimetest[enabled] | 1                   |
+      | customfield_datetimetest[day]     | 19                  |
+      | customfield_datetimetest[month]   | 7                   |
+      | customfield_datetimetest[year]    | 2027                |
+      | Unique menu of choices test       | optiontwo           |
+      | customfield_multiselecttest[1]    | 1                   |
     And I press "Add evidence"
     Then I should see "Unique input test 1"
 
     # Create another piece of evidence using the same custom field values, setting it as not unique.
     When I press "Add evidence"
     And I set the following fields to these values:
-      | Evidence name                   | Unique input test 2 |
-      | Unique input test               | Test 1              |
-      | Unique checkbox test            | Yes                 |
-      | customfield_datetimetest[day]   | 19                  |
-      | customfield_datetimetest[month] | 7                   |
-      | customfield_datetimetest[year]  | 2027                |
-      | Unique menu of choices test     | optiontwo           |
-      | customfield_multiselecttest[1]  | 1                   |
+      | Evidence name                     | Unique input test 2 |
+      | Unique input test                 | Test 1              |
+      | Unique checkbox test              | Yes                 |
+      | customfield_datetimetest[enabled] | 1                   |
+      | customfield_datetimetest[day]     | 19                  |
+      | customfield_datetimetest[month]   | 7                   |
+      | customfield_datetimetest[year]    | 2027                |
+      | Unique menu of choices test       | optiontwo           |
+      | customfield_multiselecttest[1]    | 1                   |
     And I press "Add evidence"
 
 
@@ -686,14 +689,15 @@ Feature: Evidence custom fields.
     When I click on "Record of Learning" in the totara menu
     And I press "Add evidence"
     And I set the following fields to these values:
-      | Evidence name                   | Locked input test 1 |
-      | Locked input test               | Test 1              |
-      | Locked checkbox test            | Yes                 |
-      | customfield_datetimetest[day]   | 19                  |
-      | customfield_datetimetest[month] | 7                   |
-      | customfield_datetimetest[year]  | 2027                |
-      | Locked menu of choices test     | menuoptiontwo       |
-      | customfield_multiselecttest[1]  | 1                   |
+      | Evidence name                     | Locked input test 1 |
+      | Locked input test                 | Test 1              |
+      | Locked checkbox test              | Yes                 |
+      | customfield_datetimetest[enabled] | 1                   |
+      | customfield_datetimetest[day]     | 19                  |
+      | customfield_datetimetest[month]   | 7                   |
+      | customfield_datetimetest[year]    | 2027                |
+      | Locked menu of choices test       | menuoptiontwo       |
+      | customfield_multiselecttest[1]    | 1                   |
     And I press "Add evidence"
     Then I should see "Locked input test 1"
     When I follow "Locked input test 1"

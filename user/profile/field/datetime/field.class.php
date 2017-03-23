@@ -63,7 +63,6 @@ class profile_field_datetime extends profile_field_base {
             $mform->addElement('date_selector', $this->inputname, format_string($this->field->name), $attributes);
         }
 
-        $mform->setDefault($this->inputname, time());
     }
 
     /**

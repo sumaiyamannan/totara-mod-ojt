@@ -118,16 +118,17 @@ Feature: All customfields column generator
     And I wait "1" seconds
     And I press "Continue"
     And I set the following fields to these values:
-      | Requests for session organiser | My note |
-      | CF Checkbox | 1 |
-      | customfield_cfdatetime[day]   | 5    |
-      | customfield_cfdatetime[month] | 6    |
-      | customfield_cfdatetime[year]  | 2031 |
-      | CF Menu of choices | Choice 2 |
-      | CF Text area | My area |
-      | customfield_cfurl[url] | http://example.com/ |
-      | customfield_cfurl[text] | Example site |
-      | Address | Molesworth St, Pipitea, Wellington 6011 |
+      | Requests for session organiser | My note                                 |
+      | CF Checkbox                    | 1                                       |
+      | customfield_cfdatetime[enabled]| 1                                       |
+      | customfield_cfdatetime[day]    | 5                                       |
+      | customfield_cfdatetime[month]  | 6                                       |
+      | customfield_cfdatetime[year]   | 2031                                    |
+      | CF Menu of choices             | Choice 2                                |
+      | CF Text area                   | My area                                 |
+      | customfield_cfurl[url]         | http://example.com/                     |
+      | customfield_cfurl[text]        | Example site                            |
+      | Address                        | Molesworth St, Pipitea, Wellington 6011 |
     And I upload "totara/reportbuilder/tests/fixtures/test.txt" file to "CF File" filemanager
     And I click on "Option 2" "text"
     And I press "Confirm"
