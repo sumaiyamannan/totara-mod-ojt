@@ -118,7 +118,7 @@ class mod_facetoface_notification_form extends moodleform {
         // Display template picker
         if (!$isfrozen && $this->_customdata['templates']) {
             $tpls = array();
-            $tpls[0] = get_string('notrequired', 'facetoface');
+            $tpls[0] = '';
             foreach ($this->_customdata['templates'] as $tpl) {
                 $tpls[$tpl->id] = $tpl->title;
             }
