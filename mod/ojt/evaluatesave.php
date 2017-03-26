@@ -29,6 +29,8 @@ require_once($CFG->dirroot.'/mod/ojt/lib.php');
 require_once($CFG->dirroot.'/mod/ojt/locallib.php');
 require_once($CFG->dirroot .'/totara/core/js/lib/setup.php');
 
+require_sesskey();
+
 $userid = required_param('userid', PARAM_INT);
 $ojtid  = required_param('bid', PARAM_INT);
 $itemid = required_param('id', PARAM_INT);
