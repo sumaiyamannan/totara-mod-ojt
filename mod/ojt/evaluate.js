@@ -63,6 +63,7 @@ M.mod_ojt_evaluate = M.mod_ojt_evaluate || {
                 url: M.cfg.wwwroot+'/mod/ojt/evaluatesave.php',
                 type: 'POST',
                 data: {
+                    'sesskey' : M.cfg.sesskey,
                     'action': 'togglecompletion',
                     'bid': config.ojtid,
                     'userid': config.userid,
@@ -102,6 +103,7 @@ M.mod_ojt_evaluate = M.mod_ojt_evaluate || {
                 url: M.cfg.wwwroot+'/mod/ojt/evaluatesave.php',
                 type: 'POST',
                 data: {
+                    'sesskey' : M.cfg.sesskey,
                     'action': 'savecomment',
                     'bid': config.ojtid,
                     'userid': config.userid,
@@ -133,6 +135,7 @@ M.mod_ojt_evaluate = M.mod_ojt_evaluate || {
                 url: M.cfg.wwwroot+'/mod/ojt/witnesssave.php',
                 type: 'POST',
                 data: {
+                    'sesskey' : M.cfg.sesskey,
                     'bid': config.ojtid,
                     'userid': config.userid,
                     'id': itemid
