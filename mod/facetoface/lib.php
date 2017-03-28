@@ -6189,10 +6189,7 @@ function facetoface_get_staff_to_allocate($facetoface, $session, $managerid = nu
                 continue;
             }
 
-            if (!facetoface_user_can_be_unallocated($user, $managerid)) {
-                $ret->cannotunallocate[$user->id] = $user;
-            }
-            // Allocated to a different session - cannot be unbooked here.
+            facetoface_user_can_be_unallocated($user, $managerid);
             $ret->othersession[$user->id] = $user;
 
         }
@@ -6209,7 +6206,7 @@ function facetoface_get_staff_to_allocate($facetoface, $session, $managerid = nu
             }
         } else {
             if (!facetoface_user_can_be_unallocated($usersignupsession, $managerid)) {
-                $ret->cannotunallocate[$usersignupsession->id] = $usersignupsession;
+                $ret->cannotunallocate[$member] = $usersignupsession;
             }
             $ret->current[$member] = $usersignupsession;
         }

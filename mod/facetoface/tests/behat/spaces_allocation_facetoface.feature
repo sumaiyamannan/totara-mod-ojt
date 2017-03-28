@@ -227,3 +227,39 @@ Feature: Allocate spaces for team in seminar
     And I click on the link "Allocate spaces for team" in row 2
     Then the "Current allocations" select box should contain "Sam1 Student1"
     And I log out
+
+  Scenario: Allocate and remove spaces for students when student has self-booked
+    Given I log in as "student1"
+    And I click on "Find Learning" in the totara menu
+    And I follow "Course 1"
+    And I follow "View all events"
+    And I click on the link "Sign-up" in row 1
+    And I press "Sign-up"
+    And I should see "Your booking has been completed."
+    And I log out
+
+    When I log in as "sitemanager1"
+    And I click on "Find Learning" in the totara menu
+    And I follow "Course 1"
+    And I follow "View all events"
+    And I click on the link "Allocate spaces for team" in row 1
+    Then the "Current allocations" select box should contain "Sam1 Student1 (Self booked)"
+
+    When I click on "Course 1" "link"
+    And I follow "View all events"
+    And I click on the link "Allocate spaces for team" in row 2
+    And I click on "Sam1 Student1" "option" in the "#allocation" "css_element"
+    And I press "Add"
+    And I click on the link "Allocate spaces for team" in row 2
+    Then I should see "Sam1 Student1" in the "This event" "optgroup"
+    And I should see "Sam1 Student1 (Self booked)" in the "Other event(s) in this activity" "optgroup"
+
+    When I click on "Course 1" "link"
+    And I follow "View all events"
+    And I click on the link "Allocate spaces for team" in row 2
+    And I click on "Sam1 Student1" "option"
+    And I press "Remove"
+    And I click on the link "Allocate spaces for team" in row 2
+    Then I should not see "Sam1 Student1" in the "This event" "optgroup"
+    And I should see "Sam1 Student1 (Self booked)" in the "Other event(s) in this activity" "optgroup"
+
