@@ -589,6 +589,10 @@ class mod_facetoface_session_form extends moodleform {
                 }
             }
         }
+        
+        // Process the data for a custom field and validate it.
+        $errors += customfield_validation((object)$data, 'facetofacesession', 'facetoface_session');
+        
         // Consolidate date errors.
         if (!empty($errdates)) {
             $errors['errors'] = implode(html_writer::empty_tag('br'), $errdates);
