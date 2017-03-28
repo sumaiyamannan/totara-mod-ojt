@@ -52,6 +52,14 @@ class rb_source_certification_overview extends rb_source_program_overview {
         return true;
     }
 
+    /**
+     * Hide this source if feature disabled or hidden.
+     * @return bool
+     */
+    public function is_ignored() {
+        return !totara_feature_visible('certifications');
+    }
+
     protected function define_sourcewhere() {
         // Only consider whole certifications - not courseset completion.
         $sourcewhere = 'base.coursesetid = 0';
