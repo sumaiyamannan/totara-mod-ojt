@@ -3314,6 +3314,7 @@ class reportbuilder {
         $isgrouped = $this->grouped;
         $filters = $this->get_sidebar_filters();
         $fields = array();
+        $groupfields = array();
         $extrajoins = array();
 
         // Find all the showcount filters.
@@ -3330,17 +3331,19 @@ class reportbuilder {
                     if (isset($showcountparams['basefields'])) {
                         $fields = array_merge($fields, $showcountparams['basefields']);
                     }
+                    if ($isgrouped && isset($showcountparams['basegroups'])) {
+                        $groupfields = array_merge($groupfields, $showcountparams['basegroups']);
+                    }
                     if ($isgrouped) {
                         $fields[] = "{$filter->field} AS {$filter->fieldalias}";
+                        $groupfields[] = "{$filter->field}";
                     }
 
                     // Compile a list of extra joins (which will supply the fields above) that should be added to the base query.
                     if (isset($showcountparams['dependency']) && $showcountparams['dependency'] != 'base') {
                         $dependency = $this->get_single_join($showcountparams['dependency'], 'filtercount');
                         $this->get_dependency_joins($extrajoins, $dependency);
-                        if ($isgrouped) {
-                            $extrajoins[] = $dependency;
-                        }
+                        $extrajoins[] = $dependency;
                     }
                     if ($isgrouped and $filter->joins != 'base') {
                         $extrajoins[] = $this->get_single_join($filter->joins, 'filtercount');
@@ -3373,6 +3376,10 @@ class reportbuilder {
 
         // Get all conditions for active filters (except the ones we deactivated).
         list($where, $group, $having, $sqlparams, $allgrouped) = $this->collect_restrictions(true, $iscached);
+
+        if ($isgrouped && !empty($groupfields)) {
+            $group = array_unique(array_merge($group, $groupfields));
+        }
 
         // Apply any SQL specified by the source.
         if (!$iscached && !empty($this->src->sourcewhere)) {
