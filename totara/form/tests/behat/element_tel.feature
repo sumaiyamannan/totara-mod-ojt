@@ -18,22 +18,22 @@ Feature: Totara form tel element tests
       | Required basic tel | 0800-692-753 |
     And I press "Save changes"
     Then I should see "The form has been submit"
-    And "tel_basic" row "Value" column of "form_results" table should contain "0800 My Apple"
-    And "tel_required" row "Value" column of "form_results" table should contain "0800-692-753"
-    And "tel_with_current_data" row "Value" column of "form_results" table should contain "202-555-0167"
-    And "tel_frozen_empty" row "Value" column of "form_results" table should contain ""
-    And "tel_frozen_with_current_data" row "Value" column of "form_results" table should contain "+1-202-555-0149"
-    And "hiddenif_primary" row "Value" column of "form_results" table should contain ""
-    And "hiddenif_secondary_a" row "Value" column of "form_results" table should contain ""
-    And "hiddenif_secondary_b" row "Value" column of "form_results" table should contain ""
-    And "hiddenif_secondary_c" row "Value" column of "form_results" table should contain ""
-    And "hiddenif_secondary_d" row "Value" column of "form_results" table should contain ""
-    And "hiddenif_secondary_e" row "Value" column of "form_results" table should contain ""
-    And "hiddenif_secondary_f" row "Value" column of "form_results" table should contain ""
-    And "hiddenif_required_a" row "Value" column of "form_results" table should contain ""
-    And "hiddenif_required_b" row "Value" column of "form_results" table should contain ""
-    And "form_select" row "Value" column of "form_results" table should contain "totara_form\form\testform\element_tel"
-    And "submitbutton" row "Value" column of "form_results" table should contain "1"
+    And "tel_basic" row "Value" column of "form_results" table should contain "«0800 My Apple»"
+    And "tel_required" row "Value" column of "form_results" table should contain "«0800-692-753»"
+    And "tel_with_current_data" row "Value" column of "form_results" table should contain "«202-555-0167»"
+    And "tel_frozen_empty" row "Value" column of "form_results" table should contain "«--null--»"
+    And "tel_frozen_with_current_data" row "Value" column of "form_results" table should contain "«+1-202-555-0149»"
+    And "hiddenif_primary" row "Value" column of "form_results" table should contain "«»"
+    And "hiddenif_secondary_a" row "Value" column of "form_results" table should contain "«»"
+    And "hiddenif_secondary_b" row "Value" column of "form_results" table should contain "«»"
+    And "hiddenif_secondary_c" row "Value" column of "form_results" table should contain "«»"
+    And "hiddenif_secondary_d" row "Value" column of "form_results" table should contain "«»"
+    And "hiddenif_secondary_e" row "Value" column of "form_results" table should contain "«»"
+    And "hiddenif_secondary_f" row "Value" column of "form_results" table should contain "«»"
+    And "hiddenif_required_a" row "Value" column of "form_results" table should contain "«»"
+    And "hiddenif_required_b" row "Value" column of "form_results" table should contain "«»"
+    And "form_select" row "Value" column of "form_results" table should contain "«totara_form\form\testform\element_tel»"
+    And "submitbutton" row "Value" column of "form_results" table should contain "«1»"
 
     When I press "Reset"
     Then I should see "Form: Basic tel element"
@@ -42,8 +42,8 @@ Feature: Totara form tel element tests
       | Required basic tel | 0800-692-753 |
     And I press "Save changes"
     Then I should see "The form has been submit"
-    And "tel_basic" row "Value" column of "form_results" table should contain "2016"
-    And "tel_required" row "Value" column of "form_results" table should contain "0800-692-753"
+    And "tel_basic" row "Value" column of "form_results" table should contain "«2016»"
+    And "tel_required" row "Value" column of "form_results" table should contain "«0800-692-753»"
 
     When I press "Reset"
     Then I should see "Form: Basic tel element"
@@ -52,8 +52,8 @@ Feature: Totara form tel element tests
       | Required basic tel | 2016.15.14 |
     And I press "Save changes"
     Then I should see "The form has been submit"
-    And "tel_basic" row "Value" column of "form_results" table should contain "2016.16"
-    And "tel_required" row "Value" column of "form_results" table should contain "2016.15.14"
+    And "tel_basic" row "Value" column of "form_results" table should contain "«2016.16»"
+    And "tel_required" row "Value" column of "form_results" table should contain "«2016.15.14»"
 
     When I press "Reset"
     Then I should see "Form: Basic tel element"
@@ -62,8 +62,8 @@ Feature: Totara form tel element tests
       | Required basic tel | False |
     And I press "Save changes"
     Then I should see "The form has been submit"
-    And "tel_basic" row "Value" column of "form_results" table should contain "-70"
-    And "tel_required" row "Value" column of "form_results" table should contain "False"
+    And "tel_basic" row "Value" column of "form_results" table should contain "«-70»"
+    And "tel_required" row "Value" column of "form_results" table should contain "«False»"
 
     When I press "Reset"
     Then I should see "Form: Basic tel element"
@@ -71,8 +71,8 @@ Feature: Totara form tel element tests
       | Required basic tel | 0800-692-753 |
     And I press "Save changes"
     Then I should see "The form has been submit"
-    And "tel_basic" row "Value" column of "form_results" table should contain ""
-    And "tel_required" row "Value" column of "form_results" table should contain "0800-692-753"
+    And "tel_basic" row "Value" column of "form_results" table should contain "«»"
+    And "tel_required" row "Value" column of "form_results" table should contain "«0800-692-753»"
 
     When I press "Reset"
     Then I should see "Form: Basic tel element"
@@ -81,8 +81,8 @@ Feature: Totara form tel element tests
       | Required basic tel | False |
     And I press "Save changes"
     Then I should see "The form has been submit"
-    And "tel_basic" row "Value" column of "form_results" table should contain "True"
-    And "tel_required" row "Value" column of "form_results" table should contain "False"
+    And "tel_basic" row "Value" column of "form_results" table should contain "«True»"
+    And "tel_required" row "Value" column of "form_results" table should contain "«False»"
 
     When I press "Reset"
     Then I should see "Form: Basic tel element"
@@ -91,8 +91,8 @@ Feature: Totara form tel element tests
       | Required basic tel | \n |
     And I press "Save changes"
     Then I should see "The form has been submit"
-    And "tel_basic" row "Value" column of "form_results" table should contain "\r"
-    And "tel_required" row "Value" column of "form_results" table should contain "\n"
+    And "tel_basic" row "Value" column of "form_results" table should contain "«\r»"
+    And "tel_required" row "Value" column of "form_results" table should contain "«\n»"
 
     When I press "Reset"
     Then I should see "Form: Basic tel element"
@@ -101,8 +101,8 @@ Feature: Totara form tel element tests
       | Required basic tel | <br /> |
     And I press "Save changes"
     Then I should see "The form has been submit"
-    And "tel_basic" row "Value" column of "form_results" table should contain "<p></p>"
-    And "tel_required" row "Value" column of "form_results" table should contain "<br />"
+    And "tel_basic" row "Value" column of "form_results" table should contain "«<p></p>»"
+    And "tel_required" row "Value" column of "form_results" table should contain "«<br />»"
 
     When I press "Reset"
     Then I should see "Form: Basic tel element"
@@ -111,8 +111,8 @@ Feature: Totara form tel element tests
       | Required basic tel | <p></p> |
     And I press "Save changes"
     Then I should see "The form has been submit"
-    And "tel_basic" row "Value" column of "form_results" table should contain "<br>"
-    And "tel_required" row "Value" column of "form_results" table should contain "<p></p>"
+    And "tel_basic" row "Value" column of "form_results" table should contain "«<br>»"
+    And "tel_required" row "Value" column of "form_results" table should contain "«<p></p>»"
 
   @javascript
   Scenario: Test required tel elements in Totara forms with JavaScript enabled
@@ -124,8 +124,8 @@ Feature: Totara form tel element tests
       | Required basic tel | 0800-692-753 |
     And I press "Save changes"
     Then I should see "The form has been submit"
-    And "tel_basic" row "Value" column of "form_results" table should contain "0800 My Apple"
-    And "tel_required" row "Value" column of "form_results" table should contain "0800-692-753"
+    And "tel_basic" row "Value" column of "form_results" table should contain "«0800 My Apple»"
+    And "tel_required" row "Value" column of "form_results" table should contain "«0800-692-753»"
 
     When I press "Reset"
     Then I should see "Form: Basic tel element"
@@ -134,8 +134,8 @@ Feature: Totara form tel element tests
       | Required basic tel | 0800-692-753 |
     And I press "Save changes"
     Then I should see "The form has been submit"
-    And "tel_basic" row "Value" column of "form_results" table should contain ""
-    And "tel_required" row "Value" column of "form_results" table should contain "0800-692-753"
+    And "tel_basic" row "Value" column of "form_results" table should contain "«»"
+    And "tel_required" row "Value" column of "form_results" table should contain "«0800-692-753»"
 
     When I press "Reset"
     Then I should see "Form: Basic tel element"
@@ -153,8 +153,8 @@ Feature: Totara form tel element tests
       | Required basic tel | 0 |
     And I press "Save changes"
     Then I should see "The form has been submit"
-    And "tel_basic" row "Value" column of "form_results" table should contain "1"
-    And "tel_required" row "Value" column of "form_results" table should contain "0"
+    And "tel_basic" row "Value" column of "form_results" table should contain "«1»"
+    And "tel_required" row "Value" column of "form_results" table should contain "«0»"
 
   Scenario: Test required tel elements in Totara forms with JavaScript disabled
     When I select "Basic tel element [totara_form\form\testform\element_tel]" from the "Test form" singleselect
@@ -165,8 +165,8 @@ Feature: Totara form tel element tests
       | Required basic tel | 0800-692-753 |
     And I press "Save changes"
     Then I should see "The form has been submit"
-    And "tel_basic" row "Value" column of "form_results" table should contain "0800 My Apple"
-    And "tel_required" row "Value" column of "form_results" table should contain "0800-692-753"
+    And "tel_basic" row "Value" column of "form_results" table should contain "«0800 My Apple»"
+    And "tel_required" row "Value" column of "form_results" table should contain "«0800-692-753»"
 
     When I press "Reset"
     Then I should see "Form: Basic tel element"
@@ -175,8 +175,8 @@ Feature: Totara form tel element tests
       | Required basic tel | 0800-692-753 |
     And I press "Save changes"
     Then I should see "The form has been submit"
-    And "tel_basic" row "Value" column of "form_results" table should contain ""
-    And "tel_required" row "Value" column of "form_results" table should contain "0800-692-753"
+    And "tel_basic" row "Value" column of "form_results" table should contain "«»"
+    And "tel_required" row "Value" column of "form_results" table should contain "«0800-692-753»"
 
     When I press "Reset"
     Then I should see "Form: Basic tel element"
@@ -193,8 +193,8 @@ Feature: Totara form tel element tests
       | Required basic tel | 0800-692-753 |
     And I press "Save changes"
     Then I should see "The form has been submit"
-    And "tel_basic" row "Value" column of "form_results" table should contain "0800 My Apple"
-    And "tel_required" row "Value" column of "form_results" table should contain "0800-692-753"
+    And "tel_basic" row "Value" column of "form_results" table should contain "«0800 My Apple»"
+    And "tel_required" row "Value" column of "form_results" table should contain "«0800-692-753»"
 
   @javascript
   Scenario: Test hidden if on tel elements in Totara forms
@@ -250,19 +250,19 @@ Feature: Totara form tel element tests
       | Visible when required tel is not empty | FAX:(202) 5550149 |
     And I press "Save changes"
     Then I should see "The form has been submit"
-    And "tel_basic" row "Value" column of "form_results" table should contain "0800 My Apple"
-    And "tel_required" row "Value" column of "form_results" table should contain "0800-692-753"
-    And "tel_with_current_data" row "Value" column of "form_results" table should contain "(089) / 636-48018"
-    And "tel_frozen_empty" row "Value" column of "form_results" table should contain ""
-    And "tel_frozen_with_current_data" row "Value" column of "form_results" table should contain "+1-202-555-0149"
-    And "hiddenif_primary" row "Value" column of "form_results" table should contain "202-555-0191"
-    And "hiddenif_secondary_a" row "Value" column of "form_results" table should contain "19-49-89-636-48018"
-    And "hiddenif_secondary_b" row "Value" column of "form_results" table should contain "202-555-0149 DDN 713"
-    And "hiddenif_secondary_c" row "Value" column of "form_results" table should contain "202-555-0149#713"
-    And "hiddenif_secondary_d" row "Value" column of "form_results" table should contain "+1-541-754-3010"
-    And "hiddenif_secondary_e" row "Value" column of "form_results" table should contain "DDN:713"
-    And "hiddenif_secondary_f" row "Value" column of "form_results" table should contain "+6568897445"
-    And "hiddenif_required_a" row "Value" column of "form_results" table should contain "FAX:(202) 5550149"
-    And "hiddenif_required_b" row "Value" column of "form_results" table should contain "*123"
-    And "form_select" row "Value" column of "form_results" table should contain "totara_form\form\testform\element_tel"
-    And "submitbutton" row "Value" column of "form_results" table should contain "1"
+    And "tel_basic" row "Value" column of "form_results" table should contain "«0800 My Apple»"
+    And "tel_required" row "Value" column of "form_results" table should contain "«0800-692-753»"
+    And "tel_with_current_data" row "Value" column of "form_results" table should contain "«(089) / 636-48018»"
+    And "tel_frozen_empty" row "Value" column of "form_results" table should contain "«--null--»"
+    And "tel_frozen_with_current_data" row "Value" column of "form_results" table should contain "«+1-202-555-0149»"
+    And "hiddenif_primary" row "Value" column of "form_results" table should contain "«202-555-0191»"
+    And "hiddenif_secondary_a" row "Value" column of "form_results" table should contain "«19-49-89-636-48018»"
+    And "hiddenif_secondary_b" row "Value" column of "form_results" table should contain "«202-555-0149 DDN 713»"
+    And "hiddenif_secondary_c" row "Value" column of "form_results" table should contain "«202-555-0149#713»"
+    And "hiddenif_secondary_d" row "Value" column of "form_results" table should contain "«+1-541-754-3010»"
+    And "hiddenif_secondary_e" row "Value" column of "form_results" table should contain "«DDN:713»"
+    And "hiddenif_secondary_f" row "Value" column of "form_results" table should contain "«+6568897445»"
+    And "hiddenif_required_a" row "Value" column of "form_results" table should contain "«FAX:(202) 5550149»"
+    And "hiddenif_required_b" row "Value" column of "form_results" table should contain "«*123»"
+    And "form_select" row "Value" column of "form_results" table should contain "«totara_form\form\testform\element_tel»"
+    And "submitbutton" row "Value" column of "form_results" table should contain "«1»"
