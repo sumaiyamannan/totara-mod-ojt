@@ -3949,10 +3949,13 @@ class reportbuilder {
             }
         } else {
             // Keep the instantfilter.js happy, we use it with side filter js.
-            // MSIE 6-7-8.
-            echo html_writer::div('', 'rb-report-pdfgraph');
-            // All browsers, except MSIE 6-7-8.
-            echo html_writer::div('', 'rb-report-svggraph');
+            if (core_useragent::check_browser_version('MSIE', '6.0') and !core_useragent::check_browser_version('MSIE', '9.0')) {
+                // Support MSIE 6-7-8.
+                echo html_writer::div('', 'rb-report-pdfgraph');
+            } else {
+                // All browsers, except MSIE 6-7-8.
+                echo html_writer::div('', 'rb-report-svggraph');
+            }
         }
 
         echo $tablehmtml;
