@@ -66,14 +66,14 @@ Feature: Seminar sign-up periods
     Given I follow "Add a new event"
     And I set the following fields to these values:
       | registrationtimestart[enabled]   | 1                  |
-      | registrationtimestart[month]     | June               |
+      | registrationtimestart[month]     | July               |
       | registrationtimestart[day]       | <periodstartday>   |
       | registrationtimestart[year]      | 2030               |
       | registrationtimestart[hour]      | <periodstarthour>  |
       | registrationtimestart[minute]    | 00                 |
       | registrationtimestart[timezone]  | <periodstartzone>  |
       | registrationtimefinish[enabled]  | 1                  |
-      | registrationtimefinish[month]    | June               |
+      | registrationtimefinish[month]    | July               |
       | registrationtimefinish[day]      | <periodendday>     |
       | registrationtimefinish[year]     | 2030               |
       | registrationtimefinish[hour]     | <periodendhour>    |
@@ -81,19 +81,20 @@ Feature: Seminar sign-up periods
       | registrationtimefinish[timezone] | <periodendzone>    |
     And I click on "Edit date" "link"
     And I set the following fields to these values:
-      | timestart[month]     | June               |
+      | timestart[month]     | July               |
       | timestart[day]       | <sessionstartday>  |
       | timestart[year]      | 2030               |
       | timestart[hour]      | <sessionstarthour> |
       | timestart[minute]    | 00                 |
       | timestart[timezone]  | <sessionstartzone> |
-      | timefinish[month]    | June               |
+      | timefinish[month]    | July               |
       | timefinish[day]      | <sessionendday>    |
       | timefinish[year]     | 2030               |
       | timefinish[hour]     | <sessionendhour>   |
       | timefinish[minute]   | 00                 |
       | timefinish[timezone] | Pacific/Auckland   |
     And I press "OK"
+    And I wait "1" seconds
     And I press "Save changes"
     Then I should see "<message>"
 
@@ -125,14 +126,14 @@ Feature: Seminar sign-up periods
     And I click on "Delete" "link" in the ".f2fmanagedates" "css_element"
     And I set the following fields to these values:
       | registrationtimestart[enabled]   | <periodopen>  |
-      | registrationtimestart[month]     | June          |
+      | registrationtimestart[month]     | July          |
       | registrationtimestart[day]       | 30            |
       | registrationtimestart[year]      | <startyear>   |
       | registrationtimestart[hour]      | 01            |
       | registrationtimestart[minute]    | 00            |
       | registrationtimestart[timezone]  | <startzone>   |
       | registrationtimefinish[enabled]  | <periodclose> |
-      | registrationtimefinish[month]    | June          |
+      | registrationtimefinish[month]    | July          |
       | registrationtimefinish[day]      | 30            |
       | registrationtimefinish[year]     | <endyear>     |
       | registrationtimefinish[hour]     | 01            |
@@ -152,13 +153,13 @@ Feature: Seminar sign-up periods
 
   Examples:
     | periodopen | startyear | startzone        | periodclose | endyear | endzone         | signupavailable     | bookingstatus                | signupperiod                                                                 |
-    | 1          | 2014      | Australia/Perth  | 1           | 2015    | Australia/Perth | Sign-up unavailable | Sign-up period is now closed | 30 June 2014 1:00 AM Australia/Perth to 30 June 2015 1:00 AM Australia/Perth |
-    | 1          | 2014      | Australia/Perth  | 1           | 2030    | Australia/Perth | Join waitlist       | Booking open                 | 30 June 2014 1:00 AM Australia/Perth to 30 June 2030 1:00 AM Australia/Perth |
-    | 1          | 2029      | Australia/Perth  | 1           | 2030    | Australia/Perth | Sign-up unavailable | Sign-up period not open      | 30 June 2029 1:00 AM Australia/Perth to 30 June 2030 1:00 AM Australia/Perth |
-    | 1          | 2029      | Pacific/Honolulu | 1           | 2030    | Pacific/Fiji    | Sign-up unavailable | Sign-up period not open      | 30 June 2029 7:00 PM Australia/Perth to 29 June 2030 9:00 PM Australia/Perth |
+    | 1          | 2014      | Australia/Perth  | 1           | 2015    | Australia/Perth | Sign-up unavailable | Sign-up period is now closed | 30 July 2014 1:00 AM Australia/Perth to 30 July 2015 1:00 AM Australia/Perth |
+    | 1          | 2014      | Australia/Perth  | 1           | 2030    | Australia/Perth | Join waitlist       | Booking open                 | 30 July 2014 1:00 AM Australia/Perth to 30 July 2030 1:00 AM Australia/Perth |
+    | 1          | 2029      | Australia/Perth  | 1           | 2030    | Australia/Perth | Sign-up unavailable | Sign-up period not open      | 30 July 2029 1:00 AM Australia/Perth to 30 July 2030 1:00 AM Australia/Perth |
+    | 1          | 2029      | Pacific/Honolulu | 1           | 2030    | Pacific/Fiji    | Sign-up unavailable | Sign-up period not open      | 30 July 2029 7:00 PM Australia/Perth to 29 July 2030 9:00 PM Australia/Perth |
     | 0          | 2029      | Australia/Perth  | 0           | 2030    | Australia/Perth | Join waitlist       | Booking open                 | Booking open                                                                 |
-    | 1          | 2029      | Australia/Perth  | 0           | 2030    | Australia/Perth | Sign-up unavailable | Sign-up period not open      | After 30 June 2029 1:00 AM Australia/Perth                                   |
-    | 0          | 2029      | Australia/Perth  | 1           | 2030    | Australia/Perth | Join waitlist       | Booking open                 | Before 30 June 2030 1:00 AM Australia/Perth                                  |
+    | 1          | 2029      | Australia/Perth  | 0           | 2030    | Australia/Perth | Sign-up unavailable | Sign-up period not open      | After 30 July 2029 1:00 AM Australia/Perth                                   |
+    | 0          | 2029      | Australia/Perth  | 1           | 2030    | Australia/Perth | Join waitlist       | Booking open                 | Before 30 July 2030 1:00 AM Australia/Perth                                  |
 
 
 
