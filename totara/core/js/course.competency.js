@@ -124,7 +124,7 @@ M.totara_coursecompetency = M.totara_coursecompetency || {
                         buttons: buttonsObj,
                         title: '<h2>'+M.util.get_string('addcourseevidencetocompetencies', 'totara_hierarchy')+'</h2>'
                     },
-                    url+'add.php?id='+this.config.id,
+                    url+'add.php?sesskey='+M.cfg.sesskey+'&id='+this.config.id,
                     handler
                 );
             })();
@@ -174,7 +174,7 @@ M.totara_coursecompetency = M.totara_coursecompetency || {
 
             (function() {
                 var url = M.cfg.wwwroot+'/totara/hierarchy/prefix/competency/course/';
-                var saveurl = url + 'save.php?course='+module.config.id+'&type=coursecompletion&instance='+module.config.id+'&deleteexisting=1&update=';
+                var saveurl = url + 'save.php?sesskey='+M.cfg.sesskey+'&course='+module.config.id+'&type=coursecompletion&instance='+module.config.id+'&deleteexisting=1&update=';
 
                 var handler = new totaraDialog_handler_courseEvidence();
                 handler.baseurl = url;
@@ -190,7 +190,7 @@ M.totara_coursecompetency = M.totara_coursecompetency || {
                         buttons: buttonsObj,
                         title: '<h2>'+M.util.get_string('assigncoursecompletiontocompetencies', 'totara_hierarchy')+'</h2>'
                     },
-                    url+'add.php?id='+module.config.id,
+                    url+'add.php?sesskey='+M.cfg.sesskey+'&id='+module.config.id,
                     handler
                 );
             })();

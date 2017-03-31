@@ -27,6 +27,8 @@ require_once('lib.php');
 require_once($CFG->libdir.'/adminlib.php');
 require_once($CFG->dirroot.'/totara/hierarchy/prefix/competency/lib.php');
 
+require_login();
+require_sesskey();
 
 ///
 /// Setup / loading data
