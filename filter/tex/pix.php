@@ -54,6 +54,10 @@ define('NO_MOODLE_COOKIES', true); // Because it interferes with caching
 
             } else {
                 // failing that, use mimetex
+                // Mimetex only outputs gifs, not pngs or svgs. So update the file extension if necessary.
+                $image = str_replace('.' . $convertformat, '.gif', $image);
+                $pathname = $CFG->dataroot.'/filter/tex/'.$image;
+
                 $texexp = $texcache->rawtext;
                 $texexp = str_replace('&lt;', '<', $texexp);
                 $texexp = str_replace('&gt;', '>', $texexp);
