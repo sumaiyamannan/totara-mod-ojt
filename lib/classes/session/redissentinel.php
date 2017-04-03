@@ -32,16 +32,27 @@ require_once($CFG->libdir.'/redis/sentinel.php');
 
 class redissentinel extends redis {
 
-       /**
+    protected $hosts = array();
+    protected $master_group = 'mymaster';
+
+    /**
      * Create new instance of handler.
      */
     public function __construct() {
         global $CFG;
         parent::__construct();
 
-        $sentinel = new \sentinel($CFG->session_redissentinel_hosts);
+        if (isset($CFG->session_redissentinel_hosts)) {
+            $this->hosts = $CFG->session_redissentinel_hosts;
+        }
 
-        $master = $sentinel->get_master_addr('mymaster');
+        if (isset($CFG->session_redissentinel_master_group)) {
+            $this->master_group = $CFG->session_redissentinel_master_group;
+        }
+
+        $sentinel = new \sentinel($this->hosts);
+
+        $master = $sentinel->get_master_addr($this->master_group);
 
         if (!empty($master)) {
             $this->host = $master->ip;
