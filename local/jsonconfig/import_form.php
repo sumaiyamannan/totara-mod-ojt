@@ -14,9 +14,9 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * JSON configuration form
+ * JSON configuration import form
  *
- * @package    local_catalyst
+ * @package    local_jsonconfig
  * @author     Pierre Guinoiseau <pierre.guinoiseau@catalyst.net.nz>
  * @copyright  2011 Moodle Pty Ltd (http://moodle.com)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -27,7 +27,7 @@ defined('MOODLE_INTERNAL') || die;
 require_once($CFG->libdir.'/formslib.php');
 require_once('locallib.php');
 
-class jsonconfig_form extends moodleform {
+class local_jsonconfig_import_form extends moodleform {
 
     /**
      * Define JSON import form.
@@ -38,15 +38,15 @@ class jsonconfig_form extends moodleform {
         $review = !empty($this->_customdata['review']);
 
         $jsonconfig_attrs = array('cols' => 80, 'rows' => 25);
-        $submit = 'jsonconfig_review_import';
+        $submit = 'review_import';
 
         // Make the JSON config readonly if in review
         if ($review) {
             $jsonconfig_attrs['readonly'] = 'readonly';
-            $submit = 'jsonconfig_import';
+            $submit = 'import';
         }
 
-        $mform->addElement('textarea', 'jsonconfig', get_string('jsonconfig_field', 'local_catalyst'),
+        $mform->addElement('textarea', 'jsonconfig', get_string('json_field', 'local_jsonconfig'),
                            $jsonconfig_attrs);
         $mform->setType('jsonconfig', PARAM_RAW);
 
@@ -61,7 +61,7 @@ class jsonconfig_form extends moodleform {
         $mform->setDefault('reviewed', 0);
 
         // The cancel button is enabled if in review
-        $this->add_action_buttons($review, get_string($submit, 'local_catalyst'));
+        $this->add_action_buttons($review, get_string($submit, 'local_jsonconfig'));
     }
 
     /**
@@ -74,9 +74,16 @@ class jsonconfig_form extends moodleform {
         $errors = parent::validation($data, $files);
         json_decode($data['jsonconfig']);
         if (json_last_error() !== JSON_ERROR_NONE) {
-            $errors['jsonconfig'] = get_string('jsonconfig_invalid', 'local_catalyst');
+            $errors['jsonconfig'] = get_string('invalid', 'local_jsonconfig');
         }
         return $errors;
     }
 
+    public function mark_as_reviewed() {
+        $this->_form->setConstants(array('reviewed' => 1));
+    }
+
+    public function mark_for_review() {
+        $this->_form->setConstants(array('review' => 1));
+    }
 }

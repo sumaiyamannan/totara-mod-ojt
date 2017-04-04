@@ -15,11 +15,17 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Catalyst-related lang strings
+ * JSON Configuration plugin
  *
- * @package   local_catalyst
- * @author    Eugene Venter <eugene@catalyst.net.nz>
- * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package    local_jsonconfig
+ * @author     Pierre Guinoiseau <pierre.guinoiseau@catalyst.net.nz>
+ * @copyright  2011 Moodle Pty Ltd (http://moodle.com)
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-$string['pluginname'] = 'Catalyst Customisations';
+defined('MOODLE_INTERNAL') || die();
+
+$plugin->version   = 2017040400;       // The current module version (Date: YYYYMMDDXX)
+$plugin->requires  = 2014051200;    // Requires this Moodle version - 2.7 and up
+$plugin->component = 'local_jsonconfig'; // Full name of the plugin (used for diagnostics)
+$plugin->cron      = 0;

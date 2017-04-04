@@ -14,9 +14,9 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * JSON configuration
+ * JSON configuration import page
  *
- * @package    local_catalyst
+ * @package    local_jsonconfig
  * @author     Pierre Guinoiseau <pierre.guinoiseau@catalyst.net.nz>
  * @copyright  2011 Moodle Pty Ltd (http://moodle.com)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -25,14 +25,14 @@
 require_once('../../config.php');
 require_once($CFG->libdir.'/adminlib.php');
 require_once('locallib.php');
-require_once('jsonconfig_form.php');
+require_once('import_form.php');
 
-admin_externalpage_setup('catalystjsonconfig');
+admin_externalpage_setup('jsonconfig');
 
 // The form works in 2 steps: submission and review
 
 // Use and check the review form first
-$form = new jsonconfig_form(null, array('review' => optional_param('review', false, PARAM_BOOL)));
+$form = new local_jsonconfig_import_form(null, array('review' => optional_param('review', false, PARAM_BOOL)));
 
 if ($form->is_cancelled()) {
     // Review cancelled, redirect to the first form
@@ -41,34 +41,34 @@ if ($form->is_cancelled()) {
     $data = $form->get_data();
     if ($data->reviewed) {
         // Changes reviewed, save the new configuration!
-        local_catalyst_import_config_from_json($data->jsonconfig);
+        local_jsonconfig_import_config_from_json($data->jsonconfig);
         redirect($PAGE->url, get_string('changessaved'));
         exit;
     } else {
         // Compare the imported configuration with the current one
-        $config_diff = local_catalyst_diff_config_with_json($data->jsonconfig);
+        $config_diff = local_jsonconfig_diff_config_with_json($data->jsonconfig);
 
         // No changes? Redirect to the first form
         if (empty($config_diff['core']) && empty($config_diff['plugins'])) {
-            redirect($PAGE->url, get_string('jsonconfig_nochanges', 'local_catalyst'));
+            redirect($PAGE->url, get_string('nochanges', 'local_jsonconfig'));
         }
 
         // Display the review form
         echo $OUTPUT->header();
-        echo $OUTPUT->heading(get_string('jsonconfig_name', 'local_catalyst'));
+        echo $OUTPUT->heading(get_string('pluginname', 'local_jsonconfig'));
 
         $table = new html_table();
         $table->head = array(
-            get_string('jsonconfig_key', 'local_catalyst'),
-            get_string('jsonconfig_value', 'local_catalyst'),
-            get_string('jsonconfig_new_value', 'local_catalyst'));
+            get_string('key', 'local_jsonconfig'),
+            get_string('value', 'local_jsonconfig'),
+            get_string('new_value', 'local_jsonconfig'));
 
-        echo html_writer::tag('h3', get_string('jsonconfig_review', 'local_catalyst'));
+        echo html_writer::tag('h3', get_string('review', 'local_jsonconfig'));
 
         $table->caption = 'core';
         $table->data = array();
         foreach($config_diff['core'] as $config) {
-            $table->data[] = local_catalyst_diff_table_row($config);
+            $table->data[] = local_jsonconfig_diff_table_row($config);
         }
         echo html_writer::table($table);
 
@@ -77,13 +77,13 @@ if ($form->is_cancelled()) {
             $table->caption = $plugin;
             $table->data = array();
             foreach($plugin_config as $config) {
-                $table->data[] = local_catalyst_diff_table_row($config);
+                $table->data[] = local_jsonconfig_diff_table_row($config);
             }
             echo html_writer::table($table);
         }
 
         // The new configuration will be marked as reviewed on submission
-        $form->_form->setConstants(array('reviewed' => 1));
+        $form->mark_as_reviewed();
 
         $form->display();
 
@@ -93,13 +93,13 @@ if ($form->is_cancelled()) {
 }
 
 // Display the view/submission form
-$form->set_data(array('jsonconfig' => local_catalyst_export_config_as_json()));
-$form->_form->setConstants(array('review' => 1));
+$form->set_data(array('jsonconfig' => local_jsonconfig_export_config_as_json()));
+$form->mark_for_review();
 
 echo $OUTPUT->header();
-echo $OUTPUT->heading(get_string('jsonconfig_name', 'local_catalyst'));
+echo $OUTPUT->heading(get_string('pluginname', 'local_jsonconfig'));
 
-$info = format_text(get_string('jsonconfig_intro', 'local_catalyst'), FORMAT_MARKDOWN);
+$info = format_text(get_string('intro', 'local_jsonconfig'), FORMAT_MARKDOWN);
 echo $OUTPUT->box($info);
 
 $form->display();

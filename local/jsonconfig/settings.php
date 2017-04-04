@@ -1,6 +1,5 @@
 <?php
-// This file is part of Moodle - http://moodle.org/
-//
+
 // Moodle is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
@@ -15,11 +14,18 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Catalyst-related lang strings
+ * JSON Configuration settings
  *
- * @package   local_catalyst
- * @author    Eugene Venter <eugene@catalyst.net.nz>
- * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package    local_jsonconfig
+ * @author     Pierre Guinoiseau <pierre.guinoiseau@catalyst.net.nz>
+ * @copyright  2011 Moodle Pty Ltd (http://moodle.com)
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-$string['pluginname'] = 'Catalyst Customisations';
+defined('MOODLE_INTERNAL') || die;
+
+if ($hassiteconfig) {
+    $ADMIN->add('server', new admin_externalpage('jsonconfig',
+        get_string('pluginname', 'local_jsonconfig'),
+        "$CFG->wwwroot/local/jsonconfig/index.php", 'moodle/site:config'));
+}

@@ -14,9 +14,9 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Catalyst local lib
+ * JSON Configuration local lib
  *
- * @package    local_catalyst
+ * @package    local_jsonconfig
  * @author     Pierre Guinoiseau <pierre.guinoiseau@catalyst.net.nz>
  * @copyright  2011 Moodle Pty Ltd (http://moodle.com)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -28,7 +28,7 @@ defined('MOODLE_INTERNAL') || die;
  * Export site configuration in JSON format.
  * @return string
  */
-function local_catalyst_export_config_as_json() {
+function local_jsonconfig_export_config_as_json() {
     global $DB;
 
     $full_config = array('core' => array(), 'plugins' => array());
@@ -63,13 +63,13 @@ function local_catalyst_export_config_as_json() {
  * @var $config Imported site configuration as a JSON string
  * @return bool true or exception
  */
-function local_catalyst_import_config_from_json($config) {
+function local_jsonconfig_import_config_from_json($config) {
     global $DB;
 
     // JSON decode and syntax check
     $imported_config = json_decode($config, true);
     if (json_last_error() !== JSON_ERROR_NONE) {
-        throw new moodle_exception('jsonconfig_invalid', 'local_catalyst');
+        throw new moodle_exception('invalid', 'local_jsonconfig');
     }
 
     try {
@@ -79,7 +79,7 @@ function local_catalyst_import_config_from_json($config) {
         // The 'core' and 'plugins' have to be present
         if (!array_key_exists('core', $imported_config) ||
             !array_key_exists('plugins', $imported_config)) {
-            throw new moodle_exception('jsonconfig_invalid', 'local_catalyst');
+            throw new moodle_exception('invalid', 'local_jsonconfig');
         }
 
         // Create / update core config values
@@ -126,7 +126,7 @@ function local_catalyst_import_config_from_json($config) {
  * @var $config Imported site configuration as a JSON string
  * @return array
  */
-function local_catalyst_diff_config_with_json($config) {
+function local_jsonconfig_diff_config_with_json($config) {
     global $DB;
 
     $diff = array('core' => array(), 'plugins' => array());
@@ -134,13 +134,13 @@ function local_catalyst_diff_config_with_json($config) {
     // JSON decode and syntax check
     $imported_config = json_decode($config, true);
     if (json_last_error() !== JSON_ERROR_NONE) {
-        throw new moodle_exception('jsonconfig_invalid', 'local_catalyst');
+        throw new moodle_exception('invalid', 'local_jsonconfig');
     }
 
     // Import using a transaction, so we can abort and revert the whole thing is there is any error
     if (!array_key_exists('core', $imported_config) ||
         !array_key_exists('plugins', $imported_config)) {
-        throw new moodle_exception('jsonconfig_invalid', 'local_catalyst');
+        throw new moodle_exception('invalid', 'local_jsonconfig');
     }
 
     // Get current config from the database
@@ -208,12 +208,12 @@ function local_catalyst_diff_config_with_json($config) {
  * @var $config Configuration item
  * @return array
  */
-function local_catalyst_diff_table_row($config) {
+function local_jsonconfig_diff_table_row($config) {
     $value = $config['value'] !== NULL
         ? $config['value']
-        : html_writer::tag('em', '('.get_string('jsonconfig_new', 'local_catalyst').')');
+        : html_writer::tag('em', '('.get_string('new', 'local_jsonconfig').')');
     $new_value = $config['new_value'] !== NULL
         ? $config['new_value']
-        : html_writer::tag('em', '('.get_string('jsonconfig_deleted', 'local_catalyst').')');
+        : html_writer::tag('em', '('.get_string('deleted', 'local_jsonconfig').')');
     return array($config['key'], $value, $new_value);
 }
