@@ -23,3 +23,5 @@
  */
 
 $string['pluginname'] = 'Catalyst Customisations';
+$string['catalyst:totarasyncwsupload'] = 'Upload Totara Sync files via web services';
+$string['syncfileuploaded'] = 'Sync file uploaded';
