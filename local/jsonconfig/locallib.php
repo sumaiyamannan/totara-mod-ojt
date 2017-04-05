@@ -210,10 +210,10 @@ function local_jsonconfig_diff_config_with_json($config) {
  */
 function local_jsonconfig_diff_table_row($config) {
     $value = $config['value'] !== NULL
-        ? $config['value']
+        ? htmlentities($config['value'])
         : html_writer::tag('em', '('.get_string('new', 'local_jsonconfig').')');
     $new_value = $config['new_value'] !== NULL
-        ? $config['new_value']
+        ? htmlentities($config['new_value'])
         : html_writer::tag('em', '('.get_string('deleted', 'local_jsonconfig').')');
     return array($config['key'], $value, $new_value);
 }
