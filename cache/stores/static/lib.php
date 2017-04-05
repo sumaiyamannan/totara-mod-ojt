@@ -72,7 +72,7 @@ abstract class static_data_store extends cache_store {
      */
     protected static function flush_store() {
         $ids = array_keys(self::$staticstore);
-        unset(self::$staticstore);
+        // Totara: do not unset declared object properties!
         self::$staticstore = array();
         foreach ($ids as $id) {
             self::$staticstore[$id] = array();

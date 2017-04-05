@@ -547,7 +547,7 @@ class cachestore_memcache extends cache_store implements cache_is_configurable {
         }
         @$connection->flush();
         unset($connection);
-        unset($this->connection);
+        $this->connection = null; // Totara: do not unset declared object properties!
     }
 
     /**

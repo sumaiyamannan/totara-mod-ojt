@@ -76,7 +76,7 @@ abstract class session_data_store extends cache_store {
      */
     protected static function flush_store() {
         $ids = array_keys(self::$sessionstore);
-        unset(self::$sessionstore);
+        // Totara: do not unset declared object properties!
         self::$sessionstore = array();
         foreach ($ids as $id) {
             self::$sessionstore[$id] = array();
