@@ -108,11 +108,7 @@ class totara_reportbuilder_rb_tasks_embedded_cache_testcase extends reportcache_
     }
 
     protected function tearDown() {
-        global $DB;
-        $DB->execute('DELETE FROM {user} WHERE id='.$this->user1->id);
-        $DB->execute('DELETE FROM {user} WHERE id='.$this->user2->id);
-        $DB->execute('DELETE FROM {user} WHERE id='.$this->user3->id);
-        $this->cleanup();
+        parent::tearDown();
     }
 
     protected function cleanup() {

@@ -34,8 +34,9 @@ class core_useragent_testcase extends advanced_testcase {
     /**
      * Restores the user agent to the default one.
      */
-    public function tearDown() {
+    protected function tearDown() {
         core_useragent::instance(true);
+        parent::tearDown();
     }
 
     public function user_agents_providers() {

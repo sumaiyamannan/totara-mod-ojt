@@ -73,8 +73,9 @@ class mod_quiz_repaginate_test extends advanced_testcase {
         $this->repaginate = new mod_quiz_repaginate_testable(0, $this->quizslots);
     }
 
-    public function tearDown() {
+    protected function tearDown() {
         $this->repaginate = null;
+        parent::tearDown();
     }
 
     /**

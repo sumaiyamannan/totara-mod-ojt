@@ -62,6 +62,7 @@ class question_first_matching_answer_grading_strategy_testcase extends advanced_
     }
 
     protected function tearDown() {
+        parent::tearDown();
     }
 
     public function test_no_answers_gives_null() {

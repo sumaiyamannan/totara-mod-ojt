@@ -58,6 +58,7 @@ class question_attempt_testcase extends advanced_testcase {
         $this->question = null;
         $this->useageid = null;
         $this->qa = null;
+        parent::tearDown();
     }
 
     public function test_constructor_sets_maxmark() {

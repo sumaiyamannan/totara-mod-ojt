@@ -68,6 +68,7 @@ class qtype_numerical_form_test extends advanced_testcase {
 
     protected function tearDown() {
         $this->form = null;
+        parent::tearDown();
     }
 
     public function test_is_valid_number() {

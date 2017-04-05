@@ -242,6 +242,7 @@ class tool_totara_sync_user_external_database_testcase extends advanced_testcase
                 $dbman->drop_table($table, $this->dbtable);
             }
         }
+        parent::tearDown();
     }
 
     protected function create_external_user_table() {

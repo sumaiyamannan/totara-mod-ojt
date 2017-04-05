@@ -46,6 +46,7 @@ class qtype_ddimageortext_test extends basic_testcase {
 
     protected function tearDown() {
         $this->qtype = null;
+        parent::tearDown();
     }
 
     public function test_name() {

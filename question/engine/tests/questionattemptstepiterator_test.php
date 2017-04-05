@@ -54,6 +54,7 @@ class question_attempt_step_iterator_test extends advanced_testcase {
     protected function tearDown() {
         $this->qa = null;
         $this->iterator = null;
+        parent::tearDown();
     }
 
     public function test_foreach_loop() {

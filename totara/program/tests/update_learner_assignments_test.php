@@ -62,6 +62,7 @@ class totara_program_update_learner_assignments_testcase extends reportcache_adv
      * Set up another program that will be check after each test to ensure nothing leaked.
      */
     public function setUp() {
+        global $DB;
         parent::setup();
 
         $this->updateassignmentsdateformat = get_string('datepickerlongyearparseformat', 'totara_core');
@@ -85,24 +86,6 @@ class totara_program_update_learner_assignments_testcase extends reportcache_adv
             cohort_add_member($this->audiences[$i % 2]->id, $this->users[$i]->id);
             $this->audienceusers[$i % 2][$i] = $this->users[$i];
         }
-
-        $this->setup_control_program();
-    }
-
-    /**
-     * Teardown.
-     */
-    public function tearDown() {
-        $this->check_control_program();
-
-        parent::tearDown();
-    }
-
-    /**
-     * Checks that the control program has not been changed in any way.
-     */
-    private function setup_control_program() {
-        global $DB;
 
         // Add ten user assignments, specifically users 0 to 9, because they will be used in tests.
         $controlusers = array();
@@ -129,6 +112,11 @@ class totara_program_update_learner_assignments_testcase extends reportcache_adv
             array('programid' => $this->controlprogram->id));
         $this->controlprogcompletions = $DB->get_records('prog_completion',
             array('programid' => $this->controlprogram->id));
+    }
+
+    protected function tearDown() {
+        // No asserts here!
+        parent::tearDown();
     }
 
     /**
@@ -318,6 +306,8 @@ class totara_program_update_learner_assignments_testcase extends reportcache_adv
         $this->assertEquals(STATUS_COURSESET_INCOMPLETE, $progcoursesetcompletion1->status);
         $this->assertEquals(0, $progcoursesetcompletion0->timecompleted);
         $this->assertEquals(0, $progcoursesetcompletion1->timecompleted);
+
+        $this->check_control_program();
     }
 
     /**
@@ -421,6 +411,8 @@ class totara_program_update_learner_assignments_testcase extends reportcache_adv
         $this->assertEquals(-1, $progcompletion1->timedue);
         $this->assertEquals(0, $progcompletion0->timecompleted);
         $this->assertEquals(0, $progcompletion1->timecompleted);
+
+        $this->check_control_program();
     }
 
     /**
@@ -493,6 +485,8 @@ class totara_program_update_learner_assignments_testcase extends reportcache_adv
             $this->assertEquals(-1, $progcompletion->timedue);
             $this->assertEquals(0, $progcompletion->timecompleted);
         }
+
+        $this->check_control_program();
     }
 
     /**
@@ -580,6 +574,8 @@ class totara_program_update_learner_assignments_testcase extends reportcache_adv
             $this->assertEquals(-1, $progcompletion->timedue);
             $this->assertEquals(0, $progcompletion->timecompleted);
         }
+
+        $this->check_control_program();
     }
 
     /**
@@ -669,6 +665,8 @@ class totara_program_update_learner_assignments_testcase extends reportcache_adv
             $this->assertEquals(-1, $progcompletion->timedue);
             $this->assertEquals(0, $progcompletion->timecompleted);
         }
+
+        $this->check_control_program();
     }
 
     /**
@@ -747,6 +745,8 @@ class totara_program_update_learner_assignments_testcase extends reportcache_adv
             $this->assertEquals(-1, $progcompletion->timedue);
             $this->assertEquals(0, $progcompletion->timecompleted);
         }
+
+        $this->check_control_program();
     }
 
     /**
@@ -840,6 +840,7 @@ class totara_program_update_learner_assignments_testcase extends reportcache_adv
             $this->assertEquals(0, $progcompletion->timecompleted);
         }
 
+        $this->check_control_program();
     }
 
     /**
@@ -914,6 +915,8 @@ class totara_program_update_learner_assignments_testcase extends reportcache_adv
             $this->assertEquals($duedate, $progcompletion->timedue); // Due date!
             $this->assertEquals(0, $progcompletion->timecompleted);
         }
+
+        $this->check_control_program();
     }
 
     /**
@@ -1039,6 +1042,8 @@ class totara_program_update_learner_assignments_testcase extends reportcache_adv
             $this->assertEquals($newduedate, $progcompletion->timedue); // New!
             $this->assertEquals(0, $progcompletion->timecompleted);
         }
+
+        $this->check_control_program();
     }
 
     /**
@@ -1164,6 +1169,8 @@ class totara_program_update_learner_assignments_testcase extends reportcache_adv
             $this->assertEquals($originalduedate, $progcompletion->timedue); // Still original!!!
             $this->assertEquals(0, $progcompletion->timecompleted);
         }
+
+        $this->check_control_program();
     }
 
     /**
@@ -1296,6 +1303,8 @@ class totara_program_update_learner_assignments_testcase extends reportcache_adv
             $this->assertLessThanOrEqual($timeafter + $originalduration, $progcompletion->timedue); // Still original!!!
             $this->assertEquals(0, $progcompletion->timecompleted);
         }
+
+        $this->check_control_program();
     }
 
     /**
@@ -1429,6 +1438,8 @@ class totara_program_update_learner_assignments_testcase extends reportcache_adv
             $this->assertEquals($originalduedate, $progcompletion->timedue); // Still original!!!
             $this->assertEquals($timebefore, $progcompletion->timecompleted);
         }
+
+        $this->check_control_program();
     }
 
     /**
@@ -1507,6 +1518,8 @@ class totara_program_update_learner_assignments_testcase extends reportcache_adv
             $this->assertEquals($audienceduedate, $progcompletion->timedue); // Audience due date!
             $this->assertEquals(0, $progcompletion->timecompleted);
         }
+
+        $this->check_control_program();
     }
 
     /**
@@ -1634,6 +1647,8 @@ class totara_program_update_learner_assignments_testcase extends reportcache_adv
                 'Not relative date: ' . ($newduration + $progcompletion->timestarted));
             $this->assertEquals($timebefore, $progcompletion->timecompleted);
         }
+
+        $this->check_control_program();
     }
 
     /**
@@ -1723,6 +1738,8 @@ class totara_program_update_learner_assignments_testcase extends reportcache_adv
             array('programid' => $this->program->id)));
         $this->assertEquals(0, $DB->count_records('prog_completion',
             array('programid' => $this->program->id)));
+
+        $this->check_control_program();
     }
 
     /**
@@ -1836,6 +1853,8 @@ class totara_program_update_learner_assignments_testcase extends reportcache_adv
             // It should have come back false as no record exists.
             $this->assertFalse($proguserassignment);
         }
+
+        $this->check_control_program();
     }
 
     /**
@@ -1967,6 +1986,8 @@ class totara_program_update_learner_assignments_testcase extends reportcache_adv
             // It should have come back false as no record exists.
             $this->assertFalse($proguserassignment);
         }
+
+        $this->check_control_program();
     }
 
     /**
@@ -2096,6 +2117,8 @@ class totara_program_update_learner_assignments_testcase extends reportcache_adv
             // It should have come back false as no record exists.
             $this->assertFalse($proguserassignment);
         }
+
+        $this->check_control_program();
     }
 
     /**
@@ -2251,6 +2274,8 @@ class totara_program_update_learner_assignments_testcase extends reportcache_adv
             // It should have come back false as no record exists.
             $this->assertFalse($proguserassignment);
         }
+
+        $this->check_control_program();
     }
 
     /**
@@ -2380,6 +2405,8 @@ class totara_program_update_learner_assignments_testcase extends reportcache_adv
             // It should have come back false as no record exists.
             $this->assertFalse($proguserassignment);
         }
+
+        $this->check_control_program();
     }
 
     /**
@@ -2535,6 +2562,8 @@ class totara_program_update_learner_assignments_testcase extends reportcache_adv
             // It should have come back false as no record exists.
             $this->assertFalse($proguserassignment);
         }
+
+        $this->check_control_program();
     }
 
     /**
@@ -2677,6 +2706,8 @@ class totara_program_update_learner_assignments_testcase extends reportcache_adv
         $this->assertGreaterThanOrEqual($timebefore, $progcoursesetcompletion1->timecompleted);
         $this->assertLessThanOrEqual($timeafter, $progcoursesetcompletion0->timecompleted);
         $this->assertLessThanOrEqual($timeafter, $progcoursesetcompletion1->timecompleted);
+
+        $this->check_control_program();
     }
 
     /*

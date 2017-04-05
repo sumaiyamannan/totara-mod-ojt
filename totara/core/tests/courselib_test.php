@@ -76,7 +76,7 @@ class totara_core_courselib_testcase extends reportcache_advanced_testcase {
         $this->user6 = $this->data_generator->create_user();
     }
 
-    public function tearDown() {
+    protected function tearDown() {
         ob_end_clean();
         $this->messagesink->close();
         parent::tearDown();

@@ -81,12 +81,13 @@ class mod_forum_maildigest_testcase extends advanced_testcase {
     /**
      * Clear the message sinks set up in this test.
      */
-    public function tearDown() {
+    protected function tearDown() {
         $this->helper->messagesink->clear();
         $this->helper->messagesink->close();
 
         $this->helper->mailsink->clear();
         $this->helper->mailsink->close();
+        parent::tearDown();
     }
 
     /**

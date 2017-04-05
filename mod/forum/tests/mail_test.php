@@ -63,7 +63,7 @@ class mod_forum_mail_testcase extends advanced_testcase {
         $this->helper = $helper;
     }
 
-    public function tearDown() {
+    protected function tearDown() {
         // We must clear the subscription caches. This has to be done both before each test, and after in case of other
         // tests using these functions.
         \mod_forum\subscriptions::reset_forum_cache();
@@ -73,6 +73,7 @@ class mod_forum_mail_testcase extends advanced_testcase {
 
         $this->helper->mailsink->clear();
         $this->helper->mailsink->close();
+        parent::tearDown();
     }
 
     /**

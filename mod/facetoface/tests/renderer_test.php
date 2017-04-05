@@ -43,7 +43,7 @@ class mod_facetoface_renderer_testcase extends advanced_testcase {
         $this->facetoface_generator = $this->data_generator->get_plugin_generator('mod_facetoface');
     }
 
-    public function tearDown() {
+    protected function tearDown() {
         parent::tearDown();
     }
 

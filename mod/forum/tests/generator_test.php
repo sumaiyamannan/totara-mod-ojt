@@ -42,10 +42,11 @@ class mod_forum_generator_testcase extends advanced_testcase {
         \mod_forum\subscriptions::reset_forum_cache();
     }
 
-    public function tearDown() {
+    protected function tearDown() {
         // We must clear the subscription caches. This has to be done both before each test, and after in case of other
         // tests using these functions.
         \mod_forum\subscriptions::reset_forum_cache();
+        parent::tearDown();
     }
 
     public function test_generator() {

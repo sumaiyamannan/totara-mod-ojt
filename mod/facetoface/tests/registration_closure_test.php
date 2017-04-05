@@ -44,10 +44,8 @@ class mod_facetoface_session_registration_closure_testcase extends advanced_test
         $this->emailsink = $this->redirectMessages();
     }
 
-    public function tearDown() {
+    protected function tearDown() {
         global $CFG;
-
-        parent::tearDown();
 
         if (isset($this->cfgemail)) {
             $CFG->noemailever = $this->cfgemail;
@@ -56,6 +54,7 @@ class mod_facetoface_session_registration_closure_testcase extends advanced_test
 
         $this->eventsink->close();
         $this->emailsink->close();
+        parent::tearDown();
     }
 
     public function test_facetoface_session_registration_closure() {

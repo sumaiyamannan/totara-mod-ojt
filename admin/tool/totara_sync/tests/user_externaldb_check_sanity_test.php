@@ -214,6 +214,7 @@ class tool_totara_sync_user_externaldb_check_sanity_testcase extends advanced_te
             }
             $this->ext_dbconnection->dispose();
         }
+        parent::tearDown();
     }
 
     /**

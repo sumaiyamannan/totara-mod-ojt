@@ -46,6 +46,7 @@ class qtype_multichoice_test extends advanced_testcase {
 
     protected function tearDown() {
         $this->qtype = null;
+        parent::tearDown();
     }
 
     public function test_name() {
