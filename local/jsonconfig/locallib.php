@@ -36,12 +36,14 @@ function local_jsonconfig_export_config_as_json() {
     // Get core config
     $core_config = $DB->get_records('config', array(), 'name');
     foreach ($core_config as $config) {
+        if (local_jsonconfig_ignore_key($config->name)) { continue; }
         $full_config['core'][$config->name] = $config->value;
     }
 
     // Get plugins config
     $plugins_config = $DB->get_records('config_plugins', array(), 'plugin,name');
     foreach ($plugins_config as $config) {
+        if (local_jsonconfig_ignore_key($config->name, $config->plugin)) { continue; }
         if (!array_key_exists($config->plugin, $full_config['plugins'])) {
             $full_config['plugins'][$config->plugin] = array();
         }
@@ -84,12 +86,14 @@ function local_jsonconfig_import_config_from_json($config) {
 
         // Create / update core config values
         foreach ($imported_config['core'] as $key => $value) {
+            if (local_jsonconfig_ignore_key($key)) { continue; }
             set_config($key, $value);
         }
 
         // Delete core config values missing from import
         $core_keys = $DB->get_records('config', array(), 'name', 'id,name');
         foreach($core_keys as $key) {
+            if (local_jsonconfig_ignore_key($key->name)) { continue; }
             if (!array_key_exists($key->name, $imported_config['core'])) {
                 set_config($key->name, null);
             }
@@ -98,6 +102,7 @@ function local_jsonconfig_import_config_from_json($config) {
         // Create / update plugins config values
         foreach ($imported_config['plugins'] as $plugin_name => $plugin_config) {
             foreach ($plugin_config as $key => $value) {
+                if (local_jsonconfig_ignore_key($key, $plugin_name)) { continue; }
                 set_config($key, $value, $plugin_name);
             }
         }
@@ -105,6 +110,7 @@ function local_jsonconfig_import_config_from_json($config) {
         // Delete plugins config values missing from import
         $plugins_keys = $DB->get_records('config_plugins', array(), 'plugin,name', 'id,plugin,name');
         foreach($plugins_keys as $key) {
+            if (local_jsonconfig_ignore_key($key->name, $key->plugin)) { continue; }
             if (!array_key_exists($key->plugin, $imported_config['plugins']) ||
                 !array_key_exists($key->name, $imported_config['plugins'][$key->plugin])) {
                 set_config($key->name, null, $key->plugin);
@@ -137,7 +143,6 @@ function local_jsonconfig_diff_config_with_json($config) {
         throw new moodle_exception('invalid', 'local_jsonconfig');
     }
 
-    // Import using a transaction, so we can abort and revert the whole thing is there is any error
     if (!array_key_exists('core', $imported_config) ||
         !array_key_exists('plugins', $imported_config)) {
         throw new moodle_exception('invalid', 'local_jsonconfig');
@@ -149,6 +154,7 @@ function local_jsonconfig_diff_config_with_json($config) {
 
     // Compare core config items
     foreach($core_config as $config) {
+        if (local_jsonconfig_ignore_key($config->name)) { continue; }
         if (!array_key_exists($config->name, $imported_config['core'])) {
             // Deleted config item
             $diff['core'][$config->name] =
@@ -163,11 +169,13 @@ function local_jsonconfig_diff_config_with_json($config) {
     }
     // New config item
     foreach($imported_config['core'] as $key => $value) {
+        if (local_jsonconfig_ignore_key($key)) { continue; }
         $diff['core'][$key] = array('key' => $key, 'value' => null, 'new_value' => $value);
     }
 
     // Compare plugins config items
     foreach($plugins_config as $config) {
+        if (local_jsonconfig_ignore_key($config->name, $config->plugin)) { continue; }
         if (!array_key_exists($config->plugin, $imported_config['plugins']) ||
             !array_key_exists($config->name, $imported_config['plugins'][$config->plugin])) {
             // Deleted config item
@@ -196,8 +204,15 @@ function local_jsonconfig_diff_config_with_json($config) {
             $diff['plugins'][$plugin] = array();
         }
         foreach($config as $key => $value) {
+            if (local_jsonconfig_ignore_key($key, $plugin)) { continue; }
             $diff['plugins'][$plugin][$key] = array('key' => $key, 'value' => null, 'new_value' => $value);
         }
+    }
+
+    ksort($diff['core']);
+    ksort($diff['plugins']);
+    foreach(array_keys($diff['plugins']) as $plugin) {
+        ksort($diff['plugins'][$plugin]);
     }
 
     return $diff;
@@ -216,4 +231,26 @@ function local_jsonconfig_diff_table_row($config) {
         ? htmlentities($config['new_value'])
         : html_writer::tag('em', '('.get_string('deleted', 'local_jsonconfig').')');
     return array($config['key'], $value, $new_value);
+}
+
+/**
+ * Returns true if key must be skipped
+ * @var $key Configuration key
+ * @var $plugin Plugin
+ * @return boolean
+ */
+function local_jsonconfig_ignore_key($key, $plugin = null) {
+    if ($plugin) {
+        // all plugins config
+        return in_array($key, array(
+            'lastcron', 'version'
+        ));
+    } else {
+        // core config
+        // chat_serverhost ignored because it's usually the same as $CFG->wwwroot
+        return in_array($key, array(
+            'allversionshash', 'chat_serverhost', 'geoipfile', 'geoip2file',
+            'siteidentifier'
+        ));
+    }
 }
