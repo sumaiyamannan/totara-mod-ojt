@@ -720,7 +720,6 @@ class totara_reportbuilder_column_testcase extends reportcache_advanced_testcase
         global $SESSION, $DB;
 
         $this->resetAfterTest();
-        $this->preventResetByRollback();
         $this->setAdminUser();
 
         $i = 1;
@@ -729,6 +728,11 @@ class totara_reportbuilder_column_testcase extends reportcache_advanced_testcase
 
         $src = reportbuilder::get_source_object($sourcename, true); // Caching here is completely fine.
         $src->phpunit_column_test_add_data($this);
+
+        if ($src->cacheable) {
+            // We are going to create cache tables.
+            $this->preventResetByRollback();
+        }
 
         $sortorder = 1;
         foreach ($src->columnoptions as $column) {
