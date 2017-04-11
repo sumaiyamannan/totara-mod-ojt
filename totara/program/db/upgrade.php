@@ -613,5 +613,117 @@ function xmldb_totara_program_upgrade($oldversion) {
         totara_upgrade_mod_savepoint(true, 2016051100, 'totara_program');
     }
 
+    // Set default scheduled tasks correctly.
+    if ($oldversion < 2016092002) {
+
+        // Task \totara_program\task\clean_enrolment_plugins_task.
+        $task = '\totara_program\task\clean_enrolment_plugins_task';
+        // If schecdule is * 2 * * * change to 0 2 * * *
+        $incorrectschedule = array(
+            'minute' => '*',
+            'hour' => '2',
+            'day' => '*',
+            'month' => '*',
+            'dayofweek' => '*'
+        );
+        $newschedule = $incorrectschedule;
+        $newschedule['minute'] = '0';
+
+        totara_upgrade_default_schedule($task, $incorrectschedule, $newschedule);
+
+        // Task \totara_program\task\completions_task.
+        $task = '\totara_program\task\completions_task';
+        // If schecdule is * 2 * * * change to 0 2 * * *
+        $incorrectschedule = array(
+            'minute' => '*',
+            'hour' => '2',
+            'day' => '*',
+            'month' => '*',
+            'dayofweek' => '*'
+        );
+        $newschedule = $incorrectschedule;
+        $newschedule['minute'] = '0';
+
+        totara_upgrade_default_schedule($task, $incorrectschedule, $newschedule);
+
+        // Task \totara_program\task\copy_recurring_courses_task.
+        $task = '\totara_program\task\copy_recurring_courses_task';
+        // If schecdule is * 2 * * * change to 0 2 * * *
+        $incorrectschedule = array(
+            'minute' => '*',
+            'hour' => '2',
+            'day' => '*',
+            'month' => '*',
+            'dayofweek' => '*'
+        );
+        $newschedule = $incorrectschedule;
+        $newschedule['minute'] = '0';
+
+        totara_upgrade_default_schedule($task, $incorrectschedule, $newschedule);
+
+        // Task \totara_program\task\recurrence_history_task.
+        $task = '\totara_program\task\recurrence_history_task';
+        // If schecdule is * 2 * * * change to 0 2 * * *
+        $incorrectschedule = array(
+            'minute' => '*',
+            'hour' => '2',
+            'day' => '*',
+            'month' => '*',
+            'dayofweek' => '*'
+        );
+        $newschedule = $incorrectschedule;
+        $newschedule['minute'] = '0';
+
+        totara_upgrade_default_schedule($task, $incorrectschedule, $newschedule);
+
+        // Task \totara_program\task\recurrence_task.
+        $task = '\totara_program\task\recurrence_task';
+        // If schecdule is * 1 * * * change to 0 1 * * *
+        $incorrectschedule = array(
+            'minute' => '*',
+            'hour' => '1',
+            'day' => '*',
+            'month' => '*',
+            'dayofweek' => '*'
+        );
+        $newschedule = $incorrectschedule;
+        $newschedule['minute'] = '0';
+
+        totara_upgrade_default_schedule($task, $incorrectschedule, $newschedule);
+
+        // Task \totara_program\task\switch_recurring_courses_task.
+        $task = '\totara_program\task\switch_recurring_courses_task';
+        // If schecdule is * 2 * * * change to 0 2 * * *
+        $incorrectschedule = array(
+            'minute' => '*',
+            'hour' => '2',
+            'day' => '*',
+            'month' => '*',
+            'dayofweek' => '*'
+        );
+        $newschedule = $incorrectschedule;
+        $newschedule['minute'] = '0';
+
+        totara_upgrade_default_schedule($task, $incorrectschedule, $newschedule);
+
+        // Task \totara_program\task\user_assignments_task.
+        $task = '\totara_program\task\user_assignments_task';
+        // If schecdule is * 2 * * * change to 0 2 * * *
+        $incorrectschedule = array(
+            'minute' => '*',
+            'hour' => '2',
+            'day' => '*',
+            'month' => '*',
+            'dayofweek' => '*'
+        );
+        $newschedule = $incorrectschedule;
+        $newschedule['minute'] = '0';
+
+        totara_upgrade_default_schedule($task, $incorrectschedule, $newschedule);
+
+        // Main savepoint reached.
+        totara_upgrade_mod_savepoint(true, 2016092002, 'totara_program');
+    }
+
     return true;
 }

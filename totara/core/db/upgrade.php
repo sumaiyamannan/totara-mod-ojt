@@ -1523,5 +1523,26 @@ function xmldb_totara_core_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2016101901, 'totara', 'core');
     }
 
+    // Set default scheduled tasks correctly.
+    if ($oldversion < 2016101911) {
+
+        $task = '\totara_core\task\tool_totara_sync_task';
+        // If schecdule is * 0 * * * change to 0 0 * * *
+        $incorrectschedule = array(
+            'minute' => '*',
+            'hour' => '0',
+            'day' => '*',
+            'month' => '*',
+            'dayofweek' => '*'
+        );
+        $newschedule = $incorrectschedule;
+        $newschedule['minute'] = '0';
+
+        totara_upgrade_default_schedule($task, $incorrectschedule, $newschedule);
+
+        // Main savepoint reached.
+        upgrade_plugin_savepoint(true, 2016101911, 'totara', 'core');
+    }
+
     return true;
 }
