@@ -21,6 +21,9 @@ Background:
   And the following "plans" exist in "totara_plan" plugin:
     | user     | name                   |
     | learner1 | learner1 Learning Plan |
+  And the following "cohorts" exist:
+    | name       | idnumber | contextlevel | reference |
+    | Audience 1 | AUD1     | System       | 0         |
 
   @javascript
   Scenario: Test the learner can add and remove competencies from their learning plan prior to approval.
@@ -80,3 +83,50 @@ Background:
   And I click on "Other Evidence" "link" in the ".tabtree" "css_element"
   And I click on "Competencies" "link" in the ".tabtree" "css_element"
   Then the field "competencyevidencestatus1" matches value "Competent"
+  And I log out
+
+      # Test Record of Learning: Competencies report with Global report restriction.
+  And I log in as "admin"
+  And I navigate to "Audiences" node in "Site administration > Users > Accounts"
+  And I follow "Audience 1"
+  And I click on "Edit members" "link" in the ".tabtree" "css_element"
+  And I click on "firstname1 lastname1 (learner1@example.com)" "option"
+  And I click on "Add" "button"
+  And I click on "firstname2 lastname2 (manager2@example.com)" "option"
+  And I click on "Add" "button"
+  And I click on "Admin User (moodle@example.com)" "option"
+  And I click on "Add" "button"
+
+  And I set the following administration settings values:
+    | Enable report restrictions | 1 |
+  And I press "Save changes"
+
+  And I navigate to "Global report restrictions" node in "Site administration > Reports > Report builder"
+  And I press "New restriction"
+  And I set the following fields to these values:
+    | Name   | 14064 restriction |
+    | Active | 1                 |
+  And I press "Save changes"
+
+  And I set the field "menugroupselector" to "Audience"
+  And I wait "1" seconds
+  And I click on "Audience 1" "link" in the "Assign a group to restriction" "totaradialogue"
+  And I click on "Save" "button" in the "Assign a group to restriction" "totaradialogue"
+
+  And I click on "Users allowed to select restriction" "link" in the ".tabtree" "css_element"
+  And I set the field "menugroupselector" to "Audience"
+  And I click on "Audience 1" "link" in the "Assign a group to restriction" "totaradialogue"
+  And I click on "Save" "button" in the "Assign a group to restriction" "totaradialogue"
+
+  And I navigate to "Manage reports" node in "Site administration > Reports > Report builder"
+  And I set the following fields to these values:
+    | Report Name | Record of Learning: Competencies report |
+    | Source      | Record of Learning: Competencies        |
+  And I click on "Create report" "button"
+  And I press "Save changes"
+
+  When I click on "View This Report" "link"
+  Then I should see "learner1 Learning Plan" in the ".reportbuilder-table" "css_element"
+  And I should see "Approved" in the ".reportbuilder-table" "css_element"
+  And I should see "Competency 1" in the ".reportbuilder-table" "css_element"
+  And I should see "Competency 2" in the ".reportbuilder-table" "css_element"
