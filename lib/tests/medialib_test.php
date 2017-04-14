@@ -36,6 +36,13 @@ class core_medialib_testcase extends advanced_testcase {
     /** @var array Files covered by test */
     public static $includecoverage = array('lib/medialib.php', 'lib/outputrenderers.php');
 
+    protected function tearDown() {
+        $this->ext = null;
+        $this->rank = null;
+        $this->num = null;
+        parent::tearDown();
+    }
+
     /**
      * Pre-test setup. Preserves $CFG.
      */

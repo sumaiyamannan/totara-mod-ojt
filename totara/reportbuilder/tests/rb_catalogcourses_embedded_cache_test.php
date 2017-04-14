@@ -63,6 +63,20 @@ class totara_reportbuilder_rb_catalogcourses_embedded_cache_testcase extends rep
     protected $course3 = null;
     protected $course4 = null;
 
+    protected function tearDown() {
+        $this->report_builder_data = null;
+        $this->report_builder_columns_data = null;
+        $this->report_builder_filters_data = null;
+        $this->report_builder_cf_filters_data = null;
+        $this->user1 = null;
+        $this->user2 = null;
+        $this->course1 = null;
+        $this->course2 = null;
+        $this->course3 = null;
+        $this->course4 = null;
+        parent::tearDown();
+    }
+
     /**
      * Prepare mock data for testing
      *

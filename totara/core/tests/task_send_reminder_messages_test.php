@@ -50,6 +50,17 @@ class totara_core_task_send_reminder_messages_test extends reportcache_advanced_
     /** @var stdClass */
     protected $learner3;
 
+    protected function tearDown() {
+        $this->course = null;
+        $this->feedback = null;
+        $this->reminder = null;
+        $this->manager = null;
+        $this->learner1 = null;
+        $this->learner2 = null;
+        $this->learner3 = null;
+        parent::tearDown();
+    }
+
     /**
      * Set up for each test.
      */

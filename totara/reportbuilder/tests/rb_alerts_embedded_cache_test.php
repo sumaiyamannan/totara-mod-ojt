@@ -98,6 +98,11 @@ class totara_reportbuilder_rb_alerts_embedded_cache_testcase extends reportcache
      * Remove mock data
      */
     protected function tearDown() {
+        $this->report_builder_data = null;
+        $this->report_builder_columns_data = null;
+        $this->user1 = null;
+        $this->user2 = null;
+        $this->user3 = null;
         parent::tearDown();
     }
 

@@ -37,6 +37,11 @@ class totara_job_job_assignment_testcase extends advanced_testcase {
 
     private $users = array();
 
+    protected function tearDown() {
+        $this->users = null;
+        parent::tearDown();
+    }
+
     /**
      * Set up some stuff that will be useful for most tests.
      */

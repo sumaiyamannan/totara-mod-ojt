@@ -38,6 +38,11 @@ class core_gdlib_testcase extends basic_testcase {
 
     private $fixturepath = null;
 
+    protected function tearDown() {
+        $this->fixturepath = null;
+        parent::tearDown();
+    }
+
     public function setUp() {
         $this->fixturepath = __DIR__ . DIRECTORY_SEPARATOR . 'fixtures' . DIRECTORY_SEPARATOR;
     }

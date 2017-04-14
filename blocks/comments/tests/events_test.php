@@ -40,6 +40,12 @@ class block_comments_events_testcase extends advanced_testcase {
     /** @var stdClass Keeps wiki object */
     private $wiki;
 
+    protected function tearDown() {
+        $this->course = null;
+        $this->wiki = null;
+        parent::tearDown();
+    }
+
     /**
      * Setup test data.
      */

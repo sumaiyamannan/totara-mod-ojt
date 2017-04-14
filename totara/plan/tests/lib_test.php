@@ -27,6 +27,11 @@ class totara_plan_lib_testcase extends advanced_testcase {
     /** @var totara_plan_generator $plangenerator */
     protected $plangenerator;
 
+    protected function tearDown() {
+        $this->plangenerator = null;
+        parent::tearDown();
+    }
+
     protected function setUp() {
         global $CFG;
         parent::setUp();

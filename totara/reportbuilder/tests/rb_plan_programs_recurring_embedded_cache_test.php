@@ -115,6 +115,15 @@ class totara_reportbuilder_rb_plan_programs_recurring_embedded_cache_testcase ex
     }
 
     protected function tearDown() {
+        $this->report_builder_data = null;
+        $this->report_builder_columns_data = null;
+        $this->user1 = null;
+        $this->user2 = null;
+        $this->user3 = null;
+        $this->program1 = null;
+        $this->program2 = null;
+        $this->course1 = null;
+        $this->course2 = null;
         parent::tearDown();
     }
 

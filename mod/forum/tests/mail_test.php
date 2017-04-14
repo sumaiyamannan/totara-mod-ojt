@@ -73,6 +73,7 @@ class mod_forum_mail_testcase extends advanced_testcase {
 
         $this->helper->mailsink->clear();
         $this->helper->mailsink->close();
+        $this->helper = null;
         parent::tearDown();
     }
 

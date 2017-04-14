@@ -73,6 +73,28 @@ class totara_cohort_course_audiencevisibility_testcase extends reportcache_advan
     /** @var stdClass $audience2 */
     private $audience2 = null;
 
+    protected function tearDown() {
+        $this->user1 = null;
+        $this->user2 = null;
+        $this->user3 = null;
+        $this->user4 = null;
+        $this->user5 = null;
+        $this->user6 = null;
+        $this->user7 = null;
+        $this->user8 = null;
+        $this->user9 = null;
+        $this->user10 = null;
+        $this->course1 = null;
+        $this->course2 = null;
+        $this->course3 = null;
+        $this->course4 = null;
+        $this->course5 = null;
+        $this->course6 = null;
+        $this->audience1 = null;
+        $this->audience2 = null;
+        parent::tearDown();
+    }
+
     /**
      * Setup.
      */

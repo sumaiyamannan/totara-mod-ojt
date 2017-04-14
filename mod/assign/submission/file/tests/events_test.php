@@ -56,6 +56,19 @@ class assignsubmission_file_events_testcase extends advanced_testcase {
     /** @var stdClass $fi2 File information - Second file*/
     protected $fi2;
 
+    protected function tearDown() {
+        $this->user = null;
+        $this->course = null;
+        $this->cm = null;
+        $this->context = null;
+        $this->assign = null;
+        $this->files = null;
+        $this->submission = null;
+        $this->fi = null;
+        $this->fi2 = null;
+        parent::tearDown();
+    }
+
     /**
      * Setup all the various parts of an assignment activity including creating a file submission.
      */

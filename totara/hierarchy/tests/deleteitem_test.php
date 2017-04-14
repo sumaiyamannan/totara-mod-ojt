@@ -111,6 +111,12 @@ class deleteitem_test extends advanced_testcase {
         ),
     );
 
+    protected function tearDown() {
+        $this->comp_framework_data = null;
+        $this->comp_data = null;
+        parent::tearDown();
+    }
+
     protected function setUp() {
         parent::setUp();
 

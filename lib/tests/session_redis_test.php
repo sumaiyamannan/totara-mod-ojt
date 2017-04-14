@@ -82,6 +82,8 @@ class core_session_redis_testcase extends advanced_testcase {
             $this->redis->del($keyname);
         }
         $this->redis->close();
+        $this->keyprefix = null;
+        $this->redis = null;
         parent::tearDown();
     }
 

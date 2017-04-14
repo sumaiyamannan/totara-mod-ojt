@@ -32,6 +32,13 @@ require_once($CFG->dirroot . '/mod/quiz/report/reportlib.php');
 
 class testable_all_calculated_for_qubaid_condition extends \core_question\statistics\questions\all_calculated_for_qubaid_condition {
 
+    protected function tearDown() {
+        $this->lateststeps = null;
+        $this->statscollectionclassname = null;
+        $this->qstats = null;
+        parent::tearDown();
+    }
+
     /**
      * Disabling caching in tests so we are always sure to force the calculation of stats right then and there.
      *

@@ -60,6 +60,14 @@ class totara_cohort_user_custom_profile_field_checkbox_testcase extends advanced
     protected $profiledeveloperid;
     const TEST_USER_COUNT_MEMBERS = 53;
 
+    protected function tearDown() {
+        $this->cohort_generator = null;
+        $this->cohort = null;
+        $this->ruleset = null;
+        $this->profiledeveloperid = null;
+        parent::tearDown();
+    }
+
     protected function setUp() {
         global $DB;
 

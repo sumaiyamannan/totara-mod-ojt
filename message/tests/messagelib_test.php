@@ -41,6 +41,11 @@ class core_message_messagelib_testcase extends advanced_testcase {
     /** @var phpunit_message_sink keep track of messages. */
     protected $messagesink = null;
 
+    protected function tearDown() {
+        $this->messagesink = null;
+        parent::tearDown();
+    }
+
     /**
      * Test set up.
      *

@@ -31,6 +31,11 @@ class tool_monitor_subscription_testcase extends advanced_testcase {
      */
     private $subscription;
 
+    protected function tearDown() {
+        $this->subscription = null;
+        parent::tearDown();
+    }
+
     /**
      * Test set up.
      */

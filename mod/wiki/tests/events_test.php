@@ -41,6 +41,15 @@ class mod_wiki_events_testcase extends advanced_testcase {
     private $student;
     private $teacher;
 
+    protected function tearDown() {
+        $this->course = null;
+        $this->wiki = null;
+        $this->wikigenerator = null;
+        $this->student = null;
+        $this->teacher = null;
+        parent::tearDown();
+    }
+
     /**
      * Setup test data.
      */

@@ -39,6 +39,13 @@ class totara_clean_enrolments_plugins_task_testcase extends advanced_testcase {
     protected $generator_program;
 
     protected $program, $course, $users;
+    protected function tearDown() {
+        $this->generator = null;
+        $this->generator_program = null;
+        $this->program = null;
+        parent::tearDown();
+    }
+
     /**
      * Prepares the environment prior to each test case.
      */

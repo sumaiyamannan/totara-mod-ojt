@@ -87,6 +87,7 @@ class workshopform_rubric_strategy_test extends advanced_testcase {
     protected function tearDown() {
         $this->strategy = null;
         $this->workshop = null;
+        $this->dimensions = null;
         parent::tearDown();
     }
 

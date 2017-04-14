@@ -29,6 +29,11 @@ class test_block_last_course_accessed extends advanced_testcase {
 
     private $compare_to;
 
+    protected function tearDown() {
+        $this->compare_to = null;
+        parent::tearDown();
+    }
+
     protected function setUp() {
         parent::setUp();
         $this->resetAfterTest();

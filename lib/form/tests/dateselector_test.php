@@ -47,6 +47,12 @@ class core_form_dateselector_testcase extends advanced_testcase {
     /** @var array test fixtures */
     private $testvals;
 
+    protected function tearDown() {
+        $this->mform = null;
+        $this->testvals = null;
+        parent::tearDown();
+    }
+
     /**
      * Initalize test wide variable, it is called in start of the testcase
      */

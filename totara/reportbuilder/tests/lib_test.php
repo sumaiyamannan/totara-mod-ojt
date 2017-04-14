@@ -39,6 +39,11 @@ class totara_reportbuilder_lib_testcase extends advanced_testcase {
     /** @var $rb reportbuilder */
     public $rb, $user, $shortname, $filter1, $filter4, $column1, $column4, $savedsearch;
 
+    protected function tearDown() {
+        $this->rb = null;
+        parent::tearDown();
+    }
+
     protected function setUp() {
         global $DB;
         parent::setup();

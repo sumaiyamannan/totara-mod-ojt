@@ -34,6 +34,11 @@ class mnet_events_testcase extends advanced_testcase {
     /** @var stdClass the mnet host we are using to test */
     protected $mnethost;
 
+    protected function tearDown() {
+        $this->mnethost = null;
+        parent::tearDown();
+    }
+
     /**
      * Test set up.
      *

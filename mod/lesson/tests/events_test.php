@@ -37,6 +37,12 @@ class mod_lesson_events_testcase extends advanced_testcase {
     /** @var lesson the lesson used for testing */
     private $lesson;
 
+    protected function tearDown() {
+        $this->course = null;
+        $this->lesson = null;
+        parent::tearDown();
+    }
+
     /**
      * Test set up.
      *

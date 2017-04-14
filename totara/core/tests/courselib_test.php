@@ -79,6 +79,11 @@ class totara_core_courselib_testcase extends reportcache_advanced_testcase {
     protected function tearDown() {
         ob_end_clean();
         $this->messagesink->close();
+        $this->data_generator = null;
+        $this->completion_generator = null;
+        $this->facetoface_generator = null;
+        $this->messagesink = null;
+        $this->user1 = null;
         parent::tearDown();
     }
 

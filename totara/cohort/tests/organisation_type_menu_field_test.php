@@ -56,6 +56,15 @@ extends advanced_testcase {
     private $number_assigned = 10;
 
 
+    protected function tearDown() {
+        $this->cohorts = null;
+        $this->audience = null;
+        $this->rules = null;
+        $this->custom_field = null;
+        $this->number_assigned = null;
+        parent::tearDown();
+    }
+
     /**
      * Convenience function to return an existing record with the specified
      * field value from the specified table

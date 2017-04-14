@@ -105,6 +105,19 @@ class tool_totara_sync_pos_csv_emptyfields_setting_testcase extends advanced_tes
         ),
     );
 
+    protected function tearDown() {
+        $this->filedir = null;
+        $this->configcsv = null;
+        $this->config = null;
+        $this->pos_framework_data1 = null;
+        $this->pos_framework_data2 = null;
+        $this->pos_data1 = null;
+        $this->type_data1 = null;
+        $this->customfield_textinput_data = null;
+        $this->importdata = null;
+        parent::tearDown();
+    }
+
     public function setUp() {
         global $CFG;
 

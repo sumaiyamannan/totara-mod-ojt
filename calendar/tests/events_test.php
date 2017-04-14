@@ -45,6 +45,12 @@ class core_calendar_events_testcase extends advanced_testcase {
      */
     private $course;
 
+    protected function tearDown() {
+        $this->user = null;
+        $this->course = null;
+        parent::tearDown();
+    }
+
     /**
      * Test set up.
      */

@@ -44,6 +44,12 @@ class auth_manual_testcase extends advanced_testcase {
     /** @var stdClass Keeps authentication plugin config */
     protected $config;
 
+    protected function tearDown() {
+        $this->authplugin = null;
+        $this->config = null;
+        parent::tearDown();
+    }
+
     /**
      * Setup test data.
      */

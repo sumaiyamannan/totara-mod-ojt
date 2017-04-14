@@ -57,6 +57,15 @@ class totara_program_messages_testcase extends reportcache_advanced_testcase {
     private $manager, $managerja;
     private $sink;
 
+    protected function tearDown() {
+        $this->program_generator = null;
+        $this->program1 = null;
+        $this->user1 = null;
+        $this->manager = null;
+        $this->sink = null;
+        parent::tearDown();
+    }
+
     public function setUp() {
         global $DB;
 

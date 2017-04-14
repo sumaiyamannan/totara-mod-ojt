@@ -47,6 +47,18 @@ class totara_cohort_program_completion_rules_testcase extends reportcache_advanc
     private $program3 = null;
     private $program4 = null;
 
+    protected function tearDown() {
+        $this->userprograms = null;
+        $this->cohort_generator = null;
+        $this->cohort = null;
+        $this->ruleset = null;
+        $this->program1 = null;
+        $this->program2 = null;
+        $this->program3 = null;
+        $this->program4 = null;
+        parent::tearDown();
+    }
+
     /*
      * Program completion data:
      *-----------------*---------------------*--------------*-----------------*-----------------*

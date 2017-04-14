@@ -44,6 +44,8 @@ class mod_facetoface_renderer_testcase extends advanced_testcase {
     }
 
     protected function tearDown() {
+        $this->data_generator = null;
+        $this->facetoface_generator = null;
         parent::tearDown();
     }
 

@@ -83,6 +83,11 @@ class mod_quiz_attempt_testable extends quiz_attempt {
         return $attemptobj;
     }
 
+    protected function tearDown() {
+        $this->infos = null;
+        parent::tearDown();
+    }
+
     public function is_real_question($slot) {
         return !in_array($slot, $this->infos);
     }

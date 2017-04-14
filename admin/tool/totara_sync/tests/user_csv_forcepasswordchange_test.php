@@ -32,6 +32,13 @@ class tool_totara_sync_user_csv_forcepasswordchange_testcase extends advanced_te
     private $configcsv = array();
     private $config = array();
 
+    protected function tearDown() {
+        $this->filedir = null;
+        $this->configcsv = null;
+        $this->config = null;
+        parent::tearDown();
+    }
+
     public function setUp() {
         global $CFG;
 

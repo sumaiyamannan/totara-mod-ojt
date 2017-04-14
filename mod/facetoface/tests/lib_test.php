@@ -43,6 +43,46 @@ class mod_facetoface_lib_testcase extends advanced_testcase {
     /** @var totara_customfield_generator */
     protected $customfield_generator;
 
+    protected function tearDown() {
+        $this->facetoface_generator = null;
+        $this->customfield_generator = null;
+        $this->facetoface_data = null;
+        $this->facetoface_sessions_data = null;
+        $this->session_info_field = null;
+        $this->session_info_data = null;
+        $this->facetoface_sessions_dates_data = null;
+        $this->facetoface_signups_data = null;
+        $this->facetoface_signups_status_data = null;
+        $this->course_data = null;
+        $this->event_data = null;
+        $this->role_assignments_data = null;
+        $this->course_modules_data = null;
+        $this->grade_items_data = null;
+        $this->grade_categories_data = null;
+        $this->user_data = null;
+        $this->grade_grades_data = null;
+        $this->user_info_field_data = null;
+        $this->user_info_data_data = null;
+        $this->user_info_category_data = null;
+        $this->course_categories_data = null;
+        $this->facetoface_session_roles_data = null;
+        $this->user_preferences_data = null;
+        $this->facetoface = null;
+        $this->sessions = null;
+        $this->sessiondata = null;
+        $this->msgtrue = null;
+        $this->msgfalse = null;
+        $this->user1 = null;
+        $this->user2 = null;
+        $this->user3 = null;
+        $this->user4 = null;
+        $this->course1 = null;
+        $this->course2 = null;
+        $this->course3 = null;
+        $this->course4 = null;
+        parent::tearDown();
+    }
+
     public function setUp() {
         parent::setUp();
         $this->resetAfterTest();

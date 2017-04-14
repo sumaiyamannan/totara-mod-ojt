@@ -52,6 +52,13 @@ class mod_quiz_attempt_walkthrough_from_csv_testcase extends advanced_testcase {
      */
     protected $randqids;
 
+    protected function tearDown() {
+        $this->files = null;
+        $this->quiz = null;
+        $this->randqids = null;
+        parent::tearDown();
+    }
+
     /**
      * The only test in this class. This is run multiple times depending on how many sets of files there are in fixtures/
      * directory.

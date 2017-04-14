@@ -39,6 +39,16 @@ class core_blog_lib_testcase extends advanced_testcase {
     private $tagid;
     private $postid;
 
+    protected function tearDown() {
+        $this->courseid = null;
+        $this->cmid = null;
+        $this->groupid = null;
+        $this->userid = null;
+        $this->tagid = null;
+        $this->postid = null;
+        parent::tearDown();
+    }
+
     protected function setUp() {
         global $DB;
         parent::setUp();

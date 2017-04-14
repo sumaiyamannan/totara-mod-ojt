@@ -35,6 +35,11 @@ class totara_core_completion_testcase extends advanced_testcase {
 
 
 
+    protected function tearDown() {
+        $this->users = null;
+        parent::tearDown();
+    }
+
     protected function setUp() {
         global $DB;
 

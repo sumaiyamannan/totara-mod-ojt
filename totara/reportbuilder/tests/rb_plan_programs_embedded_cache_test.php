@@ -121,6 +121,16 @@ class totara_reportbuilder_rb_plan_programs_embedded_cache_testcase extends repo
     }
 
     protected function tearDown() {
+        $this->report_builder_data = null;
+        $this->report_builder_columns_data = null;
+        $this->report_builder_filters_data = null;
+        $this->user1 = null;
+        $this->user2 = null;
+        $this->user3 = null;
+        $this->program1 = null;
+        $this->program2 = null;
+        $this->program3 = null;
+        $this->program4 = null;
         parent::tearDown();
     }
 

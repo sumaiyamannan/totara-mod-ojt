@@ -55,6 +55,9 @@ class totara_plan_components_testcase extends advanced_testcase {
         $this->messagesink->clear();
         $this->messagesink->close();
         $this->messagesink = null;
+        $this->data_generator = null;
+        $this->plan_generator = null;
+        $this->program_generator = null;
         parent::tearDown();
     }
 

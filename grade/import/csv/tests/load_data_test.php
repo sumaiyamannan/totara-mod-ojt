@@ -66,6 +66,11 @@ Bobby,Bunce,,"Moodle HQ","Rock on!",student5@example.com,75.00,,75.00,{exportdat
 
     protected function tearDown() {
         $this->csvimport = null;
+        $this->oktext = null;
+        $this->badtext = null;
+        $this->csvtext = null;
+        $this->iid = null;
+        $this->columns = null;
         parent::tearDown();
     }
 

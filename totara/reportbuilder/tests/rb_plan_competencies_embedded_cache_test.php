@@ -76,6 +76,22 @@ class totara_reportbuilder_rb_plan_competencies_embedded_cache_testcase extends 
     protected $competency3 = null;
 
 
+    protected function tearDown() {
+        $this->report_builder_data = null;
+        $this->report_builder_columns_data = null;
+        $this->report_builder_filters_data = null;
+        $this->comp_framework_data = null;
+        $this->user1 = null;
+        $this->user2 = null;
+        $this->user3 = null;
+        $this->plan1 = null;
+        $this->plan2 = null;
+        $this->competency1 = null;
+        $this->competency2 = null;
+        $this->competency3 = null;
+        parent::tearDown();
+    }
+
     /**
      * Prepare mock data for testing
      *

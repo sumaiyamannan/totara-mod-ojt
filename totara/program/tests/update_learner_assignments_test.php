@@ -116,6 +116,16 @@ class totara_program_update_learner_assignments_testcase extends reportcache_adv
 
     protected function tearDown() {
         // No asserts here!
+        $this->programgenerator = null;
+        $this->users = null;
+        $this->audiences = null;
+        $this->audienceusers = null;
+        $this->program = null;
+        $this->controlprogram = null;
+        $this->controlprogassignments = null;
+        $this->controlproguserassignments = null;
+        $this->controlprogcompletions = null;
+        $this->updateassignmentsdateformat = null;
         parent::tearDown();
     }
 

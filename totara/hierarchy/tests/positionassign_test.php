@@ -49,6 +49,13 @@ class positionassign_test extends advanced_testcase {
               'timecreated' => 0, 'timemodified' => 0, 'usermodified' => 2)
     );
 
+    protected function tearDown() {
+        $this->user1 = null;
+        $this->pos_framework_data = null;
+        $this->pos_data = null;
+        parent::tearDown();
+    }
+
     protected function setUp() {
         global $DB;
         parent::setUp();

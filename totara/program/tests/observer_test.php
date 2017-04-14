@@ -47,6 +47,14 @@ class totara_program_observer_testcase extends reportcache_advanced_testcase {
     /** @var program */
     private $program1, $program2;
 
+    protected function tearDown() {
+        $this->data_generator = null;
+        $this->program_generator = null;
+        $this->course1 = null;
+        $this->program1 = null;
+        parent::tearDown();
+    }
+
     public function setUp() {
         $this->resetAfterTest(true);
         parent::setUp();

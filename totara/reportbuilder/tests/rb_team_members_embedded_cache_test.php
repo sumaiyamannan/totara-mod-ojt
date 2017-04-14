@@ -58,6 +58,14 @@ class totara_reportbuilder_rb_team_members_embedded_cache_testcase extends repor
     // Work data
     protected $users = array();
 
+    protected function tearDown() {
+        $this->report_builder_data = null;
+        $this->report_builder_columns_data = null;
+        $this->report_builder_settings_data = null;
+        $this->users = null;
+        parent::tearDown();
+    }
+
     /**
      * Prepare mock data for testing
      *

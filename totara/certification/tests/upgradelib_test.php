@@ -45,6 +45,16 @@ class totara_certification_upgradelib_testcase extends reportcache_advanced_test
     public $numtestcerts = 10;
     public $numtestprogs = 7;
 
+    protected function tearDown() {
+        $this->users = null;
+        $this->programs = null;
+        $this->certifications = null;
+        $this->numtestusers = null;
+        $this->numtestcerts = null;
+        $this->numtestprogs = null;
+        parent::tearDown();
+    }
+
     /**
      * Set up the users, certifications and completions.
      */

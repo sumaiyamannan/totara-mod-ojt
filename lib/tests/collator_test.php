@@ -73,6 +73,10 @@ class core_collator_testcase extends advanced_testcase {
         } else {
             unset($SESSION->lang);
         }
+        $this->error = null;
+        $this->publicname = null;
+        $this->protectedname = null;
+        $this->privatename = null;
         parent::tearDown();
     }
 

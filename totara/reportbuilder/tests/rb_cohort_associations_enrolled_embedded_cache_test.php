@@ -60,6 +60,18 @@ class totara_reportbuilder_rb_cohort_associations_enrolled_embedded_cache_testca
 
     protected static $ind = 0;
 
+    protected function tearDown() {
+        $this->report_builder_data = null;
+        $this->report_builder_columns_data = null;
+        $this->report_builder_filters_data = null;
+        $this->users = null;
+        $this->course1 = null;
+        $this->course2 = null;
+        $this->cohort1 = null;
+        $this->cohort2 = null;
+        parent::tearDown();
+    }
+
     /**
      * Prepare mock data for testing
      *

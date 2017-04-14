@@ -58,6 +58,8 @@ class workshopallocation_random_testcase extends advanced_testcase {
     protected function tearDown() {
         $this->allocator    = null;
         $this->workshop     = null;
+        $this->workshop = null;
+        $this->allocator = null;
         parent::tearDown();
     }
 

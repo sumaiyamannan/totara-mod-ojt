@@ -42,6 +42,11 @@ require_once($CFG->dirroot . '/mod/quiz/report/reportlib.php');
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class quiz_report_responses_from_steps_testcase extends mod_quiz_attempt_walkthrough_from_csv_testcase {
+    protected function tearDown() {
+        $this->files = null;
+        parent::tearDown();
+    }
+
     protected function get_full_path_of_csv_file($setname, $test) {
         // Overridden here so that __DIR__ points to the path of this file.
         return  __DIR__."/fixtures/{$setname}{$test}.csv";

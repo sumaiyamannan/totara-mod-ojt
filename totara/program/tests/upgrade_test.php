@@ -80,6 +80,13 @@ class totara_program_upgrade_testcase extends reportcache_advanced_testcase {
         array('id' => 12, 'programid' => 5, 'userid' => 3, 'assignmentid' => 5, 'timeassigned' => 14186790, 'exceptionstatus' => 0),
     );
 
+    protected function tearDown() {
+        $this->tables = null;
+        $this->prog_compl_data = null;
+        $this->prog_user_assign_data = null;
+        parent::tearDown();
+    }
+
     /**
      * Setup.
      */

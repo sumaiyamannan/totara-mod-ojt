@@ -90,6 +90,20 @@ class data_advanced_search_sql_test extends advanced_testcase {
      */
     public $approvedatarecordcount = 89;
 
+    protected function tearDown() {
+        $this->recorddata = null;
+        $this->recordcontentid = null;
+        $this->recordrecordid = null;
+        $this->recordfieldid = null;
+        $this->recordsearcharray = null;
+        $this->datarecordcount = null;
+        $this->groupdatarecordcount = null;
+        $this->datarecordset = null;
+        $this->finalrecord = null;
+        $this->approvedatarecordcount = null;
+        parent::tearDown();
+    }
+
     /**
      * Set up function. In this instance we are setting up database
      * records to be used in the unit tests.

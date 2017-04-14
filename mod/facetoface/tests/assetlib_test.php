@@ -42,6 +42,13 @@ class mod_facetoface_assetlib_testcase extends advanced_testcase {
 
     private $cfprefix = 'facetofaceasset', $cftableprefix = 'facetoface_asset';
 
+    protected function tearDown() {
+        $this->facetoface_generator = null;
+        $this->customfield_generator = null;
+        $this->cfprefix = null;
+        parent::tearDown();
+    }
+
     public function setUp() {
         parent::setUp();
         $this->resetAfterTest();

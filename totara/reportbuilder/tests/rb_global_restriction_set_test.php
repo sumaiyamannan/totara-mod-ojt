@@ -95,6 +95,21 @@ class totara_reportbuilder_rb_global_restriction_set_testcase extends advanced_t
         require_once("$CFG->dirroot/totara/reportbuilder/classes/rb_global_restriction_set.php");
     }
 
+    protected function tearDown() {
+        $this->restr1 = null;
+        $this->restr2 = null;
+        $this->restrallusers = null;
+        $this->restrallrecords = null;
+        $this->restrnotassign = null;
+        $this->restroff = null;
+        $this->user = null;
+        $this->usernone = null;
+        $this->report = null;
+        $this->reportrecord = null;
+        $this->query = null;
+        parent::tearDown();
+    }
+
     protected function setUp() {
         global $DB, $CFG;
         parent::setUp();

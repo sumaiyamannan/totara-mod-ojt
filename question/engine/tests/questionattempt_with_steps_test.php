@@ -55,6 +55,7 @@ class question_attempt_with_steps_test extends advanced_testcase {
 
     protected function tearDown() {
         $this->qa = null;
+        $this->question = null;
         parent::tearDown();
     }
 

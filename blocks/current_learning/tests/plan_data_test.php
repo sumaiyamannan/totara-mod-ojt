@@ -36,6 +36,15 @@ class block_current_learning_plan_data_testcase extends block_current_learning_t
     private $course1, $course2;
     private $planrecord1, $planrecord2;
 
+    protected function tearDown() {
+        $this->generator = null;
+        $this->plan_generator = null;
+        $this->user1 = null;
+        $this->course1 = null;
+        $this->planrecord1 = null;
+        parent::tearDown();
+    }
+
     protected function setUp() {
         global $CFG;
         parent::setUp();

@@ -66,6 +66,9 @@ class question_engine_unit_of_work_test extends data_loading_method_test_base {
 
     protected function tearDown() {
         question_bank::end_unit_test();
+        $this->quba = null;
+        $this->slot = null;
+        $this->observer = null;
         parent::tearDown();
     }
 

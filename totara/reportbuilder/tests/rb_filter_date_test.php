@@ -37,6 +37,12 @@ class totara_reportbuilder_rb_filter_date_testcase extends advanced_testcase {
     private $today_timestamp;
     private $filter;
 
+    protected function tearDown() {
+        $this->today_timestamp = null;
+        $this->filter = null;
+        parent::tearDown();
+    }
+
     protected function setUp() {
         parent::setup();
 

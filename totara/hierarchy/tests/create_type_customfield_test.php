@@ -36,6 +36,11 @@ class create_type_customfield_testcase extends advanced_testcase {
      */
     protected $hierarchy_generator = null;
 
+    protected function tearDown() {
+        $this->hierarchy_generator = null;
+        parent::tearDown();
+    }
+
     protected function setUp() {
         parent::setup();
         $this->resetAfterTest(true);

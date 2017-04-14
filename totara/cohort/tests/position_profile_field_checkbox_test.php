@@ -53,6 +53,18 @@ class totara_cohort_position_profile_field_checkbox_testcase extends advanced_te
 
     const TEST_USER_COUNT_MEMBERS = 22;
 
+    protected function tearDown() {
+        $this->cohort_generator = null;
+        $this->hierarchy_generator = null;
+        $this->cohort = null;
+        $this->ruleset = null;
+        $this->pos = null;
+        $this->typeid = null;
+        $this->input = null;
+        $this->fieldid = null;
+        parent::tearDown();
+    }
+
     protected function setUp() {
         global $DB;
 

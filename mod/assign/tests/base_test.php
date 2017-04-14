@@ -82,6 +82,19 @@ class mod_assign_base_testcase extends advanced_testcase {
     /** @var array $groups List of 10 groups in the course */
     protected $groups = null;
 
+    protected function tearDown() {
+        $this->course = null;
+        $this->teachers = null;
+        $this->editingteachers = null;
+        $this->students = null;
+        $this->extrateachers = null;
+        $this->extraeditingteachers = null;
+        $this->extrastudents = null;
+        $this->extrasuspendedstudents = null;
+        $this->groups = null;
+        parent::tearDown();
+    }
+
     /**
      * Setup function - we will create a course and add an assign instance to it.
      */

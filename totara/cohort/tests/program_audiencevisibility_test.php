@@ -65,6 +65,33 @@ class totara_cohort_program_audiencevisibility_testcase extends reportcache_adva
     private $category = null;
     private $cohort_generator = null;
 
+    protected function tearDown() {
+        $this->user1 = null;
+        $this->user2 = null;
+        $this->user3 = null;
+        $this->user4 = null;
+        $this->user5 = null;
+        $this->user6 = null;
+        $this->user7 = null;
+        $this->user8 = null;
+        $this->user9 = null;
+        $this->user10 = null;
+        $this->program1 = null;
+        $this->program2 = null;
+        $this->program3 = null;
+        $this->program4 = null;
+        $this->program5 = null;
+        $this->program6 = null;
+        $this->program7 = null;
+        $this->program8 = null;
+        $this->program9 = null;
+        $this->audience1 = null;
+        $this->audience2 = null;
+        $this->category = null;
+        $this->cohort_generator = null;
+        parent::tearDown();
+    }
+
     /**
      * Setup.
      */

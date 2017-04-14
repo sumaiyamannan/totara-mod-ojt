@@ -57,6 +57,24 @@ class totara_cohort_organisation_rules_testcase extends advanced_testcase {
     private $hierarchy_generator = null;
     const TEST_ORGANISATION_COUNT_MEMBERS = 23;
 
+    protected function tearDown() {
+        $this->org1 = null;
+        $this->org2 = null;
+        $this->org3 = null;
+        $this->org4 = null;
+        $this->org5 = null;
+        $this->orgfw = null;
+        $this->cohort = null;
+        $this->ruleset = null;
+        $this->usersorg1 = null;
+        $this->usersorg2 = null;
+        $this->usersorg3 = null;
+        $this->usersorg4 = null;
+        $this->cohort_generator = null;
+        $this->hierarchy_generator = null;
+        parent::tearDown();
+    }
+
     /**
      * Users per organisation:
      *

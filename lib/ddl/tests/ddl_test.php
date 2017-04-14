@@ -29,6 +29,12 @@ class core_ddl_testcase extends database_driver_testcase {
     private $tables = array();
     private $records= array();
 
+    protected function tearDown() {
+        $this->tables = null;
+        $this->records = null;
+        parent::tearDown();
+    }
+
     protected function setUp() {
         parent::setUp();
         $dbman = $this->tdb->get_manager(); // Loads DDL libs.

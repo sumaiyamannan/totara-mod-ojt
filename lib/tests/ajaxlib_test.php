@@ -40,6 +40,7 @@ class core_ajaxlib_testcase extends advanced_testcase {
 
     protected function tearDown() {
         ini_set('error_log', $this->oldlog);
+        $this->oldlog = null;
         parent::tearDown();
     }
 

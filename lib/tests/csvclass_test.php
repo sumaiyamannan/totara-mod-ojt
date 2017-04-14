@@ -36,6 +36,15 @@ class core_csvclass_testcase extends advanced_testcase {
     protected $teststring3 = '';
     protected $teststring4 = '';
 
+    protected function tearDown() {
+        $this->testdata = null;
+        $this->teststring = null;
+        $this->teststring2 = null;
+        $this->teststring3 = null;
+        $this->teststring4 = null;
+        parent::tearDown();
+    }
+
     protected function setUp() {
 
         $this->resetAfterTest();

@@ -109,6 +109,13 @@ class totara_program_program_class_testcase extends reportcache_advanced_testcas
         $this->messagesink->clear();
         $this->messagesink->close();
         $this->messagesink = null;
+        $this->data_generator = null;
+        $this->program_generator = null;
+        $this->hierarchy_generator = null;
+        $this->cohort_generator = null;
+        $this->plan_generator = null;
+        $this->orgframe = null;
+        $this->users = null;
         parent::tearDown();
     }
 

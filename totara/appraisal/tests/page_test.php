@@ -41,6 +41,12 @@ class appraisal_page_test extends appraisal_testcase {
      */
     protected $defmngr = array();
 
+    protected function tearDown() {
+        $this->def = null;
+        $this->defmngr = null;
+        parent::tearDown();
+    }
+
     public function setUp() {
         parent::setUp();
         $this->defmngr = array('name' => 'Appraisal', 'stages' => array(

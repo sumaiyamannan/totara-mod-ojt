@@ -40,6 +40,13 @@ class movehierarchyitem_test extends advanced_testcase {
     private $org1, $org2, $org3, $org4, $org5, $org6, $org7, $org8, $org9, $org10, $org11, $org12, $org13, $org14, $org15, $org16;
     private $org;
 
+    protected function tearDown() {
+        $this->frame1 = null;
+        $this->org1 = null;
+        $this->org = null;
+        parent::tearDown();
+    }
+
     protected function setUp() {
         global $DB;
         parent::setup();

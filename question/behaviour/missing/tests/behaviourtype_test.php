@@ -42,6 +42,11 @@ class qbehaviour_missing_type_test extends basic_testcase {
     /** @var qbehaviour_missing_type */
     protected $behaviourtype;
 
+    protected function tearDown() {
+        $this->behaviourtype = null;
+        parent::tearDown();
+    }
+
     public function setUp() {
         parent::setUp();
         $this->behaviourtype = question_engine::get_behaviour_type('missing');

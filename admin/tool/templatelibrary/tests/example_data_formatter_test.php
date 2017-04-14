@@ -27,6 +27,11 @@ class example_data_formatter_testcase extends advanced_testcase {
 
     protected $initialthemedesignermode;
 
+    protected function tearDown() {
+        $this->initialthemedesignermode = null;
+        parent::tearDown();
+    }
+
     public function setUp() {
 
         global $CFG;

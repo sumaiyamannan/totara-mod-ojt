@@ -40,6 +40,15 @@ define('CERTIFICATION_PART_4_USERS', 6);
  */
 class totara_certification_certification_testcase extends reportcache_advanced_testcase {
 
+    protected function tearDown() {
+        $this->setuptimeminimum = null;
+        $this->firstcompletiontimeminimum = null;
+        $this->secondcompletiontime = null;
+        $this->secondcrontime = null;
+        $this->thirdcompletiontime = null;
+        parent::tearDown();
+    }
+
     /**
      * The expiry date is calculated depending on the recertifydatetype property as follows:
      * CERTIFRECERT_EXPIRY

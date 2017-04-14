@@ -42,6 +42,18 @@ class core_filterlib_testcase extends advanced_testcase {
     private $activity1context;
     private $activity2context;
 
+    protected function tearDown() {
+        $this->syscontext = null;
+        $this->childcontext = null;
+        $this->childcontext2 = null;
+        $this->catcontext = null;
+        $this->coursecontext = null;
+        $this->course = null;
+        $this->activity1context = null;
+        $this->activity2context = null;
+        parent::tearDown();
+    }
+
     protected function setUp() {
         global $DB;
         parent::setUp();

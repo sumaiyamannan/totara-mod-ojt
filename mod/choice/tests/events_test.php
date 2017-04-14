@@ -47,6 +47,14 @@ class mod_choice_events_testcase extends advanced_testcase {
     /** @var context_object */
     protected $context;
 
+    protected function tearDown() {
+        $this->choice = null;
+        $this->course = null;
+        $this->cm = null;
+        $this->context = null;
+        parent::tearDown();
+    }
+
     /**
      * Setup often used objects for the following tests.
      */

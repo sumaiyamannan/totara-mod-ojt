@@ -50,6 +50,18 @@ class block_current_learning_course_data_testcase extends block_current_learning
     private $course1;
     private $course2;
 
+    protected function tearDown() {
+        $this->generator = null;
+        $this->program_generator = null;
+        $this->user1 = null;
+        $this->user2 = null;
+        $this->user3 = null;
+        $this->user4 = null;
+        $this->course1 = null;
+        $this->course2 = null;
+        parent::tearDown();
+    }
+
     protected function setUp() {
         global $CFG;
         parent::setUp();

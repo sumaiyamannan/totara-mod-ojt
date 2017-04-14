@@ -32,6 +32,14 @@ class core_course_user_learning_item_testcase extends advanced_testcase {
     private $course1, $course2, $course3, $course4, $course5, $course6;
     private $user1;
 
+    protected function tearDown() {
+        $this->generator = null;
+        $this->completion_generator = null;
+        $this->course1 = null;
+        $this->user1 = null;
+        parent::tearDown();
+    }
+
     public function setUp() {
         global $DB;
 

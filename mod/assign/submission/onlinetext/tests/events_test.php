@@ -50,6 +50,17 @@ class assignsubmission_onlinetext_events_testcase extends advanced_testcase {
     /** @var stdClass $data General data for the assignment submission. */
     protected $data;
 
+    protected function tearDown() {
+        $this->user = null;
+        $this->course = null;
+        $this->cm = null;
+        $this->context = null;
+        $this->assign = null;
+        $this->submission = null;
+        $this->data = null;
+        parent::tearDown();
+    }
+
     /**
      * Setup all the various parts of an assignment activity including creating an onlinetext submission.
      */

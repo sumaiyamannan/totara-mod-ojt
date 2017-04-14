@@ -37,6 +37,11 @@ defined('MOODLE_INTERNAL') || die();
 class core_phpunit_basic_testcase extends basic_testcase {
     protected $testassertexecuted = false;
 
+    protected function tearDown() {
+        $this->testassertexecuted = null;
+        parent::tearDown();
+    }
+
     protected function setUp() {
         parent::setUp();
         if ($this->getName() === 'test_setup_assert') {

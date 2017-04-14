@@ -219,6 +219,18 @@ class tool_totara_sync_user_csv_emptyfields_setting_testcase extends advanced_te
         // TODO: Add all the other possible custom field types.
     );
 
+    protected function tearDown() {
+        $this->filedir = null;
+        $this->configcsv = null;
+        $this->config = null;
+        $this->user_info_field_textinput_data = null;
+        $this->user_info_field_textarea_data = null;
+        $this->user_info_field_checkbox_data = null;
+        $this->user_info_field_datetime_data = null;
+        $this->importdata = null;
+        parent::tearDown();
+    }
+
     public function setUp() {
         global $CFG;
 

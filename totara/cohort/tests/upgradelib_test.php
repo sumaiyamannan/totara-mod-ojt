@@ -67,6 +67,34 @@ class totara_cohort_upgradelib_testcase extends advanced_testcase {
     private $dateformat = '';
     const TEST_JOB_COUNT_MEMBERS = 23;
 
+    protected function tearDown() {
+        $this->man1 = null;
+        $this->man2 = null;
+        $this->pos1 = null;
+        $this->pos2 = null;
+        $this->pos3 = null;
+        $this->org1 = null;
+        $this->org2 = null;
+        $this->org3 = null;
+        $this->posfw = null;
+        $this->ptype1 = null;
+        $this->ptype2 = null;
+        $this->pcust1 = null;
+        $this->orgfw = null;
+        $this->otype1 = null;
+        $this->otype2 = null;
+        $this->ocust1 = null;
+        $this->cohort = null;
+        $this->ruleset = null;
+        $this->userspos1 = null;
+        $this->userspos2 = null;
+        $this->userspos3 = null;
+        $this->cohort_generator = null;
+        $this->hierarchy_generator = null;
+        $this->dateformat = null;
+        parent::tearDown();
+    }
+
     /**
      * Users per position/organisation:
      *

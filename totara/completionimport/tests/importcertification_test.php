@@ -67,6 +67,27 @@ class importcertification_testcase extends reportcache_advanced_testcase {
     private $initialexpirydate;
     private $filename;
 
+    protected function tearDown() {
+        $this->users = null;
+        $this->program = null;
+        $this->cohort = null;
+        $this->usersincohort = null;
+        $this->progdata = null;
+        $this->csvdateformat = null;
+        $this->csvdelimiter = null;
+        $this->csvseparator = null;
+        $this->futurecompletiondate = null;
+        $this->futureduedate = null;
+        $this->pastcompletiondate = null;
+        $this->pastduedate = null;
+        $this->farpastcompletiondate = null;
+        $this->farpastduedate = null;
+        $this->initialcompletiondate = null;
+        $this->initialexpirydate = null;
+        $this->filename = null;
+        parent::tearDown();
+    }
+
     public function test_import() {
         global $DB, $CFG;
 

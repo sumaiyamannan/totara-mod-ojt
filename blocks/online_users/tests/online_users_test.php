@@ -41,6 +41,11 @@ class block_online_users_testcase extends advanced_testcase {
 
     protected $data;
 
+    protected function tearDown() {
+        $this->data = null;
+        parent::tearDown();
+    }
+
     /**
      * Tests initial setup.
      *

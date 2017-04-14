@@ -50,6 +50,13 @@ class report_outline_lib_testcase extends advanced_testcase {
      */
     private $tree;
 
+    protected function tearDown() {
+        $this->user = null;
+        $this->course = null;
+        $this->tree = null;
+        parent::tearDown();
+    }
+
     public function setUp() {
         $this->user = $this->getDataGenerator()->create_user();
         $this->user2 = $this->getDataGenerator()->create_user();

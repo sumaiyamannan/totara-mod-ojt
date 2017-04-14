@@ -54,6 +54,9 @@ class mod_facetoface_session_registration_closure_testcase extends advanced_test
 
         $this->eventsink->close();
         $this->emailsink->close();
+        $this->cfgemail = null;
+        $this->eventsink = null;
+        $this->emailsink = null;
         parent::tearDown();
     }
 

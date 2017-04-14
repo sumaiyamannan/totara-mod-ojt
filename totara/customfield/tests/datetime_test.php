@@ -36,6 +36,15 @@ class totara_customfield_datetime_testcase extends advanced_testcase {
     private $prefix = 'facetofacesignup';
     private $tableprefix = 'facetoface_signup';
 
+    protected function tearDown() {
+        $this->generator = null;
+        $this->datetime_id = null;
+        $this->item_obj = null;
+        $this->prefix = null;
+        $this->tableprefix = null;
+        parent::tearDown();
+    }
+
     public function setUp() {
         global $DB;
 
