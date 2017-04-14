@@ -1277,5 +1277,30 @@ function xmldb_totara_reportbuilder_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2016092005, 'totara', 'reportbuilder');
     }
 
+    if ($oldversion < 2016092006) {
+
+        // Define field useclonedb to be added to report_builder.
+        $table = new xmldb_table('report_builder');
+        $field = new xmldb_field('useclonedb', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0', 'showtotalcount');
+
+        // Conditionally launch add field useclonedb.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Migrate existing setting from the POC patch.
+        $useclonedb = get_config('totara_reportbuilder', 'useclonedb');
+        if ($useclonedb) {
+            $useclonedb = explode(',', $useclonedb);
+            foreach ($useclonedb as $rid) {
+                $DB->set_field('report_builder', 'useclonedb', 1, array('id' => $rid));
+            }
+        }
+        unset_config('useclonedb', 'totara_reportbuilder');
+
+        // Reportbuilder savepoint reached.
+        upgrade_plugin_savepoint(true, 2016092006, 'totara', 'reportbuilder');
+    }
+
     return true;
 }

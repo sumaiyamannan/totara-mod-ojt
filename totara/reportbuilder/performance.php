@@ -70,6 +70,9 @@ if ($fromform = $mform->get_data()) {
     if (get_config('totara_reportbuilder', 'allowtotalcount')) {
         $todb->showtotalcount = !empty($fromform->showtotalcount) ? 1 : 0;
     }
+    if (totara_is_clone_db_configured()) {
+        $todb->useclonedb = empty($fromform->useclonedb) ? 0 : 1;
+    }
     $todb->timemodified = time();
     $DB->update_record('report_builder', $todb);
 

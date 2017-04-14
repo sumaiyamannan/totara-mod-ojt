@@ -233,6 +233,14 @@ class reportbuilder {
     public $showtotalcount = false;
 
     /**
+     * Don't access this property outside of the Report Builder API.
+     * It should be considered private. It is public only because of the report form requirements.
+     * @internal
+     * @var bool
+     */
+    public $useclonedb;
+
+    /**
      * Constructor for reportbuilder object
      *
      * Generates a new reportbuilder report instance.
@@ -367,6 +375,8 @@ class reportbuilder {
             $this->cache = 0;
             $this->cacheschedule = false;
         }
+
+        $this->useclonedb = $report->useclonedb;
 
         // Determine who is viewing or receiving the report.
         // Used for access and content restriction checks.
@@ -3212,6 +3222,24 @@ class reportbuilder {
     }
 
     /**
+     * Get DB instance used for fetching of report data.
+     *
+     * @return moodle_database
+     */
+    public function get_report_db() {
+        global $DB;
+        if ($this->cache or !$this->useclonedb) {
+            return $DB;
+        }
+
+        $db = totara_get_clone_db();
+        if (!$db) {
+            return $DB;
+        }
+        return $db;
+    }
+
+    /**
      * Is report caching enabled and cache is ready and not cache is not ignored
      *
      * @return bool
@@ -3760,7 +3788,7 @@ class reportbuilder {
      * @return integer Record count
      */
     function get_full_count() {
-        global $DB, $CFG;
+        global $CFG;
 
         // Don't do the calculation if the results are initially hidden or if we cannot display the total count.
         if ($this->is_initially_hidden() || !$this->can_display_total_count()) {
@@ -3771,7 +3799,8 @@ class reportbuilder {
         if (empty($this->_fullcount)) {
             list($sql, $params) = $this->build_query(true);
             try {
-                $this->set_full_count($DB->count_records_sql($sql, $params));
+                $reportdb = $this->get_report_db();
+                $this->set_full_count($reportdb->count_records_sql($sql, $params));
             } catch (dml_read_exception $e) {
                 $debuginfo = $CFG->debugdeveloper ? $e->debuginfo : '';
                 print_error('error:problemobtainingreportdata', 'totara_reportbuilder', '', $debuginfo);
@@ -3787,7 +3816,7 @@ class reportbuilder {
      * @return integer Filtered record count
      */
     public function get_filtered_count($nocache = false) {
-        global $DB, $CFG;
+        global $CFG;
 
         // Don't do the calculation if the results are initially hidden.
         if ($this->is_initially_hidden()) {
@@ -3798,7 +3827,8 @@ class reportbuilder {
         if (empty($this->_filteredcount) || $nocache) {
             list($sql, $params) = $this->build_query(true, true);
             try {
-                $this->set_filtered_count($DB->count_records_sql($sql, $params));
+                $reportdb = $this->get_report_db();
+                $this->set_filtered_count($reportdb->count_records_sql($sql, $params));
             } catch (dml_read_exception $e) {
                 $debuginfo = $CFG->debugdeveloper ? $e->debuginfo : '';
                 print_error('error:problemobtainingcachedreportdata', 'totara_reportbuilder', '', $debuginfo);
@@ -4134,11 +4164,12 @@ class reportbuilder {
      * @return counted_recordset
      */
     private function get_counted_recordset_sql($sql, array $params = null, $limitfrom = 0, $limitnum = 0, $setfilteredcount = false) {
-        global $DB, $CFG;
+        global $CFG;
 
         try {
 
-            $recordset = $DB->get_counted_recordset_sql($sql, $params, $limitfrom, $limitnum);
+            $reportdb = $this->get_report_db();
+            $recordset = $reportdb->get_counted_recordset_sql($sql, $params, $limitfrom, $limitnum);
 
         } catch (dml_read_exception $e) {
 
@@ -4951,7 +4982,8 @@ class reportbuilder {
         } else {
             $sort = " ORDER BY {$baseid}";
         }
-        $data = $DB->get_records_sql($sql . $sort, $params, $spage * $perpage, $perpage);
+        $reportdb = $this->get_report_db();
+        $data = $reportdb->get_records_sql($sql . $sort, $params, $spage * $perpage, $perpage);
         $first = true;
 
         foreach ($data as $item) {

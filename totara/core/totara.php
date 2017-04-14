@@ -2458,3 +2458,83 @@ function totara_core_generate_unique_db_value($table, $column, $prefix = null) {
     }
     return $name;
 }
+
+/**
+ * Convert a core\output\notification instance to the legacy array format.
+ *
+ * @param \core\output\notification $notification The templatable to be converted.
+ */
+function totara_convert_notification_to_legacy_array(\core\output\notification $notification) {
+    global $OUTPUT;
+
+    $type = $notification->get_message_type();
+    $variables = $notification->export_for_template($OUTPUT);
+
+    $data = [ 'message' => $variables['message'], 'class' => trim($type . ' ' . $variables['extraclasses'])];
+
+    return array_merge($notification->get_totara_customdata(), $data);
+}
+
+/**
+ * Is the clone db configured?
+ *
+ * @return bool
+ */
+function totara_is_clone_db_configured() {
+    global $CFG;
+    return !empty($CFG->clone_dbname);
+}
+
+/**
+ * Returns instance of read only database clone.
+ *
+ * @param bool $reconnect force reopening of new connection
+ * @return moodle_database|null
+ */
+function totara_get_clone_db($reconnect = false) {
+    global $CFG;
+
+    /** @var moodle_database $db */
+    static $db = null;
+
+    if ($reconnect) {
+        if ($db) {
+            $db->dispose();
+        }
+        $db = null;
+    } else if (isset($db)) {
+        if ($db === false) {
+            // Previous init failed.
+            return null;
+        }
+        return $db;
+    }
+
+    if (empty($CFG->clone_dbname)) {
+        // Not configured, this is fine.
+        $db = false;
+        return null;
+    }
+
+    if (!$db = moodle_database::get_driver_instance($CFG->dbtype, $CFG->dblibrary, false)) {
+        debugging('Cannot find driver for the cloned database', DEBUG_DEVELOPER);
+        $db = false;
+        return null;
+    }
+
+    try {
+        // NOTE: dbname is always required and the prefix must be exactly the same.
+        $dbhost = isset($CFG->clone_dbhost) ? $CFG->clone_dbhost : $CFG->dbhost;
+        $dbuser = isset($CFG->clone_dbuser) ? $CFG->clone_dbuser : $CFG->dbuser;
+        $dbpass = isset($CFG->clone_dbpass) ? $CFG->clone_dbpass : $CFG->dbpass;
+        $dboptions = isset($CFG->clone_dboptions) ? $CFG->clone_dboptions : $CFG->dboptions;
+
+        $db->connect($dbhost, $dbuser, $dbpass, $CFG->clone_dbname, $CFG->prefix, $dboptions);
+    } catch (Exception $e) {
+        debugging('Cannot connect to the cloned database', DEBUG_DEVELOPER);
+        $db = false;
+        return null;
+    }
+
+    return $db;
+}

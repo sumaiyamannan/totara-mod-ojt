@@ -567,6 +567,17 @@ $CFG->admin = 'admin';
 //
 //      $CFG->tool_totara_sync_enable_fasthash = true;
 //
+// Read only database clone. These settings allow admin to configure a second database
+// connection that will be used for selected Report Builder reports to improve performance
+// and lower the main database load.
+//
+//      $CFG->clone_dbname = 'xxx';
+//      $CFG->clone_dbhost = $CFG->dbhost; // optional
+//      $CFG->clone_dbuser = $CFG->dbuser; // optional
+//      $CFG->clone_dbpass = $CFG->dbpass; // optional
+//      $CFG->clone_dboptions = $CFG->dboptions; //optional
+//
+//
 //=========================================================================
 // 7. SETTINGS FOR DEVELOPMENT SERVERS - not intended for production use!!!
 //=========================================================================
