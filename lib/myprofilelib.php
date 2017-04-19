@@ -243,13 +243,16 @@ function core_myprofile_navigation(core_user\output\myprofile\tree $tree, $user,
                     context_helper::preload_from_record($mycourse);
                     $ccontext = context_course::instance($mycourse->id);
                     if (!isset($course) || $mycourse->id != $course->id) {
-                        $linkattributes = null;
-                        if ($mycourse->visible == 0) {
-                            if (!has_capability('moodle/course:viewhiddencourses', $ccontext)) {
-                                continue;
-                            }
-                            $linkattributes['class'] = 'dimmed';
+                        // Totara: make sure course visibility takes into account audience visibility settings.
+                        if (!totara_course_is_viewable($mycourse->id)) {
+                            // Be aware that enrol_get_all_users_courses only returns what the profile owner
+                            // is allowed to see. This check is making sure that whoever views the profile
+                            // can also see the course.
+                            continue;
                         }
+                        $linkattributes = array(
+                            'class' => totara_get_style_visibility($mycourse)
+                        );
                         $params = array('id' => $user->id, 'course' => $mycourse->id);
                         if ($showallcourses) {
                             $params['showallcourses'] = 1;
