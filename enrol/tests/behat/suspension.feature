@@ -39,7 +39,6 @@ Feature: Suspend enrolled course users
     Then I should see "Topic 1"
     And I log out
 
-
     When I log in as "admin"
     And I navigate to "Manage courses and categories" node in "Site administration > Courses"
     Then I should see "Course 1"
@@ -127,6 +126,8 @@ Feature: Suspend enrolled course users
     And I follow "Miscellaneous"
     And I follow "Course 1"
     And I press "Save"
+    # Cron is needed as an adhoc task processes this.
+    And I run the adhoc scheduled tasks "totara_cohort\task\sync_dynamic_cohort_task"
     And I log out
 
     When I log in as "learner1"
@@ -183,6 +184,8 @@ Feature: Suspend enrolled course users
     And I follow "Miscellaneous"
     And I follow "Course 1"
     And I press "Save"
+    # Cron is needed as an adhoc task processes this.
+    And I run the adhoc scheduled tasks "totara_cohort\task\sync_dynamic_cohort_task"
     And I log out
 
     When I log in as "learner1"
