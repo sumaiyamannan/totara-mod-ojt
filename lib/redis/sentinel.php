@@ -6,6 +6,7 @@ class sentinel {
     
     public $connecttimeout = 1;
     public $readtimeout = 1;
+    public $persistent = true;
 
     private $flags;
 
@@ -26,7 +27,7 @@ class sentinel {
     }
 
     public function __destruct() {
-        if ($this->connected) {
+        if (!$this->persistent && $this->connected) {
             $this->disconnect();
         }
     }
@@ -48,7 +49,11 @@ class sentinel {
 
     private function connect($sentinel) {
 
-        $this->socket = @stream_socket_client($sentinel, $errorno, $errstr, $this->connecttimeout);
+        if ($this->persistent) {
+            $this->socket = @stream_socket_client($sentinel, $errorno, $errstr, $this->connecttimeout, STREAM_CLIENT_CONNECT | STREAM_CLIENT_PERSISTENT);
+        } else {
+            $this->socket = @stream_socket_client($sentinel, $errorno, $errstr, $this->connecttimeout);
+        }
 
         if (!$this->socket) {
             $this->connected = false;
