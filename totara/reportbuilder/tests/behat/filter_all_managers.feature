@@ -50,6 +50,7 @@ Feature: Use the multi-item manager filter
     And I should see "user3" in the ".reportbuilder-table" "css_element"
     And I should see "user4" in the ".reportbuilder-table" "css_element"
     And I should see "user5" in the ".reportbuilder-table" "css_element"
+    # Select
     When I select "Any of the selected" from the "User's Manager(s) field limiter" singleselect
     When I click on "Choose Managers" "link" in the "Search by" "fieldset"
     And I click on "Manager1 One1" "link" in the "Choose Managers" "totaradialogue"
@@ -59,5 +60,21 @@ Feature: Use the multi-item manager filter
     Then I should see "user1" in the ".reportbuilder-table" "css_element"
     And I should see "user2" in the ".reportbuilder-table" "css_element"
     And I should not see "user3" in the ".reportbuilder-table" "css_element"
+    And I should not see "user4" in the ".reportbuilder-table" "css_element"
+    And I should not see "user5" in the ".reportbuilder-table" "css_element"
+    # Search
+    When I select "Any of the selected" from the "User's Manager(s) field limiter" singleselect
+    And I click on "Choose Managers" "link" in the "Search by" "fieldset"
+    And I switch to "Search" tab
+    And I set the following fields to these values:
+      | query | Man |
+    And I press "dialogsearchsubmitbutton"
+    And I click on "Manager2 Two2" "link" in the "#search-tab" "css_element"
+    And I click on "Save" "button" in the "Choose Managers" "totaradialogue"
+    And I wait "1" seconds
+    And I click on "Search" "button" in the "#fgroup_id_submitgroupstandard" "css_element"
+    Then I should see "user1" in the ".reportbuilder-table" "css_element"
+    And I should see "user2" in the ".reportbuilder-table" "css_element"
+    And I should see "user3" in the ".reportbuilder-table" "css_element"
     And I should not see "user4" in the ".reportbuilder-table" "css_element"
     And I should not see "user5" in the ".reportbuilder-table" "css_element"
