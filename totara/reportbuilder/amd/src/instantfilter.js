@@ -40,9 +40,11 @@ define(['jquery', 'core/config', 'core/templates'], function ($, mdlcfg, templat
             // ignoredirty needs to be avoided as it is the password hack to stop browsers populating password fields
             $('.rb-sidebar input:not(.ignoredirty), .rb-sidebar select').change(function (event) {
                 // Force form dependency before processing (as it will enable fields that we might need to send).
-                formid = $(this).parents('form').attr('id');
-                if (typeof M.form.dependencyManagers[formid] != "undefined") {
+                try {
+                    var formid = $(this).parents('form').attr('id');
                     M.form.updateFormState(formid);
+                } catch (err) {
+                    // Cannot update form state: do nothing.
                 }
 
                 // Abort any call to instantreport that is already active.
