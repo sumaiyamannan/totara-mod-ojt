@@ -39,6 +39,12 @@ define(['jquery', 'core/config', 'core/templates'], function ($, mdlcfg, templat
 
             // ignoredirty needs to be avoided as it is the password hack to stop browsers populating password fields
             $('.rb-sidebar input:not(.ignoredirty), .rb-sidebar select').change(function (event) {
+                // Force form dependency before processing (as it will enable fields that we might need to send).
+                formid = $(this).parents('form').attr('id');
+                if (typeof M.form.dependencyManagers[formid] != "undefined") {
+                    M.form.updateFormState(formid);
+                }
+
                 // Abort any call to instantreport that is already active.
                 if (instantfilter.xhr) {
                     instantfilter.xhr.abort();
@@ -119,12 +125,7 @@ define(['jquery', 'core/config', 'core/templates'], function ($, mdlcfg, templat
                 $('.rb-record-count').replaceWith($(data).find('.rb-record-count'));
                 // All browsers, except MSIE 6-7-8.
                 $('.rb-report-svggraph').replaceWith($(data).find('.rb-report-svggraph'));
-                if ($.trim($('.rb-report-svggraph').html()) == '') {
-                    $('.rb-report-svggraph').attr('padding-bottom', '0%');
-                } else {
-                    $('.rb-report-svggraph').attr('padding-bottom', '40%');
-                }
-                // Keep happy MSIE 6-7-8.
+                // Support MSIE 6-7-8.
                 $('.rb-report-pdfgraph').replaceWith($(data).find('.rb-report-pdfgraph'));
                 // Update sidebar filter counts.
                 $(data).find('.rb-sidebar.mform label').each(function (ind, elem) {

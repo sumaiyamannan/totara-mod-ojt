@@ -413,6 +413,9 @@ class rb_source_dp_course extends rb_base_source {
                         'grade_grades',
                         'course_completion'
                     ),
+                    'extrafields' => array(
+                        'maxgrade' => 'grade_grades.rawgrademax'
+                    ),
                     'displayfunc' => 'course_grade_percent',
                 )
             );

@@ -70,7 +70,7 @@ Feature: Seminar Manager signup approval changes
     And I follow "Classroom Connect Course"
     And I follow "Join waitlist"
     Then I should not see "Manager Approval"
-    And I should see "This event is currently full. By clicking the \"Join waitlist\" button, you will be placed on the event's wait-list."
+    And I should see "This event is currently full. By clicking the \"Join waitlist\" button, you will be placed on the event's waitlist."
 
     Given I press "Sign-up"
     And I log out
@@ -89,7 +89,7 @@ Feature: Seminar Manager signup approval changes
     And I follow "Classroom Connect Course"
     And I follow "Join waitlist"
     Then I should see "Manager Approval"
-    And I should see "This event is currently full. By clicking the \"Join waitlist\" button, you will be placed on the event's wait-list."
+    And I should see "This event is currently full. By clicking the \"Join waitlist\" button, you will be placed on the event's waitlist."
     When I press "Request approval"
     Then I should see "Your booking has been completed but requires approval from your manager."
 

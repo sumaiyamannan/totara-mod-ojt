@@ -101,6 +101,16 @@ class totara_certification_messages_testcase extends reportcache_advanced_testca
         $this->programgenerator = $this->getDataGenerator()->get_plugin_generator('totara_program');
     }
 
+    protected function tearDown() {
+        $this->sink->close();
+        $this->cert1 = null;
+        $this->cert2 = null;
+        $this->user1 = null;
+        $this->sink = null;
+        $this->programgenerator = null;
+        parent::tearDown();
+    }
+
     /**
      * Make sure that certification completed messages are resent when a user recertifies.
      */

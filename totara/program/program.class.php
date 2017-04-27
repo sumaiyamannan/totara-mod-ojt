@@ -870,8 +870,16 @@ class program {
                   FROM {prog_courseset_course} csc
             INNER JOIN {prog_courseset} cs
                     ON csc.coursesetid = cs.id
-                   AND cs.programid = ?";
-        $courses = $DB->get_fieldset_sql($sql, array($this->id));
+                   AND cs.programid = :pid1
+                UNION
+                SELECT DISTINCT cc.iteminstance as courseid
+                  FROM {prog_courseset} cs
+                  JOIN {comp_criteria} cc
+                    ON cc.competencyid = cs.competencyid AND cc.itemtype = :itemtype
+                 WHERE cs.programid = :pid2
+                   AND cs.competencyid != 0";
+        $params = array('pid1' => $this->id, 'itemtype' => 'coursecompletion', 'pid2' => $this->id);
+        $courses = $DB->get_fieldset_sql($sql, $params);
 
         if (!empty($courses)) {
             //get program course enrolment plugin

@@ -52,6 +52,16 @@ class totara_reportbuilder_rb_findprograms_embedded_cache_testcase extends repor
     protected $program2 = null;
     protected $program3 = null;
 
+    protected function tearDown() {
+        $this->report_builder_data = null;
+        $this->report_builder_columns_data = null;
+        $this->report_builder_filters_data = null;
+        $this->program1 = null;
+        $this->program2 = null;
+        $this->program3 = null;
+        parent::tearDown();
+    }
+
     /**
      * Prepare mock data for testing
      *

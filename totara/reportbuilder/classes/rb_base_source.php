@@ -838,7 +838,14 @@ abstract class rb_base_source {
      * @return string The percentage with 1 decimal place
      */
     function rb_display_course_grade_percent($item, $row) {
-        return ($item === null or $item === '') ? '-' : sprintf('%.1f%%', $item);
+        if ($item === null || $item === '' || empty($row->maxgrade)) {
+            return '-';
+        }
+
+        // Create a percentage using the max grade.
+        $percent = ($item / $row->maxgrade) * 100;
+
+        return sprintf('%.1f%%', $percent);
     }
 
     /**
@@ -1086,8 +1093,6 @@ abstract class rb_base_source {
         require_once($CFG->dirroot . '/course/renderer.php');
         require_once($CFG->dirroot . '/lib/coursecatlib.php');
 
-        $formdata = array();
-
         $courseid = required_param('expandcourseid', PARAM_INT);
         $userid = $USER->id;
 
@@ -1096,14 +1101,28 @@ abstract class rb_base_source {
             exit();
         }
 
-        $course = $DB->get_record('course', array('id' => $courseid));
+        $course = $DB->get_record('course', array('id' => $courseid), '*', MUST_EXIST);
 
         $chelper = new coursecat_helper();
-        $formdata['summary'] = $chelper->get_course_formatted_summary(new course_in_list($course));
+
+        $formdata = array(
+            // The following are required.
+            'summary' => $chelper->get_course_formatted_summary(new course_in_list($course)),
+            'status' => null,
+            'courseid' => $courseid,
+
+            // The following are optional, and depend upon state.
+            'inlineenrolmentelements' => null,
+            'enroltype' => null,
+            'progress' => null,
+            'enddate' => null,
+            'grade' => null,
+            'action' => null,
+            'url' => null,
+        );
 
         $coursecontext = context_course::instance($course->id, MUST_EXIST);
         $enrolled = is_enrolled($coursecontext);
-        $formdata['url'] = new moodle_url('/course/view.php', array('id' => $courseid));
 
         $inlineenrolments = array();
         if ($enrolled) {
@@ -1146,6 +1165,7 @@ abstract class rb_base_source {
                 // Course not finished, so no end date for course.
                 $formdata['enddate'] = '';
             }
+            $formdata['url'] = new moodle_url('/course/view.php', array('id' => $courseid));
             $formdata['action'] =  get_string('launchcourse', 'totara_program');
         } else {
             $formdata['status'] = get_string('coursestatusnotenrolled', 'totara_reportbuilder');
@@ -1174,17 +1194,19 @@ abstract class rb_base_source {
 
             $inlineenrolmentelements = $this->get_inline_enrolment_elements($inlineenrolments);
             $formdata['inlineenrolmentelements'] = $inlineenrolmentelements;
-            $formdata['courseid'] = $course->id;
             $formdata['enroltype'] = $enrolmethodstr;
 
             if (is_viewing($coursecontext, $realuser->id) || is_siteadmin($realuser->id)) {
-                $formdata['viewcourse'] = true;
+                $formdata['action'] = get_string('viewcourse', 'totara_program');
+                $formdata['url'] = new moodle_url('/course/view.php', array('id' => $courseid));
             }
         }
 
         $mform = new report_builder_course_expand_form(null, $formdata);
 
-        $this->process_enrolments($mform, $inlineenrolments);
+        if (!empty($inlineenrolments)) {
+            $this->process_enrolments($mform, $inlineenrolments);
+        }
 
         return $mform->render();
     }
@@ -4535,6 +4557,7 @@ abstract class rb_base_source {
                                 "LEFT JOIN {{$cf_prefix}_info_data_param} {$cf_prefix}_idpt_{$id} " .
                                        "ON {$cf_prefix}_idt_{$id}.id = {$cf_prefix}_idpt_{$id}.dataid"),
                         'basefields' => array("{$join}.id AS base_{$cf_prefix}_idt_{$id}"),
+                        'basegroups' => array("{$join}.id"),
                         'dependency' => $join,
                         'dataalias' => "{$cf_prefix}_idpt_{$id}",
                         'datafield' => "value");
@@ -4562,6 +4585,7 @@ abstract class rb_base_source {
                                 "LEFT JOIN {{$cf_prefix}_info_data_param} {$cf_prefix}_idpi_{$id} " .
                                        "ON {$cf_prefix}_idi_{$id}.id = {$cf_prefix}_idpi_{$id}.dataid"),
                         'basefields' => array("{$join}.id AS base_{$cf_prefix}_idi_{$id}"),
+                        'basegroups' => array("{$join}.id"),
                         'dependency' => $join,
                         'dataalias' => "{$cf_prefix}_idpi_{$id}",
                         'datafield' => "value");

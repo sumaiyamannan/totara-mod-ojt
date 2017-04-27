@@ -44,6 +44,11 @@ class filter_algebra_testcase extends basic_testcase {
 
     protected $filter;
 
+    protected function tearDown() {
+        $this->filter = null;
+        parent::tearDown();
+    }
+
     protected function setUp() {
         parent::setUp();
         $this->filter = new filter_algebra(context_system::instance(), array());

@@ -169,7 +169,9 @@ function SCORMapi1_2(def, cmiobj, cmiint, cmistring256, cmistring4096, scormdebu
     var Initialized = false;
 
     function LMSInitialize (param) {
-        scoid = scorm_current_node ? scorm_current_node.scoid : scoid;
+        if (scorm_current_node && scorm_current_node.scoid) {
+            scoid = scorm_current_node.scoid;
+        }
         initdatamodel(scoid);
 
         errorCode = "0";

@@ -51,6 +51,13 @@ class core_course_enrolment_manager_testcase extends advanced_testcase {
      */
     private $groups = array();
 
+    protected function tearDown() {
+        $this->course = null;
+        $this->users = null;
+        $this->groups = null;
+        parent::tearDown();
+    }
+
     /**
      * Tests set up
      */

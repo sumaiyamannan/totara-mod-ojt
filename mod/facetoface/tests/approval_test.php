@@ -47,6 +47,12 @@ class mod_facetoface_approvals_testcase extends advanced_testcase {
      */
     private $cfgemail = null;
 
+    protected function tearDown() {
+        $this->emailsink = null;
+        $this->cfgemail = null;
+        parent::tearDown();
+    }
+
     /**
      * PhpUnit fixture method that runs before the test method executes.
      */

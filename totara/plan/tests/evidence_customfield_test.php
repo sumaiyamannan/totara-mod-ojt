@@ -31,6 +31,11 @@ class evidence_customfield_testcase extends advanced_testcase {
 
     protected $plangenerator = null;
 
+    protected function tearDown() {
+        $this->plangenerator = null;
+        parent::tearDown();
+    }
+
     protected function setUp() {
         parent::setup();
         $this->resetAfterTest(true);

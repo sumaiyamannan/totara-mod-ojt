@@ -55,6 +55,34 @@ class number extends text {
     }
 
     /**
+     * Set value of attribute.
+     *
+     * @param string $name
+     * @param mixed $value null means value not specified
+     */
+    public function set_attribute($name, $value) {
+        if ($name === 'step') {
+            if ((string)$value !== (string)(int)$value or (int)$value < 1) {
+                throw new \coding_exception('step attribute value must be a positive integer');
+            }
+            $value = (int)$value;
+        }
+        if ($name === 'min' and $value !== null) {
+            if ((string)$value !== ((string)(int)$value)) {
+                throw new \coding_exception('min attribute value must be an integer or NULL');
+            }
+            $value = (int)$value;
+        }
+        if ($name === 'max' and $value !== null) {
+            if ((string)$value !== ((string)(int)$value)) {
+                throw new \coding_exception('max attribute value must be an integer or NULL');
+            }
+            $value = (int)$value;
+        }
+        parent::set_attribute($name, $value);
+    }
+
+    /**
      * Get Mustache template data.
      *
      * @param \renderer_base $output

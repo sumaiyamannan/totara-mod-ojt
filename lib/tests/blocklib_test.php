@@ -50,6 +50,7 @@ class core_blocklib_testcase extends advanced_testcase {
     protected function tearDown() {
         $this->testpage = null;
         $this->blockmanager = null;
+        $this->isediting = null;
         parent::tearDown();
     }
 

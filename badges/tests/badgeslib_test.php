@@ -38,6 +38,16 @@ class core_badges_badgeslib_testcase extends advanced_testcase {
     protected $coursebadge;
     protected $assertion;
 
+    protected function tearDown() {
+        $this->badgeid = null;
+        $this->course = null;
+        $this->user = null;
+        $this->module = null;
+        $this->coursebadge = null;
+        $this->assertion = null;
+        parent::tearDown();
+    }
+
     protected function setUp() {
         global $DB, $CFG;
         $this->resetAfterTest(true);

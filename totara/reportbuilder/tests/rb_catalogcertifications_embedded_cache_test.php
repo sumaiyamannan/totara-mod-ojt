@@ -60,6 +60,20 @@ class totara_reportbuilder_rb_catalogcertifications_embedded_cache_testcase exte
     protected $certification3 = null;
     protected $certification4 = null;
 
+    protected function tearDown() {
+        $this->report_builder_data = null;
+        $this->report_builder_columns_data = null;
+        $this->report_builder_filters_data = null;
+        $this->report_builder_cf_filters_data = null;
+        $this->user1 = null;
+        $this->user2 = null;
+        $this->certification1 = null;
+        $this->certification2 = null;
+        $this->certification3 = null;
+        $this->certification4 = null;
+        parent::tearDown();
+    }
+
     /**
      * Prepare mock data for testing
      *

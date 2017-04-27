@@ -44,6 +44,15 @@ class totara_certification_reassignments_testcase extends reportcache_advanced_t
     protected $users;
     protected $task;
 
+    protected function tearDown() {
+        $this->monthsecs = null;
+        $this->program = null;
+        $this->courses = null;
+        $this->users = null;
+        $this->task = null;
+        parent::tearDown();
+    }
+
     /**
      * Setup.
      */

@@ -117,6 +117,7 @@ M.totara_cohortruledelete = M.totara_cohortruledelete || {
             var link = $(this);
             var ruleparamid = link.closest('a').data('ruleparam-id');
             var ruleparamcontainer = link.closest('span.ruleparamcontainer');
+            var frameworkid = ruleparamcontainer.data('ruleparam-frameworkid');
 
             confirmed = confirm(M.util.get_string('deleteruleparamconfirm', 'totara_cohort'));
 
@@ -150,6 +151,9 @@ M.totara_cohortruledelete = M.totara_cohortruledelete || {
                             }
                         }
                         ruleparamcontainer.remove();
+                        if ($("span.ruleparamcontainer[data-ruleparam-frameworkid="+frameworkid+"]").length == '0') {
+                            $("span.ruleparamcontainer[data-ruleparam-framework-id="+frameworkid+"]").remove();
+                        }
                     } else if (o.action == 'delrule') {
                         remove_rule(o.ruleid);
                     } else if (o.action == 'delruleset') {

@@ -62,6 +62,30 @@ class totara_cohort_multi_jobs_rules_testcase extends advanced_testcase {
     private $hierarchy_generator = null;
     const TEST_POSITION_COUNT_MEMBERS = 24;
 
+    protected function tearDown() {
+        $this->controluser = null;
+        $this->man1 = null;
+        $this->man2 = null;
+        $this->man3 = null;
+        $this->pos1 = null;
+        $this->pos2 = null;
+        $this->pos3 = null;
+        $this->org1 = null;
+        $this->org2 = null;
+        $this->org3 = null;
+        $this->posfw = null;
+        $this->ptype1 = null;
+        $this->ptype2 = null;
+        $this->orgfw = null;
+        $this->otype1 = null;
+        $this->otype2 = null;
+        $this->cohort = null;
+        $this->ruleset = null;
+        $this->cohort_generator = null;
+        $this->hierarchy_generator = null;
+        parent::tearDown();
+    }
+
     /**
      * Users positions per job assignment.
      *

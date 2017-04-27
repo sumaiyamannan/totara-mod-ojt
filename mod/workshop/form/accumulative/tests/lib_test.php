@@ -60,6 +60,7 @@ class workshop_accumulative_strategy_testcase extends advanced_testcase {
     protected function tearDown() {
         $this->workshop = null;
         $this->strategy = null;
+        $this->dimensions = null;
         parent::tearDown();
     }
 

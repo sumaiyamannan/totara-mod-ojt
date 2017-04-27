@@ -66,6 +66,34 @@ class totara_cohort_certification_audiencevisibility_testcase extends reportcach
     private $cohort_generator = null;
     private $program_generator = null;
 
+    protected function tearDown() {
+        $this->user1 = null;
+        $this->user2 = null;
+        $this->user3 = null;
+        $this->user4 = null;
+        $this->user5 = null;
+        $this->user6 = null;
+        $this->user7 = null;
+        $this->user8 = null;
+        $this->user9 = null;
+        $this->user10 = null;
+        $this->certif1 = null;
+        $this->certif2 = null;
+        $this->certif3 = null;
+        $this->certif4 = null;
+        $this->certif5 = null;
+        $this->certif6 = null;
+        $this->certif7 = null;
+        $this->certif8 = null;
+        $this->certif9 = null;
+        $this->audience1 = null;
+        $this->audience2 = null;
+        $this->category = null;
+        $this->cohort_generator = null;
+        $this->program_generator = null;
+        parent::tearDown();
+    }
+
     /**
      * Setup.
      */

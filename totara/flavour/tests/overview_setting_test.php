@@ -54,6 +54,7 @@ class totara_flavour_overview_setting_testcase extends advanced_testcase {
         unset($CFG->showflavours);
         unset($CFG->currentflavour);
         admin_get_root(true, false);
+        $this->testflavouravailable = null;
         parent::tearDown();
     }
 

@@ -28,6 +28,12 @@ class totara_customfield_evidence_delete_testcase extends advanced_testcase {
     protected $evidence1 = null;
     protected $evidence2 = null;
 
+    protected function tearDown() {
+        $this->evidence1 = null;
+        $this->evidence2 = null;
+        parent::tearDown();
+    }
+
     public function setUp() {
         parent::setUp();
 

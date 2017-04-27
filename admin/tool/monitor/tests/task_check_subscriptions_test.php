@@ -33,6 +33,16 @@ class tool_monitor_task_check_subscriptions_testcase extends advanced_testcase {
     private $teacherrole;
     private $studentrole;
 
+    protected function tearDown() {
+        $this->course = null;
+        $this->user = null;
+        $this->rule = null;
+        $this->subscription = null;
+        $this->teacherrole = null;
+        $this->studentrole = null;
+        parent::tearDown();
+    }
+
     /**
      * Test set up.
      */

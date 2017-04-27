@@ -47,6 +47,15 @@ class totara_cohort_delete_items_testcase extends advanced_testcase {
     /** @var totara_hierarchy_generator $hierarchy_generator */
     private $hierarchy_generator = null;
 
+    protected function tearDown() {
+        $this->pos1 = null;
+        $this->pos2 = null;
+        $this->cohort = null;
+        $this->cohort_generator = null;
+        $this->hierarchy_generator = null;
+        parent::tearDown();
+    }
+
     public function setUp() {
         global $DB;
 

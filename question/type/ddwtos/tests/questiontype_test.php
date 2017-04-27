@@ -46,6 +46,7 @@ class qtype_ddwtos_test extends question_testcase {
 
     protected function tearDown() {
         $this->qtype = null;
+        parent::tearDown();
     }
 
     public function assert_same_xml($expectedxml, $xml) {

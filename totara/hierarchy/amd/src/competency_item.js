@@ -32,8 +32,8 @@ define(['jquery', 'core/config', 'core/str'], function ($, config, strings) {
             totaraMultiSelectDialog(
                 'related',
                 assignrelatedcompetencies,
-                url + 'find.php?id=' + id,
-                url + 'save.php?id=' + id + '&deleteexisting=1&add='
+                url + 'find.php?sesskey=' + config.sesskey + '&id=' + id,
+                url + 'save.php?sesskey=' + config.sesskey + '&id=' + id + '&deleteexisting=1&add='
             );
         });
 
@@ -88,7 +88,7 @@ define(['jquery', 'core/config', 'core/str'], function ($, config, strings) {
                     e.preventDefault();
                     var type = $(this).parent().attr('type');
                     var instance = $(this).parent().attr('id');
-                    var url = handler.baseurl + 'add.php?competency=' + id + '&type=' + type + '&instance=' + instance;
+                    var url = handler.baseurl + 'add.php?sesskey=' + config.sesskey + '&competency=' + id + '&type=' + type + '&instance=' + instance;
                     handler._dialog._request(url, {object: handler, method: '_update'});
                 });
 
@@ -133,7 +133,7 @@ define(['jquery', 'core/config', 'core/str'], function ($, config, strings) {
             };
 
             var url = config.wwwroot + '/totara/hierarchy/prefix/competency/evidenceitem/';
-            var saveurl = url + 'add.php?competency=' + id + '&type=coursecompletion&instance=0&deleteexisting=1&update=';
+            var saveurl = url + 'add.php?sesskey=' + config.sesskey + '&competency=' + id + '&type=coursecompletion&instance=0&deleteexisting=1&update=';
             var buttonsObj = {};
             var handler = new totaraDialog_handler_compEvidence();
             handler.baseurl = url;

@@ -45,22 +45,27 @@ Feature: Users can auto-enrol themselves in courses where self enrolment is allo
   Scenario: Guest trying to auto enrol in courses
     Given I log in as "guest"
     And I click on "Find Learning" in the totara menu
-    And I click on ".rb-display-expand" "css_element" in the "Course 1" "table_row"
+    When I click on ".rb-display-expand" "css_element" in the "Course 1" "table_row"
     Then "Enrol" "link_or_button" should not exist
-    And I click on ".rb-display-expand" "css_element" in the "Course 2" "table_row"
-    And I should not see "Enrol with"
-    And I click on ".rb-display-expand" "css_element" in the "Course 3" "table_row"
-    And "Enrol with - Guest access" "link_or_button" should exist
+    When I click on ".rb-display-expand" "css_element" in the "Course 2" "table_row"
+    Then I should not see "Enrol with"
+    When I click on ".rb-display-expand" "css_element" in the "Course 3" "table_row"
+    Then "Enrol with - Guest access" "link_or_button" should exist
 
   Scenario: Student trying to auto enrol in courses
     Given I log in as "student1"
     And I click on "Find Learning" in the totara menu
-    And I click on ".rb-display-expand" "css_element" in the "Course 1" "table_row"
+    When I click on ".rb-display-expand" "css_element" in the "Course 1" "table_row"
     Then "Enrol" "link_or_button" should exist
-    And I click on ".rb-display-expand" "css_element" in the "Course 2" "table_row"
-    And I should not see "Enrol with"
-    And I click on ".rb-display-expand" "css_element" in the "Course 3" "table_row"
-    And "Enrol with - Guest access" "link_or_button" should exist
+    # Lets auto enrol and visit the page again.
+    And I press "Enrol"
+    And I click on "Find Learning" in the totara menu
+    When I click on ".rb-display-expand" "css_element" in the "Course 1" "table_row"
+    Then "Launch course" "link_or_button" should exist
+    When I click on ".rb-display-expand" "css_element" in the "Course 2" "table_row"
+    Then I should not see "Enrol with"
+    When I click on ".rb-display-expand" "css_element" in the "Course 3" "table_row"
+    Then "Enrol with - Guest access" "link_or_button" should exist
     And I log out
 
   Scenario: Admin logged in as student and watching enrolment methods for courses
@@ -71,11 +76,11 @@ Feature: Users can auto-enrol themselves in courses where self enrolment is allo
     And I click on "Log in as" "link"
     And I press "Continue"
     And I click on "Find Learning" in the totara menu
-    And I click on ".rb-display-expand" "css_element" in the "Course 1" "table_row"
+    When I click on ".rb-display-expand" "css_element" in the "Course 1" "table_row"
     Then "Enrol" "link_or_button" should exist
-    And I click on ".rb-display-expand" "css_element" in the "Course 2" "table_row"
-    And "View course" "link_or_button" should exist
-    And I click on ".rb-display-expand" "css_element" in the "Course 3" "table_row"
-    And "Enrol with - Guest access" "link_or_button" should exist
+    When I click on ".rb-display-expand" "css_element" in the "Course 2" "table_row"
+    Then "View course" "link_or_button" should exist
+    When I click on ".rb-display-expand" "css_element" in the "Course 3" "table_row"
+    Then "Enrol with - Guest access" "link_or_button" should exist
     And "Enrol with - Self enrolment" "link_or_button" should exist
     And I log out

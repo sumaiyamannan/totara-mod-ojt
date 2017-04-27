@@ -141,7 +141,7 @@ class tgz_extractor {
         $this->mode = self::MODE_EXTRACT;
         $this->extract_or_list($handler, $progress);
         $results = $this->results;
-        unset($this->results);
+        $this->results = null; // Totara: do not unset declared object properties!
         return $results;
     }
 

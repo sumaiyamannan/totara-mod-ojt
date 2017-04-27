@@ -64,8 +64,14 @@ Bobby,Bunce,,"Moodle HQ","Rock on!",student5@example.com,75.00,,75.00,{exportdat
     /** @var array $columns The first row of the csv file. These are the columns of the import file.*/
     protected $columns;
 
-    public function tearDown() {
+    protected function tearDown() {
         $this->csvimport = null;
+        $this->oktext = null;
+        $this->badtext = null;
+        $this->csvtext = null;
+        $this->iid = null;
+        $this->columns = null;
+        parent::tearDown();
     }
 
     /**

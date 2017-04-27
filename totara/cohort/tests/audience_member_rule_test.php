@@ -45,6 +45,16 @@ class totara_cohort_audience_member_rule_testcase extends advanced_testcase {
     private $cohort1 = null;
     private $cohort2 = null;
 
+    protected function tearDown() {
+        $this->cohort_generator = null;
+        $this->userscohort1 = null;
+        $this->userscohort2 = null;
+        $this->noincohort1 = null;
+        $this->cohort1 = null;
+        $this->cohort2 = null;
+        parent::tearDown();
+    }
+
     public function setUp() {
         global $DB;
 

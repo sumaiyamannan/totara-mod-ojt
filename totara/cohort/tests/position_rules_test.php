@@ -58,6 +58,25 @@ class totara_cohort_position_rules_testcase extends advanced_testcase {
     private $dateformat = '';
     const TEST_POSITION_COUNT_MEMBERS = 23;
 
+    protected function tearDown() {
+        $this->pos1 = null;
+        $this->pos2 = null;
+        $this->pos3 = null;
+        $this->pos4 = null;
+        $this->pos5 = null;
+        $this->posfw = null;
+        $this->cohort = null;
+        $this->ruleset = null;
+        $this->userspos1 = null;
+        $this->userspos2 = null;
+        $this->userspos3 = null;
+        $this->userspos4 = null;
+        $this->cohort_generator = null;
+        $this->hierarchy_generator = null;
+        $this->dateformat = null;
+        parent::tearDown();
+    }
+
     /**
      * Users per position:
      *

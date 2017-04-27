@@ -49,6 +49,12 @@ class enrol_totara_facetoface_testcase extends advanced_testcase {
             'usermodified' => 2)
     );
 
+    protected function tearDown() {
+        $this->pos_framework_data = null;
+        $this->pos_data = null;
+        parent::tearDown();
+    }
+
     protected function enable_plugin() {
         $enabled = enrol_get_plugins(true);
         $enabled['totara_facetoface'] = true;

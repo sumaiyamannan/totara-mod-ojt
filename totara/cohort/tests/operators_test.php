@@ -45,6 +45,15 @@ class totara_cohort_operators_testcase extends reportcache_advanced_testcase {
     private $course2 = null;
     const TEST_OPERATOR_USER_COUNT_MEMBERS = 30;
 
+    protected function tearDown() {
+        $this->cohort_generator = null;
+        $this->cohort = null;
+        $this->ruleset = null;
+        $this->course1 = null;
+        $this->course2 = null;
+        parent::tearDown();
+    }
+
     public function setUp() {
         global $DB;
         parent::setup();

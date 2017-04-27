@@ -1077,7 +1077,12 @@ class theme_config {
                     }
 
                     // We never refer to the parent LESS files.
-                    $sheetfile = "$parent_config->dir/style/$sheet.css";
+                    if ($rtl) {
+                        $sheetfile = "$parent_config->dir/style/$sheet-rtl.css";
+                    } else {
+                        $sheetfile = "$parent_config->dir/style/$sheet.css";
+                    }
+                    // Check whether a sheetfile exists and is readable.
                     if (is_readable($sheetfile)) {
                         $cssfiles['parents'][$parent][$sheet] = $sheetfile;
                     }

@@ -42,6 +42,13 @@ class totara_cohort_events_testcase extends advanced_testcase {
     private $program_generator = null;
     private $cohort = null;
 
+    protected function tearDown() {
+        $this->cohort_generator = null;
+        $this->program_generator = null;
+        $this->cohort = null;
+        parent::tearDown();
+    }
+
     /**
      * SetUp.
      */

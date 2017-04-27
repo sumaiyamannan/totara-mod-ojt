@@ -42,6 +42,11 @@ class qbehaviour_deferredfeedback_type_test extends qbehaviour_walkthrough_test_
     /** @var qbehaviour_deferredfeedback_type */
     protected $behaviourtype;
 
+    protected function tearDown() {
+        $this->behaviourtype = null;
+        parent::tearDown();
+    }
+
     public function setUp() {
         parent::setUp();
         $this->behaviourtype = question_engine::get_behaviour_type('deferredfeedback');

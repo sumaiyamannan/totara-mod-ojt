@@ -1,5 +1,9 @@
 List of upgrade and API changes in Totara core
 
+=== 9.6 ===
+
+* updated totara/core/templates/course_progress_bar.mustache
+
 === 9.4 ===
 
 * updated totara/core/templates/totara_search.mustache

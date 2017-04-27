@@ -76,6 +76,9 @@ class core_backup_moodle1_converter_testcase extends advanced_testcase {
         if (empty($CFG->keeptempdirectoriesonbackup)) {
             fulldelete("$CFG->tempdir/backup/$this->tempdir");
         }
+        $this->tempdir = null;
+        $this->iconhash = null;
+        parent::tearDown();
     }
 
     public function test_detect_format() {

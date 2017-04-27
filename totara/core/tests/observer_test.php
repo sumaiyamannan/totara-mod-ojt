@@ -38,6 +38,12 @@ class totara_core_observer_testcase extends advanced_testcase {
     /** @var core_completion_generator $completion_generator */
     protected $completion_generator;
 
+    protected function tearDown() {
+        $this->generator = null;
+        $this->completion_generator = null;
+        parent::tearDown();
+    }
+
     protected function setUp() {
         parent::setup();
         $this->resetAfterTest();

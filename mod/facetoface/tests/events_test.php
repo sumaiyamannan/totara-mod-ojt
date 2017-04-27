@@ -32,6 +32,15 @@ class facetoface_events_testcase extends advanced_testcase {
     protected $session = null;
 
 
+    protected function tearDown() {
+        $this->facetofacegenerator = null;
+        $this->facetoface = null;
+        $this->course = null;
+        $this->context = null;
+        $this->session = null;
+        parent::tearDown();
+    }
+
     public function setUp() {
         global $DB;
         $this->resetAfterTest();

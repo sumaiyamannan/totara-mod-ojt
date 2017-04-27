@@ -242,6 +242,19 @@ class tool_totara_sync_user_external_database_testcase extends advanced_testcase
                 $dbman->drop_table($table, $this->dbtable);
             }
         }
+        $this->configdb = null;
+        $this->config = null;
+        $this->configexists = null;
+        $this->ext_dbconnection = null;
+        $this->dbtype = null;
+        $this->dbhost = null;
+        $this->dbport = null;
+        $this->dbname = null;
+        $this->dbuser = null;
+        $this->dbpass = null;
+        $this->dbtable = null;
+        $this->fieldstoimport = null;
+        parent::tearDown();
     }
 
     protected function create_external_user_table() {

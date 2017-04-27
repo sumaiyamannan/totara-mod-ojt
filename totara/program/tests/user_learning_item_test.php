@@ -33,6 +33,15 @@ class totara_program_user_learning_item_testcase extends advanced_testcase {
     private $program1, $program2, $program3, $program4;
     private $user1;
 
+    protected function tearDown() {
+        $this->generator = null;
+        $this->program_generator = null;
+        $this->course1 = null;
+        $this->program1 = null;
+        $this->user1 = null;
+        parent::tearDown();
+    }
+
     public function setUp() {
         global $DB;
 

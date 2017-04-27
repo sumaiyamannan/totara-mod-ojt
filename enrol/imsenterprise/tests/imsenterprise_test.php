@@ -44,6 +44,11 @@ class enrol_imsenterprise_testcase extends advanced_testcase {
      */
     public $imsplugin;
 
+    protected function tearDown() {
+        $this->imsplugin = null;
+        parent::tearDown();
+    }
+
     /**
      * Setup required for all tests.
      */

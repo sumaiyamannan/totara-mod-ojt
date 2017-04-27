@@ -42,6 +42,14 @@ class tool_totara_sync_user_csv_check_sanity_testcase extends advanced_testcase 
     private $synctable;
     private $synctable_clone;
 
+    protected function tearDown() {
+        $this->filedir = null;
+        $this->element = null;
+        $this->synctable = null;
+        $this->synctable_clone = null;
+        parent::tearDown();
+    }
+
     /**
      * Configure records, with one faulty record for each sub-check.
      */

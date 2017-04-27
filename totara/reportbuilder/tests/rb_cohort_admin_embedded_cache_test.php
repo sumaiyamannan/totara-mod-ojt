@@ -70,6 +70,19 @@ class totara_reportbuilder_rb_cohort_admin_embedded_cache_testcase extends repor
     protected $cohort2 = null;
     protected $cohort3 = null;
 
+    protected function tearDown() {
+        $this->report_builder_data = null;
+        $this->report_builder_columns_data = null;
+        $this->report_builder_filters_data = null;
+        $this->users = null;
+        $this->course1 = null;
+        $this->course2 = null;
+        $this->cohort1 = null;
+        $this->cohort2 = null;
+        $this->cohort3 = null;
+        parent::tearDown();
+    }
+
     /**
      * Prepare mock data for testing
      *

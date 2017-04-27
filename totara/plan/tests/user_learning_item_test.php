@@ -49,6 +49,17 @@ class totara_plan_user_learning_item_testcase extends advanced_testcase {
 
     private $user1;
 
+    protected function tearDown() {
+        $this->generator = null;
+        $this->plan_generator = null;
+        $this->course1 = null;
+        $this->course2 = null;
+        $this->plan1 = null;
+        $this->plan2 = null;
+        $this->user1 = null;
+        parent::tearDown();
+    }
+
     public function setUp() {
         $this->resetAfterTest(true);
         parent::setUp();

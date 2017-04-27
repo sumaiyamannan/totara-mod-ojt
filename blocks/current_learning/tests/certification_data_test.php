@@ -38,6 +38,16 @@ class block_current_learning_certification_data_testcase extends block_current_l
     private $course1, $course2, $course3, $course4;
     private $program1, $program2;
 
+    protected function tearDown() {
+        $this->generator = null;
+        $this->program_generator = null;
+        $this->completion_generator = null;
+        $this->user1 = null;
+        $this->course1 = null;
+        $this->program1 = null;
+        parent::tearDown();
+    }
+
     protected function setUp() {
         global $CFG, $DB;
         parent::setUp();

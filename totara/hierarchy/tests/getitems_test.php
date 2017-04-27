@@ -37,6 +37,11 @@ class getitemsexcludingchildren_test extends advanced_testcase {
 
     private $orgs = array();
 
+    protected function tearDown() {
+        $this->orgs = null;
+        parent::tearDown();
+    }
+
     protected function setUp() {
         global $DB;
 

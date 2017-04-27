@@ -49,6 +49,19 @@ class totara_cohort_course_completion_rules_testcase extends reportcache_advance
     private $cohort_generator = null;
     const TEST_COURSE_COUNT_USERS = 53;
 
+    protected function tearDown() {
+        $this->course1 = null;
+        $this->course2 = null;
+        $this->course3 = null;
+        $this->course4 = null;
+        $this->users = null;
+        $this->cohort = null;
+        $this->ruleset = null;
+        $this->coursestocomplete = null;
+        $this->cohort_generator = null;
+        parent::tearDown();
+    }
+
     /*
      * Course completion data:
      *-----------------*----------*--------------*-----------------*-----------------*

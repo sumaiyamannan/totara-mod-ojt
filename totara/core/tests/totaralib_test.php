@@ -33,6 +33,11 @@ require_once($CFG->dirroot . '/completion/cron.php');
 class totaralib_test extends advanced_testcase {
     protected $user, $manager, $teamleader, $appraiser, $invaliduserid = 9999;
 
+    protected function tearDown() {
+        $this->user = null;
+        parent::tearDown();
+    }
+
     protected function setUp() {
         parent::setUp();
 

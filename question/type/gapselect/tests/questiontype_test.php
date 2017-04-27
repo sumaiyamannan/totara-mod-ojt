@@ -46,6 +46,7 @@ class qtype_gapselect_test extends question_testcase {
 
     protected function tearDown() {
         $this->qtype = null;
+        parent::tearDown();
     }
 
     /**

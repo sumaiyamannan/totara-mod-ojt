@@ -67,13 +67,17 @@ class core_collator_testcase extends advanced_testcase {
      */
     protected function tearDown() {
         global $SESSION;
-        parent::tearDown();
         if ($this->initiallang !== null) {
             $SESSION->lang = $this->initiallang;
             $this->initiallang = null;
         } else {
             unset($SESSION->lang);
         }
+        $this->error = null;
+        $this->publicname = null;
+        $this->protectedname = null;
+        $this->privatename = null;
+        parent::tearDown();
     }
 
     /**

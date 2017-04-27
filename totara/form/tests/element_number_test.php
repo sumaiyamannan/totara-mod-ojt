@@ -189,6 +189,38 @@ class totara_form_element_number_testcase extends advanced_testcase {
         $form = new test_form(null);
         $data = (array)$form->get_data();
         $this->assertSame(array('somenumber1' => '9'), $data);
+
+        $definition = new test_definition($this,
+            function (model $model, advanced_testcase $testcase) {
+                /** @var \totara_form\form\element\number $number1 */
+                $number1 = $model->add(new number('somenumber1', 'Some number 1'));
+                $number1->set_attribute('max', -10);
+            });
+        test_form::phpunit_set_definition($definition);
+
+        $postdata = array(
+            'somenumber1' => '9',
+        );
+        test_form::phpunit_set_post_data($postdata);
+        $form = new test_form(null);
+        $data = $form->get_data();
+        $this->assertNull($data);
+
+        $postdata = array(
+            'somenumber1' => '-10',
+        );
+        test_form::phpunit_set_post_data($postdata);
+        $form = new test_form(null);
+        $data = (array)$form->get_data();
+        $this->assertSame(array('somenumber1' => '-10'), $data);
+
+        $postdata = array(
+            'somenumber1' => '-11',
+        );
+        test_form::phpunit_set_post_data($postdata);
+        $form = new test_form(null);
+        $data = (array)$form->get_data();
+        $this->assertSame(array('somenumber1' => '-11'), $data);
     }
 
     public function test_validation_min() {
@@ -223,6 +255,38 @@ class totara_form_element_number_testcase extends advanced_testcase {
         $form = new test_form(null);
         $data = (array)$form->get_data();
         $this->assertSame(array('somenumber1' => '11'), $data);
+
+        $definition = new test_definition($this,
+            function (model $model, advanced_testcase $testcase) {
+                /** @var \totara_form\form\element\number $number1 */
+                $number1 = $model->add(new number('somenumber1', 'Some number 1'));
+                $number1->set_attribute('min', -10);
+            });
+        test_form::phpunit_set_definition($definition);
+
+        $postdata = array(
+            'somenumber1' => '-11',
+        );
+        test_form::phpunit_set_post_data($postdata);
+        $form = new test_form(null);
+        $data = $form->get_data();
+        $this->assertNull($data);
+
+        $postdata = array(
+            'somenumber1' => '-10',
+        );
+        test_form::phpunit_set_post_data($postdata);
+        $form = new test_form(null);
+        $data = (array)$form->get_data();
+        $this->assertSame(array('somenumber1' => '-10'), $data);
+
+        $postdata = array(
+            'somenumber1' => '10',
+        );
+        test_form::phpunit_set_post_data($postdata);
+        $form = new test_form(null);
+        $data = (array)$form->get_data();
+        $this->assertSame(array('somenumber1' => '10'), $data);
     }
 
     public function test_validation_step() {
@@ -274,5 +338,38 @@ class totara_form_element_number_testcase extends advanced_testcase {
         $form = new test_form(null);
         $data = (array)$form->get_data();
         $this->assertSame(array('somenumber1' => '5'), $data);
+
+        $definition = new test_definition($this,
+            function (model $model, advanced_testcase $testcase) {
+                /** @var \totara_form\form\element\number $number1 */
+                $number1 = $model->add(new number('somenumber1', 'Some number 1'));
+                $number1->set_attribute('min', -2);
+                $number1->set_attribute('step', 3);
+            });
+        test_form::phpunit_set_definition($definition);
+
+        $postdata = array(
+            'somenumber1' => '1',
+        );
+        test_form::phpunit_set_post_data($postdata);
+        $form = new test_form(null);
+        $data = (array)$form->get_data();
+        $this->assertSame(array('somenumber1' => '1'), $data);
+
+        $postdata = array(
+            'somenumber1' => '-2',
+        );
+        test_form::phpunit_set_post_data($postdata);
+        $form = new test_form(null);
+        $data = (array)$form->get_data();
+        $this->assertSame(array('somenumber1' => '-2'), $data);
+
+        $postdata = array(
+            'somenumber1' => '-5',
+        );
+        test_form::phpunit_set_post_data($postdata);
+        $form = new test_form(null);
+        $data = $form->get_data();
+        $this->assertNull($data);
     }
 }

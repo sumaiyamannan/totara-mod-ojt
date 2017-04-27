@@ -36,6 +36,11 @@ class feedback360_responder_test extends feedback360_testcase {
      */
     private $data_generator;
 
+    protected function tearDown() {
+        $this->data_generator = null;
+        parent::tearDown();
+    }
+
     public function setUp() {
         parent::setUp();
         $this->resetAfterTest(true);

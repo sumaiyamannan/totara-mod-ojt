@@ -137,6 +137,7 @@ class behat_tool_totara_sync extends behat_base {
                 $table->add_field('email', XMLDB_TYPE_CHAR, '100');
                 $table->add_field('password', XMLDB_TYPE_CHAR, '32');
                 $table->add_field('suspended', XMLDB_TYPE_INTEGER, '1');
+                $table->add_field('auth', XMLDB_TYPE_CHAR, '20');
                 $table->add_field('manageridnumber', XMLDB_TYPE_CHAR, '100');
                 $table->add_field('appraiseridnumber', XMLDB_TYPE_CHAR, '100');
 

@@ -40,6 +40,11 @@ class filter_tex_testcase extends advanced_testcase {
 
     protected $filter;
 
+    protected function tearDown() {
+        $this->filter = null;
+        parent::tearDown();
+    }
+
     protected function setUp() {
         parent::setUp();
         $this->resetAfterTest(true);

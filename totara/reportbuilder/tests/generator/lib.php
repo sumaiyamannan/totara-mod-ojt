@@ -354,7 +354,6 @@ class totara_reportbuilder_cache_generator extends testing_data_generator {
             throw new coding_exception('Mis-match in the number of course sets created.');
         }
 
-        $coursecounts = array();
         foreach ($certifcontent->get_course_sets() as $courseset) {
             /** @var course_set $courseset */
 
@@ -365,26 +364,38 @@ class totara_reportbuilder_cache_generator extends testing_data_generator {
             $certifpath = (isset($detail['certifpath'])) ? $detail['certifpath'] : CERTIFPATH_STD;
             $mincourses = (isset($detail['mincourses'])) ? (int)$detail['mincourses'] : 0;
             $timeallowed = (isset($detail['timeallowed'])) ? (int)$detail['timeallowed'] : 0;
-            $courses = (isset($detail['courses']) && is_array($detail['courses'])) ? $detail['courses'] : false;
 
-            $coursecount = 0;
-            if ($courses) {
-                /** @var multi_course_set $courseset */
-                if ($courseset->contenttype != CONTENTTYPE_MULTICOURSE) {
-                    throw new coding_exception('Courses can only be added to multi course sets.');
-                }
-                foreach ($courses as $course) {
-                    $coursecount++;
-                    $key = $courseset->get_set_prefix() . 'courseid';
-                    $coursedata = new stdClass();
-                    $coursedata->{$key} = $course->id;
-                    if (!$courseset->add_course($coursedata)) {
-                        // We really need to know about this when it happens, and as its testing coding exception is going to be best.
-                        throw new coding_exception('Mis-match in the number of course sets created.');
+            switch ($courseset->contenttype) {
+                case CONTENTTYPE_MULTICOURSE :
+                    $courses = (isset($detail['courses']) && is_array($detail['courses'])) ? $detail['courses'] : false;
+
+                    if ($courses) {
+                        /** @var multi_course_set $courseset */
+                        foreach ($courses as $course) {
+                            $key = $courseset->get_set_prefix() . 'courseid';
+                            $coursedata = new stdClass();
+                            $coursedata->{$key} = $course->id;
+                            if (!$courseset->add_course($coursedata)) {
+                                // We really need to know about this when it happens, and as its testing coding exception is going to be best.
+                                throw new coding_exception('Mis-match in the number of course sets created.');
+                            }
+                        }
                     }
-                }
+                    break;
+
+                case CONTENTTYPE_COMPETENCY :
+                    $competency = (isset($detail['competency'])) ? $detail['competency'] : false;
+                    if ($competency) {
+                        // Add a competency to the competency courseset.
+                        $compdata = new stdClass();
+                        $compdata->{$courseset->get_set_prefix() . 'competencyid'} = $competency->id;
+                        $certifcontent->add_competency(1, $compdata);
+                    }
+                    break;
+
+                default:
+                    throw new coding_exception('Courses can only be added to multi course sets and comptencies.');
             }
-            $coursecounts[] = $coursecount;
 
             $courseset->nextsetoperator = $nextsetoperator;
             $courseset->completiontype = $completiontype;

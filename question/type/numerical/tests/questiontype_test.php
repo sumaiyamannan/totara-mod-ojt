@@ -53,6 +53,8 @@ class qtype_numerical_test extends advanced_testcase {
 
     protected function tearDown() {
         $this->qtype = null;
+        $this->tolerance = null;
+        parent::tearDown();
     }
 
     protected function get_test_question_data() {

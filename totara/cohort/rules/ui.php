@@ -1192,7 +1192,7 @@ class cohort_rule_ui_picker_hierarchy extends cohort_rule_ui {
      * @return string
      */
     public function getRuleDescription($ruleid, $static=true) {
-        global $CFG, $COHORT_RULES_OP_IN, $DB;
+        global $COHORT_RULES_OP_IN, $DB;
 
         if (
             !isset($this->equal)
@@ -1213,7 +1213,7 @@ class cohort_rule_ui_picker_hierarchy extends cohort_rule_ui {
         list($sqlin, $sqlparams) = $DB->get_in_or_equal($this->listofvalues);
         $sqlparams[] = $ruleid;
         $hierarchy = $this->shortprefix;
-        $sql = "SELECT h.id, h.fullname, h.sortthread, hfw.sortorder, crp.id AS paramid
+        $sql = "SELECT h.id, h.frameworkid, h.fullname, h.sortthread, hfw.fullname AS frameworkname, hfw.sortorder, crp.id AS paramid
             FROM {{$hierarchy}} h
             INNER JOIN {{$hierarchy}_framework} hfw ON h.frameworkid = hfw.id
             INNER JOIN {cohort_rule_params} crp ON h.id = " . $DB->sql_cast_char2int('crp.value') . "
@@ -1225,17 +1225,39 @@ class cohort_rule_ui_picker_hierarchy extends cohort_rule_ui {
             return get_string('error:rulemissingparams', 'totara_cohort');
         }
 
+        $paramseparator = html_writer::tag('span', ', ', array('class' => 'ruleparamseparator'));
+        $frameworkid = current($items)->frameworkid;
+        $frameworkname = current($items)->frameworkname;
+        reset($items);
+        $hierarchylist = array();
+        $get_rule_markup = function($hierarchylist, $frameworkid, $frameworkname) use($paramseparator) {
+            $a = new stdClass();
+            $a->hierarchy = implode($paramseparator, $hierarchylist);
+            $a->framework = $frameworkname;
+            $frameworkstr = get_string('ruleformat-framework', 'totara_cohort', $a);
+            $frameworkspan = html_writer::tag('span', $frameworkstr,
+                array('class' => 'ruleparamcontainer', 'data-ruleparam-framework-id' => $frameworkid));
+            return get_string('ruleformat-vars', 'totara_cohort', $a) . $frameworkspan;
+        };
+        $itemlist = array();
         foreach ($items as $i => $h) {
             $value = '"' . $h->fullname . '"';
             if (!$static) {
                 $value .= $this->param_delete_action_icon($h->paramid);
             }
-            $items[$i] = html_writer::tag('span', $value, array('class' => 'ruleparamcontainer'));
+            if ($frameworkid != $h->frameworkid) {
+                $itemlist[] = $get_rule_markup($hierarchylist, $frameworkid, $frameworkname);
+                $hierarchylist = array();
+                $frameworkid = $h->frameworkid;
+            }
+            $hierarchylist[$i] = html_writer::tag('span', $value,
+                array('class' => 'ruleparamcontainer', 'data-ruleparam-frameworkid' => $frameworkid));
+            $frameworkname = $h->frameworkname;
         };
+        // Process last item.
+        $itemlist[] = $get_rule_markup($hierarchylist, $frameworkid, $frameworkname);
 
-        $paramseparator = html_writer::tag('span', ', ', array('class' => 'ruleparamseparator'));
-        $strvar->vars = implode($paramseparator, $items);
-
+        $strvar->vars = implode($paramseparator, $itemlist);
         if (!empty($strvar->ext)) {
             return get_string('ruleformat-descjoinextvars', 'totara_cohort', $strvar);
         } else {

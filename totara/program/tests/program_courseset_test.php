@@ -49,6 +49,14 @@ class totara_program_program_courseset_testcase extends advanced_testcase {
     /** @var program */
     private $program1;
 
+    protected function tearDown() {
+        $this->generator = null;
+        $this->program_generator = null;
+        $this->course1 = null;
+        $this->program1 = null;
+        parent::tearDown();
+    }
+
     public function setUp() {
         $this->resetAfterTest(true);
         parent::setUp();

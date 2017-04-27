@@ -34,6 +34,11 @@ class enrol_database_testcase extends advanced_testcase {
     /** @var string Original error log */
     protected $oldlog;
 
+    protected function tearDown() {
+        $this->oldlog = null;
+        parent::tearDown();
+    }
+
     protected function init_enrol_database() {
         global $DB, $CFG;
 

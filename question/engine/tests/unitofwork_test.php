@@ -64,8 +64,12 @@ class question_engine_unit_of_work_test extends data_loading_method_test_base {
         $this->setup_initial_test_state($this->get_test_data());
      }
 
-    public function tearDown() {
+    protected function tearDown() {
         question_bank::end_unit_test();
+        $this->quba = null;
+        $this->slot = null;
+        $this->observer = null;
+        parent::tearDown();
     }
 
     protected function setup_initial_test_state($testdata) {

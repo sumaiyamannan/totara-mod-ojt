@@ -115,12 +115,16 @@ class totara_reportbuilder_rb_plan_programs_recurring_embedded_cache_testcase ex
     }
 
     protected function tearDown() {
-        global $DB;
-        $DB->execute('DELETE FROM {user} WHERE id='.$this->user1->id);
-        $DB->execute('DELETE FROM {user} WHERE id='.$this->user2->id);
-        $DB->execute('DELETE FROM {course} WHERE id='.$this->course1->id);
-        $DB->execute('DELETE FROM {course} WHERE id='.$this->course2->id);
-        $this->cleanup();
+        $this->report_builder_data = null;
+        $this->report_builder_columns_data = null;
+        $this->user1 = null;
+        $this->user2 = null;
+        $this->user3 = null;
+        $this->program1 = null;
+        $this->program2 = null;
+        $this->course1 = null;
+        $this->course2 = null;
+        parent::tearDown();
     }
 
     protected function cleanup() {

@@ -56,13 +56,15 @@ abstract class mod_quiz_attempts_report_form extends moodleform {
     }
 
     protected function standard_attempt_fields(MoodleQuickForm $mform) {
-
-        $mform->addElement('select', 'attempts', get_string('reportattemptsfrom', 'quiz'), array(
-                    quiz_attempts_report::ENROLLED_WITH    => get_string('reportuserswith', 'quiz'),
-                    quiz_attempts_report::ENROLLED_WITHOUT => get_string('reportuserswithout', 'quiz'),
-                    quiz_attempts_report::ENROLLED_ALL     => get_string('reportuserswithorwithout', 'quiz'),
-                    quiz_attempts_report::ALL_WITH        => get_string('reportusersall', 'quiz'),
-                 ));
+        $attemptsopts = array(
+            quiz_attempts_report::ENROLLED_WITH    => get_string('reportuserswith', 'quiz'),
+            quiz_attempts_report::ENROLLED_WITHOUT => get_string('reportuserswithout', 'quiz'),
+            quiz_attempts_report::ENROLLED_ALL     => get_string('reportuserswithorwithout', 'quiz'),
+        );
+        if (empty($this->_customdata['currentgroup'])) {
+            $attemptsopts[quiz_attempts_report::ALL_WITH] = get_string('reportusersall', 'quiz');
+        }
+        $mform->addElement('select', 'attempts', get_string('reportattemptsfrom', 'quiz'), $attemptsopts);
 
         $stategroup = array(
             $mform->createElement('advcheckbox', 'stateinprogress', '',

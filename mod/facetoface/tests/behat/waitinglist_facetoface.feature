@@ -72,7 +72,7 @@ Feature: Seminar Manager approval of waiting list
     And I click on "Find Learning" in the totara menu
     And I follow "Course 1"
     And I follow "Join waitlist"
-    Then I should see "This event is currently full. By clicking the \"Join waitlist\" button, you will be placed on the event's wait-list."
+    Then I should see "This event is currently full. By clicking the \"Join waitlist\" button, you will be placed on the event's waitlist."
     And I press "Sign-up"
     # TODO: Seems functionality bug (not behat test)
     #And I should see "You have been placed on the waitlist for this event."
@@ -82,7 +82,7 @@ Feature: Seminar Manager approval of waiting list
     And I click on "Find Learning" in the totara menu
     And I follow "Course 1"
     And I follow "Join waitlist"
-    Then I should see "This event is currently full. By clicking the \"Join waitlist\" button, you will be placed on the event's wait-list."
+    Then I should see "This event is currently full. By clicking the \"Join waitlist\" button, you will be placed on the event's waitlist."
     And I press "Sign-up"
     # TODO: Seems functionality bug (not behat test)
     #And I should see "You have been placed on the waitlist for this event."

@@ -41,7 +41,7 @@ $string['multiplecompletedandoneoptionalcoursesets'] = '{$a} completed sets and 
 $string['nameatoz'] = 'Name - A to Z';
 $string['next'] = 'Next';
 $string['notstarted'] = 'Not started';
-$string['nocurrentlearning'] = 'You do not have any current learning. For previously completed learning see your <a href={$a}>Record of Learning</a>.';
+$string['nocurrentlearning'] = 'You do not have any current learning. For previously completed learning see your <a href="{$a}">Record of Learning</a>.';
 $string['onecompletedandmultipleoptionalcoursesets'] = '1 completed set and {$a} optional sets';
 $string['onecompletedandoneoptionalcoursesets'] = '1 completed set and 1 optional set';
 $string['optionalcoursesets'] = '1 optional set';

@@ -594,8 +594,141 @@ EXPECTED;
         $this->assertEquals(1, validate_email("but_potentially'dangerous'too@example.org"));
         $this->assertEquals(1, validate_email('posts+AAAAAAAAAAIAAAAAAAAGQQAAAAABFSXz1eM/P/lR2bYyljM+@posts.moodle.org'));
 
-        $this->assertEquals(0, validate_email('moodle@localhost'));
+        $this->assertTrue(validate_email('moodle@localhost')); // TOTARA: this is a valid email address.
         $this->assertEquals(0, validate_email('"attacker\\" -oQ/tmp/ -X/var/www/vhost/moodle/backdoor.php  some"@email.com'));
         $this->assertEquals(0, validate_email("moodle@example.com>\r\nRCPT TO:<victim@example.com"));
+    }
+
+    /**
+     * Tests valid email addresses
+     *
+     * Added by us to ensure it really is doing what we think it is. Don't trust an untested regex!
+     */
+    public function test_validate_email_valid_addresses() {
+        // Valid email addresses.
+        $this->assertTrue(validate_email('address@example.com'));
+        $this->assertTrue(validate_email('firstname.lastname@example.com'));
+        $this->assertTrue(validate_email('firstname+subject@example.com'));
+        $this->assertTrue(validate_email('firstname.lastname+subject@example.com'));
+        $this->assertTrue(validate_email('address@subdomain.example.com'));
+        $this->assertTrue(validate_email('firstname+lastname@example.com'));
+        $this->assertTrue(validate_email('address@123.123.123.123'));
+        $this->assertTrue(validate_email('address@255.255.255.255'));
+        $this->assertTrue(validate_email('1234567890@example.com'));
+        $this->assertTrue(validate_email('123@example.123'));
+        $this->assertTrue(validate_email('address@example-one.com'));
+        $this->assertTrue(validate_email('_______@example.com'));
+        $this->assertTrue(validate_email('_______@ex--ple.com'));
+        $this->assertTrue(validate_email('address@example.name'));
+        $this->assertTrue(validate_email('address@example.travel'));
+        $this->assertTrue(validate_email('address@example.co.nz'));
+        $this->assertTrue(validate_email('firstname-lastname@example.com'));
+        $this->assertTrue(validate_email('address@io'));
+        $this->assertTrue(validate_email('!#$%&amp`*+/=?^`{|}~@example.com'));
+        $this->assertTrue(validate_email('address@io'));
+        $this->assertTrue(validate_email('ADDRESS@EXAMPLE.COM'));
+        $this->assertTrue(validate_email('Address@Example.Com'));
+        $this->assertTrue(validate_email('Address.3@example.com'));
+        $this->assertTrue(validate_email('user+mailbox/department=shipping@example.com'));
+        $this->assertTrue(validate_email('abcdefghijklmnopqrstuvwxyz@example.com'));
+        $this->assertTrue(validate_email('ABCDEFGHIJKLMNOPQRSTUVWXYZ@example.com'));
+        $this->assertTrue(validate_email('firstname&lastname@example.com'));
+        $this->assertTrue(validate_email('address@example'));
+    }
+
+    /**
+     * Tests valid email addresses that arn't accepted by us.
+     *
+     * Added by us to ensure it really is doing what we think it is. Don't trust an untested regex!
+     */
+    public function test_validate_email_valid_addresses_that_are_not_accepted() {
+        // Email addresses that are valid per specs, but not allowed by us.
+        $this->assertFalse(validate_email('address@[123.123.123.123]')); // Square bracket around IP address is considered valid, but not by us.
+        $this->assertFalse(validate_email('address@[IPv6:2001:DB8::1]')); // Square bracket around IP address is considered valid, but not by us.
+        $this->assertFalse(validate_email('address@::1')); // IPV6 addresses are valid, but not by us.
+        $this->assertFalse(validate_email('address@2001:DB8::1')); // IPV6 addresses are valid, but not by us.
+        $this->assertFalse(validate_email('address@IPv6:2001:DB8::1')); // IPV6 addresses are valid, but not by us.
+        $this->assertFalse(validate_email('"address"@example.com')); // Quotes around email is considered valid, but not by us.
+        $this->assertFalse(validate_email('“address”@example.com')); // Some utf8 quotes ;)
+        $this->assertFalse(validate_email('""@example.com')); // This is valid as per RFC5321
+        $this->assertFalse(validate_email('"\address"@example.com')); // This is valid as per RFC5321
+        $this->assertFalse(validate_email('"\""@example.com')); // This is valid as per RFC5321
+        $this->assertFalse(validate_email('"\\\\"@example.com')); // This is valid as per RFC5321
+        $this->assertFalse(validate_email('"Firstname Lastname"@example.com')); // Traditionally valid email address.
+        $this->assertFalse(validate_email('"Firstname.\\\\Lastname"@example.com')); // Traditionally valid email address.
+        $this->assertFalse(validate_email('"very.unusual.@.unusual.com"@example.com'));
+        $this->assertFalse(validate_email('"()<>[]:,;@\\\"!#$%&\'-/=?^_`{}| ~.a"@example.org'));
+    }
+
+    /**
+     * Tests valid international email addresses that we do not accept.
+     *
+     * Added by us to ensure it really is doing what we think it is. Don't trust an untested regex!
+     */
+    public function test_validate_email_valid_international_addresses_that_we_do_not_accept() {
+        // International Email addresses that are valid, but not allowed by us nor fully supported.
+        $this->assertFalse(validate_email('用户@例子.广告')); // Chinese.
+        $this->assertFalse(validate_email('甲斐@黒川.日本')); // Japanese.
+        $this->assertFalse(validate_email('संपर्क@डाटामेल.भारत')); // Hindi.
+        $this->assertFalse(validate_email('юзер@екзампл.ком')); // Ukrainian.
+        $this->assertFalse(validate_email('θσερ@εχαμπλε.ψομ')); // Greek.
+        $this->assertFalse(validate_email('Dörte@Sörensen.example.com')); // German.
+        $this->assertFalse(validate_email('аджай@экзампл.рус')); // Russian.
+    }
+
+    /**
+     * Tests invalid email addresses that are accepted by us.
+     *
+     * Added by us to ensure it really is doing what we think it is. Don't trust an untested regex!
+     */
+    public function test_validate_email_invalid_addresses_that_are_accepted() {
+        // Email addresses that are NOT valid but ARE allowed by us.
+        $this->assertTrue(validate_email('.address@example.com')); // Leading dot in address is not allowed, but we pass it.
+        $this->assertTrue(validate_email('address.@example.com')); // Trailing dot in address is not allowed, but we pass it.
+        $this->assertTrue(validate_email('address..address@example.com')); // Multiple dots, but we pass it.
+        $this->assertTrue(validate_email('address@22.333.4444.55555')); // Invalid IP address, but a potentially valid domain.
+        $this->assertTrue(validate_email('+address@example.com')); // Can't actually have an address starting with +
+        $this->assertTrue(validate_email('.address@example.com')); // Can't actually have an address starting with .
+        $this->assertTrue(validate_email('address+@example.com')); // Can't actually have an address ending with +
+        $this->assertTrue(validate_email('address.@example.com')); // Can't actually have an address ending with .
+        $this->assertTrue(validate_email('address@example.c-m')); // Invalid top level domain.
+    }
+
+    /**
+     * Tests invalid email addresses.
+     *
+     * Added by us to ensure it really is doing what we think it is. Don't trust an untested regex!
+     */
+    public function test_validate_email_invalid_addresses() {
+        // Straight up invalid addresses.
+        $this->assertFalse(validate_email('plainaddress'));
+        $this->assertFalse(validate_email('@'));
+        $this->assertFalse(validate_email('.@.'));
+        $this->assertFalse(validate_email('address@'));
+        $this->assertFalse(validate_email('@example.com'));
+        $this->assertFalse(validate_email(' address@example.com'));
+        $this->assertFalse(validate_email('address@example.com '));
+        $this->assertFalse(validate_email('address@ example.com'));
+        $this->assertFalse(validate_email('address @example.com'));
+        $this->assertFalse(validate_email('address@example .com'));
+        $this->assertFalse(validate_email('address@example. com'));
+        $this->assertFalse(validate_email('address..example.com'));
+        $this->assertFalse(validate_email('address.exa_mple.com'));
+        $this->assertFalse(validate_email('firstname\@address@example.com')); // Can't escape the @ without quotes.
+        $this->assertFalse(validate_email('#%^%#$@#$@#.com'));
+        $this->assertFalse(validate_email('!#$%&amp;`*+/=?^`{|}~@example.com')); // This is just like an earlier test but with a ;
+        $this->assertFalse(validate_email('@example.com'));
+        $this->assertFalse(validate_email('Firstname Lastname <address@example.com>'));
+        $this->assertFalse(validate_email('address.example.com'));
+        $this->assertFalse(validate_email('address@example@example.com'));
+        $this->assertFalse(validate_email('あいうえお@example.com'));
+        $this->assertFalse(validate_email('address@example.com (Firstname Lastname)'));
+        $this->assertFalse(validate_email('address@-example.com')); // Leading dash in front of domain is invalid
+        $this->assertFalse(validate_email('address@example-.com')); // Training dash on domain is invalid
+        $this->assertFalse(validate_email('address@.example.com')); // Leading dot in front of domain is invalid
+        $this->assertFalse(validate_email('address@example..com')); // Training dot on domain is invalid
+        $this->assertFalse(validate_email('"@example.com')); // Only a pair is valid.
+        $this->assertFalse(validate_email('"""@example.com')); // Only a pair is valid.
+        $this->assertFalse(validate_email('"\"@example.com'));
     }
 }

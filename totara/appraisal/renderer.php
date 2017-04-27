@@ -1571,7 +1571,7 @@ class totara_appraisal_renderer extends plugin_renderer_base {
             }
             // Text.
             // If stage is completed and a role wasn't assigned at the time of completion - indicate this to user
-            if ($stage->is_completed($userassignment)) {
+            if (!$preview && $stage->is_completed($userassignment)) {
                 // As the learner's managers and appraiser may have changed since completion (and you may not have been the
                 // one providing the answers, do not use 'you' unless you are the learner
                 if (!isset($rolecompletion->timecompleted)) {

@@ -75,7 +75,7 @@ class feedback360_email_preference_test extends feedback360_testcase {
     /**
      * PhpUnit fixture method that runs after the test method executes.
      */
-    public function tearDown() {
+    protected function tearDown() {
         global $CFG;
         if (isset($this->cfgemail)) {
             $CFG->noemailever = $this->cfgemail;
@@ -85,6 +85,9 @@ class feedback360_email_preference_test extends feedback360_testcase {
         $this->emailsink->close();
         unset($this->emailsink);
 
+        $this->emailsink = null;
+        $this->cfgemail = null;
+        $this->fingerprint = null;
         parent::tearDown();
     }
 

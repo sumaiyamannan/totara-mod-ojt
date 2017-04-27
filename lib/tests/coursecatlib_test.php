@@ -35,6 +35,11 @@ class core_coursecatlib_testcase extends advanced_testcase {
 
     protected $roles;
 
+    protected function tearDown() {
+        $this->roles = null;
+        parent::tearDown();
+    }
+
     protected function setUp() {
         parent::setUp();
         $this->resetAfterTest();

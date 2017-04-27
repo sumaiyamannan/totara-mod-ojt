@@ -42,9 +42,7 @@
     }
 
 }}
-{{#href}}<a href="{{{href}}}" title="{{statustext}}">{{/href}}
-    <span class="coursecompletionstatus">
-        <span class="completion-{{statusclass}}" title="{{statustext}}">{{statustext}}</span>
-    </span>
+{{#href}}<a href="{{{href}}}" title="{{statustext}}" class="coursecompletionstatus completion-{{statusclass}}">{{/href}}
+    <span class="sr-only">{{statustext}}</span>
 {{#href}}</a>{{/href}}
 

@@ -3,6 +3,106 @@
 
 Totara LMS Changelog
 
+Release 9.6 (26th April 2017):
+==============================
+
+
+Security issues:
+
+    TL-5678        Fixed sesskey handling within Hierarchy ajax scripts
+    TL-13932       Fixed a security issue within TeX notation filtering
+
+                   This fixes a regression introduced through changes made to make TeX
+                   notation and MathJax filtering compatible with each other when both were
+                   enabled.
+
+                   The original compatibility fix lead to a security hole that could be
+                   exploited in any content passed through the TeX filter.
+                   The security vulnerability has been fixed, MathJax and TeX will no longer
+                   fail over to the other. Sites using both filters should choose one or the
+                   other.
+
+Improvements:
+
+    TL-12251       Improved the performance of adding and removing enrolled learning for an audience
+
+                   This change improves the performance of adding and removing enrolled
+                   learning by making adjustments to how the process occurs.
+                   The changes can be summarised as follows:
+
+                   * When adding one or more courses as enrolled learning to an audience, only
+                   the courses that are being added are synchronised. Previously all courses,
+                   including already existing courses, were synchronised.
+                   * When adding or removing courses from a dynamic audience, an adhoc task is
+                   used to offset the processing to the server. This means that changes will
+                   happen the next time cron runs and that the user will not be forced to wait
+                   for the synchronisation to complete.
+
+    TL-12591       Email address validation is now inline with the WHATWG recommendation and webkit operation
+
+                   Previously a custom regular expression was used to validate email addresses
+                   in Totara.
+                   This was not consistent with current recommendations or browser operation.
+                   With this change we now use the regular expression recommended by WHATWG in
+                   their HTML living standard specification.
+
+                   You can find the regular expression we use at
+                   https://html.spec.whatwg.org/multipage/forms.html#e-mail-state-(type=email]).
+                   This is the same regular expression used by WebKit browsers to validate
+                   their HTML5 email inputs.
+
+    TL-12869       Improved the confirmation message shown when deleting a block
+    TL-13882       Improved HTML of the progress bars in the last course accessed block and record of learning
+    TL-14011       Lowered memory usage when running PHPUnit tests
+    TL-14220       Updated Certificate Authority fallback bundle for Windows servers
+
+Bug fixes:
+
+    TL-12417       Fixed user enrolment into courses via competencies
+
+                   Assigning and unassigning users from programs based on competencies now
+                   correctly suspends and unsuspends users from the underlying courses
+
+    TL-12600       Fixed HTML parsing for 'body' and 'manager prefix' fields in Seminar notification templates when the 'enable trusted content' setting is enabled
+    TL-12641       Fixed a scheduling issue in HR Import where the sync was being triggered more times than required.
+    TL-12684       Removed quiz report option "all users who have attempted the quiz" when separate group is selected as it does not make sense
+    TL-12736       Added a sanity check for the Auth field in HR Import to ensure the specified authentication type exists
+    TL-12773       Fixed a bug when setting SCORM attribute values
+    TL-12802       Fixed the display of the grade percentage within the Record of Learning reports when max grade is not 100
+    TL-12866       Fixed a bug whereby managers could not remove seminar allocations once learners had already self booked
+    TL-12873       Fixed help string for report export settings
+    TL-12891       Fixed and improved RTL languages support in Report Builder export formats
+    TL-12892       Ensured HR Import manages special characters correctly when used with Menu custom user profile fields
+    TL-12947       Fixed step, min and max attributes not being set in number form elements
+    TL-12966       Added framework information to Hierarchy rules in dynamic audiences
+    TL-12973       Fixed HTML validation in the current learning block when a user does not have any current learning
+    TL-13881       Fixed Report builder side bar filters for multi-check customfields
+    TL-13887       Fixed form parameters when expanding courses within the enhanced course catalog
+    TL-13901       Fixed the validation of Seminar event custom fields configured to require unique values
+    TL-13909       Fixed RTL CSS cascading
+
+                   Previously if a theme used Basis or Roots as a parent theme, the RTL CSS
+                   from these themes was not sent. This patch resolves that problem. If you
+                   are using less compilation of CSS, and have included totara.less from these
+                   themes, to avoid css duplication you may wish to exclude the totara and
+                   totara-rtl css from the parent theme.
+
+    TL-13911       Fixed incorrect availability of certification reports when programs are disabled
+    TL-13915       Removed space between filters and content of Report Builder reports in IE
+
+                   TL-12451 introduced a large visual gap between Report Builder filters and
+                   the Report Builder content in IE. This fix removes that gap.
+
+    TL-13924       Fixed warnings when viewing Appraisal previews
+    TL-13953       Fixed a typo in the Seminar activity 'userwillbewaitlisted' string
+    TL-14064       Fixed the Record of Learning: Competencies report when Global Report Restrictions are enabled
+    TL-14145       Fixed a bug occuring when trying to move Course sections multiple times without refreshing
+
+Contributions:
+
+    * Richard Eastbury at Think Associates - TL-13911
+
+
 Release 9.5 (22nd March 2017):
 ==============================
 

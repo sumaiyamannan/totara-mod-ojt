@@ -30,6 +30,12 @@ defined('MOODLE_INTERNAL') || die();
  */
 class core_progress_testcase extends basic_testcase {
 
+    protected function tearDown() {
+        $this->updatecalled = null;
+        $this->time = null;
+        parent::tearDown();
+    }
+
     /**
      * Tests for basic use with simple numeric progress.
      */

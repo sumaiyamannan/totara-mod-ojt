@@ -41,6 +41,12 @@ class core_notes_events_testcase extends advanced_testcase {
     /** @var stdClass A complete record from post table */
     private $noterecord;
 
+    protected function tearDown() {
+        $this->eventnote = null;
+        $this->noterecord = null;
+        parent::tearDown();
+    }
+
     public function setUp() {
         global $DB;
 

@@ -51,6 +51,8 @@ class qtype_calculated_test extends advanced_testcase {
 
     protected function tearDown() {
         $this->qtype = null;
+        $this->tolerance = null;
+        parent::tearDown();
     }
 
     public function test_name() {

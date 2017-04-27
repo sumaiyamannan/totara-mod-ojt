@@ -56,6 +56,12 @@ class quiz_report_statistics_from_steps_testcase extends mod_quiz_attempt_walkth
      */
     protected $report;
 
+    protected function tearDown() {
+        $this->report = null;
+        $this->files = null;
+        parent::tearDown();
+    }
+
     protected function get_full_path_of_csv_file($setname, $test) {
         // Overridden here so that __DIR__ points to the path of this file.
         return  __DIR__."/fixtures/{$setname}{$test}.csv";

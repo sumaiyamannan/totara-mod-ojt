@@ -42,6 +42,11 @@ class portfolio_googledocs_plugin_testcase extends advanced_testcase {
     /** @var string name of the portfolio plugin */
     protected $pluginname = 'googledocs';
 
+    protected function tearDown() {
+        $this->pluginname = null;
+        parent::tearDown();
+    }
+
     /**
      * Creates a new instance of the portfolio plugin
      *

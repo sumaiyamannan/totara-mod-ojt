@@ -37,6 +37,13 @@ class core_files_zip_packer_testcase extends advanced_testcase implements file_p
      */
     protected $progress;
 
+    protected function tearDown() {
+        $this->testfile = null;
+        $this->files = null;
+        $this->progress = null;
+        parent::tearDown();
+    }
+
     protected function setUp() {
         parent::setUp();
 

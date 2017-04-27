@@ -34,6 +34,11 @@ require_once($CFG->dirroot . '/completion/completion_completion.php');
 class totara_core_completion_start_user_bulk_testcase extends advanced_testcase {
     protected $user1, $user2, $course1, $course2, $course3;
 
+    protected function tearDown() {
+        $this->user1 = null;
+        parent::tearDown();
+    }
+
     protected function setUp() {
         parent::setUp();
         set_config('enablecompletion', 1);

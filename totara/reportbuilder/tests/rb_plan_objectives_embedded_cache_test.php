@@ -71,6 +71,20 @@ class totara_reportbuilder_rb_plan_objectives_embedded_cache_testcase extends re
     protected $plan3 = null;
     protected $objectives = array();
 
+    protected function tearDown() {
+        $this->report_builder_data = null;
+        $this->report_builder_columns_data = null;
+        $this->report_builder_filters_data = null;
+        $this->user1 = null;
+        $this->user2 = null;
+        $this->user3 = null;
+        $this->plan1 = null;
+        $this->plan2 = null;
+        $this->plan3 = null;
+        $this->objectives = null;
+        parent::tearDown();
+    }
+
     /**
      * Prepare mock data for testing
      *

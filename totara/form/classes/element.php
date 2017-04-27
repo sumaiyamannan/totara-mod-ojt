@@ -389,7 +389,9 @@ abstract class element implements item {
      */
     protected function set_attribute_template_data(&$data, array $attributes) {
         foreach ($attributes as $name => $value) {
-            if ($value === null or $value === false) {
+            if ($value === null) {
+                $data[$name] = null;
+            } else if ($value === false) {
                 $data[$name] = false;
             } else if ($value === true) {
                 $data[$name] = true;

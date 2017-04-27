@@ -94,7 +94,7 @@ if ($duplicate && $notification->type != MDL_F2F_NOTIFICATION_AUTO) {
 
 // Setup editors
 $editoroptions = array(
-    'noclean'  => false,
+    'trusttext'=> 1,
     'maxfiles' => EDITOR_UNLIMITED_FILES,
     'maxbytes' => $CFG->maxbytes,
     'context'  => $context,
@@ -126,7 +126,9 @@ $form = new mod_facetoface_notification_form($formurl, $customdata);
 if ($id || $duplicate) {
     // Format for the text editors
     $forform->managerprefixformat = FORMAT_HTML;
+    $forform->managerprefixtrust  = 1;
     $forform->bodyformat = FORMAT_HTML;
+    $forform->bodytrust  = 1;
 
     $forform = file_prepare_standard_editor($forform, 'body', $editoroptions, $context, 'mod_facetoface', 'notification', $id);
     $forform = file_prepare_standard_editor($forform, 'managerprefix', $editoroptions, $context, 'mod_facetoface', 'notification', $id);

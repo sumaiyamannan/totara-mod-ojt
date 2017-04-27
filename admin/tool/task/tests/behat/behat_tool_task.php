@@ -90,6 +90,48 @@ class behat_tool_task extends behat_base {
     }
 
     /**
+     * Runs any queued adhoc scheduled tasks.
+     *
+     * @Given /^I run the adhoc scheduled tasks "(?P<task_name>[^"]+)"$/
+     * @param string $taskname Name of task e.g. 'mod_whatever\task\do_something'
+     */
+    public function i_run_adhoc_scheduled_tasks($taskname) {
+        global $CFG;
+
+        $previousurl = $this->getSession()->getCurrentUrl();
+
+        $this->getSession()->visit("$CFG->wwwroot/$CFG->admin/cron.php?behat_adhoc_tasks_only=1");
+
+        /* @var behat_general $general */
+        $general = behat_context_helper::get('behat_general');
+
+        $result = 'Adhoc task complete: '.$taskname;
+        $cronend = 'Cron completed at ';
+
+        if ($general->running_javascript()) {
+            $general->assert_page_contains_text($cronend);
+            $general->assert_page_contains_text($result);
+        } else {
+            // For some weird reason the assert_page_contains_text does not work here,
+            // maybe because of the plain text emulation on cron page.
+            // Let's work around it here.
+            $content = $this->getSession()->getDriver()->getContent();
+            if (strpos($content, $cronend) === false) {
+                throw new ExpectationException('"' . $cronend . '" text was not found in the page', $this->getSession());
+            }
+            if (strpos($content, $result) === false) {
+                throw new ExpectationException('"' . $result . '" text was not found in the page', $this->getSession());
+            }
+        }
+
+        $this->getSession()->visit($previousurl);
+
+        if ($general->running_javascript()) {
+            $general->wait_until_the_page_is_ready();
+        }
+    }
+
+    /**
      * Run the specified scheduled task.
      * You need to specify the class name, as shown in Site administration -> Server -> Scheduled tasks.
      *

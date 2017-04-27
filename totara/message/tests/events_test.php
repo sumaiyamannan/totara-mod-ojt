@@ -39,6 +39,14 @@ class totara_message_events_testcase extends advanced_testcase {
     private $sink;
     private $messagedata;
 
+    protected function tearDown() {
+        $this->userfrom = null;
+        $this->userto = null;
+        $this->sink = null;
+        $this->messagedata = null;
+        parent::tearDown();
+    }
+
     /**
      * Implements setUp().
      */

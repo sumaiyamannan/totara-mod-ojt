@@ -51,6 +51,15 @@ class totara_reportbuilder_rb_global_restriction_core_testcase extends advanced_
      */
     protected $reportgen = null;
 
+    protected function tearDown() {
+        $this->user = null;
+        $this->uservis = null;
+        $this->usernonvis = null;
+        $this->restr = null;
+        $this->reportgen = null;
+        parent::tearDown();
+    }
+
     protected function setUp() {
         global $CFG;
         parent::setUp();

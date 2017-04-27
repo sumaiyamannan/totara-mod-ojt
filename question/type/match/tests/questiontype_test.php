@@ -48,6 +48,7 @@ class qtype_match_test extends advanced_testcase {
 
     protected function tearDown() {
         $this->qtype = null;
+        parent::tearDown();
     }
 
     protected function get_test_question_data() {

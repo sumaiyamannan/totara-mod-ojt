@@ -35,6 +35,11 @@ class totara_core_completion_testcase extends advanced_testcase {
 
 
 
+    protected function tearDown() {
+        $this->users = null;
+        parent::tearDown();
+    }
+
     protected function setUp() {
         global $DB;
 
@@ -117,13 +122,7 @@ class totara_core_completion_testcase extends advanced_testcase {
             $completioninfo->set_module_viewed($cm, $this->users['man']->id);
         }
 
-        // Verify that the control has been set up correctly.
-        $this->check_control();
-    }
-
-    protected function tearDown() {
-        // Verify that the control has not been affected in any way by the actions performed in the tests.
-        $this->check_control();
+        // Do not assert in setUp!
     }
 
     private function check_control() {
@@ -160,6 +159,11 @@ class totara_core_completion_testcase extends advanced_testcase {
             $this->assertEquals($record->userid, $this->users['man']->id);
             $this->assertGreaterThanOrEqual(0, $record->timecompleted);
         }
+    }
+
+    public function test_set_up() {
+        // Verify that the control has been set up correctly.
+        $this->check_control();
     }
 
     /**
@@ -206,6 +210,8 @@ class totara_core_completion_testcase extends advanced_testcase {
             array('course' => $this->courses['test']->id), '', 'userid, timeenrolled');
         $this->assertEquals($timestart, $resetcompletions[$this->users['man']->id]->timeenrolled);
         $this->assertEquals($timestart, $resetcompletions[$this->users['rpl']->id]->timeenrolled);
+
+        $this->check_control();
     }
 
     /**
@@ -315,6 +321,8 @@ class totara_core_completion_testcase extends advanced_testcase {
             array('course' => $this->courses['test']->id, 'userid' => $this->users['man']->id));
         $this->assertEquals('', $comp->rpl);
         $this->assertEquals(null, $comp->timecompleted);
+
+        $this->check_control();
     }
 
     public function test_historical_deletion() {
@@ -355,6 +363,8 @@ class totara_core_completion_testcase extends advanced_testcase {
         foreach ($histrecords as $histrecord) {
             $this->assertEquals($contcourse->id, $histrecord->courseid);
         }
+
+        $this->check_control();
     }
 
 }

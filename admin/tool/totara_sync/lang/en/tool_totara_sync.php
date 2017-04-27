@@ -261,6 +261,7 @@ $string['cannotreviveuserx'] = 'cannot revive user {$a}';
 $string['createduserx'] = 'created user {$a}';
 $string['cannotcreateuserx'] = 'cannot create user {$a}';
 $string['invalidauthforuserx'] = 'invalid authentication plugin {$a}';
+$string['invalidauthxforuserx'] = 'invalid authentication plugin {$a->auth} for user {$a->idnumber}';
 $string['jobassignmentstartdateafterenddate'] = 'Job assignment start date must not be later than end date for user {$a->idnumber}';
 $string['orgxnotexist'] = 'Organisation {$a->orgidnumber} does not exist. Skipped user {$a->idnumber}';
 $string['posxnotexist'] = 'Position {$a->posidnumber} does not exist. Skipped user {$a->idnumber}';

@@ -65,6 +65,14 @@ class totara_reportbuilder_rb_totarasynclog_embedded_cache_testcase extends repo
     protected $logs = null;
     protected static $ind = 0;
 
+    protected function tearDown() {
+        $this->report_builder_data = null;
+        $this->report_builder_columns_data = null;
+        $this->report_builder_filters_data = null;
+        $this->logs = null;
+        parent::tearDown();
+    }
+
     /**
      * Prepare mock data for testing
      *

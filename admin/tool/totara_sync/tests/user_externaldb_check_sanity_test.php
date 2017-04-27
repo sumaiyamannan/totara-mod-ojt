@@ -214,6 +214,22 @@ class tool_totara_sync_user_externaldb_check_sanity_testcase extends advanced_te
             }
             $this->ext_dbconnection->dispose();
         }
+        $this->configdb = null;
+        $this->config = null;
+        $this->configexists = null;
+        $this->ext_dbconnection = null;
+        $this->dbtype = null;
+        $this->dbhost = null;
+        $this->dbport = null;
+        $this->dbname = null;
+        $this->dbuser = null;
+        $this->dbpass = null;
+        $this->dbtable = null;
+        $this->element = null;
+        $this->synctable = null;
+        $this->synctable_clone = null;
+        $this->fields = null;
+        parent::tearDown();
     }
 
     /**

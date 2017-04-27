@@ -102,7 +102,8 @@ function filter_text_image($imagefile, $tex, $height, $width, $align, $alt) {
         $action = new popup_action('click', $link, 'popup', array('width'=>320,'height'=>240));
     }
     $output = $OUTPUT->action_link($link, $anchorcontents, $action, array('title'=>'TeX')); //TODO: the popups do not work when text caching is enabled!!
-    $output = "<span class=\"MathJax_Preview\">$output</span><script type=\"math/tex\">$tex</script>";
+    // TOTARA: We don't want the script tags below due to XSS risk.
+    // $output = "<span class=\"MathJax_Preview\">$output</span><script type=\"math/tex\">$tex</script>";
 
     return $output;
 }

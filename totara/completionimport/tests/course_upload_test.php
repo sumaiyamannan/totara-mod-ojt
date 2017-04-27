@@ -36,6 +36,11 @@ class coursecompletionimport_testcase extends advanced_testcase {
 
     protected $user1, $user2, $course1, $course2, $course3;
 
+    protected function tearDown() {
+        $this->user1 = null;
+        parent::tearDown();
+    }
+
     public function setup() {
         set_config('enablecompletion', 1);
 

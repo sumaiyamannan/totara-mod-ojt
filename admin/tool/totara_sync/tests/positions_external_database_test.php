@@ -212,7 +212,7 @@ class tool_totara_sync_user_database_testcase extends advanced_testcase {
         )));
     }
 
-    public function tearDown() {
+    protected function tearDown() {
         if ($this->configexists) {
             // Drop sync table.
             $dbman = $this->ext_dbconnection->get_manager();
@@ -222,6 +222,20 @@ class tool_totara_sync_user_database_testcase extends advanced_testcase {
             }
             $this->ext_dbconnection->dispose();
         }
+        $this->configdb = null;
+        $this->config = null;
+        $this->configexists = null;
+        $this->ext_dbconnection = null;
+        $this->dbtype = null;
+        $this->dbhost = null;
+        $this->dbport = null;
+        $this->dbname = null;
+        $this->dbuser = null;
+        $this->dbpass = null;
+        $this->dbtable = null;
+        $this->pos_framework_data = null;
+        $this->pos_data = null;
+        parent::tearDown();
     }
 
     public function create_external_user_table() {

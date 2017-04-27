@@ -453,6 +453,15 @@ class manager {
      */
     public static function get_next_scheduled_task($timestart) {
         global $DB;
+
+        if (defined('BEHAT_SITE_RUNNING') and BEHAT_SITE_RUNNING) {
+            // Totara: if this is true then we only want to run adhoc tasks.
+            $adhoconly = optional_param('behat_adhoc_tasks_only', false, PARAM_BOOL);
+            if ($adhoconly) {
+                return null;
+            }
+        }
+
         $cronlockfactory = \core\lock\lock_config::get_lock_factory('cron');
 
         if (!$cronlock = $cronlockfactory->get_lock('core_cron', 10)) {
