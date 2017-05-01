@@ -215,29 +215,6 @@ abstract class prog_message {
             }
         }
 
-        // Initialise data needed to calculate completion fields.
-        if (in_array('duedate', $placeholders) || in_array('completioncriteria', $placeholders)) {
-            $formatdate = get_string('strftimedatefulllong', 'langconfig');
-            $deletecompletionfield = false;
-            if ($assignment = $DB->get_record('prog_user_assignment', array('programid' => $programid, 'userid' => $userid))) {
-                if (!$progassignment = $DB->get_record('prog_assignment', array('id' => $assignment->assignmentid))) {
-                    $deletecompletionfield = true;
-                }
-            } else {
-                $deletecompletionfield = true;
-            }
-
-            // If program assignment record not found, delete completion date and completion criteria from placeholders.
-            if ($deletecompletionfield) {
-                if ($pos = array_search('duedate', $placeholders)) {
-                    unset($placeholders[$pos]);
-                }
-                if ($pos = array_search('completioncriteria', $placeholders)) {
-                    unset($placeholders[$pos]);
-                }
-            }
-        }
-
         // Get program fullname needed for programfullname and certificationfullname options.
         if (in_array('programfullname', $placeholders) || in_array('certificationfullname', $placeholders)) {
             if ($programfullname = $DB->get_field('prog', 'fullname', array('id' => $programid))) {
@@ -270,26 +247,43 @@ abstract class prog_message {
                         array('programid' => $programid, 'userid' => $userid, 'coursesetid' => 0));
                     $duedate = get_string('duedatenotset', 'totara_program');
                     if ($completiontime && $completiontime != COMPLETION_TIME_NOT_SET) {
-                        $duedate = userdate($completiontime, $formatdate, core_date::get_user_timezone($recipient), false);
+                        $duedate = userdate($completiontime, get_string('strftimedatefulllong', 'langconfig'), core_date::get_user_timezone($recipient), false);
                     }
                     $this->replacementvars['duedate']   = $duedate;
                     break;
                 case 'completioncriteria':
-                    $time = $progassignment->completiontime;
-                    $event = $progassignment->completionevent;
-                    $instance = $progassignment->completioninstance;
+                    $progassignment = false;
+                    // We can't guarantee which assignment is responsible for the user's current due date. In this case,
+                    // we've chosen to use the most recently assigned. The order by id is added so that if a user was
+                    // assigned to two at the same time, the criteria won't randomly change.
+                    if ($userassignments = $DB->get_records('prog_user_assignment', array('programid' => $programid, 'userid' => $userid), 'timeassigned DESC, id ASC')) {
+                        foreach ($userassignments as $userassignment) {
+                            if ($progassignment = $DB->get_record('prog_assignment', array('id' => $userassignment->assignmentid))) {
+                                break;
+                            }
+                        }
+                    }
 
-                    // Get completion criteria.
-                    if ($progassignment->completionevent == COMPLETION_EVENT_NONE) {
-                        $ccriteria = get_string('completioncriterianotdefined', 'totara_program');
-                        if ($time != COMPLETION_TIME_NOT_SET) {
-                            $formatedtime = trim(userdate($time, $formatdate, core_date::get_user_timezone($recipient), false));
+                    if ($progassignment) {
+                        $time = $progassignment->completiontime;
+                        $event = $progassignment->completionevent;
+                        $instance = $progassignment->completioninstance;
+
+                        // Get completion criteria.
+                        if ($progassignment->completionevent == COMPLETION_EVENT_NONE) {
+                            $ccriteria = get_string('completioncriterianotdefined', 'totara_program');
+                            if ($time != COMPLETION_TIME_NOT_SET) {
+                                $formatedtime = trim(userdate($time, get_string('strftimedatefulllong', 'langconfig'), core_date::get_user_timezone($recipient), false));
+                                $ccriteria = prog_assignment_category::build_completion_string($formatedtime, $event, $instance);
+                            }
+                        } else {
+                            $parts = program_utilities::duration_explode($time);
+                            $formatedtime = $parts->num . ' ' . $parts->period;
                             $ccriteria = prog_assignment_category::build_completion_string($formatedtime, $event, $instance);
                         }
+
                     } else {
-                        $parts = program_utilities::duration_explode($time);
-                        $formatedtime = $parts->num . ' ' . $parts->period;
-                        $ccriteria = prog_assignment_category::build_completion_string($formatedtime, $event, $instance);
+                        $ccriteria = get_string('completioncriterianotdefined', 'totara_program');
                     }
                     $this->replacementvars['completioncriteria'] =  $ccriteria;
                     break;

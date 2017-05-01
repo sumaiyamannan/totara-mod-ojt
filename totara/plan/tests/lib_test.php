@@ -175,8 +175,7 @@ class totara_plan_lib_testcase extends advanced_testcase {
         $certprogramid = $program_generator->create_certification();
         $certprogram = new program($certprogramid);
 
-        $program_generator->assign_to_program($certprogram->id, ASSIGNTYPE_INDIVIDUAL, $user->id);
-        $certprogram->update_learner_assignments();
+        $program_generator->assign_to_program($certprogram->id, ASSIGNTYPE_INDIVIDUAL, $user->id, null, true);
 
         $this->shift_completions_to_certified(time());
         $visible_tabs = dp_get_rol_tabs_visible($user->id);
@@ -205,8 +204,7 @@ class totara_plan_lib_testcase extends advanced_testcase {
         $certprogramid = $program_generator->create_certification();
         $certprogram = new program($certprogramid);
 
-        $program_generator->assign_to_program($program->id, ASSIGNTYPE_INDIVIDUAL, $user->id);
-        $program->update_learner_assignments();
+        $program_generator->assign_to_program($program->id, ASSIGNTYPE_INDIVIDUAL, $user->id, null, true);
 
         $program->update_program_complete($user->id, array('status' => STATUS_PROGRAM_COMPLETE));
 
