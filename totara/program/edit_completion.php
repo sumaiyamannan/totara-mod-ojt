@@ -146,6 +146,12 @@ if ($progcompletion && empty($exceptions) && !$dismissedexceptions) {
                 array('class' => 'notifyproblem'));
         }
     }
+
+    // Init form core js.
+    $args = $editform->_form->getLockOptionObject();
+    if (count($args[1]) > 0) {
+        $PAGE->requires->js_init_call('M.form.initFormDependencies', $args, false, moodleform::get_js_module());
+    }
 }
 
 // Masquerade as the completion page for the sake of navigation.
@@ -163,10 +169,6 @@ $heading = get_string('completionsforuserinprog', 'totara_program',
     array('user' => fullname($user), 'prog' => format_string($program->fullname)));
 
 // Javascript includes.
-$args = $editform->_form->getLockOptionObject();
-if (count($args[1]) > 0) {
-    $PAGE->requires->js_init_call('M.form.initFormDependencies', $args, false, moodleform::get_js_module());
-}
 $jsmodule = array(
     'name' => 'totara_editprogcompletion',
     'fullpath' => '/totara/program/edit_completion.js');

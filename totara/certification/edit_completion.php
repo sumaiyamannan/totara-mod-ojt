@@ -185,7 +185,7 @@ if ($certcompletion && $progcompletion && empty($exceptions) && !$dismissedexcep
         }
     }
 
-    // Init form core js before certification.
+    // Init form core js.
     $args = $editform->_form->getLockOptionObject();
     if (count($args[1]) > 0) {
         $PAGE->requires->js_init_call('M.form.initFormDependencies', $args, false, moodleform::get_js_module());
