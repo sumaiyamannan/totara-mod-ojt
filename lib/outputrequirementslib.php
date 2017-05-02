@@ -777,7 +777,8 @@ class page_requirements_manager {
                     break;
                 case 'core_completion':
                     $module = array('name'     => 'core_completion',
-                                    'fullpath' => '/course/completion.js');
+                                    'fullpath' => '/course/completion.js',
+                                    'requires' => array('node', 'node-event-simulate'));
                     break;
                 case 'core_message':
                     $module = array('name'     => 'core_message',
