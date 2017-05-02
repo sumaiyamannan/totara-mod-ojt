@@ -50,12 +50,19 @@ M.totara_review = M.totara_review || {
         }
 
         var url = M.cfg.wwwroot + '/totara/' + this.config.prefix + '/ajax/';
-        if (this.config.datatype == 'goals') {
-            var saveurl = url + 'reviewgoal.php?id=' + this.config.questionid + '&answerid=' + this.config.answerid +
-                    '&formprefix=' + this.config.formprefix + '&subjectid=' + this.config.subjectid + '&update=';
+        var saveurl = url;
+        var params = {
+            'id':  this.config.questionid,
+            'sesskey': M.cfg.sesskey,
+            'answerid': this.config.answerid,
+            'formprefix': this.config.formprefix,
+            'subjectid': this.config.subjectid
+        };
+        var saveurlarg = '?' + build_querystring(params) + '&update=';
+        if (this.config.datatype === 'goals') {
+            saveurl = saveurl + 'reviewgoal.php' + saveurlarg;
         } else {
-            var saveurl = url + 'review.php?id=' + this.config.questionid + '&answerid=' + this.config.answerid +
-                    '&formprefix=' + this.config.formprefix + '&subjectid=' + this.config.subjectid + '&update=';
+            saveurl = saveurl + 'review.php' + saveurlarg;
         }
 
         var handler = new totaraDialog_handler_treeview_multiselect();
@@ -110,8 +117,7 @@ M.totara_review = M.totara_review || {
                 buttons: buttonsObj,
                 title: '<h2>' + M.util.get_string('choose' + this.config.datatype + 'review', 'totara_question') + '</h2>'
             },
-            url + 'reviewselect.php?id=' + this.config.questionid + '&answerid=' + this.config.answerid +
-                    '&subjectid=' + this.config.subjectid,
+            url + 'reviewselect.php?' + build_querystring(params),
             handler
         );
 

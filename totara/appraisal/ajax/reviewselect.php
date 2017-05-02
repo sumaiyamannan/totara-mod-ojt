@@ -29,8 +29,8 @@ require_once($CFG->dirroot.'/totara/core/dialogs/dialog_content_required_learnin
 require_once($CFG->dirroot.'/totara/core/dialogs/dialog_content_plan_evidence.class.php');
 require_once($CFG->dirroot.'/totara/appraisal/lib.php');
 
-$PAGE->set_context(context_system::instance());
-require_login();
+// Check if Appraisals are enabled.
+appraisal::check_feature_enabled();
 
 $questionid = required_param('id', PARAM_INT);
 $roleassignmentid = required_param('answerid', PARAM_INT);
@@ -42,6 +42,17 @@ $treeonly = optional_param('treeonly', false, PARAM_BOOL);
 $showhidden = optional_param('showhidden', false, PARAM_BOOL);
 // No javascript parameters.
 $nojs = optional_param('nojs', false, PARAM_BOOL);
+
+$systemcontext = context_system::instance();
+$PAGE->set_context($systemcontext);
+$PAGE->set_url(new moodle_url('/totara/appraisal/ajax/reviewselect.php', array(
+    'id' => $questionid,
+    'answerid' => $roleassignmentid,
+    'subjectid' => $subjectid
+)));
+
+require_sesskey();
+require_login(null, false, null, false, true);
 
 $question = new appraisal_question($questionid);
 $datatype = $question->get_element()->datatype;
