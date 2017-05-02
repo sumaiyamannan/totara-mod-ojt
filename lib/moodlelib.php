@@ -1279,15 +1279,21 @@ function fix_utf8($value) {
         return $result;
 
     } else if (is_array($value)) {
+        $newvalue = array();
         foreach ($value as $k => $v) {
-            $value[$k] = fix_utf8($v);
+            $newvalue[fix_utf8($k)] = fix_utf8($v);
         }
-        return $value;
+        return $newvalue;
 
     } else if (is_object($value)) {
         // Do not modify original.
         $value = clone($value);
         foreach ($value as $k => $v) {
+            $ck = fix_utf8($k);
+            if ($ck !== $k) {
+                unset($value->$k);
+                $k = $ck;
+            }
             $value->$k = fix_utf8($v);
         }
         return $value;
