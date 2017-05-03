@@ -102,6 +102,38 @@ class rb_filter_grpconcat_jobassignment extends rb_filter_hierarchy_multi {
     }
 
     /**
+     * Returns a human friendly description of the filter used as label.
+     * @param array $data filter settings
+     * @return string active filter label
+     */
+    function get_label($data) {
+        global $DB;
+
+        $value     = explode(',', $data['value']);
+        $label = $this->label;
+        $type = $this->options['jobjoin'];
+
+        if (empty($value)) {
+            return '';
+        }
+
+        $a = new stdClass();
+        $a->label    = $label;
+
+        $selected = array();
+        list($isql, $iparams) = $DB->get_in_or_equal($value);
+        $items = $DB->get_records_select($type, "id {$isql}", $iparams);
+        foreach ($items as $item) {
+            $selected[] = '"' . format_string($item->fullname) . '"';
+        }
+
+        $orstring = get_string('or', 'totara_reportbuilder');
+        $a->value    = implode($orstring, $selected);
+
+        return get_string('selectlabelnoop', 'filters', $a);
+    }
+
+    /**
      * Adds controls specific to this filter in the form.
      * @param object $mform a MoodleForm object to setup
      */

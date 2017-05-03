@@ -163,22 +163,38 @@ function totara_reportbuilder_migrate_saved_search_filters($values, $oldtype, $n
         }
 
         // Check for any filters that will need to be updated.
-        foreach ($search as $key => $info) {
-            list($type, $value) = explode('-', $key);
+        $update = false;
+        foreach ($search as $oldkey => $info) {
+            list($type, $value) = explode('-', $oldkey);
 
             // NOTE: This isn't quite as generic as the other functions.
             $value = $value == 'posstartdate' ? 'startdate' : $value;
             $value = $value == 'posenddate' ? 'enddate' : $value;
 
-            if ($type == $oldtype && in_array($value, $values)) {
-                $search[$newtype.'-'.$value] = $info;
-                unset($search[$key]);
+            if ($type == $oldtype && in_array($value, array_keys($values))) {
+                $update = true;
+
+                if ($values[$value] == 'allpositions' || $values[$value] == 'allorganisations') {
+                    if (isset($info['recursive']) && !isset($info['children'])) {
+                        $info['children'] = $info['recursive'];
+                        unset($info['recursive']);
+                    } else {
+                        $info['children'] = isset($info['children']) ? $info['children'] : 0;
+                    }
+                    $info['operator'] = isset($info['operator']) ? $info['operator'] : 1;
+                }
+
+                $newkey = "{$newtype}-{$values[$value]}";
+                $search[$newkey] = $info;
+                unset($search[$oldkey]);
             }
         }
 
-        // Re encode and update the database.
-        $saved->search = serialize($search);
-        $DB->update_record('report_builder_saved', $saved);
+        if ($update) {
+            // Re encode and update the database.
+            $saved->search = serialize($search);
+            $DB->update_record('report_builder_saved', $saved);
+        }
     }
 
     return true;
