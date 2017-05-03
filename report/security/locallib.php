@@ -227,18 +227,17 @@ function report_security_check_mediafilterswf($detailed=false) {
 
     $activefilters = filter_get_globally_enabled();
 
-    if (array_search('mediaplugin', $activefilters) !== false and !empty($CFG->filter_mediaplugin_enable_swf)) {
-        $result->status = REPORT_SECURITY_CRITICAL;
-        $result->info   = get_string('check_mediafilterswf_error', 'report_security');
+    if (array_search('mediaplugin', $activefilters) !== false and !empty($CFG->core_media_enable_swf)) {
+        $result->status = REPORT_SECURITY_WARNING;
+        $result->info   = get_string('check_mediafilterswf_warning', 'report_security');
     } else {
         $result->status = REPORT_SECURITY_OK;
         $result->info   = get_string('check_mediafilterswf_ok', 'report_security');
     }
 
     if ($detailed) {
-        $result->details = get_string('check_mediafilterswf_details', 'report_security');
+        $result->details = get_string('check_mediafilterswf_trusteddetails', 'report_security');
     }
-
     return $result;
 }
 

@@ -203,7 +203,7 @@ preferences,moodle|/user/preferences.php|preferences',
     $temp->add(new admin_setting_configcheckbox('core_media_enable_flv',
             get_string('flashvideo', 'core_media'), get_string('flashvideo_desc', 'core_media'), 1));
     $temp->add(new admin_setting_configcheckbox('core_media_enable_swf',
-            get_string('flashanimation', 'core_media'), get_string('flashanimation_desc', 'core_media'), 1));
+            get_string('flashanimation', 'core_media'), get_string('flashanimation_desc', 'core_media'), 0));
 
     // HTML 5 media.
     // Audio now enabled by default so that it can provide a fallback for mp3 on devices without flash.
