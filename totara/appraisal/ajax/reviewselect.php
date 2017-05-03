@@ -57,11 +57,6 @@ require_login(null, false, null, false, true);
 $question = new appraisal_question($questionid);
 $datatype = $question->get_element()->datatype;
 
-if ($planid == 0 && $datatype != 'goals' && $datatype != 'requiredlearning') {
-    $params = array('userid' => $subjectid, 'status' => DP_PLAN_STATUS_APPROVED);
-    $plan = $DB->get_record('dp_plan', $params, '*', IGNORE_MULTIPLE);
-    $planid = $plan->id;
-}
 
 $roleassignment = new appraisal_role_assignment($roleassignmentid);
 if ($roleassignment->userid != $USER->id) {
@@ -69,6 +64,18 @@ if ($roleassignment->userid != $USER->id) {
     // If they're the manager, then the manager's role assignment id should have been supplied.
     // So if the supplied role assignment is not for the current user, something's wrong.
     print_error('invalidaccess');
+}
+
+if ($planid == 0 && $datatype != 'goals' && $datatype != 'requiredlearning') {
+    list($usql, $params) = $DB->get_in_or_equal([DP_PLAN_STATUS_APPROVED, DP_PLAN_STATUS_COMPLETE]);
+    $params[] = $subjectid;
+    $plan = $DB->get_record_select('dp_plan', "status {$usql} AND userid = ?", $params, '*', IGNORE_MULTIPLE);
+    if ($plan) {
+        $planid = $plan->id;
+    } else {
+        echo get_string('noobjectives', 'totara_appraisal');
+        die;
+    }
 }
 
 if (!$roleassignment) {
@@ -116,6 +123,7 @@ if (!$roleassignment) {
 
         $dialog->lang_file = 'totara_appraisal';
         $dialog->string_nothingtodisplay = 'error:dialognotreeitems' . $datatype;
+
 
         echo $dialog->generate_markup();
     }
