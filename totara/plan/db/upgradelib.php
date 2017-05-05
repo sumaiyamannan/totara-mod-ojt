@@ -2,7 +2,7 @@
 /*
  * This file is part of Totara LMS
  *
- * Copyright (C) 2010 onwards Totara Learning Solutions LTD
+ * Copyright (C) 2014 onwards Totara Learning Solutions LTD
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,12 +17,15 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- * @author Simon Coggins <simon.coggins@totaralms.com>
- * @package totara_plan
+ * @author Nathan Lewis <nathan.lewis@totaralms.com>
+ * @package totara_certification
  */
 
-defined('MOODLE_INTERNAL') || die();
 
-$plugin->version  = 2016092001;       // The current module version (Date: YYYYMMDDXX).
-$plugin->requires = 2015111606;       // Requires this Moodle version.
-$plugin->component = 'totara_plan';   // To check on upgrade, that module sits in correct place
+// TL-14290 duedate in dp_plan_program_assign must not be -1, instead use 0.
+function totara_plan_upgrade_fix_invalid_program_duedates() {
+    global $DB;
+
+    $sql = "UPDATE {dp_plan_program_assign} SET duedate = 0 WHERE duedate = -1";
+    $DB->execute($sql);
+}

@@ -603,7 +603,7 @@ class dp_program_component extends dp_base_component {
                 $completionsettings['timedue'] = empty($item->duedate) ? COMPLETION_TIME_NOT_SET : $item->duedate;
             } else {
                 // There is already a due date, or we don't need any at all, so just get the date from the existing record.
-                $item->duedate = $existingprogcompletion->timedue;
+                $item->duedate = $existingprogcompletion->timedue <= 0 ? 0 : $existingprogcompletion->timedue;
             }
         } else {
             // Need to create the prog completion record and specify all fields.
