@@ -1036,4 +1036,16 @@ class totara_program_lib_testcase extends reportcache_advanced_testcase {
         // Check that the record was changed as expected.
         $this->assertEquals($expectedprogcompletion, $progcompletion);
     }
+
+    public function test_prog_format_log_date() {
+        $this->assertEquals('Not set (null)', prog_format_log_date(null));
+        $this->assertEquals('Not set ()', prog_format_log_date(''));
+        $this->assertEquals('Not set ( )', prog_format_log_date(' '));
+        $this->assertEquals('Not set (0)', prog_format_log_date(0));
+        $this->assertEquals('Not set (0)', prog_format_log_date('0'));
+        $this->assertEquals('Not set (-1)', prog_format_log_date(-1));
+        $this->assertEquals('Not set (-1)', prog_format_log_date('-1'));
+        $this->assertEquals('23 May 2017, 03:59 (1495511940)', prog_format_log_date(1495511940));
+        $this->assertEquals('23 May 2017, 03:59 (1495511940)', prog_format_log_date('1495511940'));
+    }
 }

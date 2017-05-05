@@ -80,11 +80,9 @@ if ($submitted = $form->get_data() and isset($submitted->savechanges)) {
         $DB->update_record('prog_completion_history', $updatedrecord);
 
         // Record the change in the program completion log.
-        $timecompleted = userdate($updatedrecord->timecompleted, '%d %B %Y, %I:%M %p', 99) .
-            ' (' . $updatedrecord->timecompleted . ')';
         $description = 'Completion history manually edited<br>' .
             '<ul><li>ID: ' . $chid . '</li>' .
-            '<li>Completion date: ' . $timecompleted . '</li></ul>';
+            '<li>Completion date: ' . prog_format_log_date($updatedrecord->timecompleted) . '</li></ul>';
         prog_log_completion(
             $id,
             $userid,
@@ -102,11 +100,9 @@ if ($submitted = $form->get_data() and isset($submitted->savechanges)) {
         $newchid = $DB->insert_record('prog_completion_history', $newrecord);
 
         // Record the change in the program completion log.
-        $timecompleted = userdate($newrecord->timecompleted, '%d %B %Y, %I:%M %p', 99) .
-            ' (' . $newrecord->timecompleted . ')';
         $description = 'Completion history manually added<br>' .
             '<ul><li>ID: ' . $newchid . '</li>' .
-            '<li>Completion date: ' . $timecompleted . '</li></ul>';
+            '<li>Completion date: ' . prog_format_log_date($newrecord->timecompleted) . '</li></ul>';
         prog_log_completion(
             $id,
             $userid,

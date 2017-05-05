@@ -1259,7 +1259,7 @@ function prog_process_extensions($extensionslist, $reasonfordecision = array()) 
                 }
 
                 // Try to update due date for program using extension date
-                if (!$extension_program->set_timedue($extension->userid, $extension->extensiondate)) {
+                if (!$extension_program->set_timedue($extension->userid, $extension->extensiondate, 'Due date extension granted')) {
                     $update_fail_count++;
                     continue;
                 } else {
@@ -2701,10 +2701,26 @@ function prog_log_completion($programid, $userid, $description, $changeuserid = 
  * @param null $changeuserid ID of the user who triggered the event, or 0 to indicate cron or no user, assumes $USER->id if null.
  */
 function prog_write_completion_log($programid, $userid, $message = '', $changeuserid = null) {
-    global $DB;
+    $progcompletion = prog_load_completion($programid, $userid);
 
-    $progcompletion = $DB->get_record('prog_completion', array('programid' => $programid, 'userid' => $userid, 'coursesetid' => 0));
+    $description = prog_calculate_completion_description($progcompletion, $message);
 
+    prog_log_completion(
+        $programid,
+        $userid,
+        $description,
+        $changeuserid
+    );
+}
+
+/**
+ * Calculate the description string for a program completion log message.
+ *
+ * @param stdClass $progcompletion
+ * @param string $message If provided, will be added at the start of the log message (instead of "Completion record edited")
+ * @return string
+ */
+function prog_calculate_completion_description($progcompletion, $message = '') {
     $progstatus = '';
     switch ($progcompletion->status) {
         case STATUS_PROGRAM_INCOMPLETE:
@@ -2715,34 +2731,16 @@ function prog_write_completion_log($programid, $userid, $message = '', $changeus
             break;
     }
 
-    if ($progcompletion->timedue > 0) {
-        $timedue = userdate($progcompletion->timedue, '%d %B %Y, %H:%M', 0) .
-            ' (' . $progcompletion->timedue . ')';
-    } else {
-        $timedue = "Not set ({$progcompletion->timedue})";
-    }
-    if ($progcompletion->timecompleted > 0) {
-        $timecompleted = userdate($progcompletion->timecompleted, '%d %B %Y, %H:%M', 0) .
-            ' (' . $progcompletion->timecompleted . ')';
-    } else {
-        $timecompleted = "Not set ({$progcompletion->timecompleted})";
-    }
-
     if (empty($message)) {
         $message = 'Completion record edited';
     }
 
     $description = $message . '<br>' .
         '<ul><li>Status: ' . $progstatus . '</li>' .
-        '<li>Due date: ' . $timedue . '</li>' .
-        '<li>Completion date: ' . $timecompleted . '</li></ul>';
+        '<li>Due date: ' . prog_format_log_date($progcompletion->timedue) . '</li>' .
+        '<li>Completion date: ' . prog_format_log_date($progcompletion->timecompleted) . '</li></ul>';
 
-    prog_log_completion(
-        $programid,
-        $userid,
-        $description,
-        $changeuserid
-    );
+    return $description;
 }
 
 /**
@@ -2855,4 +2853,20 @@ function prog_load_completion($programid, $userid, $mustexist = true) {
     }
 
     return $progcompletion;
+}
+
+/**
+ * Formats a date for the program completion log.
+ *
+ * @param int $date
+ * @return string
+ */
+function prog_format_log_date($date) {
+    if ($date > 0) {
+        return userdate($date, '%d %B %Y, %H:%M', 0) . ' (' . $date . ')';
+    } else if (is_null($date)) {
+        return "Not set (null)";
+    } else {
+        return "Not set ({$date})";
+    }
 }

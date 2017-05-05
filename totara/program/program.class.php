@@ -535,7 +535,7 @@ class program {
 
                             // Update user's due date.
                             $progcompletion->timedue = $timedue; // Updates $allpreviousprogcompletions, for following assignments.
-                            $this->set_timedue($user->id, $timedue);
+                            $this->set_timedue($user->id, $timedue, 'Due date updated for existing program assignment');
 
                             if ($userassignment->exceptionstatus == PROGRAM_EXCEPTION_NONE && $sendmessage) {
                                 // Trigger event for observers to deal with resolved exception from first assignment.
@@ -568,7 +568,7 @@ class program {
                         } else if ($timedue > $progcompletion->timedue) {
                             // Update user's due date.
                             $progcompletion->timedue = $timedue; // Updates $allpreviousprogcompletions, for following assignments.
-                            $this->set_timedue($user->id, $timedue);
+                            $this->set_timedue($user->id, $timedue, 'Due date updated for new program assignment');
                         } // Else no change or decrease, skipped. If we want to allow decrease then it should be added here.
                     }
                 } // End user assignments loop.
@@ -785,7 +785,7 @@ class program {
      * @param object $assignment_record A record from prog_assignment, only id is used.
      */
     public function assign_learners_bulk($users, $assignment_record) {
-        global $DB;
+        global $DB, $USER;
 
         if (empty($users)) {
             return;
@@ -796,6 +796,7 @@ class program {
         // insert a completion record to store the status of the user's progress on the program
         // TO DO: eventually we need to have multiple completion records, linked to the assignment that made them
         $prog_completions = array();
+        $progcompletionlogs = array();
         foreach ($users as $userid => $assigndata) {
             // Only create program completion records if needed.
             if (empty($assigndata['needscompletionrecord'])) {
@@ -807,14 +808,27 @@ class program {
             $pc->coursesetid = 0;
             $pc->status = STATUS_PROGRAM_INCOMPLETE;
             $pc->timestarted = $now;
+            $pc->timecompleted = 0;
             $pc->timedue = $assigndata['timedue'];
             $prog_completions[] = $pc;
+
+            // Prepare a program log which can be written to the db in bulk, by bypassing the program log function.
+            $pcl = new stdClass();
+            $pcl->programid = $this->id;
+            $pcl->userid = $userid;
+            $pcl->changeuserid = $USER->id;
+            $pcl->description = prog_calculate_completion_description($pc, 'Program completion created in assign_learners_bulk');
+            $pcl->timemodified = $now;
+            $progcompletionlogs[] = $pcl;
         }
         $DB->insert_records_via_batch('prog_completion', $prog_completions);
         unset($prog_completions);
+        $DB->insert_records_via_batch('prog_completion_log', $progcompletionlogs);
+        unset($progcompletionlogs);
 
-        // insert or update a user assignment record to store the details of how this user was assigned to the program
+        // Insert a user assignment record to store the details of how this user was assigned to the program.
         $user_assignments = array();
+        $progcompletionlogs = array();
         foreach ($users as $userid => $assigndata) {
             $ua = new stdClass();
             $ua->programid = $this->id;
@@ -822,11 +836,21 @@ class program {
             $ua->assignmentid = $assignment_record->id;
             $ua->timeassigned = $now;
             $ua->exceptionstatus = $assigndata['exceptions'] ? PROGRAM_EXCEPTION_RAISED : PROGRAM_EXCEPTION_NONE;
-
             $user_assignments[] = $ua;
+
+            // Prepare a program log which can be written to the db in bulk, by bypassing the program log function.
+            $pcl = new stdClass();
+            $pcl->programid = $this->id;
+            $pcl->userid = $userid;
+            $pcl->changeuserid = $USER->id;
+            $pcl->description = 'User assignment created for program assignment ' . $assignment_record->id;
+            $pcl->timemodified = $now;
+            $progcompletionlogs[] = $pcl;
         }
         $DB->insert_records_via_batch('prog_user_assignment', $user_assignments);
         unset($user_assignments);
+        $DB->insert_records_via_batch('prog_completion_log', $progcompletionlogs);
+        unset($progcompletionlogs);
 
         $userids = array_keys($users);
 
@@ -865,7 +889,7 @@ class program {
      * @return bool
      */
     public function unassign_learners($userids) {
-        global $DB;
+        global $DB, $USER;
 
         //get the courses in this program
         $sql = "SELECT DISTINCT courseid
@@ -899,6 +923,7 @@ class program {
         unset($userids);
 
         // Process each batch of user ids.
+        $now = time();
         foreach ($batches as $userids) {
 
             // Un-assign the student role from the users in the program context.
@@ -922,12 +947,28 @@ class program {
                 $params);
 
             $completionstodelete = array();
+            $progcompletionlogs = array();
+
             foreach ($userids as $userid) {
+                // Log that the prog_user_assignment records were deleted by the code above.
+                $log = new stdClass();
+                $log->programid = $this->id;
+                $log->userid = $userid;
+                $log->changeuserid = $USER->id;
+                $log->description = 'All program user assignments deleted';
+                $log->timemodified = $now;
+                $progcompletionlogs[] = $log;
+
                 // Check if this program is also part of any of the user's learning plans.
                 if (!$this->assigned_to_users_non_required_learning($userid)) {
                     // Delete the completion record if the program is not complete.
                     if (!prog_is_complete($this->id, $userid)) {
                         $completionstodelete[] = $userid;
+
+                        // Log the deletion.
+                        $log = clone($log);
+                        $log->description = 'Program completion deleted';
+                        $progcompletionlogs[] = $log;
                     }
                 }
             }
@@ -940,6 +981,11 @@ class program {
                     $params);
             }
             unset($completionstodelete);
+
+            // Record the completion logs.
+            if (!empty($progcompletionlogs)) {
+                $DB->insert_records_via_batch('prog_completion_log', $progcompletionlogs);
+            }
 
             foreach ($userids as $userid) {
                 // Trigger this event for any listening handlers to catch.
@@ -960,11 +1006,16 @@ class program {
     /**
      * Sets the time that a program is due for a learner
      *
+     * This function bypasses error checks. This function is provided to provide backwards compatibility, so should not be
+     * used for new functionality. Instead, use prog_load_completion() and prog_write_completion().
+     *
      * @param int $userid The user's ID
      * @param int $timedue Timestamp indicating the date that the program is due to be completed by the user
+     * @param string $message If provided, will override the default program completion log message "Due date set to".
+     *                        Since Totara 2.9.20, 9.8, 10.
      * @return bool Success
      */
-    public function set_timedue($userid, $timedue) {
+    public function set_timedue($userid, $timedue, $message = '') {
         global $DB;
         if ($completion = $DB->get_record('prog_completion', array('programid' => $this->id, 'userid' => $userid, 'coursesetid' => 0))) {
             $todb = new stdClass();
@@ -972,17 +1023,15 @@ class program {
             $todb->timedue = $timedue;
             $result = $DB->update_record('prog_completion', $todb);
 
-            // Record the change in the program completion log.
-            if ($timedue > 0) {
-                $timeduestr = userdate($timedue, '%d %B %Y, %H:%M', 0) .
-                    ' (' . $timedue . ')';
-            } else {
-                $timeduestr = 'Not set (' . $timedue . ')';
+            if (empty($message)) {
+                $message = 'Due date set to';
             }
+
+            // Record the change in the program completion log.
             prog_log_completion(
                 $this->id,
                 $userid,
-                'Due date set to: ' . $timeduestr
+                $message . ': ' . prog_format_log_date($timedue)
             );
 
             return $result;
@@ -1177,6 +1226,9 @@ class program {
             }
 
             $update_success = $DB->update_record('prog_completion', $completion);
+
+            prog_write_completion_log($completion->programid, $completion->userid, 'Program completion updated by update_program_complete');
+
             if ($progcompleted_eventtrigger) {
                 // Trigger an event to notify any listeners that this program has been completed.
                 $event = \totara_program\event\program_completed::create(
@@ -1223,6 +1275,9 @@ class program {
             }
 
             $insert_success = $DB->insert_record('prog_completion', $completion);
+
+            prog_write_completion_log($completion->programid, $completion->userid, 'Program completion created by update_program_complete');
+
             if ($progcompleted_eventtrigger) {
                 // Trigger an event to notify any listeners that this program has been completed.
                 $event = \totara_program\event\program_completed::create(

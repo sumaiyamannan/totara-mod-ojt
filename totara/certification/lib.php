@@ -2874,7 +2874,7 @@ function certif_fix_completion_prog_status_reset(&$certcompletion, &$progcomplet
 
     return 'Automated fix \'certif_fix_completion_prog_status_reset\' was applied<br>' .
         '<ul><li>\'Program status\' was set to \'Program incomplete\'</li>
-        <li>\'Program completion date\' was set empty (0)</li></ul>';
+        <li>\'Program completion date\' was set to ' . prog_format_log_date($progcompletion->timecompleted) . '</li></ul>';
 }
 
 /**
@@ -2892,12 +2892,9 @@ function certif_fix_completion_prog_status_set_complete(&$certcompletion, &$prog
     $progcompletion->status = STATUS_PROGRAM_COMPLETE;
     $progcompletion->timecompleted = $certcompletion->timecompleted;
 
-    $timecompleted = userdate($progcompletion->timecompleted, '%d %B %Y, %H:%M', 0) .
-        ' (' . $progcompletion->timecompleted . ')';
-
     return 'Automated fix \'certif_fix_completion_prog_status_set_complete\' was applied<br>' .
-    '<ul><li>\'Program status\' was set to \'Program complete\'</li>
-    <li>\'Program completion date\' was set to ' . $timecompleted . '</li></ul>';
+        '<ul><li>\'Program status\' was set to \'Program complete\'</li>
+        <li>\'Program completion date\' was set to ' . prog_format_log_date($progcompletion->timecompleted) . '</li></ul>';
 }
 
 /**
@@ -2915,8 +2912,8 @@ function certif_fix_completion_prog_incomplete(&$certcompletion, &$progcompletio
     $progcompletion->timecompleted = 0;
 
     return 'Automated fix \'certif_fix_completion_prog_incomplete\' was applied<br>' .
-    '<ul><li>\'Program status\' was set to \'Program incomplete\'</li>
-    <li>\'Program completion date\' was set to \'empty\' (0)</li></ul>';
+        '<ul><li>\'Program status\' was set to \'Program incomplete\'</li>
+        <li>\'Program completion date\' was set to ' . prog_format_log_date($progcompletion->timecompleted) . '</li></ul>';
 }
 
 /**
@@ -2934,28 +2931,19 @@ function certif_fix_cert_completion_date(&$certcompletion, &$progcompletion) {
 
     $certcompletion->timecompleted = $progcompletion->timecompleted;
 
-    $timecompleted = userdate($certcompletion->timecompleted, '%d %B %Y, %H:%M', 0) .
-        ' (' . $certcompletion->timecompleted . ')';
-
     if ($certification->recertifydatetype == CERTIFRECERT_COMPLETION) {
         $certcompletion->timeexpires = get_timeexpires($certcompletion->timecompleted, $certification->activeperiod);
         $certcompletion->timewindowopens = get_timewindowopens($certcompletion->timeexpires, $certification->windowperiod);
         $progcompletion->timedue = $certcompletion->timeexpires;
 
-        $timewindowopens = userdate($certcompletion->timewindowopens, '%d %B %Y, %H:%M', 0) .
-            ' (' . $certcompletion->timewindowopens . ')';
-
-        $timeexpires = userdate($certcompletion->timeexpires, '%d %B %Y, %H:%M', 0) .
-            ' (' . $certcompletion->timeexpires . ')';
-
         return 'Automated fix \'certif_fix_cert_completion_date\' was applied using current certification settings<br>
-        <ul><li>\'Certification completion date\' was set to ' . $timecompleted . '</li>
-        <li>\'Certification window open date\' was set to ' . $timewindowopens . '</li>
-        <li>\'Certification expiry date\' was set to ' . $timeexpires . '</li>
-        <li>\'Program due date\' was set to ' . $timeexpires . '</li></ul>';
+            <ul><li>\'Certification completion date\' was set to ' . prog_format_log_date($certcompletion->timecompleted) . '</li>
+            <li>\'Certification window open date\' was set to ' . prog_format_log_date($certcompletion->timewindowopens) . '</li>
+            <li>\'Certification expiry date\' was set to ' . prog_format_log_date($certcompletion->timeexpires) . '</li>
+            <li>\'Program due date\' was set to ' . prog_format_log_date($progcompletion->timedue) . '</li></ul>';
     } else {
         return 'Automated fix \'certif_fix_cert_completion_date\' was applied<br>
-        <ul><li>\'Certification completion date\' was set to ' . $timecompleted . '</li></ul>';
+            <ul><li>\'Certification completion date\' was set to ' . prog_format_log_date($certcompletion->timecompleted) . '</li></ul>';
     }
 }
 
@@ -2983,11 +2971,8 @@ function certif_fix_prog_timedue(&$certcompletion, &$progcompletion) {
 function certif_fix_prog_completion_date(&$certcompletion, &$progcompletion) {
     $progcompletion->timecompleted = $certcompletion->timecompleted;
 
-    $timecompleted = userdate($progcompletion->timecompleted, '%d %B %Y, %H:%M', 0) .
-        ' (' . $progcompletion->timecompleted . ')';
-
     return 'Automated fix \'certif_fix_prog_completion_date\' was applied<br>
-        <ul><li>\'Program completion date\' was set to ' . $timecompleted . '</li></ul>';
+        <ul><li>\'Program completion date\' was set to ' . prog_format_log_date($progcompletion->timecompleted) . '</li></ul>';
 }
 
 /**
@@ -3095,37 +3080,6 @@ function certif_calculate_completion_description($certcompletion, $progcompletio
             break;
     }
 
-    if ($progcompletion->timedue > 0) {
-        $timedue = userdate($progcompletion->timedue, '%d %B %Y, %H:%M', 0) .
-            ' (' . $progcompletion->timedue . ')';
-    } else {
-        $timedue = "Not set ({$progcompletion->timedue})";
-    }
-    if ($certcompletion->timecompleted > 0) {
-        $timecompleted = userdate($certcompletion->timecompleted, '%d %B %Y, %H:%M', 0) .
-            ' (' . $certcompletion->timecompleted . ')';
-    } else {
-        $timecompleted = "Not set ({$certcompletion->timecompleted})";
-    }
-    if ($certcompletion->timewindowopens > 0) {
-        $timewindowopens = userdate($certcompletion->timewindowopens, '%d %B %Y, %H:%M', 0) .
-            ' (' . $certcompletion->timewindowopens . ')';
-    } else {
-        $timewindowopens = "Not set ({$certcompletion->timewindowopens})";
-    }
-    if ($certcompletion->timeexpires > 0) {
-        $timeexpires = userdate($certcompletion->timeexpires, '%d %B %Y, %H:%M', 0) .
-            ' (' . $certcompletion->timeexpires . ')';
-    } else {
-        $timeexpires = "Not set ({$certcompletion->timeexpires})";
-    }
-    if ($progcompletion->timecompleted > 0) {
-        $progtimecompleted = userdate($progcompletion->timecompleted, '%d %B %Y, %H:%M', 0) .
-            ' (' . $progcompletion->timecompleted . ')';
-    } else {
-        $progtimecompleted = "Not set ({$progcompletion->timecompleted})";
-    }
-
     if (empty($message)) {
         $message = 'Completion record edited';
     }
@@ -3134,12 +3088,12 @@ function certif_calculate_completion_description($certcompletion, $progcompletio
         '<ul><li>Status: ' . $CERTIFSTATUS[$certcompletion->status] . ' (' . $certcompletion->status . ')</li>' .
         '<li>Renewal status: ' . $CERTIFRENEWALSTATUS[$certcompletion->renewalstatus] . ' (' . $certcompletion->renewalstatus . ')</li>' .
         '<li>Certification path: ' . $CERTIFPATH[$certcompletion->certifpath] . ' (' . $certcompletion->certifpath . ')</li>' .
-        '<li>Due date: ' . $timedue . '</li>' .
-        '<li>Completion date: ' . $timecompleted . '</li>' .
-        '<li>Window open date: ' . $timewindowopens . '</li>' .
-        '<li>Expiry date: ' . $timeexpires . '</li>' .
+        '<li>Due date: ' . prog_format_log_date($progcompletion->timedue) . '</li>' .
+        '<li>Completion date: ' . prog_format_log_date($certcompletion->timecompleted) . '</li>' .
+        '<li>Window open date: ' . prog_format_log_date($certcompletion->timewindowopens) . '</li>' .
+        '<li>Expiry date: ' . prog_format_log_date($certcompletion->timeexpires) . '</li>' .
         '<li>Program status: ' . $progstatus . ' (' . $progcompletion->status . ')</li>' .
-        '<li>Program completion date: ' . $progtimecompleted . '</li></ul>';
+        '<li>Program completion date: ' . prog_format_log_date($progcompletion->timecompleted) . '</li></ul>';
 
     return $description;
 }
@@ -3182,24 +3136,6 @@ function certif_calculate_completion_history_description($certcomplhistory, $mes
 
     $id = isset($certcomplhistory->id) ? $certcomplhistory->id : 'Unknown - new history record';
 
-    if ($certcomplhistory->timecompleted > 0) {
-        $timecompleted = userdate($certcomplhistory->timecompleted, '%d %B %Y, %H:%M', 0) .
-            ' (' . $certcomplhistory->timecompleted . ')';
-    } else {
-        $timecompleted = "Not set ({$certcomplhistory->timecompleted})";
-    }
-    if ($certcomplhistory->timewindowopens > 0) {
-        $timewindowopens = userdate($certcomplhistory->timewindowopens, '%d %B %Y, %H:%M', 0) .
-            ' (' . $certcomplhistory->timewindowopens . ')';
-    } else {
-        $timewindowopens = "Not set ({$certcomplhistory->timewindowopens})";
-    }
-    if ($certcomplhistory->timeexpires > 0) {
-        $timeexpires = userdate($certcomplhistory->timeexpires, '%d %B %Y, %H:%M', 0) .
-            ' (' . $certcomplhistory->timeexpires . ')';
-    } else {
-        $timeexpires = "Not set ({$certcomplhistory->timeexpires})";
-    }
     $unassigned = $certcomplhistory->unassigned ? "Yes" : "No";
 
     if (empty($message)) {
@@ -3211,9 +3147,9 @@ function certif_calculate_completion_history_description($certcomplhistory, $mes
         '<li>Status: ' . $CERTIFSTATUS[$certcomplhistory->status] . ' (' . $certcomplhistory->status . ')</li>' .
         '<li>Renewal status: ' . $CERTIFRENEWALSTATUS[$certcomplhistory->renewalstatus] . ' (' . $certcomplhistory->renewalstatus . ')</li>' .
         '<li>Certification path: ' . $CERTIFPATH[$certcomplhistory->certifpath] . ' (' . $certcomplhistory->certifpath . ')</li>' .
-        '<li>Completion date: ' . $timecompleted . '</li>' .
-        '<li>Window open date: ' . $timewindowopens . '</li>' .
-        '<li>Expiry date: ' . $timeexpires . '</li>' .
+        '<li>Completion date: ' . prog_format_log_date($certcomplhistory->timecompleted) . '</li>' .
+        '<li>Window open date: ' . prog_format_log_date($certcomplhistory->timewindowopens) . '</li>' .
+        '<li>Expiry date: ' . prog_format_log_date($certcomplhistory->timeexpires) . '</li>' .
         '<li>Unassigned: ' . $unassigned . '</li></ul>';
 
     return $description;
