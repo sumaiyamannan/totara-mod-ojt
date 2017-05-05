@@ -1103,7 +1103,7 @@ class mod_facetoface_renderer extends plugin_renderer_base {
      * @return string
      */
     public function render_room_details($room) {
-        global $PAGE, $DB, $TEXTAREA_OPTIONS;
+        global $DB;
 
         $output = array();
 
@@ -1114,7 +1114,7 @@ class mod_facetoface_renderer extends plugin_renderer_base {
         $output[] = html_writer::tag('dd', $room->name);
 
         $options = array('prefix' => 'facetofaceroom', 'extended' => true);
-        $fields = facetoface_get_customfield_data($room, 'facetoface_room', 'facetofaceroom', $options);
+        $fields = customfield_get_data($room, 'facetoface_room', 'facetofaceroom', true, $options);
         if (!empty($fields)) {
 
             foreach ($fields as $field => $value) {
@@ -1190,7 +1190,7 @@ class mod_facetoface_renderer extends plugin_renderer_base {
      * @return string
      */
     public function render_asset_details($asset) {
-        global $DB, $TEXTAREA_OPTIONS;
+        global $DB;
 
         $output = [];
 
@@ -1201,7 +1201,7 @@ class mod_facetoface_renderer extends plugin_renderer_base {
         $output[] = html_writer::tag('dd', $asset->name);
 
         $options = array('prefix' => 'facetofaceasset', 'extended' => true);
-        $fields = facetoface_get_customfield_data($asset, 'facetoface_asset', 'facetofaceasset', $options);
+        $fields = customfield_get_data($asset, 'facetoface_asset', 'facetofaceasset', true, $options);
         if (!empty($fields)) {
             foreach ($fields as $field => $value) {
 
