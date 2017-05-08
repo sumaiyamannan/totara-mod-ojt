@@ -306,14 +306,27 @@ class rb_source_dp_course extends rb_base_source {
         );
 
         $columnoptions[] = new rb_column_option(
-                'course',
-                'status',
+                'plan',
+                'coursestatus',
                 get_string('coursestatus', 'rb_source_dp_course'),
                 'dp_course.approved',
                 array(
                     'joins' => 'dp_course',
                     'displayfunc' => 'plan_item_status'
                 )
+        );
+
+        $columnoptions[] = new rb_column_option(
+            'plan',
+            'statusandapproval',
+            get_string('completionstatusandapproval', 'rb_source_dp_course'),
+            "course_completion.status",
+            array(
+                'joins' => array('course_completion', 'dp_course'),
+                'displayfunc' => 'course_completion_progress_and_approval',
+                'defaultheading' => get_string('progress', 'rb_source_dp_course'),
+                'extrafields' => array('approved' => 'dp_course.approved', 'userid' => 'base.userid', 'courseid' => 'base.courseid'),
+            )
         );
 
         $columnoptions[] = new rb_column_option(
@@ -388,18 +401,6 @@ class rb_source_dp_course extends rb_base_source {
                 array(
                     'joins' => array('course_completion'),
                     'displayfunc' => 'nice_date',
-                )
-            );
-        $columnoptions[] = new rb_column_option(
-                'course_completion',
-                'statusandapproval',
-                get_string('completionstatusandapproval', 'rb_source_dp_course'),
-                "course_completion.status",
-                array(
-                    'joins' => array('course_completion', 'dp_course'),
-                    'displayfunc' => 'course_completion_progress_and_approval',
-                    'defaultheading' => get_string('progress', 'rb_source_dp_course'),
-                    'extrafields' => array('approved' => 'dp_course.approved', 'userid' => 'base.userid', 'courseid' => 'base.courseid'),
                 )
             );
         $columnoptions[] = new rb_column_option(
@@ -622,7 +623,7 @@ class rb_source_dp_course extends rb_base_source {
                 'value' => 'courseduedate',
             ),
             array(
-                'type' => 'course_completion',
+                'type' => 'plan',
                 'value' => 'statusandapproval',
             ),
         );
@@ -670,7 +671,7 @@ class rb_source_dp_course extends rb_base_source {
             '',
             "course_completion.status",
             array(
-                'joins' => array('course_completion', 'dp_course'),
+                'joins' => array('course_completion'),
             )
         );
 
