@@ -1,4 +1,4 @@
-@mod @totara @mod_facetoface @javascript
+@mod @totara @mod_facetoface @javascript @totara_customfield
 Feature: Configure seminar custom fields
   In order to use seminar
   As a configurator

@@ -1,4 +1,4 @@
-@totara @totara_customfield @totara_customfield_location @javascript
+@totara @totara_customfield @javascript
 Feature: Administrators can add a custom location field to complete during room / session creation
   In order for the custom field to appear during room creation
   As admin

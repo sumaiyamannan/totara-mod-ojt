@@ -1,4 +1,4 @@
-@mod @mod_facetoface @totara
+@mod @mod_facetoface @totara @totara_customfield
 Feature: Seminar session date with timezone management
   In order to set up a session
   As an administrator

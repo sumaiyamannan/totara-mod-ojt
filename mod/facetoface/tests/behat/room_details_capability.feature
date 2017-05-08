@@ -1,4 +1,4 @@
-@mod @mod_facetoface @totara @javascript
+@mod @mod_facetoface @totara @javascript @totara_customfield
 Feature: Check room details capability view for student and manager
   In order to test room details capability
   As a site manager

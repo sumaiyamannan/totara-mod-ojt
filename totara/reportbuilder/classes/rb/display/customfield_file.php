@@ -49,62 +49,24 @@ class customfield_file extends base {
         // extract prefix from field name.
         $pattern = '/(?P<prefix>(.*?))(_all)?_custom_field_([a-zA-Z\d]+)[a-zA-Z]{0,5}$/';
         $matches = array();
-        preg_match($pattern, $field, $matches);
-        if (!empty($matches)) {
-            $cf_prefix = $matches['prefix'];
-            switch ($cf_prefix) {
-                case 'org_type':
-                    $prefix = 'organisation';
-                    break;
-                case 'pos_type':
-                    $prefix = 'position';
-                    break;
-                case 'dp_plan_evidence':
-                    $prefix = 'evidence';
-                    break;
-                case 'comp_type':
-                    $prefix = 'competency';
-                    break;
-                case 'goal_type':
-                    $prefix = 'goal';
-                    break;
-                case 'goal_user':
-                    $prefix = 'goal_user';
-                    break;
-                case 'course':
-                    $prefix = 'course';
-                    break;
-                case 'prog':
-                    $prefix = 'prog';
-                    break;
-                case 'facetoface_session':
-                    $prefix = 'facetofacesession';
-                    break;
-                case 'facetoface_signup':
-                    $prefix = 'facetofacesignup';
-                    break;
-                case 'facetoface_cancellation':
-                    $prefix = 'facetofacecancellation';
-                    break;
-                case 'facetoface_sessioncancel':
-                    $prefix = 'facetofacesessioncancel';
-                    break;
-                case 'facetoface_asset':
-                    $prefix = 'facetofaceasset';
-                    break;
-                case 'facetoface_room':
-                    $prefix = 'facetofaceroom';
-                    break;
-                default:
-                    debugging("Unknown prefix '$cf_prefix'' in custom field '$field'", DEBUG_DEVELOPER);
-                    return '';
-            }
-        } else {
+        $found = preg_match($pattern, $field, $matches);
+        if (!$found) {
             debugging("Unknown type of custom field '$field'", DEBUG_DEVELOPER);
             return '';
         }
+        $helper = \totara_customfield\helper::get_instance();
+        if (!$helper->check_if_prefix_recognised($matches['prefix'])) {
+            debugging("Unknown prefix '{$matches['prefix']}' for custom field '{$field}'", DEBUG_DEVELOPER);
+            return '';
+        }
 
-        $extradata = array('prefix' => $prefix, 'itemid' => $extrafields->itemid, 'isexport' => $isexport);
+        $class = $helper->get_area_class_by_prefix($matches['prefix']);
+
+        $extradata = array(
+            'prefix' => $class::get_area_name(),
+            'itemid' => $extrafields->itemid,
+            'isexport' => $isexport
+        );
 
         $displaytext = \customfield_file::display_item_data($value, $extradata);
 

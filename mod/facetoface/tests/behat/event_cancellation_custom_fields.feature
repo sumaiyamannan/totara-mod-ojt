@@ -1,4 +1,4 @@
-@mod @mod_facetoface @totara @javascript
+@mod @mod_facetoface @totara @javascript @totara_customfield
 Feature: Seminar event cancellation custom fields
   After seminar events have been created
   As an admin
@@ -107,9 +107,19 @@ Feature: Seminar event cancellation custom fields
 
     Given I log out
     And I log in as "teacher1"
+
+    # Add images to the private files block to use later
+    When I click on "Dashboard" in the totara menu
+    And I press "Customise this page"
+    And I select "Private files" from the "Add a block" singleselect
+    And I follow "Manage private files..."
+    And I upload "mod/facetoface/tests/fixtures/test.jpg" file to "Files" filemanager
+    And I upload "mod/facetoface/tests/fixtures/leaves-green.png" file to "Files" filemanager
+    Then I should see "test.jpg"
+    And I should see "leaves-green.png"
+
     And I click on "Find Learning" in the totara menu
     And I follow "Course 1"
-    And I turn editing mode on
     And I add a "Seminar" to section "1" and I fill the form with:
       | Name        | Test Seminar |
       | Description | Test Seminar |
@@ -154,20 +164,34 @@ Feature: Seminar event cancellation custom fields
       | customfield_cancelmulti[1]          | 1                  |
       | customfield_canceltextinput         | hi                 |
       | customfield_cancelURL[url]          | http://example.org |
-    And I press "Yes"
 
+    # Add a file to the file custom field.
+    And I click on "//div[@id='fitem_id_customfield_cancelfile_filemanager']//a[@title='Add...']" "xpath_element"
+    And I click on "test.jpg" "link" in the "//div[@aria-hidden='false' and @class='moodle-dialogue-base']" "xpath_element"
+    And I click on "Select this file" "button" in the "//div[@aria-hidden='false' and @class='moodle-dialogue-base']" "xpath_element"
+
+    # Image in the textarea custom field
+    And I click on "//button[@class='atto_image_button']" "xpath_element" in the "//div[@id='fitem_id_customfield_canceltextarea_editor']" "xpath_element"
+    And I click on "Browse repositories..." "button"
+    And I click on "leaves-green.png" "link" in the "//div[@aria-hidden='false' and @class='moodle-dialogue-base']" "xpath_element"
+    And I click on "Select this file" "button" in the "//div[@aria-hidden='false' and @class='moodle-dialogue-base']" "xpath_element"
+    And I set the field "Describe this image for someone who cannot see it" to "Green leaves on customfield text area"
+    And I click on "Save image" "button"
+
+    And I press "Yes"
 
   # ----------------------------------------------------------------------------
   Scenario: mod_facetoface_cancel_500: filling up custom fields when cancelling events
     When I click on "Attendees" "link"
     Then I should see "Yes" in the "//dt[contains(., 'cancelcheckbox')]//following-sibling::dd" "xpath_element"
     And I should see "1 December 2030" in the "//dt[contains(., 'canceldatetime')]//following-sibling::dd" "xpath_element"
-    And I should see "No file selected" in the "//dt[contains(., 'cancelfile')]//following-sibling::dd" "xpath_element"
+    And I should see "test.jpg" in the "//dt[contains(., 'cancelfile')]//following-sibling::dd" "xpath_element"
     And I should see "Kensington" in the "//dt[contains(., 'cancellocation')]//following-sibling::dd" "xpath_element"
     And I should see "Nein" in the "//dt[contains(., 'cancelmenu')]//following-sibling::dd" "xpath_element"
     And I should see "Aye, Nay" in the "//dt[contains(., 'cancelmulti')]//following-sibling::dd" "xpath_element"
     And I should see "hi" in the "//dt[contains(., 'canceltextinput')]//following-sibling::dd" "xpath_element"
     And I should see "http://example.org" in the "//dt[contains(., 'cancelURL')]//following-sibling::dd" "xpath_element"
+    And I should see the "Green leaves on customfield text area" image in the "//dd[preceding-sibling::dt[1][. = 'canceltextarea']]" "xpath_element"
 
 
   # ----------------------------------------------------------------------------
@@ -205,12 +229,13 @@ Feature: Seminar event cancellation custom fields
     When I follow "View This Report"
     Then I should see "Test Seminar" in the "Course 1" "table_row"
     And I should see "1 Dec 2030" in the "Test Seminar" "table_row"
-    And I should see "No file selected" in the "Test Seminar" "table_row"
+    And I should see "test.jpg" in the "Test Seminar" "table_row"
     And I should see "Kensington" in the "Test Seminar" "table_row"
     And I should see "Nein" in the "Test Seminar" "table_row"
     And I should see "Aye, Nay" in the "Test Seminar" "table_row"
     And I should see "hi" in the "Test Seminar" "table_row"
     And I should see "http://example.org" in the "Test Seminar" "table_row"
+    And I should see the "Green leaves on customfield text area" image in the "Test Seminar" "table_row"
 
 
   # ----------------------------------------------------------------------------

@@ -1,4 +1,4 @@
-@mod @mod_facetoface @totara @javascript
+@mod @mod_facetoface @totara @javascript @totara_customfield
 Feature: Add seminar attendess from csv file with custom fields
   In order to test the bulk add attendees from file
   As a site manager

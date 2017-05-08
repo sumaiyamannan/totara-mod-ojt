@@ -425,14 +425,32 @@ Feature: Evidence custom fields.
     And I should see "Text area test"
     When I log out
     And I log in as "learner1"
-    And I click on "Record of Learning" in the totara menu
+
+        # Add images to the private files block to use later
+    And I click on "Dashboard" in the totara menu
+    And I press "Customise this page"
+    And I select "Private files" from the "Add a block" singleselect
+    And I follow "Manage private files..."
+    And I upload "totara/plan/tests/fixtures/pic1.png" file to "Files" filemanager
+    Then I should see "pic1.png"
+
+    When I click on "Record of Learning" in the totara menu
     And I press "Add evidence"
     And I set the following fields to these values:
       | Evidence name | Text area evidence |
     And I set the field "Text area test" to "This is a text area!"
+    # Image in the custom field
+    And I click on "//button[@class='atto_image_button']" "xpath_element" in the "//div[@id='fitem_id_customfield_textareatest_editor']" "xpath_element"
+    And I click on "Browse repositories..." "button"
+    And I click on "pic1.png" "link"
+    And I click on "Select this file" "button"
+    And I set the field "Describe this image for someone who cannot see it" to "My image"
+    And I click on "Save image" "button"
+
     And I press "Add evidence"
     And I follow "Text area evidence"
     Then I should see "Text area test : This is a text area!"
+    And I should see the "My image" image in the "//*[@id='dp-plan-content']" "xpath_element"
 
   Scenario: As a learner I need to provide a URL when creating an evidence record so that I can link to online documents and pages within Totara
 

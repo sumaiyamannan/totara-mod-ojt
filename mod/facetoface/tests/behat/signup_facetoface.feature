@@ -104,6 +104,7 @@ Feature: Sign up to a seminar
     When I click on "Edit" "link" in the "Sam1" "table_row"
     Then I should see "Sam1 Student1 - update note"
 
+  @totara_customfield
   Scenario: Sign up with note and ensure that other reports do not have manage button
     When I log in as "student1"
     And I click on "Find Learning" in the totara menu
@@ -129,3 +130,292 @@ Feature: Sign up to a seminar
     And I click on "Reports" in the totara menu
     When I click on "Other sign-ups" "link"
     Then I should not see "edit" in the "Sam1 Student1" "table_row"
+
+  @totara_customfield
+  Scenario: Sign up and cancellation with custom field instances
+    When I log in as "admin"
+    And I navigate to "Custom fields" node in "Site administration > Seminars"
+
+    # Add signup custom fields.
+    And I click on "Sign-up" "link"
+
+    # Add a checkbox
+    And I set the field "datatype" to "Checkbox"
+    And I set the following fields to these values:
+      | fullname  | Signup checkbox |
+      | shortname | signupcheckbox |
+    And I press "Save changes"
+    Then I should see "Signup checkbox"
+
+    # Add a date/time
+    When I set the field "datatype" to "Date/time"
+    And I set the following fields to these values:
+      | fullname  | Signup datetime |
+      | shortname | signupdatetime |
+    And I press "Save changes"
+    Then I should see "Signup datetime"
+
+    # Add a file.
+    When I set the field "datatype" to "File"
+    And I set the following fields to these values:
+      | fullname  | Signup file |
+      | shortname | signupfile |
+    And I press "Save changes"
+    Then I should see "Signup file"
+
+    # Add a location
+    When I set the field "datatype" to "Location"
+    And I set the following fields to these values:
+      | fullname  | Signup location |
+      | shortname | signuplocation |
+    And I press "Save changes"
+    Then I should see "Signup location"
+
+    # Add a menu
+    When I set the field "datatype" to "Menu of choices"
+    And I set the following fields to these values:
+      | fullname    | Signup menu |
+      | shortname   | signupmenu |
+      | defaultdata | Ja         |
+    And I set the field "Menu options (one per line)" to multiline:
+      """
+      Ja
+      Nein
+      """
+    And I press "Save changes"
+    Then I should see "Signup menu"
+
+    # Add a multi-select
+    When I set the field "datatype" to "Multi-select"
+    And I set the following fields to these values:
+      | fullname                   | Signup multi |
+      | shortname                  | signupmulti |
+      | multiselectitem[0][option] | Aye   |
+      | multiselectitem[1][option] | Nay   |
+    And I press "Save changes"
+    Then I should see "Signup multi"
+
+    # Add a textarea
+    When I set the field "datatype" to "Text area"
+    And I set the following fields to these values:
+      | fullname           | Signup textarea |
+      | shortname          | signuptextarea |
+    And I press "Save changes"
+    Then I should see "Signup textarea"
+
+    # Add a text input
+    When I set the field "datatype" to "Text input"
+    And I set the following fields to these values:
+      | fullname           | Signup input |
+      | shortname          | signupinput |
+    And I press "Save changes"
+    Then I should see "Signup input"
+
+    # Add a URL
+    When I set the field "datatype" to "URL"
+    And I set the following fields to these values:
+      | fullname           | Signup URL |
+      | shortname          | signupurl |
+    And I press "Save changes"
+    Then I should see "Signup URL"
+    And I should see "Signup input"
+    And I should see "Signup textarea"
+    And I should see "Signup menu"
+    And I should see "Signup location"
+    And I should see "Signup file"
+    And I should see "Signup datetime"
+    And I should see "Signup checkbox"
+
+    # Add signup cancellation custom fields.
+    When I click on "User cancellation" "link"
+    # Add a checkbox
+    And I set the field "datatype" to "Checkbox"
+    And I set the following fields to these values:
+      | fullname  | User cancellation checkbox |
+      | shortname | usercancellationcheckbox |
+    And I press "Save changes"
+    Then I should see "User cancellation checkbox"
+
+    # Add a date/time
+    When I set the field "datatype" to "Date/time"
+    And I set the following fields to these values:
+      | fullname  | User cancellation datetime |
+      | shortname | usercancellationdatetime |
+    And I press "Save changes"
+    Then I should see "User cancellation datetime"
+
+    # Add a file.
+    When I set the field "datatype" to "File"
+    And I set the following fields to these values:
+      | fullname  | User cancellation file |
+      | shortname | usercancellationfile |
+    And I press "Save changes"
+    Then I should see "User cancellation file"
+
+    # Add a location
+    When I set the field "datatype" to "Location"
+    And I set the following fields to these values:
+      | fullname  | User cancellation location |
+      | shortname | usercancellationlocation |
+    And I press "Save changes"
+    Then I should see "User cancellation location"
+
+    # Add a menu
+    When I set the field "datatype" to "Menu of choices"
+    And I set the following fields to these values:
+      | fullname    | User cancellation menu |
+      | shortname   | usercancellationmenu |
+      | defaultdata | Ja         |
+    And I set the field "Menu options (one per line)" to multiline:
+      """
+      Ja
+      Nein
+      """
+    And I press "Save changes"
+    Then I should see "User cancellation menu"
+
+    # Add a multi-select
+    When I set the field "datatype" to "Multi-select"
+    And I set the following fields to these values:
+      | fullname                   | User cancellation multi |
+      | shortname                  | usercancellationmulti |
+      | multiselectitem[0][option] | Aye   |
+      | multiselectitem[1][option] | Nay   |
+    And I press "Save changes"
+    Then I should see "User cancellation multi"
+
+    # Add a textarea
+    When I set the field "datatype" to "Text area"
+    And I set the following fields to these values:
+      | fullname           | User cancellation textarea |
+      | shortname          | usercancellationtextarea |
+    And I press "Save changes"
+    Then I should see "User cancellation textarea"
+
+    # Add a text input
+    When I set the field "datatype" to "Text input"
+    And I set the following fields to these values:
+      | fullname           | User cancellation input |
+      | shortname          | usercancellationinput |
+    And I press "Save changes"
+    Then I should see "User cancellation input"
+
+    # Add a URL
+    When I set the field "datatype" to "URL"
+    And I set the following fields to these values:
+      | fullname           | User cancellation URL |
+      | shortname          | usercancellationurl |
+    And I press "Save changes"
+    Then I should see "User cancellation URL"
+    And I should see "User cancellation input"
+    And I should see "User cancellation textarea"
+    And I should see "User cancellation menu"
+    And I should see "User cancellation location"
+    And I should see "User cancellation file"
+    And I should see "User cancellation datetime"
+    And I should see "User cancellation checkbox"
+
+    When I log out
+    And I log in as "student1"
+
+    # Add images to the private files block to use later
+    And I click on "Dashboard" in the totara menu
+    And I press "Customise this page"
+    And I select "Private files" from the "Add a block" singleselect
+    And I follow "Manage private files..."
+    And I upload "mod/facetoface/tests/fixtures/test.jpg" file to "Files" filemanager
+    And I upload "mod/facetoface/tests/fixtures/leaves-green.png" file to "Files" filemanager
+    Then I should see "test.jpg"
+    And I should see "leaves-green.png"
+
+    # As the user signup.
+    When I click on "Find Learning" in the totara menu
+    And I follow "Course 1"
+    And I should see "Sign-up"
+    And I follow "Sign-up"
+    And I set the following fields to these values:
+      | customfield_signupcheckbox        | 1                  |
+      | customfield_signupdatetime[day]   | 1                  |
+      | customfield_signupdatetime[month] | December           |
+      | customfield_signupdatetime[year]  | 2030               |
+      | customfield_signupmenu            | Nein               |
+      | customfield_signupmulti[0]        | 1                  |
+      | customfield_signupmulti[1]        | 1                  |
+      | customfield_signupinput           | hi                 |
+      | customfield_signupurl[url]        | http://example.org |
+
+    # Add a file to the file custom field.
+    And I click on "//div[@id='fitem_id_customfield_signupfile_filemanager']//a[@title='Add...']" "xpath_element"
+    And I click on "test.jpg" "link" in the "//div[@aria-hidden='false' and @class='moodle-dialogue-base']" "xpath_element"
+    And I click on "Select this file" "button" in the "//div[@aria-hidden='false' and @class='moodle-dialogue-base']" "xpath_element"
+
+    # Image in the textarea custom field
+    And I click on "//button[@class='atto_image_button']" "xpath_element" in the "//div[@id='fitem_id_customfield_signuptextarea_editor']" "xpath_element"
+    And I click on "Browse repositories..." "button"
+    And I click on "leaves-green.png" "link" in the "//div[@aria-hidden='false' and @class='moodle-dialogue-base']" "xpath_element"
+    And I click on "Select this file" "button" in the "//div[@aria-hidden='false' and @class='moodle-dialogue-base']" "xpath_element"
+    And I set the field "Describe this image for someone who cannot see it" to "Green leaves on customfield text area"
+    And I click on "Save image" "button"
+    And I press "Sign-up"
+    Then I should see "Your booking has been completed."
+
+    # As the trainer confirm I can see the details of the signup.
+    When I log out
+    And I log in as "teacher1"
+    And I click on "Find Learning" in the totara menu
+    And I follow "Course 1"
+    And I follow "Test seminar name"
+    And I follow "Attendees"
+    Then "Sam1 Student1" row "Signup URL" column of "facetoface_sessions" table should contain "http://example.org"
+    And "Sam1 Student1" row "Signup checkbox" column of "facetoface_sessions" table should contain "Yes"
+    And "Sam1 Student1" row "Signup file" column of "facetoface_sessions" table should contain "test.jpg"
+    And "Sam1 Student1" row "Signup menu" column of "facetoface_sessions" table should contain "Nein"
+    And "Sam1 Student1" row "Signup multi (text)" column of "facetoface_sessions" table should contain "Aye, Nay"
+    And "Sam1 Student1" row "Signup input" column of "facetoface_sessions" table should contain "hi"
+    And I should see the "Green leaves on customfield text area" image in the "//table[@id='facetoface_sessions']/tbody/tr" "xpath_element"
+
+    When I log out
+    And I log in as "student1"
+    And I click on "Find Learning" in the totara menu
+    And I follow "Course 1"
+    And I follow "Test seminar name"
+    And I follow "Cancel booking"
+    And I set the following fields to these values:
+      | User cancellation checkbox                  | 1                    |
+      | customfield_usercancellationdatetime[day]   | 15                   |
+      | customfield_usercancellationdatetime[month] | October              |
+      | customfield_usercancellationdatetime[year]  | 2020                 |
+      | User cancellation menu                      | Ja                   |
+      | customfield_usercancellationmulti[1]        | 1                    |
+      | User cancellation input                     | Monkey               |
+      | customfield_usercancellationurl[url]        | http://totaralms.com |
+    # Add a file to the file custom field.
+    And I click on "//div[@id='fitem_id_customfield_usercancellationfile_filemanager']//a[@title='Add...']" "xpath_element"
+    And I click on "test.jpg" "link" in the "//div[@aria-hidden='false' and @class='moodle-dialogue-base']" "xpath_element"
+    And I click on "Select this file" "button" in the "//div[@aria-hidden='false' and @class='moodle-dialogue-base']" "xpath_element"
+
+    # Image in the textarea custom field
+    And I click on "//button[@class='atto_image_button']" "xpath_element" in the "//div[@id='fitem_id_customfield_usercancellationtextarea_editor']" "xpath_element"
+    And I click on "Browse repositories..." "button"
+    And I click on "leaves-green.png" "link" in the "//div[@aria-hidden='false' and @class='moodle-dialogue-base']" "xpath_element"
+    And I click on "Select this file" "button" in the "//div[@aria-hidden='false' and @class='moodle-dialogue-base']" "xpath_element"
+    And I set the field "Describe this image for someone who cannot see it" to "Green leaves on customfield text area"
+    And I click on "Save image" "button"
+    And I press "Yes"
+    Then I should see "Your booking has been cancelled."
+
+    When I log out
+    And I log in as "teacher1"
+    And I click on "Find Learning" in the totara menu
+    And I follow "Course 1"
+    And I follow "Test seminar name"
+    And I follow "Attendees"
+    And I follow "Cancellations"
+    And I follow "Show cancellation reason"
+    Then I should see "15 October 2020" in the "//div[@aria-hidden='false' and @class='moodle-dialogue-base']" "xpath_element"
+    And I should see "test.jpg" in the "//div[@aria-hidden='false' and @class='moodle-dialogue-base']" "xpath_element"
+    And I should see "Ja" in the "//div[@aria-hidden='false' and @class='moodle-dialogue-base']" "xpath_element"
+    And I should see "Nay" in the "//div[@aria-hidden='false' and @class='moodle-dialogue-base']" "xpath_element"
+    And I should see "Monkey" in the "//div[@aria-hidden='false' and @class='moodle-dialogue-base']" "xpath_element"
+    And I should see "http://totaralms.com" in the "//div[@aria-hidden='false' and @class='moodle-dialogue-base']" "xpath_element"
+    And I should see the "Green leaves on customfield text area" image in the "//div[@aria-hidden='false' and @class='moodle-dialogue-base']" "xpath_element"

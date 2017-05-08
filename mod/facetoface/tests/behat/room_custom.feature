@@ -1,4 +1,4 @@
-@javascript @mod @mod_facetoface @totara
+@javascript @mod @mod_facetoface @totara @totara_customfield
 Feature: Manage custom rooms by non-admin user
   In order to test that non-admin user
   As a editing teacher

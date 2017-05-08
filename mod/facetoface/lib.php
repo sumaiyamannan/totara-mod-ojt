@@ -4223,7 +4223,10 @@ function facetoface_get_customfield_data($item, $tableprefix, $prefix, $options 
         $newfield = 'customfield_'.$field->datatype;
         $formfield = new $newfield($field->id, $item, $prefix, $tableprefix);
         if (!$formfield->is_hidden() and !$formfield->is_empty()) {
-            $options['itemid'] = $field->id;
+            // We need to use the dataid here not the item->id.
+            // \customfield_base::load_data expects $options['itemid'] to be the id of the data record.
+            // This method is not aware of the customfield area.
+            $options['itemid'] = $formfield->dataid;
             $output[s($formfield->field->fullname)] = $formfield::display_item_data($formfield->data, $options);
         }
     }
