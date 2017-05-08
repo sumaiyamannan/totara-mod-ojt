@@ -2870,3 +2870,85 @@ function prog_format_log_date($date) {
         return "Not set ({$date})";
     }
 }
+
+/**
+ * Load all prog_completion records out of the db. Excludes certifications.
+ *
+ * Use this function to make sure you get the correct records.
+ *
+ * @param int $userid
+ * @return array(stdClass)
+ */
+function prog_load_all_completions($userid) {
+    global $DB;
+
+    $sql = "SELECT pc.*
+              FROM {prog_completion} pc
+              JOIN {prog} p ON p.id = pc.programid
+             WHERE pc.userid = :userid AND pc.coursesetid = 0 AND p.certifid IS NULL
+    ";
+    $progcompletions = $DB->get_records_sql($sql, array('userid' => $userid));
+
+    return $progcompletions;
+}
+
+/**
+ * Deletes a user's program completion record, only if the user is no longer required to complete the program.
+ *
+ * This should be called after a user has been removed from a program or a program is removed from a user's learning plan.
+ *
+ * Only call this function for programs. It does NOT protect against being passed program ids belonging to certifications!!!
+ *
+ * @param int $programid
+ * @param int $userid
+ */
+function prog_conditionally_delete_completion($programid, $userid) {
+    $program = new program($programid);
+
+    // Check that the program is not still assigned to the program.
+    if ($program->assigned_to_users_required_learning($userid)) {
+        return;
+    }
+
+    // Check that the program is not still assigned to a Learning Plan.
+    if ($program->assigned_to_users_non_required_learning($userid)) {
+        return;
+    }
+
+    // Check that the program is not complete - the current prog_completion will be treated as a history record.
+    if (prog_is_complete($program->id, $userid)) {
+        return;
+    }
+
+    prog_delete_completion($programid, $userid, 'Current prog_completion conditionally deleted');
+}
+
+/**
+ * Delete a program completion record, logging it in the prog completion log.
+ *
+ * Normally you should use prog_conditionally_delete_completion, which will decide what to do with the records.
+ *
+ * !!! Only use this function if you're absolutely sure that the record needs to be deleted. !!!
+ * !!! This function should only be used by prog_conditionally_delete_completion,            !!!
+ * !!! certif_conditionally_delete_completion and by the program completion editor.          !!!
+ *
+ * @param $programid
+ * @param $userid
+ * @param string $message If provided, will override the default program completion log message.
+ */
+function prog_delete_completion($programid, $userid, $message = '') {
+    global $DB;
+
+    $DB->delete_records('prog_completion', array('programid' => $programid, 'userid' => $userid, 'coursesetid' => 0));
+
+    if (empty($message)) {
+        $message = 'Current prog_completion deleted';
+    }
+
+    // Record the change in the program completion log.
+    prog_log_completion(
+        $programid,
+        $userid,
+        $message
+    );
+}

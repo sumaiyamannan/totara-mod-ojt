@@ -2952,4 +2952,381 @@ class totara_certification_lib_testcase extends reportcache_advanced_testcase {
         $this->assertEquals($expectedcertcompletion, $newcertcompletion);
         $this->assertEquals($expectedprogcompletion, $newprogcompletion);
     }
+
+    public function test_certif_load_all_completions() {
+        $this->resetAfterTest(true);
+        $generator = $this->getDataGenerator();
+
+        // Create some users.
+        $user1 = $generator->create_user();
+        $user2 = $generator->create_user();
+
+        // Create some certs.
+        $cert1 = $generator->create_certification();
+        $cert2 = $generator->create_certification();
+
+        // Create some programs.
+        $prog1 = $generator->create_program();
+        $prog2 = $generator->create_program();
+
+        // Add the users to the certs.
+        $this->getDataGenerator()->assign_to_program($cert1->id, ASSIGNTYPE_INDIVIDUAL, $user1->id);
+        $this->getDataGenerator()->assign_to_program($cert1->id, ASSIGNTYPE_INDIVIDUAL, $user2->id);
+        $this->getDataGenerator()->assign_to_program($cert2->id, ASSIGNTYPE_INDIVIDUAL, $user1->id);
+        $this->getDataGenerator()->assign_to_program($cert2->id, ASSIGNTYPE_INDIVIDUAL, $user2->id);
+
+        // Add the users to the programs.
+        $this->getDataGenerator()->assign_to_program($prog1->id, ASSIGNTYPE_INDIVIDUAL, $user1->id);
+        $this->getDataGenerator()->assign_to_program($prog1->id, ASSIGNTYPE_INDIVIDUAL, $user2->id);
+        $this->getDataGenerator()->assign_to_program($prog2->id, ASSIGNTYPE_INDIVIDUAL, $user1->id);
+        $this->getDataGenerator()->assign_to_program($prog2->id, ASSIGNTYPE_INDIVIDUAL, $user2->id);
+
+        // Run the function and check the correct records are returned.
+        $results = certif_load_all_completions($user1->id);
+
+        // Make sure we've got two records and they're not the same.
+        $this->assertCount(2, $results);
+        $this->assertNotEquals($results[0]['progcompletion']->id, $results[1]['progcompletion']->id);
+
+        foreach ($results as $result) {
+            $certcompletion = $result['certcompletion'];
+            $progcompletion = $result['progcompletion'];
+
+            // The record belongs to user1.
+            $this->assertEquals($user1->id, $certcompletion->userid);
+            $this->assertEquals($user1->id, $progcompletion->userid);
+
+            // The record is not associated with either of the programs.
+            $this->assertNotEquals($prog1->id, $progcompletion->programid);
+            $this->assertNotEquals($prog2->id, $progcompletion->programid);
+
+            // The cert and prog records are valid - the results should be identical to certif_load_completion, which has
+            // already been tested above.
+            list($exectedcertcompletion, $expectedprogcompletion) = certif_load_completion($progcompletion->programid, $user1->id);
+            $this->assertEquals($exectedcertcompletion, $certcompletion);
+            $this->assertEquals($expectedprogcompletion, $progcompletion);
+        }
+    }
+
+    /**
+     * Data provider for test_certif_conditionally_delete_completion.
+     */
+    public function data_certif_conditionally_delete_completion() {
+        return array(
+            array(
+                array(),
+                array(),
+                true, false, false, false), // Assigned, newly assigned.
+            array(
+                array(),
+                array(),
+                false, true, true, false), // Not assigned, newly assigned, no history because no progress.
+            array(
+                array(
+                    'status' => CERTIFSTATUS_COMPLETED,
+                    'renewalstatus' => CERTIFRENEWALSTATUS_NOTDUE,
+                    'certifpath' => CERTIFPATH_RECERT,
+                    'timecompleted' => 100,
+                    'timewindowopens' => 200,
+                    'timeexpires' => 300,
+                ),
+                array(
+                    'status' => STATUS_PROGRAM_COMPLETE,
+                    'timecompleted' => 100,
+                    'timedue' => 300,
+                ),
+                true, false, false, false), // Assigned, certified.
+            array(
+                array(
+                    'status' => CERTIFSTATUS_COMPLETED,
+                    'renewalstatus' => CERTIFRENEWALSTATUS_NOTDUE,
+                    'certifpath' => CERTIFPATH_RECERT,
+                    'timecompleted' => 100,
+                    'timewindowopens' => 200,
+                    'timeexpires' => 300,
+                ),
+                array(
+                    'status' => STATUS_PROGRAM_COMPLETE,
+                    'timecompleted' => 100,
+                    'timedue' => 300,
+                ),
+                false, true, false, true), // Not assigned, certified.
+            array(
+                array(
+                    'status' => CERTIFSTATUS_COMPLETED,
+                    'renewalstatus' => CERTIFRENEWALSTATUS_DUE,
+                    'certifpath' => CERTIFPATH_RECERT,
+                    'timecompleted' => 100,
+                    'timewindowopens' => 200,
+                    'timeexpires' => 300,
+                ),
+                array(
+                    'status' => STATUS_PROGRAM_INCOMPLETE,
+                    'timedue' => 300,
+                ),
+                true, false, false, false), // Assigned, window open.
+            array(
+                array(
+                    'status' => CERTIFSTATUS_COMPLETED,
+                    'renewalstatus' => CERTIFRENEWALSTATUS_DUE,
+                    'certifpath' => CERTIFPATH_RECERT,
+                    'timecompleted' => 100,
+                    'timewindowopens' => 200,
+                    'timeexpires' => 300,
+                ),
+                array(
+                    'status' => STATUS_PROGRAM_INCOMPLETE,
+                    'timedue' => 300,
+                ),
+                false, true, false, true), // Not assigned, window open.
+            array(
+                array(
+                    'status' => CERTIFSTATUS_EXPIRED,
+                    'renewalstatus' => CERTIFRENEWALSTATUS_EXPIRED,
+                    'certifpath' => CERTIFPATH_CERT,
+                ),
+                array(
+                    'status' => STATUS_PROGRAM_INCOMPLETE,
+                    'timedue' => 300,
+                ),
+                true, false, false, false), // Assigned, expired.
+            array(
+                array(
+                    'status' => CERTIFSTATUS_EXPIRED,
+                    'renewalstatus' => CERTIFRENEWALSTATUS_EXPIRED,
+                    'certifpath' => CERTIFPATH_CERT,
+                ),
+                array(
+                    'status' => STATUS_PROGRAM_INCOMPLETE,
+                    'timedue' => 300,
+                ),
+                false, true, false, true), // Not assigned, expired.
+        );
+    }
+
+    /**
+     * Test certif_conditionally_delete_completion.
+     *
+     * @dataProvider data_certif_conditionally_delete_completion
+     */
+    public function test_certif_conditionally_delete_completion($certcompletionchanges, $progcompletionchanges, $isassigned,
+                                                         $certshouldbedeleted, $progshouldbedeleted, $shouldhavehistory) {
+        global $DB;
+
+        $this->resetAfterTest(true);
+        $generator = $this->getDataGenerator();
+
+        // Create some users.
+        $user1 = $generator->create_user();
+        $user2 = $generator->create_user();
+
+        // Create some certs.
+        $cert1 = $generator->create_certification();
+        $cert2 = $generator->create_certification();
+
+        // Create some programs.
+        $prog1 = $generator->create_program();
+        $prog2 = $generator->create_program();
+
+        // Add the users to the certs.
+        $generator->assign_to_program($cert1->id, ASSIGNTYPE_INDIVIDUAL, $user1->id);
+        $generator->assign_to_program($cert1->id, ASSIGNTYPE_INDIVIDUAL, $user2->id);
+        $generator->assign_to_program($cert2->id, ASSIGNTYPE_INDIVIDUAL, $user1->id);
+        $generator->assign_to_program($cert2->id, ASSIGNTYPE_INDIVIDUAL, $user2->id);
+
+        // Add the users to the programs.
+        $generator->assign_to_program($prog1->id, ASSIGNTYPE_INDIVIDUAL, $user1->id);
+        $generator->assign_to_program($prog1->id, ASSIGNTYPE_INDIVIDUAL, $user2->id);
+        $generator->assign_to_program($prog2->id, ASSIGNTYPE_INDIVIDUAL, $user1->id);
+        $generator->assign_to_program($prog2->id, ASSIGNTYPE_INDIVIDUAL, $user2->id);
+
+        // Hack the removal of the assignment records. We can't unassign the user because that would remove the completion records!
+        if (!$isassigned) {
+            $DB->delete_records('prog_user_assignment');
+        }
+
+        // Update the state of the records.
+        $completions = array_merge(certif_load_all_completions($user1->id), certif_load_all_completions($user2->id));
+        foreach ($completions as $completion) {
+            $certcompletion = $completion['certcompletion'];
+            $progcompletion = $completion['progcompletion'];
+            foreach ($certcompletionchanges as $key => $value) {
+                $certcompletion->$key = $value;
+            }
+            foreach ($progcompletionchanges as $key => $value) {
+                $progcompletion->$key = $value;
+            }
+            $this->assertEquals(array(), certif_get_completion_errors($certcompletion, $progcompletion));
+            $this->assertTrue(certif_write_completion($certcompletion, $progcompletion));
+        }
+
+        // Load the current set of data.
+        $expectedcertcompletions = $DB->get_records('certif_completion');
+        $expectedprogcompletions = $DB->get_records('prog_completion');
+        list($expectedcertcompletionhistory, $progcompletion) = certif_load_completion($cert1->id, $user1->id);
+
+        // Conditionally delete just one cert completion.
+        certif_conditionally_delete_completion($cert1->id, $user1->id);
+
+        // Manually make the same change to the expected data.
+        if ($certshouldbedeleted) {
+            foreach ($expectedcertcompletions as $key => $certcompletion) {
+                if ($certcompletion->certifid == $cert1->certifid && $certcompletion->userid == $user1->id) {
+                    unset($expectedcertcompletions[$key]);
+                }
+            }
+        }
+        if ($progshouldbedeleted) {
+            foreach ($expectedprogcompletions as $key => $progcompletion) {
+                if ($progcompletion->programid == $cert1->id && $progcompletion->userid == $user1->id) {
+                    unset($expectedprogcompletions[$key]);
+                }
+            }
+        }
+        if ($shouldhavehistory) {
+            unset($expectedcertcompletionhistory->id);
+            unset($expectedcertcompletionhistory->timemodified);
+            $expectedcertcompletionhistory->unassigned = 1;
+        }
+
+        // Then just compare the current data with the expected.
+        $actualcertcompletions = $DB->get_records('certif_completion');
+        $actualprogcompletions = $DB->get_records('prog_completion');
+        $this->assertEquals($expectedcertcompletions, $actualcertcompletions);
+        $this->assertEquals($expectedprogcompletions, $actualprogcompletions);
+
+        // Make sure that the history record has been created when appropriate.
+        $certcomplhistories = $DB->get_records('certif_completion_history');
+        if ($shouldhavehistory) {
+            $this->assertCount(1, $certcomplhistories);
+            $certcompletionhistory = reset($certcomplhistories);
+            unset($certcompletionhistory->id);
+            unset($certcompletionhistory->timemodified);
+            $this->assertEquals($expectedcertcompletionhistory, $certcompletionhistory);
+        } else {
+            $this->assertCount(0, $certcomplhistories);
+        }
+    }
+
+    public function test_certif_conditionally_delete_completion_with_missing_records() {
+        global $DB;
+
+        $this->resetAfterTest(true);
+
+        $generator = $this->getDataGenerator();
+
+        // Create some users.
+        $user1 = $generator->create_user();
+        $user2 = $generator->create_user();
+
+        // Create a cert.
+        $cert1 = $generator->create_certification();
+
+        // We've already tested what happens when both records exist, so just try with missing cert or prog records.
+
+        // Check that the cert record is still deleted if the prog record doesn't exist.
+        $generator->assign_to_program($cert1->id, ASSIGNTYPE_INDIVIDUAL, $user1->id);
+        $this->assertCount(1, $DB->get_records('certif_completion'));
+        $this->assertCount(1, $DB->get_records('prog_completion'));
+        $DB->delete_records('prog_completion', array('programid' => $cert1->id, 'userid' => $user1->id));
+        $DB->delete_records('prog_user_assignment'); // To make sure the records aren't kept because the user is still assigned.
+        $DB->delete_records('prog_assignment'); // To make sure the records aren't kept because the user is still assigned.
+        certif_conditionally_delete_completion($cert1->id, $user1->id);
+        $this->assertCount(0, $DB->get_records('certif_completion'));
+
+        // Check that the prog record is still deleted if the cert record doesn't exist.
+        $generator->assign_to_program($cert1->id, ASSIGNTYPE_INDIVIDUAL, $user2->id);
+        $this->assertCount(1, $DB->get_records('certif_completion'));
+        $this->assertCount(1, $DB->get_records('prog_completion'));
+        $DB->delete_records('certif_completion', array('certifid' => $cert1->certifid, 'userid' => $user2->id));
+        $DB->delete_records('prog_user_assignment'); // To make sure the records aren't kept because the user is still assigned.
+        $DB->delete_records('prog_assignment'); // To make sure the records aren't kept because the user is still assigned.
+        certif_conditionally_delete_completion($cert1->id, $user2->id);
+        $this->assertCount(0, $DB->get_records('prog_completion'));
+    }
+
+    public function test_certif_delete_completion() {
+        global $DB;
+
+        $this->resetAfterTest(true);
+        $generator = $this->getDataGenerator();
+
+        // Create some users.
+        $user1 = $generator->create_user();
+        $user2 = $generator->create_user();
+
+        // Create some certs.
+        $cert1 = $generator->create_certification();
+        $cert2 = $generator->create_certification();
+
+        // Create some programs.
+        $prog1 = $generator->create_program();
+        $prog2 = $generator->create_program();
+
+        // Add the users to the certs.
+        $generator->assign_to_program($cert1->id, ASSIGNTYPE_INDIVIDUAL, $user1->id);
+        $generator->assign_to_program($cert1->id, ASSIGNTYPE_INDIVIDUAL, $user2->id);
+        $generator->assign_to_program($cert2->id, ASSIGNTYPE_INDIVIDUAL, $user1->id);
+        $generator->assign_to_program($cert2->id, ASSIGNTYPE_INDIVIDUAL, $user2->id);
+
+        // Add the users to the programs.
+        $generator->assign_to_program($prog1->id, ASSIGNTYPE_INDIVIDUAL, $user1->id);
+        $generator->assign_to_program($prog1->id, ASSIGNTYPE_INDIVIDUAL, $user2->id);
+        $generator->assign_to_program($prog2->id, ASSIGNTYPE_INDIVIDUAL, $user1->id);
+        $generator->assign_to_program($prog2->id, ASSIGNTYPE_INDIVIDUAL, $user2->id);
+
+        // Load the current set of data.
+        $expectedcertcompletions = $DB->get_records('certif_completion');
+        $expectedprogcompletions = $DB->get_records('prog_completion');
+
+        // Delete just one cert completion.
+        certif_delete_completion($cert1->id, $user1->id);
+
+        // Manually make the same change to the expected data. Only certif_completion is affected!!!
+        foreach ($expectedcertcompletions as $key => $certcompletion) {
+            if ($certcompletion->certifid == $cert1->certifid && $certcompletion->userid == $user1->id) {
+                unset($expectedcertcompletions[$key]);
+            }
+        }
+
+        // Then just compare the current data with the expected.
+        $actualcertcompletions = $DB->get_records('certif_completion');
+        $actualprogcompletions = $DB->get_records('prog_completion');
+        $this->assertEquals($expectedcertcompletions, $actualcertcompletions);
+        $this->assertEquals($expectedprogcompletions, $actualprogcompletions);
+
+        // Make sure that it still deletes the record if the user is certified.
+        list($certcompletion, $progcompletion) = certif_load_completion($cert2->id, $user2->id);
+        $certcompletion->status = CERTIFSTATUS_COMPLETED;
+        $certcompletion->renewalstatus = CERTIFRENEWALSTATUS_NOTDUE;
+        $certcompletion->certifpath = CERTIFPATH_RECERT;
+        $certcompletion->timecompleted = 100;
+        $certcompletion->timewindowopens = 200;
+        $certcompletion->timeexpires = 300;
+        $progcompletion->status = STATUS_PROGRAM_COMPLETE;
+        $progcompletion->timecompleted = 100;
+        $progcompletion->timedue = 300;
+        $this->assertEquals(array(), certif_get_completion_errors($certcompletion, $progcompletion));
+        $this->assertTrue(certif_write_completion($certcompletion, $progcompletion));
+
+        // Load the current set of data.
+        $expectedcertcompletions = $DB->get_records('certif_completion');
+        $expectedprogcompletions = $DB->get_records('prog_completion');
+
+        // Delete just one cert completion.
+        certif_delete_completion($cert2->id, $user2->id);
+
+        // Manually make the same change to the expected data. Only certif_completion is affected!!!
+        foreach ($expectedcertcompletions as $key => $certcompletion) {
+            if ($certcompletion->certifid == $cert2->certifid && $certcompletion->userid == $user2->id) {
+                unset($expectedcertcompletions[$key]);
+            }
+        }
+
+        // Then just compare the current data with the expected.
+        $actualcertcompletions = $DB->get_records('certif_completion');
+        $actualprogcompletions = $DB->get_records('prog_completion');
+        $this->assertEquals($expectedcertcompletions, $actualcertcompletions);
+        $this->assertEquals($expectedprogcompletions, $actualprogcompletions);
+    }
 }

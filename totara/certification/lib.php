@@ -142,35 +142,16 @@ class certification_event_handler {
      * User is unassigned to a program event handler
      * Delete certification completion record
      *
+     * @deprecated since Totara 9.8. Call certif_conditionally_delete_completion directly instead.
      * @param \totara_program\event\program_unassigned $event
      */
     public static function unassigned(\totara_program\event\program_unassigned $event) {
-        global $DB;
+        debugging('certification_event_handler::unassigned() is deprecated, call certif_conditionally_delete_completion directly instead.', DEBUG_DEVELOPER);
 
         $programid = $event->objectid;
         $userid = $event->userid;
-        $prog = $DB->get_record('prog', array('id' => $programid));
 
-        if ($prog->certifid) {
-            $params = array('certifid' => $prog->certifid, 'userid' => $userid);
-            if ($completionrecord = $DB->get_record('certif_completion', $params)) {
-                $description = 'Unassigned';
-                if (!in_array($completionrecord->status, array(CERTIFSTATUS_UNSET, CERTIFSTATUS_ASSIGNED))) {
-                    copy_certif_completion_to_hist($prog->certifid, $userid, true);
-                    $description .= ', current completion moved to history';
-                } else {
-                    $description .= ', current completion removed (not archived due to no progress)';
-                }
-
-                $DB->delete_records('certif_completion', $params);
-
-                prog_log_completion(
-                    $event->objectid,
-                    $event->userid,
-                    $description
-                );
-            }
-        }
+        certif_conditionally_delete_completion($programid, $userid, 'Completion conditionally deleted in deprecated function certification_event_handler::unassigned()');
     }
 
     /**
@@ -1567,9 +1548,12 @@ function certif_get_certifications($categoryid="all", $sort="cf.sortorder ASC", 
  * Remove existing certif_completions if user unassigned
  * (effectively if no corresponding rec in prog_user_assignment)
  *
+ * @deprecated since Totara 9.8. This functionality is already covered in existing Totara code.
  * @param StdClass $program
  */
 function delete_removed_users($program) {
+    debugging('delete_removed_users() is deprecated and should never be used.', DEBUG_DEVELOPER);
+
     global $DB;
 
     // Get user assignments only if there are assignments for this program.
@@ -1591,6 +1575,10 @@ function delete_removed_users($program) {
     if (count($certificationcompletions)) {
         list($usql, $params) = $DB->get_in_or_equal(array_keys($certificationcompletions));
         $DB->delete_records_select('certif_completion', "id $usql", $params);
+    }
+
+    foreach ($certificationcompletions as $completiondeleted) {
+        prog_log_completion($program->id, $completiondeleted->userid, '!!! certif_completion deleted by deprecated, faulty function delete_removed_users !!!');
     }
 }
 
@@ -3039,6 +3027,61 @@ function certif_load_completion($programid, $userid, $mustexist = true) {
 }
 
 /**
+ * Load all certif_completion records out of the db, with their matching prog_completions. Excludes programs.
+ *
+ * Use this function to make sure you get the correct records.
+ *
+ * @param int $userid
+ * @return array(stdClass)
+ */
+function certif_load_all_completions($userid) {
+    global $DB;
+
+    $sql = "SELECT cc.*, pc.id AS pcid, pc.programid, pc.coursesetid, pc.status AS progstatus, pc.timestarted AS progtimestarted,
+                   pc.timedue, pc.timecompleted AS progtimecompleted, pc.organisationid, pc.positionid
+              FROM {certif_completion} cc
+              JOIN {prog} prog
+                ON cc.certifid = prog.certifid
+              JOIN {prog_completion} pc
+                ON pc.programid = prog.id AND cc.userid = pc.userid AND pc.coursesetid = 0
+             WHERE cc.userid = :userid";
+    $params = array('userid' => $userid);
+    $records = $DB->get_records_sql($sql, $params);
+
+    $results = array();
+
+    foreach ($records as $record) {
+        $certcompletion = new stdClass();
+        $certcompletion->id = $record->id;
+        $certcompletion->certifid = $record->certifid;
+        $certcompletion->userid = $record->userid;
+        $certcompletion->certifpath = $record->certifpath;
+        $certcompletion->status = $record->status;
+        $certcompletion->renewalstatus = $record->renewalstatus;
+        $certcompletion->timewindowopens = $record->timewindowopens;
+        $certcompletion->timeexpires = $record->timeexpires;
+        $certcompletion->timecompleted = $record->timecompleted;
+        $certcompletion->timemodified = $record->timemodified;
+
+        $progcompletion = new stdClass();
+        $progcompletion->id = $record->pcid;
+        $progcompletion->programid = $record->programid;
+        $progcompletion->coursesetid = $record->coursesetid;
+        $progcompletion->userid = $record->userid;
+        $progcompletion->status = $record->progstatus;
+        $progcompletion->timestarted = $record->progtimestarted;
+        $progcompletion->timedue = $record->timedue;
+        $progcompletion->timecompleted = $record->progtimecompleted;
+        $progcompletion->organisationid = $record->organisationid;
+        $progcompletion->positionid = $record->positionid;
+
+        $results[] = array('certcompletion' => $certcompletion, 'progcompletion' => $progcompletion);
+    }
+
+    return $results;
+}
+
+/**
  * Write a log message (in the program completion log) when a certification completion has been added or edited.
  *
  * @param int $programid
@@ -3183,5 +3226,103 @@ function certif_delete_completion_history($chid, $message = '') {
         $info->programid,
         $info->userid,
         $description
+    );
+}
+
+/**
+ * Delete's a user's current certification completion record, only if the user is no longer required to complete the certification.
+ *
+ * History records are created if appropriate. The program completion record will be kept if appropriate.
+ *
+ * This should be called after a user has been removed from a cert (or in future, with modifications, a cert is removed from
+ * a user's learning plan).
+ *
+ * This function will perform the correct actions regardless of whether or not both completion records exist.
+ *
+ * @param int $programid
+ * @param int $userid
+ * @param string $message If provided, will be added to the completion log.
+ */
+function certif_conditionally_delete_completion($programid, $userid, $message = '') {
+    global $DB;
+
+    $program = new program($programid);
+
+    // Don't remove any records if the user is still assigned to the certification.
+    if ($program->assigned_to_users_required_learning($userid)) {
+        return;
+    }
+
+    // If certifications could be added to learning plans then we would perform that check here, and add tests for it.
+
+    $sql = "SELECT cc.*
+              FROM {certif_completion} cc
+              JOIN {prog} p ON p.certifid = cc.certifid
+             WHERE cc.userid = :userid AND p.id = :programid";
+    $certcompletion = $DB->get_record_sql($sql, array('userid' => $userid, 'programid' => $programid));
+
+    if (!empty($certcompletion)) {
+        $certstate = certif_get_completion_state($certcompletion);
+        if ($certstate == CERTIFCOMPLETIONSTATE_ASSIGNED) {
+            $description = $message . 'Current cert_completion deleted (not moved to history due to no progress)';
+        } else {
+            copy_certif_completion_to_hist($certcompletion->certifid, $userid, true);
+            $description = $message . 'Current cert_completion moved to history';
+        }
+        certif_delete_completion($programid, $userid, $description);
+    } else {
+        prog_log_completion($programid, $userid, 'Tried to delete cert_completion record but it didn\'t exist');
+    }
+
+    $progcompletion = prog_load_completion($programid, $userid, false);
+
+    if (!empty($progcompletion)) {
+        // We should be using prog_is_complete() here, to maintain backwards compatibility and protect against future changes,
+        // but we'll save one db query by using the data we've already got.
+        if (!isset($certstate) && $progcompletion->status != STATUS_PROGRAM_COMPLETE || $certstate == CERTIFCOMPLETIONSTATE_ASSIGNED) {
+            prog_delete_completion($programid, $userid, 'Matching prog_completion deleted');
+        } else {
+            prog_log_completion($programid, $userid, 'Matching prog_completion retained to allow restoration to previous state');
+        }
+
+    } else {
+        prog_log_completion($programid, $userid, 'Tried to delete matching prog_completion but it didn\'t exist');
+    }
+}
+
+/**
+ * Delete a certification completion record, logging it in the prog completion log.
+ *
+ * Normally you should use certif_conditionally_delete_completion, which will decide what to do with the records.
+ *
+ * !!! Only use this function if you're absolutely sure that the record needs to be deleted. !!!
+ * !!! This function should only be used by certif_conditionally_delete_completion and by    !!!
+ * !!! the certification completion editor.                                                  !!!
+ *
+ * This function does NOT touch the matching prog_completion record!
+ *
+ * @param $programid
+ * @param $userid
+ * @param string $message If provided, will override the default program completion log message.
+ */
+function certif_delete_completion($programid, $userid, $message = '') {
+    global $DB;
+
+    $sql = "SELECT cc.id
+              FROM {certif_completion} cc
+              JOIN {prog} p ON cc.certifid = p.certifid
+             WHERE p.id = :programid AND cc.userid = :userid";
+    $info = $DB->get_record_sql($sql, array('programid' => $programid, 'userid' => $userid));
+    $DB->delete_records('certif_completion', array('id' => $info->id));
+
+    if (empty($message)) {
+        $message = 'Current completion deleted';
+    }
+
+    // Record the change in the program completion log.
+    prog_log_completion(
+        $programid,
+        $userid,
+        $message
     );
 }

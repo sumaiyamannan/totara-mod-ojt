@@ -36,11 +36,6 @@ $observers = array(
         'includefile' => 'totara/certification/lib.php',
     ),
     array(
-        'eventname' => '\totara_program\event\program_unassigned',
-        'callback' => 'certification_event_handler::unassigned',
-        'includefile' => 'totara/certification/lib.php',
-    ),
-    array(
         'eventname' => '\totara_program\event\program_completed',
         'callback' => 'certification_event_handler::completed',
         'includefile' => 'totara/certification/lib.php',

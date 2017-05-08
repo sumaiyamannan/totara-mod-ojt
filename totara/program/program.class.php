@@ -301,6 +301,8 @@ class program {
 
 
     /**
+     * @deprecated since Totara 9.8. Use prog_conditionally_delete_completion instead.
+     *
      * Deletes the completion records for the program for the specified user.
      *
      * @param int $userid
@@ -308,10 +310,13 @@ class program {
      * @return bool Deletion true|Exception
      */
     public function delete_completion_record($userid, $deletecompleted=false) {
+        debugging('certification_event_handler::unassigned() is deprecated, call certif_conditionally_delete_completion directly instead.', DEBUG_DEVELOPER);
+
         global $DB;
 
         if ($deletecompleted === true || !prog_is_complete($this->id, $userid)) {
             $DB->delete_records('prog_completion', array('programid' => $this->id, 'userid' => $userid));
+            prog_log_completion($this->id, $userid, 'Deleted prog_completion in deprecated function program::delete_completion_record');
         }
 
         return true;
@@ -946,7 +951,6 @@ class program {
             $DB->execute("DELETE FROM {prog_exception} WHERE programid = :programid AND userid " . $userssql,
                 $params);
 
-            $completionstodelete = array();
             $progcompletionlogs = array();
 
             foreach ($userids as $userid) {
@@ -959,30 +963,15 @@ class program {
                 $log->timemodified = $now;
                 $progcompletionlogs[] = $log;
 
-                // Check if this program is also part of any of the user's learning plans.
-                if (!$this->assigned_to_users_non_required_learning($userid)) {
-                    // Delete the completion record if the program is not complete.
-                    if (!prog_is_complete($this->id, $userid)) {
-                        $completionstodelete[] = $userid;
-
-                        // Log the deletion.
-                        $log = clone($log);
-                        $log->description = 'Program completion deleted';
-                        $progcompletionlogs[] = $log;
-                    }
+                // Keep, save to history or delete the completion records.
+                if ($this->is_certif()) {
+                    certif_conditionally_delete_completion($this->id, $userid);
+                } else {
+                    prog_conditionally_delete_completion($this->id, $userid);
                 }
             }
 
-            // Delete completion records.
-            if (!empty($completionstodelete)) {
-                list($userssql, $params) = $DB->get_in_or_equal($completionstodelete, SQL_PARAMS_NAMED);
-                $params['programid'] = $this->id;
-                $DB->execute("DELETE FROM {prog_completion} WHERE programid = :programid AND userid " . $userssql,
-                    $params);
-            }
-            unset($completionstodelete);
-
-            // Record the completion logs.
+            // Record the completion logs relating to the unassignments.
             if (!empty($progcompletionlogs)) {
                 $DB->insert_records_via_batch('prog_completion_log', $progcompletionlogs);
             }
@@ -1171,7 +1160,7 @@ class program {
      */
     public function is_program_complete($userid) {
         debugging('$program->is_program_complete() is deprecated, use the lib function prog_is_complete() instead', DEBUG_DEVELOPER);
-        prog_is_complete($this->id, $userid);
+        return prog_is_complete($this->id, $userid);
     }
 
     /**
@@ -1183,7 +1172,7 @@ class program {
      */
     public function is_program_inprogress($userid) {
         debugging('$program->is_program_inprogress() is deprecated, use the lib function prog_is_inprogress() instead', DEBUG_DEVELOPER);
-        prog_is_inprogress($this->id, $userid);
+        return prog_is_inprogress($this->id, $userid);
     }
 
     /**
@@ -1302,15 +1291,16 @@ class program {
      * on the program. Optionally, will only return a subset of users with a
      * specific completion status
      *
-     * @param int $status
+     * @param int $status One of STATUS_PROGRAM_INCOMPLETE or STATUS_PROGRAM_COMPLETE
      * @return array of userids for users in the program
      */
     public function get_program_learners($status=false) {
         global $DB;
 
-        if ($status) {
+        // If status is not false then add a check for it.
+        if ($status !== false) {
             $statussql = 'AND status = ?';
-            $statusparams = array($status);
+            $statusparams = array((int)$status);
         } else {
             $statussql = '';
             $statusparams = array();
@@ -1952,16 +1942,17 @@ class program {
     }
 
     /**
-     * Checks accessiblity of the program for user if the user parameter is
+     * Checks accessibility of the program for user if the user parameter is
      * passed to the function otherwise checks if the program is generally
      * accessible.
      *
-     * @param object $user If this parameter is included check availibilty to this user
+     * @deprecated since Totara 9.8
+     * @param object $user If this parameter is included check availability to this user
      * @return boolean
      */
     public function is_accessible($user = null) {
         debugging('$program->is_accessible() is deprecated, use the lib function prog_is_accessible() instead', DEBUG_DEVELOPER);
-        prog_is_accessible($this);
+        return prog_is_accessible($this, $user);
     }
 
     /**

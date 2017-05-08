@@ -1048,4 +1048,256 @@ class totara_program_lib_testcase extends reportcache_advanced_testcase {
         $this->assertEquals('23 May 2017, 03:59 (1495511940)', prog_format_log_date(1495511940));
         $this->assertEquals('23 May 2017, 03:59 (1495511940)', prog_format_log_date('1495511940'));
     }
+
+    public function test_prog_load_all_completions() {
+        $this->resetAfterTest(true);
+        $generator = $this->getDataGenerator();
+
+        // Create some users.
+        $user1 = $generator->create_user();
+        $user2 = $generator->create_user();
+
+        // Create some certs.
+        $cert1 = $generator->create_certification();
+        $cert2 = $generator->create_certification();
+
+        // Create some programs.
+        $prog1 = $generator->create_program();
+        $prog2 = $generator->create_program();
+
+        // Add the users to the certs.
+        $this->getDataGenerator()->assign_to_program($cert1->id, ASSIGNTYPE_INDIVIDUAL, $user1->id);
+        $this->getDataGenerator()->assign_to_program($cert1->id, ASSIGNTYPE_INDIVIDUAL, $user2->id);
+        $this->getDataGenerator()->assign_to_program($cert2->id, ASSIGNTYPE_INDIVIDUAL, $user1->id);
+        $this->getDataGenerator()->assign_to_program($cert2->id, ASSIGNTYPE_INDIVIDUAL, $user2->id);
+
+        // Add the users to the programs.
+        $this->getDataGenerator()->assign_to_program($prog1->id, ASSIGNTYPE_INDIVIDUAL, $user1->id);
+        $this->getDataGenerator()->assign_to_program($prog1->id, ASSIGNTYPE_INDIVIDUAL, $user2->id);
+        $this->getDataGenerator()->assign_to_program($prog2->id, ASSIGNTYPE_INDIVIDUAL, $user1->id);
+        $this->getDataGenerator()->assign_to_program($prog2->id, ASSIGNTYPE_INDIVIDUAL, $user2->id);
+
+        // Run the function and check the correct records are returned.
+        $results = prog_load_all_completions($user1->id);
+
+        // Make sure we've got two records. They're not the same because they're indexed by record id.
+        $this->assertCount(2, $results);
+
+        foreach ($results as $progcompletion) {
+            // The record belongs to user1.
+            $this->assertEquals($user1->id, $progcompletion->userid);
+
+            // The record is not associated with either of the certs.
+            $this->assertNotEquals($cert1->id, $progcompletion->programid);
+            $this->assertNotEquals($cert2->id, $progcompletion->programid);
+
+            // The prog record is valid - the results should be identical to prog_load_completion, which has
+            // already been tested above.
+            $expectedprogcompletion = prog_load_completion($progcompletion->programid, $user1->id);
+            $this->assertEquals($expectedprogcompletion, $progcompletion);
+        }
+    }
+
+    public function test_prog_conditionally_delete_completion() {
+        global $DB;
+
+        $this->resetAfterTest(true);
+        $generator = $this->getDataGenerator();
+        /* @var totara_plan_generator $plangenerator */
+        $plangenerator = $generator->get_plugin_generator('totara_plan');
+
+        // Create some users.
+        $user1 = $generator->create_user();
+        $user2 = $generator->create_user();
+
+        // Create some certs.
+        $cert1 = $generator->create_certification();
+        $cert2 = $generator->create_certification();
+
+        // Create some programs.
+        $prog1 = $generator->create_program();
+        $prog2 = $generator->create_program();
+        $prog3 = $generator->create_program();
+        $prog4 = $generator->create_program();
+
+        // Add the users to the certs.
+        $generator->assign_to_program($cert1->id, ASSIGNTYPE_INDIVIDUAL, $user1->id);
+        $generator->assign_to_program($cert1->id, ASSIGNTYPE_INDIVIDUAL, $user2->id);
+        $generator->assign_to_program($cert2->id, ASSIGNTYPE_INDIVIDUAL, $user1->id);
+        $generator->assign_to_program($cert2->id, ASSIGNTYPE_INDIVIDUAL, $user2->id);
+
+        // A prog assignment for program1 exists.
+        $generator->assign_to_program($prog1->id, ASSIGNTYPE_INDIVIDUAL, $user1->id);
+        $generator->assign_to_program($prog1->id, ASSIGNTYPE_INDIVIDUAL, $user2->id);
+
+        // A LP assignment for program2 exists.
+        $planrecord = $plangenerator->create_learning_plan(array('userid' => $user1->id));
+        $plan = new development_plan($planrecord->id);
+        $plan->set_status(DP_PLAN_STATUS_APPROVED);
+        // Reload to get change in status.
+        $plan = new development_plan($planrecord->id);
+        /* @var dp_program_component $component_program */
+        $user1lp1componentprogram = $plan->get_component('program');
+        $user1lp1componentprogram->assign_new_item($prog2->id, false);
+
+        $planrecord = $plangenerator->create_learning_plan(array('userid' => $user2->id));
+        $plan = new development_plan($planrecord->id);
+        $plan->set_status(DP_PLAN_STATUS_APPROVED);
+        // Reload to get change in status.
+        $plan = new development_plan($planrecord->id);
+        /* @var dp_program_component $component_program */
+        $user1lp1componentprogram = $plan->get_component('program');
+        $user1lp1componentprogram->assign_new_item($prog2->id, false);
+
+        // Program3 is complete but the user assignment no longer exists.
+        $generator->assign_to_program($prog3->id, ASSIGNTYPE_INDIVIDUAL, $user1->id);
+        $generator->assign_to_program($prog3->id, ASSIGNTYPE_INDIVIDUAL, $user2->id);
+        $DB->delete_records('prog_user_assignment', array('programid' => $prog4->id));
+
+        $progcompletion = prog_load_completion($prog3->id, $user1->id);
+        $progcompletion->status = STATUS_PROGRAM_COMPLETE;
+        $progcompletion->timecompleted = 100;
+        $this->assertEquals(array(), prog_get_completion_errors($progcompletion));
+        $this->assertTrue(prog_write_completion($progcompletion));
+
+        $progcompletion = prog_load_completion($prog3->id, $user2->id);
+        $progcompletion->status = STATUS_PROGRAM_COMPLETE;
+        $progcompletion->timecompleted = 100;
+        $this->assertEquals(array(), prog_get_completion_errors($progcompletion));
+        $this->assertTrue(prog_write_completion($progcompletion));
+
+        // Program4 has an incomplete prog_completion and the user is no longer assigned.
+        $generator->assign_to_program($prog4->id, ASSIGNTYPE_INDIVIDUAL, $user1->id);
+        $generator->assign_to_program($prog4->id, ASSIGNTYPE_INDIVIDUAL, $user2->id);
+        $DB->delete_records('prog_user_assignment', array('programid' => $prog4->id));
+
+        // Setup is all done. Now load the current set of data before we start running the function.
+        $expectedcertcompletions = $DB->get_records('certif_completion');
+        $expectedprogcompletions = $DB->get_records('prog_completion');
+
+        // 1) Try deleting user1's program1 completion - nothing should happen.
+        prog_conditionally_delete_completion($prog1->id, $user1->id);
+
+        // The completion record still exists because the user has another assignment.
+        $actualprogcompletions = $DB->get_records('prog_completion');
+        $this->assertEquals($expectedprogcompletions, $actualprogcompletions);
+
+        // 2) Try deleting user1's program2 completion - nothing should happen.
+        prog_conditionally_delete_completion($prog2->id, $user1->id);
+
+        // The completion record still exists because the program is in the user's LP.
+        $actualprogcompletions = $DB->get_records('prog_completion');
+        $this->assertEquals($expectedprogcompletions, $actualprogcompletions);
+
+        // 3) Try deleting user1's program3 completion - nothing should happen.
+        prog_conditionally_delete_completion($prog3->id, $user1->id);
+
+        // The completion record still exists because it is complete.
+        $actualprogcompletions = $DB->get_records('prog_completion');
+        $this->assertEquals($expectedprogcompletions, $actualprogcompletions);
+
+        // 4) Try deleting user1's program4 completion - the record should be deleted.
+        prog_conditionally_delete_completion($prog4->id, $user1->id);
+
+        // Manually make the same change to the expected data.
+        foreach ($expectedprogcompletions as $key => $progcompletion) {
+            if ($progcompletion->programid == $prog4->id && $progcompletion->userid == $user1->id) {
+                unset($expectedprogcompletions[$key]);
+            }
+        }
+
+        // And check that the expected records match the actual records.
+        $actualprogcompletions = $DB->get_records('prog_completion');
+        $this->assertEquals($expectedprogcompletions, $actualprogcompletions);
+
+        // 5) Finally, just show that none of the certif_completion records were affected in any way.
+        $actualcertcompletions = $DB->get_records('certif_completion');
+        $this->assertEquals($expectedcertcompletions, $actualcertcompletions);
+    }
+
+    public function test_prog_delete_completion() {
+        global $DB;
+
+        $this->resetAfterTest(true);
+        $generator = $this->getDataGenerator();
+
+        // Create some users.
+        $user1 = $generator->create_user();
+        $user2 = $generator->create_user();
+
+        // Create some certs.
+        $cert1 = $generator->create_certification();
+        $cert2 = $generator->create_certification();
+
+        // Create some programs.
+        $prog1 = $generator->create_program();
+        $prog2 = $generator->create_program();
+
+        // Add the users to the certs.
+        $generator->assign_to_program($cert1->id, ASSIGNTYPE_INDIVIDUAL, $user1->id);
+        $generator->assign_to_program($cert1->id, ASSIGNTYPE_INDIVIDUAL, $user2->id);
+        $generator->assign_to_program($cert2->id, ASSIGNTYPE_INDIVIDUAL, $user1->id);
+        $generator->assign_to_program($cert2->id, ASSIGNTYPE_INDIVIDUAL, $user2->id);
+
+        // Add the users to the programs.
+        $generator->assign_to_program($prog1->id, ASSIGNTYPE_INDIVIDUAL, $user1->id);
+        $generator->assign_to_program($prog1->id, ASSIGNTYPE_INDIVIDUAL, $user2->id);
+        $generator->assign_to_program($prog2->id, ASSIGNTYPE_INDIVIDUAL, $user1->id);
+        $generator->assign_to_program($prog2->id, ASSIGNTYPE_INDIVIDUAL, $user2->id);
+
+        // Load the current set of data.
+        $expectedcertcompletions = $DB->get_records('certif_completion');
+        $expectedprogcompletions = $DB->get_records('prog_completion');
+
+        // Delete just one prog completion.
+        prog_delete_completion($prog1->id, $user1->id);
+
+        // Manually make the same change to the expected data. Only prog_completion is affected!!!
+        foreach ($expectedprogcompletions as $key => $progcompletion) {
+            if ($progcompletion->programid == $prog1->id && $progcompletion->userid == $user1->id) {
+                unset($expectedprogcompletions[$key]);
+            }
+        }
+
+        // Then just compare the current data with the expected.
+        $actualcertcompletions = $DB->get_records('certif_completion');
+        $actualprogcompletions = $DB->get_records('prog_completion');
+        $this->assertEquals($expectedcertcompletions, $actualcertcompletions);
+        $this->assertEquals($expectedprogcompletions, $actualprogcompletions);
+
+        // Make sure that it still deletes the record if the user is complete.
+        // We'll do this with a cert, to show that the cert record isn't touched.
+        list($certcompletion, $progcompletion) = certif_load_completion($cert2->id, $user2->id);
+        $certcompletion->status = CERTIFSTATUS_COMPLETED;
+        $certcompletion->renewalstatus = CERTIFRENEWALSTATUS_NOTDUE;
+        $certcompletion->certifpath = CERTIFPATH_RECERT;
+        $certcompletion->timecompleted = 100;
+        $certcompletion->timewindowopens = 200;
+        $certcompletion->timeexpires = 300;
+        $progcompletion->status = STATUS_PROGRAM_COMPLETE;
+        $progcompletion->timecompleted = 100;
+        $progcompletion->timedue = 300;
+        $this->assertEquals(array(), certif_get_completion_errors($certcompletion, $progcompletion));
+        $this->assertTrue(certif_write_completion($certcompletion, $progcompletion));
+
+        // Load the current set of data.
+        $expectedcertcompletions = $DB->get_records('certif_completion');
+        $expectedprogcompletions = $DB->get_records('prog_completion');
+
+        // Delete just one prog completion.
+        prog_delete_completion($cert2->id, $user2->id);
+
+        // Manually make the same change to the expected data. Only prog_completion is affected!!!
+        foreach ($expectedprogcompletions as $key => $progcompletion) {
+            if ($progcompletion->programid == $cert2->id && $progcompletion->userid == $user2->id) {
+                unset($expectedprogcompletions[$key]);
+            }
+        }
+
+        // Then just compare the current data with the expected.
+        $actualcertcompletions = $DB->get_records('certif_completion');
+        $actualprogcompletions = $DB->get_records('prog_completion');
+        $this->assertEquals($expectedcertcompletions, $actualcertcompletions);
+        $this->assertEquals($expectedprogcompletions, $actualprogcompletions);
+    }
 }
