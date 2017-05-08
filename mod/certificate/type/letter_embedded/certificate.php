@@ -111,7 +111,7 @@ certificate_print_text($pdf, $x, $y + 155, 'C', $fontserif, '', 20, get_string('
 certificate_print_text($pdf, $x, $y + 205, 'C', $fontserif, '', 20, format_string($course->fullname));
 certificate_print_text($pdf, $x, $y + 255, 'C', $fontserif, '', 14, $timecompleted);
 certificate_print_text($pdf, $x, $y + 283, 'C', $fontserif, '', 10, $grade);
-certificate_print_text($pdf, $x, $y + 311, 'C', $fontserif, '', 10, $outcode);
+certificate_print_text($pdf, $x, $y + 311, 'C', $fontserif, '', 10, $outcome);
 if ($certificate->printhours) {
     certificate_print_text($pdf, $x, $y + 339, 'C', $fontserif, '', 10, get_string('credithours', 'certificate') . ': ' . $certificate->printhours);
 }
