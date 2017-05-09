@@ -285,8 +285,11 @@ class totara_certification_reassignments_testcase extends reportcache_advanced_t
         $certcomprec = $DB->record_exists('certif_completion', array('userid' => $this->users[1]->id));
         $this->assertEquals($certcomprec, false);
 
-         // Reassign.
+        // Reassign.
         $this->getDataGenerator()->assign_program($progid, array($this->users[1]->id, $this->users[2]->id));
+
+        $certcomprec = $DB->record_exists('certif_completion', array('userid' => $this->users[1]->id));
+        $this->assertEquals($certcomprec, true);
 
         // Check the restored certification completion record.
         $certcomprec = $DB->get_record('certif_completion', array('userid' => $this->users[1]->id));
@@ -707,5 +710,98 @@ class totara_certification_reassignments_testcase extends reportcache_advanced_t
         $this->task->execute();
         $postrecord = $DB->get_record('certif_completion_history', array('timecompleted' => 0, 'userid' => $this->users[1]->id));
         $this->assertEquals($postrecord->unassigned, 1);
+    }
+
+    /**
+     * Test that restoration of certification completion with an old expiry date does not lead to a time allowance exception
+     */
+    public function test_restoration_exceptions_timeallowance() {
+        global $DB, $CFG;
+        $this->resetAfterTest(true);
+
+        // Set the restoration setting.
+        $CFG->restorecertifenrolments = 1;
+
+        $now = time();
+        $progid = $this->program->id;
+        $times = $this->setup_certified_state($now - (7 * $this->monthsecs)); // Setup with completion 7 months ago.
+
+        // Unassign.
+        $this->getDataGenerator()->assign_program($progid, array($this->users[2]->id));
+
+        // Run the certification task.
+        $this->task->execute();
+
+        // Check that the unassignment has created the expected history record.
+        $certhistrec = $DB->get_record('certif_completion_history', array('userid' => $this->users[1]->id));
+        $this->assertEquals($certhistrec->timecompleted, $times['complete']);
+        $this->assertEquals($certhistrec->timewindowopens, $times['window']);
+        $this->assertEquals($certhistrec->timeexpires, $times['expire']);
+        $this->assertEquals($certhistrec->unassigned, 1);
+
+        $certcomprec = $DB->record_exists('certif_completion', array('userid' => $this->users[1]->id));
+        $this->assertEquals($certcomprec, false);
+
+        // Reassign.
+        $this->getDataGenerator()->assign_program($progid, array($this->users[1]->id, $this->users[2]->id));
+
+        // Check that user 1 does not have a time allowance exception.
+        $userassignment = $DB->get_record('prog_user_assignment', array('userid' => $this->users[1]->id));
+        $this->assertEquals($userassignment->exceptionstatus, 0);
+
+        $exceptions = $DB->get_records('prog_exception');
+        $this->assertEmpty($exceptions);
+
+        // Check the timedue = now-1month.
+        $compl = $DB->get_record('prog_completion', array('userid' => $this->users[1]->id, 'programid' => $progid, 'coursesetid' => 0));
+        $this->assertEquals($compl->timedue, $now - $this->monthsecs);
+    }
+
+    /**
+     * Test that restoration of certification completion, after assignment to a certification with matching courses,
+     * does not lead to a duplicate courses exception
+     */
+    public function test_restoration_exceptions_dupcourse() {
+        global $DB, $CFG;
+        $this->resetAfterTest(true);
+
+        // Set the restoration setting.
+        $CFG->restorecertifenrolments = 1;
+
+        $now = time();
+        $progid = $this->program->id;
+        $times = $this->setup_certified_state($now - (3 * $this->monthsecs)); // Setup with completion 3 months ago.
+
+        // Duplicate the certification.
+        $certdata = array(
+            'cert_activeperiod' => '6 Months',
+            'cert_windowperiod' => '2 Months',
+        );
+        $dupcert = $this->getDataGenerator()->create_certification($certdata);
+
+        $this->getDataGenerator()->add_courseset_program($dupcert->id, array($this->courses[1]->id, $this->courses[2]->id), CERTIFPATH_CERT);
+        $this->getDataGenerator()->add_courseset_program($dupcert->id, array($this->courses[3]->id), CERTIFPATH_RECERT);
+
+
+        // Unassign.
+        $this->getDataGenerator()->assign_program($progid, array($this->users[2]->id));
+
+        // Assign user 1 to the dupcert.
+        $this->getDataGenerator()->assign_program($dupcert->id, array($this->users[1]->id));
+
+        // Reassign.
+        $this->getDataGenerator()->assign_program($progid, array($this->users[1]->id, $this->users[2]->id));
+
+        // Check that user 1 has a duplicate course exception.
+        $userassignment = $DB->get_record('prog_user_assignment', array('userid' => $this->users[1]->id, 'programid' => $progid));
+        $this->assertEquals($userassignment->exceptionstatus, 1);
+
+        $exceptions = $DB->get_records('prog_exception');
+        $this->assertEquals(count($exceptions), 1);
+
+        $exception = array_shift($exceptions);
+        $this->assertEquals($exception->exceptiontype, EXCEPTIONTYPE_DUPLICATE_COURSE);
+        $this->assertEquals($exception->programid, $progid);
+        $this->assertEquals($exception->userid, $this->users[1]->id);
     }
 }

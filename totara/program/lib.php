@@ -906,7 +906,10 @@ function prog_can_enter_course($user, $course) {
              LEFT JOIN {prog_courseset_course} pcsc ON pcs.id = pcsc.coursesetid AND pcsc.courseid = :c2id
                  WHERE pua.userid = :u2id
                    AND pc.coursesetid = :csid
-             ))
+                   AND pua.exceptionstatus <> :raised
+                   AND pua.exceptionstatus <> :dismissed
+             )
+        )
     ";
     $params = array(
         'avl'  => AVAILABILITY_TO_STUDENTS,
@@ -916,7 +919,9 @@ function prog_can_enter_course($user, $course) {
         'stat' => DP_PLAN_STATUS_APPROVED,
         'c2id' => $course->id,
         'u2id' => $user->id,
-        'csid' => 0
+        'csid' => 0,
+        'raised' => PROGRAM_EXCEPTION_RAISED,
+        'dismissed' => PROGRAM_EXCEPTION_DISMISSED
     );
     $program_records = $DB->get_records_sql($get_programs, $params);
 

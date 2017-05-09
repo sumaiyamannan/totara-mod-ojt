@@ -341,19 +341,36 @@ function recertify_window_opens_stage() {
     // Find any users who have reached this point.
     $sql = "SELECT cfc.id as uniqueid, u.*, cf.id as certifid, cfc.userid, p.id as progid, cfc.timewindowopens as windowopens
             FROM {certif_completion} cfc
-            JOIN {certif} cf on cf.id = cfc.certifid
-            JOIN {prog} p on p.certifid = cf.id
-            JOIN {user} u on u.id = cfc.userid
-            WHERE cfc.timewindowopens < ?
-                  AND cfc.status = ?
-                  AND cfc.renewalstatus = ?
-                  AND u.deleted = 0
-                  AND u.suspended = 0";
+            JOIN {certif} cf
+              ON cf.id = cfc.certifid
+            JOIN {prog} p
+              ON p.certifid = cf.id
+            JOIN {user} u
+              ON u.id = cfc.userid
+           WHERE EXISTS (SELECT 1
+                           FROM {prog_user_assignment} pua
+                          WHERE pua.userid = u.id
+                            AND pua.programid = p.id
+                            AND pua.exceptionstatus <> :raised
+                            AND pua.exceptionstatus <> :dismissed
+                        )
+             AND cfc.timewindowopens < :window
+             AND cfc.status = :stat
+             AND cfc.renewalstatus = :renstat
+             AND u.deleted = 0
+             AND u.suspended = 0";
 
-    $results = $DB->get_records_sql($sql, array(time(), CERTIFSTATUS_COMPLETED, CERTIFRENEWALSTATUS_NOTDUE));
+    $params = array(
+        'raised' =>  PROGRAM_EXCEPTION_RAISED,
+        'dismissed' => PROGRAM_EXCEPTION_DISMISSED,
+        'window' => time(),
+        'stat' => CERTIFSTATUS_COMPLETED,
+        'renstat' => CERTIFRENEWALSTATUS_NOTDUE
+    );
+
+    $results = $DB->get_records_sql($sql, $params);
 
     require_once($CFG->dirroot.'/course/lib.php'); // Archive_course_activities().
-
     // For each certification & user.
     foreach ($results as $user) {
         // Archive completion.

@@ -49,26 +49,47 @@ class completions_task extends \core\task\scheduled_task {
             return false;
         }
 
-        // Get all programs.
-        $program_records = $DB->get_records('prog');
+        // Query to retrive any users who are registered on the program
+        $sql = "SELECT pc.id, pc.programid, pc.userid
+                  FROM {prog_completion} pc
+                 WHERE pc.coursesetid = 0
+                   AND pc.userid IN ( SELECT pua.userid
+                                        FROM {prog_user_assignment} pua
+                                       WHERE pua.programid = pc.programid
+                                         AND pua.userid = pc.userid
+                                         AND pua.exceptionstatus <> :raised
+                                         AND pua.exceptionstatus <> :dismissed
+                                       UNION
+                                      SELECT pln.userid
+                                        FROM {dp_plan_program_assign} ppa
+                                  INNER JOIN {dp_plan} pln
+                                          ON pln.id = ppa.planid
+                                       WHERE pln.userid = pc.userid
+                                         AND ppa.programid = pc.programid
+                                         AND ppa.approved >= :dpappr
+                                         AND pln.status >= :dpstat
+                                    )
+                   AND pc.status = :stat
+              ORDER BY pc.programid";
 
-        foreach ($program_records as $program_record) {
+        $params = array(
+            'raised' => PROGRAM_EXCEPTION_RAISED,
+            'dismissed' => PROGRAM_EXCEPTION_DISMISSED,
+            'dpappr' => DP_APPROVAL_APPROVED,
+            'dpstat' => DP_PLAN_STATUS_APPROVED,
+            'stat' => STATUS_PROGRAM_INCOMPLETE
+        );
 
-            $program = new \program($program_record->id);
-
-            // Get all the users enrolled on this program.
-            $program_users = $program->get_program_learners();
-
-            if (count($program_users) == 0) {
-                continue;
+        $records = $DB->get_records_sql($sql, $params);
+        $program = null;
+        foreach ($records as $record) {
+            if (empty($program) || $program->id != $record->programid) {
+                $program = new \program($record->programid);
             }
 
-            if (!empty($program_users)) {
-                foreach ($program_users as $userid) {
-                    prog_update_completion($userid, $program);
-                }
-            }
+            prog_update_completion($record->userid, $program, null, false);
         }
+
+        return true;
     }
 }
-
