@@ -4253,6 +4253,7 @@ abstract class rb_base_source {
             get_string('usersposall', 'totara_reportbuilder'),
             'grpconcat_jobassignment',
             array(
+                'hierarchytype' => 'pos',
                 'jobfield' => 'positionid',                                 // Jobfield, map to the column in the job_assignments table.
                 'jobjoin' => 'pos',                                         // The table that the job join information can be found in.
             ),
