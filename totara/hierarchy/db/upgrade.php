@@ -1055,7 +1055,7 @@ function xmldb_totara_hierarchy_upgrade($oldversion) {
         // Adding keys to table goal_user_info_data.
         $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
         $table->add_key('fieldid', XMLDB_KEY_FOREIGN, array('fieldid'), 'goal_user_info_field', array('id'));
-        $table->add_key('goaluserinfodata_goa_fk', XMLDB_KEY_FOREIGN, array('goal_userid'), 'goal', array('id'));
+        $table->add_key('goaluserinfodata_goa_fk', XMLDB_KEY_FOREIGN, array('goal_userid'), 'goal_personal', array('id'));
 
         // Conditionally launch create table for goal_user_info_data.
         if (!$dbman->table_exists($table)) {

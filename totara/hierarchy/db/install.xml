@@ -905,7 +905,7 @@
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
         <KEY NAME="fieldid" TYPE="foreign" FIELDS="fieldid" REFTABLE="goal_user_info_field" REFFIELDS="id"/>
-        <KEY NAME="goaluserinfodata_goa_fk" TYPE="foreign" FIELDS="goal_userid" REFTABLE="goal" REFFIELDS="id"/>
+        <KEY NAME="goaluserinfodata_goa_fk" TYPE="foreign" FIELDS="goal_userid" REFTABLE="goal_personal" REFFIELDS="id"/>
       </KEYS>
     </TABLE>
     <TABLE NAME="goal_user_info_data_param" COMMENT="Custom organisations fields data parameters">
