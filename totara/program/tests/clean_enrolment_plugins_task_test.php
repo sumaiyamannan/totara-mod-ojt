@@ -120,9 +120,7 @@ class totara_clean_enrolments_plugins_task_testcase extends reportcache_advanced
         // Enrol the users in the courses via the programs and verify that it was done
         foreach ($this->users as $user) {
             foreach ($this->courses as $course) {
-                $result = prog_can_enter_course($user, $course);
-                $this->assertObjectHasAttribute('enroled', $result);
-                $this->assertTrue($result->enroled);
+                $this->getDataGenerator()->enrol_user($user->id, $course->id, null, 'totara_program');
             }
         }
     }

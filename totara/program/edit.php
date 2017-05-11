@@ -198,8 +198,8 @@ if ($data = $detailsform->get_data()) {
         // Save program data.
         $DB->update_record('prog', $data);
 
-        // Program availability has changed to unavailable, we need to update the enrolments as well.
-        if ($program->available == AVAILABILITY_TO_STUDENTS && $data->available == AVAILABILITY_NOT_TO_STUDENTS) {
+        // Program availability has changed, we need to update the enrolments as well.
+        if ($program->available != $data->available) {
             $program_plugin = enrol_get_plugin('totara_program');
             prog_update_available_enrolments($program_plugin, $program->id);
         }

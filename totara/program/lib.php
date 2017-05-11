@@ -1885,37 +1885,45 @@ function prog_format_seconds($seconds, $timeonly = false) {
  * and re-enrol students if the program is available again.
  *
  * @param enrol_totara_program_plugin $program_plugin
- * @param int $programid
- * @param boolean debugging
+ * @param int $programid If no programid is provided, then this is done for all programs - use only from cron
+ * @param boolean $debugging
+ * @return bool true if no problems, else false
  */
-function prog_update_available_enrolments(enrol_totara_program_plugin $program_plugin, $programid, $debugging = false) {
+function prog_update_available_enrolments(enrol_totara_program_plugin $program_plugin, $programid = null, $debugging = false) {
     global $DB;
 
-    // Get all the courses in all the coursesets of the program.
-    $coursesql = "SELECT c.*
-                    FROM {course} c
-                   WHERE c.id IN (SELECT DISTINCT pcc.courseid
-                                    FROM {prog_courseset_course} pcc
-                                    JOIN {prog_courseset} pc
-                                      ON pcc.coursesetid = pc.id
-                                   WHERE pc.programid = :pid1
-                                     AND pc.competencyid = 0
-                                  UNION
-                                  SELECT DISTINCT cc.iteminstance as courseid
-                                    FROM {prog_courseset} pc
-                                    JOIN {comp_criteria} cc
-                                      ON cc.competencyid = pc.competencyid AND cc.itemtype = :itemtype
-                                   WHERE pc.programid = :pid2
-                                     AND pc.competencyid != 0
-                                 )";
-    $courseparams = array('pid1' => $programid, 'itemtype' => 'coursecompletion', 'pid2' => $programid);
-    $courses = $DB->get_records_sql($coursesql, $courseparams);
+    // Get the default role that users will be put in if their assignment is unsuspended.
+    $defaultrole = $program_plugin->get_config('roleid');
+    if (empty($defaultrole)) {
+        mtrace("No default role, not processing enrolment suspension!!!");
+        return false;
+    }
 
-    foreach ($courses as $course) {
+    // Get all the courses in all the coursesets of the program.
+    $courseparams = array('itemtype' => 'coursecompletion');
+
+    if (!empty($programid)) {
+        $programsql1 = "AND pc.programid = :programid1";
+        $programsql2 = "AND pc.programid = :programid2";
+        $courseparams['programid1'] = $programid;
+        $courseparams['programid2'] = $programid;
+    } else {
+        $programsql1 = $programsql2 = "";
+    }
+
+    $coursesql = "SELECT pcc.courseid
+                    FROM {prog_courseset_course} pcc
+                    JOIN {prog_courseset} pc ON pcc.coursesetid = pc.id
+                   WHERE pc.competencyid = 0 {$programsql1}
+                   UNION
+                  SELECT cc.iteminstance AS courseid
+                    FROM {prog_courseset} pc
+                    JOIN {comp_criteria} cc ON cc.competencyid = pc.competencyid AND cc.itemtype = :itemtype
+                   WHERE pc.competencyid != 0 {$programsql2}";
+    $courseids = $DB->get_fieldset_sql($coursesql, $courseparams);
+
+    foreach ($courseids as $courseid) {
         $userstosuspend = array();
-        if (CLI_SCRIPT && $debugging) {
-            mtrace("Checking enrolments for Course-{$course->id}...");
-        }
 
         // Get all the users enrolled in the course through the program enrolment plugin.
         $enrolsql = "SELECT ue.*
@@ -1924,34 +1932,95 @@ function prog_update_available_enrolments(enrol_totara_program_plugin $program_p
                         ON ue.enrolid = e.id
                      WHERE e.courseid = :cid
                        AND e.enrol = 'totara_program'";
-        $enrolparams = array('cid' => $course->id);
+        $enrolparams = array('cid' => $courseid);
         $enrolments = $DB->get_records_sql($enrolsql, $enrolparams);
-        $instance = $program_plugin->get_instance_for_course($course->id);
+        $instance = $program_plugin->get_instance_for_course($courseid);
 
         foreach ($enrolments as $enrolment) {
             // Check to see if the user should still be able to access the course.
-            if (CLI_SCRIPT && $debugging) {
-                mtrace("Checking enrolment-{$enrolment->id}");
-            }
+            $userid = $enrolment->userid;
 
-            $user = $DB->get_record('user', array('id' => $enrolment->userid));
-
-            // NOTE: This function enrols the user in the course if he has access
-            $access = prog_can_enter_course($user, $course);
-            if (!$access->enroled) {
-                // If they can't, then add the user to the list of users to suspend.
-                if (CLI_SCRIPT && $debugging) {
-                    mtrace("suspending enrolment for user-{$enrolment->userid}");
-                }
-                $userstosuspend[] = $enrolment->userid;
-            } else if (CLI_SCRIPT && $debugging) {
-                mtrace("user-{$enrolment->userid} can still access the course");
+            $sql = "SELECT ppa.programid
+                      FROM {dp_plan_program_assign} ppa
+                      JOIN {prog} p ON p.id = ppa.programid AND p.available = :progisavailable1
+                      JOIN {dp_plan} pln ON pln.id = ppa.planid
+                      JOIN {prog_courseset} pcs ON ppa.programid = pcs.programid
+                      JOIN {prog_courseset_course} pcsc ON pcs.id = pcsc.coursesetid AND pcsc.courseid = :courseid1
+                     WHERE ppa.approved >= :ppaapproved1
+                       AND pln.userid = :userid1
+                       AND pln.status >= :plnstatusapproved1
+                     UNION
+                    SELECT ppa.programid
+                      FROM {dp_plan_program_assign} ppa
+                      JOIN {prog} p ON p.id = ppa.programid AND p.available = :progisavailable2
+                      JOIN {dp_plan} pln ON pln.id = ppa.planid
+                      JOIN {prog_courseset} pcs ON ppa.programid = pcs.programid
+                      JOIN {comp_criteria} cc ON cc.competencyid = pcs.competencyid AND cc.iteminstance = :courseid2
+                     WHERE ppa.approved >= :ppaapproved2
+                       AND pln.userid = :userid2
+                       AND pln.status >= :plnstatusapproved2
+                     UNION
+                    SELECT pua.programid
+                      FROM {prog_user_assignment} pua
+                      JOIN {prog} p ON p.id = pua.programid AND p.available = :progisavailable3
+                      JOIN {prog_completion} pc ON pua.programid = pc.programid AND pua.userid = pc.userid
+                      JOIN {prog_courseset} pcs ON pua.programid = pcs.programid
+                      JOIN {prog_courseset_course} pcsc ON pcs.id = pcsc.coursesetid AND pcsc.courseid = :courseid3
+                     WHERE pua.userid = :userid3
+                       AND pc.coursesetid = 0
+                     UNION
+                    SELECT pua.programid
+                      FROM {prog_user_assignment} pua
+                      JOIN {prog} p ON p.id = pua.programid AND p.available = :progisavailable4
+                      JOIN {prog_completion} pc ON pua.programid = pc.programid AND pua.userid = pc.userid
+                      JOIN {prog_courseset} pcs ON pua.programid = pcs.programid
+                      JOIN {comp_criteria} cc ON cc.competencyid = pcs.competencyid AND cc.iteminstance = :courseid4
+                     WHERE pua.userid = :userid4
+                       AND pc.coursesetid = 0";
+            $params = array(
+                'progisavailable1' => AVAILABILITY_TO_STUDENTS,
+                'courseid1'  => $courseid,
+                'ppaapproved1'  => DP_APPROVAL_APPROVED,
+                'userid1'  => $userid,
+                'plnstatusapproved1' => DP_PLAN_STATUS_APPROVED,
+                'progisavailable2' => AVAILABILITY_TO_STUDENTS,
+                'courseid2'  => $courseid,
+                'ppaapproved2'  => DP_APPROVAL_APPROVED,
+                'userid2'  => $userid,
+                'plnstatusapproved2' => DP_PLAN_STATUS_APPROVED,
+                'progisavailable3' => AVAILABILITY_TO_STUDENTS,
+                'courseid3' => $courseid,
+                'userid3' => $userid,
+                'progisavailable4' => AVAILABILITY_TO_STUDENTS,
+                'courseid4' => $courseid,
+                'userid4' => $userid,
+            );
+            $result = $DB->get_records_sql($sql, $params);
+            if (empty($result)) {
+                // The user is not assigned to any program which contains the course.
+                if ($enrolment->status == ENROL_USER_ACTIVE) {
+                    $userstosuspend[] = $enrolment->userid;
+                    if (CLI_SCRIPT && $debugging) {
+                        mtrace("suspending enrolment for user-{$userid}");
+                    }
+                } // Else the enrolment is already suspended, so nothing to do.
+            } else {
+                // The user has an active assignment to a program which contains the course.
+                if ($enrolment->status == ENROL_USER_SUSPENDED) {
+                    // Not using bulk here, because we want to keep the timestart and timeend from before.
+                    $program_plugin->enrol_user($instance, $userid, $defaultrole, $enrolment->timestart, $enrolment->timeend, ENROL_USER_ACTIVE);
+                    if (CLI_SCRIPT && $debugging) {
+                        mtrace("unsuspending enrolment for user-{$userid}");
+                    }
+                } // Else the enrolment is allready active, so nothing to do.
             }
         }
         if (!empty($userstosuspend)) {
             $program_plugin->process_program_unassignments($instance, $userstosuspend);
         }
     }
+
+    return true;
 }
 
 /**

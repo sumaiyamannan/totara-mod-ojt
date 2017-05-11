@@ -111,9 +111,7 @@ Feature: Course enrolment through programs
     And I log out
 
     # Run the cron tasks
-    When I run the scheduled task "\totara_program\task\assignments_deferred_task"
-    And I run the scheduled task "\totara_program\task\clean_enrolment_plugins_task"
-    And I run the scheduled task "\totara_program\task\user_assignments_task"
+    When I run the scheduled task "\totara_program\task\user_assignments_task"
 
     # learner1 should no longer be enrolled in the program and should not be able to access the course
     And I log in as "learner1"
@@ -162,9 +160,7 @@ Feature: Course enrolment through programs
     And I log out
 
     # Run the cron tasks
-    When I run the scheduled task "\totara_program\task\assignments_deferred_task"
-    And I run the scheduled task "\totara_program\task\clean_enrolment_plugins_task"
-    And I run the scheduled task "\totara_program\task\user_assignments_task"
+    When I run the scheduled task "\totara_program\task\user_assignments_task"
 
     # learner1 should no longer be enrolled in the program and should not be able to access the course
     And I log in as "learner1"
@@ -214,9 +210,7 @@ Feature: Course enrolment through programs
     And I log out
 
     # Run the cron tasks
-    When I run the scheduled task "\totara_program\task\assignments_deferred_task"
-    And I run the scheduled task "\totara_program\task\clean_enrolment_plugins_task"
-    And I run the scheduled task "\totara_program\task\user_assignments_task"
+    When I run the scheduled task "\totara_program\task\user_assignments_task"
 
     # User1 should no longer be enrolled in the program and should not be able to access the course
     And I log in as "learner1"
@@ -283,9 +277,7 @@ Feature: Course enrolment through programs
     And I log out
 
     # Run the cron tasks
-    When I run the scheduled task "\totara_program\task\assignments_deferred_task"
-    And I run the scheduled task "\totara_program\task\clean_enrolment_plugins_task"
-    And I run the scheduled task "\totara_program\task\user_assignments_task"
+    When I run the scheduled task "\totara_program\task\user_assignments_task"
 
     # teacher1 should now be able to enrol in the courses
     And I log in as "teacher1"

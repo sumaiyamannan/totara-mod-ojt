@@ -477,4 +477,339 @@ class totara_program_lib_testcase extends reportcache_advanced_testcase {
         $this->assertEquals($progcompletionzeropre, $progcompletionzeropost);
         $this->assertEquals(16, count($progcompletionzeropost));
     }
+
+    public function test_prog_update_available_enrolments_with_one_program() {
+        global $DB;
+
+        $this->resetAfterTest(true);
+        $generator = $this->getDataGenerator();
+
+        // Create some data.
+        $user1 = $generator->create_user();
+        $user2 = $generator->create_user();
+        $user3 = $generator->create_user();
+        $user4 = $generator->create_user();
+        $user5 = $generator->create_user();
+        $user6 = $generator->create_user();
+        $user7 = $generator->create_user();
+        $user8 = $generator->create_user();
+        $course1 = $generator->create_course();
+        $course2 = $generator->create_course();
+        $prog1 = $generator->create_program();
+        $prog2 = $generator->create_program();
+
+        // Assign users to programs.
+        $alluserids = array($user1->id, $user2->id, $user3->id, $user4->id, $user5->id, $user6->id, $user7->id, $user8->id);
+        $generator->assign_program($prog1->id, $alluserids);
+        $generator->assign_program($prog2->id, $alluserids);
+
+        // Assign course to programs.
+        $generator->add_courseset_program($prog1->id, array($course1->id));
+        $generator->add_courseset_program($prog2->id, array($course2->id));
+
+        // Enrol the users in the courses using the program enrolment plugin.
+        $generator->enrol_user($user1->id, $course1->id, null, 'totara_program');
+        $generator->enrol_user($user2->id, $course1->id, null, 'totara_program');
+        $generator->enrol_user($user3->id, $course1->id, null, 'totara_program');
+        $generator->enrol_user($user4->id, $course1->id, null, 'totara_program');
+        $generator->enrol_user($user5->id, $course1->id, null, 'totara_program');
+        $generator->enrol_user($user6->id, $course1->id, null, 'totara_program');
+        $generator->enrol_user($user7->id, $course1->id, null, 'totara_program');
+        $generator->enrol_user($user8->id, $course1->id, null, 'totara_program');
+        $generator->enrol_user($user1->id, $course2->id, null, 'totara_program');
+        $generator->enrol_user($user2->id, $course2->id, null, 'totara_program');
+        $generator->enrol_user($user3->id, $course2->id, null, 'totara_program');
+        $generator->enrol_user($user4->id, $course2->id, null, 'totara_program');
+        $generator->enrol_user($user5->id, $course2->id, null, 'totara_program');
+        $generator->enrol_user($user6->id, $course2->id, null, 'totara_program');
+        $generator->enrol_user($user7->id, $course2->id, null, 'totara_program');
+        $generator->enrol_user($user8->id, $course2->id, null, 'totara_program');
+
+        // Check that the current data is as expected.
+        $expecteduserenrolments = $DB->get_records('user_enrolments');
+        $this->assertCount(16, $expecteduserenrolments);
+        foreach ($expecteduserenrolments as $userenrolment) {
+            // All users have active enrolments.
+            $this->assertEquals(ENROL_USER_ACTIVE, $userenrolment->status);
+        }
+
+        // Set up several users in each state, to ensure that there's no crossover between user data.
+
+        // 1) User1 and user2 are assigned and their enrolment is not suspended.
+        // Nothing to do here - all users are already assigned.
+
+        // 2) User3 and user4 are assigned but their enrolment is suspended.
+        $DB->set_field('user_enrolments', 'status', ENROL_USER_SUSPENDED, array('userid' => $user3->id));
+        $DB->set_field('user_enrolments', 'status', ENROL_USER_SUSPENDED, array('userid' => $user4->id));
+
+        // 3) User5 and user6 are not assigned but their enrolment is not suspended.
+        $DB->delete_records('prog_user_assignment', array('userid' => $user5->id));
+        $DB->delete_records('prog_user_assignment', array('userid' => $user6->id));
+
+        // 4) User7 and user8 are not assigned and their enrolment is suspended.
+        $DB->delete_records('prog_user_assignment', array('userid' => $user7->id));
+        $DB->delete_records('prog_user_assignment', array('userid' => $user8->id));
+        $DB->set_field('user_enrolments', 'status', ENROL_USER_SUSPENDED, array('userid' => $user7->id));
+        $DB->set_field('user_enrolments', 'status', ENROL_USER_SUSPENDED, array('userid' => $user8->id));
+
+        // Load the current set of data.
+        $expecteduserenrolments = $DB->get_records('user_enrolments');
+        $this->assertCount(16, $expecteduserenrolments);
+
+        // Run the function.
+        /* @var enrol_totara_program_plugin $programplugin */
+        $programplugin = enrol_get_plugin('totara_program');
+        prog_update_available_enrolments($programplugin, $prog1->id);
+
+        // Manually make the same change to the expected data.
+
+        // 1) No change - the user's enrolment is still not suspended.
+        // 2) The enrolment is unsuspended.
+        // 3) The enrolment is suspended.
+        // 4) No change - the user's enrolment is still suspended.
+        $enrols = $DB->get_records('enrol', array('enrol' => 'totara_program'));
+        foreach ($expecteduserenrolments as $key => $userenrolment) {
+            if ($enrols[$userenrolment->enrolid]->courseid == $course1->id) {
+                if (in_array($userenrolment->userid, array($user3->id, $user4->id))) {
+                    // Users 3 and 4 will be unsuspended from course1.
+                    $expecteduserenrolments[$key]->status = ENROL_USER_ACTIVE;
+                } else if (in_array($userenrolment->userid, array($user5->id, $user6->id))) {
+                    // Users 5 and 6 will be suspended from course1.
+                    $expecteduserenrolments[$key]->status = ENROL_USER_SUSPENDED;
+                }
+            }
+        }
+
+        // And check that the expected records match the actual records.
+        $actualuserenrolments = $DB->get_records('user_enrolments');
+        $this->assertCount(16, $actualuserenrolments);
+        foreach ($actualuserenrolments as $actualuserenrolment) {
+            $expecteduserenrolment = $expecteduserenrolments[$actualuserenrolment->id];
+            $this->assertEquals($expecteduserenrolment, $actualuserenrolment);
+        }
+    }
+
+    public function test_prog_update_available_enrolments_with_all_programs() {
+        global $DB;
+
+        $this->resetAfterTest(true);
+        $generator = $this->getDataGenerator();
+
+        // Create some data.
+        $user1 = $generator->create_user();
+        $user2 = $generator->create_user();
+        $user3 = $generator->create_user();
+        $user4 = $generator->create_user();
+        $user5 = $generator->create_user();
+        $user6 = $generator->create_user();
+        $user7 = $generator->create_user();
+        $user8 = $generator->create_user();
+        $course1 = $generator->create_course();
+        $course2 = $generator->create_course();
+        $prog1 = $generator->create_program();
+        $prog2 = $generator->create_program();
+
+        // Assign users to programs.
+        $alluserids = array($user1->id, $user2->id, $user3->id, $user4->id, $user5->id, $user6->id, $user7->id, $user8->id);
+        $generator->assign_program($prog1->id, $alluserids);
+        $generator->assign_program($prog2->id, $alluserids);
+
+        // Assign course to programs.
+        $generator->add_courseset_program($prog1->id, array($course1->id));
+        $generator->add_courseset_program($prog2->id, array($course2->id));
+
+        // Enrol the users in the courses using the program enrolment plugin.
+        $generator->enrol_user($user1->id, $course1->id, null, 'totara_program');
+        $generator->enrol_user($user2->id, $course1->id, null, 'totara_program');
+        $generator->enrol_user($user3->id, $course1->id, null, 'totara_program');
+        $generator->enrol_user($user4->id, $course1->id, null, 'totara_program');
+        $generator->enrol_user($user5->id, $course1->id, null, 'totara_program');
+        $generator->enrol_user($user6->id, $course1->id, null, 'totara_program');
+        $generator->enrol_user($user7->id, $course1->id, null, 'totara_program');
+        $generator->enrol_user($user8->id, $course1->id, null, 'totara_program');
+        $generator->enrol_user($user1->id, $course2->id, null, 'totara_program');
+        $generator->enrol_user($user2->id, $course2->id, null, 'totara_program');
+        $generator->enrol_user($user3->id, $course2->id, null, 'totara_program');
+        $generator->enrol_user($user4->id, $course2->id, null, 'totara_program');
+        $generator->enrol_user($user5->id, $course2->id, null, 'totara_program');
+        $generator->enrol_user($user6->id, $course2->id, null, 'totara_program');
+        $generator->enrol_user($user7->id, $course2->id, null, 'totara_program');
+        $generator->enrol_user($user8->id, $course2->id, null, 'totara_program');
+
+        // Check that the current data is as expected.
+        $expecteduserenrolments = $DB->get_records('user_enrolments');
+        $this->assertCount(16, $expecteduserenrolments);
+        foreach ($expecteduserenrolments as $userenrolment) {
+            // All users have active enrolments.
+            $this->assertEquals(ENROL_USER_ACTIVE, $userenrolment->status);
+        }
+
+        // Set up several users in each state, to ensure that there's no crossover between user data.
+
+        // 1) User1 and user2 are assigned and their enrolment is not suspended.
+        // Nothing to do here - all users are already assigned.
+
+        // 2) User3 and user4 are assigned but their enrolment is suspended.
+        $DB->set_field('user_enrolments', 'status', ENROL_USER_SUSPENDED, array('userid' => $user3->id));
+        $DB->set_field('user_enrolments', 'status', ENROL_USER_SUSPENDED, array('userid' => $user4->id));
+
+        // 3) User5 and user6 are not assigned but their enrolment is not suspended.
+        $DB->delete_records('prog_user_assignment', array('userid' => $user5->id));
+        $DB->delete_records('prog_user_assignment', array('userid' => $user6->id));
+
+        // 4) User7 and user8 are not assigned and their enrolment is suspended.
+        $DB->delete_records('prog_user_assignment', array('userid' => $user7->id));
+        $DB->delete_records('prog_user_assignment', array('userid' => $user8->id));
+        $DB->set_field('user_enrolments', 'status', ENROL_USER_SUSPENDED, array('userid' => $user7->id));
+        $DB->set_field('user_enrolments', 'status', ENROL_USER_SUSPENDED, array('userid' => $user8->id));
+
+        // Load the current set of data.
+        $expecteduserenrolments = $DB->get_records('user_enrolments');
+        $this->assertCount(16, $expecteduserenrolments);
+
+        // Run the function.
+        /* @var enrol_totara_program_plugin $programplugin */
+        $programplugin = enrol_get_plugin('totara_program');
+        prog_update_available_enrolments($programplugin);
+
+        // Manually make the same change to the expected data.
+
+        // 1) No change - the user's enrolment is still not suspended.
+        // 2) The enrolment is unsuspended.
+        // 3) The enrolment is suspended.
+        // 4) No change - the user's enrolment is still suspended.
+        $enrols = $DB->get_records('enrol', array('enrol' => 'totara_program'));
+        foreach ($expecteduserenrolments as $key => $userenrolment) {
+            if (in_array($userenrolment->userid, array($user3->id, $user4->id))) {
+                // Users 3 and 4 will be unsuspended from both courses.
+                $expecteduserenrolments[$key]->status = ENROL_USER_ACTIVE;
+            } else if (in_array($userenrolment->userid, array($user5->id, $user6->id))) {
+                // Users 5 and 6 will be suspended from both courses.
+                $expecteduserenrolments[$key]->status = ENROL_USER_SUSPENDED;
+            }
+        }
+
+        // And check that the expected records match the actual records.
+        $actualuserenrolments = $DB->get_records('user_enrolments');
+        $this->assertCount(16, $actualuserenrolments);
+        foreach ($actualuserenrolments as $actualuserenrolment) {
+            $expecteduserenrolment = $expecteduserenrolments[$actualuserenrolment->id];
+            $this->assertEquals($expecteduserenrolment, $actualuserenrolment);
+        }
+    }
+
+    public function test_prog_update_available_enrolments_with_learning_plan() {
+        global $DB;
+
+        $this->resetAfterTest(true);
+        $generator = $this->getDataGenerator();
+
+        // Create some data.
+        $user1 = $generator->create_user();
+        $user2 = $generator->create_user();
+        $user3 = $generator->create_user();
+        $user4 = $generator->create_user();
+        $user5 = $generator->create_user();
+        $user6 = $generator->create_user();
+        $user7 = $generator->create_user();
+        $user8 = $generator->create_user();
+        $course1 = $generator->create_course();
+        $course2 = $generator->create_course();
+        $prog1 = $generator->create_program();
+        $prog2 = $generator->create_program();
+
+        // Add programs to learning plans.
+        $alluserids = array($user1->id, $user2->id, $user3->id, $user4->id, $user5->id, $user6->id, $user7->id, $user8->id);
+        $plan = array();
+        $component = array();
+        foreach ($alluserids as $userid) {
+            $plan[$userid] = $generator->create_plan($userid);
+            $component[$userid] = $plan[$userid]->get_component('program');
+            $component[$userid]->assign_new_item($prog1->id, false);
+            $component[$userid]->assign_new_item($prog2->id, false);
+        }
+
+        // Assign course to programs.
+        $generator->add_courseset_program($prog1->id, array($course1->id));
+        $generator->add_courseset_program($prog2->id, array($course2->id));
+
+        // Enrol the users in the courses using the program enrolment plugin.
+        $generator->enrol_user($user1->id, $course1->id, null, 'totara_program');
+        $generator->enrol_user($user2->id, $course1->id, null, 'totara_program');
+        $generator->enrol_user($user3->id, $course1->id, null, 'totara_program');
+        $generator->enrol_user($user4->id, $course1->id, null, 'totara_program');
+        $generator->enrol_user($user5->id, $course1->id, null, 'totara_program');
+        $generator->enrol_user($user6->id, $course1->id, null, 'totara_program');
+        $generator->enrol_user($user7->id, $course1->id, null, 'totara_program');
+        $generator->enrol_user($user8->id, $course1->id, null, 'totara_program');
+        $generator->enrol_user($user1->id, $course2->id, null, 'totara_program');
+        $generator->enrol_user($user2->id, $course2->id, null, 'totara_program');
+        $generator->enrol_user($user3->id, $course2->id, null, 'totara_program');
+        $generator->enrol_user($user4->id, $course2->id, null, 'totara_program');
+        $generator->enrol_user($user5->id, $course2->id, null, 'totara_program');
+        $generator->enrol_user($user6->id, $course2->id, null, 'totara_program');
+        $generator->enrol_user($user7->id, $course2->id, null, 'totara_program');
+        $generator->enrol_user($user8->id, $course2->id, null, 'totara_program');
+
+        // Check that the current data is as expected.
+        $expecteduserenrolments = $DB->get_records('user_enrolments');
+        $this->assertCount(16, $expecteduserenrolments);
+        foreach ($expecteduserenrolments as $userenrolment) {
+            // All users have active enrolments.
+            $this->assertEquals(ENROL_USER_ACTIVE, $userenrolment->status);
+        }
+
+        // Set up several users in each state, to ensure that there's no crossover between user data.
+
+        // 1) User1 and user2 are assigned and their enrolment is not suspended.
+        // Nothing to do here - all users are already assigned.
+
+        // 2) User3 and user4 are assigned but their enrolment is suspended.
+        $DB->set_field('user_enrolments', 'status', ENROL_USER_SUSPENDED, array('userid' => $user3->id));
+        $DB->set_field('user_enrolments', 'status', ENROL_USER_SUSPENDED, array('userid' => $user4->id));
+
+        // 3) User5 and user6 are not assigned but their enrolment is not suspended.
+        $DB->delete_records('dp_plan_program_assign', array('planid' => $plan[$user5->id]->id));
+        $DB->delete_records('dp_plan_program_assign', array('planid' => $plan[$user6->id]->id));
+
+        // 4) User7 and user8 are not assigned and their enrolment is suspended.
+        $DB->delete_records('dp_plan_program_assign', array('planid' => $plan[$user7->id]->id));
+        $DB->delete_records('dp_plan_program_assign', array('planid' => $plan[$user8->id]->id));
+        $DB->set_field('user_enrolments', 'status', ENROL_USER_SUSPENDED, array('userid' => $user7->id));
+        $DB->set_field('user_enrolments', 'status', ENROL_USER_SUSPENDED, array('userid' => $user8->id));
+
+        // Load the current set of data.
+        $expecteduserenrolments = $DB->get_records('user_enrolments');
+        $this->assertCount(16, $expecteduserenrolments);
+
+        // Run the function.
+        /* @var enrol_totara_program_plugin $programplugin */
+        $programplugin = enrol_get_plugin('totara_program');
+        prog_update_available_enrolments($programplugin);
+
+        // Manually make the same change to the expected data.
+
+        // 1) No change - the user's enrolment is still not suspended.
+        // 2) The enrolment is unsuspended.
+        // 3) The enrolment is suspended.
+        // 4) No change - the user's enrolment is still suspended.
+        $enrols = $DB->get_records('enrol', array('enrol' => 'totara_program'));
+        foreach ($expecteduserenrolments as $key => $userenrolment) {
+            if (in_array($userenrolment->userid, array($user3->id, $user4->id))) {
+                // Users 3 and 4 will be unsuspended from both courses.
+                $expecteduserenrolments[$key]->status = ENROL_USER_ACTIVE;
+            } else if (in_array($userenrolment->userid, array($user5->id, $user6->id))) {
+                // Users 5 and 6 will be suspended from both courses.
+                $expecteduserenrolments[$key]->status = ENROL_USER_SUSPENDED;
+            }
+        }
+
+        // And check that the expected records match the actual records.
+        $actualuserenrolments = $DB->get_records('user_enrolments');
+        $this->assertCount(16, $actualuserenrolments);
+        foreach ($actualuserenrolments as $actualuserenrolment) {
+            $expecteduserenrolment = $expecteduserenrolments[$actualuserenrolment->id];
+            $this->assertEquals($expecteduserenrolment, $actualuserenrolment);
+        }
+    }
 }

@@ -1320,8 +1320,14 @@ class program {
     /**
      * Returns true or false depending on whether or not the specified user
      * can access the specified course based on whether or not the program
-     * contains the course in any of its course sets and whether or not the
-     * user has completed all pre-requisite groups of course sets
+     * contains the course in any of its course sets in the current path and whether
+     * or not the user has completed all pre-requisite groups of course sets.
+     *
+     * This function is intended only for use when determining if a user can be
+     * enrolled into the given course. In certifications, when a user is on a path
+     * which doesn't contain this course, this function will return false, regardless
+     * of whether or not the user is already assigned to the course. If the user is
+     * not assigned then they will not be allowed to become assigned.
      *
      * @param int $userid
      * @param int $courseid
