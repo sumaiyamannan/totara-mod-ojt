@@ -213,7 +213,7 @@ function clustercache_create_redis_sentinel_store($storename) {
         }
         $data->server[] = "{$server}:{$port}";
     }
-    $data->server = implode("\n", $data->server);
+    $data->server = implode(",", $data->server);
 
     if (empty($siteenvironmentid)) {
         // Can't get enough info to set prefix properly.
