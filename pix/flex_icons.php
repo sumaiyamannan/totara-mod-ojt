@@ -1197,13 +1197,6 @@ $icons = array(
                     'classes' => 'ft-log',
                 ),
         ),
-    'mahara' =>
-        array(
-            'data' =>
-                array(
-                    'classes' => 'ft-mahara',
-                ),
-        ),
     'marker-on' =>
         array(
             'data' =>
@@ -2153,7 +2146,6 @@ $deprecated = array(
     'core|i/loading_small' => 'loading',
     'core|i/lock' => 'lock',
     'core|i/log' => 'log',
-    'core|i/mahara_host' => 'mahara',
     'core|i/manual_item' => 'edit',
     'core|i/marked' => 'marker-on',
     'core|i/marker' => 'marker-off',
@@ -2424,6 +2416,7 @@ $pixonlyimages = array(
     /* Default user images */
     'g/f1',
     'g/f2',
+    'i/mahara_host',
     'u/f1',
     'u/f2',
     'u/f3',
