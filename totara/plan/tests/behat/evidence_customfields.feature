@@ -725,6 +725,5 @@ Feature: Evidence custom fields.
     And I should see "menuoptiontwo"
     And "customfield_datetimetest[day]" "select" should not exist
     And the "id_customfield_multiselecttest_0" "checkbox" should be disabled
-    # TODO: All the inputs in the multiselect custom field should be locked. See TL-12769.
-    # And the "id_customfield_multiselecttest_1" "checkbox" should be disabled
-    # And the "id_customfield_multiselecttest_2" "checkbox" should be disabled
+    And the "id_customfield_multiselecttest_1" "checkbox" should be disabled
+    And the "id_customfield_multiselecttest_2" "checkbox" should be disabled

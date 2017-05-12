@@ -81,6 +81,8 @@ class customfield_multiselect extends customfield_base {
             }
         }
 
+        // If there are more than 8 options then we abandon the single
+        // column display.
         if (count($this->options) > self::MAX_ONE_COLUMN) {
             $this->groupsize = count($this->options);
         } else {
@@ -328,8 +330,17 @@ class customfield_multiselect extends customfield_base {
         if (!$mform->elementExists($groupbasename.'0')) {
             return;
         }
+
+        // Determine the number of elements we need to lock
+        // depending on the layout.
+        if (count($this->options) > self::MAX_ONE_COLUMN) {
+            $formelementcount = 1;
+        } else {
+            $formelementcount = count($this->options);
+        }
+
         if ($this->is_locked()) {
-            for ($iter = 0; $iter < $this->groupsize; $iter++) {
+            for ($iter = 0; $iter < $formelementcount; $iter++) {
                 $group = $mform->getElement($groupbasename.$iter);
                 $elems = $group->getElements();
                 foreach ($elems as $elem) {
