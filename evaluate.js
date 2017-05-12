@@ -73,7 +73,6 @@ M.mod_ojt_evaluate = M.mod_ojt_evaluate || {
                     ojtobj.replaceIcon(completionimg, 'loading');
                 },
                 success: function(data) {
-                    var data = $.parseJSON(data);
                     if (data.item.status == config.OJT_COMPLETE) {
                         ojtobj.replaceIcon(completionimg, 'completion-manual-y');
                     } else {
@@ -111,7 +110,6 @@ M.mod_ojt_evaluate = M.mod_ojt_evaluate || {
                     'comment': $(commentinput).val()
                 },
                 success: function(data) {
-                    var data = $.parseJSON(data);
 
                     // Update comment text box, so we can get the date in there too
                     $(commentinput).val(data.item.comment);
@@ -144,7 +142,6 @@ M.mod_ojt_evaluate = M.mod_ojt_evaluate || {
                     ojtobj.replaceIcon(completionimg, 'loading');
                 },
                 success: function(data) {
-                    var data = $.parseJSON(data);
                     if (data.item.witnessedby > 0) {
                         ojtobj.replaceIcon(completionimg, 'completion-manual-y');
                     } else {
@@ -173,6 +170,7 @@ M.mod_ojt_evaluate = M.mod_ojt_evaluate || {
                 url: M.cfg.wwwroot+'/mod/ojt/evaluatesignoff.php',
                 type: 'POST',
                 data: {
+                    'sesskey' : M.cfg.sesskey,
                     'bid': config.ojtid,
                     'userid': config.userid,
                     'id': topicid
@@ -181,7 +179,6 @@ M.mod_ojt_evaluate = M.mod_ojt_evaluate || {
                     ojtobj.replaceIcon(signoffimg, 'loading');
                 },
                 success: function(data) {
-                    var data = $.parseJSON(data);
                     if (data.topicsignoff.signedoff) {
                         ojtobj.replaceIcon(signoffimg, 'completion-manual-y');
                     } else {

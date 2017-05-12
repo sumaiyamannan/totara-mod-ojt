@@ -24,6 +24,8 @@
  * OJT item completion ajax toggler
  */
 
+define('AJAX_SCRIPT', true);
+
 require_once(dirname(dirname(dirname(__FILE__))).'/config.php');
 require_once($CFG->dirroot.'/mod/ojt/lib.php');
 require_once($CFG->dirroot.'/mod/ojt/locallib.php');
