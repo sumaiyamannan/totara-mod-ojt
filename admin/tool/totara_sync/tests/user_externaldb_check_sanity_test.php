@@ -63,6 +63,7 @@ class tool_totara_sync_user_externaldb_check_sanity_testcase extends advanced_te
         "lastname",
         "email",
         "appraiseridnumber",
+        "country",
         "lang",
         "manageridnumber",
         "orgidnumber",
@@ -245,6 +246,7 @@ class tool_totara_sync_user_externaldb_check_sanity_testcase extends advanced_te
         $nullfields = array( // The other fields MUST be non-null, otherwise importing to the temp table will fail dramatically.
             "email",
             "appraiseridnumber",
+            "country",
             "lang",
             "manageridnumber",
             "orgidnumber",
@@ -464,9 +466,12 @@ class tool_totara_sync_user_externaldb_check_sanity_testcase extends advanced_te
             25 => 'idnum025',
             26 => 'idnum026',
             30 => 'idnum030',
+            // Record with idnum31 is not here because it was merged with just a warning.
+            32 => 'idnum032',
+            33 => 'idnum033',
         ), $invalididnumbers);
 
-        $this->assertEquals(25, count($DB->get_records('totara_sync_log')));
+        $this->assertEquals(27, count($DB->get_records('totara_sync_log')));
     }
 
     /**
@@ -677,9 +682,12 @@ class tool_totara_sync_user_externaldb_check_sanity_testcase extends advanced_te
             25 => 'idnum025',
             26 => 'idnum026',
             30 => 'idnum030',
+            // Record with idnum31 is not here because it was merged with just a warning.
+            32 => 'idnum032',
+            33 => 'idnum033',
         ), $invalididnumbers);
 
-        $this->assertEquals(27, count($DB->get_records('totara_sync_log')));
+        $this->assertEquals(29, count($DB->get_records('totara_sync_log')));
     }
 
 }

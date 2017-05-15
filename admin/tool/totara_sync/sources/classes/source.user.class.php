@@ -286,8 +286,9 @@ abstract class totara_sync_source_user extends totara_sync_source {
         if (!empty($this->config->import_city)) {
             $table->add_field('city', XMLDB_TYPE_CHAR, '120');
         }
+        // Country codes are always 2 chars but extended here so we can use a sanity check for better report logging.
         if (!empty($this->config->import_country)) {
-            $table->add_field('country', XMLDB_TYPE_CHAR, '2');
+            $table->add_field('country', XMLDB_TYPE_CHAR, '30');
         }
         if (!empty($this->config->import_timezone)) {
             $table->add_field('timezone', XMLDB_TYPE_CHAR, '100');
