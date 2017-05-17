@@ -97,16 +97,17 @@ Feature: Program and certification customfields can be created and populated
     When I click on "Programs" in the totara menu
     And I press "Add a new program"
     And I set the following fields to these values:
-      | Full name                   | Test program                          |
-      | Short name                  | Test prog                             |
-      | Program checkbox            | 1                                     |
-      | customfield_datetime[day]   | 20                                    |
-      | customfield_datetime[month] | October                               |
-      | customfield_datetime[year]  | 2020                                  |
-      | customfield_locationaddress | 150 Willis Street, Te Aro, Wellington |
-      | Program text area           | This is within an editor              |
-      | Program text input          | This is an input                      |
-      | customfield_url[url]        | http://totaralms.com                  |
+      | Full name                     | Test program                          |
+      | Short name                    | Test prog                             |
+      | Program checkbox              | 1                                     |
+      | customfield_datetime[enabled] | 1                                     |
+      | customfield_datetime[day]     | 20                                    |
+      | customfield_datetime[month]   | October                               |
+      | customfield_datetime[year]    | 2020                                  |
+      | customfield_locationaddress   | 150 Willis Street, Te Aro, Wellington |
+      | Program text area             | This is within an editor              |
+      | Program text input            | This is an input                      |
+      | customfield_url[url]          | http://totaralms.com                  |
 
     # Image in the custom field
     And I click on "//button[@class='atto_image_button']" "xpath_element" in the "//div[@id='fitem_id_customfield_textarea_editor']" "xpath_element"

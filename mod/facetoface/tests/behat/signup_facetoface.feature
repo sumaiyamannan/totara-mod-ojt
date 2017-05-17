@@ -334,15 +334,16 @@ Feature: Sign up to a seminar
     And I should see "Sign-up"
     And I follow "Sign-up"
     And I set the following fields to these values:
-      | customfield_signupcheckbox        | 1                  |
-      | customfield_signupdatetime[day]   | 1                  |
-      | customfield_signupdatetime[month] | December           |
-      | customfield_signupdatetime[year]  | 2030               |
-      | customfield_signupmenu            | Nein               |
-      | customfield_signupmulti[0]        | 1                  |
-      | customfield_signupmulti[1]        | 1                  |
-      | customfield_signupinput           | hi                 |
-      | customfield_signupurl[url]        | http://example.org |
+      | customfield_signupcheckbox          | 1                  |
+      | customfield_signupdatetime[enabled] | 1                  |
+      | customfield_signupdatetime[day]     | 1                  |
+      | customfield_signupdatetime[month]   | December           |
+      | customfield_signupdatetime[year]    | 2030               |
+      | customfield_signupmenu              | Nein               |
+      | customfield_signupmulti[0]          | 1                  |
+      | customfield_signupmulti[1]          | 1                  |
+      | customfield_signupinput             | hi                 |
+      | customfield_signupurl[url]          | http://example.org |
 
     # Add a file to the file custom field.
     And I click on "//div[@id='fitem_id_customfield_signupfile_filemanager']//a[@title='Add...']" "xpath_element"
@@ -370,6 +371,7 @@ Feature: Sign up to a seminar
     And "Sam1 Student1" row "Signup checkbox" column of "facetoface_sessions" table should contain "Yes"
     And "Sam1 Student1" row "Signup file" column of "facetoface_sessions" table should contain "test.jpg"
     And "Sam1 Student1" row "Signup menu" column of "facetoface_sessions" table should contain "Nein"
+    And "Sam1 Student1" row "Signup datetime" column of "facetoface_sessions" table should contain "1 Dec 2030"
     And "Sam1 Student1" row "Signup multi (text)" column of "facetoface_sessions" table should contain "Aye, Nay"
     And "Sam1 Student1" row "Signup input" column of "facetoface_sessions" table should contain "hi"
     And I should see the "Green leaves on customfield text area" image in the "//table[@id='facetoface_sessions']/tbody/tr" "xpath_element"
@@ -381,14 +383,15 @@ Feature: Sign up to a seminar
     And I follow "Test seminar name"
     And I follow "Cancel booking"
     And I set the following fields to these values:
-      | User cancellation checkbox                  | 1                    |
-      | customfield_usercancellationdatetime[day]   | 15                   |
-      | customfield_usercancellationdatetime[month] | October              |
-      | customfield_usercancellationdatetime[year]  | 2020                 |
-      | User cancellation menu                      | Ja                   |
-      | customfield_usercancellationmulti[1]        | 1                    |
-      | User cancellation input                     | Monkey               |
-      | customfield_usercancellationurl[url]        | http://totaralms.com |
+      | User cancellation checkbox                    | 1                    |
+      | customfield_usercancellationdatetime[enabled] | 1                    |
+      | customfield_usercancellationdatetime[day]     | 15                   |
+      | customfield_usercancellationdatetime[month]   | October              |
+      | customfield_usercancellationdatetime[year]    | 2020                 |
+      | User cancellation menu                        | Ja                   |
+      | customfield_usercancellationmulti[1]          | 1                    |
+      | User cancellation input                       | Monkey               |
+      | customfield_usercancellationurl[url]          | http://totaralms.com |
     # Add a file to the file custom field.
     And I click on "//div[@id='fitem_id_customfield_usercancellationfile_filemanager']//a[@title='Add...']" "xpath_element"
     And I click on "test.jpg" "link" in the "//div[@aria-hidden='false' and @class='moodle-dialogue-base']" "xpath_element"
