@@ -1286,17 +1286,12 @@ function fix_utf8($value) {
         return $newvalue;
 
     } else if (is_object($value)) {
-        // Do not modify original.
-        $value = clone($value);
+        // Use clean object to ensure no funny keys are kept.
+        $newvalue = array();
         foreach ($value as $k => $v) {
-            $ck = fix_utf8($k);
-            if ($ck !== $k) {
-                unset($value->$k);
-                $k = $ck;
-            }
-            $value->$k = fix_utf8($v);
+            $newvalue[fix_utf8($k)] = fix_utf8($v);
         }
-        return $value;
+        return (object) $newvalue;
 
     } else {
         // This is some other type, no utf-8 here.
