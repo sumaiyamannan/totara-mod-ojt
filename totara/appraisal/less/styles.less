@@ -25,9 +25,6 @@
 @import "legacy.less";
 @import "roots.less";
 
-// Defaults so that variables overridden by
-// later sheets are not undefined.
-@screen-lg-min: 1200px;
 
 .dir-rtl .appraisal-page-pane {
   float:right;
@@ -78,24 +75,5 @@
     .action-icon.delete {
         float: right;
         margin-left: @padding-small-horizontal / 2;
-    }
-}
-
-/*
- * Snapshot page used to provide print version doesn't include
- * Bootstrap styles therefore add support for utility class .img-responsive
- */
-#page-totara-appraisal-snapshot .img-responsive {
-    &:extend(.img-responsive);
-}
-
-/*
- * High specificity to override & namespace fix for bug
- * TL-12785. Negative margins set globally on .felements
- * for wider screens caused text overlapping.
- */
-@media (min-width: @screen-lg-min) {
-    .path-totara-appraisal #print .mform .fitem fieldset .felement {
-        margin-top: 0;
     }
 }
