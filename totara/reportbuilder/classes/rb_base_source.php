@@ -4263,7 +4263,7 @@ abstract class rb_base_source {
                 'jobfield' => 'positionid',                                 // Jobfield, map to the column in the job_assignments table.
                 'jobjoin' => 'pos',                                         // The table that the job join information can be found in.
             ),
-            'id',                                                           // $field
+            "{$users}.id",                                                  // $field
             $users                                                          // $joins string | array
         );
         $filteroptions[] = new rb_filter_option(
@@ -4308,7 +4308,7 @@ abstract class rb_base_source {
                 'jobfield' => 'organisationid',                             // Jobfield, map to the column in the job_assignments table.
                 'jobjoin' => 'org',                                         // The table that the job join information can be found in.
             ),
-            'id',                                                           // $field
+            "{$users}.id",                                                  // $field
             $users                                                          // $joins string | array
         );
         $filteroptions[] = new rb_filter_option(
@@ -4354,7 +4354,7 @@ abstract class rb_base_source {
                 'extfield' => 'userid',                                     // Extfield, this overrides the jobfield as the select after joining.
                 'extjoin' => 'job_assignment',                              // Extjoin, whether an additional join is required.
             ),
-            'id',                                                           // $field
+            "{$users}.id",                                                  // $field
             $users                                                          // $joins string | array
         );
         $filteroptions[] = new rb_filter_option(
@@ -4390,7 +4390,7 @@ abstract class rb_base_source {
                 'jobfield' => 'appraiserid',                                // Jobfield, map to the column in the job_assignments table.
                 'jobjoin' => 'user',                                        // The table that the job join information can be found in.
             ),
-            'id',                                                           // $field
+            "{$users}.id",                                                  // $field
             $users                                                          // $joins string | array
         );
 
