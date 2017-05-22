@@ -52,6 +52,11 @@ $observers = array(
         'callback' => 'totara_program_observer::user_deleted',
     ),
     array(
+        'eventname' => '\core\event\user_confirmed',
+        'callback' => 'totara_program_observer::user_confirmed',
+        'priority' => 2400
+    ),
+    array(
         'eventname' => '\core\event\course_deleted',
         'callback'  => 'totara_program_observer::course_deleted',
     ),

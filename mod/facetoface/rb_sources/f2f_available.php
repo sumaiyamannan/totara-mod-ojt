@@ -49,7 +49,7 @@ abstract class rb_filter_f2f_available extends rb_filter_type {
         );
 
         $objs = array();
-        $objs[] = $mform->createElement('select', $this->name . '_enable', '', $options);
+        $objs[] = $mform->createElement('select', $this->name . '_enable', get_string('available', 'mod_facetoface'), $options);
         $objs[] = $mform->createElement('static', null, null, html_writer::empty_tag('br'));
 
         $showtimezone = false;

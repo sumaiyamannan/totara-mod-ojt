@@ -1604,25 +1604,6 @@ class oci_native_moodle_database extends moodle_database {
         return " MOODLELIB.UNDO_MEGA_HACK($s) ";
     }
 
-    /**
-     * TOTARA - Returns database specific SQL code similar to GROUP_CONCAT() behaviour from MySQL.
-     *
-     * NOTE: NULL values are skipped, use COALESCE if you want to include a replacement
-     *
-     * @param string $expr      Expression to get individual values
-     * @param string $separator The delimiter to separate the values, a simple string value only
-     * @param string $orderby   ORDER BY clause that determines order of rows with values - required
-     * @return string SQL fragment equivalent to GROUP_CONCAT()
-     */
-    public function sql_group_concat($expr, $separator, $orderby) {
-        if ((string)$orderby === '') {
-            throw new coding_exception('sql_group_concat method requires $orderby parameter');
-        }
-        // See: http://docs.oracle.com/cd/E11882_01/server.112/e41084/functions089.htm#SQLRF30030
-        $separator = $this->get_manager()->generator->addslashes($separator);
-        return " LISTAGG({$expr}, '{$separator}') WITHIN GROUP (ORDER BY {$orderby}) ";
-    }
-
     public function sql_concat_join($separator="' '", $elements = array()) {
         if ($separator === "' '") {
             $separator = "'*OCISP*'"; // New mega hack.

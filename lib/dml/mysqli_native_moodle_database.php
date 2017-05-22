@@ -1577,22 +1577,46 @@ class mysqli_native_moodle_database extends moodle_database {
     }
 
     /**
-     * TOTARA - Returns database specific SQL code similar to GROUP_CONCAT() behaviour from MySQL.
+     * Returns database specific SQL code similar to GROUP_CONCAT() behaviour from MySQL.
      *
-     * NOTE: NULL values are skipped, use COALESCE if you want to include a replacement
+     * NOTE: NULL values are skipped, use COALESCE if you want to include a replacement.
+     *
+     * @since Totara 2.6.34, 2.7.17, 2.9.9
      *
      * @param string $expr      Expression to get individual values
      * @param string $separator The delimiter to separate the values, a simple string value only
-     * @param string $orderby   ORDER BY clause that determines order of rows with values - required
+     * @param string $orderby   ORDER BY clause that determines order of rows with values,
+     *                          optional since Totara 2.6.44, 2.7.27, 2.9.19, 9.7
      * @return string SQL fragment equivalent to GROUP_CONCAT()
      */
-    public function sql_group_concat($expr, $separator, $orderby) {
-        if ((string)$orderby === '') {
-            throw new coding_exception('sql_group_concat method requires $orderby parameter');
+    public function sql_group_concat($expr, $separator, $orderby = '') {
+        if ($orderby) {
+            $orderby = "ORDER BY $orderby";
+        } else {
+            $orderby = "";
         }
         // See: http://dev.mysql.com/doc/refman/5.7/en/group-by-functions.html#function_group-concat
         $separator = $this->get_manager()->generator->addslashes($separator);
-        return " GROUP_CONCAT({$expr} ORDER BY {$orderby} SEPARATOR '{$separator}') ";
+        return " GROUP_CONCAT({$expr} {$orderby} SEPARATOR '{$separator}') ";
+    }
+
+    /**
+     * Returns database specific SQL code similar to GROUP_CONCAT() behaviour from MySQL
+     * where duplicates are removed.
+     *
+     * NOTE: NULL values are skipped, use COALESCE if you want to include a replacement,
+     *       the ordering of results cannot be defined.
+     *
+     * @since Totara 2.6.44, 2.7.27, 2.9.19, 9.7
+     *
+     * @param string $expr      Expression to get individual values
+     * @param string $separator The delimiter to separate the values, a simple string value only
+     * @return string SQL fragment equivalent to GROUP_CONCAT()
+     */
+    public function sql_group_concat_unique($expr, $separator) {
+        // See: http://dev.mysql.com/doc/refman/5.7/en/group-by-functions.html#function_group-concat
+        $separator = $this->get_manager()->generator->addslashes($separator);
+        return " GROUP_CONCAT(DISTINCT {$expr} SEPARATOR '{$separator}') ";
     }
 
     /**

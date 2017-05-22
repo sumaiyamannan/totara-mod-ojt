@@ -261,6 +261,7 @@ $string['eventremindercreated'] = "Reminder was created";
 $string['eventreminderdeleted'] = "Reminder was deleted";
 $string['eventreminderupdated'] = "Reminder was updated";
 $string['eventundeleted'] = 'User undeleted';
+$string['eventuserconfirmed'] = 'User confirmed';
 $string['eventusersuspended'] = 'User suspended';
 $string['exportformat'] = 'Export format';
 $string['facetoface'] = 'Seminar';

@@ -1,5 +1,5 @@
-@mod @mod_facetoface @totara @javascript
-Feature: Seminar event custom fields
+@mod @mod_facetoface @totara @javascript @totara_customfield
+Feature: Seminar event custom field validation works as expected
   After seminar events have been created
   As an admin
   I need to be able to test custom fields validation
@@ -13,7 +13,7 @@ Feature: Seminar event custom fields
       | activity   | name             | course | idnumber |
       | facetoface | Seminar TL-13901 | C13901 | S13901   |
 
-  Scenario: Test uniques for text custom field
+  Scenario: Test unique validation on text custom fields for Seminar events
     Given I log in as "admin"
     And I navigate to "Custom fields" node in "Site administration > Seminars"
     And I set the field "datatype" to "Text input"

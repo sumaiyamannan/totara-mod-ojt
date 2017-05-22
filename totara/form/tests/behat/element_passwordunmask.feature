@@ -18,22 +18,22 @@ Feature: Totara form password unmask element tests
       | Required basic passwordunmask | Two |
     And I press "Save changes"
     Then I should see "The form has been submit"
-    And "passwordunmask_basic" row "Value" column of "form_results" table should contain "One"
-    And "passwordunmask_required" row "Value" column of "form_results" table should contain "Two"
-    And "passwordunmask_with_current_data" row "Value" column of "form_results" table should contain "Cheerios"
-    And "passwordunmask_frozen_empty" row "Value" column of "form_results" table should contain ""
-    And "passwordunmask_frozen_with_current_data" row "Value" column of "form_results" table should contain "Sausage rolls"
-    And "hiddenif_primary" row "Value" column of "form_results" table should contain ""
-    And "hiddenif_secondary_a" row "Value" column of "form_results" table should contain ""
-    And "hiddenif_secondary_b" row "Value" column of "form_results" table should contain ""
-    And "hiddenif_secondary_c" row "Value" column of "form_results" table should contain ""
-    And "hiddenif_secondary_d" row "Value" column of "form_results" table should contain ""
-    And "hiddenif_secondary_e" row "Value" column of "form_results" table should contain ""
-    And "hiddenif_secondary_f" row "Value" column of "form_results" table should contain ""
-    And "hiddenif_required_a" row "Value" column of "form_results" table should contain ""
-    And "hiddenif_required_b" row "Value" column of "form_results" table should contain ""
-    And "form_select" row "Value" column of "form_results" table should contain "totara_form\form\testform\element_passwordunmask"
-    And "submitbutton" row "Value" column of "form_results" table should contain "1"
+    And "passwordunmask_basic" row "Value" column of "form_results" table should contain "«One»"
+    And "passwordunmask_required" row "Value" column of "form_results" table should contain "«Two»"
+    And "passwordunmask_with_current_data" row "Value" column of "form_results" table should contain "«Cheerios»"
+    And "passwordunmask_frozen_empty" row "Value" column of "form_results" table should contain "«--null--»"
+    And "passwordunmask_frozen_with_current_data" row "Value" column of "form_results" table should contain "«Sausage rolls»"
+    And "hiddenif_primary" row "Value" column of "form_results" table should contain "«»"
+    And "hiddenif_secondary_a" row "Value" column of "form_results" table should contain "«»"
+    And "hiddenif_secondary_b" row "Value" column of "form_results" table should contain "«»"
+    And "hiddenif_secondary_c" row "Value" column of "form_results" table should contain "«»"
+    And "hiddenif_secondary_d" row "Value" column of "form_results" table should contain "«»"
+    And "hiddenif_secondary_e" row "Value" column of "form_results" table should contain "«»"
+    And "hiddenif_secondary_f" row "Value" column of "form_results" table should contain "«»"
+    And "hiddenif_required_a" row "Value" column of "form_results" table should contain "«»"
+    And "hiddenif_required_b" row "Value" column of "form_results" table should contain "«»"
+    And "form_select" row "Value" column of "form_results" table should contain "«totara_form\form\testform\element_passwordunmask»"
+    And "submitbutton" row "Value" column of "form_results" table should contain "«1»"
 
     When I press "Reset"
     Then I should see "Form: Basic passwordunmask element"
@@ -42,8 +42,8 @@ Feature: Totara form password unmask element tests
       | Required basic passwordunmask | Two |
     And I press "Save changes"
     Then I should see "The form has been submit"
-    And "passwordunmask_basic" row "Value" column of "form_results" table should contain "2016"
-    And "passwordunmask_required" row "Value" column of "form_results" table should contain "Two"
+    And "passwordunmask_basic" row "Value" column of "form_results" table should contain "«2016»"
+    And "passwordunmask_required" row "Value" column of "form_results" table should contain "«Two»"
 
     When I press "Reset"
     Then I should see "Form: Basic passwordunmask element"
@@ -52,8 +52,8 @@ Feature: Totara form password unmask element tests
       | Required basic passwordunmask | 2016.15.14 |
     And I press "Save changes"
     Then I should see "The form has been submit"
-    And "passwordunmask_basic" row "Value" column of "form_results" table should contain "2016.16"
-    And "passwordunmask_required" row "Value" column of "form_results" table should contain "2016.15.14"
+    And "passwordunmask_basic" row "Value" column of "form_results" table should contain "«2016.16»"
+    And "passwordunmask_required" row "Value" column of "form_results" table should contain "«2016.15.14»"
 
     When I press "Reset"
     Then I should see "Form: Basic passwordunmask element"
@@ -62,8 +62,8 @@ Feature: Totara form password unmask element tests
       | Required basic passwordunmask | False |
     And I press "Save changes"
     Then I should see "The form has been submit"
-    And "passwordunmask_basic" row "Value" column of "form_results" table should contain "-70"
-    And "passwordunmask_required" row "Value" column of "form_results" table should contain "False"
+    And "passwordunmask_basic" row "Value" column of "form_results" table should contain "«-70»"
+    And "passwordunmask_required" row "Value" column of "form_results" table should contain "«False»"
 
     When I press "Reset"
     Then I should see "Form: Basic passwordunmask element"
@@ -71,8 +71,8 @@ Feature: Totara form password unmask element tests
       | Required basic passwordunmask | Two |
     And I press "Save changes"
     Then I should see "The form has been submit"
-    And "passwordunmask_basic" row "Value" column of "form_results" table should contain ""
-    And "passwordunmask_required" row "Value" column of "form_results" table should contain "Two"
+    And "passwordunmask_basic" row "Value" column of "form_results" table should contain "«»"
+    And "passwordunmask_required" row "Value" column of "form_results" table should contain "«Two»"
 
     When I press "Reset"
     Then I should see "Form: Basic passwordunmask element"
@@ -81,8 +81,8 @@ Feature: Totara form password unmask element tests
       | Required basic passwordunmask | False |
     And I press "Save changes"
     Then I should see "The form has been submit"
-    And "passwordunmask_basic" row "Value" column of "form_results" table should contain "True"
-    And "passwordunmask_required" row "Value" column of "form_results" table should contain "False"
+    And "passwordunmask_basic" row "Value" column of "form_results" table should contain "«True»"
+    And "passwordunmask_required" row "Value" column of "form_results" table should contain "«False»"
 
     When I press "Reset"
     Then I should see "Form: Basic passwordunmask element"
@@ -91,8 +91,8 @@ Feature: Totara form password unmask element tests
       | Required basic passwordunmask | \n |
     And I press "Save changes"
     Then I should see "The form has been submit"
-    And "passwordunmask_basic" row "Value" column of "form_results" table should contain "\r"
-    And "passwordunmask_required" row "Value" column of "form_results" table should contain "\n"
+    And "passwordunmask_basic" row "Value" column of "form_results" table should contain "«\r»"
+    And "passwordunmask_required" row "Value" column of "form_results" table should contain "«\n»"
 
     When I press "Reset"
     Then I should see "Form: Basic passwordunmask element"
@@ -101,8 +101,8 @@ Feature: Totara form password unmask element tests
       | Required basic passwordunmask | <br /> |
     And I press "Save changes"
     Then I should see "The form has been submit"
-    And "passwordunmask_basic" row "Value" column of "form_results" table should contain "<p></p>"
-    And "passwordunmask_required" row "Value" column of "form_results" table should contain "<br />"
+    And "passwordunmask_basic" row "Value" column of "form_results" table should contain "«<p></p>»"
+    And "passwordunmask_required" row "Value" column of "form_results" table should contain "«<br />»"
 
     When I press "Reset"
     Then I should see "Form: Basic passwordunmask element"
@@ -111,8 +111,8 @@ Feature: Totara form password unmask element tests
       | Required basic passwordunmask | <p></p> |
     And I press "Save changes"
     Then I should see "The form has been submit"
-    And "passwordunmask_basic" row "Value" column of "form_results" table should contain "<br>"
-    And "passwordunmask_required" row "Value" column of "form_results" table should contain "<p></p>"
+    And "passwordunmask_basic" row "Value" column of "form_results" table should contain "«<br>»"
+    And "passwordunmask_required" row "Value" column of "form_results" table should contain "«<p></p>»"
 
   @javascript
   Scenario: Test required passwordunmask elements in Totara forms with JavaScript enabled
@@ -124,8 +124,8 @@ Feature: Totara form password unmask element tests
       | Required basic passwordunmask | Two |
     And I press "Save changes"
     Then I should see "The form has been submit"
-    And "passwordunmask_basic" row "Value" column of "form_results" table should contain "One"
-    And "passwordunmask_required" row "Value" column of "form_results" table should contain "Two"
+    And "passwordunmask_basic" row "Value" column of "form_results" table should contain "«One»"
+    And "passwordunmask_required" row "Value" column of "form_results" table should contain "«Two»"
 
     When I press "Reset"
     Then I should see "Form: Basic passwordunmask element"
@@ -134,8 +134,8 @@ Feature: Totara form password unmask element tests
       | Required basic passwordunmask | Two |
     And I press "Save changes"
     Then I should see "The form has been submit"
-    And "passwordunmask_basic" row "Value" column of "form_results" table should contain ""
-    And "passwordunmask_required" row "Value" column of "form_results" table should contain "Two"
+    And "passwordunmask_basic" row "Value" column of "form_results" table should contain "«»"
+    And "passwordunmask_required" row "Value" column of "form_results" table should contain "«Two»"
 
     When I press "Reset"
     Then I should see "Form: Basic passwordunmask element"
@@ -153,8 +153,8 @@ Feature: Totara form password unmask element tests
       | Required basic passwordunmask | 0 |
     And I press "Save changes"
     Then I should see "The form has been submit"
-    And "passwordunmask_basic" row "Value" column of "form_results" table should contain "1"
-    And "passwordunmask_required" row "Value" column of "form_results" table should contain "0"
+    And "passwordunmask_basic" row "Value" column of "form_results" table should contain "«1»"
+    And "passwordunmask_required" row "Value" column of "form_results" table should contain "«0»"
 
   Scenario: Test required passwordunmask elements in Totara forms with JavaScript disabled
     When I select "Basic passwordunmask element [totara_form\form\testform\element_passwordunmask]" from the "Test form" singleselect
@@ -165,8 +165,8 @@ Feature: Totara form password unmask element tests
       | Required basic passwordunmask | Two |
     And I press "Save changes"
     Then I should see "The form has been submit"
-    And "passwordunmask_basic" row "Value" column of "form_results" table should contain "One"
-    And "passwordunmask_required" row "Value" column of "form_results" table should contain "Two"
+    And "passwordunmask_basic" row "Value" column of "form_results" table should contain "«One»"
+    And "passwordunmask_required" row "Value" column of "form_results" table should contain "«Two»"
 
     When I press "Reset"
     Then I should see "Form: Basic passwordunmask element"
@@ -175,8 +175,8 @@ Feature: Totara form password unmask element tests
       | Required basic passwordunmask | Two |
     And I press "Save changes"
     Then I should see "The form has been submit"
-    And "passwordunmask_basic" row "Value" column of "form_results" table should contain ""
-    And "passwordunmask_required" row "Value" column of "form_results" table should contain "Two"
+    And "passwordunmask_basic" row "Value" column of "form_results" table should contain "«»"
+    And "passwordunmask_required" row "Value" column of "form_results" table should contain "«Two»"
 
     When I press "Reset"
     Then I should see "Form: Basic passwordunmask element"
@@ -193,8 +193,8 @@ Feature: Totara form password unmask element tests
       | Required basic passwordunmask | Two |
     And I press "Save changes"
     Then I should see "The form has been submit"
-    And "passwordunmask_basic" row "Value" column of "form_results" table should contain "One"
-    And "passwordunmask_required" row "Value" column of "form_results" table should contain "Two"
+    And "passwordunmask_basic" row "Value" column of "form_results" table should contain "«One»"
+    And "passwordunmask_required" row "Value" column of "form_results" table should contain "«Two»"
 
   @javascript
   Scenario: Test hidden if on passwordunmask elements in Totara forms
@@ -250,19 +250,19 @@ Feature: Totara form password unmask element tests
       | Visible when required passwordunmask is not empty | Seven |
     And I press "Save changes"
     Then I should see "The form has been submit"
-    And "passwordunmask_basic" row "Value" column of "form_results" table should contain "One"
-    And "passwordunmask_required" row "Value" column of "form_results" table should contain "Two"
-    And "passwordunmask_with_current_data" row "Value" column of "form_results" table should contain "Three"
-    And "passwordunmask_frozen_empty" row "Value" column of "form_results" table should contain ""
-    And "passwordunmask_frozen_with_current_data" row "Value" column of "form_results" table should contain "Sausage rolls"
-    And "hiddenif_primary" row "Value" column of "form_results" table should contain "Behat"
-    And "hiddenif_secondary_a" row "Value" column of "form_results" table should contain "Four"
-    And "hiddenif_secondary_b" row "Value" column of "form_results" table should contain "Alpha"
-    And "hiddenif_secondary_c" row "Value" column of "form_results" table should contain "Beta"
-    And "hiddenif_secondary_d" row "Value" column of "form_results" table should contain "Five"
-    And "hiddenif_secondary_e" row "Value" column of "form_results" table should contain "Gamma"
-    And "hiddenif_secondary_f" row "Value" column of "form_results" table should contain "Six"
-    And "hiddenif_required_a" row "Value" column of "form_results" table should contain "Seven"
-    And "hiddenif_required_b" row "Value" column of "form_results" table should contain "Delta"
-    And "form_select" row "Value" column of "form_results" table should contain "totara_form\form\testform\element_passwordunmask"
-    And "submitbutton" row "Value" column of "form_results" table should contain "1"
+    And "passwordunmask_basic" row "Value" column of "form_results" table should contain "«One»"
+    And "passwordunmask_required" row "Value" column of "form_results" table should contain "«Two»"
+    And "passwordunmask_with_current_data" row "Value" column of "form_results" table should contain "«Three»"
+    And "passwordunmask_frozen_empty" row "Value" column of "form_results" table should contain "«--null--»"
+    And "passwordunmask_frozen_with_current_data" row "Value" column of "form_results" table should contain "«Sausage rolls»"
+    And "hiddenif_primary" row "Value" column of "form_results" table should contain "«Behat»"
+    And "hiddenif_secondary_a" row "Value" column of "form_results" table should contain "«Four»"
+    And "hiddenif_secondary_b" row "Value" column of "form_results" table should contain "«Alpha»"
+    And "hiddenif_secondary_c" row "Value" column of "form_results" table should contain "«Beta»"
+    And "hiddenif_secondary_d" row "Value" column of "form_results" table should contain "«Five»"
+    And "hiddenif_secondary_e" row "Value" column of "form_results" table should contain "«Gamma»"
+    And "hiddenif_secondary_f" row "Value" column of "form_results" table should contain "«Six»"
+    And "hiddenif_required_a" row "Value" column of "form_results" table should contain "«Seven»"
+    And "hiddenif_required_b" row "Value" column of "form_results" table should contain "«Delta»"
+    And "form_select" row "Value" column of "form_results" table should contain "«totara_form\form\testform\element_passwordunmask»"
+    And "submitbutton" row "Value" column of "form_results" table should contain "«1»"

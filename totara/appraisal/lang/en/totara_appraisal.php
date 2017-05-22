@@ -318,6 +318,7 @@ $string['noappraisalsinactive'] = 'No appraisals are inactive.';
 $string['noassignments'] = 'No current user assignments';
 $string['nomessages'] = 'No messages have been added.';
 $string['none'] = '-';
+$string['noobjectives'] = 'No Objectives are available';
 $string['nopagestoview'] = 'There are no pages available at this time.';
 $string['nostages'] = 'No stages have been created.';
 $string['ontarget'] = 'On target';

@@ -62,4 +62,9 @@ $observers = array(
         'callback' => 'totaracohort_event_handler::members_updated',
         'includefile' => '/totara/cohort/lib.php',
     ),
+    array(
+        'eventname'   => '\core\event\user_confirmed',
+        'callback' => 'totara_cohort_observer::user_confirmed',
+        'priority'  => 2500,
+    ),
 );

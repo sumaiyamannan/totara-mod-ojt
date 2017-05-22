@@ -4213,22 +4213,7 @@ function facetoface_get_customfielddata($sessionid) {
  * @return array Array with the customfield and its associated value
  */
 function facetoface_get_customfield_data($item, $tableprefix, $prefix, $options = array()) {
-    global $CFG, $DB;
-
-    $output = array();
-    $fields = $DB->get_records($tableprefix.'_info_field', array(), 'sortorder ASC');
-    $options = array('prefix' => $prefix, 'extended' => true);
-    foreach ($fields as $field) {
-        require_once($CFG->dirroot.'/totara/customfield/field/'.$field->datatype.'/field.class.php');
-        $newfield = 'customfield_'.$field->datatype;
-        $formfield = new $newfield($field->id, $item, $prefix, $tableprefix);
-        if (!$formfield->is_hidden() and !$formfield->is_empty()) {
-            $options['itemid'] = $field->id;
-            $output[s($formfield->field->fullname)] = $formfield::display_item_data($formfield->data, $options);
-        }
-    }
-
-    return $output;
+    return customfield_get_data($item, $tableprefix, $prefix, true, $options);
 }
 
 function facetoface_update_trainers($facetoface, $session, $form) {

@@ -59,7 +59,7 @@ if (!($canviewreport and $reporthasfilter)) {
 
 // Load dialog content generator
 $dialog = new totara_dialog_content_users();
-
+$dialog->urlparams = array('reportid' => $reportid);
 // Toggle treeview only display
 $dialog->show_treeview_only = $treeonly;
 

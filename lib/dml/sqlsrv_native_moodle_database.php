@@ -1356,23 +1356,50 @@ class sqlsrv_native_moodle_database extends moodle_database {
     }
 
     /**
-     * TOTARA - Returns database specific SQL code similar to GROUP_CONCAT() behaviour from MySQL.
+     * Returns database specific SQL code similar to GROUP_CONCAT() behaviour from MySQL.
      *
-     * NOTE: NULL values are skipped, use COALESCE if you want to include a replacement
+     * NOTE: NULL values are skipped, use COALESCE if you want to include a replacement.
+     *
+     * @since Totara 2.6.34, 2.7.17, 2.9.9
      *
      * @param string $expr      Expression to get individual values
      * @param string $separator The delimiter to separate the values, a simple string value only
-     * @param string $orderby   ORDER BY clause that determines order of rows with values - required
+     * @param string $orderby   ORDER BY clause that determines order of rows with values,
+     *                          optional since Totara 2.6.44, 2.7.27, 2.9.19, 9.7
      * @return string SQL fragment equivalent to GROUP_CONCAT()
      */
-    public function sql_group_concat($expr, $separator, $orderby) {
-        if ((string)$orderby === '') {
-            throw new coding_exception('sql_group_concat method requires $orderby parameter');
-        }
+    public function sql_group_concat($expr, $separator, $orderby = '') {
         $separator = $this->get_manager()->generator->addslashes($separator);
+        // Function string_agg() is supported from SQL Server 2017.
+        $serverinfo = $this->get_server_info();
+        if (version_compare($serverinfo['version'], '14', '>=')) {
+            if ($orderby) {
+                $orderby = "WITHIN GROUP (ORDER BY {$orderby})";
+            } else {
+                $orderby = "";
+            }
+            return " string_agg(CAST({$expr} AS NVARCHAR(MAX)), '{$separator}') {$orderby} ";
+        } else {
+            return " dbo.GROUP_CONCAT_D($expr, '{$separator}') ";
+        }
+    }
 
-        // TODO TL-9311 - change the user-defined mssql function to support $orderby.
-        return " dbo.GROUP_CONCAT_D($expr, '{$separator}') ";
+    /**
+     * Returns database specific SQL code similar to GROUP_CONCAT() behaviour from MySQL
+     * where duplicates are removed.
+     *
+     * NOTE: NULL values are skipped, use COALESCE if you want to include a replacement,
+     *       the ordering of results cannot be defined.
+     *
+     * @since Totara 2.6.44, 2.7.27, 2.9.19, 9.7
+     *
+     * @param string $expr      Expression to get individual values
+     * @param string $separator The delimiter to separate the values, a simple string value only
+     * @return string SQL fragment equivalent to GROUP_CONCAT()
+     */
+    public function sql_group_concat_unique($expr, $separator) {
+        $separator = $this->get_manager()->generator->addslashes($separator);
+        return " dbo.GROUP_CONCAT_D(DISTINCT $expr, '{$separator}') ";
     }
 
     public function sql_concat_join($separator = "' '", $elements = array ()) {

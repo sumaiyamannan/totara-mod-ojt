@@ -4,7 +4,7 @@ Feature: Seminar timezones in reports
   As an administrator
   I need to be able to disable seminar timezones in report
 
-  @javascript
+  @javascript @totara_customfield
   Scenario: Test timezones in seminar sessions report
     Given I am on a totara site
     And the following "users" exist:

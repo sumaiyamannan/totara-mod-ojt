@@ -18,22 +18,22 @@ Feature: Totara form url element tests
       | Required basic url | http://example.totaralms.com/case-studies |
     And I press "Save changes"
     Then I should see "The form has been submit"
-    And "url_basic" row "Value" column of "form_results" table should contain "https://www.totaralms.com/about-us/contact-us/form?type=Request%20a%20Demo"
-    And "url_required" row "Value" column of "form_results" table should contain "totaralms.com/case-studies"
-    And "url_with_current_data" row "Value" column of "form_results" table should contain "http://www.totaralms.com"
-    And "url_frozen_empty" row "Value" column of "form_results" table should contain ""
-    And "url_frozen_with_current_data" row "Value" column of "form_results" table should contain "https://www.totaralms.com"
-    And "hiddenif_primary" row "Value" column of "form_results" table should contain ""
-    And "hiddenif_secondary_a" row "Value" column of "form_results" table should contain ""
-    And "hiddenif_secondary_b" row "Value" column of "form_results" table should contain ""
-    And "hiddenif_secondary_c" row "Value" column of "form_results" table should contain ""
-    And "hiddenif_secondary_d" row "Value" column of "form_results" table should contain ""
-    And "hiddenif_secondary_e" row "Value" column of "form_results" table should contain ""
-    And "hiddenif_secondary_f" row "Value" column of "form_results" table should contain ""
-    And "hiddenif_required_a" row "Value" column of "form_results" table should contain ""
-    And "hiddenif_required_b" row "Value" column of "form_results" table should contain ""
-    And "form_select" row "Value" column of "form_results" table should contain "totara_form\form\testform\element_url"
-    And "submitbutton" row "Value" column of "form_results" table should contain "1"
+    And "url_basic" row "Value" column of "form_results" table should contain "«https://www.totaralms.com/about-us/contact-us/form?type=Request%20a%20Demo»"
+    And "url_required" row "Value" column of "form_results" table should contain "«http://example.totaralms.com/case-studies»"
+    And "url_with_current_data" row "Value" column of "form_results" table should contain "«http://www.totaralms.com»"
+    And "url_frozen_empty" row "Value" column of "form_results" table should contain "«--null--»"
+    And "url_frozen_with_current_data" row "Value" column of "form_results" table should contain "«https://www.totaralms.com»"
+    And "hiddenif_primary" row "Value" column of "form_results" table should contain "«»"
+    And "hiddenif_secondary_a" row "Value" column of "form_results" table should contain "«»"
+    And "hiddenif_secondary_b" row "Value" column of "form_results" table should contain "«»"
+    And "hiddenif_secondary_c" row "Value" column of "form_results" table should contain "«»"
+    And "hiddenif_secondary_d" row "Value" column of "form_results" table should contain "«»"
+    And "hiddenif_secondary_e" row "Value" column of "form_results" table should contain "«»"
+    And "hiddenif_secondary_f" row "Value" column of "form_results" table should contain "«»"
+    And "hiddenif_required_a" row "Value" column of "form_results" table should contain "«»"
+    And "hiddenif_required_b" row "Value" column of "form_results" table should contain "«»"
+    And "form_select" row "Value" column of "form_results" table should contain "«totara_form\form\testform\element_url»"
+    And "submitbutton" row "Value" column of "form_results" table should contain "«1»"
 
     When I press "Reset"
     Then I should see "Form: Basic url element"
@@ -42,8 +42,8 @@ Feature: Totara form url element tests
       | Required basic url | http://example.totaralms.com/case-studies |
     And I press "Save changes"
     Then I should see "The form has been submit"
-    And "url_basic" row "Value" column of "form_results" table should contain "https://www.totaralms.com/about-us/contact-us/form?type=Request%20a%20Demo"
-    And "url_required" row "Value" column of "form_results" table should contain "totaralms.com/case-studies"
+    And "url_basic" row "Value" column of "form_results" table should contain "«https://www.totaralms.com/about-us/contact-us/form?type=Request%20a%20Demo»"
+    And "url_required" row "Value" column of "form_results" table should contain "«http://example.totaralms.com/case-studies»"
 
     When I press "Reset"
     Then I should see "Form: Basic url element"
@@ -52,8 +52,8 @@ Feature: Totara form url element tests
       | Required basic url | ftp://www.totaralms.com/blog |
     And I press "Save changes"
     Then I should see "The form has been submit"
-    And "url_basic" row "Value" column of "form_results" table should contain "https://www.totaralms.com/about-us/contact-us/form?type=Request%20a%20Demo"
-    And "url_required" row "Value" column of "form_results" table should contain "ftp://www.totaralms.com/blog"
+    And "url_basic" row "Value" column of "form_results" table should contain "«https://www.totaralms.com/about-us/contact-us/form?type=Request%20a%20Demo»"
+    And "url_required" row "Value" column of "form_results" table should contain "«ftp://www.totaralms.com/blog»"
 
     When I press "Reset"
     Then I should see "Form: Basic url element"
@@ -62,8 +62,8 @@ Feature: Totara form url element tests
       | Required basic url | http://test.totaralms.com/?one=two |
     And I press "Save changes"
     Then I should see "The form has been submit"
-    And "url_basic" row "Value" column of "form_results" table should contain "#one"
-    And "url_required" row "Value" column of "form_results" table should contain "?one=two"
+    And "url_basic" row "Value" column of "form_results" table should contain "«http://test.totaralms.com/#one»"
+    And "url_required" row "Value" column of "form_results" table should contain "«http://test.totaralms.com/?one=two»"
 
     When I press "Reset"
     Then I should see "Form: Basic url element"
@@ -71,8 +71,8 @@ Feature: Totara form url element tests
       | Required basic url | http://example.totaralms.com/case-studies |
     And I press "Save changes"
     Then I should see "The form has been submit"
-    And "url_basic" row "Value" column of "form_results" table should contain ""
-    And "url_required" row "Value" column of "form_results" table should contain "totaralms.com/case-studies"
+    And "url_basic" row "Value" column of "form_results" table should contain "«»"
+    And "url_required" row "Value" column of "form_results" table should contain "«http://example.totaralms.com/case-studies»"
 
   @javascript
   Scenario: Test invalid values in url elements in Totara forms with JavaScript enabled
@@ -197,8 +197,8 @@ Feature: Totara form url element tests
       | Required basic url | http://example.totaralms.com/case-studies |
     And I press "Save changes"
     Then I should see "The form has been submit"
-    And "url_basic" row "Value" column of "form_results" table should contain "https://www.totaralms.com/about-us/contact-us/form?type=Request%20a%20Demo"
-    And "url_required" row "Value" column of "form_results" table should contain "totaralms.com/case-studies"
+    And "url_basic" row "Value" column of "form_results" table should contain "«https://www.totaralms.com/about-us/contact-us/form?type=Request%20a%20Demo»"
+    And "url_required" row "Value" column of "form_results" table should contain "«http://example.totaralms.com/case-studies»"
 
     When I press "Reset"
     Then I should see "Form: Basic url element"
@@ -207,8 +207,8 @@ Feature: Totara form url element tests
       | Required basic url | http://example.totaralms.com/case-studies |
     And I press "Save changes"
     Then I should see "The form has been submit"
-    And "url_basic" row "Value" column of "form_results" table should contain ""
-    And "url_required" row "Value" column of "form_results" table should contain "totaralms.com/case-studies"
+    And "url_basic" row "Value" column of "form_results" table should contain "«»"
+    And "url_required" row "Value" column of "form_results" table should contain "«http://example.totaralms.com/case-studies»"
 
     When I press "Reset"
     Then I should see "Form: Basic url element"
@@ -226,8 +226,8 @@ Feature: Totara form url element tests
       | Required basic url | http://test.totaralms.com/#valid |
     And I press "Save changes"
     Then I should see "The form has been submit"
-    And "url_basic" row "Value" column of "form_results" table should contain ""
-    And "url_required" row "Value" column of "form_results" table should contain "#valid"
+    And "url_basic" row "Value" column of "form_results" table should contain "«http://www.totaralms.com#alt»"
+    And "url_required" row "Value" column of "form_results" table should contain "«http://test.totaralms.com/#valid»"
 
   Scenario: Test required url elements in Totara forms with JavaScript disabled
     When I select "Basic url element [totara_form\form\testform\element_url]" from the "Test form" singleselect
@@ -238,8 +238,8 @@ Feature: Totara form url element tests
       | Required basic url | http://example.totaralms.com/case-studies |
     And I press "Save changes"
     Then I should see "The form has been submit"
-    And "url_basic" row "Value" column of "form_results" table should contain "https://www.totaralms.com/about-us/contact-us/form?type=Request%20a%20Demo"
-    And "url_required" row "Value" column of "form_results" table should contain "totaralms.com/case-studies"
+    And "url_basic" row "Value" column of "form_results" table should contain "«https://www.totaralms.com/about-us/contact-us/form?type=Request%20a%20Demo»"
+    And "url_required" row "Value" column of "form_results" table should contain "«http://example.totaralms.com/case-studies»"
 
     When I press "Reset"
     Then I should see "Form: Basic url element"
@@ -248,8 +248,8 @@ Feature: Totara form url element tests
       | Required basic url | http://example.totaralms.com/case-studies |
     And I press "Save changes"
     Then I should see "The form has been submit"
-    And "url_basic" row "Value" column of "form_results" table should contain ""
-    And "url_required" row "Value" column of "form_results" table should contain "totaralms.com/case-studies"
+    And "url_basic" row "Value" column of "form_results" table should contain "«»"
+    And "url_required" row "Value" column of "form_results" table should contain "«http://example.totaralms.com/case-studies»"
 
     When I press "Reset"
     Then I should see "Form: Basic url element"
@@ -266,8 +266,8 @@ Feature: Totara form url element tests
       | Required basic url | http://example.totaralms.com/case-studies |
     And I press "Save changes"
     Then I should see "The form has been submit"
-    And "url_basic" row "Value" column of "form_results" table should contain "https://www.totaralms.com/about-us/contact-us/form?type=Request%20a%20Demo"
-    And "url_required" row "Value" column of "form_results" table should contain "totaralms.com/case-studies"
+    And "url_basic" row "Value" column of "form_results" table should contain "«https://www.totaralms.com/about-us/contact-us/form?type=Request%20a%20Demo»"
+    And "url_required" row "Value" column of "form_results" table should contain "«http://example.totaralms.com/case-studies»"
 
   @javascript
   Scenario: Test hidden if on url elements in Totara forms
@@ -323,19 +323,19 @@ Feature: Totara form url element tests
       | Visible when required url is not empty | http://test.totaralms.com/?test=blah |
     And I press "Save changes"
     Then I should see "The form has been submit"
-    And "url_basic" row "Value" column of "form_results" table should contain "https://www.totaralms.com/about-us/contact-us/form?type=Request%20a%20Demo"
-    And "url_required" row "Value" column of "form_results" table should contain "http://example.totaralms.com/case-studies"
-    And "url_with_current_data" row "Value" column of "form_results" table should contain "http://totaralms.com"
-    And "url_frozen_empty" row "Value" column of "form_results" table should contain ""
-    And "url_frozen_with_current_data" row "Value" column of "form_results" table should contain "https://www.totaralms.com"
-    And "hiddenif_primary" row "Value" column of "form_results" table should contain "https://totaralms.com"
-    And "hiddenif_secondary_a" row "Value" column of "form_results" table should contain "totaralms.com"
-    And "hiddenif_secondary_b" row "Value" column of "form_results" table should contain "totaralms.com"
-    And "hiddenif_secondary_c" row "Value" column of "form_results" table should contain "www.totaralms.com"
-    And "hiddenif_secondary_d" row "Value" column of "form_results" table should contain "https://www.totaralms.com/"
-    And "hiddenif_secondary_e" row "Value" column of "form_results" table should contain "https://www.totaralms.com/#test"
-    And "hiddenif_secondary_f" row "Value" column of "form_results" table should contain "http://test.totaralms.com/#test"
-    And "hiddenif_required_a" row "Value" column of "form_results" table should contain "http://test.totaralms.com/?test=blah"
-    And "hiddenif_required_b" row "Value" column of "form_results" table should contain "https://www.totaralms.com/#123456789"
-    And "form_select" row "Value" column of "form_results" table should contain "totara_form\form\testform\element_url"
-    And "submitbutton" row "Value" column of "form_results" table should contain "1"
+    And "url_basic" row "Value" column of "form_results" table should contain "«https://www.totaralms.com/about-us/contact-us/form?type=Request%20a%20Demo»"
+    And "url_required" row "Value" column of "form_results" table should contain "«http://example.totaralms.com/case-studies»"
+    And "url_with_current_data" row "Value" column of "form_results" table should contain "«http://totaralms.com»"
+    And "url_frozen_empty" row "Value" column of "form_results" table should contain "«--null--»"
+    And "url_frozen_with_current_data" row "Value" column of "form_results" table should contain "«https://www.totaralms.com»"
+    And "hiddenif_primary" row "Value" column of "form_results" table should contain "«https://totaralms.com»"
+    And "hiddenif_secondary_a" row "Value" column of "form_results" table should contain "«http://totaralms.com»"
+    And "hiddenif_secondary_b" row "Value" column of "form_results" table should contain "«http://example.totaralms.com»"
+    And "hiddenif_secondary_c" row "Value" column of "form_results" table should contain "«https://www.totaralms.com»"
+    And "hiddenif_secondary_d" row "Value" column of "form_results" table should contain "«https://www.totaralms.com/»"
+    And "hiddenif_secondary_e" row "Value" column of "form_results" table should contain "«https://www.totaralms.com/#test»"
+    And "hiddenif_secondary_f" row "Value" column of "form_results" table should contain "«http://test.totaralms.com/#test»"
+    And "hiddenif_required_a" row "Value" column of "form_results" table should contain "«http://test.totaralms.com/?test=blah»"
+    And "hiddenif_required_b" row "Value" column of "form_results" table should contain "«https://www.totaralms.com/#123456789»"
+    And "form_select" row "Value" column of "form_results" table should contain "«totara_form\form\testform\element_url»"
+    And "submitbutton" row "Value" column of "form_results" table should contain "«1»"

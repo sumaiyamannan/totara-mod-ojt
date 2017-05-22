@@ -1,4 +1,4 @@
-@mod @mod_facetoface @totara @javascript
+@mod @mod_facetoface @totara @javascript @totara_customfield
 Feature: Seminar room multiselect custom field.
   When defining seminar rooms
   As an admin

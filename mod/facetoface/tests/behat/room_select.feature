@@ -1,4 +1,4 @@
-@mod @mod_facetoface @totara
+@mod @mod_facetoface @totara @totara_customfield
 Feature: Display the rooms in select room dialog when room is booked and hidden
   In order to test seminar rooms
   As a site manager

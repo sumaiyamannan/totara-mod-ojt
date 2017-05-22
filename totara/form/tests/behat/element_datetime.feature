@@ -18,20 +18,20 @@ Feature: Totara form datetime element tests
       | Required basic datetime | 2018-09-09T09:09:09.090 |
     And I press "Save changes"
     Then I should see "The form has been submit"
-    And "datetime_basic" row "Value" column of "form_results" table should contain "2015/07/26 12:34"
-    And "datetime_required" row "Value" column of "form_results" table should contain "2018/09/09 09:09"
-    And "datetime_with_current_data" row "Value" column of "form_results" table should contain "2016/03/08 06:05"
-    And "datetime_frozen_empty" row "Value" column of "form_results" table should contain "--null--"
-    And "datetime_frozen_with_current_data" row "Value" column of "form_results" table should contain "2016/06/23 19:27"
-    And "hiddenif_primary" row "Value" column of "form_results" table should contain "--null--"
-    And "hiddenif_secondary_a" row "Value" column of "form_results" table should contain "--null--"
-    And "hiddenif_secondary_b" row "Value" column of "form_results" table should contain "--null--"
-    And "hiddenif_secondary_e" row "Value" column of "form_results" table should contain "--null--"
-    And "hiddenif_secondary_f" row "Value" column of "form_results" table should contain "--null--"
-    And "hiddenif_required_a" row "Value" column of "form_results" table should contain "--null--"
-    And "hiddenif_required_b" row "Value" column of "form_results" table should contain "--null--"
-    And "form_select" row "Value" column of "form_results" table should contain "totara_form\form\testform\element_datetime"
-    And "submitbutton" row "Value" column of "form_results" table should contain "1"
+    And "datetime_basic" row "Value" column of "form_results" table should contain "«1437885240 (2015/07/26 12:34 Australia/Perth)»"
+    And "datetime_required" row "Value" column of "form_results" table should contain "«1536455340 (2018/09/09 09:09 Australia/Perth)»"
+    And "datetime_with_current_data" row "Value" column of "form_results" table should contain "«1457388300 (2016/03/08 06:05 Australia/Perth)»"
+    And "datetime_frozen_empty" row "Value" column of "form_results" table should contain "«--null--»"
+    And "datetime_frozen_with_current_data" row "Value" column of "form_results" table should contain "«1466681220 (2016/06/23 19:27 Australia/Perth)»"
+    And "hiddenif_primary" row "Value" column of "form_results" table should contain "«--null--»"
+    And "hiddenif_secondary_a" row "Value" column of "form_results" table should contain "«--null--»"
+    And "hiddenif_secondary_b" row "Value" column of "form_results" table should contain "«--null--»"
+    And "hiddenif_secondary_e" row "Value" column of "form_results" table should contain "«--null--»"
+    And "hiddenif_secondary_f" row "Value" column of "form_results" table should contain "«--null--»"
+    And "hiddenif_required_a" row "Value" column of "form_results" table should contain "«--null--»"
+    And "hiddenif_required_b" row "Value" column of "form_results" table should contain "«--null--»"
+    And "form_select" row "Value" column of "form_results" table should contain "«totara_form\form\testform\element_datetime»"
+    And "submitbutton" row "Value" column of "form_results" table should contain "«1»"
 
   @javascript
   Scenario: Test required datetime elements in Totara forms with JavaScript enabled
@@ -43,8 +43,9 @@ Feature: Totara form datetime element tests
       | Required basic datetime | 2018/09/09 09:09 |
     And I press "Save changes"
     Then I should see "The form has been submit"
-    And "datetime_basic" row "Value" column of "form_results" table should contain "2015/07/26 12:34"
-    And "datetime_required" row "Value" column of "form_results" table should contain "2018/09/09 09:09"
+    And "datetime_basic" row "Value" column of "form_results" table should contain "«1437885240 (2015/07/26 12:34 Australia/Perth)»"
+    And "datetime_required" row "Value" column of "form_results" table should contain "«1536455340 (2018/09/09 09:09 Australia/Perth)»"
+    And "datetime_with_current_data" row "Value" column of "form_results" table should contain "«1457388300 (2016/03/08 06:05 Australia/Perth)»"
 
     When I press "Reset"
     Then I should see "Form: Basic datetime element"
@@ -53,8 +54,8 @@ Feature: Totara form datetime element tests
       | Required basic datetime | 2018/09/09 09:09 |
     And I press "Save changes"
     Then I should see "The form has been submit"
-    And "datetime_basic" row "Value" column of "form_results" table should contain "--null--"
-    And "datetime_required" row "Value" column of "form_results" table should contain "2018/09/09 09:09"
+    And "datetime_basic" row "Value" column of "form_results" table should contain "«--null--»"
+    And "datetime_required" row "Value" column of "form_results" table should contain "«1536455340 (2018/09/09 09:09 Australia/Perth)»"
 
     When I press "Reset"
     Then I should see "Form: Basic datetime element"
@@ -72,8 +73,8 @@ Feature: Totara form datetime element tests
       | Required basic datetime | 2015/07/26 12:34 |
     And I press "Save changes"
     Then I should see "The form has been submit"
-    And "datetime_basic" row "Value" column of "form_results" table should contain "2018/09/09 09:09"
-    And "datetime_required" row "Value" column of "form_results" table should contain "2015/07/26 12:34"
+    And "datetime_basic" row "Value" column of "form_results" table should contain "«1536455340 (2018/09/09 09:09 Australia/Perth)»"
+    And "datetime_required" row "Value" column of "form_results" table should contain "«1437885240 (2015/07/26 12:34 Australia/Perth)»"
 
   Scenario: Test required datetime elements in Totara forms with JavaScript disabled
     When I select "Basic datetime element [totara_form\form\testform\element_datetime]" from the "Test form" singleselect
@@ -84,8 +85,8 @@ Feature: Totara form datetime element tests
       | Required basic datetime | 2018/09/09 09:09 |
     And I press "Save changes"
     Then I should see "The form has been submit"
-    And "datetime_basic" row "Value" column of "form_results" table should contain "2015/07/26 12:34"
-    And "datetime_required" row "Value" column of "form_results" table should contain "2018/09/09 09:09"
+    And "datetime_basic" row "Value" column of "form_results" table should contain "«1437885240 (2015/07/26 12:34 Australia/Perth)»"
+    And "datetime_required" row "Value" column of "form_results" table should contain "«1536455340 (2018/09/09 09:09 Australia/Perth)»"
 
     When I press "Reset"
     Then I should see "Form: Basic datetime element"
@@ -94,8 +95,8 @@ Feature: Totara form datetime element tests
       | Required basic datetime | 2018/09/09 09:09 |
     And I press "Save changes"
     Then I should see "The form has been submit"
-    And "datetime_basic" row "Value" column of "form_results" table should contain "--null--"
-    And "datetime_required" row "Value" column of "form_results" table should contain "2018/09/09 09:09"
+    And "datetime_basic" row "Value" column of "form_results" table should contain "«--null--»"
+    And "datetime_required" row "Value" column of "form_results" table should contain "«1536455340 (2018/09/09 09:09 Australia/Perth)»"
 
     When I press "Reset"
     Then I should see "Form: Basic datetime element"
@@ -112,8 +113,8 @@ Feature: Totara form datetime element tests
       | Required basic datetime | 2018/09/09 09:09 |
     And I press "Save changes"
     Then I should see "The form has been submit"
-    And "datetime_basic" row "Value" column of "form_results" table should contain "2015/07/26 12:34"
-    And "datetime_required" row "Value" column of "form_results" table should contain "2018/09/09 09:09"
+    And "datetime_basic" row "Value" column of "form_results" table should contain "«1437885240 (2015/07/26 12:34 Australia/Perth)»"
+    And "datetime_required" row "Value" column of "form_results" table should contain "«1536455340 (2018/09/09 09:09 Australia/Perth)»"
 
   @javascript
   Scenario: Test hidden if on datetime elements in Totara forms
@@ -161,17 +162,17 @@ Feature: Totara form datetime element tests
       | Visible when 'Required basic datetime' is not empty | 2000 02 28 01:00 |
     And I press "Save changes"
     Then I should see "The form has been submit"
-    And "datetime_basic" row "Value" column of "form_results" table should contain "2015/07/26 12:34"
-    And "datetime_required" row "Value" column of "form_results" table should contain "2020/08/06 15:45"
-    And "datetime_with_current_data" row "Value" column of "form_results" table should contain "1999/12/01 07:56"
-    And "datetime_frozen_empty" row "Value" column of "form_results" table should contain "--null--"
-    And "datetime_frozen_with_current_data" row "Value" column of "form_results" table should contain "2016/06/23 19:27"
-    And "hiddenif_primary" row "Value" column of "form_results" table should contain "2016/06/23 13:00"
-    And "hiddenif_secondary_a" row "Value" column of "form_results" table should contain "2017/06/05 04:03"
-    And "hiddenif_secondary_b" row "Value" column of "form_results" table should contain "1987/12/31 11:59"
-    And "hiddenif_secondary_e" row "Value" column of "form_results" table should contain "2000/01/01 12:00"
-    And "hiddenif_secondary_f" row "Value" column of "form_results" table should contain "2000/03/31 01:00"
-    And "hiddenif_required_a" row "Value" column of "form_results" table should contain "2000/02/28 01:00"
-    And "hiddenif_required_b" row "Value" column of "form_results" table should contain "2000/02/28 01:00"
-    And "form_select" row "Value" column of "form_results" table should contain "totara_form\form\testform\element_datetime"
-    And "submitbutton" row "Value" column of "form_results" table should contain "1"
+    And "datetime_basic" row "Value" column of "form_results" table should contain "«1437885240 (2015/07/26 12:34 Australia/Perth)»"
+    And "datetime_required" row "Value" column of "form_results" table should contain "«1596699900 (2020/08/06 15:45 Australia/Perth)»"
+    And "datetime_with_current_data" row "Value" column of "form_results" table should contain "«944006160 (1999/12/01 07:56 Australia/Perth)»"
+    And "datetime_frozen_empty" row "Value" column of "form_results" table should contain "«--null--»"
+    And "datetime_frozen_with_current_data" row "Value" column of "form_results" table should contain "«1466681220 (2016/06/23 19:27 Australia/Perth)»"
+    And "hiddenif_primary" row "Value" column of "form_results" table should contain "«1466658000 (2016/06/23 13:00 Australia/Perth)»"
+    And "hiddenif_secondary_a" row "Value" column of "form_results" table should contain "«1496606580 (2017/06/05 04:03 Australia/Perth)»"
+    And "hiddenif_secondary_b" row "Value" column of "form_results" table should contain "«567921540 (1987/12/31 11:59 Australia/Perth)»"
+    And "hiddenif_secondary_e" row "Value" column of "form_results" table should contain "«946699200 (2000/01/01 12:00 Australia/Perth)»"
+    And "hiddenif_secondary_f" row "Value" column of "form_results" table should contain "«954435600 (2000/03/31 01:00 Australia/Perth)»"
+    And "hiddenif_required_a" row "Value" column of "form_results" table should contain "«951670800 (2000/02/28 01:00 Australia/Perth)»"
+    And "hiddenif_required_b" row "Value" column of "form_results" table should contain "«951670800 (2000/02/28 01:00 Australia/Perth)»"
+    And "form_select" row "Value" column of "form_results" table should contain "«totara_form\form\testform\element_datetime»"
+    And "submitbutton" row "Value" column of "form_results" table should contain "«1»"

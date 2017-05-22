@@ -160,6 +160,10 @@ class auth_plugin_email extends auth_plugin_base {
 
             } else if ($user->secret == $confirmsecret) {   // They have provided the secret key to get in
                 $DB->set_field("user", "confirmed", 1, array("id"=>$user->id));
+
+                // TOTARA - throw an event for user confirmation.
+                \core\event\user_confirmed::create_from_userid($user->id)->trigger();
+
                 return AUTH_CONFIRM_OK;
             }
         } else {

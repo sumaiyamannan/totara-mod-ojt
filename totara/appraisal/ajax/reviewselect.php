@@ -29,8 +29,8 @@ require_once($CFG->dirroot.'/totara/core/dialogs/dialog_content_required_learnin
 require_once($CFG->dirroot.'/totara/core/dialogs/dialog_content_plan_evidence.class.php');
 require_once($CFG->dirroot.'/totara/appraisal/lib.php');
 
-$PAGE->set_context(context_system::instance());
-require_login();
+// Check if Appraisals are enabled.
+appraisal::check_feature_enabled();
 
 $questionid = required_param('id', PARAM_INT);
 $roleassignmentid = required_param('answerid', PARAM_INT);
@@ -43,14 +43,20 @@ $showhidden = optional_param('showhidden', false, PARAM_BOOL);
 // No javascript parameters.
 $nojs = optional_param('nojs', false, PARAM_BOOL);
 
+$systemcontext = context_system::instance();
+$PAGE->set_context($systemcontext);
+$PAGE->set_url(new moodle_url('/totara/appraisal/ajax/reviewselect.php', array(
+    'id' => $questionid,
+    'answerid' => $roleassignmentid,
+    'subjectid' => $subjectid
+)));
+
+require_sesskey();
+require_login(null, false, null, false, true);
+
 $question = new appraisal_question($questionid);
 $datatype = $question->get_element()->datatype;
 
-if ($planid == 0 && $datatype != 'goals' && $datatype != 'requiredlearning') {
-    $params = array('userid' => $subjectid, 'status' => DP_PLAN_STATUS_APPROVED);
-    $plan = $DB->get_record('dp_plan', $params, '*', IGNORE_MULTIPLE);
-    $planid = $plan->id;
-}
 
 $roleassignment = new appraisal_role_assignment($roleassignmentid);
 if ($roleassignment->userid != $USER->id) {
@@ -58,6 +64,18 @@ if ($roleassignment->userid != $USER->id) {
     // If they're the manager, then the manager's role assignment id should have been supplied.
     // So if the supplied role assignment is not for the current user, something's wrong.
     print_error('invalidaccess');
+}
+
+if ($planid == 0 && $datatype != 'goals' && $datatype != 'requiredlearning') {
+    list($usql, $params) = $DB->get_in_or_equal([DP_PLAN_STATUS_APPROVED, DP_PLAN_STATUS_COMPLETE]);
+    $params[] = $subjectid;
+    $plan = $DB->get_record_select('dp_plan', "status {$usql} AND userid = ?", $params, '*', IGNORE_MULTIPLE);
+    if ($plan) {
+        $planid = $plan->id;
+    } else {
+        echo get_string('noobjectives', 'totara_appraisal');
+        die;
+    }
 }
 
 if (!$roleassignment) {
@@ -105,6 +123,7 @@ if (!$roleassignment) {
 
         $dialog->lang_file = 'totara_appraisal';
         $dialog->string_nothingtodisplay = 'error:dialognotreeitems' . $datatype;
+
 
         echo $dialog->generate_markup();
     }

@@ -1,4 +1,4 @@
-@mod @mod_facetoface @totara @javascript
+@mod @mod_facetoface @totara @javascript @totara_customfield
 Feature: Manage pre-defined rooms
   In order to test seminar rooms
   As a site manager

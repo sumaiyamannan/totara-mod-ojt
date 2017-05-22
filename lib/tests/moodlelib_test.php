@@ -176,6 +176,28 @@ class core_moodlelib_testcase extends advanced_testcase {
         $this->assertSame('aš', fix_utf8('a'.chr(130).'š'), 'This fails with buggy iconv() when mbstring extenstion is not available as fallback.');
     }
 
+    public function test_fix_utf8_keys() {
+        $obj = new stdClass();
+        $obj->{"a\0"} = "b\0";
+        // Make sure the looping of weird object property names works as expected.
+        foreach ($obj as $k => $v) {
+            $this->assertTrue("a\0" === $k); // Better use === comparison here instead of the same value assert.
+            $this->assertTrue("b\0" === $v); // Better use === comparison here instead of the same value assert.
+        }
+
+        $data = array(
+            "x\0" => $obj,
+            'a'.chr(130).'š' => 'a'.chr(130).'š',
+        );
+
+        $result = fix_utf8($data);
+        $this->assertSame(array('x', 'aš'), array_keys($result));
+        $this->assertTrue('aš' === $result['aš']); // Better use === comparison here instead of the same value assert.
+        $this->assertSame(array('a' => 'b'), get_object_vars($result['x']));
+        $this->assertTrue('b' === $result['x']->a); // Better use === comparison here instead of the same value assert.
+        $this->assertTrue(array("a\0" => "b\0") === get_object_vars($obj)); // Better use === comparison here instead of the same value assert.
+    }
+
     public function test_optional_param() {
         global $CFG;
 

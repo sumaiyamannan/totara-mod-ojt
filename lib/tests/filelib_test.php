@@ -552,6 +552,25 @@ class core_filelib_testcase extends advanced_testcase {
         $this->assertEquals(CURLE_UNSUPPORTED_PROTOCOL, $curl->errno);
     }
 
+    public function test_curl_cache() {
+
+        $testurl = $this->getExternalTestFileUrl('/totara/test_curl_cache.php');
+
+        $curl = new curl(array('cache' => true));
+
+        $params = array();
+        $params['data'] = 'moodletest';
+        $params['page'] = 1;
+
+        $content = $curl->get($testurl, $params);
+        $this->assertEquals('PAGE 1', $content);
+
+        // Check that page 2 works.
+        $params['page'] = 2;
+        $content = $curl->get($testurl, $params);
+        $this->assertEquals('PAGE 2', $content);
+    }
+
     /**
      * Testing prepare draft area
      *

@@ -1,4 +1,4 @@
-@mod @mod_facetoface @totara @javascript
+@mod @mod_facetoface @totara @javascript @totara_customfield
 Feature: Clone pre-defined rooms in seminar
   In order to test seminar rooms
   As a site manager

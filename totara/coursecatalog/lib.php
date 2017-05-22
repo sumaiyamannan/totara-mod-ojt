@@ -277,11 +277,13 @@ function totara_visibility_where($userid = null, $fieldbaseid = 'course.id', $fi
             $instancetype = COHORT_ASSN_ITEMTYPE_COURSE;
             break;
         case 'program':
+            require_once($CFG->dirroot . '/totara/program/lib.php');
             $capability = 'totara/program:viewhiddenprograms';
             $instancetype = COHORT_ASSN_ITEMTYPE_PROGRAM;
             list($availabilitysql, $availabilityparams) = get_programs_availability_sql($tablealias, $separator, $userid);
             break;
         case 'certification':
+            require_once($CFG->dirroot . '/totara/program/lib.php');
             $capability = 'totara/certification:viewhiddencertifications';
             $instancetype = COHORT_ASSN_ITEMTYPE_CERTIF;
             list($availabilitysql, $availabilityparams) = get_programs_availability_sql($tablealias, $separator, $userid);

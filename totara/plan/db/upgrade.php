@@ -23,6 +23,8 @@
  * @subpackage plan
  */
 
+require_once($CFG->dirroot.'/totara/plan/db/upgradelib.php');
+
 /**
  * Local db upgrades for Totara Core
  */
@@ -863,6 +865,13 @@ function xmldb_totara_plan_upgrade($oldversion) {
         $transaction->allow_commit();
 
         upgrade_plugin_savepoint(true, 2016021507, 'totara', 'plan');
+    }
+
+    // TL-14290 duedate in dp_plan_program_assign must not be -1, instead use 0.
+    if ($oldversion < 2016092001) {
+        totara_plan_upgrade_fix_invalid_program_duedates();
+
+        upgrade_plugin_savepoint(true, 2016092001, 'totara', 'plan');
     }
 
     return true;

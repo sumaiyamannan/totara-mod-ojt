@@ -1,4 +1,4 @@
-@mod @mod_facetoface @totara
+@mod @mod_facetoface @totara @totara_customfield
 Feature: Filter session by pre-defined rooms
   In order to test seminar rooms
   As a site manager

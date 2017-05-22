@@ -70,18 +70,18 @@ Feature: Record of learning evidence report
     And I press "Add evidence"
     And I set the following fields to these values:
       | Evidence name                     | Test evidence 1 |
+      | customfield_datetimetest[enabled] | 1               |
       | customfield_datetimetest[day]     | 7               |
       | customfield_datetimetest[month]   | 11              |
       | customfield_datetimetest[year]    | 2000            |
-      | customfield_datetimetest[enabled] | 1               |
     And I press "Add evidence"
     And I press "Add evidence"
     And I set the following fields to these values:
       | Evidence name                     | Test evidence 2 |
+      | customfield_datetimetest[enabled] | 1               |
       | customfield_datetimetest[day]     | 7               |
       | customfield_datetimetest[month]   | 10              |
       | customfield_datetimetest[year]    | 2000            |
-      | customfield_datetimetest[enabled] | 1               |
     And I press "Add evidence"
     And I click on "Record of Learning" in the totara menu
     And I navigate to "Manage reports" node in "Site administration > Reports > Report builder"

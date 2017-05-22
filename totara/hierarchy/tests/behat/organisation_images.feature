@@ -1,4 +1,4 @@
-@totara @totara_hierarchy @totara_hierarchy_organisation @_file_upload
+@totara @totara_hierarchy @totara_hierarchy_organisation @_file_upload @totara_customfield
 Feature: Test use of images in organisations and organisation custom fields
   I should be able to use and view images in organisation descriptions
   and custom text area fields
@@ -19,9 +19,11 @@ Feature: Test use of images in organisations and organisation custom fields
     And I upload "totara/hierarchy/tests/behat/fixtures/learninglogo1.jpg" file to "Files" filemanager
     And I upload "totara/hierarchy/tests/behat/fixtures/learninglogo2.jpg" file to "Files" filemanager
     And I upload "totara/hierarchy/tests/behat/fixtures/learninglogo3.jpg" file to "Files" filemanager
+    And I upload "totara/hierarchy/tests/behat/fixtures/learninglogo4.jpg" file to "Files" filemanager
     Then I should see "learninglogo1.jpg"
     And I should see "learninglogo2.jpg"
     And I should see "learninglogo3.jpg"
+    And I should see "learninglogo4.jpg"
 
     # Create text area custom field for Organisation type
     When I navigate to "Manage types" node in "Site administration > Hierarchies > Organisations"
@@ -44,6 +46,14 @@ Feature: Test use of images in organisations and organisation custom fields
       | Short name (must be unique) | CTA1                |
     And I press "Save changes"
     Then I should see "Custom text area 1"
+
+    # Add a file custom field.
+    When I set the field "Create a new custom field" to "File"
+    And I set the following fields to these values:
+      | Full name                   | Custom file 1  |
+      | Short name (must be unique) | CF1                |
+    And I press "Save changes"
+    Then I should see "Custom file 1"
 
     # Create organisation using the organisation type
     When I navigate to "Manage organisations" node in "Site administration > Hierarchies > Organisations"
@@ -71,9 +81,17 @@ Feature: Test use of images in organisations and organisation custom fields
     And I click on "Select this file" "button"
     And I set the field "Describe this image for someone who cannot see it" to "logo3 on customfield text area"
     And I click on "Save image" "button"
+
+    # File in the file custom field.
+    And I click on "//div[@id='fitem_id_customfield_CF1_filemanager']//a[@title='Add...']" "xpath_element"
+    And I click on "learninglogo4.jpg" "link" in the "//div[@aria-hidden='false' and @class='moodle-dialogue-base']" "xpath_element"
+    And I click on "Select this file" "button" in the "//div[@aria-hidden='false' and @class='moodle-dialogue-base']" "xpath_element"
+
+    # Verify the outcome
     And I press "Save changes"
     Then I should see the "logo2 in organisation description" image in the "//dd[preceding-sibling::dt[1][. = 'Description']]" "xpath_element"
     And I should see the "logo3 on customfield text area" image in the "//dd[preceding-sibling::dt[1][. = 'Custom text area 1']]" "xpath_element"
+    And I should see "learninglogo4.jpg"
 
     When I press "Return to organisation framework"
     Then I should see the "logo2 in organisation description" image in the "My organisation 1" "table_row"

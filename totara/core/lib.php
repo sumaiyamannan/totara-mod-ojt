@@ -770,3 +770,37 @@ function totara_update_temporary_managers() {
 
     \totara_job\job_assignment::update_temporary_managers();
 }
+
+/**
+ * Helper function to update task schedule
+ *
+ * @param $task String  the classname of the task
+ * @param $oldschedule  Array   the current task schedule
+ * @param $newschedule  Array   the new task schedule
+ * @return true
+ */
+function totara_upgrade_default_schedule($task, $oldschedule, $newschedule) {
+    global $DB;
+
+    $params = array(
+        'classname' => $task,
+        'minute' => $oldschedule['minute'],
+        'hour' => $oldschedule['hour'],
+        'day' => $oldschedule['day'],
+        'month' => $oldschedule['month'],
+        'dayofweek' => $oldschedule['dayofweek']
+    );
+
+    $task = $DB->get_record('task_scheduled',$params);
+
+    if (!empty($task)) {
+        $task->minute = $newschedule['minute'];
+        $task->hour = $newschedule['hour'];
+        $task->day = $newschedule['day'];
+        $task->month = $newschedule['month'];
+        $task->dayofweek = $newschedule['dayofweek'];
+        $DB->update_record('task_scheduled', $task);
+    }
+
+    return true;
+}

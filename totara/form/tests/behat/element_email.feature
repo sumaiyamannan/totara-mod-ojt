@@ -18,22 +18,22 @@ Feature: Totara form email element tests
       | Required basic email | trainer@example.com |
     And I press "Save changes"
     Then I should see "The form has been submit"
-    And "email_basic" row "Value" column of "form_results" table should contain "learner@example.com"
-    And "email_required" row "Value" column of "form_results" table should contain "trainer@example.com"
-    And "email_with_current_data" row "Value" column of "form_results" table should contain "contact@example.com"
-    And "email_frozen_empty" row "Value" column of "form_results" table should contain ""
-    And "email_frozen_with_current_data" row "Value" column of "form_results" table should contain "sales@example.com"
-    And "hiddenif_primary" row "Value" column of "form_results" table should contain ""
-    And "hiddenif_secondary_a" row "Value" column of "form_results" table should contain ""
-    And "hiddenif_secondary_b" row "Value" column of "form_results" table should contain ""
-    And "hiddenif_secondary_c" row "Value" column of "form_results" table should contain ""
-    And "hiddenif_secondary_d" row "Value" column of "form_results" table should contain ""
-    And "hiddenif_secondary_e" row "Value" column of "form_results" table should contain ""
-    And "hiddenif_secondary_f" row "Value" column of "form_results" table should contain ""
-    And "hiddenif_required_a" row "Value" column of "form_results" table should contain ""
-    And "hiddenif_required_b" row "Value" column of "form_results" table should contain ""
-    And "form_select" row "Value" column of "form_results" table should contain "totara_form\form\testform\element_email"
-    And "submitbutton" row "Value" column of "form_results" table should contain "1"
+    And "email_basic" row "Value" column of "form_results" table should contain "«learner@example.com»"
+    And "email_required" row "Value" column of "form_results" table should contain "«trainer@example.com»"
+    And "email_with_current_data" row "Value" column of "form_results" table should contain "«contact@example.com»"
+    And "email_frozen_empty" row "Value" column of "form_results" table should contain "«--null--»"
+    And "email_frozen_with_current_data" row "Value" column of "form_results" table should contain "«sales@example.com»"
+    And "hiddenif_primary" row "Value" column of "form_results" table should contain "«»"
+    And "hiddenif_secondary_a" row "Value" column of "form_results" table should contain "«»"
+    And "hiddenif_secondary_b" row "Value" column of "form_results" table should contain "«»"
+    And "hiddenif_secondary_c" row "Value" column of "form_results" table should contain "«»"
+    And "hiddenif_secondary_d" row "Value" column of "form_results" table should contain "«»"
+    And "hiddenif_secondary_e" row "Value" column of "form_results" table should contain "«»"
+    And "hiddenif_secondary_f" row "Value" column of "form_results" table should contain "«»"
+    And "hiddenif_required_a" row "Value" column of "form_results" table should contain "«»"
+    And "hiddenif_required_b" row "Value" column of "form_results" table should contain "«»"
+    And "form_select" row "Value" column of "form_results" table should contain "«totara_form\form\testform\element_email»"
+    And "submitbutton" row "Value" column of "form_results" table should contain "«1»"
 
     When I press "Reset"
     Then I should see "Form: Basic email element"
@@ -42,8 +42,8 @@ Feature: Totara form email element tests
       | Required basic email | trainer@example.com |
     And I press "Save changes"
     Then I should see "The form has been submit"
-    And "email_basic" row "Value" column of "form_results" table should contain "samh@example.com"
-    And "email_required" row "Value" column of "form_results" table should contain "trainer@example.com"
+    And "email_basic" row "Value" column of "form_results" table should contain "«samh@example.com»"
+    And "email_required" row "Value" column of "form_results" table should contain "«trainer@example.com»"
 
   Scenario: Test basic required email elements in Totara forms without JavaScript disabled
     When I select "Basic email element [totara_form\form\testform\element_email]" from the "Test form" singleselect
@@ -73,8 +73,8 @@ Feature: Totara form email element tests
       | Required basic email | trainer@example.com |
     And I press "Save changes"
     Then I should see "The form has been submit"
-    And "email_basic" row "Value" column of "form_results" table should contain "learner@example.com"
-    And "email_required" row "Value" column of "form_results" table should contain "trainer@example.com"
+    And "email_basic" row "Value" column of "form_results" table should contain "«learner@example.com»"
+    And "email_required" row "Value" column of "form_results" table should contain "«trainer@example.com»"
 
     When I press "Reset"
     Then I should see "Form: Basic email element"
@@ -83,8 +83,8 @@ Feature: Totara form email element tests
       | Required basic email | trainer@example.com |
     And I press "Save changes"
     Then I should see "The form has been submit"
-    And "email_basic" row "Value" column of "form_results" table should contain ""
-    And "email_required" row "Value" column of "form_results" table should contain "trainer@example.com"
+    And "email_basic" row "Value" column of "form_results" table should contain "«»"
+    And "email_required" row "Value" column of "form_results" table should contain "«trainer@example.com»"
 
     When I press "Reset"
     Then I should see "Form: Basic email element"
@@ -102,8 +102,8 @@ Feature: Totara form email element tests
       | Required basic email | zero@example.com |
     And I press "Save changes"
     Then I should see "The form has been submit"
-    And "email_basic" row "Value" column of "form_results" table should contain "one@example.com"
-    And "email_required" row "Value" column of "form_results" table should contain "zero@example.com"
+    And "email_basic" row "Value" column of "form_results" table should contain "«one@example.com»"
+    And "email_required" row "Value" column of "form_results" table should contain "«zero@example.com»"
 
   Scenario: Test required email elements in Totara forms with JavaScript disabled
     When I select "Basic email element [totara_form\form\testform\element_email]" from the "Test form" singleselect
@@ -114,8 +114,8 @@ Feature: Totara form email element tests
       | Required basic email | trainer@example.com |
     And I press "Save changes"
     Then I should see "The form has been submit"
-    And "email_basic" row "Value" column of "form_results" table should contain "learner@example.com"
-    And "email_required" row "Value" column of "form_results" table should contain "trainer@example.com"
+    And "email_basic" row "Value" column of "form_results" table should contain "«learner@example.com»"
+    And "email_required" row "Value" column of "form_results" table should contain "«trainer@example.com»"
 
     When I press "Reset"
     Then I should see "Form: Basic email element"
@@ -124,8 +124,8 @@ Feature: Totara form email element tests
       | Required basic email | trainer@example.com |
     And I press "Save changes"
     Then I should see "The form has been submit"
-    And "email_basic" row "Value" column of "form_results" table should contain ""
-    And "email_required" row "Value" column of "form_results" table should contain "trainer@example.com"
+    And "email_basic" row "Value" column of "form_results" table should contain "«»"
+    And "email_required" row "Value" column of "form_results" table should contain "«trainer@example.com»"
 
     When I press "Reset"
     Then I should see "Form: Basic email element"
@@ -142,8 +142,8 @@ Feature: Totara form email element tests
       | Required basic email | trainer@example.com |
     And I press "Save changes"
     Then I should see "The form has been submit"
-    And "email_basic" row "Value" column of "form_results" table should contain "learner@example.com"
-    And "email_required" row "Value" column of "form_results" table should contain "trainer@example.com"
+    And "email_basic" row "Value" column of "form_results" table should contain "«learner@example.com»"
+    And "email_required" row "Value" column of "form_results" table should contain "«trainer@example.com»"
 
   @javascript
   Scenario: Test hidden if on email elements in Totara forms
@@ -199,19 +199,19 @@ Feature: Totara form email element tests
       | Visible when required email is not empty | admin@example.com |
     And I press "Save changes"
     Then I should see "The form has been submit"
-    And "email_basic" row "Value" column of "form_results" table should contain "learner@example.com"
-    And "email_required" row "Value" column of "form_results" table should contain "trainer@example.com"
-    And "email_with_current_data" row "Value" column of "form_results" table should contain "staffmanager@example.com"
-    And "email_frozen_empty" row "Value" column of "form_results" table should contain "--null--"
-    And "email_frozen_with_current_data" row "Value" column of "form_results" table should contain "sales@example.com"
-    And "hiddenif_primary" row "Value" column of "form_results" table should contain "behat@example.com"
-    And "hiddenif_secondary_a" row "Value" column of "form_results" table should contain "sitemanager@example.com"
-    And "hiddenif_secondary_b" row "Value" column of "form_results" table should contain "alpha@example.com"
-    And "hiddenif_secondary_c" row "Value" column of "form_results" table should contain "bravo@example.com"
-    And "hiddenif_secondary_d" row "Value" column of "form_results" table should contain "support@example.com"
-    And "hiddenif_secondary_e" row "Value" column of "form_results" table should contain "charlie@example.com"
-    And "hiddenif_secondary_f" row "Value" column of "form_results" table should contain "marketting@example.com"
-    And "hiddenif_required_a" row "Value" column of "form_results" table should contain "admin@example.com"
-    And "hiddenif_required_b" row "Value" column of "form_results" table should contain "delta@example.com"
-    And "form_select" row "Value" column of "form_results" table should contain "totara_form\form\testform\element_email"
-    And "submitbutton" row "Value" column of "form_results" table should contain "1"
+    And "email_basic" row "Value" column of "form_results" table should contain "«learner@example.com»"
+    And "email_required" row "Value" column of "form_results" table should contain "«trainer@example.com»"
+    And "email_with_current_data" row "Value" column of "form_results" table should contain "«staffmanager@example.com»"
+    And "email_frozen_empty" row "Value" column of "form_results" table should contain "«--null--»"
+    And "email_frozen_with_current_data" row "Value" column of "form_results" table should contain "«sales@example.com»"
+    And "hiddenif_primary" row "Value" column of "form_results" table should contain "«behat@example.com»"
+    And "hiddenif_secondary_a" row "Value" column of "form_results" table should contain "«sitemanager@example.com»"
+    And "hiddenif_secondary_b" row "Value" column of "form_results" table should contain "«alpha@example.com»"
+    And "hiddenif_secondary_c" row "Value" column of "form_results" table should contain "«bravo@example.com»"
+    And "hiddenif_secondary_d" row "Value" column of "form_results" table should contain "«support@example.com»"
+    And "hiddenif_secondary_e" row "Value" column of "form_results" table should contain "«charlie@example.com»"
+    And "hiddenif_secondary_f" row "Value" column of "form_results" table should contain "«marketting@example.com»"
+    And "hiddenif_required_a" row "Value" column of "form_results" table should contain "«admin@example.com»"
+    And "hiddenif_required_b" row "Value" column of "form_results" table should contain "«delta@example.com»"
+    And "form_select" row "Value" column of "form_results" table should contain "«totara_form\form\testform\element_email»"
+    And "submitbutton" row "Value" column of "form_results" table should contain "«1»"

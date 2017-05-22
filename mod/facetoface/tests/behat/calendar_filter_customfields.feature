@@ -1,4 +1,4 @@
-@mod_facetoface @totara
+@mod_facetoface @totara @totara_customfield
 Feature: Filter seminar events in calendar by their customfields
   In order to test the seminar filtering in calendar
   As user

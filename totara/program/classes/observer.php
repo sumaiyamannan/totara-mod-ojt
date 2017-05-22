@@ -25,6 +25,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->dirroot . '/totara/program/program_assignments.class.php'); // Needed for ASSIGNTYPE_XXX constants.
+require_once($CFG->dirroot . '/totara/program/lib.php');
 
 class totara_program_observer {
 
@@ -135,6 +136,187 @@ class totara_program_observer {
         }
 
         return true;
+    }
+
+    /**
+     * Event that is triggered when a user is confirmed.
+     * This checks for and updates any program/certification assignments for the user before they login.
+     *
+     * Future assignments are created as usual and handled by the login event as usual,
+     * since the confirmation doesn't necessarily happen on login.
+     *
+     *
+     * @param \core\event\user_confirmed $event
+     *
+     */
+    public static function user_confirmed(\core\event\user_confirmed $event) {
+        global $CFG, $DB;
+
+        require_once($CFG->dirroot . '/totara/program/program_assignments.class.php');
+        require_once($CFG->dirroot . '/totara/certification/lib.php');
+
+        $userid = $event->relateduserid;
+        $now = time();
+
+        $progassignpos = array();
+        $progassignorg = array();
+        $progassignman = array();
+        $allowpos = get_config('totara_job', 'allowsignupposition');
+        $alloworg = get_config('totara_job', 'allowsignuporganisation');
+        $allowman = get_config('totara_job', 'allowsignupmanager');
+        if (!empty($allowpos) || !empty($alloworg) || !empty($allowman)) {
+            $jobsql = "SELECT ja.*, p.path as ppath, o.path as opath
+                         FROM {job_assignment} ja
+                    LEFT JOIN {pos} p
+                           ON ja.positionid = p.id
+                    LEFT JOIN {org} o
+                           ON ja.organisationid = o.id
+                        WHERE ja.userid = :uid
+                          AND ja.sortorder = 1";
+            $job = $DB->get_record_sql($jobsql, array('uid' => $userid));
+
+            if (!empty($allowpos) && !empty($job)) {
+                $possql = "
+                    SELECT pa.*
+                      FROM {prog_assignment} pa
+                INNER JOIN {pos} p
+                        ON pa.assignmenttypeid = p.id
+                 LEFT JOIN {prog_user_assignment} pua
+                        ON pua.assignmentid = pa.id
+                       AND pua.userid = :uid
+                     WHERE pa.assignmenttype = " . ASSIGNTYPE_POSITION . "
+                       AND pua.id IS NULL
+                       AND ( p.id = :pid
+                             OR
+                             ( pa.includechildren = 1
+                               AND
+                               :ppath LIKE " . $DB->sql_concat('p.path', "'/%'") . "
+                             )
+                           )";
+                $posparams = array('uid' => $userid, 'pid' => $job->positionid, 'ppath' => $job->ppath . '/');
+                $progassignpos = $DB->get_records_sql($possql, $posparams);
+            }
+
+            if (!empty($alloworg) && !empty($job)) {
+                $orgsql = "
+                    SELECT pa.*
+                      FROM {prog_assignment} pa
+                INNER JOIN {org} o
+                        ON pa.assignmenttypeid = o.id
+                 LEFT JOIN {prog_user_assignment} pua
+                        ON pua.assignmentid = pa.id
+                       AND pua.userid = :uid
+                     WHERE pa.assignmenttype = " . ASSIGNTYPE_ORGANISATION . "
+                       AND pua.id IS NULL
+                       AND ( o.id = :oid
+                             OR
+                             ( pa.includechildren = 1
+                               AND
+                               :opath LIKE " . $DB->sql_concat('o.path', "'/%'") . "
+                             )
+                           )";
+                $orgparams = array('uid' => $userid, 'oid' => $job->organisationid, 'opath' => $job->opath . '/');
+                $progassignorg = $DB->get_records_sql($orgsql, $orgparams);
+            }
+
+            if (!empty($allowman) && !empty($job)) {
+                $mansql = "
+                    SELECT pa.*
+                      FROM {prog_assignment} pa
+                INNER JOIN {job_assignment} ja
+                        ON pa.assignmenttypeid = ja.id
+                 LEFT JOIN {prog_user_assignment} pua
+                        ON pua.assignmentid = pa.id
+                       AND pua.userid = :uid
+                     WHERE pa.assignmenttype = " . ASSIGNTYPE_MANAGERJA . "
+                       AND pua.id IS NULL
+                       AND ( ja.id = :mjaid
+                             OR
+                             ( pa.includechildren = 1
+                               AND
+                               :mjapath LIKE " . $DB->sql_concat('ja.managerjapath', "'/%'") . "
+                             )
+                           )";
+                $manparams = array('uid' => $userid, 'mjaid' => $job->managerjaid, 'mjapath' => $job->managerjapath . '/');
+                $progassignman = $DB->get_records_sql($mansql, $manparams);
+            }
+        }
+
+        // Now check for audience assignments.
+        $audsql = 'SELECT pa.*
+                     FROM {prog_assignment} pa
+                LEFT JOIN {prog_user_assignment} pua
+                       ON pua.assignmentid = pa.id
+                      AND pua.userid = :uid
+                    WHERE pa.assignmenttype = ' . ASSIGNTYPE_COHORT . '
+                      AND pua.id IS NULL
+                      AND EXISTS ( SELECT 1
+                                     FROM {cohort_members} cm
+                                    WHERE cm.cohortid = pa.assignmenttypeid
+                                      AND cm.userid = :cuid
+                                  )';
+        $audparams = array('uid' => $userid, 'cuid' => $userid);
+        $progassignaud = $DB->get_records_sql($audsql, $audparams);
+
+        $programs = array();
+        $progassignments = array_merge($progassignpos, $progassignorg, $progassignman, $progassignaud);
+        foreach ($progassignments as $progassign) {
+            $assigndata = array();
+
+            if (empty($programs[$progassign->programid])) {
+                $program = new program($progassign->programid);
+                $programs[$program->id] = $program;
+                $assigndata['needscompletionrecord'] = true;
+            } else {
+                $program = $programs[$progassign->programid];
+                $assigndata['needscompletionrecord'] = false;
+            }
+            $context = context_program::instance($program->id);
+
+            // Check the program is available before creating any assignments.
+            if ((empty($program->availablefrom) || $program->availablefrom < $now) &&
+                (empty($program->availableuntil) || $program->availableuntil > $now)) {
+
+                // Calculate the timedue for the program assignment.
+                $assigndata['timedue'] = $program->make_timedue($userid, $progassign, false);
+
+                // Check for exceptions, we can assume there aren't any dismissed ones at this point.
+                if ($program->update_exceptions($userid, $progassign, $assigndata['timedue'])) {
+                    $assigndata['exceptions'] = PROGRAM_EXCEPTION_RAISED;
+                } else {
+                    $assigndata['exceptions'] = PROGRAM_EXCEPTION_NONE;
+                }
+
+                // Assign the user.
+                $program->assign_learners_bulk(array($userid => $assigndata), $progassign);
+                if (!empty($program->certifid)) {
+                    // Should be happening on a program_assigned event handler, but we need to do this to make sure that it happens before the completion update.
+                    // There shouldn't be any issues calling it twice, since just returns straight away if the record exists.
+                    certif_create_completion($program->id, $userid);
+                }
+
+                // Create future assignment records, user_confirmation happens before login_completion so this should
+                // be caught by the login event and run through the regular code.
+                if ($progassign->completionevent == COMPLETION_EVENT_FIRST_LOGIN && $assigndata['timedue'] === false) {
+                    $program->create_future_assignments_bulk($program->id, array($userid), $progassign->id);
+
+                    $eventdata = array('objectid' => $program->id, 'context' => $context, 'userid' => $userid);
+                    $event = \totara_program\event\program_future_assigned::create($eventdata);
+                    $event->trigger();
+                }
+
+                // Finally trigger a program assignment event.
+                $eventdata = array('objectid' => $program->id, 'context' => $context, 'userid' => $userid);
+                $event = \totara_program\event\program_assigned::create($eventdata);
+                $event->trigger();
+
+                // For each program (not assignment) update the user completion.
+                if ($assigndata['needscompletionrecord']) {
+                    // It is unlikely they have any progress at this point but it creates the courseset records.
+                    prog_update_completion($userid, $program);
+                }
+            }
+        }
     }
 
     /**

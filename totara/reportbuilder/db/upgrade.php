@@ -1182,5 +1182,46 @@ function xmldb_totara_reportbuilder_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2016092001, 'totara', 'reportbuilder');
     }
 
+    if ($oldversion < 2016092002) {
+        $oldtype = 'user';
+        $filters = array('title'                         => 'alltitlenames',
+                         'posstartdate'                  => 'allstartdates',
+                         'posenddate'                    => 'allenddates',
+                         'managername'                   => 'allmanagernames',
+                         'managerfirstname'              => 'allmanagerfirstnames',
+                         'managerlastname'               => 'allmanagerlastnames',
+                         'managerid'                     => 'allmanagerids',
+                         'manageridnumber'               => 'allmanageridnumbers',
+                         'manageremail'                  => 'allmanagerobsemails',
+                         'manageremailunobscured'        => 'allmanagerunobsemails',
+                         'position'                      => 'allpositionnames',
+                         'positionidnumber'              => 'allpositionidnumbers',
+                         'pos_type'                      => 'allpositiontypes',
+                         'positionframework'             => 'allposframenames',
+                         'positionframeworkid'           => 'allposframeids',
+                         'positionframeworkidnumber'     => 'allposframeidnumbers',
+                         'organisation'                  => 'allorganisationnames',
+                         'organisationidnumber'          => 'allorganisationidnumbers',
+                         'org_type'                      => 'allorganisationtypes',
+                         'organisationframework'         => 'allorgframenames',
+                         'organisationframeworkid'       => 'allorgframeids',
+                         'organisationframeworkidnumber' => 'allorgframeidnumbers',
+                         'positionpath'                  => 'allpositions',
+                         'positionid'                    => 'allpositions',
+                         'positionid2'                   => 'allpositions',
+                         'pos_type_id'                   => 'allpostypes',
+                         'organisationpath'              => 'allorganisations',
+                         'organisationid'                => 'allorganisations',
+                         'organisationid2'               => 'allorganisations',
+                         'org_type_id'                   => 'allorgtypes'
+        );
+
+        // Re-run saved searched migration for the job assignments update.
+        totara_reportbuilder_migrate_saved_search_filters($filters, $oldtype, 'job_assignment');
+
+        // Reportbuilder savepoint reached.
+        upgrade_plugin_savepoint(true, 2016092002, 'totara', 'reportbuilder');
+    }
+
     return true;
 }

@@ -12,8 +12,13 @@ Feature: Filter reportbuilder results by multicheck filters on sidebar
       | Course 2  | C2        |
       | Course 3  | C3        |
       | Course 13 | C13       |
-    And I log in as "admin"
+    And the following "users" exist:
+      | username | firstname | lastname | email             | country |
+      | user1    | user      | one      | user1@example.com | AU      |
+      | user2    | user      | two      | user2@example.com | NZ      |
 
+  Scenario: Seminar events report works correctly with course sidebar filter
+    And I log in as "admin"
     # Add multi-check custom field
     And I navigate to "Custom fields" node in "Site administration > Courses"
     And I click on "Multi-select" "option"
@@ -55,8 +60,7 @@ Feature: Filter reportbuilder results by multicheck filters on sidebar
       | customfield_multiselect[2]    | 1    |
     And I press "Save and display"
 
-  Scenario: Seminar events report works correctly with course sidebar filter
-    Given the following "activities" exist:
+    And the following "activities" exist:
       | activity   | name       | course | idnumber |
       | facetoface | Seminar 0  | C0     | s0       |
       | facetoface | Seminar 1  | C1     | s1       |
@@ -143,3 +147,24 @@ Feature: Filter reportbuilder results by multicheck filters on sidebar
     And I should not see "Course 2"
     And I should see "Course 3" in the "Seminar 3" "table_row"
     And I should see "Course 13" in the "Seminar 13" "table_row"
+
+  @_alert
+  Scenario: Report with only sidefilter works correctly
+    Given I log in as "admin"
+    And I navigate to "Manage reports" node in "Site administration > Reports > Report builder"
+    And I set the field "Report Name" to "User report"
+    And I set the field "Source" to "user"
+    And I press "Create report"
+    And I switch to "Filters" tab
+    And I click on "Delete" "link" in the "User's Fullname" "table_row" confirming the dialogue
+    And I select "User's Country" from the "newsidebarfilter" singleselect
+    And I press "Add"
+    And I press "Save changes"
+
+      # Test it
+    When I follow "View This Report"
+    Then I should see "user one"
+    And I should see "user two"
+    When I select "New Zealand" from the "user-country" singleselect
+    Then I should not see "user one"
+    And I should see "user two"

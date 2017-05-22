@@ -28,7 +28,6 @@ Feature: Learner creates a learning plan and adds an image to description
         And I click on "Learning Plans" "link"
         And I press "Create new learning plan"
         And I set the field "Plan name" to "My Learning Plan"
-        And I select the text in the "id_description_editor" Atto editor
         And I click on "Image" "button" in the "#fitem_id_description_editor" "css_element"
         And I click on "Browse repositories..." "button"
         And I click on "Private files" "link"
