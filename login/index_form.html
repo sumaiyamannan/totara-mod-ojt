@@ -108,7 +108,13 @@ $autocapitalize = (core_useragent::is_safari_ios() || core_useragent::is_webkit_
                    </form>
                  </div>
 <?php     } else if (!empty($CFG->registerauth)) {
-              echo format_text($CFG->auth_instructions); ?>
+              if (!empty($CFG->auth_instructions)) {
+                  echo format_text($CFG->auth_instructions);
+              } else if (get_string_manager()->string_exists('loginsteps', 'auth_' . $CFG->registerauth)) {
+                  print_string("loginsteps", 'auth_' . $CFG->registerauth, "signup.php");
+              } else {
+                  print_string("loginsteps", "", "signup.php");
+              } ?>
               <div class="signupform">
                 <form action="signup.php" method="get" id="signup">
                 <div><input type="submit" value="<?php print_string("startsignup") ?>" /></div>
