@@ -548,6 +548,8 @@ class program {
 
                         // No record in prog_user_assignment so we need to make one.
                         $exceptions = $this->update_exceptions($user->id, $progassignment, $timedue);
+                        // Fix the timedue before we put it into the database. Empty includes COMPLETION_TIME_UNKNOWN, null, 0, ''.
+                        $timedue = empty($timedue) ? COMPLETION_TIME_NOT_SET : $timedue;
                         $newassignusersbuffer[$user->id] = array('timedue' => $timedue, 'exceptions' => $exceptions);
 
                         if (empty($progcompletion)) {

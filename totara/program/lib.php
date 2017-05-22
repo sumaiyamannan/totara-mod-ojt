@@ -2507,7 +2507,10 @@ function prog_get_completion_error_solution($problemkey, $programid = 0, $userid
     switch ($problemkey) {
         // See certs for examples of automated fixes. Remove this when a fix is implemented.
         case 'error:timedueunknown':
-            $html = get_string('error:info_timedueunknown', 'totara_program');
+            $url = clone($baseurl);
+            $url->param('fixkey', 'fixassignedtimedueunknown');
+            $html = get_string('error:info_fixtimedueunknown', 'totara_program') . '<br>' .
+                html_writer::link($url, get_string('clicktofixcompletions', 'totara_program'));
             break;
         default:
             $html = get_string('error:info_unknowncombination', 'totara_program');
@@ -2557,17 +2560,14 @@ function prog_fix_completions($fixkey, $programid = 0, $userid = 0) {
 
         $problemkey = prog_get_completion_error_problemkey($errors);
         $result = "";
-        $ignoreproblem = "";
 
         // Only fix if this is an exact match for the specified problem.
         switch ($fixkey) {
-            // See certif_fix_completions for an example. Remove this comment when first fix is implemented.
-            // When adding the first fix here, you must also implement (copy from certs) the following tests:
-            // * test_prog_fix_completions_only_selected
-            // * test_prog_fix_completions_only_specified_state
-            // * test_prog_fix_completions_only_if_isolated_problem
-            // * test_prog_fix_completions_known_unfixed_problems
-            // Plus one test for each fix function.
+            case 'fixassignedtimedueunknown':
+                if ($problemkey == 'error:timedueunknown') {
+                    $result = prog_fix_timedue($progcompletion);
+                }
+                break;
             default:
                 break;
         }
@@ -2577,8 +2577,21 @@ function prog_fix_completions($fixkey, $programid = 0, $userid = 0) {
             continue;
         }
 
-        prog_write_completion($progcompletion, $ignoreproblem, $result);
+        prog_write_completion($progcompletion, $result);
     }
+}
+
+/**
+ * Set the timedue to COMPLETION_TIME_NOT_SET
+ *
+ * @param stdClass $progcompletion a corresponding record from prog_completion to be fixed
+ * @return string message for transaction log
+ */
+function prog_fix_timedue(&$progcompletion) {
+    $progcompletion->timedue = COMPLETION_TIME_NOT_SET;
+
+    return 'Automated fix \'prog_fix_timedue\' was applied<br>
+        <ul><li>\'Program due date\' was set to ' . COMPLETION_TIME_NOT_SET . '</li></ul>';
 }
 
 /**

@@ -37,6 +37,23 @@ require_once($CFG->dirroot . '/totara/certification/lib.php');
  */
 class totara_program_lib_testcase extends reportcache_advanced_testcase {
 
+    public $fixusers = array();
+    public $fixprograms = array();
+    public $fixcertifications = array();
+    public $numfixusers = 10;
+    public $numfixcerts = 7;
+    public $numfixprogs = 10;
+
+    protected function tearDown() {
+        $this->fixusers = null;
+        $this->fixprograms = null;
+        $this->fixcertifications = null;
+        $this->numfixusers = null;
+        $this->numfixcerts = null;
+        $this->numfixprogs = null;
+        parent::tearDown();
+    }
+
     /**
      * Test that prog_update_completion handles programs and certs.
      */
@@ -811,5 +828,212 @@ class totara_program_lib_testcase extends reportcache_advanced_testcase {
             $expecteduserenrolment = $expecteduserenrolments[$actualuserenrolment->id];
             $this->assertEquals($expecteduserenrolment, $actualuserenrolment);
         }
+    }
+
+    /**
+     * Set up the users, programs and completions for testing the fixer.
+     */
+    public function setup_fix_completions() {
+        $this->resetAfterTest(true);
+
+        // Turn off programs. This is to test that it doesn't interfere with certification completion.
+        set_config('enableprograms', TOTARA_DISABLEFEATURE);
+
+        // Create users.
+        for ($i = 1; $i <= $this->numfixusers; $i++) {
+            $this->fixusers[$i] = $this->getDataGenerator()->create_user();
+        }
+
+        // Create programs.
+        for ($i = 1; $i <= $this->numfixprogs; $i++) {
+            $this->fixprograms[$i] = $this->getDataGenerator()->create_program();
+        }
+
+        // Create certifications, mostly so that we don't end up with coincidental success due to matching ids.
+        for ($i = 1; $i <= $this->numfixcerts; $i++) {
+            $this->fixcertifications[$i] = $this->getDataGenerator()->create_certification();
+        }
+
+        // Assign users to the program as individuals.
+        foreach ($this->fixusers as $user) {
+            foreach ($this->fixprograms as $prog) {
+                $this->getDataGenerator()->assign_to_program($prog->id, ASSIGNTYPE_INDIVIDUAL, $user->id);
+            }
+        }
+    }
+
+    /**
+     * Test prog_fix_completions - ensure that the correct records are repaired.
+     */
+    public function test_prog_fix_completions_only_selected() {
+        global $DB;
+
+        // Set up some data that is valid.
+        $this->setup_fix_completions();
+
+        // Break all the records.
+        $sql = "UPDATE {prog_completion} SET timedue = :timedueunknown WHERE coursesetid = 0";
+        $DB->execute($sql, array('timedueunknown' => COMPLETION_TIME_UNKNOWN));
+
+        $expectederrors = array('error:timedueunknown' => 'timedue');
+
+        // Check that all records are broken in the specified way.
+        $progcompletions = $DB->get_records('prog_completion');
+        foreach ($progcompletions as $progcompletion) {
+            $errors = prog_get_completion_errors($progcompletion);
+            $this->assertEquals($expectederrors, $errors);
+        }
+        $this->assertCount($this->numfixusers * $this->numfixprogs, $progcompletions);
+
+        $prog = $this->fixprograms[8];
+        $user = $this->fixusers[2];
+
+        // Apply the fix to just one user/prog.
+        prog_fix_completions('fixassignedtimedueunknown', $prog->id, $user->id);
+
+        // Check that the correct records have been fixed.
+        $progcompletions = $DB->get_records('prog_completion');
+        foreach ($progcompletions as $progcompletion) {
+            $errors = prog_get_completion_errors($progcompletion);
+            if ($progcompletion->userid == $user->id && $progcompletion->programid == $prog->id) {
+                $this->assertEquals(array(), $errors);
+            } else {
+                $this->assertEquals($expectederrors, $errors);
+            }
+        }
+        $this->assertEquals($this->numfixusers * $this->numfixprogs, count($progcompletions));
+
+        // Apply the fix to just one user, all progs (don't need to reset, just overlap).
+        prog_fix_completions('fixassignedtimedueunknown', 0, $user->id);
+
+        // Check that the correct records have been fixed.
+        $progcompletions = $DB->get_records('prog_completion');
+        foreach ($progcompletions as $progcompletion) {
+            $errors = prog_get_completion_errors($progcompletion);
+            if ($progcompletion->userid == $user->id) { // Overlap previous fixes.
+                $this->assertEquals(array(), $errors);
+            } else {
+                $this->assertEquals($expectederrors, $errors);
+            }
+        }
+        $this->assertEquals($this->numfixusers * $this->numfixprogs, count($progcompletions));
+
+        // Apply the fix to just one prog, all users (don't need to reset, just overlap).
+        prog_fix_completions('fixassignedtimedueunknown', $prog->id);
+
+        // Check that the correct records have been fixed.
+        $progcompletions = $DB->get_records('prog_completion');
+        foreach ($progcompletions as $progcompletion) {
+            $errors = prog_get_completion_errors($progcompletion);
+            if ($progcompletion->userid == $user->id || $progcompletion->programid == $prog->id) { // Overlap previous fixes.
+                $this->assertEquals(array(), $errors);
+            } else {
+                $this->assertEquals($expectederrors, $errors);
+            }
+        }
+        $this->assertEquals($this->numfixusers * $this->numfixprogs, count($progcompletions));
+
+        // Apply the fix to all records (overlaps previous fixes).
+        prog_fix_completions('fixassignedtimedueunknown');
+
+        // Check that the correct records have been fixed.
+        $progcompletions = $DB->get_records('prog_completion');
+        foreach ($progcompletions as $progcompletion) {
+            $errors = prog_get_completion_errors($progcompletion);
+            $this->assertEquals(array(), $errors);
+        }
+        $this->assertEquals($this->numfixusers * $this->numfixprogs, count($progcompletions));
+    }
+
+    /**
+     * Test prog_fix_completions - ensure that records with the specified problem AND other problems are NOT fixed.
+     *
+     * We will use the fixassignedtimedueunknown fix key. This will set the due date to not set.
+     */
+    public function test_prog_fix_completions_only_if_isolated_problem() {
+        global $DB;
+
+        // Set up some data that is valid.
+        $this->setup_fix_completions();
+        $timecompleted = time();
+
+        $windowopenprog = $this->fixprograms[8];
+        $windowopenuser = $this->fixusers[2];
+
+        // Break all the records - timedue.
+        $sql = "UPDATE {prog_completion} SET timedue = 0 WHERE coursesetid = 0";
+        $DB->execute($sql);
+
+        // Break some records - timecompleted.
+        $sql = "UPDATE {prog_completion}
+                   SET timecompleted = 123456789
+                 WHERE programid = :programid OR userid = :userid";
+        $params = array('programid' => $windowopenprog->id, 'userid' => $windowopenuser->id);
+        $DB->execute($sql, $params);
+
+        $expectederrorstimedueonly = array(
+            'error:timedueunknown' => 'timedue',
+        );
+
+        $expectederrorstimecompleted = array( // Same as above with one extra.
+            'error:timedueunknown' => 'timedue',
+            'error:stateincomplete-timecompletednotempty' => 'timecompleted',
+        );
+
+        // Check that all records are broken in the correct way.
+        $progcompletions = $DB->get_records('prog_completion');
+        foreach ($progcompletions as $progcompletion) {
+            $errors = prog_get_completion_errors($progcompletion);
+            if ($progcompletion->userid == $windowopenuser->id || $progcompletion->programid == $windowopenprog->id) {
+                $this->assertEquals($expectederrorstimecompleted, $errors);
+            } else {
+                $this->assertEquals($expectederrorstimedueonly, $errors);
+            }
+        }
+        $this->assertEquals($this->numfixusers * $this->numfixprogs, count($progcompletions));
+
+        // Apply the fixassignedtimedueunknown fix to all users and progs, but won't affect those with timecompleted problem.
+        prog_fix_completions('fixassignedtimedueunknown');
+
+        // Check that the correct records have been fixed.
+        $progcompletions = $DB->get_records('prog_completion');
+        foreach ($progcompletions as $progcompletion) {
+            $errors = prog_get_completion_errors($progcompletion);
+            if ($progcompletion->userid == $windowopenuser->id || $progcompletion->programid == $windowopenprog->id) {
+                $this->assertEquals($expectederrorstimecompleted, $errors);
+            } else {
+                $this->assertEquals(array(), $errors);
+            }
+        }
+        $this->assertEquals($this->numfixusers * $this->numfixprogs, count($progcompletions));
+    }
+
+    /**
+     * Test prog_fix_timedue. Set the program due date to COMPLETION_TIME_NOT_SET.
+     */
+    public function test_prog_fix_timedue() {
+        // Expected record is incomplete.
+        $expectedprogcompletion = new stdClass();
+        $expectedprogcompletion->id = 1007;
+        $expectedprogcompletion->programid = 1008;
+        $expectedprogcompletion->userid = 1003;
+        $expectedprogcompletion->status = STATUS_PROGRAM_INCOMPLETE;
+        $expectedprogcompletion->timestarted = 0;
+        $expectedprogcompletion->timedue = COMPLETION_TIME_NOT_SET;
+        $expectedprogcompletion->timecompleted = 0;
+
+        // Check that the expected test data is in a valid state.
+        $errors = prog_get_completion_errors($expectedprogcompletion);
+        $this->assertEquals(array(), $errors);
+
+        $progcompletion = clone($expectedprogcompletion);
+
+        // Change the record so that the program completion record is wrong.
+        $progcompletion->timedue = COMPLETION_TIME_UNKNOWN;
+
+        prog_fix_timedue($progcompletion);
+
+        // Check that the record was changed as expected.
+        $this->assertEquals($expectedprogcompletion, $progcompletion);
     }
 }

@@ -2706,6 +2706,48 @@ class totara_certification_certification_completion_testcase extends reportcache
     }
 
     /**
+     * Test certif_fix_prog_timedue. Set the program due date to COMPLETION_TIME_NOT_SET.
+     */
+    public function test_certif_fix_prog_timedue() {
+        // Expected record is newly assign.
+        $expectedcertcompletion = new stdClass();
+        $expectedcertcompletion->id = 1001;
+        $expectedcertcompletion->certifid = 1002;
+        $expectedcertcompletion->userid = 1003;
+        $expectedcertcompletion->certifpath = CERTIFPATH_CERT;
+        $expectedcertcompletion->status = CERTIFSTATUS_ASSIGNED;
+        $expectedcertcompletion->renewalstatus = CERTIFRENEWALSTATUS_NOTDUE;
+        $expectedcertcompletion->timecompleted = 0;
+        $expectedcertcompletion->timewindowopens = 0;
+        $expectedcertcompletion->timeexpires = 0;
+
+        $expectedprogcompletion = new stdClass();
+        $expectedprogcompletion->id = 1007;
+        $expectedprogcompletion->programid = 1008;
+        $expectedprogcompletion->userid = 1003;
+        $expectedprogcompletion->status = STATUS_PROGRAM_INCOMPLETE;
+        $expectedprogcompletion->timestarted = 0;
+        $expectedprogcompletion->timedue = COMPLETION_TIME_NOT_SET;
+        $expectedprogcompletion->timecompleted = 0;
+
+        // Check that the expected test data is in a valid state.
+        $errors = certif_get_completion_errors($expectedcertcompletion, $expectedprogcompletion);
+        $this->assertEquals(array(), $errors);
+
+        $certcompletion = clone($expectedcertcompletion);
+        $progcompletion = clone($expectedprogcompletion);
+
+        // Change the record so that the program completion record is wrong.
+        $progcompletion->timedue = COMPLETION_TIME_UNKNOWN;
+
+        certif_fix_prog_timedue($certcompletion, $progcompletion);
+
+        // Check that the record was changed as expected (back to COMPLETION_TIME_NOT_SET).
+        $this->assertEquals($expectedcertcompletion, $certcompletion);
+        $this->assertEquals($expectedprogcompletion, $progcompletion);
+    }
+
+    /**
      * Test certif_fix_prog_completion_date. Set the program completion date to match certification completion date.
      */
     public function test_certif_fix_prog_completion_date() {

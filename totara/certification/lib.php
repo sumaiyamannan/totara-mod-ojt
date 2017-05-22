@@ -2417,7 +2417,10 @@ function certif_get_completion_error_solution($problemkey, $programid = 0, $user
                 html_writer::link($url1, get_string('clicktofixcompletions', 'totara_program'));
             break;
         case 'error:stateassigned-timedueunknown':
-            $html = get_string('error:info_timedueunknown', 'totara_program');
+            $url = clone($baseurl);
+            $url->param('fixkey', 'fixassignedtimedueunknown');
+            $html = get_string('error:info_fixtimedueunknown', 'totara_program') . '<br>' .
+                html_writer::link($url, get_string('clicktofixcompletions', 'totara_program'));
             break;
         case 'error:statecertified-certprogtimecompleteddifferent':
             $url1 = clone($baseurl);
@@ -2566,6 +2569,11 @@ function certif_fix_completions($fixkey, $programid = 0, $userid = 0) {
             case 'fixcertcompletiondate':
                 if ($problemkey == 'error:statecertified-certprogtimecompleteddifferent') {
                     $result = certif_fix_cert_completion_date($certcompletion, $progcompletion);
+                }
+                break;
+            case 'fixassignedtimedueunknown':
+                if ($problemkey == 'error:stateassigned-timedueunknown') {
+                    $result = certif_fix_prog_timedue($certcompletion, $progcompletion);
                 }
                 break;
             case 'fixprogcompletiondate':
@@ -2888,6 +2896,20 @@ function certif_fix_cert_completion_date(&$certcompletion, &$progcompletion) {
         return 'Automated fix \'certif_fix_cert_completion_date\' was applied<br>
         <ul><li>\'Certification completion date\' was set to ' . $timecompleted . '</li></ul>';
     }
+}
+
+/**
+ * Set the timedue to COMPLETION_TIME_NOT_SET
+ *
+ * @param stdClass $certcompletion a record from certif_completion to be fixed
+ * @param stdClass $progcompletion a corresponding record from prog_completion to be fixed
+ * @return string message for transaction log
+ */
+function certif_fix_prog_timedue(&$certcompletion, &$progcompletion) {
+    $progcompletion->timedue = COMPLETION_TIME_NOT_SET;
+
+    return 'Automated fix \'certif_fix_prog_timedue\' was applied<br>
+        <ul><li>\'Program due date\' was set to ' . COMPLETION_TIME_NOT_SET . '</li></ul>';
 }
 
 /**
