@@ -401,6 +401,12 @@ class reportbuilder {
                 $this->requiredcolumns[$key] = $column;
             }
         }
+        if (!empty($embed->requiredcolumns)) {
+            foreach ($embed->requiredcolumns as $column) {
+                $key = $column->type . '-' . $column->value;
+                $this->requiredcolumns[$key] = $column;
+            }
+        }
 
         $this->columnoptions = array();
         foreach ($this->src->columnoptions as $columnoption) {
