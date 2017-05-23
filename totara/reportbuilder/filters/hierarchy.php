@@ -131,7 +131,7 @@ class rb_filter_hierarchy extends rb_filter_type {
         if ($id = $mform->getElementValue($this->name)) {
             if ($title = $DB->get_field($type, 'fullname', array('id' => $id))) {
                 $mform->setDefault('title'.$this->name,
-                html_writer::tag('span', $title, array('id' => $this->name . 'title', 'class' => 'dialog-result-title')));
+                html_writer::tag('span', format_string($title), array('id' => $this->name . 'title', 'class' => 'dialog-result-title')));
             }
         }
     }
