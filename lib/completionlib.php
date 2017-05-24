@@ -289,6 +289,30 @@ function completion_module_rpl_enabled($module) {
     throw new coding_exception(get_string('error:incorrectdatatypesupplied', 'completion'));
 }
 
+/**
+ * Returns the self completion form for an activity
+ *
+ * @param object $cm The course module object
+ * @return string HTML of the self completion form
+ */
+function self_completion_form($cm) {
+    global $OUTPUT;
+    if ($cm->completion == COMPLETION_TRACKING_MANUAL) {
+        $mod_info = get_course_and_cm_from_cmid($cm->id);
+        $compinfo = new \completion_info($mod_info[0]);
+        $completiondata = $compinfo->get_data($mod_info[1]);
+        $completion = new \core_completion\forms\activity_completion(['activity_id' => $cm->id, 'completed' => $completiondata->completionstate]);
+
+        // Use notification template as notification class sanitises the form output
+        $notificationdata = new stdClass();
+
+        $notificationdata->message = $completion->render();
+        return $OUTPUT->render_from_template('core/notification_message', $notificationdata);
+    } else {
+        return '';
+    }
+}
+
 
 /**
  * Class represents completion information for a course.

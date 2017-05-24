@@ -492,6 +492,9 @@ function certificate_print_attempts($course, $certificate, $attempts) {
 
     echo $OUTPUT->heading(get_string('summaryofattempts', 'certificate'));
 
+    list($course, $cm) = get_course_and_cm_from_cmid($certificate->id);
+    echo self_completion_form($cm);
+
     // Prepare table header
     $table = new html_table();
     $table->class = 'generaltable';

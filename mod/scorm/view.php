@@ -145,6 +145,8 @@ $PAGE->set_heading($course->fullname);
 echo $OUTPUT->header();
 echo $OUTPUT->heading(format_string($scorm->name));
 
+echo self_completion_form($cm);
+
 if (!empty($action) && confirm_sesskey() && has_capability('mod/scorm:deleteownresponses', $contextmodule)) {
     if ($action == 'delete') {
         $confirmurl = new moodle_url($PAGE->url, array('action' => 'deleteconfirm'));

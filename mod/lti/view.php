@@ -106,6 +106,8 @@ if ($lti->showtitlelaunch) {
     echo $OUTPUT->heading(format_string($lti->name, true, array('context' => $context)));
 }
 
+echo self_completion_form($cm);
+
 if ($lti->showdescriptionlaunch && $lti->intro) {
     echo $OUTPUT->box(format_module_intro('lti', $lti, $cm->id), 'generalbox description', 'intro');
 }

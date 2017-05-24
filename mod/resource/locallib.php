@@ -100,6 +100,8 @@ function resource_display_embed($resource, $cm, $course, $file) {
     resource_print_header($resource, $cm, $course);
     resource_print_heading($resource, $cm, $course);
 
+    echo self_completion_form($cm);
+
     echo $code;
 
     resource_print_intro($resource, $cm, $course);
@@ -125,6 +127,7 @@ function resource_display_frame($resource, $cm, $course, $file) {
         $PAGE->set_pagelayout('frametop');
         resource_print_header($resource, $cm, $course);
         resource_print_heading($resource, $cm, $course);
+        echo self_completion_form($cm);
         resource_print_intro($resource, $cm, $course);
         echo $OUTPUT->footer();
         die;
@@ -204,6 +207,7 @@ function resource_print_workaround($resource, $cm, $course, $file) {
 
     resource_print_header($resource, $cm, $course);
     resource_print_heading($resource, $cm, $course, true);
+    echo self_completion_form($cm);
     resource_print_intro($resource, $cm, $course, true);
 
     $resource->mainfile = $file->get_filename();

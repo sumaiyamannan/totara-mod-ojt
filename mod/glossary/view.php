@@ -305,6 +305,8 @@ if ($tab == GLOSSARY_APPROVAL_VIEW) {
 }
 echo $OUTPUT->heading(format_string($glossary->name), 2);
 
+echo self_completion_form($cm);
+
 /// All this depends if whe have $showcommonelements
 if ($showcommonelements) {
 /// To calculate available options

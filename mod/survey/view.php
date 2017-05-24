@@ -71,6 +71,8 @@ $PAGE->set_heading($course->fullname);
 echo $OUTPUT->header();
 echo $OUTPUT->heading($survey->name);
 
+echo self_completion_form($cm);
+
 // Check to see if groups are being used in this survey.
 if ($groupmode = groups_get_activity_groupmode($cm)) {   // Groups are being used.
     $currentgroup = groups_get_activity_group($cm);
