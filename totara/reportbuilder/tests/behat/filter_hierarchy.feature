@@ -68,9 +68,16 @@ Feature: Single hierarchy report filter
     And I should <u4> "User Four"
     And I should <u5> "User Five"
 
+    # The filter text should still be displayed after page reload.
+    # We can reload the page by sorting a column.
+    And I click on "User's Fullname" "link"
+    And I should see "<organisation>"
+    And the field "job_assignment-allorganisations_op" matches value "<type>"
+    And the field "job_assignment-allorganisations_child" matches value "<includesub>"
+
   Examples:
-    | type                 | includesub | u1      | u2      | u3      | u4      | u5      |
-    | Any of the selected  | 0          | see     | not see | not see | not see | not see |
-    | None of the selected | 0          | not see | see     | see     | see     | see     |
-    | Any of the selected  | 1          | see     | see     | see     | not see | not see |
-    | None of the selected | 1          | not see | not see | not see | see     | see     |
+    | type                 | includesub | u1      | u2      | u3      | u4      | u5      | organisation               |
+    | Any of the selected  | 0          | see     | not see | not see | not see | not see | Organisation 1z  |
+    | None of the selected | 0          | not see | see     | see     | see     | see     | Organisation 1z  |
+    | Any of the selected  | 1          | see     | see     | see     | not see | not see | Organisation 1z  |
+    | None of the selected | 1          | not see | not see | not see | see     | see     | Organisation 1z  |
