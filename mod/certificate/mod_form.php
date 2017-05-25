@@ -76,9 +76,16 @@ class mod_certificate_mod_form extends moodleform_mod {
             $mform->addHelpButton('reportcert', 'reportcert', 'certificate');
         }
 
-        $mform->addElement('text', 'requiredtime', get_string('coursetimereq', 'certificate'), array('size'=>'3'));
+        if ((bool)certificate_log_stores_enabled()) {
+            $mform->addElement('text', 'requiredtime', get_string('coursetimereq', 'certificate'), array('size' => '3'));
+            $mform->addHelpButton('requiredtime', 'coursetimereq', 'certificate');
+        } else {
+            $mform->addElement('hidden', 'requiredtime', 0);
+            $mform->addElement('static', 'requiredtimedisabled', get_string('coursetimereq', 'certificate'),
+                get_string('coursetimereqdisabled', 'certificate')
+            );
+        }
         $mform->setType('requiredtime', PARAM_INT);
-        $mform->addHelpButton('requiredtime', 'coursetimereq', 'certificate');
 
         // Text Options
         $mform->addElement('header', 'textoptions', get_string('textoptions', 'certificate'));
@@ -184,6 +191,10 @@ class mod_certificate_mod_form extends moodleform_mod {
         // Check that the required time entered is valid
         if ((!is_number($data['requiredtime']) || $data['requiredtime'] < 0)) {
             $errors['requiredtime'] = get_string('requiredtimenotvalid', 'certificate');
+        } else {
+            if ($data['requiredtime'] > 0 && !(bool)certificate_log_stores_enabled()) {
+                $errors['requiredtime'] = get_string('requiredtimelogstorenotvalid', 'certificate');
+            }
         }
 
         return $errors;
