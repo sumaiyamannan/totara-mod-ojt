@@ -110,14 +110,16 @@ class rb_current_pos_content extends rb_base_content {
                 $wheresql .= " AND u3ja.userid = {$field} ";
                 break;
             case self::CONTENT_POS_EQUALANDBELOW:
-                $joinsql .= " LEFT JOIN {job_assignment} u2ja
-                                     ON u2ja.positionid = p1.id
-                              LEFT JOIN {pos} p2
-                                     ON p2.path LIKE " . $DB->sql_concat('p1.path', "'/%'") . "
-                              LEFT JOIN {job_assignment} u3ja
-                                     ON u3ja.positionid = p2.id";
-
-                $wheresql .= " AND (u2ja.userid = {$field} OR u3ja.userid = {$field})";
+                $joinsql .= " INNER JOIN ( SELECT ja.userid,p.id AS positionid,p.path
+                                             FROM {job_assignment} ja
+                                       INNER JOIN {pos} p
+                                               ON p.id = ja.positionid
+                                         ) viewerja
+                                      ON viewerja.userid = :{$viewparam}
+                                     AND ( p1.path LIKE " . $DB->sql_concat('viewerja.path', "'/%'") . "
+                                           OR viewerja.positionid = u1ja.positionid
+                                         )";
+                $wheresql = " WHERE u1ja.userid = {$field}";
                 break;
         }
 
@@ -275,14 +277,14 @@ class rb_current_org_content extends rb_base_content {
                 $wheresql .= " AND u3ja.userid = {$field} ";
                 break;
             case self::CONTENT_ORG_EQUALANDBELOW:
-                $joinsql .= " LEFT JOIN {job_assignment} u2ja
-                                ON u2ja.organisationid = o1.id
-                         LEFT JOIN {org} o2
-                                ON o2.path LIKE " . $DB->sql_concat('o1.path', "'/%'") . "
-                         LEFT JOIN {job_assignment} u3ja
-                                ON u3ja.organisationid = o2.id";
-
-                $wheresql .= " AND (u2ja.userid = {$field} OR u3ja.userid = {$field})";
+                $joinsql .= " INNER JOIN (
+                        SELECT ja.userid,o.id AS organisationid,o.path
+                            FROM {job_assignment} ja
+                            INNER JOIN {org} o ON o.id = ja.organisationid
+                    ) viewerja ON viewerja.userid = :{$viewparam}
+                        AND ( o1.path LIKE " . $DB->sql_concat('viewerja.path', "'/%'") . "
+                        OR viewerja.organisationid = u1ja.organisationid )";
+                $wheresql = " WHERE u1ja.userid = {$field}";
                 break;
         }
 
