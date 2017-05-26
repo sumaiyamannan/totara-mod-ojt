@@ -4072,6 +4072,7 @@ class appraisal_question extends question_storage {
      *
      * @param int $pageid
      * @param appraisal_role_assignment $roleassignment
+     * @return appraisal_question[]
      */
     public static function fetch_page_role($pageid, appraisal_role_assignment $roleassignment) {
         global $DB;

@@ -270,6 +270,10 @@ class question_userinfo extends question_base{
         $form->addElement('html', '</div>');
     }
 
+    protected function add_header() {
+        return false;
+    }
+
     /**
      * If this element has any answerable form fields, or it's a view only (informational or static) element.
      *
