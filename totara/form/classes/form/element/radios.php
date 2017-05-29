@@ -177,6 +177,11 @@ class radios extends element {
         );
 
         $checked = $this->get_field_value();
+        if ($checked !== null) {
+            // We need string to do strict comparison later.
+            $checked = strval($checked);
+        }
+
         $i = 0;
         foreach ($this->options as $value => $text) {
             $value = (string)$value; // PHP converts type of numeric keys it seems.

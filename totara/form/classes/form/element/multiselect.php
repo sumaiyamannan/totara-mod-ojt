@@ -161,7 +161,7 @@ class multiselect extends element {
             'amdmodule' => 'totara_form/form_element_multiselect',
         );
 
-        $selected = $this->get_field_value();
+        $selected = array_map('strval', $this->get_field_value()); // We need string to do strict comparison later.
         foreach ($this->options as $value => $text) {
             $value = (string)$value; // PHP converts type of numeric keys it seems.
             $text = clean_text($text); // No JS allowed in select options!
