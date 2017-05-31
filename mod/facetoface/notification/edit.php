@@ -173,7 +173,14 @@ if ($form->is_cancelled()) {
     if ($data->templateid != 0) {
         // Double-check that the content is the same as the template - if customised then set template to 0.
         $default = $templates[$data->templateid];
-        if ($data->title != $default->title || $data->body != $default->body || $data->managerprefix != $default->managerprefix ) {
+        $default->bodytrust  = 1;
+        $default->bodyformat = FORMAT_HTML;
+        $default->managerprefixformat = FORMAT_HTML;
+        $default->managerprefixtrust  = 1;
+        $default = file_prepare_standard_editor($default, 'body', $editoroptions, $context, 'mod_facetoface', 'notification', $id);
+        $default = file_prepare_standard_editor($default, 'managerprefix', $editoroptions, $context, 'mod_facetoface', 'notification', $id);
+
+        if (!facetoface_notification_match($data, $default)) {
             $DB->set_field('facetoface_notification', 'templateid', 0, array('id' => $notification->id));
         }
     }
