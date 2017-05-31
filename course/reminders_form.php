@@ -74,6 +74,8 @@ class reminder_edit_form extends moodleform {
         $options = range(2, 30);
         array_unshift($options, get_string('nextday', 'totara_coursecatalog'));
         array_unshift($options, get_string('sameday', 'totara_coursecatalog'));
+        $options[60] = 60;
+        $options[90] = 90;
         $mform->addElement('select', 'invitationperiod', get_string('period', 'totara_coursecatalog'), $options);
         $mform->setType('invitationperiod', PARAM_INT);
         $mform->addHelpButton('invitationperiod', 'invitationperiod', 'totara_coursecatalog');
