@@ -1147,3 +1147,4 @@ $string['xofyrecord'] = '{$a->filtered} of {$a->unfiltered} record shown';
 $string['xofyrecords'] = '{$a->filtered} of {$a->unfiltered} records shown';
 $string['xrecord'] = '{$a} record shown';
 $string['xrecords'] = '{$a} records shown';
+$string['cachedef_rb_sources'] = 'Report source paths cache';
