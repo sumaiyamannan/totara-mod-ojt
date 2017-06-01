@@ -203,4 +203,62 @@ class totara_form_element_datetime_testcase extends advanced_testcase {
         );
         $this->assertSame($expected, $data);
     }
+
+    public function test_behat_normalise_value_pre_set() {
+        global $CFG;
+        require_once("$CFG->dirroot/totara/form/classes/form/element/behat_helper/base.php");
+        require_once("$CFG->dirroot/totara/form/classes/form/element/behat_helper/text.php");
+        require_once("$CFG->dirroot/totara/form/classes/form/element/behat_helper/datetime.php");
+
+        $this->assertSame('2017-12-23T13:27', \totara_form\form\element\behat_helper\datetime::normalise_value_pre_set('2017-12-23T13:27'));
+        $this->assertSame('2017-12-23T13:27', \totara_form\form\element\behat_helper\datetime::normalise_value_pre_set('17-12-23T13:27'));
+        $this->assertSame('2017-12-23T13:27', \totara_form\form\element\behat_helper\datetime::normalise_value_pre_set('2017 12 23 13:27'));
+        $this->assertSame('2017-12-23T13:27', \totara_form\form\element\behat_helper\datetime::normalise_value_pre_set(' 2017-12-23T13:27 '));
+        $this->assertSame('2017-12-23T13:27', \totara_form\form\element\behat_helper\datetime::normalise_value_pre_set('2017/12/23 13:27'));
+        $this->assertSame('2017-12-23T13:27', \totara_form\form\element\behat_helper\datetime::normalise_value_pre_set('2017/12/23 13:27'));
+        $this->assertSame('2017-12-23T15:45', \totara_form\form\element\behat_helper\datetime::normalise_value_pre_set('2017/12/23'));
+
+        $tomorrow = new \DateTime();
+        $tomorrow = $tomorrow->add(new \DateInterval('P1D'));
+        $yesterday = new \DateTime();
+        $yesterday = $yesterday->sub(new \DateInterval('P1D'));
+
+        $someday = new \DateTime();
+        $someday->add(new \DateInterval('P1Y2M10DT2H30M'));
+
+        $this->assertStringStartsWith($tomorrow->format('Y-m-d\TH:'), \totara_form\form\element\behat_helper\datetime::normalise_value_pre_set('+P1D'));
+        $this->assertStringStartsWith($tomorrow->format('Y-m-d\TH:'), \totara_form\form\element\behat_helper\datetime::normalise_value_pre_set(' +P1D '));
+        $this->assertStringStartsWith($yesterday->format('Y-m-d\TH:'), \totara_form\form\element\behat_helper\datetime::normalise_value_pre_set('-P1D'));
+        $this->assertStringStartsWith($someday->format('Y-m-d\TH:'), \totara_form\form\element\behat_helper\datetime::normalise_value_pre_set('+P1Y2M10DT2H30M'));
+
+        try {
+            \totara_form\form\element\behat_helper\datetime::normalise_value_pre_set('2017-12-23T13:27:45');
+        } catch (moodle_exception $ex) {
+            $this->assertInstanceOf('coding_exception', $ex);
+        }
+
+        try {
+            \totara_form\form\element\behat_helper\datetime::normalise_value_pre_set('2017/12/23 13');
+        } catch (moodle_exception $ex) {
+            $this->assertInstanceOf('coding_exception', $ex);
+        }
+
+        try {
+            \totara_form\form\element\behat_helper\datetime::normalise_value_pre_set('2017*12*23');
+        } catch (moodle_exception $ex) {
+            $this->assertInstanceOf('coding_exception', $ex);
+        }
+
+        try {
+            \totara_form\form\element\behat_helper\datetime::normalise_value_pre_set('P1D');
+        } catch (moodle_exception $ex) {
+            $this->assertInstanceOf('coding_exception', $ex);
+        }
+
+        try {
+            \totara_form\form\element\behat_helper\datetime::normalise_value_pre_set('+P1X');
+        } catch (moodle_exception $ex) {
+            $this->assertInstanceOf('coding_exception', $ex);
+        }
+    }
 }

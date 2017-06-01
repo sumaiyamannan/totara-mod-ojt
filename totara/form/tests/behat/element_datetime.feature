@@ -15,7 +15,7 @@ Feature: Totara form datetime element tests
 
     When I set the following Totara form fields to these values:
       | Basic datetime | 2015-07-26 12:34 |
-      | Required basic datetime | 2018-09-09T09:09:09.090 |
+      | Required basic datetime | 2018-09-09T09:09 |
     And I press "Save changes"
     Then I should see "The form has been submit"
     And "datetime_basic" row "Value" column of "form_results" table should contain "«1437885240 (2015/07/26 12:34 Australia/Perth)»"
@@ -176,3 +176,24 @@ Feature: Totara form datetime element tests
     And "hiddenif_required_b" row "Value" column of "form_results" table should contain "«951670800 (2000/02/28 01:00 Australia/Perth)»"
     And "form_select" row "Value" column of "form_results" table should contain "«totara_form\form\testform\element_datetime»"
     And "submitbutton" row "Value" column of "form_results" table should contain "«1»"
+
+  Scenario: Test relative datetime elements in Totara forms without javascript
+    When I select "Basic datetime element [totara_form\form\testform\element_datetime]" from the "Test form" singleselect
+    Then I should see "Form: Basic datetime element"
+
+    When I set the following Totara form fields to these values:
+      | Basic datetime | +P1D |
+      | Required basic datetime | -P1D |
+    And I press "Save changes"
+    Then I should see "The form has been submit"
+
+  @javascript
+  Scenario: Test relative datetime elements in Totara forms with javascript
+    When I select "Basic datetime element [totara_form\form\testform\element_datetime]" from the "Test form" singleselect
+    Then I should see "Form: Basic datetime element"
+
+    When I set the following Totara form fields to these values:
+      | Basic datetime | +P1D |
+      | Required basic datetime | -P1D |
+    And I press "Save changes"
+    Then I should see "The form has been submit"

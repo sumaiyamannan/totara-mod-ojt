@@ -41,7 +41,7 @@ class datetime extends text {
      * @throws \Behat\Mink\Exception\ExpectationException
      */
     public function set_value($value) {
-        $value = $this->normalise_value_pre_set($value);
+        $value = static::normalise_value_pre_set($value);
         if (!$this->context->running_javascript()) {
             // If JS is not running this is practically just a plain text field.
             parent::set_value($value);
@@ -70,59 +70,51 @@ class datetime extends text {
     /**
      * Normalises the given value prior to setting it.
      *
-     * @throws ExpectationException
      * @param string $value
      * @return string
      */
-    protected function normalise_value_pre_set($value) {
-        if (trim($value) === '') {
+    public static function normalise_value_pre_set($value) {
+        $value = trim($value);
+
+        if ($value === '') {
             return '';
         }
+
         // Alright in behat feature files we accept a couple of different formats.
-        // 1. YYYY-MM-DD(T| )hh:mm(:ss(.ms)?)? - this is the default
+        // 1. YYYY-MM-DD(T| )hh:mm - this is the default
         // 2. YYYY-MM-DD  - this is our own.
-        $regex = '#^(?P<year>\d{2,4})[\-/ ](?P<month>\d{1,2})[\-/ ](?P<day>\d{1,2})([T ](?P<hour>\d{1,2}):(?P<minute>\d{1,2})((?P<seconds>:\d{1,2})(?P<ms>\.\d+))?)?$#';
-        if (!preg_match($regex, trim($value), $matches)) {
-            throw new ExpectationException('Invalid datetime value provided, it should be YYYY-MM-DD hh:mm, "'.$value.'"', $this->context->getSession());
+        $regexdate = '#^(?P<year>\d{2,4})[\-/ ](?P<month>\d{1,2})[\-/ ](?P<day>\d{1,2})([T ](?P<hour>\d{1,2}):(?P<minute>\d{1,2}))?$#';
+        // The internal must start with +P or -P.
+        $regexinterval = '/^([+-])(P(\d+Y)?(\d+M)?(\d+W)?(\d+D)?(T(\d+H)?(\d+M)?(\d+S)?)?)$/';
+
+        if (preg_match($regexinterval, $value, $matches)) {
+            $date = new \DateTime();
+            $interval = new \DateInterval($matches[2]);
+            if ($matches[1] === '+') {
+                $date->add($interval);
+            } else {
+                $date->sub($interval);
+            }
+
+        } else if (preg_match($regexdate, $value, $matches)) {
+            $year = $matches['year'];
+            $month = (int)$matches['month'];
+            $day = (int)$matches['day'];
+            // Why 3:45pm you ask - just so that we know what we can expect when the datetime has not been specified.
+            $hour = isset($matches['hour']) ? (int)$matches['hour'] : 15;
+            $minute = isset($matches['minute']) ? (int)$matches['minute'] : 45;
+            if ($year < 99) {
+                $year += 2000;
+            }
+
+            $date = new \DateTime();
+            $date->setDate($year, $month, $day);
+            $date->setTime($hour, $minute, 0);
+
+        } else {
+            throw new \coding_exception('Invalid utc10date value provided, it should be YYYY-MM-DD hh:mm date or relative +/- P interval, "'.$value.'"');
         }
-        $year = (int)$matches['year'];
-        $month = (int)$matches['month'];
-        $day = (int)$matches['day'];
-        // Why 3:45pm you ask - just so that we know what we can expect when the datetime has not been specified.
-        $hour = isset($matches['hour']) ? (int)$matches['hour'] : 15;
-        $minute = isset($matches['minute']) ? (int)$matches['minute'] : 45;
-        $seconds = isset($matches['seconds']) ? (int)$matches['seconds'] : 0;
-        $ms = isset($matches['ms']) ? (int)$matches['ms'] : 0;
 
-        if ($year < 99) {
-            $year += 2000;
-        }
-
-        $year = $this->stringify_date_digit($year, 4);
-        $month = $this->stringify_date_digit($month);
-        $day = $this->stringify_date_digit($day);
-        $hour = $this->stringify_date_digit($hour);
-        $minute = $this->stringify_date_digit($minute);
-        $seconds = $this->stringify_date_digit($seconds);
-        $ms = $this->stringify_date_digit($ms, 3);
-
-        return "{$year}-{$month}-{$day}T{$hour}:{$minute}:{$seconds}.{$ms}";
+        return $date->format('Y-m-d\TH:i');
     }
-
-    /**
-     * Takes a value and converts it to a string of the expected length.
-     *
-     * @param int $value
-     * @param int $length
-     * @return string
-     */
-    protected function stringify_date_digit($value, $length = 2) {
-        $value = (string)$value;
-        $valuelen = strlen($value);
-        if ($valuelen < $length) {
-            $value = str_pad($value, $length, '0', STR_PAD_LEFT);
-        }
-        return $value;
-    }
-
 }
