@@ -5973,6 +5973,8 @@ class moodle_database_for_testing extends moodle_database {
     public function begin_transaction() {}
     public function commit_transaction() {}
     public function rollback_transaction() {}
+    public function get_counted_recordset_sql($sql, array $params = null, $limitfrom = 0, $limitnum = 0, &$count = 0) { }
+    public function get_counted_records_sql($sql, array $params = null, $limitfrom = 0, $limitnum = 0, &$count = 0) { }
 }
 
 
