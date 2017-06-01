@@ -34,7 +34,7 @@ require_once($CFG->dirroot . '/totara/reportbuilder/tests/reportcache_advanced_t
  * Certification module PHPUnit archive test class
  *
  * To test, run this from the command line from the $CFG->dirroot
- * vendor/bin/phpunit --verbose totara_certification_recertdates_testcase totara/certification/tests/recertdates_test.php
+ * vendor/bin/phpunit --verbose totara_certification_reassignments_testcase totara/certification/tests/reassignment_test.php
  */
 class totara_certification_reassignments_testcase extends reportcache_advanced_testcase {
 
@@ -685,15 +685,12 @@ class totara_certification_reassignments_testcase extends reportcache_advanced_t
         $this->assertEquals($certcomprec->timewindowopens, 0); // Zero'd out on expiry.
         $this->assertEquals($certcomprec->timeexpires, 0); // Zero'd out on expiry.
         $this->assertEquals($certcomprec->certifpath, CERTIFPATH_CERT); // Check they have been put back on the CERT path.
-        $this->assertEquals($certcomprec->status, CERTIFSTATUS_EXPIRED); // Check they are still certified.
-        $this->assertEquals($certcomprec->renewalstatus, CERTIFRENEWALSTATUS_EXPIRED); // Check the window has opened.
+        $this->assertEquals($certcomprec->status, CERTIFSTATUS_EXPIRED); // Check they are expired.
+        $this->assertEquals($certcomprec->renewalstatus, CERTIFRENEWALSTATUS_EXPIRED); // Check they are expired.
 
-        // Check the history record is still there but no longer marked as unassigned.
+        // Check the history record was deleted.
         $certhistrec = $DB->get_record('certif_completion_history', array('userid' => $this->users[1]->id, 'timecompleted' => 0));
-        $this->assertEquals($certhistrec->timecompleted, 0);
-        $this->assertEquals($certhistrec->timewindowopens, 0);
-        $this->assertEquals($certhistrec->timeexpires, 0);
-        $this->assertEquals($certhistrec->unassigned, 0);
+        $this->assertEquals($certhistrec, false);
 
         // Check the course completions are still there and still marked as complete.
         $comprecs = $DB->get_records('course_completions', array('userid' => $this->users[1]->id, 'timecompleted' => $times['complete']));
@@ -705,13 +702,10 @@ class totara_certification_reassignments_testcase extends reportcache_advanced_t
         $comphistrecs = $DB->get_records('course_completion_history', array('userid' => $this->users[1]->id, 'timecompleted' => $times['oldcomplete']));
         $this->assertEquals(count($comphistrecs), 2);
 
-        // Quick test that a second expired history record updates the timemodified, wind it back 10s to make it obvious.
-        $DB->execute('UPDATE {certif_completion_history} SET timemodified = (timemodified - 10) WHERE timecompleted = 0 AND userid = :uid', array('uid' => $this->users[1]->id));
-        $prerecord = $DB->get_record('certif_completion_history', array('timecompleted' => 0, 'userid' => $this->users[1]->id));
+        // Quick test that a new history record is created if we remove the user again.
         $this->getDataGenerator()->assign_program($progid, array($this->users[2]->id));
         $this->task->execute();
         $postrecord = $DB->get_record('certif_completion_history', array('timecompleted' => 0, 'userid' => $this->users[1]->id));
-        $this->assertGreaterThan($prerecord->timemodified, $postrecord->timemodified);
         $this->assertEquals($postrecord->unassigned, 1);
     }
 }

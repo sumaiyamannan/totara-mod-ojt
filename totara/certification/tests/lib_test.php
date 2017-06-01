@@ -2236,4 +2236,720 @@ class totara_certification_lib_testcase extends reportcache_advanced_testcase {
         $this->assert_program_progress_after_course_completion(100, $certification, $user, $courses[2]);
         $this->assert_program_progress_after_course_completion(100, $certification, $user, $courses[3]);
     }
+
+    /**
+     * Test certif_create_completion. This test doesn't test the reassignment code within certif_create_completion
+     * because that is already heavily tested below.
+     */
+    public function test_certif_create_completion() {
+        global $DB;
+
+        $this->resetAfterTest();
+
+        // Set up some stuff.
+        $user = $this->getDataGenerator()->create_user();
+
+        $prog = $this->getDataGenerator()->create_program();
+        $cert = $this->getDataGenerator()->create_certification();
+
+        // Check that we get an exception if we try to do it with a program.
+        try {
+            certif_create_completion($prog->id, $user->id);
+            $this->fail('Expected exception!');
+        } catch (moodle_exception $e) {
+            $this->assertEquals('Attempting to create certification completion record for non-certification program.',
+                $e->getMessage());
+        }
+
+        // Create a non-zero course set group completion record to make sure that it doesn't interfere with the later steps.
+        $data = new stdClass();
+        $data->programid = $cert->id;
+        $data->userid = $user->id;
+        $data->coursesetid = 1;
+        $data->status = STATUS_PROGRAM_COMPLETE;
+        $data->timestarted = 987;
+        $data->timedue = 876;
+        $data->timecompleted = 765;
+        $DB->insert_record('prog_completion', $data);
+
+        // Check that two records created successfully if none already exist.
+        $timebefore = time();
+        certif_create_completion($cert->id, $user->id);
+        $timeafter = time();
+
+        list($certcompletion, $progcompletion) = certif_load_completion($cert->id, $user->id);
+        $this->assertEquals(STATUS_PROGRAM_INCOMPLETE, $progcompletion->status);
+        $this->assertEquals(0, $progcompletion->timecompleted);
+        $this->assertEquals(COMPLETION_TIME_NOT_SET, $progcompletion->timedue);
+        $this->assertGreaterThanOrEqual($timebefore, $progcompletion->timestarted);
+        $this->assertLessThanOrEqual($timeafter, $progcompletion->timestarted);
+        $this->assertEquals(CERTIFPATH_CERT, $certcompletion->certifpath);
+        $this->assertEquals(CERTIFSTATUS_ASSIGNED, $certcompletion->status);
+        $this->assertEquals(CERTIFRENEWALSTATUS_NOTDUE, $certcompletion->renewalstatus);
+        $this->assertEquals(0, $certcompletion->timecompleted);
+        $this->assertEquals(0, $certcompletion->timewindowopens);
+        $this->assertEquals(0, $certcompletion->timeexpires);
+        $this->assertGreaterThanOrEqual($timebefore, $certcompletion->timemodified);
+        $this->assertLessThanOrEqual($timeafter, $certcompletion->timemodified);
+
+        // Check that the log was created.
+        $lastlog = $DB->get_records('prog_completion_log', array(), 'id DESC', '*', 0, 2);
+        $lastlog = reset($lastlog);
+        $this->assertEquals($cert->id, $lastlog->programid);
+        $this->assertEquals($user->id, $lastlog->userid);
+        $this->assertStringStartsWith('Created new certif_completion and new prog_completion', $lastlog->description);
+
+        // Check that nothing happens if the records already exist.
+        $progcompletion->status = 123;
+        $progcompletion->timestarted = 234;
+        $progcompletion->timedue = 345;
+        $progcompletion->timecompleted = 456;
+        $DB->update_record('prog_completion', $progcompletion); // Make the existing records unique so we will know it is unchanged.
+        $certcompletion->certifpath = 5;
+        $certcompletion->status = 9;
+        $certcompletion->renewalstatus = 8;
+        $certcompletion->timecompleted = 567;
+        $certcompletion->timewindowopens = 678;
+        $certcompletion->timemodified = 789;
+        $DB->update_record('certif_completion', $certcompletion);
+        certif_create_completion($cert->id, $user->id);
+        list($newcertcompletion, $newprogcompletion) = certif_load_completion($cert->id, $user->id);
+        $this->assertEquals($certcompletion, $newcertcompletion);
+        $this->assertEquals($progcompletion, $newprogcompletion);
+
+        // Check that no new log has been created.
+        $newlatestlog = $DB->get_records('prog_completion_log', array(), 'id DESC', '*', 0, 1);
+        $newlatestlog = reset($newlatestlog);
+        $this->assertEquals($lastlog, $newlatestlog);
+
+        // Check that certif_completion is created if only prog_completion exists, and set it to incomplete if it isn't
+        // already. But timestarted and timedue should be unaltered.
+        $DB->delete_records('certif_completion', array('id' => $certcompletion->id));
+
+        sleep(1);
+        $timebefore = time();
+        certif_create_completion($cert->id, $user->id);
+        $timeafter = time();
+
+        list($newcertcompletion, $newprogcompletion) = certif_load_completion($cert->id, $user->id);
+        $this->assertEquals(STATUS_PROGRAM_INCOMPLETE, $newprogcompletion->status);
+        $this->assertEquals($progcompletion->timestarted, $newprogcompletion->timestarted);
+        $this->assertEquals($progcompletion->timedue, $newprogcompletion->timedue);
+        $this->assertEquals(0, $newprogcompletion->timecompleted);
+        $this->assertEquals(CERTIFPATH_CERT, $newcertcompletion->certifpath);
+        $this->assertEquals(CERTIFSTATUS_ASSIGNED, $newcertcompletion->status);
+        $this->assertEquals(CERTIFRENEWALSTATUS_NOTDUE, $newcertcompletion->renewalstatus);
+        $this->assertEquals(0, $newcertcompletion->timecompleted);
+        $this->assertEquals(0, $newcertcompletion->timewindowopens);
+        $this->assertEquals(0, $newcertcompletion->timeexpires);
+        $this->assertGreaterThanOrEqual($timebefore, $newcertcompletion->timemodified);
+        $this->assertLessThanOrEqual($timeafter, $newcertcompletion->timemodified);
+
+        // Check that the log was created.
+        $lastlog = $DB->get_records('prog_completion_log', array(), 'id DESC', '*', 0, 1);
+        $lastlog = reset($lastlog);
+        $this->assertEquals($cert->id, $lastlog->programid);
+        $this->assertEquals($user->id, $lastlog->userid);
+        $this->assertStringStartsWith('Created new certif_completion for existing prog_completion', $lastlog->description);
+
+        // Check that prog_completion is created if only certif_completion exists.
+        $progcompletion = $newprogcompletion;
+        $certcompletion = $newcertcompletion;
+        $DB->delete_records('prog_completion', array('id' => $progcompletion->id));
+
+        sleep(1);
+        $timebefore = time();
+        certif_create_completion($cert->id, $user->id);
+        $timeafter = time();
+
+        list($newcertcompletion, $newprogcompletion) = certif_load_completion($cert->id, $user->id);
+        $this->assertEquals(STATUS_PROGRAM_INCOMPLETE, $newprogcompletion->status);
+        $this->assertGreaterThanOrEqual($timebefore, $newprogcompletion->timestarted);
+        $this->assertLessThanOrEqual($timeafter, $newprogcompletion->timestarted);
+        $this->assertEquals(COMPLETION_TIME_NOT_SET, $newprogcompletion->timedue);
+        $this->assertEquals(0, $newprogcompletion->timecompleted);
+        $this->assertEquals($certcompletion->certifpath, $newcertcompletion->certifpath);
+        $this->assertEquals($certcompletion->status, $newcertcompletion->status);
+        $this->assertEquals($certcompletion->renewalstatus, $newcertcompletion->renewalstatus);
+        $this->assertEquals($certcompletion->timecompleted, $newcertcompletion->timecompleted);
+        $this->assertEquals($certcompletion->timewindowopens, $newcertcompletion->timewindowopens);
+        $this->assertEquals($certcompletion->timeexpires, $newcertcompletion->timeexpires);
+        $this->assertEquals($certcompletion->timemodified, $newcertcompletion->timemodified);
+
+        // Check that the log was created.
+        $lastlog = $DB->get_records('prog_completion_log', array(), 'id DESC', '*', 0, 1);
+        $lastlog = reset($lastlog);
+        $this->assertEquals($cert->id, $lastlog->programid);
+        $this->assertEquals($user->id, $lastlog->userid);
+        $this->assertStringStartsWith('Created missing prog_completion record for existing certif_completion', $lastlog->description);
+    }
+
+    /**
+     * Tests that certif_create_completion works when the prog_completion doesn't exist, but history does.
+     * In this case, the prog_completion will start out incomplete and will be updated to whatever it needs to be.
+     */
+    public function test_certif_create_completion_missing_prog_completion() {
+        $this->resetAfterTest(true);
+
+        $user1 = $this->getDataGenerator()->create_user();
+        $user2 = $this->getDataGenerator()->create_user();
+        $user3 = $this->getDataGenerator()->create_user();
+
+        $cert1 = $this->getDataGenerator()->create_certification();
+        $cert2 = $this->getDataGenerator()->create_certification();
+        $cert3 = $this->getDataGenerator()->create_certification();
+
+        //////////////////////////////
+        // Assigned certif_completion.
+        $certid = $cert1->certifid;
+        $progid = $cert1->id;
+        $userid = $user1->id;
+
+        // Set up the history record.
+        $certcompletionhistory = new stdClass();
+        $certcompletionhistory->certifid = $certid;
+        $certcompletionhistory->userid = $userid;
+        $certcompletionhistory->certifpath = CERTIFPATH_CERT;
+        $certcompletionhistory->status = CERTIFSTATUS_ASSIGNED;
+        $certcompletionhistory->renewalstatus = CERTIFRENEWALSTATUS_NOTDUE;
+        $certcompletionhistory->timewindowopens = 0;
+        $certcompletionhistory->timeexpires = 0;
+        $certcompletionhistory->timecompleted = 0;
+        $certcompletionhistory->timemodified = 123;
+        $certcompletionhistory->unassigned = 1;
+        certif_write_completion_history($certcompletionhistory);
+
+        // Run the function.
+        certif_create_completion($progid, $userid);
+
+        // Load the data.
+        list($newcertcompletion, $newprogcompletion) = certif_load_completion($progid, $userid);
+        $this->assertEmpty(certif_get_completion_errors($newcertcompletion, $newprogcompletion));
+
+        // Set up the expected certif_completion.
+        $expectedcertcompletion = $certcompletionhistory;
+        unset($expectedcertcompletion->timemodified);
+        unset($expectedcertcompletion->unassigned);
+        unset($newcertcompletion->id);
+        unset($newcertcompletion->timemodified);
+
+        // Set up the expected prog_completion.
+        $expectedprogcompletion = new stdClass();
+        $expectedprogcompletion->programid = $progid;
+        $expectedprogcompletion->userid = $userid;
+        $expectedprogcompletion->coursesetid = 0;
+        $expectedprogcompletion->status = STATUS_PROGRAM_INCOMPLETE;
+        $expectedprogcompletion->timedue = COMPLETION_TIME_NOT_SET;
+        $expectedprogcompletion->timecompleted = 0;
+        $expectedprogcompletion->organisationid = null;
+        $expectedprogcompletion->positionid = null;
+        unset($newprogcompletion->id);
+        unset($newprogcompletion->timestarted);
+
+        // Check that they match.
+        $this->assertEquals($expectedcertcompletion, $newcertcompletion);
+        $this->assertEquals($expectedprogcompletion, $newprogcompletion);
+
+        ///////////////////////////////
+        // Certified certif_completion.
+        $certid = $cert2->certifid;
+        $progid = $cert2->id;
+        $userid = $user2->id;
+
+        // Set up the history record.
+        $certcompletionhistory = new stdClass();
+        $certcompletionhistory->certifid = $certid;
+        $certcompletionhistory->userid = $userid;
+        $certcompletionhistory->certifpath = CERTIFPATH_RECERT;
+        $certcompletionhistory->status = CERTIFSTATUS_COMPLETED;
+        $certcompletionhistory->renewalstatus = CERTIFRENEWALSTATUS_NOTDUE;
+        $certcompletionhistory->timewindowopens = 345;
+        $certcompletionhistory->timeexpires = 456;
+        $certcompletionhistory->timecompleted = 234;
+        $certcompletionhistory->timemodified = 123;
+        $certcompletionhistory->unassigned = 1;
+        certif_write_completion_history($certcompletionhistory);
+
+        // Run the function.
+        certif_create_completion($progid, $userid);
+
+        // Load the data.
+        list($newcertcompletion, $newprogcompletion) = certif_load_completion($progid, $userid);
+        $this->assertEmpty(certif_get_completion_errors($newcertcompletion, $newprogcompletion));
+
+        // Set up the expected certif_completion.
+        $expectedcertcompletion = $certcompletionhistory;
+        unset($expectedcertcompletion->timemodified);
+        unset($expectedcertcompletion->unassigned);
+        unset($newcertcompletion->id);
+        unset($newcertcompletion->timemodified);
+
+        // Set up the expected prog_completion.
+        $expectedprogcompletion = new stdClass();
+        $expectedprogcompletion->programid = $progid;
+        $expectedprogcompletion->userid = $userid;
+        $expectedprogcompletion->coursesetid = 0;
+        $expectedprogcompletion->status = STATUS_PROGRAM_COMPLETE;
+        $expectedprogcompletion->timedue = 456;
+        $expectedprogcompletion->timecompleted = 234;
+        $expectedprogcompletion->organisationid = null;
+        $expectedprogcompletion->positionid = null;
+        unset($newprogcompletion->id);
+        unset($newprogcompletion->timestarted);
+
+        // Check that they match.
+        $this->assertEquals($expectedcertcompletion, $newcertcompletion);
+        $this->assertEquals($expectedprogcompletion, $newprogcompletion);
+
+        /////////////////////////////////
+        // Window open certif_completion.
+        $certid = $cert3->certifid;
+        $progid = $cert3->id;
+        $userid = $user3->id;
+
+        // Set up the history record.
+        $certcompletionhistory = new stdClass();
+        $certcompletionhistory->certifid = $certid;
+        $certcompletionhistory->userid = $userid;
+        $certcompletionhistory->certifpath = CERTIFPATH_RECERT;
+        $certcompletionhistory->status = CERTIFSTATUS_INPROGRESS; // Just for fun.
+        $certcompletionhistory->renewalstatus = CERTIFRENEWALSTATUS_DUE;
+        $certcompletionhistory->timewindowopens = 345;
+        $certcompletionhistory->timeexpires = 456;
+        $certcompletionhistory->timecompleted = 234;
+        $certcompletionhistory->timemodified = 123;
+        $certcompletionhistory->unassigned = 1;
+        certif_write_completion_history($certcompletionhistory);
+
+        // Run the function.
+        certif_create_completion($progid, $userid);
+
+        // Load the data.
+        list($newcertcompletion, $newprogcompletion) = certif_load_completion($progid, $userid);
+        $this->assertEmpty(certif_get_completion_errors($newcertcompletion, $newprogcompletion));
+
+        // Set up the expected certif_completion.
+        $expectedcertcompletion = $certcompletionhistory;
+        unset($expectedcertcompletion->timemodified);
+        unset($expectedcertcompletion->unassigned);
+        unset($newcertcompletion->id);
+        unset($newcertcompletion->timemodified);
+
+        // Set up the expected prog_completion.
+        $expectedprogcompletion = new stdClass();
+        $expectedprogcompletion->programid = $progid;
+        $expectedprogcompletion->userid = $userid;
+        $expectedprogcompletion->coursesetid = 0;
+        $expectedprogcompletion->status = STATUS_PROGRAM_INCOMPLETE;
+        $expectedprogcompletion->timedue = 456;
+        $expectedprogcompletion->timecompleted = 0;
+        $expectedprogcompletion->organisationid = null;
+        $expectedprogcompletion->positionid = null;
+        unset($newprogcompletion->id);
+        unset($newprogcompletion->timestarted);
+
+        // Check that they match.
+        $this->assertEquals($expectedcertcompletion, $newcertcompletion);
+        $this->assertEquals($expectedprogcompletion, $newprogcompletion);
+
+        /////////////////////////////
+        // Expired certif_completion.
+        $certid = $cert1->certifid;
+        $progid = $cert1->id;
+        $userid = $user2->id;
+
+        // Set up the history record that will be used for program timedue, created when window opened.
+        $certcompletionhistory = new stdClass();
+        $certcompletionhistory->certifid = $certid;
+        $certcompletionhistory->userid = $userid;
+        $certcompletionhistory->certifpath = CERTIFPATH_RECERT;
+        $certcompletionhistory->status = CERTIFSTATUS_COMPLETED;
+        $certcompletionhistory->renewalstatus = CERTIFRENEWALSTATUS_NOTDUE;
+        $certcompletionhistory->timewindowopens = 345;
+        $certcompletionhistory->timeexpires = 456;
+        $certcompletionhistory->timecompleted = 234;
+        $certcompletionhistory->timemodified = 123;
+        $certcompletionhistory->unassigned = 0;
+        certif_write_completion_history($certcompletionhistory);
+
+        // Set up the history record that will be restored.
+        $certcompletionhistory = new stdClass();
+        $certcompletionhistory->certifid = $certid;
+        $certcompletionhistory->userid = $userid;
+        $certcompletionhistory->certifpath = CERTIFPATH_CERT;
+        $certcompletionhistory->status = CERTIFSTATUS_EXPIRED;
+        $certcompletionhistory->renewalstatus = CERTIFRENEWALSTATUS_EXPIRED;
+        $certcompletionhistory->timewindowopens = 0;
+        $certcompletionhistory->timeexpires = 0;
+        $certcompletionhistory->timecompleted = 0;
+        $certcompletionhistory->timemodified = 123;
+        $certcompletionhistory->unassigned = 1;
+        certif_write_completion_history($certcompletionhistory);
+
+        // Run the function.
+        certif_create_completion($progid, $userid);
+
+        // Load the data.
+        list($newcertcompletion, $newprogcompletion) = certif_load_completion($progid, $userid);
+        $this->assertEmpty(certif_get_completion_errors($newcertcompletion, $newprogcompletion));
+
+        // Set up the expected certif_completion.
+        $expectedcertcompletion = $certcompletionhistory;
+        unset($expectedcertcompletion->timemodified);
+        unset($expectedcertcompletion->unassigned);
+        unset($newcertcompletion->id);
+        unset($newcertcompletion->timemodified);
+
+        // Set up the expected prog_completion.
+        $expectedprogcompletion = new stdClass();
+        $expectedprogcompletion->programid = $progid;
+        $expectedprogcompletion->userid = $userid;
+        $expectedprogcompletion->coursesetid = 0;
+        $expectedprogcompletion->status = STATUS_PROGRAM_INCOMPLETE;
+        $expectedprogcompletion->timedue = 456; // Restored from other history.
+        $expectedprogcompletion->timecompleted = 0;
+        $expectedprogcompletion->organisationid = null;
+        $expectedprogcompletion->positionid = null;
+        unset($newprogcompletion->id);
+        unset($newprogcompletion->timestarted);
+
+        // Check that they match.
+        $this->assertEquals($expectedcertcompletion, $newcertcompletion);
+        $this->assertEquals($expectedprogcompletion, $newprogcompletion);
+    }
+
+    /**
+     * Tests that certif_create_completion works when the prog_completion exists, but doesn't match the history being restored.
+     * In this case, we'll mostly use a prog_completion in a complete state, since the incomplete state is covered by the
+     * previous test, but be sure to keep other details from the original prog_completion.
+     */
+    public function test_certif_create_completion_mismatched_prog_completion() {
+        global $DB;
+
+        $this->resetAfterTest(true);
+
+        $user1 = $this->getDataGenerator()->create_user();
+        $user2 = $this->getDataGenerator()->create_user();
+        $user3 = $this->getDataGenerator()->create_user();
+
+        $cert1 = $this->getDataGenerator()->create_certification();
+        $cert2 = $this->getDataGenerator()->create_certification();
+        $cert3 = $this->getDataGenerator()->create_certification();
+
+        //////////////////////////////
+        // Assigned certif_completion.
+        $certid = $cert1->certifid;
+        $progid = $cert1->id;
+        $userid = $user1->id;
+
+        // Set up the history record.
+        $certcompletionhistory = new stdClass();
+        $certcompletionhistory->certifid = $certid;
+        $certcompletionhistory->userid = $userid;
+        $certcompletionhistory->certifpath = CERTIFPATH_CERT;
+        $certcompletionhistory->status = CERTIFSTATUS_ASSIGNED;
+        $certcompletionhistory->renewalstatus = CERTIFRENEWALSTATUS_NOTDUE;
+        $certcompletionhistory->timewindowopens = 0;
+        $certcompletionhistory->timeexpires = 0;
+        $certcompletionhistory->timecompleted = 0;
+        $certcompletionhistory->timemodified = 123;
+        $certcompletionhistory->unassigned = 1;
+        $this->assertTrue(certif_write_completion_history($certcompletionhistory));
+
+        // Set up the prog_completion record, setting fields to values that are inconsistent with the history.
+        $progcompletion = new stdClass();
+        $progcompletion->programid = $progid;
+        $progcompletion->userid = $userid;
+        $progcompletion->coursesetid = 0;
+        $progcompletion->status = STATUS_PROGRAM_COMPLETE; // Inconsistent with history status.
+        $progcompletion->timestarted = 567;
+        $progcompletion->timedue = 678;
+        $progcompletion->timecompleted = 789; // Inconsistent with history timecompleted.
+        $progcompletion->organisationid = 890;
+        $progcompletion->positionid = 901;
+        $DB->insert_record('prog_completion', $progcompletion);
+
+        // Run the function.
+        certif_create_completion($progid, $userid);
+
+        // Load the data.
+        list($newcertcompletion, $newprogcompletion) = certif_load_completion($progid, $userid);
+        $this->assertEmpty(certif_get_completion_errors($newcertcompletion, $newprogcompletion));
+
+        // Set up the expected certif_completion.
+        $expectedcertcompletion = $certcompletionhistory;
+        unset($expectedcertcompletion->timemodified);
+        unset($expectedcertcompletion->unassigned);
+        unset($newcertcompletion->id);
+        unset($newcertcompletion->timemodified);
+
+        // Set up the expected prog_completion.
+        $expectedprogcompletion = $progcompletion;
+        $expectedprogcompletion->status = STATUS_PROGRAM_INCOMPLETE;
+        $expectedprogcompletion->timecompleted = 0;
+        unset($newprogcompletion->id);
+
+        // Check that they match.
+        $this->assertEquals($expectedcertcompletion, $newcertcompletion);
+        $this->assertEquals($expectedprogcompletion, $newprogcompletion);
+
+        ///////////////////////////////
+        // Certified certif_completion.
+        $certid = $cert2->certifid;
+        $progid = $cert2->id;
+        $userid = $user2->id;
+
+        // Set up the history record.
+        $certcompletionhistory = new stdClass();
+        $certcompletionhistory->certifid = $certid;
+        $certcompletionhistory->userid = $userid;
+        $certcompletionhistory->certifpath = CERTIFPATH_RECERT;
+        $certcompletionhistory->status = CERTIFSTATUS_COMPLETED;
+        $certcompletionhistory->renewalstatus = CERTIFRENEWALSTATUS_NOTDUE;
+        $certcompletionhistory->timewindowopens = 345;
+        $certcompletionhistory->timeexpires = 456;
+        $certcompletionhistory->timecompleted = 234;
+        $certcompletionhistory->timemodified = 123;
+        $certcompletionhistory->unassigned = 1;
+        $this->assertTrue(certif_write_completion_history($certcompletionhistory));
+
+        // Set up the prog_completion record, setting fields to values that are inconsistent with the history.
+        $progcompletion = new stdClass();
+        $progcompletion->programid = $progid;
+        $progcompletion->userid = $userid;
+        $progcompletion->coursesetid = 0;
+        $progcompletion->status = STATUS_PROGRAM_INCOMPLETE; // Inconsistent with history status.
+        $progcompletion->timestarted = 567;
+        $progcompletion->timedue = 678; // Inconsistent with history timeexpires.
+        $progcompletion->timecompleted = 789; // Inconsistent with history timecompleted.
+        $progcompletion->organisationid = 890;
+        $progcompletion->positionid = 901;
+        $DB->insert_record('prog_completion', $progcompletion);
+
+        // Run the function.
+        certif_create_completion($progid, $userid);
+
+        // Load the data.
+        list($newcertcompletion, $newprogcompletion) = certif_load_completion($progid, $userid);
+        $this->assertEmpty(certif_get_completion_errors($newcertcompletion, $newprogcompletion));
+
+        // Set up the expected certif_completion.
+        $expectedcertcompletion = $certcompletionhistory;
+        unset($expectedcertcompletion->timemodified);
+        unset($expectedcertcompletion->unassigned);
+        unset($newcertcompletion->id);
+        unset($newcertcompletion->timemodified);
+
+        // Set up the expected prog_completion.
+        $expectedprogcompletion = $progcompletion;
+        $expectedprogcompletion->status = STATUS_PROGRAM_COMPLETE;
+        $expectedprogcompletion->timedue = $expectedcertcompletion->timeexpires;
+        $expectedprogcompletion->timecompleted = $expectedcertcompletion->timecompleted;
+        unset($newprogcompletion->id);
+
+        // Check that they match.
+        $this->assertEquals($expectedcertcompletion, $newcertcompletion);
+        $this->assertEquals($expectedprogcompletion, $newprogcompletion);
+
+        /////////////////////////////////
+        // Window open certif_completion.
+        $certid = $cert3->certifid;
+        $progid = $cert3->id;
+        $userid = $user3->id;
+
+        // Set up the history record.
+        $certcompletionhistory = new stdClass();
+        $certcompletionhistory->certifid = $certid;
+        $certcompletionhistory->userid = $userid;
+        $certcompletionhistory->certifpath = CERTIFPATH_RECERT;
+        $certcompletionhistory->status = CERTIFSTATUS_INPROGRESS; // Just for fun.
+        $certcompletionhistory->renewalstatus = CERTIFRENEWALSTATUS_DUE;
+        $certcompletionhistory->timewindowopens = 345;
+        $certcompletionhistory->timeexpires = 456;
+        $certcompletionhistory->timecompleted = 234;
+        $certcompletionhistory->timemodified = 123;
+        $certcompletionhistory->unassigned = 1;
+        $this->assertTrue(certif_write_completion_history($certcompletionhistory));
+
+        // Set up the prog_completion record, setting fields to values that are inconsistent with the history.
+        $progcompletion = new stdClass();
+        $progcompletion->programid = $progid;
+        $progcompletion->userid = $userid;
+        $progcompletion->coursesetid = 0;
+        $progcompletion->status = STATUS_PROGRAM_COMPLETE; // Inconsistent with history status.
+        $progcompletion->timestarted = 567;
+        $progcompletion->timedue = 678; // Inconsistent with history timeexpires.
+        $progcompletion->timecompleted = 789; // Inconsistent with history status.
+        $progcompletion->organisationid = 890;
+        $progcompletion->positionid = 901;
+        $DB->insert_record('prog_completion', $progcompletion);
+
+        // Run the function.
+        certif_create_completion($progid, $userid);
+
+        // Load the data.
+        list($newcertcompletion, $newprogcompletion) = certif_load_completion($progid, $userid);
+        $this->assertEmpty(certif_get_completion_errors($newcertcompletion, $newprogcompletion));
+
+        // Set up the expected certif_completion.
+        $expectedcertcompletion = $certcompletionhistory;
+        unset($expectedcertcompletion->timemodified);
+        unset($expectedcertcompletion->unassigned);
+        unset($newcertcompletion->id);
+        unset($newcertcompletion->timemodified);
+
+        // Set up the expected prog_completion.
+        $expectedprogcompletion = $progcompletion;
+        $expectedprogcompletion->status = STATUS_PROGRAM_INCOMPLETE;
+        $expectedprogcompletion->timedue = $expectedcertcompletion->timeexpires;
+        $expectedprogcompletion->timecompleted = 0;
+        unset($newprogcompletion->id);
+
+        // Check that they match.
+        $this->assertEquals($expectedcertcompletion, $newcertcompletion);
+        $this->assertEquals($expectedprogcompletion, $newprogcompletion);
+
+        ////////////////////////////////////////////////////////////////
+        // Expired certif_completion and prog_completion has no timedue.
+        $certid = $cert1->certifid;
+        $progid = $cert1->id;
+        $userid = $user2->id;
+
+        // Set up the history record that will be used for program timedue, created when window opened.
+        $certcompletionhistory = new stdClass();
+        $certcompletionhistory->certifid = $certid;
+        $certcompletionhistory->userid = $userid;
+        $certcompletionhistory->certifpath = CERTIFPATH_RECERT;
+        $certcompletionhistory->status = CERTIFSTATUS_COMPLETED;
+        $certcompletionhistory->renewalstatus = CERTIFRENEWALSTATUS_NOTDUE;
+        $certcompletionhistory->timewindowopens = 345;
+        $certcompletionhistory->timeexpires = 456;
+        $certcompletionhistory->timecompleted = 234;
+        $certcompletionhistory->timemodified = 123;
+        $certcompletionhistory->unassigned = 0;
+        $this->assertTrue(certif_write_completion_history($certcompletionhistory));
+
+        // Set up the history record that will be restored.
+        $certcompletionhistory = new stdClass();
+        $certcompletionhistory->certifid = $certid;
+        $certcompletionhistory->userid = $userid;
+        $certcompletionhistory->certifpath = CERTIFPATH_CERT;
+        $certcompletionhistory->status = CERTIFSTATUS_EXPIRED;
+        $certcompletionhistory->renewalstatus = CERTIFRENEWALSTATUS_EXPIRED;
+        $certcompletionhistory->timewindowopens = 0;
+        $certcompletionhistory->timeexpires = 0;
+        $certcompletionhistory->timecompleted = 0;
+        $certcompletionhistory->timemodified = 123;
+        $certcompletionhistory->unassigned = 1;
+        certif_write_completion_history($certcompletionhistory);
+
+        // Set up the prog_completion record, setting fields to values that are inconsistent with the history.
+        $progcompletion = new stdClass();
+        $progcompletion->programid = $progid;
+        $progcompletion->userid = $userid;
+        $progcompletion->coursesetid = 0;
+        $progcompletion->status = STATUS_PROGRAM_COMPLETE; // Inconsistent with history status.
+        $progcompletion->timestarted = 567;
+        $progcompletion->timedue = 0; // Inconsistent with history status (must have value when expired).
+        $progcompletion->timecompleted = 789; // Inconsistent with history status.
+        $progcompletion->organisationid = 890;
+        $progcompletion->positionid = 901;
+        $DB->insert_record('prog_completion', $progcompletion);
+
+        // Run the function.
+        certif_create_completion($progid, $userid);
+
+        // Load the data.
+        list($newcertcompletion, $newprogcompletion) = certif_load_completion($progid, $userid);
+        $this->assertEmpty(certif_get_completion_errors($newcertcompletion, $newprogcompletion));
+
+        // Set up the expected certif_completion.
+        $expectedcertcompletion = $certcompletionhistory;
+        unset($expectedcertcompletion->timemodified);
+        unset($expectedcertcompletion->unassigned);
+        unset($newcertcompletion->id);
+        unset($newcertcompletion->timemodified);
+
+        // Set up the expected prog_completion.
+        $expectedprogcompletion = $progcompletion;
+        $expectedprogcompletion->status = STATUS_PROGRAM_INCOMPLETE;
+        $expectedprogcompletion->timedue = 456; // Matches other (non-unassigned history) timeexpires.
+        $expectedprogcompletion->timecompleted = 0;
+        unset($newprogcompletion->id);
+
+        // Check that they match.
+        $this->assertEquals($expectedcertcompletion, $newcertcompletion);
+        $this->assertEquals($expectedprogcompletion, $newprogcompletion);
+
+        ///////////////////////////////////////////////////////////////
+        // Expired certif_completion and prog_completion has a timedue.
+        $certid = $cert2->certifid;
+        $progid = $cert2->id;
+        $userid = $user3->id;
+
+        // Set up the history record that will be used for program timedue, created when window opened.
+        $certcompletionhistory = new stdClass();
+        $certcompletionhistory->certifid = $certid;
+        $certcompletionhistory->userid = $userid;
+        $certcompletionhistory->certifpath = CERTIFPATH_RECERT;
+        $certcompletionhistory->status = CERTIFSTATUS_COMPLETED;
+        $certcompletionhistory->renewalstatus = CERTIFRENEWALSTATUS_NOTDUE;
+        $certcompletionhistory->timewindowopens = 345;
+        $certcompletionhistory->timeexpires = 456;
+        $certcompletionhistory->timecompleted = 234;
+        $certcompletionhistory->timemodified = 123;
+        $certcompletionhistory->unassigned = 0;
+        $this->assertTrue(certif_write_completion_history($certcompletionhistory));
+
+        // Set up the history record that will be restored.
+        $certcompletionhistory = new stdClass();
+        $certcompletionhistory->certifid = $certid;
+        $certcompletionhistory->userid = $userid;
+        $certcompletionhistory->certifpath = CERTIFPATH_CERT;
+        $certcompletionhistory->status = CERTIFSTATUS_EXPIRED;
+        $certcompletionhistory->renewalstatus = CERTIFRENEWALSTATUS_EXPIRED;
+        $certcompletionhistory->timewindowopens = 0;
+        $certcompletionhistory->timeexpires = 0;
+        $certcompletionhistory->timecompleted = 0;
+        $certcompletionhistory->timemodified = 123;
+        $certcompletionhistory->unassigned = 1;
+        certif_write_completion_history($certcompletionhistory);
+
+        // Set up the prog_completion record, setting fields to values that are inconsistent with the history.
+        $progcompletion = new stdClass();
+        $progcompletion->programid = $progid;
+        $progcompletion->userid = $userid;
+        $progcompletion->coursesetid = 0;
+        $progcompletion->status = STATUS_PROGRAM_COMPLETE; // Inconsistent with history status.
+        $progcompletion->timestarted = 567;
+        $progcompletion->timedue = 678; // Should be used since history record has no timeexpires.
+        $progcompletion->timecompleted = 789; // Inconsistent with history status.
+        $progcompletion->organisationid = 890;
+        $progcompletion->positionid = 901;
+        $DB->insert_record('prog_completion', $progcompletion);
+
+        // Run the function.
+        certif_create_completion($progid, $userid);
+
+        // Load the data.
+        list($newcertcompletion, $newprogcompletion) = certif_load_completion($progid, $userid);
+        $this->assertEmpty(certif_get_completion_errors($newcertcompletion, $newprogcompletion));
+
+        // Set up the expected certif_completion.
+        $expectedcertcompletion = $certcompletionhistory;
+        unset($expectedcertcompletion->timemodified);
+        unset($expectedcertcompletion->unassigned);
+        unset($newcertcompletion->id);
+        unset($newcertcompletion->timemodified);
+
+        // Set up the expected prog_completion.
+        $expectedprogcompletion = $progcompletion;
+        $expectedprogcompletion->status = STATUS_PROGRAM_INCOMPLETE;
+        $expectedprogcompletion->timecompleted = 0;
+        unset($newprogcompletion->id);
+
+        // Check that they match.
+        $this->assertEquals($expectedcertcompletion, $newcertcompletion);
+        $this->assertEquals($expectedprogcompletion, $newprogcompletion);
+    }
 }
