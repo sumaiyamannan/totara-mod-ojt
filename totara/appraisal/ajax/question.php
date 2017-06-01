@@ -197,7 +197,14 @@ switch ($action) {
             if ($fromaddelemform = $mnewform->get_data()) {
                 $question->attach_element($fromaddelemform);
             } else {
-                $datatype = required_param('datatype', PARAM_ACTION);
+                $datatype = required_param('datatype', PARAM_ALPHANUMEXT);
+                if (empty($datatype)) {
+                    throw new moodle_exception('selectquestiontype_notselected', 'totara_appraisal');
+                }
+                $questtypes = question_manager::get_registered_elements(false);
+                if (!isset($questtypes[$datatype])) {
+                    throw new coding_exception('Invalid question type provided');
+                }
                 $question->attach_element($datatype);
             }
         }

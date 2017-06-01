@@ -433,8 +433,25 @@ M.totara_appraisal_stage = M.totara_appraisal_stage || {
         // button to add a new question
         $('#id_submitbutton').on('click', function(e) {
           e.preventDefault();
-          var apprObj = $appQuestions.find('form.mform').serialize();
-          $.post($appQuestions.find('form.mform').attr('action'), apprObj).done(function(data){
+
+          var mform = $appQuestions.find('form.mform'),
+              datatype = mform.find('#id_datatype').val();
+
+          if (datatype === '') {
+            // Nothing has been selected, throw up a notification and return.
+            require(['core/str', 'core/notification'], function (str, notification) {
+              str.get_strings([
+                  {key: 'error', component: 'error'},
+                  {key: 'selectquestiontype_notselected', component: 'totara_appraisal'},
+                  {key: 'ok', component: 'core'}
+              ]).done(function(strings) {
+                  notification.alert(strings[0], strings[1], strings[2]);
+              });
+            });
+            return false;
+          }
+
+          $.post(mform.attr('action'), mform.serialize()).done(function (data) {
             modalAddEditQuestion(data, url);
           });
         });
