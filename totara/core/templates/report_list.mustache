@@ -52,14 +52,13 @@
 <ul class="reportmanager">
 {{#report_list}}
     <li>
-        <a href="{{href}}" title="{{name}}">
-            {{#pix}}report_icon,totara_reportbuilder,{{name}}{{/pix}}
+        <a href="{{href}}">
+            {{#pix}}report_icon,totara_reportbuilder{{/pix}}
             {{name}}
         </a>
         {{#edit_href}}
-            &nbsp;
-            <a href="{{edit_href}}" title="{{name}}">
-                {{#pix}}t/edit,moodle,{{name}}{{/pix}}
+            <a href="{{edit_href}}" title="{{#str}}edit{{/str}}">
+                {{#pix}}t/edit,moodle,{{#str}}editreport, totara_reportbuilder, {{{name}}}{{/str}}{{/pix}}{{! name is sanitised at the flex/pix level}}
             </a>
         {{/edit_href}}
     </li>

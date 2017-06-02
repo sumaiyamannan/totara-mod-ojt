@@ -257,7 +257,8 @@ class totara_core_renderer extends plugin_renderer_base {
         foreach ($reports as $report) {
             // Check url property is set.
             if (isset($report->url)) {
-                $report_data = array ('name' => format_string($report->fullname), 'href' => $report->url);
+                // Escaping is done in the mustache template, so no need to do it in format string
+                $report_data = array ('name' => format_string($report->fullname, true, array('escape' => false)), 'href' => $report->url);
 
                 if ($canedit) {
                     $report_data['edit_href'] = (string) new moodle_url('/totara/reportbuilder/general.php', array('id' => $report->id));
