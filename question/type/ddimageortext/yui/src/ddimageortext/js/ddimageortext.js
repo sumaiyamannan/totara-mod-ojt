@@ -463,6 +463,7 @@ Y.extend(DDIMAGEORTEXT_QUESTION, M.qtype_ddimageortext.dd_base_class, {
     },
     init_drops : function () {
         var dropareas = this.doc.top_node().one('div.dropzones');
+        var that = this;
         var groupnodes = {};
         for (var groupno = 1; groupno <= 8; groupno++) {
             var groupnode = Y.Node.create('<div class = "dropzonegroup' + groupno + '"></div>');
@@ -476,6 +477,20 @@ Y.extend(DDIMAGEORTEXT_QUESTION, M.qtype_ddimageortext.dd_base_class, {
                 this.place_drag_in_drop(drag, drop);
             }
         };
+
+        var resize = function() {
+            var image = that.doc.top_node().one('.droparea img');
+            var scale = image.get('width') / image.get('naturalWidth');
+
+            for (var dropno in that.get('drops')) {
+                var drop = that.get('drops')[dropno];
+                drop.xy[0] = drop.orignalxy[0] * scale;
+                drop.xy[1] = drop.orignalxy[1] * scale;
+            }
+        };
+
+        window.addEventListener('resize', resize);
+
         for (var dropno in this.get('drops')) {
             var drop = this.get('drops')[dropno];
             var nodeclass = 'dropzone group' + drop.group + ' place' + dropno;
@@ -487,6 +502,8 @@ Y.extend(DDIMAGEORTEXT_QUESTION, M.qtype_ddimageortext.dd_base_class, {
                     '<span class="accesshide">' + title + '</span>&nbsp;</div>';
             var dropnode = Y.Node.create(dropnodehtml);
             groupnodes[drop.group].append(dropnode);
+
+            drop.orignalxy = [drop.xy[0],drop.xy[1]];
             dropnode.setStyles({'opacity': 0.5});
             dropnode.setData('xy', drop.xy);
             dropnode.setData('place', dropno);
@@ -496,6 +513,8 @@ Y.extend(DDIMAGEORTEXT_QUESTION, M.qtype_ddimageortext.dd_base_class, {
                   node: dropnode, groups : [drop.group]});
             dropdd.on('drop:hit', drop_hit_handler, this);
         }
+
+        resize();
     }
 }, {NAME : DDIMAGEORTEXTQUESTIONNAME, ATTRS : {}});
 

@@ -5,7 +5,6 @@
 
 .que.ddmarker div.droparea img, form.mform fieldset#id_previewareaheader div.droparea img  {
     border: 1px solid #000;
-    max-width: none;
 }
 
 .que.ddmarker .draghome img, .que.ddmarker .draghome span {
