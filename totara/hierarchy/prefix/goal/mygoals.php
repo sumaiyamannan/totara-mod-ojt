@@ -68,11 +68,6 @@ if (!$report = reportbuilder_get_embedded_report($shortname, $data, false, $sid)
     print_error('error:couldnotgenerateembeddedreport', 'totara_reportbuilder');
 }
 
-if ($format != '') {
-    $report->export_data($format);
-    die;
-}
-
 \totara_reportbuilder\event\report_viewed::create_from_report($report)->trigger();
 
 $report->include_js();
@@ -99,6 +94,11 @@ $PAGE->set_cacheable(true);
 if (!($can_view_company || $can_view_personal)) {
     // If you can't see any goals you shouldn't be on this page.
     print_error('error:viewusergoals', 'totara_hierarchy');
+}
+
+if ($format != '') {
+    $report->export_data($format);
+    die;
 }
 
 // Setup lightbox.

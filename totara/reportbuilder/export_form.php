@@ -58,8 +58,16 @@ class report_builder_export_form extends moodleform {
             $mform->addGroup($group, 'exportgroup', get_string('exportas', 'totara_reportbuilder'), array(' '), false);
         }
 
+        if (!empty($this->_customdata['extparams'])) {
+            foreach ($this->_customdata['extparams'] as $name => $value) {
+                $mform->addElement('hidden', $name, $value);
+                if (is_int($value)) {
+                    $mform->setType($name, PARAM_INT);
+                } else {
+                    $mform->setType($name, PARAM_ALPHANUM);
+                }
+            }
+        }
     }
 
 }
-
-
