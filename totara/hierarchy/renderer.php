@@ -617,7 +617,7 @@ class totara_hierarchy_renderer extends plugin_renderer_base {
                 $currentscalevalue = $DB->get_record('goal_scale_values', array('id' => $currentscalevalueid));
                 // User the current scale value record to get the scale.
                 $scalevalues = $DB->get_records('goal_scale_values', array('scaleid' => $currentscalevalue->scaleid),
-                        null, 'id, name');
+                        'sortorder', 'id, name');
                 // Set up the array of options.
                 $options = array();
                 foreach ($scalevalues as $scalevalue) {
