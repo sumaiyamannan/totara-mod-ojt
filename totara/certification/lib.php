@@ -2504,6 +2504,12 @@ function certif_get_completion_error_solution($problemkey, $programid = 0, $user
             $html = get_string('error:info_fixprogincomplete', 'totara_certification') . '<br>' .
                 html_writer::link($url, get_string('clicktofixcompletions', 'totara_program'));
             break;
+        case 'error:stateexpired-timedueempty':
+            $url = clone($baseurl);
+            $url->param('fixkey', 'fixexpiredmissingtimedue');
+            $html = get_string('error:info_fixexpiredmissingtimedue', 'totara_certification') . '<br>' .
+                html_writer::link($url, get_string('clicktofixcompletions', 'totara_program'));
+            break;
         default:
             $html = get_string('error:info_unknowncombination', 'totara_program');
             break;
@@ -2650,6 +2656,17 @@ function certif_fix_completions($fixkey, $programid = 0, $userid = 0) {
             case 'fixprogincomplete':
                 if ($problemkey == 'error:stateassigned-progstatusincorrect|error:stateassigned-progtimecompletednotempty') {
                     $result = certif_fix_completion_prog_incomplete($certcompletion, $progcompletion);
+                }
+                break;
+            case 'fixexpiredmissingtimedue':
+                if ($problemkey == 'error:stateexpired-timedueempty') {
+                    $result = certif_fix_expired_missing_timedue($certcompletion, $progcompletion);
+                    $stillhasproblems = certif_get_completion_errors($certcompletion, $progcompletion);
+                    $stillhasproblemskey = certif_get_completion_error_problemkey($stillhasproblems);
+                    if ($stillhasproblemskey == $problemkey) {
+                        // The problem was not fixed because there was no available history expiry date. $result contains an explanation.
+                        $ignoreproblem = $problemkey;
+                    }
                 }
                 break;
         }
@@ -2978,6 +2995,40 @@ function certif_fix_prog_completion_date(&$certcompletion, &$progcompletion) {
 
     return 'Automated fix \'certif_fix_prog_completion_date\' was applied<br>
         <ul><li>\'Program completion date\' was set to ' . prog_format_log_date($progcompletion->timecompleted) . '</li></ul>';
+}
+
+/**
+ * Sets the program due date to the latest history expiry date before the current date. This is effectively the same as
+ * what certif_create_completion would do when reassigning a user and no date is available in the prog_completion record.
+ *
+ * @param stdClass $certcompletion a record from certif_completion to be fixed
+ * @param stdClass $progcompletion a corresponding record from prog_completion to be fixed
+ * @return string message for transaction log
+ */
+function certif_fix_expired_missing_timedue(&$certcompletion, &$progcompletion) {
+    global $DB;
+
+    $duesql = "SELECT MAX(timeexpires)
+                 FROM {certif_completion_history}
+                WHERE userid = :userid
+                  AND certifid = :certifid
+                  AND timeexpires < :now";
+    $dueparams = array(
+        'userid' => $certcompletion->userid,
+        'certifid' => $certcompletion->certifid,
+        'now' => time(),
+    );
+    $maxtimeexpires = $DB->get_field_sql($duesql, $dueparams);
+
+    if ($maxtimeexpires > 0) {
+        $progcompletion->timedue = $maxtimeexpires;
+        return 'Automated fix \'certif_fix_expired_missing_timedue\' was applied<br>
+            <ul><li>\'Program due date\' was set to ' . $maxtimeexpires . '</li></ul>';
+    } else {
+        return 'Automated fix \'certif_fix_expired_missing_timedue\' was not applied because no history record existed with
+                an expiry date before the current date. Either create an appropriate history record and apply the fix again,
+                or manually set the due date.';
+    }
 }
 
 /**

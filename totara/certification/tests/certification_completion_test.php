@@ -2828,6 +2828,137 @@ class totara_certification_certification_completion_testcase extends reportcache
         $this->assertEquals($expectedprogcompletion, $progcompletion);
     }
 
+    /**
+     * Test certif_fix_expired_missing_timedue. Set the prog_completion
+     */
+    public function test_certif_fix_expired_missing_timedue() {
+        global $DB;
+
+        $this->resetAfterTest(true);
+
+        // Expected record is certified, before window opens.
+        $expectedcertcompletion = new stdClass();
+        $expectedcertcompletion->id = 1001;
+        $expectedcertcompletion->certifid = 1002;
+        $expectedcertcompletion->userid = 1003;
+        $expectedcertcompletion->certifpath = CERTIFPATH_CERT;
+        $expectedcertcompletion->status = CERTIFSTATUS_EXPIRED;
+        $expectedcertcompletion->renewalstatus = CERTIFRENEWALSTATUS_EXPIRED;
+        $expectedcertcompletion->timecompleted = 0;
+        $expectedcertcompletion->timewindowopens = 0;
+        $expectedcertcompletion->timeexpires = 0;
+
+        $expectedprogcompletion = new stdClass();
+        $expectedprogcompletion->id = 1007;
+        $expectedprogcompletion->programid = 1008;
+        $expectedprogcompletion->userid = 1003;
+        $expectedprogcompletion->status = STATUS_PROGRAM_INCOMPLETE;
+        $expectedprogcompletion->timestarted = 1009;
+        $expectedprogcompletion->timedue = 9003; // This is the date that will be restored from history.
+        $expectedprogcompletion->timecompleted = 0;
+
+        // Check that the expected test data is in a valid state.
+        $errors = certif_get_completion_errors($expectedcertcompletion, $expectedprogcompletion);
+        $this->assertEquals(array(), $errors);
+
+        $certcompletion = clone($expectedcertcompletion);
+        $progcompletion = clone($expectedprogcompletion);
+        // Change the record so that the program completion record is wrong.
+        $progcompletion->timedue = -1;
+
+        // The first three calls to the function will not make any changes.
+        $brokencertcompletion = clone($certcompletion);
+        $brokenprogcompletion = clone($progcompletion);
+
+        // First check that the function works correctly if there are no history records to restore.
+        $DB->delete_records('prog_completion_log');
+
+        $result = certif_fix_expired_missing_timedue($certcompletion, $progcompletion);
+
+        // No change has been made.
+        $this->assertEquals($brokencertcompletion, $certcompletion);
+        $this->assertEquals($brokenprogcompletion, $progcompletion);
+
+        // The log contains a warning.
+        $this->assertStringStartsWith('Automated fix \'certif_fix_expired_missing_timedue\' was not applied because no history record existed', $result);
+
+        // Second check that the function works correctly if history exists but doesn't contain an expiry date.
+        $DB->delete_records('prog_completion_log');
+
+        $certcompletionhistory = new stdClass();
+        $certcompletionhistory->certifid = 1002;
+        $certcompletionhistory->userid = 1003;
+        $certcompletionhistory->certifpath = CERTIFPATH_CERT;
+        $certcompletionhistory->status = CERTIFSTATUS_EXPIRED;
+        $certcompletionhistory->renewalstatus = CERTIFRENEWALSTATUS_EXPIRED;
+        $certcompletionhistory->timecompleted = 0;
+        $certcompletionhistory->timewindowopens = 0;
+        $certcompletionhistory->timemodified = 1007;
+        $certcompletionhistory->timeexpires = 0;
+        $DB->insert_record('certif_completion_history', $certcompletionhistory);
+
+        $result = certif_fix_expired_missing_timedue($certcompletion, $progcompletion);
+
+        // No change has been made.
+        $this->assertEquals($brokencertcompletion, $certcompletion);
+        $this->assertEquals($brokenprogcompletion, $progcompletion);
+
+        // The log contains a warning.
+        $this->assertStringStartsWith('Automated fix \'certif_fix_expired_missing_timedue\' was not applied because no history record existed', $result);
+
+        // Third check that the function works correctly if history exists but history date is in the future.
+        $DB->delete_records('prog_completion_log');
+
+        $certcompletionhistory = new stdClass();
+        $certcompletionhistory->certifid = 1002;
+        $certcompletionhistory->userid = 1003;
+        $certcompletionhistory->certifpath = CERTIFPATH_RECERT;
+        $certcompletionhistory->status = CERTIFSTATUS_COMPLETED;
+        $certcompletionhistory->renewalstatus = CERTIFRENEWALSTATUS_NOTDUE;
+        $certcompletionhistory->timecompleted = 1004;
+        $certcompletionhistory->timewindowopens = 1005;
+        $certcompletionhistory->timemodified = 1007;
+        $certcompletionhistory->timeexpires = time() + DAYSECS * 12; // Future.
+        $DB->insert_record('certif_completion_history', $certcompletionhistory);
+
+        $result = certif_fix_expired_missing_timedue($certcompletion, $progcompletion);
+
+        // No change has been made.
+        $this->assertEquals($brokencertcompletion, $certcompletion);
+        $this->assertEquals($brokenprogcompletion, $progcompletion);
+
+        // The log contains a warning.
+        $this->assertStringStartsWith('Automated fix \'certif_fix_expired_missing_timedue\' was not applied because no history record existed', $result);
+
+        // Last check that the function works correctly if history exists which can be restored.
+        $DB->delete_records('prog_completion_log');
+
+        $certcompletionhistory = new stdClass();
+        $certcompletionhistory->certifid = 1002;
+        $certcompletionhistory->userid = 1003;
+        $certcompletionhistory->certifpath = CERTIFPATH_RECERT;
+        $certcompletionhistory->status = CERTIFSTATUS_COMPLETED;
+        $certcompletionhistory->renewalstatus = CERTIFRENEWALSTATUS_NOTDUE;
+        $certcompletionhistory->timecompleted = 1004;
+        $certcompletionhistory->timewindowopens = 1005;
+        $certcompletionhistory->timemodified = 1007;
+        $certcompletionhistory->timeexpires = 9001;
+        $DB->insert_record('certif_completion_history', $certcompletionhistory);
+        $certcompletionhistory->timeexpires = 9003; // This one should be seleted.
+        $DB->insert_record('certif_completion_history', $certcompletionhistory);
+        $certcompletionhistory->timeexpires = 9002;
+        $DB->insert_record('certif_completion_history', $certcompletionhistory);
+
+        $result = certif_fix_expired_missing_timedue($certcompletion, $progcompletion);
+
+        // The fix has been applied.
+        $this->assertEquals($expectedcertcompletion, $certcompletion);
+        $this->assertEquals($expectedprogcompletion, $progcompletion);
+
+        // The log contains a warning.
+        $this->assertStringStartsWith('Automated fix \'certif_fix_expired_missing_timedue\' was applied', $result);
+    }
+
     public function test_certif_load_completion() {
         global $DB;
 
