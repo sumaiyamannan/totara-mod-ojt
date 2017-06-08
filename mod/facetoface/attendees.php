@@ -1156,7 +1156,7 @@ if ($show_table) {
         }
     }
 
-    if (has_any_capability(array('mod/facetoface:addattendees', 'mod/facetoface:removeattendees'), $context)) {
+    if (has_any_capability(array('mod/facetoface:addattendees', 'mod/facetoface:removeattendees', 'mod/facetoface:takeattendance'), $context)) {
         if ($action == 'takeattendance') {
             // Changes checker
             $PAGE->requires->yui_module('moodle-core-formchangechecker',
