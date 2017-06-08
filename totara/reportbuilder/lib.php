@@ -699,13 +699,15 @@ class reportbuilder {
      *                the source can't be found
      */
     public static function get_source_object($source, $usecache = false, $exception = true, rb_global_restriction_set $globalrestrictionset = null) {
+        global $USER;
         if ($globalrestrictionset and $usecache) {
             debugging('parameter $globalrestrictionset is not compatible with $usecache parameter, ignoring caches in get_source_object()', DEBUG_DEVELOPER);
             $usecache = false;
         }
 
-        if ($usecache && isset(self::$sourceobjects[$source])) {
-            return self::$sourceobjects[$source];
+        // Source objects are different for different users (regarding capabilities), so each user should have own source.
+        if ($usecache && isset(self::$sourceobjects[$USER->id][$source])) {
+            return self::$sourceobjects[$USER->id][$source];
         }
 
         $sourcepaths = self::find_source_dirs();
@@ -717,7 +719,7 @@ class reportbuilder {
                 if (class_exists($classname)) {
                     $instance = new $classname(null, $globalrestrictionset);
                     if (!$globalrestrictionset) {
-                        self::$sourceobjects[$source] = $instance;
+                        self::$sourceobjects[$USER->id][$source] = $instance;
                     }
                     return $instance;
                 }
@@ -738,7 +740,7 @@ class reportbuilder {
                     if (class_exists($classname)) {
                         $instance = new $classname($groupid, $globalrestrictionset);
                         if (!$globalrestrictionset) {
-                            self::$sourceobjects[$source] = $instance;
+                            self::$sourceobjects[$USER->id][$source] = $instance;
                         }
                         return $instance;
                     }
@@ -759,7 +761,7 @@ class reportbuilder {
                     if (class_exists($classname)) {
                         $instance = new $classname(0, $globalrestrictionset);
                         if (!$globalrestrictionset) {
-                            self::$sourceobjects[$source] = $instance;
+                            self::$sourceobjects[$USER->id][$source] = $instance;
                         }
                         return $instance;
                     }

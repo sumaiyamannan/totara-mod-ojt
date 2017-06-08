@@ -80,6 +80,7 @@ class process_scheduled_task extends \core\task\scheduled_task {
 
                 // Hack $USER - includes current language change, $PAGE init, etc.
                 cron_setup_user($user);
+                \reportbuilder::reset_source_object_cache();
 
                 // Send email or save report.
                 reportbuilder_send_scheduled_report($report);
