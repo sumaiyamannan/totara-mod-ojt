@@ -267,11 +267,9 @@ class rb_source_site_logstore extends rb_base_source {
             new rb_filter_option(
                 'logstore_standard_log',
                 'eventname',
-                get_string('name', 'rb_source_site_logstore'),
-                'select',
-                array(
-                    'selectfunc' => 'event_names_list',
-                )
+                get_string('eventclass', 'rb_source_site_logstore'),
+                'text',
+                array()
             ),
             new rb_filter_option(
                 'logstore_standard_log',

@@ -1302,5 +1302,33 @@ function xmldb_totara_reportbuilder_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2016092006, 'totara', 'reportbuilder');
     }
 
+    if ($oldversion < 2016092007) {
+
+        // Converting select filter operators to text filter operators for search of standard log report.
+        $searches = $DB->get_recordset('report_builder_saved', null, '', 'id, search');
+        foreach ($searches as $search) {
+            $todb = new \stdClass();
+            $todb->id = $search->id;
+            $filter = unserialize($search->search);
+            if (array_key_exists('logstore_standard_log-eventname', $filter)) {
+                $newfilter = $filter;
+                // Test the operator for 'is equal to'
+                if ($filter['logstore_standard_log-eventname']['operator'] == 1) {
+                    $newfilter['logstore_standard_log-eventname']['operator'] = 2;
+                    $todb->search = serialize($newfilter);
+                    $DB->update_record('report_builder_saved', $todb);
+                }
+                // Test the operator for 'isn't equal to'
+                if ($filter['logstore_standard_log-eventname']['operator'] == 2) {
+                    $newfilter['logstore_standard_log-eventname']['operator'] = 1;
+                    $todb->search = serialize($newfilter);
+                    $DB->update_record('report_builder_saved', $todb);
+                }
+            }
+        }
+        $searches->close();
+        upgrade_plugin_savepoint(true, 2016092007, 'totara', 'reportbuilder');
+    }
+
     return true;
 }
