@@ -528,6 +528,16 @@ Feature: Evidence custom fields.
     Given I log in as "admin"
     And I navigate to "Evidence custom fields" node in "Site administration > Learning Plans"
 
+    # Create a text area custom field.
+    When I set the field "Create a new custom field" to "Text area"
+    And I set the following fields to these values:
+      | Full name                   | Unique textarea test |
+      | Short name (must be unique) | textareatest         |
+      | Should the data be unique?  | Yes                  |
+    And I press "Save changes"
+    Then I should see "Available Evidence Custom Fields"
+    And I should see "Unique textarea test"
+
     # Create a text input custom field.
     When I set the field "Create a new custom field" to "Text input"
     And I set the following fields to these values:
@@ -587,11 +597,22 @@ Feature: Evidence custom fields.
     Then I should see "Available Evidence Custom Fields"
     And I should see "Unique multi-select test"
 
+    # Create a location custom field.
+    When I set the field "Create a new custom field" to "Location"
+    And I set the following fields to these values:
+      | Full name                   | Unique location test  |
+      | Short name (must be unique) | locationtest          |
+      | Should the data be unique?  | Yes                   |
+    And I press "Save changes"
+    Then I should see "Available Evidence Custom Fields"
+    And I should see "Unique location test"
+
     # Create a piece of evidence using the custom fields.
     When I click on "Record of Learning" in the totara menu
     And I press "Add evidence"
     And I set the following fields to these values:
       | Evidence name                     | Unique input test 1 |
+      | Unique textarea test              | Hello               |
       | Unique input test                 | Test 1              |
       | Unique checkbox test              | Yes                 |
       | customfield_datetimetest[enabled] | 1                   |
@@ -600,6 +621,7 @@ Feature: Evidence custom fields.
       | customfield_datetimetest[year]    | 2027                |
       | Unique menu of choices test       | optiontwo           |
       | customfield_multiselecttest[1]    | 1                   |
+      | id_customfield_locationtestaddress| SW1                 |
     And I press "Add evidence"
     Then I should see "Unique input test 1"
 
@@ -607,6 +629,7 @@ Feature: Evidence custom fields.
     When I press "Add evidence"
     And I set the following fields to these values:
       | Evidence name                     | Unique input test 2 |
+      | Unique textarea test              | Hello               |
       | Unique input test                 | Test 1              |
       | Unique checkbox test              | Yes                 |
       | customfield_datetimetest[enabled] | 1                   |
@@ -615,26 +638,29 @@ Feature: Evidence custom fields.
       | customfield_datetimetest[year]    | 2027                |
       | Unique menu of choices test       | optiontwo           |
       | customfield_multiselecttest[1]    | 1                   |
+      | id_customfield_locationtestaddress| SW1                 |
     And I press "Add evidence"
-
-
+    And I should see the form validation error "This value has already been used." for the "textareatest" custom field
     Then I should see the form validation error "This value has already been used." for the "textinputtest" custom field
     And I should see the form validation error "This value has already been used." for the "checkboxtest" custom field
     And I should see the form validation error "The 'datetimetest' date/time custom field contains a non-unique date" for the "datetimetest" custom field
     And I should see the form validation error "This value has already been used." for the "menutest" custom field
-    # TODO: Add support for multiselect custom fields.
+    # TODO: Add support for multiselect and location custom fields.
     # And I should see the form .phpvalidation error "This value has already been used." for the "multiselecttest" custom field
+    # And I should see the form .phpvalidation error "This value has already been used." for the "locationtest" custom field
 
     # Update the custom field values to be unique.
     When I set the following fields to these values:
-      | Unique input test               | Test 2    |
-      | Unique checkbox test            | 0         |
-      | customfield_datetimetest[day]   | 20        |
-      | customfield_datetimetest[month] | 8         |
-      | customfield_datetimetest[year]  | 2028      |
-      | Unique menu of choices test     | optionone |
-      | customfield_multiselecttest[1]  | 0         |
-      | customfield_multiselecttest[2]  | 1         |
+      | Unique textarea test              | Goodbye   |
+      | Unique input test                 | Test 2    |
+      | Unique checkbox test              | 0         |
+      | customfield_datetimetest[day]     | 20        |
+      | customfield_datetimetest[month]   | 8         |
+      | customfield_datetimetest[year]    | 2028      |
+      | Unique menu of choices test       | optionone |
+      | customfield_multiselecttest[1]    | 0         |
+      | customfield_multiselecttest[2]    | 1         |
+      | id_customfield_locationtestaddress| SW2       |
     And I press "Add evidence"
     Then I should not see "This value has already been used."
     And I should not see "The 'datetimetest' date/time custom field contains a non-unique date"
