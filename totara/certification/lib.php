@@ -2510,6 +2510,18 @@ function certif_get_completion_error_solution($problemkey, $programid = 0, $user
             $html = get_string('error:info_fixexpiredmissingtimedue', 'totara_certification') . '<br>' .
                 html_writer::link($url, get_string('clicktofixcompletions', 'totara_program'));
             break;
+        case 'error:missingcompletion':
+            $url = clone($baseurl);
+            $url->param('fixkey', 'fixmissingcompletionrecords');
+            $html = get_string('error:info_fixmissingcompletion', 'totara_certification') . '<br>' .
+                html_writer::link($url, get_string('clicktofixcompletions', 'totara_program'));
+            break;
+        case 'error:unassignedcertifcompletion':
+            $url = clone($baseurl);
+            $url->param('fixkey', 'fixunassignedcertifcompletionrecords');
+            $html = get_string('error:info_fixunassignedcertifcompletionrecord', 'totara_certification') . '<br>' .
+                html_writer::link($url, get_string('clicktofixcompletions', 'totara_program'));
+            break;
         default:
             $html = get_string('error:info_unknowncombination', 'totara_program');
             break;
@@ -2527,6 +2539,18 @@ function certif_get_completion_error_solution($problemkey, $programid = 0, $user
  */
 function certif_fix_completions($fixkey, $programid = 0, $userid = 0) {
     global $DB;
+
+    // Creating missing completion records is handled in a separate function, just to keep things tidy.
+    if ($fixkey == 'fixmissingcompletionrecords') {
+        certif_fix_missing_completions($programid, $userid);
+        return;
+    }
+
+    // Deleting unassigned certif completion records is handled in a separate function, just to keep things tidy.
+    if ($fixkey == 'fixunassignedcertifcompletionrecords') {
+        certif_fix_unassigned_certif_completions($programid, $userid);
+        return;
+    }
 
     // Get all completion records, applying the specified filters.
     $sql = "SELECT cc.*, pc.id AS pcid, pc.programid, pc.status AS progstatus, pc.timestarted AS progtimestarted,
@@ -2680,6 +2704,42 @@ function certif_fix_completions($fixkey, $programid = 0, $userid = 0) {
     }
 
     $rs->close();
+}
+
+/**
+ * Creates missing program completion records, limited by the specified filters.
+ *
+ * @param int $programid if provided (non-0), only fix problems for this program
+ * @param int $userid if provided (non-0), only fix problems for this user
+ */
+function certif_fix_missing_completions($programid = 0, $userid = 0) {
+    $missingcompletionsrs = certif_find_missing_completions($programid, $userid);
+
+    $message = 'Automated fix \'certif_fix_missing_completions\' was applied<br>';
+
+    foreach ($missingcompletionsrs as $missingcompletion) {
+        certif_create_completion($missingcompletion->programid, $missingcompletion->userid, $message);
+    }
+
+    $missingcompletionsrs->close();
+}
+
+/**
+ * Deletes prog_completion records of users who are not assigned but have incomplete completion records, limited by the specified filters.
+ *
+ * @param int $programid if provided (non-0), only fix problems for this program
+ * @param int $userid if provided (non-0), only fix problems for this user
+ */
+function certif_fix_unassigned_certif_completions($programid = 0, $userid = 0) {
+    $unassignedcertifcompletionsrs = certif_find_unassigned_certif_completions($programid, $userid);
+
+    $message = 'Automated fix \'certif_fix_unassigned_certif_completions\' was applied<br>';
+
+    foreach ($unassignedcertifcompletionsrs as $unassignedcertifcompletion) {
+        certif_conditionally_delete_completion($unassignedcertifcompletion->programid, $unassignedcertifcompletion->userid, $message);
+    }
+
+    $unassignedcertifcompletionsrs->close();
 }
 
 /**
@@ -3295,6 +3355,249 @@ function certif_delete_completion_history($chid, $message = '') {
         $info->userid,
         $description
     );
+}
+
+/**
+ * Find all the completion records which have problems.
+ *
+ * The results are designed to be used by totara_program_renderer::get_completion_checker_results
+ *
+ * Each stdClass item in $fulllist is indexed by the problemkey and contains:
+ *  ->problem string short explaination of what the problem is (obtained from the problemkey)
+ *  ->userfullname string the full name of the affected user
+ *  ->programname string the full name of the certification
+ *  ->editcompletionurl moodle_url a link to the completion editor for this user/cert
+ *
+ * Each stdClass item in $aggregatelist is indexed by the problemkey and contains:
+ *  ->problem string short explaination of what the problem is (obtained from the problemkey)
+ *  ->category string describing the general type of problem (Files, Consistentcy, etc)
+ *  ->solution string long explanation and any info about consequences, how the problem can be manually fixed and/or links to automated fixes etc
+ *  ->count int how many records (given the specified filters) are affected by this problem
+ *
+ * $totalcount reports the total number of records that are checked given the specified filters.
+ *
+ * @param int $programid
+ * @param int $userid
+ * @return array(array $fulllist, array $aggregatelist, int $totalcount)
+ */
+function certif_get_all_completions_with_errors($programid = 0, $userid = 0) {
+    global $DB;
+
+    $aggregatelist = array();
+    $fulllist = array();
+    $totalcount = 0;
+
+    // Check existing completion records for inconsistency errors.
+    $sql = "SELECT cc.userid, pc.programid, cc.status, cc.renewalstatus, cc.timecompleted, cc.timewindowopens, prog.fullname,
+                   cc.timeexpires, cc.certifpath, pc.status AS progstatus, pc.timecompleted AS progtimecompleted, pc.timedue
+              FROM {certif_completion} cc
+              JOIN {prog} prog ON prog.certifid = cc.certifid
+              JOIN {prog_completion} pc ON pc.programid = prog.id AND pc.userid = cc.userid AND pc.coursesetid = 0";
+    $params = array();
+    if (!empty($userid)) {
+        $sql .= " AND pc.userid = :userid";
+        $params['userid'] = $userid;
+    }
+    if (!empty($programid)) {
+        $sql .= " AND pc.programid = :programid";
+        $params['programid'] = $programid;
+    }
+    $allcompletionsrs = $DB->get_recordset_sql($sql, $params);
+
+    foreach ($allcompletionsrs as $record) {
+        $certcompletion = new stdClass();
+        $certcompletion->status = $record->status;
+        $certcompletion->renewalstatus = $record->renewalstatus;
+        $certcompletion->certifpath = $record->certifpath;
+        $certcompletion->timecompleted = $record->timecompleted;
+        $certcompletion->timewindowopens = $record->timewindowopens;
+        $certcompletion->timeexpires = $record->timeexpires;
+
+        $progcompletion = new stdClass();
+        $progcompletion->status = $record->progstatus;
+        $progcompletion->timecompleted = $record->progtimecompleted;
+        $progcompletion->timedue = $record->timedue;
+
+        $errors = certif_get_completion_errors($certcompletion, $progcompletion);
+
+        if (!empty($errors)) {
+            // Aggregate this combination of errors.
+            $problemkey = certif_get_completion_error_problemkey($errors);
+            // If the problem key doesn't exist in the aggregate list already then create it.
+            if (!isset($aggregatelist[$problemkey])) {
+                $newaggregate = new stdClass();
+                $newaggregate->count = 0;
+
+                $errorstrings = array();
+                foreach ($errors as $errorkey => $errorfield) {
+                    $errorstrings[] = get_string($errorkey, 'totara_certification');
+                }
+                $newaggregate->problem = implode('<br>', $errorstrings);
+
+                $newaggregate->category = get_string('problemcategoryconsistency', 'totara_program');
+
+                // Solution is designed to fix all records affected by this problem with the given filters.
+                $newaggregate->solution = certif_get_completion_error_solution($problemkey, $programid, $userid);
+
+                $aggregatelist[$problemkey] = $newaggregate;
+            }
+            $aggregatelist[$problemkey]->count++;
+
+            $affected = new stdClass();
+            $affected->problem = $aggregatelist[$problemkey]->problem;
+            $affected->userfullname = fullname($DB->get_record('user', array('id' => $record->userid)));
+            $affected->programname = format_string($record->fullname);
+            $affected->editcompletionurl = new moodle_url('/totara/certification/edit_completion.php',
+                array('id' => $record->programid, 'userid' => $record->userid));
+            $affectedkey = $record->programid . '-' . $record->userid;
+
+            $fulllist[$affectedkey] = $affected;
+        }
+        $totalcount++;
+    }
+
+    $allcompletionsrs->close();
+
+    // Check for missing completion records.
+    $missingcompletionsrs = certif_find_missing_completions($programid, $userid);
+
+    $problemkey = 'error:missingcompletion';
+    foreach ($missingcompletionsrs as $missingcompletion) {
+        $totalcount++;
+
+        // If the problem key doesn't exist in the aggregate list already then create it.
+        if (!isset($aggregatelist[$problemkey])) {
+            $newaggregate = new stdClass();
+            $newaggregate->count = 0;
+
+            $newaggregate->problem = get_string($problemkey, 'totara_certification');
+
+            $newaggregate->category = get_string('problemcategoryfiles', 'totara_program');
+
+            // Solution is designed to fix all records affected by this problem with the given filters.
+            $newaggregate->solution = certif_get_completion_error_solution($problemkey, $programid, $userid);
+
+            $aggregatelist[$problemkey] = $newaggregate;
+        }
+        $aggregatelist[$problemkey]->count++;
+
+        $affected = new stdClass();
+        $affected->problem = $aggregatelist[$problemkey]->problem;
+        $affected->userfullname = fullname($DB->get_record('user', array('id' => $missingcompletion->userid)));
+        $affected->programname = format_string($missingcompletion->fullname);
+        $affected->editcompletionurl = new moodle_url('/totara/certification/edit_completion.php',
+            array('id' => $missingcompletion->programid, 'userid' => $missingcompletion->userid));
+        $affectedkey = $missingcompletion->programid . '-' . $missingcompletion->userid;
+
+        $fulllist[$affectedkey] = $affected;
+    }
+
+    $missingcompletionsrs->close();
+
+    // Check for unassigned certif_completion records.
+    $unassignedcertifcompletionsrs = certif_find_unassigned_certif_completions($programid, $userid);
+
+    $problemkey = 'error:unassignedcertifcompletion';
+    foreach ($unassignedcertifcompletionsrs as $unassignedcertifcompletion) {
+        // Don't increment total count, because these have already been counted earlier.
+
+        // If the problem key doesn't exist in the aggregate list already then create it.
+        if (!isset($aggregatelist[$problemkey])) {
+            $newaggregate = new stdClass();
+            $newaggregate->count = 0;
+
+            $newaggregate->problem = get_string($problemkey, 'totara_certification');
+
+            $newaggregate->category = get_string('problemcategoryfiles', 'totara_program');
+
+            // Solution is designed to fix all records affected by this problem with the given filters.
+            $newaggregate->solution = certif_get_completion_error_solution($problemkey, $programid, $userid);
+
+            $aggregatelist[$problemkey] = $newaggregate;
+        }
+        $aggregatelist[$problemkey]->count++;
+
+        $affected = new stdClass();
+        $affected->problem = $aggregatelist[$problemkey]->problem;
+        $affected->userfullname = fullname($DB->get_record('user', array('id' => $unassignedcertifcompletion->userid)));
+        $affected->programname = format_string($unassignedcertifcompletion->fullname);
+        $affected->editcompletionurl = new moodle_url('/totara/certification/edit_completion.php',
+            array('id' => $unassignedcertifcompletion->programid, 'userid' => $unassignedcertifcompletion->userid));
+        $affectedkey = $unassignedcertifcompletion->programid . '-' . $unassignedcertifcompletion->userid;
+
+        $fulllist[$affectedkey] = $affected;
+    }
+
+    $unassignedcertifcompletionsrs->close();
+
+    return array($fulllist, $aggregatelist, $totalcount);
+}
+
+/**
+ * Returns a recordset containing all user who are assigned to certs but are missing a completion record (one or both).
+ * These records should exist!
+ *
+ * @param int $programid if provided (non-0), only fix problems for this cert
+ * @param int $userid if provided (non-0), only fix problems for this user
+ * @return moodle_recordset containing programid, userid and cert's fullname
+ */
+function certif_find_missing_completions($programid = 0, $userid = 0) {
+    global $DB;
+
+    $params = array();
+    $where = "";
+
+    if (!empty($userid)) {
+        $where .= " AND pua.userid = :userid";
+        $params['userid'] = $userid;
+    }
+
+    if (!empty($programid)) {
+        $where .= " AND pua.programid = :programid";
+        $params['programid'] = $programid;
+    }
+
+    $sql = "SELECT pua.programid, pua.userid, p.fullname
+              FROM {prog_user_assignment} pua
+              JOIN {prog} p ON p.id = pua.programid AND p.certifid IS NOT NULL
+         LEFT JOIN {prog_completion} pc ON pc.programid = pua.programid AND pc.userid = pua.userid AND pc.coursesetid = 0
+         LEFT JOIN {certif_completion} cc ON cc.certifid = p.certifid AND cc.userid = pua.userid
+             WHERE (pc.id IS NULL OR cc.id IS NULL) {$where}";
+
+    return $DB->get_recordset_sql($sql, $params);
+}
+
+/**
+ * Returns a recordset containing all user who are not assigned and have a certif_completion record (in any state).
+ * These records shouldn't exist!
+ *
+ * @param int $programid if provided (non-0), only fix problems for this cert
+ * @param int $userid if provided (non-0), only fix problems for this user
+ * @return moodle_recordset containing programid, userid and program's fullname
+ */
+function certif_find_unassigned_certif_completions($programid = 0, $userid = 0) {
+    global $DB;
+
+    $params = array();
+    $where = "";
+
+    if (!empty($userid)) {
+        $where .= " AND cc.userid = :userid";
+        $params['userid'] = $userid;
+    }
+
+    if (!empty($programid)) {
+        $where .= " AND p.id = :programid";
+        $params['programid'] = $programid;
+    }
+
+    $sql = "SELECT p.id AS programid, cc.userid, p.fullname
+              FROM {certif_completion} cc
+              JOIN {prog} p ON p.certifid = cc.certifid
+         LEFT JOIN {prog_user_assignment} pua ON pua.programid = p.id AND pua.userid = cc.userid
+             WHERE pua.id IS NULL {$where}";
+
+    return $DB->get_recordset_sql($sql, $params);
 }
 
 /**

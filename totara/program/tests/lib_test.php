@@ -44,6 +44,13 @@ class totara_program_lib_testcase extends reportcache_advanced_testcase {
     public $numfixcerts = 7;
     public $numfixprogs = 10;
 
+    public $users = array();
+    public $programs = array();
+    public $certifications = array();
+    public $numtestusers = 12;
+    public $numtestcerts = 7;
+    public $numtestprogs = 10;
+
     protected function tearDown() {
         $this->fixusers = null;
         $this->fixprograms = null;
@@ -51,7 +58,33 @@ class totara_program_lib_testcase extends reportcache_advanced_testcase {
         $this->numfixusers = null;
         $this->numfixcerts = null;
         $this->numfixprogs = null;
+
+        $this->users = null;
+        $this->programs = null;
+        $this->certifications = null;
+        $this->numtestusers = null;
+        $this->numtestcerts = null;
+        $this->numtestprogs = null;
         parent::tearDown();
+    }
+
+    /**
+     * Asserts that the number of items in a recordset equals the given number, then close the recordset.
+     *
+     * @param int $expectedcount the expected number of items in the recordset
+     * @param moodle_recordset $rs the recordset to iterate over and then close
+     * @throws PHPUnit_Framework_ExpectationFailedException
+     */
+    public function assert_count_and_close_recordset($expectedcount, $rs) {
+        $i = 0;
+        foreach ($rs as $item) {
+            $i++;
+        }
+        $rs->close();
+
+        if ($i != $expectedcount) {
+            $this->fail('Recordset does not contain the expected number of items');
+        }
     }
 
     /**
@@ -1505,5 +1538,457 @@ class totara_program_lib_testcase extends reportcache_advanced_testcase {
         $result = prog_display_progress($cert->id, $user8->id, CERTIFPATH_CERT, true); // Export, so we just get a string.
         $this->assertEquals('Not assigned', $result);
         unset($user8);
+    }
+
+    /**
+     * Set up users, programs, certifications and assignments.
+     */
+    public function setup_completions() {
+        $this->resetAfterTest(true);
+
+        // Create users.
+        for ($i = 1; $i <= $this->numtestusers; $i++) {
+            $this->users[$i] = $this->getDataGenerator()->create_user();
+        }
+
+        // Create programs.
+        for ($i = 1; $i <= $this->numtestprogs; $i++) {
+            $this->programs[$i] = $this->getDataGenerator()->create_program();
+        }
+
+        // Create certifications, mostly so that we don't end up with coincidental success due to matching ids.
+        for ($i = 1; $i <= $this->numtestcerts; $i++) {
+            $this->certifications[$i] = $this->getDataGenerator()->create_certification();
+        }
+
+        // Assign users to the programs as individuals.
+        foreach ($this->users as $user) {
+            foreach ($this->programs as $prog) {
+                $this->getDataGenerator()->assign_to_program($prog->id, ASSIGNTYPE_INDIVIDUAL, $user->id);
+            }
+        }
+
+        // Assign users to the certifications as individuals.
+        foreach ($this->users as $user) {
+            foreach ($this->certifications as $prog) {
+                $this->getDataGenerator()->assign_to_program($prog->id, ASSIGNTYPE_INDIVIDUAL, $user->id);
+            }
+        }
+    }
+
+    /**
+     * Test prog_fix_missing_completions - ensure that the correct records are repaired.
+     */
+    public function test_prog_fix_missing_completions() {
+        global $DB;
+
+        // Set up some data that is valid.
+        $this->setup_completions();
+        list($fulllist, $aggregatelist, $totalcount) = prog_get_all_completions_with_errors();
+        $this->assertCount(0, $fulllist);
+        list($fulllist, $aggregatelist, $totalcount) = certif_get_all_completions_with_errors();
+        $this->assertCount(0, $fulllist);
+
+        // Break all the records, progs and certs.
+        $DB->delete_records('prog_completion', array('coursesetid' => 0));
+
+        // Check that all of the records are broken, progs and certs.
+        $expectedfixedcount = 0;
+        $progcompletions = $DB->get_records('prog_completion', array('coursesetid' => 0));
+        $this->assertCount($expectedfixedcount, $progcompletions);
+        list($fulllist, $aggregatelist, $totalcount) = prog_get_all_completions_with_errors();
+        $this->assertCount($this->numtestusers * $this->numtestprogs - $expectedfixedcount, $fulllist);
+        list($fulllist, $aggregatelist, $totalcount) = certif_get_all_completions_with_errors();
+        $this->assertCount($this->numtestusers * $this->numtestcerts, $fulllist);
+
+        // Apply the fix to just one user/prog.
+        prog_fix_missing_completions($this->programs[6]->id, $this->users[2]->id);
+
+        // Check that the correct records have been fixed.
+        $expectedfixedcount = 1; // One cell in the matrix.
+        $progcompletions = $DB->get_records('prog_completion', array('coursesetid' => 0));
+        $this->assertCount($expectedfixedcount, $progcompletions);
+        foreach ($progcompletions as $progcompletion) {
+            $this->assertEquals($this->programs[6]->id, $progcompletion->programid);
+            $this->assertEquals($this->users[2]->id, $progcompletion->userid);
+        }
+        list($fulllist, $aggregatelist, $totalcount) = prog_get_all_completions_with_errors();
+        $this->assertCount($this->numtestusers * $this->numtestprogs - $expectedfixedcount, $fulllist);
+
+        // Apply the fix to just one user, all progs (don't need to reset, just overlap).
+        prog_fix_missing_completions(0, $this->users[2]->id);
+
+        // Check that the correct records have been fixed.
+        $expectedfixedcount = $this->numtestprogs; // One column in the matrix.
+        $progcompletions = $DB->get_records('prog_completion', array('coursesetid' => 0));
+        $this->assertCount($expectedfixedcount, $progcompletions);
+        foreach ($progcompletions as $progcompletion) {
+            $this->assertEquals($this->users[2]->id, $progcompletion->userid);
+        }
+        list($fulllist, $aggregatelist, $totalcount) = prog_get_all_completions_with_errors();
+        $this->assertCount($this->numtestusers * $this->numtestprogs - $expectedfixedcount, $fulllist);
+
+        // Apply the fix to just one prog, all users (don't need to reset, just overlap).
+        prog_fix_missing_completions($this->programs[6]->id, 0);
+
+        // Check that the correct records have been fixed.
+        $expectedfixedcount = $this->numtestprogs + $this->numtestusers - 1; // One column and one row in the matrix.
+        $progcompletions = $DB->get_records('prog_completion', array('coursesetid' => 0));
+        $this->assertCount($expectedfixedcount, $progcompletions);
+        foreach ($progcompletions as $progcompletion) {
+            $this->assertTrue($this->programs[6]->id == $progcompletion->programid ||
+                $this->users[2]->id == $progcompletion->userid);
+        }
+        list($fulllist, $aggregatelist, $totalcount) = prog_get_all_completions_with_errors();
+        $this->assertCount($this->numtestusers * $this->numtestprogs - $expectedfixedcount, $fulllist);
+
+        // Apply the fix to all records (overlaps previous fixes).
+        prog_fix_missing_completions(0, 0);
+
+        // Check that the correct records have been fixed.
+        $expectedfixedcount = $this->numtestprogs * $this->numtestusers; // The whole matrix.
+        $progcompletions = $DB->get_records('prog_completion', array('coursesetid' => 0));
+        $this->assertCount($expectedfixedcount, $progcompletions);
+        list($fulllist, $aggregatelist, $totalcount) = prog_get_all_completions_with_errors();
+        $this->assertCount($this->numtestusers * $this->numtestprogs - $expectedfixedcount, $fulllist);
+
+        // Make sure that no certs were fixed.
+        list($fulllist, $aggregatelist, $totalcount) = certif_get_all_completions_with_errors();
+        $this->assertCount($this->numtestusers * $this->numtestcerts, $fulllist);
+    }
+
+    /**
+     * Test prog_fix_unassigned_incomplete_completions - ensure that the correct records are repaired.
+     */
+    public function test_prog_fix_unassigned_incomplete_completions() {
+        global $DB;
+
+        // Set up some data that is valid.
+        $this->setup_completions();
+        list($fulllist, $aggregatelist, $totalcount) = prog_get_all_completions_with_errors();
+        $this->assertCount(0, $fulllist);
+        list($fulllist, $aggregatelist, $totalcount) = certif_get_all_completions_with_errors();
+        $this->assertCount(0, $fulllist);
+
+        // Break all the records, progs and certs.
+        $DB->delete_records('prog_user_assignment');
+
+        // Check that all of the records are broken, progs and certs.
+        $expectedfixedcount = 0;
+        $progcompletions = $DB->get_records('prog_completion', array('coursesetid' => 0));
+        $this->assertCount($this->numtestusers * ($this->numtestprogs + $this->numtestcerts) - $expectedfixedcount, $progcompletions);
+        list($fulllist, $aggregatelist, $totalcount) = prog_get_all_completions_with_errors();
+        $this->assertCount($this->numtestusers * $this->numtestprogs - $expectedfixedcount, $fulllist);
+        list($fulllist, $aggregatelist, $totalcount) = certif_get_all_completions_with_errors();
+        $this->assertCount($this->numtestusers * $this->numtestcerts, $fulllist);
+
+        // Apply the fix to just one user/prog.
+        prog_fix_unassigned_incomplete_completions($this->programs[6]->id, $this->users[2]->id);
+
+        // Check that the correct records have been fixed.
+        $expectedfixedcount = 1; // One cell in the matrix.
+        $progcompletions = $DB->get_records('prog_completion', array('coursesetid' => 0));
+        $this->assertCount($this->numtestusers * ($this->numtestprogs + $this->numtestcerts) - $expectedfixedcount, $progcompletions);
+        foreach ($progcompletions as $progcompletion) {
+            $this->assertTrue($this->programs[6]->id != $progcompletion->programid || $this->users[2]->id != $progcompletion->userid);
+        }
+        list($fulllist, $aggregatelist, $totalcount) = prog_get_all_completions_with_errors();
+        $this->assertCount($this->numtestusers * $this->numtestprogs - $expectedfixedcount, $fulllist);
+
+        // Apply the fix to just one user, all progs (don't need to reset, just overlap).
+        prog_fix_unassigned_incomplete_completions(0, $this->users[2]->id);
+
+        // Check that the correct records have been fixed.
+        $expectedfixedcount = $this->numtestprogs; // One column in the matrix.
+        $sql = "SELECT pc.*, p.certifid FROM {prog_completion} pc JOIN {prog} p ON p.id = pc.programid WHERE pc.coursesetid = 0";
+        $progcompletions = $DB->get_records_sql($sql);
+        $this->assertCount($this->numtestusers * ($this->numtestprogs + $this->numtestcerts) - $expectedfixedcount, $progcompletions);
+        foreach ($progcompletions as $progcompletion) {
+            if (empty($progcompletion->certifid)) {
+                $this->assertTrue($this->users[2]->id != $progcompletion->userid);
+            }
+        }
+        list($fulllist, $aggregatelist, $totalcount) = prog_get_all_completions_with_errors();
+        $this->assertCount($this->numtestusers * $this->numtestprogs - $expectedfixedcount, $fulllist);
+
+        // Apply the fix to just one prog, all users (don't need to reset, just overlap).
+        prog_fix_unassigned_incomplete_completions($this->programs[6]->id, 0);
+
+        // Check that the correct records have been fixed.
+        $expectedfixedcount = $this->numtestprogs + $this->numtestusers - 1; // One column and one row in the matrix.
+        $sql = "SELECT pc.*, p.certifid FROM {prog_completion} pc JOIN {prog} p ON p.id = pc.programid WHERE pc.coursesetid = 0";
+        $progcompletions = $DB->get_records_sql($sql);
+        $this->assertCount($this->numtestusers * ($this->numtestprogs + $this->numtestcerts) - $expectedfixedcount, $progcompletions);
+        foreach ($progcompletions as $progcompletion) {
+            if (empty($progcompletion->certifid)) {
+                $this->assertTrue($this->programs[6]->id != $progcompletion->programid &&
+                    $this->users[2]->id != $progcompletion->userid);
+            }
+        }
+        list($fulllist, $aggregatelist, $totalcount) = prog_get_all_completions_with_errors();
+        $this->assertCount($this->numtestusers * $this->numtestprogs - $expectedfixedcount, $fulllist);
+
+        // Apply the fix to all records (overlaps previous fixes).
+        prog_fix_unassigned_incomplete_completions(0, 0);
+
+        // Check that the correct records have been fixed.
+        $expectedfixedcount = $this->numtestprogs * $this->numtestusers; // The whole matrix.
+        $progcompletions = $DB->get_records('prog_completion', array('coursesetid' => 0));
+        $this->assertCount($this->numtestusers * ($this->numtestprogs + $this->numtestcerts) - $expectedfixedcount, $progcompletions);
+        list($fulllist, $aggregatelist, $totalcount) = prog_get_all_completions_with_errors();
+        $this->assertCount(0, $fulllist);
+
+        // Make sure that no certs were fixed.
+        list($fulllist, $aggregatelist, $totalcount) = certif_get_all_completions_with_errors();
+        $this->assertCount($this->numtestusers * $this->numtestcerts, $fulllist);
+    }
+
+    public function test_prog_create_completion() {
+        $this->resetAfterTest(true);
+
+        $user = $this->getDataGenerator()->create_user();
+        $program = $this->getDataGenerator()->create_program();
+
+        // Test defaults.
+        $timebefore = time();
+        $this->assertTrue(prog_create_completion($program->id, $user->id));
+        $timeafter = time();
+
+        $progcompletion = prog_load_completion($program->id, $user->id);
+        $this->assertEquals(STATUS_PROGRAM_INCOMPLETE, $progcompletion->status);
+        $this->assertGreaterThanOrEqual($timebefore, $progcompletion->timestarted);
+        $this->assertLessThanOrEqual($timeafter, $progcompletion->timestarted);
+        $this->assertEquals(COMPLETION_TIME_NOT_SET, $progcompletion->timedue);
+        $this->assertEquals(0, $progcompletion->timecompleted);
+
+        prog_delete_completion($program->id, $user->id);
+
+        // Test providing data with invalid fields.
+        $data = array(
+            'dodgyfield' => 789,
+        );
+        $this->assertFalse(prog_create_completion($program->id, $user->id, $data));
+
+        $progcompletion = prog_load_completion($program->id, $user->id, false);
+        $this->assertTrue($progcompletion === false);
+
+        // Test providing data with only valid fields.
+        $data = array(
+            'status' => STATUS_PROGRAM_COMPLETE,
+            'timestarted' => 123,
+            'timedue' => 345,
+            'timecompleted' => 456,
+            'organisationid' => 567,
+            'positionid' => 678,
+        );
+        $this->assertTrue(prog_create_completion($program->id, $user->id, $data));
+
+        $progcompletion = prog_load_completion($program->id, $user->id);
+        $this->assertEquals($data['status'], $progcompletion->status);
+        $this->assertEquals($data['timestarted'], $progcompletion->timestarted);
+        $this->assertEquals($data['timedue'], $progcompletion->timedue);
+        $this->assertEquals($data['timecompleted'], $progcompletion->timecompleted);
+        $this->assertEquals($data['organisationid'], $progcompletion->organisationid);
+        $this->assertEquals($data['positionid'], $progcompletion->positionid);
+    }
+
+    public function test_prog_find_missing_completions_with_program_assignments() {
+        global $DB;
+
+        // Set up some data that is valid.
+        $this->setup_completions();
+        $this->assert_count_and_close_recordset(0, prog_find_missing_completions());
+        list($fulllist, $aggregatelist, $totalcount) = prog_get_all_completions_with_errors();
+        $this->assertCount(0, $fulllist);
+        list($fulllist, $aggregatelist, $totalcount) = certif_get_all_completions_with_errors();
+        $this->assertCount(0, $fulllist);
+
+        // Break all the records, progs and certs.
+        $DB->delete_records('prog_completion', array('coursesetid' => 0));
+
+        // Check that all of the records are broken, progs and certs.
+        $this->assert_count_and_close_recordset($this->numtestusers * $this->numtestprogs, prog_find_missing_completions());
+        list($fulllist, $aggregatelist, $totalcount) = prog_get_all_completions_with_errors();
+        $this->assertCount($this->numtestusers * $this->numtestprogs, $fulllist);
+        list($fulllist, $aggregatelist, $totalcount) = certif_get_all_completions_with_errors();
+        $this->assertCount($this->numtestusers * $this->numtestcerts, $fulllist);
+
+        // Apply the fix to just one user, all progs.
+        prog_fix_missing_completions(0, $this->users[2]->id);
+
+        // Apply the fix to just one prog, all users (overlapping).
+        prog_fix_missing_completions($this->programs[6]->id, 0);
+
+        // Test the function is returning the correct records when no user or program is specified.
+        $expectedfixedcount = $this->numtestusers * $this->numtestprogs - $this->numtestprogs - $this->numtestusers + 1;
+        $this->assert_count_and_close_recordset($expectedfixedcount, prog_find_missing_completions());
+
+        // Test the function is returning the correct records when just the program is specified.
+        $this->assert_count_and_close_recordset($this->numtestusers - 1, prog_find_missing_completions($this->programs[4]->id, 0));
+        $this->assert_count_and_close_recordset(0, prog_find_missing_completions($this->programs[6]->id, 0)); // All were fixed.
+
+        // Test the function is returning the correct records when just the user is specified.
+        $this->assert_count_and_close_recordset($this->numtestprogs - 1, prog_find_missing_completions(0, $this->users[7]->id));
+        $this->assert_count_and_close_recordset(0, prog_find_missing_completions(0, $this->users[2]->id)); // All were fixed.
+
+        // Test the function is returning the correct records when program and user are specified.
+        $this->assert_count_and_close_recordset(1, prog_find_missing_completions($this->programs[4]->id, $this->users[6]->id));
+        $this->assert_count_and_close_recordset(0, prog_find_missing_completions($this->programs[6]->id, $this->users[3]->id));
+        $this->assert_count_and_close_recordset(0, prog_find_missing_completions($this->programs[5]->id, $this->users[2]->id));
+        $this->assert_count_and_close_recordset(0, prog_find_missing_completions($this->programs[6]->id, $this->users[2]->id));
+    }
+
+    public function test_prog_find_missing_completions_with_learning_plans() {
+        global $DB;
+
+        $this->resetAfterTest(true);
+
+        // Set up a program in a user's plan.
+        $user = $this->getDataGenerator()->create_user();
+        $plangenerator = $this->getDataGenerator()->get_plugin_generator('totara_plan');
+        $planrecord = $plangenerator->create_learning_plan(array('userid' => $user->id));
+        $plan = new development_plan($planrecord->id);
+        $program = $this->getDataGenerator()->create_program();
+        $this->setAdminUser(); // Stupid access control.
+        $plangenerator->add_learning_plan_program($plan->id, $program->id);
+
+        // Break the completion.
+        $DB->delete_records('prog_completion', array('coursesetid' => 0));
+
+        // Run the function to make sure it can find the problem.
+        $this->assert_count_and_close_recordset(1, prog_find_missing_completions());
+
+        // Fix the problem.
+        prog_fix_missing_completions(0, 0);
+
+        // Run the function to make sure it doesn't find the problem.
+        $this->assert_count_and_close_recordset(0, prog_find_missing_completions());
+    }
+
+    public function test_prog_find_unassigned_incomplete_completions_with_program_assignments() {
+        global $DB;
+
+        // Set up some data that is valid.
+        $this->setup_completions();
+
+        // Show that existing prog_user_assignments will prevent the prog_completions from being reported as broken.
+        $this->assert_count_and_close_recordset(0, prog_find_unassigned_incomplete_completions());
+        list($fulllist, $aggregatelist, $totalcount) = prog_get_all_completions_with_errors();
+        $this->assertCount(0, $fulllist);
+        list($fulllist, $aggregatelist, $totalcount) = certif_get_all_completions_with_errors();
+        $this->assertCount(0, $fulllist);
+
+        // Break all the records, progs and certs.
+        $DB->delete_records('prog_user_assignment');
+
+        // Check that all of the records are broken, progs and certs.
+        $this->assert_count_and_close_recordset($this->numtestusers * $this->numtestprogs, prog_find_unassigned_incomplete_completions());
+        list($fulllist, $aggregatelist, $totalcount) = prog_get_all_completions_with_errors();
+        $this->assertCount($this->numtestusers * $this->numtestprogs, $fulllist);
+        list($fulllist, $aggregatelist, $totalcount) = certif_get_all_completions_with_errors();
+        $this->assertCount($this->numtestusers * $this->numtestcerts, $fulllist);
+
+        // Apply the fix to just one user, all progs.
+        prog_fix_unassigned_incomplete_completions(0, $this->users[2]->id);
+
+        // Apply the fix to just one prog, all users (overlapping).
+        prog_fix_unassigned_incomplete_completions($this->programs[6]->id, 0);
+
+        // Test the function is returning the correct records when no user or program is specified.
+        $expectedfixedcount = $this->numtestusers * $this->numtestprogs - $this->numtestprogs - $this->numtestusers + 1;
+        $this->assert_count_and_close_recordset($expectedfixedcount, prog_find_unassigned_incomplete_completions());
+
+        // Test the function is returning the correct records when just the program is specified.
+        $this->assert_count_and_close_recordset($this->numtestusers - 1, prog_find_unassigned_incomplete_completions($this->programs[4]->id, 0));
+        $this->assert_count_and_close_recordset(0, prog_find_unassigned_incomplete_completions($this->programs[6]->id, 0)); // All were fixed.
+
+        // Test the function is returning the correct records when just the user is specified.
+        $this->assert_count_and_close_recordset($this->numtestprogs - 1, prog_find_unassigned_incomplete_completions(0, $this->users[7]->id));
+        $this->assert_count_and_close_recordset(0, prog_find_unassigned_incomplete_completions(0, $this->users[2]->id)); // All were fixed.
+
+        // Test the function is returning the correct records when program and user are specified.
+        $this->assert_count_and_close_recordset(1, prog_find_unassigned_incomplete_completions($this->programs[4]->id, $this->users[6]->id));
+        $this->assert_count_and_close_recordset(0, prog_find_unassigned_incomplete_completions($this->programs[6]->id, $this->users[3]->id));
+        $this->assert_count_and_close_recordset(0, prog_find_unassigned_incomplete_completions($this->programs[5]->id, $this->users[2]->id));
+        $this->assert_count_and_close_recordset(0, prog_find_unassigned_incomplete_completions($this->programs[6]->id, $this->users[2]->id));
+    }
+
+    /**
+     * This test is designed to show that if learning plans exist then they will not be reported as broken.
+     * The previous test already does this for program assignments (near the start).
+     */
+    public function test_prog_find_unassigned_incomplete_completions_with_learning_plans() {
+        global $DB;
+
+        $this->resetAfterTest(true);
+
+        // Set up a program in a user's plan.
+        $user = $this->getDataGenerator()->create_user();
+        $plangenerator = $this->getDataGenerator()->get_plugin_generator('totara_plan');
+        $planrecord = $plangenerator->create_learning_plan(array('userid' => $user->id));
+        $plan = new development_plan($planrecord->id);
+        $program = $this->getDataGenerator()->create_program();
+        $this->setAdminUser(); // Stupid access control.
+        $plangenerator->add_learning_plan_program($plan->id, $program->id);
+
+        // Run the function to make sure it doesn't find a problem.
+        $this->assert_count_and_close_recordset(0, prog_find_unassigned_incomplete_completions());
+
+        // Break the completion.
+        $DB->delete_records('dp_plan_program_assign');
+
+        // Run the function to make sure it can find the problem.
+        $this->assert_count_and_close_recordset(1, prog_find_unassigned_incomplete_completions());
+    }
+
+    public function test_prog_get_all_completions_with_errors_with_consistency_problems() {
+        global $DB;
+
+        $this->setup_completions();
+
+        // One consistency problem.
+        $progcompletion = prog_load_completion($this->programs[1]->id, $this->users[2]->id);
+        $progcompletion->status = STATUS_PROGRAM_COMPLETE;
+        $errors = prog_get_completion_errors($progcompletion);
+        $this->assertNotEmpty($errors);
+        $problemkey = prog_get_completion_error_problemkey($errors);
+        $this->assertTrue(prog_write_completion($progcompletion, '', $problemkey));
+
+        // One missing prog_completion.
+        $DB->delete_records('prog_completion', array('programid' => $this->programs[3]->id, 'userid' => $this->users[4]->id));
+
+        // One unassigned incomplete completion record.
+        $DB->delete_records('prog_user_assignment', array('programid' => $this->programs[5]->id, 'userid' => $this->users[6]->id));
+
+        // Run the function.
+        list($fulllist, $aggregatelist, $totalcount) = prog_get_all_completions_with_errors();
+
+        // Check that the results contain the problems.
+        $this->assertCount(3, $fulllist);
+        $consistencyitem = $fulllist[$this->programs[1]->id . '-' . $this->users[2]->id];
+        $missingitem = $fulllist[$this->programs[3]->id . '-' . $this->users[4]->id];
+        $unassigneditem = $fulllist[$this->programs[5]->id . '-' . $this->users[6]->id];
+        $this->assertEquals('Time completed should not be empty when user has completed the program.', $consistencyitem->problem);
+        $this->assertEquals('Program completion record is missing', $missingitem->problem);
+        $this->assertEquals('Program completion record exists for a user who is unassigned and incomplete', $unassigneditem->problem);
+
+        $this->assertCount(3, $aggregatelist);
+        $consistencyaggregate = $aggregatelist['error:statecomplete-timecompletedempty'];
+        $missingaggregate = $aggregatelist['error:missingprogcompletion'];
+        $unassignedaggregate = $aggregatelist['error:unassignedincompleteprogcompletion'];
+        $this->assertEquals(1, $consistencyaggregate->count);
+        $this->assertEquals(1, $missingaggregate->count);
+        $this->assertEquals(1, $unassignedaggregate->count);
+        $this->assertEquals('Consistency', $consistencyaggregate->category);
+        $this->assertEquals('Files', $missingaggregate->category);
+        $this->assertEquals('Files', $unassignedaggregate->category);
+        $this->assertTrue(isset($consistencyaggregate->problem));
+        $this->assertTrue(isset($missingaggregate->problem));
+        $this->assertTrue(isset($unassignedaggregate->problem));
+        $this->assertTrue(isset($consistencyaggregate->solution));
+        $this->assertTrue(isset($missingaggregate->solution));
+        $this->assertTrue(isset($unassignedaggregate->solution));
+
+        $this->assertEquals($this->numtestusers * $this->numtestprogs, $totalcount); // Excludes certs.
     }
 }

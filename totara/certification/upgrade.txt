@@ -8,3 +8,5 @@ information provided here is intended for developers.
 * certif_create_completion now deletes "expired" certif_completion_history records when they are used to reassign a user
 * certification_event_handler::unassigned() is deprecated. Call certif_conditionally_delete_completion directly instead.
 * delete_removed_users() is deprecated. This functionality is already performed in existing Totara code.
+* totara_certification_renderer::get_completion_checker_results has been changed - the $data parameter now requires
+  fulllist, aggregatelist and totalcount.

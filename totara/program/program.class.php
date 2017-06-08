@@ -2142,33 +2142,22 @@ class program {
     }
 
     /**
-     * Display reasons for why a user might have a completion record. Most common reason
-     * is that they are assigned, as returned by $this->display_assignment_reason(), but
+     * Display reasons for why a user is assigned. Most common reason
+     * is that they are assigned, as returned by $this->display_required_assignment_reason(), but
      * also tries to find other reasons if nothing comes back from that.
      *
-     * This only takes into account a prog_completion record. If there is a certif_completion record
-     * but not a prog_completion record, it will say no record exists.
-     *
      * @param stdClass $user - a user record.
-     * @param null|stdClass $currentcompletion - the current progcompletion record. If left as null,
-     *  will assume no check has been made yet and query the database.
+     * @param null|stdClass $unused since Totara 10, 9.8, 2.9.20, 2.7.28, 2.6.45, 2.5.52
      * @return string explaining why completion record exists.
      * @throws coding_exception
      */
-    public function display_completion_record_reason($user, $currentcompletion = null) {
+    public function display_completion_record_reason($user, $unused = null) {
+        if (!is_null($unused)) {
+            debugging('program::display_completion_record_reason() was passed a value in unused second paramter', DEBUG_DEVELOPER);
+        }
+
         global $DB;
         $reasonlist = '';
-
-        if (!isset($currentcompletion)) {
-            // Currently, for the certification completion editor, it will not show a current completion record if there
-            // is no prog_completion, but there is a cert completion. We'll want to update this if that changes.
-            $currentcompletion = $DB->get_record('prog_completion', array('userid' => $user->id, 'programid' => $this->id, 'coursesetid' => 0));
-        }
-
-        if (empty($currentcompletion)) {
-            // There is no prog_completion record.
-            return get_string('usernotcurrentlyassigned', 'totara_program');
-        }
 
         $userassigned = $this->user_is_assigned($user->id);
         if ($userassigned) {
@@ -2184,7 +2173,7 @@ class program {
         if (!empty($reasonlist)) {
             // We have found assignment records or similar reasons and added them to the message. Return
             // those so they can be displayed.
-            $message = html_writer::tag('p', get_string('completionrecordbecause', 'totara_program'))
+            $message = html_writer::tag('p', get_string('completionassignedbecause', 'totara_program'))
                  . html_writer::tag('ul', $reasonlist);
             if ($user->suspended) {
                 // If the user is suspended, things such setting their window to open won't work,
@@ -2195,7 +2184,7 @@ class program {
         } else {
             // Let's go through some other reasons why they might have a record.
             if ($user->deleted) {
-                return html_writer::tag('p', get_string('completionrecorduserdeleted', 'totara_program'));
+                return html_writer::tag('p', get_string('completionassignedreasondeleted', 'totara_program'));
             }
 
             // They may have added a program to their learning plan. If it was approved, this
@@ -2209,14 +2198,14 @@ class program {
                        AND pa.programid = ?";
             $params = array($user->id, $this->id);
             if ($DB->record_exists_sql($sql, $params)) {
-                $message = html_writer::tag('p', get_string('completionrecordunapprovedplan', 'totara_program'));
+                $message = html_writer::tag('p', get_string('completionassignedreasonunapprovedplan', 'totara_program'));
             }
         }
 
         if (empty($message)) {
             // Still nothing found.
             // The default is to say a completion record exists but no reason was found.
-            $message = html_writer::tag('p', get_string('completionrecordreasonnotfound', 'totara_program'));
+            $message = html_writer::tag('p', get_string('completionassignedreasonnotfound', 'totara_program'));
         }
 
         if ($user->suspended) {

@@ -190,6 +190,10 @@ $string['completexcoursestoprogress'] = 'Complete 1 more course to progress';
 $string['completexcoursestoprogressplural'] = 'Complete {$a} more courses to progress';
 $string['completion'] = 'Completion';
 $string['completionaddhistory'] = 'Add history';
+$string['completionassignedbecause'] = 'This user is assigned for the following reasons:';
+$string['completionassignedreasondeleted'] = 'The user has been deleted and they are not currently assigned.';
+$string['completionassignedreasonnotfound'] = 'No current assignment details could be found.';
+$string['completionassignedreasonunapprovedplan'] = 'This program has been added to their learning plan. However, please note that this has not been approved.';
 $string['completionchangedatewarning'] = 'All dates will be rounded down to the nearest five minutes.';
 $string['completionchangessaved'] = 'Completion changes have been saved';
 $string['completioncriteria'] = 'Completion criteria';
@@ -356,6 +360,8 @@ $string['error:failfixprogsortorder'] = 'Failed to fix program sortorder';
 $string['error:findingprogram'] = 'Error finding program {$a}';
 $string['error:impossibledatasubmitted'] = 'The data submitted is not valid and cannot be processed';
 $string['error:inaccessible'] = 'You cannot currently access this program';
+$string['error:info_fixmissingprogcompletion'] = 'The user is assigned, but program completion record is missing. This fix will create a program completion record.';
+$string['error:info_fixunassignedincompletecompletionrecord'] = 'The user has a program completion record, which is in the incomplete state, and they are not assigned. This fix will remove the program completion record.';
 $string['error:invalidcoursesetgroupoperator'] = 'Invalid course set group operator found';
 $string['error:invaliddate'] = 'Date is not valid';
 $string['error:invalidid'] = 'That\'s an invalid program id';
@@ -364,6 +370,7 @@ $string['error:invalidstatus'] = 'Invalid status';
 $string['error:invaliduser'] = 'Error, invalid user';
 $string['error:mainmessage_empty'] = 'Message is required';
 $string['error:messagesubject_empty'] = 'Message subject is required';
+$string['error:missingprogcompletion'] = 'Program completion record is missing';
 $string['error:nextcoursesetmissing'] = "Next course set operator OR or AND specified, but next course doesn't exist";
 $string['error:nocompetency'] = 'A competency must be selected.';
 $string['error:nocompletionrecord'] = 'Error, could not find completion record for assignment';
@@ -397,6 +404,7 @@ $string['error:unableaddmessagetypeunrecog'] = 'Unable to add new message. Messa
 $string['error:unabledeletemessagenotfound'] = 'Unable to delete message. Message not found';
 $string['error:unabletoaddset'] = 'Unable to add new set. Set type not recognised.';
 $string['error:unabletosetupprogcontent'] = 'Unable to set up program content.';
+$string['error:unassignedincompleteprogcompletion'] = 'Program completion record exists for a user who is unassigned and incomplete';
 $string['error:updateextensionstatus'] = 'Error, failed to update extension status';
 $string['error:updateuserassignment'] = 'An error occured when updating a user assignment record';
 $string['error:updatingcompletionrecord'] = 'An error occured when updating a completion record';
@@ -785,6 +793,16 @@ $string['positions_category'] = 'position(s)';
 $string['positionsname'] = 'Positions name';
 $string['positionstartdate'] = 'Position start date';
 $string['problem'] = 'Problem';
+$string['problemcategory'] = 'Category';
+$string['problemcategory_help'] = 'Problems can belong to one of these categories:
+
+* Consistency: The completion records are not internally consistent, e.g. if a record has status "complete" but the date of completion is empty.
+* Files: One or more files are either missing or should not be present, e.g. if a user has an assignment record but the corresponding completion record is missing.
+* History: There is a problem with completion history, e.g. if a history record is marked "unassigned" but the user is currently assigned.
+';
+$string['problemcategoryconsistency'] = 'Consistency';
+$string['problemcategoryfiles'] = 'Files';
+$string['problemcategoryhistory'] = 'History';
 $string['proceed'] = 'Proceed with this action';
 $string['profilefielddate'] = 'Profile field date';
 $string['prog_courseset_completed_message'] = 'Course set completed message';

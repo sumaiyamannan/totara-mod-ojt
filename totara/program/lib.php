@@ -2528,6 +2528,18 @@ function prog_get_completion_error_solution($problemkey, $programid = 0, $userid
             $html = get_string('error:info_fixtimedueunknown', 'totara_program') . '<br>' .
                 html_writer::link($url, get_string('clicktofixcompletions', 'totara_program'));
             break;
+        case 'error:missingprogcompletion':
+            $url = clone($baseurl);
+            $url->param('fixkey', 'fixmissingcompletionrecords');
+            $html = get_string('error:info_fixmissingprogcompletion', 'totara_program') . '<br>' .
+                html_writer::link($url, get_string('clicktofixcompletions', 'totara_program'));
+            break;
+        case 'error:unassignedincompleteprogcompletion':
+            $url = clone($baseurl);
+            $url->param('fixkey', 'fixunassignedincompletecompletionrecords');
+            $html = get_string('error:info_fixunassignedincompletecompletionrecord', 'totara_program') . '<br>' .
+                html_writer::link($url, get_string('clicktofixcompletions', 'totara_program'));
+            break;
         default:
             $html = get_string('error:info_unknowncombination', 'totara_program');
             break;
@@ -2545,6 +2557,18 @@ function prog_get_completion_error_solution($problemkey, $programid = 0, $userid
  */
 function prog_fix_completions($fixkey, $programid = 0, $userid = 0) {
     global $DB;
+
+    // Creating missing program completion records is handled in a separate function, just to keep things tidy.
+    if ($fixkey == 'fixmissingcompletionrecords') {
+        prog_fix_missing_completions($programid, $userid);
+        return;
+    }
+
+    // Deleting unassigned incomplete program completion records is handled in a separate function, just to keep things tidy.
+    if ($fixkey == 'fixunassignedincompletecompletionrecords') {
+        prog_fix_unassigned_incomplete_completions($programid, $userid);
+        return;
+    }
 
     // Get all completion records, applying the specified filters.
     $sql = "SELECT pc.*
@@ -2608,6 +2632,44 @@ function prog_fix_timedue(&$progcompletion) {
 
     return 'Automated fix \'prog_fix_timedue\' was applied<br>
         <ul><li>\'Program due date\' was set to ' . COMPLETION_TIME_NOT_SET . '</li></ul>';
+}
+
+/**
+ * Creates missing program completion records, limited by the specified filters.
+ *
+ * @param int $programid if provided (non-0), only fix problems for this program
+ * @param int $userid if provided (non-0), only fix problems for this user
+ */
+function prog_fix_missing_completions($programid = 0, $userid = 0) {
+    $affectedcompletionsrs = prog_find_missing_completions($programid, $userid);
+
+    $now = time(); // Mark them all with exactly the same time, to make it easier to debug.
+    $message = 'Automated fix \'prog_fix_missing_prog_completions\' was applied - prog_completion record was created';
+
+    foreach ($affectedcompletionsrs as $progcompletion) {
+        $data = array('timestarted' => $now);
+        prog_create_completion($progcompletion->programid, $progcompletion->userid, $data, $message);
+    }
+
+    $affectedcompletionsrs->close();
+}
+
+/**
+ * Deletes prog_completion records of users who are not assigned but have incomplete completion records, limited by the specified filters.
+ *
+ * @param int $programid if provided (non-0), only fix problems for this program
+ * @param int $userid if provided (non-0), only fix problems for this user
+ */
+function prog_fix_unassigned_incomplete_completions($programid = 0, $userid = 0) {
+    $affectedcompletionsrs = prog_find_unassigned_incomplete_completions($programid, $userid);
+
+    $message = 'Automated fix \'prog_fix_unassigned_incomplete_prog_completions\' was applied - prog_completion record was deleted';
+
+    foreach ($affectedcompletionsrs as $progcompletion) {
+        prog_delete_completion($progcompletion->programid, $progcompletion->userid, $message);
+    }
+
+    $affectedcompletionsrs->close();
 }
 
 /**
@@ -2967,4 +3029,294 @@ function prog_delete_completion($programid, $userid, $message = '') {
         $userid,
         $message
     );
+}
+
+/**
+ * Find all the completion records which have problems.
+ *
+ * The results are designed to be used by totara_program_renderer::get_completion_checker_results
+ *
+ * Each stdClass item in $fulllist is indexed by the problemkey and contains:
+ *  ->problem string short explaination of what the problem is (obtained from the problemkey)
+ *  ->userfullname string the full name of the affected user
+ *  ->programname string the full name of the program
+ *  ->editcompletionurl moodle_url a link to the completion editor for this user/cert
+ *
+ * Each stdClass item in $aggregatelist is indexed by the problemkey and contains:
+ *  ->problem string short explaination of what the problem is (obtained from the problemkey)
+ *  ->category string describing the general type of problem (Files, Consistentcy, etc)
+ *  ->solution string long explanation and any info about consequences, how the problem can be manually fixed and/or links to automated fixes etc
+ *  ->count int how many records (given the specified filters) are affected by this problem
+ *
+ * $totalcount reports the total number of records that are checked given the specified filters.
+ *
+ * @param int $programid
+ * @param int $userid
+ * @return array(array $fulllist, array $aggregatelist, int $totalcount)
+ */
+function prog_get_all_completions_with_errors($programid = 0, $userid = 0) {
+    global $DB;
+
+    $aggregatelist = array();
+    $fulllist = array();
+    $totalcount = 0;
+
+    // Check existing prog_completions for inconsistency errors.
+    $sql = "SELECT pc.userid, pc.programid, pc.status, pc.timedue, pc.timecompleted, prog.fullname
+              FROM {prog_completion} pc
+              JOIN {prog} prog ON prog.id = pc.programid
+             WHERE pc.coursesetid = 0
+               AND prog.certifid IS NULL";
+    $params = array();
+    if (!empty($userid)) {
+        $sql .= " AND pc.userid = :userid";
+        $params['userid'] = $userid;
+    }
+    if (!empty($programid)) {
+        $sql .= " AND pc.programid = :programid";
+        $params['programid'] = $programid;
+    }
+    $allcompletionsrs = $DB->get_recordset_sql($sql, $params);
+
+    foreach ($allcompletionsrs as $progcompletion) {
+        $errors = prog_get_completion_errors($progcompletion);
+
+        if (!empty($errors)) {
+            // Aggregate this combination of errors.
+            $problemkey = prog_get_completion_error_problemkey($errors);
+            // If the problem key doesn't exist in the aggregate list already then create it.
+            if (!isset($aggregatelist[$problemkey])) {
+                $newaggregate = new stdClass();
+                $newaggregate->count = 0;
+
+                $errorstrings = array();
+                foreach ($errors as $errorkey => $errorfield) {
+                    $errorstrings[] = get_string($errorkey, 'totara_program');
+                }
+                $newaggregate->problem = implode('<br>', $errorstrings);
+
+                $newaggregate->category = get_string('problemcategoryconsistency', 'totara_program');
+
+                // Solution is designed to fix all records affected by this problem with the given filters.
+                $newaggregate->solution = prog_get_completion_error_solution($problemkey, $programid, $userid);
+
+                $aggregatelist[$problemkey] = $newaggregate;
+            }
+            $aggregatelist[$problemkey]->count++;
+
+            $affected = new stdClass();
+            $affected->problem = $aggregatelist[$problemkey]->problem;
+            $affected->userfullname = fullname($DB->get_record('user', array('id' => $progcompletion->userid)));
+            $affected->programname = format_string($progcompletion->fullname);
+            $affected->editcompletionurl = new moodle_url('/totara/program/edit_completion.php',
+                array('id' => $progcompletion->programid, 'userid' => $progcompletion->userid));
+            $affectedkey = $progcompletion->programid . '-' . $progcompletion->userid;
+
+            $fulllist[$affectedkey] = $affected;
+        }
+        $totalcount++;
+    }
+
+    $allcompletionsrs->close();
+
+    // Check for missing prog_completion records.
+    $missingcompletionsrs = prog_find_missing_completions($programid, $userid);
+
+    $problemkey = 'error:missingprogcompletion';
+    foreach ($missingcompletionsrs as $missingcompletion) {
+        $totalcount++;
+
+        // If the problem key doesn't exist in the aggregate list already then create it.
+        if (!isset($aggregatelist[$problemkey])) {
+            $newaggregate = new stdClass();
+            $newaggregate->count = 0;
+
+            $newaggregate->problem = get_string($problemkey, 'totara_program');
+
+            $newaggregate->category = get_string('problemcategoryfiles', 'totara_program');
+
+            // Solution is designed to fix all records affected by this problem with the given filters.
+            $newaggregate->solution = prog_get_completion_error_solution($problemkey, $programid, $userid);
+
+            $aggregatelist[$problemkey] = $newaggregate;
+        }
+        $aggregatelist[$problemkey]->count++;
+
+        $affected = new stdClass();
+        $affected->problem = $aggregatelist[$problemkey]->problem;
+        $affected->userfullname = fullname($DB->get_record('user', array('id' => $missingcompletion->userid)));
+        $affected->programname = format_string($missingcompletion->fullname);
+        $affected->editcompletionurl = new moodle_url('/totara/program/edit_completion.php',
+            array('id' => $missingcompletion->programid, 'userid' => $missingcompletion->userid));
+        $affectedkey = $missingcompletion->programid . '-' . $missingcompletion->userid;
+
+        $fulllist[$affectedkey] = $affected;
+    }
+
+    $missingcompletionsrs->close();
+
+    // Check for unassigned incomplete prog_completion records.
+    $unassignedincompletecompletionsrs = prog_find_unassigned_incomplete_completions($programid, $userid);
+
+    $problemkey = 'error:unassignedincompleteprogcompletion';
+    foreach ($unassignedincompletecompletionsrs as $unassignedincompletecompletion) {
+        // Don't increment total count, because these have already been counted earlier.
+
+        // If the problem key doesn't exist in the aggregate list already then create it.
+        if (!isset($aggregatelist[$problemkey])) {
+            $newaggregate = new stdClass();
+            $newaggregate->count = 0;
+
+            $newaggregate->problem = get_string($problemkey, 'totara_program');
+
+            $newaggregate->category = get_string('problemcategoryfiles', 'totara_program');
+
+            // Solution is designed to fix all records affected by this problem with the given filters.
+            $newaggregate->solution = prog_get_completion_error_solution($problemkey, $programid, $userid);
+
+            $aggregatelist[$problemkey] = $newaggregate;
+        }
+        $aggregatelist[$problemkey]->count++;
+
+        $affected = new stdClass();
+        $affected->problem = $aggregatelist[$problemkey]->problem;
+        $affected->userfullname = fullname($DB->get_record('user', array('id' => $unassignedincompletecompletion->userid)));
+        $affected->programname = format_string($unassignedincompletecompletion->fullname);
+        $affected->editcompletionurl = new moodle_url('/totara/program/edit_completion.php',
+            array('id' => $unassignedincompletecompletion->programid, 'userid' => $unassignedincompletecompletion->userid));
+        $affectedkey = $unassignedincompletecompletion->programid . '-' . $unassignedincompletecompletion->userid;
+
+        $fulllist[$affectedkey] = $affected;
+    }
+
+    $unassignedincompletecompletionsrs->close();
+
+    return array($fulllist, $aggregatelist, $totalcount);
+}
+
+/**
+ * Returns a recordset containing all users who are assigned to programs but are missing a prog_completion record.
+ * These records should exist!
+ *
+ * @param int $programid if provided (non-0), only find problems for this program
+ * @param int $userid if provided (non-0), only find problems for this user
+ * @return moodle_recordset containing programid, userid and program's fullname
+ */
+function prog_find_missing_completions($programid = 0, $userid = 0) {
+    global $DB;
+
+    $params = array();
+    $progwhere = "";
+    $dpwhere = "";
+
+    if (!empty($userid)) {
+        $progwhere .= " AND pua.userid = :userid1";
+        $dpwhere .= " AND dpp.userid = :userid2";
+        $params['userid1'] = $userid;
+        $params['userid2'] = $userid;
+    }
+
+    if (!empty($programid)) {
+        $progwhere .= " AND pua.programid = :programid1";
+        $dpwhere .= " AND dpppa.programid = :programid2";
+        $params['programid1'] = $programid;
+        $params['programid2'] = $programid;
+    }
+
+    $sql = "SELECT pua.programid, pua.userid, p.fullname
+              FROM {prog_user_assignment} pua
+              JOIN {prog} p ON p.id = pua.programid AND p.certifid IS NULL
+         LEFT JOIN {prog_completion} pc ON pc.programid = pua.programid AND pc.userid = pua.userid AND pc.coursesetid = 0
+             WHERE pc.id IS NULL {$progwhere}
+             UNION
+            SELECT dpppa.programid, dpp.userid, p.fullname
+              FROM {dp_plan_program_assign} dpppa
+              JOIN {prog} p ON p.id = dpppa.programid AND p.certifid IS NULL
+              JOIN {dp_plan} dpp ON dpp.id = dpppa.planid
+         LEFT JOIN {prog_completion} pc ON pc.programid = dpppa.programid AND pc.userid = dpp.userid AND pc.coursesetid = 0
+             WHERE pc.id IS NULL {$dpwhere}";
+
+    return $DB->get_recordset_sql($sql, $params);
+}
+
+/**
+ * Returns a recordset containing all users who are not assigned and have an incomplete prog_completion record.
+ * These records shouldn't exist!
+ *
+ * @param int $programid if provided (non-0), only find problems for this program
+ * @param int $userid if provided (non-0), only find problems for this user
+ * @return moodle_recordset containing programid, userid and program's fullname
+ */
+function prog_find_unassigned_incomplete_completions($programid = 0, $userid = 0) {
+    global $DB;
+
+    $params = array('statusincomplete' => STATUS_PROGRAM_INCOMPLETE);
+    $where = "";
+
+    if (!empty($userid)) {
+        $where .= " AND pc.userid = :userid";
+        $params['userid'] = $userid;
+    }
+
+    if (!empty($programid)) {
+        $where .= " AND pc.programid = :programid";
+        $params['programid'] = $programid;
+    }
+
+    $sql = "SELECT pc.programid, pc.userid, p.fullname
+              FROM {prog_completion} pc
+              JOIN {prog} p ON p.id = pc.programid AND p.certifid IS NULL
+         LEFT JOIN {prog_user_assignment} pua ON pua.programid = pc.programid AND pua.userid = pc.userid
+         LEFT JOIN {dp_plan} dpp ON dpp.userid = pc.userid
+         LEFT JOIN {dp_plan_program_assign} dpppa ON dpppa.planid = dpp.id AND dpppa.programid = pc.programid
+             WHERE pc.coursesetid = 0 AND pc.status = :statusincomplete {$where}
+               AND pua.id IS NULL AND dpppa.id IS NULL";
+
+    return $DB->get_recordset_sql($sql, $params);
+}
+
+/**
+ * Create a program completion record for the user in the program.
+ *
+ * $data keys can contain status, timestarted, timecreated, timedue, timecompleted, organisationid, positionid
+ * Any other data keys will prevent the record being created and will return false.
+ *
+ * If $data is specified, the resulting prog_completion record must be error-free, or else the record will
+ * not be created! Check the result of this function to ensure that the record was successfully created.
+ *
+ * @param int $programid
+ * @param int $userid
+ * @param array $data containing any field => values that should be set, overriding the defaults
+ * @param string $message If provided, will override the default record creation message
+ * @return true if the record was successfully created or updated.
+ */
+function prog_create_completion($programid, $userid, $data = array(), $message = '') {
+    $now = time();
+
+    $progcompletion = new stdClass();
+    $progcompletion->programid = $programid;
+    $progcompletion->userid = $userid;
+    $progcompletion->coursesetid = 0;
+    $progcompletion->status = STATUS_PROGRAM_INCOMPLETE;
+    $progcompletion->timestarted = $now;
+    $progcompletion->timedue = COMPLETION_TIME_NOT_SET;
+    $progcompletion->timecompleted = 0;
+
+    $alloweddatafields = array(
+        'status',
+        'timestarted',
+        'timedue',
+        'timecompleted',
+        'organisationid',
+        'positionid',
+    );
+
+    foreach ($data as $field => $value) {
+        if (!in_array($field, $alloweddatafields)) {
+            return false;
+        }
+        $progcompletion->$field = $value;
+    }
+
+    return prog_write_completion($progcompletion, $message);
 }

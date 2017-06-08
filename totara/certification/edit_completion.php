@@ -207,14 +207,16 @@ $heading = get_string('completionsforuserinprog', 'totara_program',
     array('user' => fullname($user), 'prog' => format_string($program->fullname)));
 
 // Javascript includes.
-$jsmodule = array(
-    'name' => 'totara_editcertcompletion',
-    'fullpath' => '/totara/certification/edit_completion.js');
-$PAGE->requires->js_init_call('M.totara_editcertcompletion.init', array(), false, $jsmodule);
-$PAGE->requires->strings_for_js(
-    array('notapplicable', 'perioddays', 'periodweeks', 'periodmonths', 'periodyears'), 'totara_certification');
-$PAGE->requires->strings_for_js(
-    array('bestguess', 'confirmdeletecompletion'), 'totara_program');
+if (isset($editform)) {
+    $jsmodule = array(
+        'name' => 'totara_editcertcompletion',
+        'fullpath' => '/totara/certification/edit_completion.js');
+    $PAGE->requires->js_init_call('M.totara_editcertcompletion.init', array(), false, $jsmodule);
+    $PAGE->requires->strings_for_js(
+        array('notapplicable', 'perioddays', 'periodweeks', 'periodmonths', 'periodyears'), 'totara_certification');
+    $PAGE->requires->strings_for_js(
+        array('bestguess', 'confirmdeletecompletion'), 'totara_program');
+}
 
 $PAGE->requires->strings_for_js(array('fixconfirmone', 'fixconfirmtitle'), 'totara_program');
 $PAGE->requires->js_call_amd('totara_program/check_completion', 'init');
@@ -227,8 +229,24 @@ $completionurl = new moodle_url('/totara/program/completion.php', array('id' => 
 echo html_writer::tag('ul', html_writer::tag('li', html_writer::link($completionurl,
     get_string('completionreturntocertification', 'totara_certification'))));
 
-// Display if and how this user is assigned, or otherwise why they might have the completion record.
-echo $OUTPUT->notification($program->display_completion_record_reason($user, $progcompletion), 'notifymessage');
+// Display if and how this user is assigned.
+echo $OUTPUT->notification($program->display_completion_record_reason($user), 'notifymessage');
+
+// If either of the completion records is missing but should be there then provide a link to fix it.
+$missingcompletionrs = certif_find_missing_completions($program->id, $userid);
+if ($missingcompletionrs->valid()) {
+    $solution = certif_get_completion_error_solution('error:missingcompletion', $program->id, $userid, true);
+    echo html_writer::div(html_writer::span($solution), 'notifyproblem problemsolution');
+}
+$missingcompletionrs->close();
+
+// If the certification completion record exists when it shouldn't then provide a link to fix it.
+$unassignedcertifcompletionrs = certif_find_unassigned_certif_completions($program->id, $userid);
+if ($unassignedcertifcompletionrs->valid()) {
+    $solution = certif_get_completion_error_solution('error:unassignedcertifcompletion', $program->id, $userid, true);
+    echo html_writer::div(html_writer::span($solution), 'notifyproblem problemsolution');
+}
+$unassignedcertifcompletionrs->close();
 
 // Display the edit completion record form.
 if (isset($editform)) {

@@ -373,7 +373,7 @@ class totara_program_program_class_testcase extends reportcache_advanced_testcas
         $this->assign_users_to_program($program1, $assignmentdata);
 
         // Strings for start of assignment reason string, before show list of reasons.
-        $hasrecordbecause = '<p>This user has a current completion record for the following reasons:</p>';
+        $hasrecordbecause = '<p>This user is assigned for the following reasons:</p>';
 
         // We don't need to test everything that would be done internally by the display_required_assignment_reason method in full,
         // we just need to make sure that when there's data that would process, it is returned properly by display_completion_record_reason.
@@ -421,14 +421,14 @@ class totara_program_program_class_testcase extends reportcache_advanced_testcas
         $component_program = $plan->get_component('program');
         $assigneditem = $component_program->assign_new_item($program1->id);
 
-        $expected = '<p>A current completion record exists for this user due to having added this program to their learning plan. However, please note that this has not been approved.</p>';
+        $expected = '<p>This program has been added to their learning plan. However, please note that this has not been approved.</p>';
         $returnedreason = $program1->display_completion_record_reason($user);
         $this->assertEquals($expected, $returnedreason);
 
         // Set the status to approved.
         $plan->set_status(DP_PLAN_STATUS_APPROVED);
 
-        $expected = '<p>This user has a current completion record for the following reasons:</p><ul><li>Assigned via learning plan.</li></ul>';
+        $expected = '<p>This user is assigned for the following reasons:</p><ul><li>Assigned via learning plan.</li></ul>';
         $returnedreason = $program1->display_completion_record_reason($user);
         $this->assertEquals($expected, $returnedreason);
     }
@@ -451,7 +451,7 @@ class totara_program_program_class_testcase extends reportcache_advanced_testcas
         $this->assign_users_to_program($program1, $assignmentdata);
 
         // Strings for start of assignment reason string, before show list of reasons.
-        $hasrecordbecause = '<p>This user has a current completion record for the following reasons:</p>';
+        $hasrecordbecause = '<p>This user is assigned for the following reasons:</p>';
 
         // Check their status before deletion and suspension.
 
@@ -478,7 +478,7 @@ class totara_program_program_class_testcase extends reportcache_advanced_testcas
         $program1->update_learner_assignments();
         $user16 = $DB->get_record('user', array('id' => $user16->id));
 
-        $expected = 'The user is not currently assigned. A user cannot have a current completion record unless they are assigned.';
+        $expected = '<p>The user has been deleted and they are not currently assigned.</p>';
         $returnedreason = $program1->display_completion_record_reason($user11);
         $this->assertEquals($expected, $returnedreason);
 
@@ -553,25 +553,24 @@ class totara_program_program_class_testcase extends reportcache_advanced_testcas
         $progcompletion28->userid = $user28->id;
         $DB->insert_record('prog_completion', $progcompletion28);
 
-        $expected = '<p>A current completion record exists for this user and this program, however no current assignment details could be found.</p>';
+        $expected = '<p>No current assignment details could be found.</p>';
         $returnedreason = $program1->display_completion_record_reason($user25);
         $this->assertEquals($expected, $returnedreason);
 
-        // The user has both cert and prog completions, it just needs to say there's a completion but no found reason.
-        $expected = '<p>A current completion record exists for this user and this program, however no current assignment details could be found.</p>';
+        // The user has both cert and prog completions, it just needs to say there's no found reason.
+        $expected = '<p>No current assignment details could be found.</p>';
         $returnedreason = $certprogram1->display_completion_record_reason($user26);
         $this->assertEquals($expected, $returnedreason);
 
         // The user has only a cert but no prog completion record. The completion editor currently only shows a current record if
         // it has both.
-        $expected = 'The user is not currently assigned. A user cannot have a current completion record unless they are assigned.';
+        $expected = '<p>No current assignment details could be found.</p>';
         $returnedreason = $certprogram1->display_completion_record_reason($user27);
         $this->assertEquals($expected, $returnedreason);
 
-        // The user has only a prog but no cert completion record. The completion editor currently only shows a current record if
-        // it has both which makes the returned message seem somewhat wrong. However, we'll stick with this behaviour
-        // to avoid complicating code and the API.
-        $expected = '<p>A current completion record exists for this user and this program, however no current assignment details could be found.</p>';
+        // The user has only a cert but no prog completion record. The completion editor currently only shows a current record if
+        // it has both.
+        $expected = '<p>No current assignment details could be found.</p>';
         $returnedreason = $certprogram1->display_completion_record_reason($user28);
         $this->assertEquals($expected, $returnedreason);
     }

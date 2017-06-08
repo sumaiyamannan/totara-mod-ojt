@@ -169,11 +169,13 @@ $heading = get_string('completionsforuserinprog', 'totara_program',
     array('user' => fullname($user), 'prog' => format_string($program->fullname)));
 
 // Javascript includes.
-$jsmodule = array(
-    'name' => 'totara_editprogcompletion',
-    'fullpath' => '/totara/program/edit_completion.js');
-$PAGE->requires->js_init_call('M.totara_editprogcompletion.init', array(), false, $jsmodule);
-$PAGE->requires->strings_for_js(array('bestguess', 'confirmdeletecompletion'), 'totara_program');
+if (isset($editform)) {
+    $jsmodule = array(
+        'name' => 'totara_editprogcompletion',
+        'fullpath' => '/totara/program/edit_completion.js');
+    $PAGE->requires->js_init_call('M.totara_editprogcompletion.init', array(), false, $jsmodule);
+    $PAGE->requires->strings_for_js(array('bestguess', 'confirmdeletecompletion'), 'totara_program');
+}
 
 $PAGE->requires->strings_for_js(array('fixconfirmone', 'fixconfirmtitle'), 'totara_program');
 $PAGE->requires->js_call_amd('totara_program/check_completion', 'init');
@@ -186,8 +188,24 @@ $completionurl = new moodle_url('/totara/program/completion.php', array('id' => 
 echo html_writer::tag('ul', html_writer::tag('li', html_writer::link($completionurl,
     get_string('completionreturntoprogram', 'totara_program'))));
 
-// Display if and how this user is assigned, or otherwise why they might have the completion record.
-echo $OUTPUT->notification($program->display_completion_record_reason($user, $progcompletion), 'notifymessage');
+// Display if and how this user is assigned.
+echo $OUTPUT->notification($program->display_completion_record_reason($user), 'notifymessage');
+
+// If the program completion record is missing but should be there then provide a link to fix it.
+$missingcompletionrs = prog_find_missing_completions($program->id, $userid);
+if ($missingcompletionrs->valid()) {
+    $solution = prog_get_completion_error_solution('error:missingprogcompletion', $program->id, $userid, true);
+    echo html_writer::div(html_writer::span($solution), 'notifyproblem problemsolution');
+}
+$missingcompletionrs->close();
+
+// If the program completion record exists when it shouldn't then provide a link to fix it.
+$unassignedincompletecompletionrs = prog_find_unassigned_incomplete_completions($program->id, $userid);
+if ($unassignedincompletecompletionrs->valid()) {
+    $solution = prog_get_completion_error_solution('error:unassignedincompleteprogcompletion', $program->id, $userid, true);
+    echo html_writer::div(html_writer::span($solution), 'notifyproblem problemsolution');
+}
+$unassignedincompletecompletionrs->close();
 
 // Display the edit completion record form.
 if (isset($editform)) {
