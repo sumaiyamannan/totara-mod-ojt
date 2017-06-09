@@ -939,16 +939,17 @@ class reportbuilder {
     /**
      * Gets list of source directories to look in for source files
      *
+     * @param bool $resetstatic If set to true the static variable is ignored and reset.
      * @return array An array of paths to source directories
      */
-    public static function find_source_dirs() {
+    public static function find_source_dirs($resetstatic = false) {
         static $sourcepaths;
 
-        if ($sourcepaths !== null) {
+        if ($sourcepaths !== null && !$resetstatic) {
             return $sourcepaths;
         }
 
-        $cache = cache::make_from_params(cache_store::MODE_APPLICATION, 'totara_reportbuilder', 'rb_sources');
+        $cache = cache::make('totara_reportbuilder', 'rb_source_directories');
         $sourcepaths = $cache->get('all');
         if (!is_array($sourcepaths)) {
             $sourcepaths = array();
