@@ -86,9 +86,13 @@ class totara_core_admin_setting_font_testcase extends advanced_testcase {
         // Confirm the array contains exactly what we expect.
         // If this changes we want this test to fail, so that we don't unexpectedly add fonts!
         $expectedfiles = array (
+            // Cordiaupc. 
+            'cordiaupc.ctg.z', 'cordiaupc.php', 'cordiaupc.z',
             // Courier.
             'courier.php', 'courierb.php', 'courierbi.php', 'courieri.php',
             'freefont-20120503',
+            // Droidsansfallback. 
+            'droidsansfallback.ctg.z', 'droidsansfallback.php', 'droidsansfallback.z',
             // Freemono.
             'freemono.ctg.z', 'freemono.php', 'freemono.z',
             'freemonob.ctg.z', 'freemonob.php', 'freemonob.z',
