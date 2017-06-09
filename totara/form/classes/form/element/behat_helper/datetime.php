@@ -60,7 +60,7 @@ class datetime extends text {
         $js .= 'e.value = "' . $value . '";';
         $this->context->getSession()->executeScript($js);
 
-        // Trigger the onchange event as triggered when selecting a real value.
+        // As this value is set via Javascript, simulate the change event
         $this->context->getSession()->getDriver()->triggerSynScript(
             $text->getXPath(),
             "Syn.trigger('change', {}, {{ELEMENT}})"

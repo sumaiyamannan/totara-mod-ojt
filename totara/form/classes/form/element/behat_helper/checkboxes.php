@@ -127,24 +127,14 @@ class checkboxes implements base {
                 throw new ExpectationException('Attempting to change a checkboxes that is not visible: '.$checkbox->getAttribute('name'), $this->context->getSession());
             }
 
-            $changed = false;
             $checkboxvalue = (string)$checkbox->getAttribute('value');
             $checkboxid = (string)$checkbox->getAttribute('id');
             if (in_array($checkboxvalue, $values)|| in_array($checkboxid, $labels)) {
                 if (!$checkbox->isChecked()) {
                     $checkbox->check();
-                    $changed = true;
                 }
             } else if ($checkbox->isChecked() || !empty($checkbox->getAttribute('checked'))) {
                 $checkbox->click();
-                $changed = true;
-            }
-            if ($changed) {
-                // Trigger the onchange event as triggered when 'checking' the checkboxes.
-                $this->context->getSession()->getDriver()->triggerSynScript(
-                    $checkbox->getXPath(),
-                    "Syn.trigger('change', {}, {{ELEMENT}})"
-                );
             }
         }
     }

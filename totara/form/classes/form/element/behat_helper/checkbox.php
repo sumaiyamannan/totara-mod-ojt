@@ -131,11 +131,6 @@ class checkbox implements base {
         if ((!empty($value) && !$checkbox->isChecked()) || (empty($value) && $checkbox->isChecked())) {
             // OK click the checkbox, the value does match the current state.
             $checkbox->click();
-            // Trigger the onchange event as triggered when 'checking' the checkbox.
-            $this->context->getSession()->getDriver()->triggerSynScript(
-                $checkbox->getXPath(),
-                "Syn.trigger('change', {}, {{ELEMENT}})"
-            );
         } else {
             // If you arrive here with the intention of doing the world a favour by allowing developers to check a checked checkbox then stop.
             // DO NOT REMOVE THESE EXCEPTIONS
