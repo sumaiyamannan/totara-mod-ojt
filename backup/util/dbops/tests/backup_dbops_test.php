@@ -184,6 +184,185 @@ class backup_dbops_testcase extends advanced_testcase {
             backup::INTERACTIVE_NO, backup::MODE_SAMESITE, $this->userid);
         $this->assertEquals(backup_controller_dbops::backup_includes_files($bc->get_backupid()), 0);
     }
+
+    public function test_annotate_files() {
+        global $DB;
+
+        $this->resetAfterTest();
+
+        // A MODE_SAMESITE controller - should not include files
+        $bc = new mock_backup_controller4dbops(backup::TYPE_1COURSE, $this->courseid, backup::FORMAT_MOODLE,
+            backup::INTERACTIVE_NO, backup::MODE_GENERAL, $this->userid);
+        $backupid = $bc->get_backupid();
+        $context = context_course::instance($this->courseid);
+
+        $filerecord = new stdClass;
+        $filerecord->contextid = $context->id;
+        $filerecord->component = 'core_course';
+        $filerecord->filearea = 'test_annotate_files';
+        $filerecord->itemid = $this->courseid;
+        $filerecord->filepath = '/';
+
+        $fs = get_file_storage();
+        $files = [
+            'one.txt' => 'This is the first file.',
+            'two.txt' => 'This is the second file.',
+            'three.txt' => 'This is the third file.',
+        ];
+        foreach ($files as $name => $content) {
+            $file = clone($filerecord);
+            $file->filename = $name;
+            $fs->create_file_from_string($file, $content);
+        }
+
+        $this->assertFalse($DB->get_manager()->table_exists('backup_ids_temp'));
+        backup_controller_dbops::create_backup_ids_temp_table($backupid);
+        $this->assertTrue($DB->get_manager()->table_exists('backup_ids_temp'));
+
+        $this->assertCount(4, $fs->get_area_files($context->id, 'core_course', 'test_annotate_files', $this->courseid));
+        $this->assertSame(0, $DB->count_records('backup_ids_temp'));
+
+        backup_structure_dbops::annotate_files(
+            $backupid,
+            $context->id,
+            'core_course',
+            'test_annotate_files',
+            $this->courseid,
+            null
+        );
+
+        $this->assertCount(4, $fs->get_area_files($context->id, 'core_course', 'test_annotate_files', $this->courseid));
+        $this->assertSame(4, $DB->count_records('backup_ids_temp'));
+
+        backup_controller_dbops::drop_backup_ids_temp_table($backupid);
+        $this->assertFalse($DB->get_manager()->table_exists('backup_ids_temp'));
+    }
+
+    public function test_move_annotations_to_final() {
+        global $DB;
+
+        $this->resetAfterTest();
+
+        // A MODE_SAMESITE controller - should not include files
+        $bc = new mock_backup_controller4dbops(backup::TYPE_1COURSE, $this->courseid, backup::FORMAT_MOODLE,
+            backup::INTERACTIVE_NO, backup::MODE_GENERAL, $this->userid);
+        $backupid = $bc->get_backupid();
+
+        $this->assertFalse($DB->get_manager()->table_exists('backup_ids_temp'));
+        backup_controller_dbops::create_backup_ids_temp_table($backupid);
+        $this->assertTrue($DB->get_manager()->table_exists('backup_ids_temp'));
+
+        // OK annotations are hard to generate but in order to test this function we can just spam
+        // data into the database.
+        // Fields we need to fill are: backupid, itemname, itemid, newitemid.
+
+        $itemnames = array(
+            'one' => 1000,
+            'two' => 500,
+            'three' => 100,
+        );
+
+        foreach ($itemnames as $itemname => $tocreate) {
+            $instance = 0;
+            $count = $tocreate;
+            for ($i = $count; $i > 0; $i--) {
+                $instance++;
+                $data = new \stdClass;
+                $data->backupid = $backupid;
+                $data->itemname = $itemname;
+                $data->itemid = $instance;
+                $data->newitemid = $instance * 2;
+                $data->info = 'original';
+                $DB->insert_record('backup_ids_temp', $data);
+            }
+            $params = array(
+                'backupid' => $backupid,
+                'itemname' => $itemname,
+            );
+            $this->assertSame($tocreate, $DB->count_records('backup_ids_temp', $params));
+        }
+
+        // Now create final versions for half of them.
+        foreach ($itemnames as $itemname => $tocreate) {
+            $instance = 0;
+            $count = (int)floor($tocreate / 2);
+            for ($i = $count; $i > 0; $i--) {
+                $instance++;
+                $data = new \stdClass;
+                $data->backupid = $backupid;
+                $data->itemname = $itemname . 'final';
+                $data->itemid = $instance;
+                $data->newitemid = $instance * 3;
+                $data->info = 'final';
+                $DB->insert_record('backup_ids_temp', $data);
+            }
+            $params = array(
+                'backupid' => $backupid,
+                'itemname' => $itemname . 'final',
+            );
+            $this->assertSame((int)floor($tocreate / 2), $DB->count_records('backup_ids_temp', $params));
+        }
+
+        // Check we have exactly the records we expect.
+        $this->assertSame($itemnames['one'], $DB->count_records('backup_ids_temp', ['itemname' => 'one']));
+        $this->assertSame($itemnames['two'], $DB->count_records('backup_ids_temp', ['itemname' => 'two']));
+        $this->assertSame($itemnames['three'], $DB->count_records('backup_ids_temp', ['itemname' => 'three']));
+        $this->assertSame((int)floor($itemnames['one'] / 2), $DB->count_records('backup_ids_temp', ['itemname' => 'onefinal']));
+        $this->assertSame((int)floor($itemnames['two'] / 2), $DB->count_records('backup_ids_temp', ['itemname' => 'twofinal']));
+        $this->assertSame((int)floor($itemnames['three'] / 2), $DB->count_records('backup_ids_temp', ['itemname' => 'threefinal']));
+
+        // Now call \backup_structure_dbops::move_annotations_to_final to move all to final for the first.
+        \backup_structure_dbops::move_annotations_to_final($backupid, 'one', null);
+
+        $this->assertSame(0, $DB->count_records('backup_ids_temp', ['itemname' => 'one']));
+        $this->assertSame($itemnames['two'], $DB->count_records('backup_ids_temp', ['itemname' => 'two']));
+        $this->assertSame($itemnames['three'], $DB->count_records('backup_ids_temp', ['itemname' => 'three']));
+        $this->assertSame($itemnames['one'], $DB->count_records('backup_ids_temp', ['itemname' => 'onefinal']));
+        $this->assertSame((int)floor($itemnames['two'] / 2), $DB->count_records('backup_ids_temp', ['itemname' => 'twofinal']));
+        $this->assertSame((int)floor($itemnames['three'] / 2), $DB->count_records('backup_ids_temp', ['itemname' => 'threefinal']));
+
+        // And for the second.
+        \backup_structure_dbops::move_annotations_to_final($backupid, 'two', null);
+
+        $this->assertSame(0, $DB->count_records('backup_ids_temp', ['itemname' => 'one']));
+        $this->assertSame(0, $DB->count_records('backup_ids_temp', ['itemname' => 'two']));
+        $this->assertSame($itemnames['three'], $DB->count_records('backup_ids_temp', ['itemname' => 'three']));
+        $this->assertSame($itemnames['one'], $DB->count_records('backup_ids_temp', ['itemname' => 'onefinal']));
+        $this->assertSame($itemnames['two'], $DB->count_records('backup_ids_temp', ['itemname' => 'twofinal']));
+        $this->assertSame((int)floor($itemnames['three'] / 2), $DB->count_records('backup_ids_temp', ['itemname' => 'threefinal']));
+
+        // And for one that does not exist.
+        \backup_structure_dbops::move_annotations_to_final($backupid, 'twenty', null);
+
+        $this->assertSame(0, $DB->count_records('backup_ids_temp', ['itemname' => 'one']));
+        $this->assertSame(0, $DB->count_records('backup_ids_temp', ['itemname' => 'two']));
+        $this->assertSame($itemnames['three'], $DB->count_records('backup_ids_temp', ['itemname' => 'three']));
+        $this->assertSame($itemnames['one'], $DB->count_records('backup_ids_temp', ['itemname' => 'onefinal']));
+        $this->assertSame($itemnames['two'], $DB->count_records('backup_ids_temp', ['itemname' => 'twofinal']));
+        $this->assertSame((int)floor($itemnames['three'] / 2), $DB->count_records('backup_ids_temp', ['itemname' => 'threefinal']));
+
+        // And finally for the third.
+        \backup_structure_dbops::move_annotations_to_final($backupid, 'three', null);
+
+        $this->assertSame(0, $DB->count_records('backup_ids_temp', ['itemname' => 'one']));
+        $this->assertSame(0, $DB->count_records('backup_ids_temp', ['itemname' => 'two']));
+        $this->assertSame(0, $DB->count_records('backup_ids_temp', ['itemname' => 'three']));
+        $this->assertSame($itemnames['one'], $DB->count_records('backup_ids_temp', ['itemname' => 'onefinal']));
+        $this->assertSame($itemnames['two'], $DB->count_records('backup_ids_temp', ['itemname' => 'twofinal']));
+        $this->assertSame($itemnames['three'], $DB->count_records('backup_ids_temp', ['itemname' => 'threefinal']));
+
+        // Check that for each half are original and half were final from the start.
+        $info = $DB->sql_compare_text('info', 10);
+        $this->assertSame((int)$itemnames['one'] / 2, $DB->count_records_select('backup_ids_temp', "itemname = 'onefinal' AND {$info} = 'original'"));
+        $this->assertSame((int)$itemnames['two'] / 2, $DB->count_records_select('backup_ids_temp', "itemname = 'twofinal' AND {$info} = 'original'"));
+        $this->assertSame((int)$itemnames['three'] / 2, $DB->count_records_select('backup_ids_temp', "itemname = 'threefinal' AND {$info} = 'original'"));
+        $this->assertSame((int)$itemnames['one'] / 2, $DB->count_records_select('backup_ids_temp', "itemname = 'onefinal' AND {$info} = 'final'"));
+        $this->assertSame((int)$itemnames['two'] / 2, $DB->count_records_select('backup_ids_temp', "itemname = 'twofinal' AND {$info} = 'final'"));
+        $this->assertSame((int)$itemnames['three'] / 2, $DB->count_records_select('backup_ids_temp', "itemname = 'threefinal' AND {$info} = 'final'"));
+
+        backup_controller_dbops::drop_backup_ids_temp_table($backupid);
+        $this->assertFalse($DB->get_manager()->table_exists('backup_ids_temp'));
+    }
 }
 
 class mock_backup_controller4dbops extends backup_controller {
