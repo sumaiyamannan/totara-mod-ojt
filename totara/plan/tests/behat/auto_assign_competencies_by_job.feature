@@ -7,6 +7,7 @@ Feature: Verify competencies are automatically added to plan according to job as
       | username | firstname | lastname | email                |
       | learner1 | Bob1      | Learner1 | learner1@example.com |
       | learner2 | Bob2      | Learner2 | learner2@example.com |
+      | learner3 | Bob3      | Learner3 | learner3@example.com |
       | manager1 | Dave1     | Manager1 | manager1@example.com |
       | manager2 | Dave2     | Manager2 | manager2@example.com |
       | manager3 | Dave3     | Manager3 | manager3@example.com |
@@ -121,5 +122,37 @@ Feature: Verify competencies are automatically added to plan according to job as
     # Check that no competencies have been added as there's no positions assigned to the jobs.
     When I follow "Competencies"
     Then I should not see "Competency 1"
+    And I should not see "Competency 2"
+    And I should not see "Competency 3"
+
+  Scenario: Create a learning plan that has more than one job assignment for the same position.
+
+    Given the following job assignments exist:
+      | user     | fullname | position |
+      | learner3 | Job 1    | P1       |
+      | learner3 | Job 2    | P1       |
+    And the following "cohorts" exist:
+      | name       | idnumber |
+      | Audience 1 | A1       |
+    And the following "cohort members" exist:
+      | user     | cohort |
+      | learner3 | A1     |
+    When I log in as "admin"
+    And I navigate to "Audiences" node in "Site administration > Users > Accounts"
+    And I click on "Edit" "link" in the "Audience 1" "table_row"
+    And I switch to "Learning Plan" tab
+    And I press "Save and create plans"
+    Then I should see "This will create new learning plans for 1 user(s)" in the "Confirm creation of plans" "totaradialogue"
+
+    When I click on "Save" "button" in the "Confirm creation of plans" "totaradialogue"
+    Then I should see "Settings saved"
+    And I should see "Successfully created new learning plans for 1 audience members"
+
+    # Check that learner3 has a single competency assigned in their learning plan.
+    When I navigate to "Browse list of users" node in "Site administration > Users > Accounts"
+    And I follow "Bob3 Learner3"
+    And I follow "Learning Plans"
+    And I follow "Competencies (1)"
+    Then I should see "Competency 1"
     And I should not see "Competency 2"
     And I should not see "Competency 3"

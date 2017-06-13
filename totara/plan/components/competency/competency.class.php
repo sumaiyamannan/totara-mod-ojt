@@ -1291,6 +1291,8 @@ class dp_competency_component extends dp_base_component {
             $assigned = $DB->get_records('dp_plan_competency_assign', array('planid' => $this->plan->id), '', 'competencyid');
             $assigned = array_keys($assigned);
             foreach ($competencies as $c) {
+                $assignment = null;
+
                 // Don't assign duplicate competencies
                 if (!in_array($c->id, $assigned)) {
                     // Assign competency item (false = assigned automatically)
@@ -1298,8 +1300,9 @@ class dp_competency_component extends dp_base_component {
                         return false;
                     }
                 }
-                // Add relation
-                if ($relation) {
+
+                // Add relation providing we've got an assignment.
+                if ($relation && $assignment) {
                     $mandatory = $c->linktype == PLAN_LINKTYPE_MANDATORY ? 'competency' : '';
                     $this->plan->add_component_relation($relation['component'], $relation['id'], 'competency', $assignment->id, $mandatory);
                 }
