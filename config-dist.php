@@ -654,8 +654,6 @@ $CFG->admin = 'admin';
 // Example:
 //   $CFG->forced_plugin_settings = array('pluginname'  => array('settingname' => 'value', 'settingname_locked' => true, 'settingname_adv' => true));
 //
-//Force disable automatic backups for courses
-$CFG->forced_plugin_settings['backup']['backup_auto_active'] = 0;
 //=========================================================================
 // 8b. Totara flavours
 //=========================================================================
