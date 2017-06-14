@@ -872,7 +872,7 @@ $CFG->passwordsaltmain = '';
 // Clam AV path.
 // Probably something like /usr/bin/clamscan or /usr/bin/clamdscan. You need
 // this in order for clam AV to run.
-$CFG->pathtoclam = '/usr/bin/clamscan';
+//      $CFG->pathtoclam = '';
 //
 // Path to du.
 // Probably something like /usr/bin/du. If you enter this, pages that display
