@@ -2219,18 +2219,29 @@ function prog_display_duedate($duedate, $progid, $userid, $certifpath = null, $c
  *
  * Progress is determined by course set completion statuses.
  *
+ * This function returns "Not assigned" if no completion data exists. This isn't an accurate criteria. Complete programs
+ * will still have a completion record when unassigned, and certifications keep their prog_completion record when a user
+ * is deleted in all states other than "Newly assigned".
+ *
  * @access  public
  * @param int $programid
  * @param int $userid
  * @param int $certifpath (defaults to cert for programs)
+ * @param bool $export
  * @return  string
  */
 function prog_display_progress($programid, $userid, $certifpath = CERTIFPATH_CERT, $export = false) {
     global $DB, $PAGE;
 
-    $prog_completion = $DB->get_record('prog_completion', array('programid' => $programid, 'userid' => $userid, 'coursesetid' => 0));
+    $sql = "SELECT pc.*, cc.id AS ccid, prog.certifid
+              FROM {prog_completion} pc
+              JOIN {prog} prog ON prog.id = pc.programid
+         LEFT JOIN {certif_completion} cc ON cc.certifid = prog.certifid AND cc.userid = pc.userid
+             WHERE pc.programid = :programid AND pc.userid = :userid AND pc.coursesetid = 0";
+    $prog_completion = $DB->get_record_sql($sql, array('programid' => $programid, 'userid' => $userid));
 
-    if (!$prog_completion) {
+    if (empty($prog_completion) ||
+        !empty($prog_completion->certifid) && $prog_completion->status != STATUS_PROGRAM_COMPLETE && empty($prog_completion->ccid)) {
         $out = get_string('notassigned', 'totara_program');
         return $out;
     } else if ($prog_completion->status == STATUS_PROGRAM_COMPLETE) {

@@ -1300,4 +1300,204 @@ class totara_program_lib_testcase extends reportcache_advanced_testcase {
         $this->assertEquals($expectedcertcompletions, $actualcertcompletions);
         $this->assertEquals($expectedprogcompletions, $actualprogcompletions);
     }
+
+    /**
+     * This checks that prog_display_progress returns the correct data given the various states of assignment within a program.
+     * It does not exhaustively test that the correct progress is returned, e.g. based on course set progress.
+     */
+    public function test_prog_display_progress_assignment_with_program() {
+        $this->resetAfterTest();
+
+        $generator = $this->getDataGenerator();
+
+        $user1 = $generator->create_user();
+        $user2 = $generator->create_user();
+        $user3 = $generator->create_user();
+        $user4 = $generator->create_user();
+
+        $prog = $generator->create_program();
+
+        // Test a user is assigned, incomplete.
+        $generator->assign_to_program($prog->id, ASSIGNTYPE_INDIVIDUAL, $user1->id);
+        $progcompletion = prog_load_completion($prog->id, $user1->id, true);
+        $this->assertEquals(STATUS_PROGRAM_INCOMPLETE, $progcompletion->status);
+        $result = prog_display_progress($prog->id, $user1->id, CERTIFPATH_STD, true); // Export, so we just get a string.
+        $this->assertEquals('0', $result);
+
+        // Test a user is assigned, complete.
+        $generator->assign_to_program($prog->id, ASSIGNTYPE_INDIVIDUAL, $user2->id);
+        $progcompletion = prog_load_completion($prog->id, $user2->id, true);
+        $progcompletion->status = STATUS_PROGRAM_COMPLETE;
+        $progcompletion->timecompleted = time();
+        $this->assertTrue(prog_write_completion($progcompletion));
+        $result = prog_display_progress($prog->id, $user2->id, CERTIFPATH_STD, true); // Export, so we just get a string.
+        $this->assertEquals('100', $result);
+
+        // Test a user is not assigned, incomplete - just don't assign, user will have no prog_completion record.
+        $progcompletion = prog_load_completion($prog->id, $user3->id, false);
+        $this->assertEmpty($progcompletion);
+        $result = prog_display_progress($prog->id, $user3->id, CERTIFPATH_STD, true); // Export, so we just get a string.
+        $this->assertEquals('Not assigned', $result);
+
+        // Test a user is not assigned, complete.
+        $progcompletion = new stdClass();
+        $progcompletion->programid = $prog->id;
+        $progcompletion->userid = $user4->id;
+        $progcompletion->status = STATUS_PROGRAM_COMPLETE;
+        $progcompletion->timecompleted = time();
+        $progcompletion->timedue = COMPLETION_TIME_NOT_SET;
+        $this->assertTrue(prog_write_completion($progcompletion));
+        $result = prog_display_progress($prog->id, $user4->id, CERTIFPATH_STD, true); // Export, so we just get a string.
+        $this->assertEquals('100', $result); // !!! This is expected behaviour from this function. Maybe we should change it !!!
+    }
+
+    /**
+     * This checks that prog_display_progress returns the correct data given the various states of assignment within a certification.
+     * It does not exhaustively test that the correct progress is returned, e.g. based on course set progress.
+     */
+    public function test_prog_display_progress_assignment_with_certification() {
+        global $DB;
+
+        $this->resetAfterTest();
+
+        $now = time();
+
+        $generator = $this->getDataGenerator();
+
+        $user1 = $generator->create_user();
+        $user2 = $generator->create_user();
+        $user3 = $generator->create_user();
+        $user4 = $generator->create_user();
+        $user5 = $generator->create_user();
+        $user6 = $generator->create_user();
+        $user7 = $generator->create_user();
+        $user8 = $generator->create_user();
+
+        $cert = $generator->create_certification();
+
+        // Test a user is assigned, newly assigned.
+        $generator->assign_to_program($cert->id, ASSIGNTYPE_INDIVIDUAL, $user1->id);
+        list($certcompletion, $progcompletion) = certif_load_completion($cert->id, $user1->id, true);
+        $this->assertEquals(STATUS_PROGRAM_INCOMPLETE, $progcompletion->status);
+        $result = prog_display_progress($cert->id, $user1->id, $certcompletion->certifpath, true); // Export, so we just get a string.
+        $this->assertEquals('0', $result);
+        unset($user1);
+
+        // Test a user is assigned, certified, before window opens.
+        $generator->assign_to_program($cert->id, ASSIGNTYPE_INDIVIDUAL, $user2->id);
+        list($certcompletion, $progcompletion) = certif_load_completion($cert->id, $user2->id, true);
+        $progcompletion->status = STATUS_PROGRAM_COMPLETE;
+        $progcompletion->timecompleted = $now;
+        $progcompletion->timedue = $now + DAYSECS * 200;
+        $certcompletion->status = CERTIFSTATUS_COMPLETED;
+        $certcompletion->renewalstatus = CERTIFRENEWALSTATUS_NOTDUE;
+        $certcompletion->certifpath = CERTIFPATH_RECERT;
+        $certcompletion->timecompleted = $now;
+        $certcompletion->timewindowopens = $now + DAYSECS * 100;
+        $certcompletion->timeexpires = $now + DAYSECS * 200;
+        $this->assertTrue(certif_write_completion($certcompletion, $progcompletion));
+        $result = prog_display_progress($cert->id, $user2->id, $certcompletion->certifpath, true); // Export, so we just get a string.
+        $this->assertEquals('100', $result);
+        unset($user2);
+
+        // Test a user is assigned, certified, window has opened.
+        $generator->assign_to_program($cert->id, ASSIGNTYPE_INDIVIDUAL, $user3->id);
+        list($certcompletion, $progcompletion) = certif_load_completion($cert->id, $user3->id, true);
+        $progcompletion->timedue = $now + DAYSECS * 200;
+        $certcompletion->status = CERTIFSTATUS_COMPLETED;
+        $certcompletion->renewalstatus = CERTIFRENEWALSTATUS_DUE;
+        $certcompletion->certifpath = CERTIFPATH_RECERT;
+        $certcompletion->timecompleted = $now;
+        $certcompletion->timewindowopens = $now + DAYSECS * 100;
+        $certcompletion->timeexpires = $now + DAYSECS * 200;
+        $this->assertTrue(certif_write_completion($certcompletion, $progcompletion));
+        $result = prog_display_progress($cert->id, $user3->id, $certcompletion->certifpath, true); // Export, so we just get a string.
+        $this->assertEquals('0', $result);
+        unset($user3);
+
+        // Test a user is assigned, expired.
+        $generator->assign_to_program($cert->id, ASSIGNTYPE_INDIVIDUAL, $user4->id);
+        list($certcompletion, $progcompletion) = certif_load_completion($cert->id, $user4->id, true);
+        $progcompletion->timedue = $now + DAYSECS * 200;
+        $certcompletion->status = CERTIFSTATUS_EXPIRED;
+        $certcompletion->renewalstatus = CERTIFRENEWALSTATUS_EXPIRED;
+        $certcompletion->certifpath = CERTIFPATH_CERT;
+        $this->assertTrue(certif_write_completion($certcompletion, $progcompletion));
+        $result = prog_display_progress($cert->id, $user4->id, $certcompletion->certifpath, true); // Export, so we just get a string.
+        $this->assertEquals('0', $result);
+        unset($user4);
+
+        // Test a user is not assigned, newly assigned - just don't assign, user will have no completion records.
+        list($certcompletion, $progcompletion) = certif_load_completion($cert->id, $user5->id, false);
+        $this->assertEmpty($certcompletion);
+        $this->assertEmpty($progcompletion);
+        $result = prog_display_progress($cert->id, $user5->id, CERTIFPATH_CERT, true); // Export, so we just get a string.
+        $this->assertEquals('Not assigned', $result);
+        unset($user5);
+
+        // Test a user is not assigned, certified, before window opens.
+        certif_create_completion($cert->id, $user6->id);
+        list($certcompletion, $progcompletion) = certif_load_completion($cert->id, $user6->id, false);
+        $progcompletion->status = STATUS_PROGRAM_COMPLETE;
+        $progcompletion->timecompleted = $now;
+        $progcompletion->timedue = $now + DAYSECS * 200;
+        $certcompletion->status = CERTIFSTATUS_COMPLETED;
+        $certcompletion->renewalstatus = CERTIFRENEWALSTATUS_NOTDUE;
+        $certcompletion->certifpath = CERTIFPATH_RECERT;
+        $certcompletion->timecompleted = $now;
+        $certcompletion->timewindowopens = $now + DAYSECS * 100;
+        $certcompletion->timeexpires = $now + DAYSECS * 200;
+        $this->assertTrue(certif_write_completion($certcompletion, $progcompletion));
+        $DB->delete_records('prog_user_assignment');
+        certif_conditionally_delete_completion($cert->id, $user6->id);
+        $progcompletion = $DB->get_record('prog_completion', array('programid' => $cert->id, 'userid' => $user6->id, 'coursesetid' => 0));
+        $this->assertEquals(STATUS_PROGRAM_COMPLETE, $progcompletion->status); // Show that prog_completion still exists in correct state.
+        list($certcompletion, $progcompletion) = certif_load_completion($cert->id, $user6->id, false);
+        $this->assertEmpty($certcompletion); // Certif_load_completion needs both records to exist to work, so we know this record is gone.
+        $this->assertEmpty($progcompletion);
+        $result = prog_display_progress($cert->id, $user6->id, CERTIFPATH_RECERT, true); // Export, so we just get a string.
+        $this->assertEquals('100', $result);
+        unset($user6);
+
+        // Test a user is not assigned, certified, before window opens.
+        certif_create_completion($cert->id, $user7->id);
+        list($certcompletion, $progcompletion) = certif_load_completion($cert->id, $user7->id, false);
+        $progcompletion->timedue = $now + DAYSECS * 200;
+        $certcompletion->status = CERTIFSTATUS_COMPLETED;
+        $certcompletion->renewalstatus = CERTIFRENEWALSTATUS_DUE;
+        $certcompletion->certifpath = CERTIFPATH_RECERT;
+        $certcompletion->timecompleted = $now;
+        $certcompletion->timewindowopens = $now + DAYSECS * 100;
+        $certcompletion->timeexpires = $now + DAYSECS * 200;
+        $this->assertTrue(certif_write_completion($certcompletion, $progcompletion));
+        $DB->delete_records('prog_user_assignment');
+        certif_conditionally_delete_completion($cert->id, $user7->id);
+        $progcompletion = $DB->get_record('prog_completion', array('programid' => $cert->id, 'userid' => $user7->id, 'coursesetid' => 0));
+        $this->assertEquals(STATUS_PROGRAM_INCOMPLETE, $progcompletion->status); // Show that prog_completion still exists in correct state.
+        list($certcompletion, $progcompletion) = certif_load_completion($cert->id, $user7->id, false);
+        $this->assertEmpty($certcompletion); // Certif_load_completion needs both records to exist to work, so we know this record is gone.
+        $this->assertEmpty($progcompletion);
+        $result = prog_display_progress($cert->id, $user7->id, CERTIFPATH_RECERT, true); // Export, so we just get a string.
+        $this->assertEquals('Not assigned', $result);
+        unset($user7);
+
+        // Test a user is not assigned, certified, before window opens.
+        certif_create_completion($cert->id, $user8->id);
+        list($certcompletion, $progcompletion) = certif_load_completion($cert->id, $user8->id, false);
+        $progcompletion->timedue = $now + DAYSECS * 200;
+        $certcompletion->status = CERTIFSTATUS_EXPIRED;
+        $certcompletion->renewalstatus = CERTIFRENEWALSTATUS_EXPIRED;
+        $certcompletion->certifpath = CERTIFPATH_CERT;
+        $this->assertTrue(certif_write_completion($certcompletion, $progcompletion));
+        $DB->delete_records('prog_user_assignment');
+        certif_conditionally_delete_completion($cert->id, $user8->id);
+        $progcompletion = $DB->get_record('prog_completion', array('programid' => $cert->id, 'userid' => $user8->id, 'coursesetid' => 0));
+        $this->assertEquals(STATUS_PROGRAM_INCOMPLETE, $progcompletion->status); // Show that prog_completion still exists in correct state.
+        list($certcompletion, $progcompletion) = certif_load_completion($cert->id, $user8->id, false);
+        $this->assertEmpty($certcompletion); // Certif_load_completion needs both records to exist to work, so we know this record is gone.
+        $this->assertEmpty($progcompletion);
+        $result = prog_display_progress($cert->id, $user8->id, CERTIFPATH_CERT, true); // Export, so we just get a string.
+        $this->assertEquals('Not assigned', $result);
+        unset($user8);
+    }
 }
