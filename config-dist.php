@@ -31,10 +31,6 @@ unset($CFG);  // Ignore this line
 global $CFG;  // This is necessary here for PHPUnit execution
 $CFG = new stdClass();
 
-$CFG->aspellpath  = '/usr/bin/aspell';
-$CFG->pathtodu    = '/usr/bin/du';
-$CFG->pathtodot   = '/usr/bin/dot';
-
 //=========================================================================
 // 1. DATABASE SETUP
 //=========================================================================
@@ -686,7 +682,7 @@ $CFG->admin = 'admin';
 // A site-wide password salt is no longer used in new installations.
 // If upgrading from 2.6 or older, keep all existing salts in config.php file.
 //
-$CFG->passwordsaltmain = '';
+// $CFG->passwordsaltmain = 'a_very_long_random_string_of_characters#@6&*1';
 //
 // You may also have some alternative salts to allow migration from previously
 // used salts.
