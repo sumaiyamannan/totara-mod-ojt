@@ -1234,6 +1234,7 @@ class mssql_native_moodle_database extends moodle_database {
      */
     public function sql_like_escape($text, $escapechar = '\\') {
         // Totara fix for weird [] LIKEs in SQL Server.
+        $text = str_replace($escapechar, $escapechar.$escapechar, $text);
         $text = str_replace('_', $escapechar.'_', $text);
         $text = str_replace('%', $escapechar.'%', $text);
         $text = str_replace('[', $escapechar.'[', $text);

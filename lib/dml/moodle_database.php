@@ -2213,6 +2213,7 @@ abstract class moodle_database {
      * @return string The escaped sql LIKE string.
      */
     public function sql_like_escape($text, $escapechar = '\\') {
+        $text = str_replace($escapechar, $escapechar.$escapechar, $text);
         $text = str_replace('_', $escapechar.'_', $text);
         $text = str_replace('%', $escapechar.'%', $text);
         return $text;
