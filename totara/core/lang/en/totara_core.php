@@ -294,6 +294,7 @@ $string['lasterroroccuredat'] = 'Last error occured at {$a}';
 $string['learning'] = 'Learning';
 $string['learningplans'] = 'Learning Plans';
 $string['learningrecords'] = 'Learning Records';
+$string['loading'] = 'Loading';
 $string['localpostinstfailed'] = 'There was a problem setting up local modifications to this installation.';
 $string['managecertifications'] = 'Manage certifications';
 $string['managecustomicons'] = 'Manage custom icons';

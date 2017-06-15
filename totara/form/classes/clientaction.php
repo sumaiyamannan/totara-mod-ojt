@@ -33,6 +33,8 @@ namespace totara_form;
  */
 interface clientaction {
 
+    const DELAY = 500;
+
     /**
      * Constructs a new client action given a target item.
      *

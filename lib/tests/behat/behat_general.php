@@ -258,6 +258,19 @@ class behat_general extends behat_base {
     }
 
     /**
+     * Waits until all pending JavaScript has completed.
+     *
+     * @Given /^I wait for pending js$/
+     */
+    public function i_wait_for_pending_js() {
+        // No need to wait if not running JS.
+        if (!$this->running_javascript()) {
+            return;
+        }
+        $this->wait_for_pending_js();
+    }
+
+    /**
      * Waits until the page is completely loaded. This step is auto-executed after every step.
      *
      * @Given /^I wait until the page is ready$/
