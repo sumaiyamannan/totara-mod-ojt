@@ -5491,6 +5491,14 @@ function reportbuilder_send_scheduled_report($sched) {
     }
 
     $report = reportbuilder_get_schduled_report($sched, $reportrecord);
+
+    // Force csv writer for very large exports to prevent memory issues.
+    $exportlimit = get_config('reportbuilder', 'exportadhoclimit');
+    if (!empty($exportlimit) && $report->get_filtered_count() > $exportlimit*4) {
+        error_log('create_attachment - forcing csv format');
+        $writerclassname = $formats['csv'];
+    }
+
     $tempfile = reportbuilder_export_schduled_report($sched, $report, $writerclassname);
     if (!$tempfile) {
         mtrace("Error: Scheduled report {$sched->id} could not be created");
