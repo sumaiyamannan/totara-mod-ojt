@@ -259,10 +259,6 @@ class totara_competency_evidence_form extends moodleform {
             $mform->addRule('organisationid', null, 'numeric');
         }
 
-        $mform->addElement('date_selector', 'timemodified', get_string('timecompleted', 'totara_core'));
-        $mform->setDefault('timemodified', 0);
-        $mform->addHelpButton('timemodified', 'competencyevidencetimecompleted', 'totara_hierarchy');
-
         $this->add_action_buttons();
     }
 
