@@ -91,7 +91,7 @@ function facetoface_process_asset_form($asset, $facetoface, $session, callable $
     $customdata['session'] = $session;
     $customdata['editoroptions'] = $editoroptions;
 
-    $form = new mod_facetoface_asset_form(null, $customdata, 'post', '', array('class' => 'dialog-nobind'));
+    $form = new mod_facetoface_asset_form(null, $customdata, 'post', '', array('class' => 'dialog-nobind'), true, 'mform_modal');
 
     if ($form->is_cancelled()) {
         if (is_callable($cancelhandler)) {

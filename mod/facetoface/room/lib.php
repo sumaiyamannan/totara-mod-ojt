@@ -145,7 +145,7 @@ function facetoface_process_room_form($room, $facetoface, $session, callable $su
     $customdata['session'] = $session;
     $customdata['editoroptions'] = $editoroptions;
 
-    $form = new mod_facetoface_room_form(null, $customdata, 'post', '', array('class' => 'dialog-nobind'));
+    $form = new mod_facetoface_room_form(null, $customdata, 'post', '', array('class' => 'dialog-nobind'), true, 'mform_modal');
 
     if ($form->is_cancelled()) {
         if (is_callable($cancelhandler)) {
