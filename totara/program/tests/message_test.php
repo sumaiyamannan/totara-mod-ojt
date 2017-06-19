@@ -94,7 +94,7 @@ class totara_program_message_testcase extends advanced_testcase {
         $messageob->triggertime = 0;
 
         /** @var prog_noneventbased_message $stub - this will be a subclass of the given abstract class */
-        $stub = $this->getMockForAbstractClass(prog_noneventbased_message::class, array($program->id, $messageob));
+        $stub = $this->getMockForAbstractClass('prog_noneventbased_message', array($program->id, $messageob));
         $stub->send_message($user);
     }
 
