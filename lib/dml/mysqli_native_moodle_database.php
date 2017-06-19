@@ -1886,9 +1886,9 @@ class mysqli_native_moodle_database extends moodle_database {
         $recordset = $this->get_recordset_sql($sqlcnt, $params, $limitfrom, $limitnum);
 
         // Get count.
-        $count = $this->get_field_sql("SELECT FOUND_ROWS()");
-
-        $recordset = new counted_recordset($recordset, $count);
+        $mysqlcount = $this->get_field_sql("SELECT FOUND_ROWS()");
+        $recordset = new counted_recordset($recordset, $mysqlcount);
+        $count = $recordset->get_count_without_limits();
 
         return $recordset;
     }
