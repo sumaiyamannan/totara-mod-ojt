@@ -13,9 +13,24 @@ Feature: Totara form checkboxes element tests
   Scenario: Test basic checkboxes elements in Totara forms
     When I select "Basic checkboxes element [totara_form\form\testform\element_checkboxes]" from the "Test form" singleselect
     Then I should see "Form: Basic checkboxes element"
+    And I should see the following Totara form fields having these values:
+      | Basic checkboxes                    |            |
+      | Required basic checkboxes           |            |
+      | Checkboxes with current data        | Oh yea!    |
+      | Empty frozen checkboxes             |            |
+      | Frozen checkboxes with current data | true,false |
+    And I should see the following Totara form fields having these values:
+      | Checkboxes with current data        | yes        |
+      | Frozen checkboxes with current data | 1,0        |
+    And I should see the following Totara form fields having these values:
+      | Frozen checkboxes with current data | false,true |
+    And I should see the following Totara form fields having these values:
+      | Frozen checkboxes with current data | 0,1        |
+    And I should see the "Empty frozen checkboxes" Totara form field is frozen
+    And I should see the "Frozen checkboxes with current data" Totara form field is frozen
 
     When I set the following Totara form fields to these values:
-      | tfiid_checkboxes_required_totara_form_form_testform_element_checkboxes___chb_0 | 1 |
+      | Required basic checkboxes | 1 |
     And I press "Save changes"
     Then I should see "The form has been submit"
     And "checkboxes_basic" row "Value" column of "form_results" table should contain "«[ ]»"
@@ -23,7 +38,7 @@ Feature: Totara form checkboxes element tests
     And "checkboxes_with_current_data" row "Value" column of "form_results" table should contain "«[ 'yes' ]»"
     And "checkboxes_frozen_empty" row "Value" column of "form_results" table should contain "«--null--»"
     And "checkboxes_frozen_empty" row "Post data" column of "form_results" table should contain "No post data"
-    And "checkboxes_frozen_with_current_data" row "Value" column of "form_results" table should contain "«[ 'true' ]»"
+    And "checkboxes_frozen_with_current_data" row "Value" column of "form_results" table should contain "«[ 'true' , 'false' ]»"
     And "checkboxes_frozen_with_current_data" row "Post data" column of "form_results" table should contain "No post data"
     And "hiddenif_primary" row "Value" column of "form_results" table should contain "«[ ]»"
     And "hiddenif_secondary_a" row "Value" column of "form_results" table should contain "«[ ]»"
@@ -39,16 +54,27 @@ Feature: Totara form checkboxes element tests
 
     When I press "Reset"
     Then I should see "Form: Basic checkboxes element"
+    And I should see the following Totara form fields having these values:
+      | Basic checkboxes                    |                     |
+      | Required basic checkboxes           |                     |
+      | Checkboxes with current data        | Oh yea!             |
+      | Empty frozen checkboxes             |                     |
+      | Frozen checkboxes with current data | true,false          |
 
     When I set the following Totara form fields to these values:
-      | Basic checkboxes | Yes,No |
-      | Required basic checkboxes | Yes,No |
-      | Empty frozen checkboxes | yes,no   |
-      | checkboxes with current data | whatever,yes,nah |
-      | Frozen checkboxes with current data | 1,0 |
-      | Hidden if reference | Alpha,Bravo,Charlie |
-      | A is visible when test is checked | Yes,No |
-      | F is visible when test is checked | X,y |
+      | Basic checkboxes                    | Yes,No              |
+      | Required basic checkboxes           | Yes,No              |
+      | Checkboxes with current data        | whatever,yes,nah    |
+      | Hidden if reference                 | Alpha,Bravo,Charlie |
+      | A is visible when test is checked   | Yes,No              |
+      | F is visible when test is checked   | X,y                 |
+    And I should see the following Totara form fields having these values:
+      | Basic checkboxes                    | Yes,No              |
+      | Required basic checkboxes           | No, Yes             |
+      | Checkboxes with current data        | whatever,yes,nah    |
+      | Hidden if reference                 | Alpha,Bravo,Charlie |
+      | A is visible when test is checked   | Yes,No              |
+      | F is visible when test is checked   | X,y                 |
     And I press "Save changes"
     Then I should see "The form has been submit"
     And "checkboxes_basic" row "Value" column of "form_results" table should contain "«[ '1' , '3' ]»"
@@ -56,7 +82,7 @@ Feature: Totara form checkboxes element tests
     And "checkboxes_with_current_data" row "Value" column of "form_results" table should contain "«[ 'whatever' , 'yes' , 'nah' ]»"
     And "checkboxes_frozen_empty" row "Value" column of "form_results" table should contain "«--null--»"
     And "checkboxes_frozen_empty" row "Post data" column of "form_results" table should contain "No post data"
-    And "checkboxes_frozen_with_current_data" row "Value" column of "form_results" table should contain "«[ 'true' ]»"
+    And "checkboxes_frozen_with_current_data" row "Value" column of "form_results" table should contain "«[ 'true' , 'false' ]»"
     And "checkboxes_frozen_with_current_data" row "Post data" column of "form_results" table should contain "No post data"
     And "hiddenif_primary" row "Value" column of "form_results" table should contain "«[ 'a' , 'b' , 'c' ]»"
     And "hiddenif_secondary_a" row "Value" column of "form_results" table should contain "«[ '1' , '3' ]»"
@@ -135,7 +161,7 @@ Feature: Totara form checkboxes element tests
 
     When I set the following Totara form fields to these values:
       | Basic checkboxes | Yes |
-      | checkboxes with current data | whatever,yes |
+      | Checkboxes with current data | whatever,yes |
       | A is visible when test is checked | Yes |
       | F is visible when test is checked | X |
       | G is visible when required checkboxes is not checked | Yes |
@@ -145,7 +171,7 @@ Feature: Totara form checkboxes element tests
     And "checkboxes_required" row "Value" column of "form_results" table should contain "«[ '1' ]»"
     And "checkboxes_with_current_data" row "Value" column of "form_results" table should contain "«[ 'whatever' , 'yes' ]»"
     And "checkboxes_frozen_empty" row "Value" column of "form_results" table should contain "«--null--»"
-    And "checkboxes_frozen_with_current_data" row "Value" column of "form_results" table should contain "«[ 'true' ]»"
+    And "checkboxes_frozen_with_current_data" row "Value" column of "form_results" table should contain "«[ 'true' , 'false' ]»"
     And "hiddenif_primary" row "Value" column of "form_results" table should contain "«[ 'a' ]»"
     And "hiddenif_secondary_a" row "Value" column of "form_results" table should contain "«[ '1' ]»"
     And "hiddenif_secondary_b" row "Value" column of "form_results" table should contain "«[ 'true' ]»"

@@ -76,7 +76,7 @@ class element_select extends form {
         $hiddenif_primary = $section->add(new select('hiddenif_primary', 'Hidden if reference', ['a' => 'Alpha', 'b' => 'Bravo', 'c' => 'Charlie']));
         $hiddenif_secondary_a = $section->add(new select('hiddenif_secondary_a', 'A is visible when test is selected', $defaultoptions));
         $hiddenif_secondary_b = $section->add(new select('hiddenif_secondary_b', 'B is visible when test is not selected', ['true' => '1', 'false' => '0']));
-        $hiddenif_secondary_c = $section->add(new select('hiddenif_secondary_c', 'C is visible when test is not selected', ['0' => '1', '1' => '0']));
+        $hiddenif_secondary_c = $section->add(new select('hiddenif_secondary_c', 'C is visible when test is not selected', ['0' => 'true', '1' => 'false']));
         $hiddenif_secondary_d = $section->add(new select('hiddenif_secondary_d', 'D is visible when test is selected', ['New Zealand' => 'NZ', 'United Kingdom' => 'UK']));
         $hiddenif_secondary_e = $section->add(new select('hiddenif_secondary_e', 'E is visible when test is not selected', ['0' => 'Yes', '' => 'No']));
         $hiddenif_secondary_f = $section->add(new select('hiddenif_secondary_f', 'F is visible when test is selected', ['x' => 'X', 'Y' => 'y']));

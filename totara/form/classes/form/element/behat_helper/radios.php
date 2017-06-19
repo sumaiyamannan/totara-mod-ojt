@@ -29,41 +29,12 @@ use Behat\Mink\Exception\ExpectationException;
  * A radios element helper.
  *
  * @author Sam Hemelryk <sam.hemelryk@totaralearning.com>
+ * @author Petr Skoda <petr.skoda@totaralearning.com>
  * @copyright 2016 Totara Learning Solutions Ltd {@link http://www.totaralms.com/}
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @package totara_form
  */
-class radios implements base {
-
-    /**
-     * The element node, containing the whole element markup.
-     * @var \Behat\Mink\Element\NodeElement
-     */
-    protected $node;
-
-    /**
-     * The context that is currently working with this element.
-     * @var \behat_totara_form
-     */
-    protected $context;
-
-    /**
-     * The type of this instance.
-     * @var string
-     */
-    protected $mytype;
-
-    /**
-     * Constructs a radios behat element helper.
-     *
-     * @param \Behat\Mink\Element\NodeElement $node
-     * @param \behat_totara_form $context
-     */
-    public function __construct(\Behat\Mink\Element\NodeElement $node, \behat_totara_form $context) {
-        $this->node = $node;
-        $this->context = $context;
-        $this->mytype = get_class($this);
-    }
+class radios extends element {
 
     /**
      * Returns the radios input.
@@ -73,30 +44,12 @@ class radios implements base {
      */
     protected function get_radios_inputs() {
         $id = $this->node->getAttribute('data-element-id');
-        $idliteral = $this->context->getSession()->getSelectorsHandler()->xpathLiteral($id);
+        $idliteral = \behat_context_helper::escape($id);
         $radios = $this->node->findAll('xpath', "//*[@id={$idliteral}]//input[@type='radio']");
         if ($radios === null) {
-            throw new ExpectationException('Could not find expected ' . $this->mytype . ' input', $this->context->getSession());
+            throw new ExpectationException("Could not find expected {$this->mytype} input: {$this->locator}", $this->context->getSession());
         }
         return $radios;
-    }
-
-    /**
-     * Ensures that this element is visible and throws an exception if it is not.
-     *
-     * @throws ExpectationException
-     */
-    protected function ensure_visible() {
-        $id = $this->node->getAttribute('data-element-id');
-        $idliteral = $this->context->getSession()->getSelectorsHandler()->xpathLiteral($id);
-        $containers = $this->node->findAll('xpath', "//*[@id={$idliteral}]");
-        if (empty($containers) || !is_array($containers)) {
-            throw new ExpectationException('Attempting to get the value of a ' . $this->mytype . ' without a container', $this->context->getSession());
-        }
-        $container = reset($containers);
-        if (!$container->isVisible()) {
-            throw new ExpectationException('Attempting to get the value of a ' . $this->mytype . ' that is not visible', $this->context->getSession());
-        }
     }
 
     /**
@@ -106,13 +59,20 @@ class radios implements base {
      * @throws \Behat\Mink\Exception\ExpectationException
      */
     public function get_value() {
-        $radios = $this->get_radios_inputs();
-        if ($this->context->running_javascript()) {
-            $this->ensure_visible();
+        if (!$this->context->running_javascript() and $this->is_frozen()) {
+            $id = $this->node->getAttribute('data-element-id');
+            $idliteral = \behat_context_helper::escape($id);
+            $radios = $this->node->findAll('xpath', "//*[@id={$idliteral}]//input[@type='radio' and @checked='checked']");
+            if ($radios) {
+                $radio = reset($radios);
+                return (string)$radio->getAttribute('value');
+            }
+            return null;
         }
+        $radios = $this->get_radios_inputs();
         foreach ($radios as $radio) {
-            if ($radio->getAttribute('checked')) {
-                return $radio->getValue();
+            if ($radio->isChecked()) {
+                return (string)$radio->getAttribute('value');
             }
         }
         // No radios were checked.
@@ -122,36 +82,82 @@ class radios implements base {
     /**
      * Checks or unchecks the radios based on the given value.
      *
-     * @param bool $value True if the radios should be checked, false otherwise.
+     * NOTE: you cannot uncheck all radios!
+     *
+     * @param string $value the value or label of the radio in group that should be selected
      * @throws \Behat\Mink\Exception\ExpectationException
      */
     public function set_value($value) {
+        $value = (string)$value; // Prevent nulls!
         $radios = $this->get_radios_inputs();
-        if ($this->context->running_javascript()) {
-            $this->ensure_visible();
-        }
-        $valueliteral = $this->context->getSession()->getSelectorsHandler()->xpathLiteral($value);
-        /** @var \Behat\Mink\Element\NodeElement[] $label_nodes */
-        $label_nodes = $this->node->findAll('xpath', "//label[contains(text(), {$valueliteral})]");
-        $labels = array();
-        foreach ($label_nodes as $node) {
-            $labels[] = $node->getAttribute('for');
-        }
+
+        $found = null;
         foreach ($radios as $radio) {
-            if ((string)$radio->getAttribute('value') === (string)$value || in_array($radio->getAttribute('id'), $labels)) {
-                // Goutte is weird sometimes.
-                if ($radio->isChecked()) {
-                    throw new ExpectationException('Attempting to select an already selected ' . $this->mytype . ' value', $this->context->getSession());
+            $thisvalue = (string)$radio->getAttribute('value');
+            if ($thisvalue === $value) {
+                if ($found) {
+                    throw new ExpectationException("Totara form {$this->mytype} element '{$this->locator}' contains more than one radio with matching name or value: {$value}", $this->context->getSession());
                 }
-                if ($this->context->running_javascript()) {
-                    $radio->check();
-                } else {
-                    // Goutte is weird sometimes.
-                    $radio->setValue($radio->getAttribute('value'));
+                $found = $radio;
+            }
+            $idliteral = \behat_context_helper::escape($radio->getAttribute('id'));
+            /** @var \Behat\Mink\Element\NodeElement $label */
+            $label = $this->node->find('xpath', "//label[@for=$idliteral]");
+            if ($value === $label->getText()) {
+                if ($found) {
+                    throw new ExpectationException("Totara form {$this->mytype} element '{$this->locator}' contains more than one radio with matching name or value: {$value}", $this->context->getSession());
                 }
+                $found = $radio;
+            }
+        }
+
+        if (!$found) {
+            throw new ExpectationException("Totara form {$this->mytype} element '{$this->locator}' does not contain requested option: {$value}", $this->context->getSession());
+        }
+
+        if ($this->context->running_javascript()) {
+            if (!$found->isChecked()) {
+                $found->click();
+            }
+        } else {
+            $found->setValue($found->getAttribute('value'));
+        }
+    }
+
+    /**
+     * Asserts the field has expected value.
+     *
+     * NOTE: use '$@NULL@$' string for nothing selected
+     *
+     * @param string $expectedvalue
+     * @return void
+     */
+    public function assert_value($expectedvalue) {
+        if ($expectedvalue === '$@NULL@$') {
+            $expectedvalue = null; // Means nothing selected yet.
+        } else {
+            $expectedvalue = (string)$expectedvalue;
+        }
+
+        if ($expectedvalue === $this->get_value()) {
+            return;
+        }
+
+        if ($expectedvalue === null) {
+            throw new ExpectationException("Totara form {$this->mytype} element '{$this->locator}' has selected option", $this->context->getSession());
+        }
+
+        $radios = $this->get_radios_inputs();
+        foreach ($radios as $radio) {
+            $idliteral = \behat_context_helper::escape($radio->getAttribute('id'));
+            /** @var \Behat\Mink\Element\NodeElement $label */
+            $label = $this->node->find('xpath', "//label[@for=$idliteral]");
+            if ($expectedvalue === (string)$label->getText()) {
                 return;
             }
         }
+
+        throw new ExpectationException("Totara form {$this->mytype} element '{$this->locator}' does not match expected value: {$expectedvalue}", $this->context->getSession());
     }
 
 }

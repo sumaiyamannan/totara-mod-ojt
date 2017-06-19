@@ -9,13 +9,26 @@ Feature: Totara form select element tests
     And I navigate to the Totara test form
     And I should see "Form acceptance testing page"
 
-  @javascript
-  Scenario: Test basic select elements in Totara forms
+  Scenario: Test basic select elements in Totara forms without javascript
     When I select "Basic select element [totara_form\form\testform\element_select]" from the "Test form" singleselect
     Then I should see "Form: Basic select element"
+    And I should see the following Totara form fields having these values:
+      | Basic select                           | Choose... |
+      | Required basic select                  | Choose... |
+      | select with current data               | Oh yea!   |
+      | Empty frozen select                    | Choose... |
+      | Frozen select with current data        | 1         |
+    And I should see the following Totara form fields having these values:
+      | Basic select                           |           |
+      | Required basic select                  |           |
+      | select with current data               | yes       |
+      | Empty frozen select                    |           |
+      | Frozen select with current data        | true      |
+    And I should see the "Empty frozen select" Totara form field is frozen
+    And I should see the "Frozen select with current data" Totara form field is frozen
 
     When I set the following Totara form fields to these values:
-      | Required basic select | Yes |
+      | Required basic select                  | Yes       |
     And I press "Save changes"
     Then I should see "The form has been submit"
     And "select_basic" row "Value" column of "form_results" table should contain "«»"
@@ -39,19 +52,124 @@ Feature: Totara form select element tests
 
     When I press "Reset"
     Then I should see "Form: Basic select element"
+    And I should see the following Totara form fields having these values:
+      | Basic select                           | Choose... |
+      | Required basic select                  | Choose... |
+      | select with current data               | Oh yea!   |
+      | Empty frozen select                    | Choose... |
+      | Frozen select with current data        | 1         |
 
-    When I click on "Expand all" "link"
-    And I set the following Totara form fields to these values:
-      | Basic select | No |
-      | Required basic select | No |
-      | select with current data | Yeah? |
-      | Empty frozen select | No |
-      | Frozen select with current data | 0 |
-      | Hidden if reference | Charlie |
-      | A is visible when test is selected | Yes |
-      | C is visible when test is not selected | 0 |
-      | D is visible when test is selected | UK |
-      | F is visible when test is selected | y |
+    When I set the following Totara form fields to these values:
+      | Basic select                           | No        |
+      | Required basic select                  | No        |
+      | select with current data               | Yeah?     |
+      | Hidden if reference                    | Charlie   |
+      | A is visible when test is selected     | Yes       |
+      | C is visible when test is not selected | 0         |
+      | D is visible when test is selected     | UK        |
+      | F is visible when test is selected     | y         |
+      | G is visible when required select is not selected | No |
+    And I should see the following Totara form fields having these values:
+      | Basic select                           | No        |
+      | Required basic select                  | No        |
+      | select with current data               | Yeah?     |
+      | Hidden if reference                    | Charlie   |
+      | A is visible when test is selected     | Yes       |
+      | C is visible when test is not selected | 0         |
+      | D is visible when test is selected     | UK        |
+      | F is visible when test is selected     | y         |
+      | G is visible when required select is not selected | No |
+    And I press "Save changes"
+    Then I should see "The form has been submit"
+    And "select_basic" row "Value" column of "form_results" table should contain "«3»"
+    And "select_required" row "Value" column of "form_results" table should contain "«3»"
+    And "select_with_current_data" row "Value" column of "form_results" table should contain "«whatever»"
+    And "select_frozen_empty" row "Value" column of "form_results" table should contain "«--null--»"
+    And "select_frozen_empty" row "Post data" column of "form_results" table should contain "No post data"
+    And "select_frozen_with_current_data" row "Value" column of "form_results" table should contain "«true»"
+    And "select_frozen_with_current_data" row "Post data" column of "form_results" table should contain "No post data"
+    And "hiddenif_primary" row "Value" column of "form_results" table should contain "«c»"
+    And "hiddenif_secondary_a" row "Value" column of "form_results" table should contain "«1»"
+    And "hiddenif_secondary_b" row "Value" column of "form_results" table should contain "«true»"
+    And "hiddenif_secondary_c" row "Value" column of "form_results" table should contain "«0»"
+    And "hiddenif_secondary_d" row "Value" column of "form_results" table should contain "«United Kingdom»"
+    And "hiddenif_secondary_e" row "Value" column of "form_results" table should contain "«0»"
+    And "hiddenif_secondary_f" row "Value" column of "form_results" table should contain "«Y»"
+    And "hiddenif_required_a" row "Value" column of "form_results" table should contain "«3»"
+    And "hiddenif_required_b" row "Value" column of "form_results" table should contain "«»"
+    And "form_select" row "Value" column of "form_results" table should contain "«totara_form\form\testform\element_select»"
+    And "submitbutton" row "Value" column of "form_results" table should contain "«1»"
+
+  @javascript
+  Scenario: Test basic select elements in Totara forms with javascript
+    When I select "Basic select element [totara_form\form\testform\element_select]" from the "Test form" singleselect
+    Then I should see "Form: Basic select element"
+    And I should see the following Totara form fields having these values:
+      | Basic select                           | Choose... |
+      | Required basic select                  | Choose... |
+      | select with current data               | Oh yea!   |
+      | Empty frozen select                    | Choose... |
+      | Frozen select with current data        | 1         |
+    And I should see the following Totara form fields having these values:
+      | Basic select                           |           |
+      | Required basic select                  |           |
+      | select with current data               | yes       |
+      | Empty frozen select                    |           |
+      | Frozen select with current data        | true      |
+    And I should see the "Empty frozen select" Totara form field is frozen
+    And I should see the "Frozen select with current data" Totara form field is frozen
+
+    When I set the following Totara form fields to these values:
+      | Required basic select                  | Yes       |
+    And I press "Save changes"
+    Then I should see "The form has been submit"
+    And "select_basic" row "Value" column of "form_results" table should contain "«»"
+    And "select_required" row "Value" column of "form_results" table should contain "«1»"
+    And "select_with_current_data" row "Value" column of "form_results" table should contain "«yes»"
+    And "select_frozen_empty" row "Value" column of "form_results" table should contain "«--null--»"
+    And "select_frozen_empty" row "Post data" column of "form_results" table should contain "No post data"
+    And "select_frozen_with_current_data" row "Value" column of "form_results" table should contain "«true»"
+    And "select_frozen_with_current_data" row "Post data" column of "form_results" table should contain "No post data"
+    And "hiddenif_primary" row "Value" column of "form_results" table should contain "«a»"
+    And "hiddenif_secondary_a" row "Value" column of "form_results" table should contain "«»"
+    And "hiddenif_secondary_b" row "Value" column of "form_results" table should contain "«true»"
+    And "hiddenif_secondary_c" row "Value" column of "form_results" table should contain "«0»"
+    And "hiddenif_secondary_d" row "Value" column of "form_results" table should contain "«New Zealand»"
+    And "hiddenif_secondary_e" row "Value" column of "form_results" table should contain "«0»"
+    And "hiddenif_secondary_f" row "Value" column of "form_results" table should contain "«x»"
+    And "hiddenif_required_a" row "Value" column of "form_results" table should contain "«»"
+    And "hiddenif_required_b" row "Value" column of "form_results" table should contain "«»"
+    And "form_select" row "Value" column of "form_results" table should contain "«totara_form\form\testform\element_select»"
+    And "submitbutton" row "Value" column of "form_results" table should contain "«1»"
+
+    When I press "Reset"
+    Then I should see "Form: Basic select element"
+    And I should see the following Totara form fields having these values:
+      | Basic select                           | Choose... |
+      | Required basic select                  | Choose... |
+      | select with current data               | Oh yea!   |
+      | Empty frozen select                    | Choose... |
+      | Frozen select with current data        | 1         |
+
+    When I set the following Totara form fields to these values:
+      | Basic select                           | No        |
+      | Required basic select                  | No        |
+      | select with current data               | Yeah?     |
+      | Hidden if reference                    | Charlie   |
+      | A is visible when test is selected     | Yes       |
+      | C is visible when test is not selected | 0         |
+      | D is visible when test is selected     | UK        |
+      | F is visible when test is selected     | y         |
+      | G is visible when required select is not selected | No |
+    And I should see the following Totara form fields having these values:
+      | Basic select                           | No        |
+      | Required basic select                  | No        |
+      | select with current data               | Yeah?     |
+      | Hidden if reference                    | Charlie   |
+      | A is visible when test is selected     | Yes       |
+      | C is visible when test is not selected | 0         |
+      | D is visible when test is selected     | UK        |
+      | F is visible when test is selected     | y         |
       | G is visible when required select is not selected | No |
     And I press "Save changes"
     Then I should see "The form has been submit"

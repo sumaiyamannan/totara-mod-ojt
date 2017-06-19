@@ -65,7 +65,7 @@ class element_checkbox extends form {
         $checkbox_required = $this->model->add(new checkbox('checkbox_required', 'Required basic checkbox'));
         $checkbox_required->set_attribute('required', true);
         $checkbox_required->add_help_button('cachejs', 'core_admin'); // Just a random help string.
-        $this->model->add(new checkbox('checkbox_with_current_data', 'checkbox with current data', 'yes', 'no'))->add_help_button('cachejs', 'core_admin'); // Just a random help string.;
+        $this->model->add(new checkbox('checkbox_with_current_data', 'Checkbox with current data', 'yes', 'no'))->add_help_button('cachejs', 'core_admin'); // Just a random help string.;
         $this->model->add(new checkbox('checkbox_frozen_empty', 'Empty frozen checkbox'))->set_frozen(true);
         $this->model->add(new checkbox('checkbox_frozen_with_current_data', 'Frozen checkbox with current data', 'true', 'false'))->set_frozen(true);
 

@@ -50,14 +50,10 @@ class datetime extends text {
         // If JS is running then we need to use JS to set the value.
         // It has to be perfectly formatted.
         $text = $this->get_text_input();
-        if ($this->context->running_javascript() && !$text->isVisible()) {
-            throw new ExpectationException('Attempting to change a ' . $this->mytype . ' that is not visible', $this->context->getSession());
-        }
-        $value = addslashes($value);
         $id = $this->node->getAttribute('data-element-id');
         $js  = 'var e, t;';
-        $js .= 'e = document.getElementById("'.$id.'");';
-        $js .= 'e.value = "' . $value . '";';
+        $js .= 'e = document.getElementById(' . json_encode($id) . ');';
+        $js .= 'e.value = ' . json_encode($value) . ';';
         $this->context->getSession()->executeScript($js);
 
         // As this value is set via Javascript, simulate the change event
@@ -65,6 +61,37 @@ class datetime extends text {
             $text->getXPath(),
             "Syn.trigger('change', {}, {{ELEMENT}})"
         );
+    }
+
+    /**
+     * Returns the value of the input.
+     *
+     * @return string
+     */
+    protected function get_value() {
+        $value = parent::get_value();
+        // Remove the trailing seconds.
+        if (preg_match('/\d{1,2}:\d{1,2}:00$/', $value)) {
+            $value = substr($value, 0, -3);
+        }
+        return $value;
+    }
+
+    /**
+     * Asserts the field has expected value.
+     *
+     * @param string $expectedvalue
+     * @return void
+     */
+    public function assert_value($expectedvalue) {
+        $value = self::normalise_value_pre_set($this->get_value());
+        $expected = self::normalise_value_pre_set($expectedvalue);
+
+        if ($expected === $value) {
+            return;
+        }
+
+        throw new ExpectationException("Totara form {$this->mytype} element '{$this->locator}' does not match expected value: {$expectedvalue}", $this->context->getSession());
     }
 
     /**
@@ -112,7 +139,7 @@ class datetime extends text {
             $date->setTime($hour, $minute, 0);
 
         } else {
-            throw new \coding_exception('Invalid utc10date value provided, it should be YYYY-MM-DD hh:mm date or relative +/- P interval, "'.$value.'"');
+            throw new \coding_exception('Invalid datetime value provided, it should be YYYY-MM-DD hh:mm date or relative +/- P interval, "'.$value.'"');
         }
 
         return $date->format('Y-m-d\TH:i');
