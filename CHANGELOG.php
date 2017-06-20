@@ -3,6 +3,236 @@
 
 Totara LMS Changelog
 
+Release 9.8 (21st June 2017):
+=============================
+
+
+Security issues:
+
+    TL-7289        Added environment check for XML External Entity Expansion
+
+                   On upgrade or install, a check will be made to determine whether the
+                   server's environment could be vulnerable to attackers including the
+                   contents of external files via entities in user-supplied XML files. A
+                   warning will only be shown if a vulnerability is identified. This check is
+                   also available via the security report.
+
+Improvements:
+
+    TL-9224        Improved consistency of program exception restrictions
+
+                   Previously some Programs code was still being executed on users with
+                   exceptions, those places now check for valid user assignments before
+                   processing the users. Some places identified were, the program completion
+                   cron, the certification window opening cron, and the programs course
+                   enrolment plugin.
+
+    TL-9300        Updated the Date/time custom field so that it is not enabled by default
+
+                   Making the Date/time custom fields disabled by default prevents the field
+                   from being set inadvertently. When the custom field is marked as required
+                   the field will always be enabled and default to the present date.
+
+    TL-9775        Added Behat tests for Dynamic Audience Based Learning Plan creation
+    TL-10502       Renamed Record of learning navigation block to "Learning" (from "Learning plans")
+    TL-11264       Improved Atto editor autosave messaging and draft revert workflow
+
+                   When a draft is automatically applied to an Editor, there is now a
+                   page-level alert to let users know what has happened. In addition, the
+                   default arrangement of toolbar icons now includes Undo/Redo which, when a
+                   Draft is auto-applied, will toggle between original Database-saved content
+                   and the Draft.
+
+    TL-11325       Added labels to the manage learning plan templates page
+    TL-11444       Added table headings when showing current forum subscribers
+    TL-14271       Fixed dynamic audience performance issue for user profile custom fields
+    TL-14288       Added logs relating to program and certification assignment changes
+    TL-14367       The login page now allows the configured registration plugin to control the onscreen signup message
+    TL-14375       Embedded reports may now define custom required columns
+    TL-14383       Improved performance of reportbuilder job assignment content restraints
+    TL-14385       Added checks for missing program and certification completion records
+
+                   The program and certification completion checkers have been extended to
+                   detect missing and unneeded program and certification completion records.
+                   Automated fixes have been provided to allow admins to correct these
+                   problems. After upgrade, you should use the completion checker to fix all
+                   "Files" category problems which are reported (if any). After all problems
+                   on the site have been fixed, if new problems are discovered then they
+                   should be reported to Totara support.
+
+    TL-14429       Added support for relative dates in new forms in behat tests
+    TL-14430       Converted the Reportbuilder source directory cache into a defined cache
+    TL-14445       Added full details link to review items in Appraisals
+
+                   When goals, objectives or competencies are selected for review in an
+                   appraisal, a link will now be available which opens the full details of
+                   that item in a new window. This link will only be shown if the user has
+                   permission to view those details normally outside the appraisal.
+
+                   This feature has only been added for the aforementioned review types so
+                   far.
+
+                   When adding items for review for any review questions, these items no
+                   longer have their own collapsible header and will instead be collapsible
+                   under the entire review question. Non-question elements such as fixed text,
+                   fixed image and profile information also no longer have a collapsible
+                   header as part of this change.
+
+                   For any custom themes that impact on Appraisals or Feedback 360, it is
+                   recommended that you review the appearance of these areas following
+                   upgrade.
+
+Bug fixes:
+
+    TL-10374       Fixed an Appraisal bug when trying to add a question without selecting a type
+    TL-12672       Fixed a php notice when saving data in location and textarea unique custom fields
+    TL-12769       Fixed disabling of multi-select custom fields when set to locked
+
+                   There was an issue with multi-select custom fields when they were set to
+                   locked. This would result in only the first check box being disabled or
+                   none of the check boxes being disabled (this depended on the browser).
+
+    TL-14048       Fixed a bug resulting in duplicate entries in the "Record of Learning: Courses" report source
+
+                   Previously the "Record of Learning: Courses" report source would show
+                   duplicate records if no Learning Plan columns had been added to the
+                   report.
+                   This has been fixed and the "Record of Learning: Courses" report source now
+                   correctly eliminates duplicates.
+
+    TL-14140       Fixed security report check for whether Flash animation is enabled
+
+                   The security report was checking for an outdated config setting when
+                   checking whether Flash animation (using swf files) was enabled. The correct
+                   config setting is now checked.
+
+                   Flash animation is no longer enabled by default on new installations of
+                   Totara, however this is not changed during upgrade for existing sites. If
+                   Flash animation is not required on your site, you are encouraged to review
+                   the security report and disable Flash animation and/or the Multimedia
+                   plugin if they are not required.
+                   Flash animations, when enabled, could only be added by trusted users who
+                   had capabilities marked with XSS risk.
+
+    TL-14144       Fixed ambiguous id column in course dialog when completion criteria is required
+    TL-14251       Fixed the display order of goal scale values on the my goals page
+    TL-14252       Fixed debug error when sending program messages with certain placeholders
+
+                   Previously, if a program message (such as enrolment message) was sent out
+                   for a user who was enrolled via multiple methods, and the message used the
+                   %completioncriteria% or %duedate% placeholders, a debugging error is
+                   thrown. This has now been fixed.
+
+                   The %completioncriteria% placeholder was only designed to work when only
+                   one enrolment method is in place for a user. Previously, the criteria
+                   substituted into the email when a user did have multiple enrolment methods
+                   was chosen randomly. Now the criteria will be taken from the enrolment with
+                   the most recent assignment date/time.
+
+    TL-14272       Fixed program and certification course enrolment suspension
+
+                   Due to a recent change, users were being unenrolled from courses after
+                   completing the primary certification path, when the courses were not part
+                   of recertification. This has now been fixed, and any user enrolments
+                   incorrectly suspended will be restored automatically by the "Clean
+                   enrolment plugins" scheduled task. This patch also greatly improves the
+                   performance of this task.
+
+    TL-14289       Improved the layout when requesting a program extension from inside of a learning plan
+    TL-14291       Fixed user unassignment from programs and certifications
+
+                   This patch includes several changes to the way program and certification
+                   completion records are handled when users are unassigned. It includes
+                   a fix for a problem that could occur when users are reassigned. It also
+                   ensures that program and certification completion records are correctly
+                   archived when a user is deleted (with the possibility of being undeleted),
+                   rather than being left active.
+
+    TL-14309       Fixed missing embedded fallback font causing error when viewing certificate
+    TL-14315       Added HR Import check to ensure user's country code is two characters in length
+    TL-14335       Backup annotation no longer tries to write to the temp table it is currently reading from
+
+                   Backup annotation handling was opening a recordset to a temporary table,
+                   annotating over the results and writing to the same table while the
+                   recordset was still open.
+                   This was causing significant performance issues and occasional failures on
+                   MSSQL.
+                   Only large complex backups would be affected.
+                   This change removes the code sequence responsible replacing it with batch
+                   handling for the temp table.
+
+    TL-14350       Fixed invalid program due date when a user is assigned with an exception
+
+                   This patch includes automated fixes which can be triggered in the program
+                   and certification completion editors to fix affected records.
+
+    TL-14357       Fixed a problem with the self-enrolment method not allowing unauthenticated users to enrol in a course
+    TL-14365       Added missing $PAGE->set_url() calls when setting up a single activity course wiki
+    TL-14369       Auth plugins may now define external setting pages that do not require site config capability
+    TL-14371       Added missing use of format_string() in hierarchy filter text
+    TL-14381       Ensured the hierarchy filter displays any saved selections on page reload
+    TL-14387       Changes to Seminar notification templates now update unchanged notifications
+    TL-14389       Improved the handling of incomplete AJAX requests when navigating away from a page
+    TL-14390       Fixed inconsistency in icon markup on Report Builder columns when replaced via AJAX
+
+                   The markup of the icons for Delete, Move up and Move down were different
+                   when loading the page (after clicking "Save changes") and when the icons
+                   were replace via AJAX (eg. when deleting a row).
+
+    TL-14399       Fixed the "Manage searches" button in the Audience view report
+    TL-14400       Form selection elements now accept integers in current values
+    TL-14401       Removed incorrect link to the user profile in Report builder for missing data
+    TL-14411       Fixed reportbuilder exports for reports with embedded parameters
+    TL-14414       Fixed auto-update of saved searches list in report table block editing form
+    TL-14419       Fixed problems when restoring users to certifications
+
+                   There were some rare circumstances where the incorrect data was being set
+                   when a user was reassigned to a certification. The most common problem was
+                   that the due date was missing on records that were in the "expired" state.
+                   The cause of the various problems has been prevented. Records which have
+                   already been affected can be identified using the certification completion
+                   checker and corrected using the certification completion editor and/or
+                   automated fixes - see TL-14437.
+
+    TL-14426       Fixed dialog scroll when adding "Fixed image" questions to an appraisal
+    TL-14437       Added an automated fix for expired certifications missing a due date
+
+                   An automated fix has been added to the certification completion editor.
+                   When applied to expired completion records which are missing a due date, it
+                   automatically sets the date to the latest certification completion history
+                   expiry date which is before the current date. If no appropriate history
+                   record is found then the due date must be set manually.
+
+    TL-14447       Fixed double html escaping when searching for course names that include special characters
+    TL-14672       Fixed permissions check for taking attendance within Seminar events
+
+                   Previously it was not allowed to submit Seminar attendance without
+                   mod/facetoface:addattendees or mod/facetoface:removeattendees permission.
+                   Now mod/facetoface:takeattendance is enough.
+
+    TL-14686       Fixed a typo in a variable name used in organisation file type custom fields
+    TL-14690       Fixed error when creating a plan where a user has multiple jobs with duplicate position competencies.
+
+API changes:
+
+    TL-14413       Added two new methods to the DML to fetch recordsets and a total count at the same time
+
+                   Two new methods have been added to the DML that allow for a recordset to be
+                   fetched and simultaneously a total count returned in single query.
+                   The two new methods are:
+                   * moodle_database::get_counted_recordset_sql
+                   * moodle_database::get_counted_records_sql
+
+Contributions:
+
+    * Artur Rietz at Webanywhere - TL-14271
+    * Barry Oosthuizen at Learning Pool - TL-14445
+    * Eugene Venter at Catalyst NZ - TL-9300, TL-10502
+    * Francis Devine at Catalyst NZ - TL-14430
+    * Michael Trio at Kineo UK - TL-14357
+    * Russell England at Kineo US - TL-14144
+
+
 Release 9.7 (22nd May 2017):
 ============================
 
