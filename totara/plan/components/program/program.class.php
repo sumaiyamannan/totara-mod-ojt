@@ -85,6 +85,9 @@ class dp_program_component extends dp_base_component {
     /**
      * Get list of items assigned to plan
      *
+     * We don't check visiblity of items as we assume that if an item has
+     * been added to the plan then they should have visiblity of that item.
+     *
      * Optionally, filtered by status
      *
      * @access  public
@@ -121,15 +124,6 @@ class dp_program_component extends dp_base_component {
             AND pc.userid = :planuserid
             AND pc.coursesetid = 0)";
         $params['planuserid'] = $this->plan->userid;
-
-        list($visibilitysql, $visibilityparams) = totara_visibility_where($this->plan->userid,
-                                                                          'p.id',
-                                                                          'p.visible',
-                                                                          'p.audiencevisible',
-                                                                          'p',
-                                                                          'program');
-        $params = array_merge($params, $visibilityparams);
-        $where .= " AND {$visibilitysql} ";
 
         $countselect = '';
         $countjoin = '';

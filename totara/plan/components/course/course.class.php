@@ -120,6 +120,9 @@ class dp_course_component extends dp_base_component {
     /**
      * Get list of items assigned to plan
      *
+     * We don't check visiblity of items as we assume that if an item has
+     * been added to the plan then they should have visiblity of that item.
+     *
      * Optionally, filtered by status
      *
      * @access  public
@@ -166,13 +169,6 @@ class dp_course_component extends dp_base_component {
             $params['planuserid'] = $this->plan->userid;
         }
 
-        list($visibilitysql, $visibilityparams) = totara_visibility_where($this->plan->userid,
-                                                                          'c.id',
-                                                                          'c.visible',
-                                                                          'c.audiencevisible',
-                                                                          'c',
-                                                                          'course');
-
         $countselect = '';
         $countjoin = '';
 
@@ -208,10 +204,6 @@ class dp_course_component extends dp_base_component {
             $params['comp1'] = 'course';
             $params['comp2'] = 'competency';
         }
-
-
-        $params = array_merge($params, $visibilityparams);
-        $where .= " AND {$visibilitysql} ";
 
         $sql = "
             SELECT
