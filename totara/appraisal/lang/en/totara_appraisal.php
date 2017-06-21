@@ -389,6 +389,7 @@ $string['saveprogress'] = 'Save progress';
 $string['sameaspreceding'] = 'Same as preceding question';
 $string['selectappraisal'] = 'Select an appraisal';
 $string['selectquestiontype'] = 'Select type of content...';
+$string['selectquestiontype_notselected'] = 'You must select the question type you want to add.';
 $string['settings'] = 'Settings';
 $string['appraisal_stage_completion'] = 'Stage completion';
 $string['sectioninclude'] = 'Choose which sections to include';

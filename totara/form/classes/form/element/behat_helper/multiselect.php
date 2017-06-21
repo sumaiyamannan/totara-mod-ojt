@@ -68,17 +68,6 @@ class multiselect extends select {
             $select->selectOption($value, !$first);
             $first = false;
         }
-
-        if (!$this->context->running_javascript()) {
-            // No JavaScript, we are done.
-            return;
-        }
-
-        // Trigger the onchange event as triggered when selecting a real value.
-        $this->context->getSession()->getDriver()->triggerSynScript(
-            $select->getXPath(),
-            "Syn.trigger('change', {}, {{ELEMENT}})"
-        );
     }
 
     /**

@@ -1,5 +1,5 @@
 @totara @totara_appraisal
-Feature: Perform basic appraisals adminstration
+Feature: Perform basic appraisals administration
   In order to ensure the appraisals works as expected
   As an admin
   I need to create calendar data
@@ -26,6 +26,26 @@ Feature: Perform basic appraisals adminstration
     # AJAX form load
     And I set the following fields to these values:
       | Name | test page |
-# TODO: fix the submission of YUI forms somehow
-#    And I click on "Add new page" "button" in the ".moodle-dialogue-content" "css_element"
-#    And I should see "test page" in the "#appraisal-page-list" "css_element"
+    And I press "Add new page"
+
+    When I set the following fields to these values:
+      | datatype | Short text |
+    And I click on "Add" "button" in the "#fgroup_id_addquestgroup" "css_element"
+    And I set the following fields to these values:
+      | Question    | Your favourite colour |
+      | roles[1][2] | 1                     |
+      | roles[2][2] | 1                     |
+      | roles[8][2] | 1                     |
+      | roles[1][6] | 1                     |
+      | roles[2][1] | 1                     |
+      | roles[8][1] | 1                     |
+    And I press "Save changes"
+    Then I should see "Manage Behat Appraisal stage's content"
+    And I should see "Your favourite colour"
+    And I should see "Short text"
+
+    # Test that if I try to add a question without selecting the type I get an error dialog.
+    When I click on "Add" "button" in the "#fgroup_id_addquestgroup" "css_element"
+    Then I should see "Error occurred"
+    And I should see "You must select the question type you want to add."
+    And I press "OK"

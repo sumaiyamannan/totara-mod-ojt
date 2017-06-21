@@ -482,6 +482,57 @@ class question_goals extends reviewrating {
     }
 
     /**
+     * Can the reviewer see additional info about this item on another page?
+     *
+     * @param array $itemgroup collection of rating objects
+     * @return bool
+     */
+    public function can_view_more_info($itemgroup){
+        $goal = new goal();
+        $permissions = $goal->get_permissions(null, $this->subjectid);
+
+        $anyitemset = reset($itemgroup);
+        $anyitem = reset($anyitemset);
+        $scope = $anyitem->scope;
+
+        if ($scope == goal::SCOPE_PERSONAL) {
+            return $permissions['can_view_personal'];
+        } else if ($scope == goal::SCOPE_COMPANY) {
+            return $permissions['can_view_company'];
+        }
+
+        return false;
+    }
+
+    /**
+     * URL of page where the reviewer can see additional info about this item.
+     *
+     * @param array $itemgroup collection of rating objects
+     * @return moodle_url
+     */
+    public function get_more_info_url($itemgroup){
+        global $DB;
+        $anyitemset = reset($itemgroup);
+        $anyitem = reset($anyitemset);
+        $scope = $anyitem->scope;
+        if ($scope == goal::SCOPE_PERSONAL) {
+            return new moodle_url('/totara/hierarchy/prefix/goal/item/view.php',
+                array('id' => $anyitem->itemid)
+            );
+        } else if ($scope == goal::SCOPE_COMPANY) {
+            $goalid = $DB->get_field('goal_record', 'goalid', array('id' => $anyitem->itemid));
+            return new moodle_url('/totara/hierarchy/item/view.php',
+                array(
+                    'id' => $goalid,
+                    'prefix' => "goal"
+                )
+            );
+        }
+
+        return parent::get_more_info_url($itemgroup);
+    }
+
+    /**
      * Custom set value for question instance
      *
      * @param stdClass $data

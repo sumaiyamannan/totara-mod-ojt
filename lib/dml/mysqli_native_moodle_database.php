@@ -1849,4 +1849,47 @@ class mysqli_native_moodle_database extends moodle_database {
 
         return true;
     }
+
+    /**
+     * Get a number of records as a moodle_recordset and count of rows without limit statement using a SQL statement.
+     * This is usefull for pagination to avoid second COUNT(*) query.
+     *
+     * IMPORTANT NOTES:
+     *   - Wrap queries with UNION in single SELECT. Otherwise an incorrect count will ge given.
+     *   - If query has a "SELECT" as column, it must have FROM otherwise state may be lost and the query will fail.
+     *     Known to affect MSSQL see mssql_native_moodle_database::add_count_over_column().
+     *
+     * Since this method is a little less readable, use of it should be restricted to
+     * code where it's possible there might be large datasets being returned.  For known
+     * small datasets use get_records_sql - it leads to simpler code.
+     *
+     * The return type is like {@link function get_recordset}.
+     *
+     * @since Totara 2.6.45, 2.7.28, 2.9.20, 9.8
+     *
+     * @param string $sql the SQL select query to execute.
+     * @param array $params array of sql parameters (optional)
+     * @param int $limitfrom return a subset of records, starting at this point (optional).
+     * @param int $limitnum return a subset comprising this many records (optional, required if $limitfrom is set).
+     * @param int &$count this variable will be filled with count of rows returned by select without limit statement
+     * @return counted_recordset A moodle_recordset instance.
+     * @throws dml_exception A DML specific exception is thrown for any errors.
+     */
+    public function get_counted_recordset_sql($sql, array $params=null, $limitfrom = 0, $limitnum = 0, &$count = 0) {
+        global $CFG;
+
+        require_once($CFG->libdir.'/dml/counted_recordset.php');
+
+        $replacestr = '$1 SELECT SQL_CALC_FOUND_ROWS $2 FROM';
+        $sqlcnt = preg_replace('/^([\s(])*SELECT([\s]+.*[\s]+)FROM/isU', $replacestr, $sql, 1);
+
+        $recordset = $this->get_recordset_sql($sqlcnt, $params, $limitfrom, $limitnum);
+
+        // Get count.
+        $mysqlcount = $this->get_field_sql("SELECT FOUND_ROWS()");
+        $recordset = new counted_recordset($recordset, $mysqlcount);
+        $count = $recordset->get_count_without_limits();
+
+        return $recordset;
+    }
 }

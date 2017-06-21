@@ -387,6 +387,26 @@ abstract class review extends multichoice {
         return true;
     }
 
+    /**
+     * Can the reviewer see additional info about this item on another page?
+     *
+     * @param array $itemgroup collection of rating objects
+     * @return bool
+     */
+    public function can_view_more_info($itemgroup){
+        return false;
+    }
+
+    /**
+     * URL of page where the reviewer can see additional info about this item.
+     *
+     * @param array $itemgroup collection of rating objects
+     * @return moodle_url
+     */
+    public function get_more_info_url($itemgroup){
+        return new moodle_url('');
+    }
+
 
     /**
      * Common for review questions form

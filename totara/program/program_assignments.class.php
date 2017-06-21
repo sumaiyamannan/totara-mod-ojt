@@ -1504,6 +1504,9 @@ class individuals_category extends prog_assignment_category {
     }
 }
 
+/**
+ * Class user_assignment
+ */
 class user_assignment {
     public $userid, $assignment, $timedue;
 
@@ -1533,6 +1536,7 @@ class user_assignment {
 
             $DB->update_record('prog_completion', $completion_todb);
 
+            prog_write_completion_log($this->programid, $this->userid, 'Completion timedue updated using deprecated class user_assignment');
             return true;
         }
 

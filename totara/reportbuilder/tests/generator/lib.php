@@ -570,7 +570,7 @@ class totara_reportbuilder_cache_generator extends testing_data_generator {
      *
      * @param int $userid User id
      * @param array|stdClass $record Ovveride default properties
-     * @return stdClass Program record
+     * @return development_plan
      */
     public function create_plan($userid, $record = array()) {
         global $CFG, $DB;

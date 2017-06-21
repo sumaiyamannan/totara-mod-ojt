@@ -420,3 +420,38 @@ Feature: Take attendance for a seminar with multiple sessions
     And I follow "course1"
     And I click on "More details" "link"
     And I should see date "-10 day Europe/London" formatted "%d %B %Y"
+
+  Scenario: Take attendance with minimum permissions
+    Given the following "users" exist:
+      | username | firstname | lastname | email             |
+      | taker    | taker     | taker    | taker@example.com |
+    And the following "permission overrides" exist:
+      | capability                     | permission | role       | contextlevel | reference |
+      | mod/facetoface:addattendees    | Prohibit   | teacher    | Course       | course1   |
+      | mod/facetoface:addinstance     | Prohibit   | teacher    | Course       | course1   |
+      | mod/facetoface:editevents      | Prohibit   | teacher    | Course       | course1   |
+      | mod/facetoface:removeattendees | Prohibit   | teacher    | Course       | course1   |
+      | mod/facetoface:takeattendance  | Allow      | teacher    | Course       | course1   |
+    And the following "course enrolments" exist:
+      | user  | course  | role    |
+      | taker | course1 | teacher |
+    And I click on "Find Learning" in the totara menu
+    And I follow "course1"
+    And I click on "View all events" "link"
+    And I click on "Attendees" "link" in the "earlier session" "table_row"
+    And I click on "Add users" "option" in the "#menuf2f-actions" "css_element"
+    And I click on "first1 last1, user1@example.com" "option"
+    And I press "Add"
+    And I wait until the page is ready
+    And I press "Continue"
+    And I press "Confirm"
+    And I log out
+    When I log in as "taker"
+    And I click on "Find Learning" in the totara menu
+    And I follow "course1"
+    And I click on "seminar1" "link"
+    And I click on "Attendees" "link" in the "earlier session" "table_row"
+    And I switch to "Take attendance" tab
+    And I click on "Fully attended" "option" in the "first1 last1" "table_row"
+    And I press "Save attendance"
+    Then I should see "Successfully updated attendance"

@@ -210,6 +210,10 @@ class enrol_totara_program_plugin extends enrol_plugin {
      *
      * This should return either a timestamp in the future or false.
      *
+     * This function checks if the given course is in a course set group which is currently available
+     * to the user. In certifications, when a user is on a path which doesn't contain the given
+     * course, the user will not be able to enrol.
+     *
      * @param stdClass $instance course enrol instance
      * @return bool|int false means not enrolled, integer means timeend
      */

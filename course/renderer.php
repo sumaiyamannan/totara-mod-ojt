@@ -569,7 +569,7 @@ class core_course_renderer extends plugin_renderer_base {
         $output .= html_writer::start_div('input-group');
         $output .= html_writer::tag('label', $strsearchcourses, array('for' => $inputid, 'class' => 'sr-only'));
         $search = array('type' => 'text', 'id' => $inputid, 'size' => $inputsize, 'name' => 'search',
-            'class' => 'form-control', 'value' => s($value), 'placeholder' => $strsearchcourses);
+            'class' => 'form-control', 'value' => $value, 'placeholder' => $strsearchcourses);
         $output .= html_writer::empty_tag('input', $search);
         $button = array('type' => 'submit', 'class' => 'btn btn-default');
         $output .= html_writer::start_span('input-group-btn');
@@ -1217,7 +1217,8 @@ class core_course_renderer extends plugin_renderer_base {
         // course name
         require_once($CFG->dirroot . "/totara/core/utils.php");
         require_once($CFG->dirroot . "/totara/coursecatalog/lib.php");
-        $coursename = $chelper->get_course_formatted_name($course);
+        // We are displaying the name using html_writer which will escape the html
+        $coursename = $chelper->get_course_formatted_name($course, array('escape' => false));
         $dimmed = totara_get_style_visibility($course);
         $coursenamelink = html_writer::link(
             new moodle_url('/course/view.php', array('id' => $course->id)),

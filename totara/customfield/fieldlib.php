@@ -168,7 +168,7 @@ class customfield_base {
 
         $errors = array();
         /// Check for uniqueness of data if required
-        if ($this->is_unique()) {
+        if ($this->is_unique() && isset($itemnew->{$this->inputname})) {
 
             switch ($this->field->datatype) {
                 case 'menu':

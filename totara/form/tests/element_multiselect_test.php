@@ -239,6 +239,60 @@ class totara_form_element_multiselect_testcase extends advanced_testcase {
         $this->assertSame($expected, $data);
     }
 
+    public function test_current() {
+        global $OUTPUT;
+
+        $definition = new test_definition($this,
+            function (model $model, advanced_testcase $testcase) {
+                $options = array('1' => 'One', '' => 'Nothing', 'a' => 'lower a', 'A' => 'UPPER A');
+                $model->add(new multiselect('somemultiselect1', 'Some select 1', $options));
+                $model->add(new multiselect('somemultiselect2', 'Some select 2', $options));
+                $model->add(new multiselect('somemultiselect3', 'Some select 3', $options));
+                $model->add(new multiselect('somemultiselect4', 'Some select 4', $options));
+                $model->add(new multiselect('somemultiselect5', 'Some select 5', $options));
+            });
+        test_form::phpunit_set_definition($definition);
+
+        test_form::phpunit_set_post_data(null);
+        $currentdata = array(
+            'somemultiselect1' => array(1),
+            'somemultiselect2' => array('1'),
+            'somemultiselect3' => array(''),
+            'somemultiselect4' => array('a'),
+        );
+        $form = new test_form($currentdata);
+        $data = $form->export_for_template($OUTPUT);
+
+        $this->assertSame('somemultiselect1', $data['items'][0]['name']);
+        $this->assertSame('One', $data['items'][0]['options'][0]['text']);
+        $this->assertSame('1', $data['items'][0]['options'][0]['value']);
+        $this->assertTrue($data['items'][0]['options'][0]['selected']);
+
+        $this->assertSame('somemultiselect2', $data['items'][1]['name']);
+        $this->assertSame('One', $data['items'][1]['options'][0]['text']);
+        $this->assertSame('1', $data['items'][1]['options'][0]['value']);
+        $this->assertTrue($data['items'][1]['options'][0]['selected']);
+
+        $this->assertSame('somemultiselect3', $data['items'][2]['name']);
+        $this->assertSame('Nothing', $data['items'][2]['options'][1]['text']);
+        $this->assertSame('', $data['items'][2]['options'][1]['value']);
+        $this->assertTrue($data['items'][2]['options'][1]['selected']);
+
+        $this->assertSame('somemultiselect4', $data['items'][3]['name']);
+        $this->assertSame('lower a', $data['items'][3]['options'][2]['text']);
+        $this->assertSame('a', $data['items'][3]['options'][2]['value']);
+        $this->assertTrue($data['items'][3]['options'][2]['selected']);
+        $this->assertSame('UPPER A', $data['items'][3]['options'][3]['text']);
+        $this->assertSame('A', $data['items'][3]['options'][3]['value']);
+        $this->assertFalse($data['items'][3]['options'][3]['selected']);
+
+        $this->assertSame('somemultiselect5', $data['items'][4]['name']);
+        $this->assertFalse($data['items'][4]['options'][0]['selected']);
+        $this->assertFalse($data['items'][4]['options'][1]['selected']);
+        $this->assertFalse($data['items'][4]['options'][2]['selected']);
+        $this->assertFalse($data['items'][4]['options'][3]['selected']);
+    }
+
     public function test_extra_params() {
         $definition = new test_definition($this,
             function (model $model, advanced_testcase $testcase) {

@@ -72,11 +72,13 @@ if ($hassiteconfig || $hasmodconfig) {
         /** @var \core\plugininfo\message $plugin */
         $plugin->load_settings($ADMIN, 'messageoutputs', $hassiteconfig);
     }
+}
 
-    // authentication plugins
-    $ADMIN->add('modules', new admin_category('authsettings', new lang_string('authentication', 'admin')));
+// authentication plugins
+$ADMIN->add('modules', new admin_category('authsettings', new lang_string('authentication', 'admin')));
 
-    $temp = new admin_settingpage('manageauths', new lang_string('authsettings', 'admin'));
+$temp = new admin_settingpage('manageauths', new lang_string('authsettings', 'admin'));
+if ($ADMIN->fulltree) {
     $temp->add(new admin_setting_manageauths());
     $temp->add(new admin_setting_heading('manageauthscommonheading', new lang_string('commonsettings', 'admin'), ''));
     // Totara user delete hack.
@@ -115,16 +117,18 @@ if ($hassiteconfig || $hasmodconfig) {
 
     $temp->add(new admin_setting_configtext('recaptchapublickey', new lang_string('recaptchapublickey', 'admin'), new lang_string('configrecaptchapublickey', 'admin'), '', PARAM_NOTAGS));
     $temp->add(new admin_setting_configtext('recaptchaprivatekey', new lang_string('recaptchaprivatekey', 'admin'), new lang_string('configrecaptchaprivatekey', 'admin'), '', PARAM_NOTAGS));
-    $ADMIN->add('authsettings', $temp);
+}
+$ADMIN->add('authsettings', $temp);
 
-    $temp = new admin_externalpage('authtestsettings', get_string('testsettings', 'core_auth'), new moodle_url("/auth/test_settings.php"), 'moodle/site:config', true);
-    $ADMIN->add('authsettings', $temp);
+$temp = new admin_externalpage('authtestsettings', get_string('testsettings', 'core_auth'), new moodle_url("/auth/test_settings.php"), 'moodle/site:config', true);
+$ADMIN->add('authsettings', $temp);
 
-    foreach (core_plugin_manager::instance()->get_plugins_of_type('auth') as $plugin) {
-        /** @var \core\plugininfo\auth $plugin */
-        $plugin->load_settings($ADMIN, 'authsettings', $hassiteconfig);
-    }
+foreach (core_plugin_manager::instance()->get_plugins_of_type('auth') as $plugin) {
+    /** @var \core\plugininfo\auth $plugin */
+    $plugin->load_settings($ADMIN, 'authsettings', $hassiteconfig);
+}
 
+if ($hassiteconfig || $hasmodconfig) {
     // Enrolment plugins
     $ADMIN->add('modules', new admin_category('enrolments', new lang_string('enrolments', 'enrol')));
     $temp = new admin_settingpage('manageenrols', new lang_string('manageenrols', 'enrol'));

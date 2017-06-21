@@ -1006,7 +1006,7 @@ function dp_display_plans_menu($userid, $selectedid=0, $role='learner', $rolpage
     $out .= $OUTPUT->container_end();
 
     $fake_block = new block_contents();
-    $fake_block->title = get_string('learningplans', 'totara_plan');;
+    $fake_block->title = get_string('learning', 'totara_plan');
     $fake_block->content = $out;
     $PAGE->blocks->add_fake_block($fake_block, '');
 }

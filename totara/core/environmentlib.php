@@ -90,3 +90,61 @@ function totara_core_linear_upgrade_check(environment_results $result) {
     // Everything is fine, no need for any info.
     return null;
 }
+
+/**
+ * Used to recursively check a DOMDocument for a given string.
+ *
+ * @param DOMDocument|DOMElement $dom
+ * @param string $text
+ * @return bool true if string found, false if not.
+ */
+function totara_core_xml_external_entities_check_searchdom($dom, $text) {
+    $found = false;
+    /** @var DOMElement $childNode */
+    foreach($dom->childNodes as $childNode) {
+        if (strpos($childNode->nodeValue, $text) !== false) {
+            $found = true;
+            break;
+        }
+        if ($childNode->hasChildNodes()) {
+            if ($found = totara_core_xml_external_entities_check_searchdom($childNode, $text)) {
+                break;
+            }
+        }
+    }
+
+    return $found;
+}
+
+/**
+ * Checks whether xml loaded with one of the libraries that uses libxml, we've chosen DOMDocument here,
+ * are loading external entities by default. If they are, this means parts of the site could be
+ * vulnerable to local file inclusion. Recent versions of PHP and libxml should not have this vulnerability.
+ *
+ * @param environment_results $result
+ * @return environment_results|null - null is returned if check finds nothing wrong.
+ */
+function totara_core_xml_external_entities_check(environment_results $result) {
+    global $CFG;
+
+    if (!class_exists('DOMDocument')) {
+        // They should have libxml installed to have loaded the environment.xml, but perhaps this particular class
+        // is not enabled somehow. It's unlikely and this is the class referenced in security discussions
+        // so is the best to test against.
+        $result->setInfo('DOMDocument class not found. Cannot perform security check regarding XML loading external entities by default.');
+        $result->setStatus(false);
+        return $result;
+    }
+
+    $dom = new DOMDocument();
+    $dom->load($CFG->dirroot . "/totara/core/tests/fixtures/extentities.xml");
+
+    if (totara_core_xml_external_entities_check_searchdom($dom, 'filetext')) {
+        $result->setInfo('An XML library loaded an external entity by default. This represents a security risk. Consider upgrading versions of PHP and/or libxml to resolve this.');
+        $result->setStatus(false);
+        return $result;
+    }
+
+    // The test passed, no text from the external file was found.
+    return null;
+}

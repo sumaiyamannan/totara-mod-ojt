@@ -53,16 +53,29 @@ class block_totara_certifications extends block_base {
         $certifications = array();
 
         $sql = "SELECT p.id as pid, p.fullname, cfc.timewindowopens, cfc.certifpath
-                FROM {prog} p
-                JOIN {certif_completion} cfc ON (cfc.certifid = p.certifid AND cfc.userid = ?)
-                WHERE p.visible = 1
-                    AND (cfc.certifpath = ?
-                         OR (cfc.certifpath = ? AND cfc.renewalstatus = ?))
-                ORDER BY cfc.timewindowopens DESC";
+                  FROM {prog} p
+            INNER JOIN {certif_completion} cfc
+                    ON (cfc.certifid = p.certifid AND cfc.userid = :uid)
+                 WHERE p.visible = 1
+                   AND (cfc.certifpath = :cert OR (cfc.certifpath = :recert AND cfc.renewalstatus = :due))
+                   AND EXISTS (SELECT id
+                                 FROM {prog_user_assignment} pua
+                                WHERE pua.userid = cfc.userid
+                                  AND pua.programid = p.id
+                                  AND pua.exceptionstatus <> :raised
+                                  AND pua.exceptionstatus <> :dismissed
+                       )
+              ORDER BY cfc.timewindowopens DESC";
 
         // As timewindowopens is 0 for CERTs they will come at top, in any order.
 
-        $renewals = $DB->get_records_sql($sql, array($USER->id, CERTIFPATH_CERT, CERTIFPATH_RECERT, CERTIFRENEWALSTATUS_DUE));
+        $params = array('uid' => $USER->id,
+                       'cert' => CERTIFPATH_CERT,
+                     'recert' => CERTIFPATH_RECERT,
+                        'due' => CERTIFRENEWALSTATUS_DUE,
+                     'raised' => PROGRAM_EXCEPTION_RAISED,
+                  'dismissed' => PROGRAM_EXCEPTION_DISMISSED);
+        $renewals = $DB->get_records_sql($sql, $params);
 
         foreach ($renewals as $renewal) {
             $certification = new stdClass();

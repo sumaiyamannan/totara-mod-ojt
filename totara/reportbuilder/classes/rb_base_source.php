@@ -879,6 +879,11 @@ abstract class rb_base_source {
             return $fullname;
         }
 
+        if ($row->id == 0) {
+            // No user id means no link, most likely the fullname is empty anyway.
+            return $fullname;
+        }
+
         $url = new moodle_url('/user/view.php', array('id' => $row->id));
         if ($fullname === '') {
             return '';

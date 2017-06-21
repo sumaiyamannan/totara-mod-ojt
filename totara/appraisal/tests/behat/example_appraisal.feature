@@ -256,7 +256,7 @@ Feature: Complete the example appraisal
     And I click on "Save" "button" in the "Choose competencies to review" "totaradialogue"
     And I wait "1" seconds
     Then I should see "Competency One (Learner One Learning Plan)"
-    When I click on "Delete" "link"
+    When I click on "Remove" "link"
     And I click on "Yes" "button" in the "Confirmation" "dialogue"
     And I wait "1" seconds
     Then I should not see "Competency One (Learner One Learning Plan)"

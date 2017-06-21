@@ -65,7 +65,7 @@ class rb_plan_courses_embedded extends rb_base_embedded {
                 'heading' => get_string('course_completion_previous_completion', 'rb_source_dp_course'),
             ),
             array(
-                'type' => 'course_completion',
+                'type' => 'plan',
                 'value' => 'statusandapproval',
                 'heading' => get_string('progress', 'rb_source_dp_course'),
             ),

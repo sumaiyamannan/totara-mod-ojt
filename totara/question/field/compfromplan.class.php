@@ -187,6 +187,36 @@ class question_compfromplan extends reviewrating {
     }
 
     /**
+     * Can the reviewer see additional info about this item on another page?
+     *
+     * @param array $itemgroup collection of rating objects
+     * @return bool
+     */
+    public function can_view_more_info($itemgroup){
+        return dp_can_view_users_plans($this->subjectid);
+    }
+
+    /**
+     * URL of page where the reviewer can see additional info about this item.
+     *
+     * @param array $itemgroup collection of rating objects
+     * @return moodle_url
+     */
+    public function get_more_info_url($itemgroup){
+        global $DB;
+
+        $currentuseritem = reset($itemgroup[$this->answerid]);
+        $planid = $DB->get_field('dp_plan_competency_assign', 'planid', array('id'=>$currentuseritem->itemid));
+
+        return new moodle_url('/totara/plan/components/competency/view.php',
+            array(
+                'itemid' => $currentuseritem->itemid,
+                'id' => $planid
+            )
+        );
+    }
+
+    /**
      * Get items that have already been added to the review question, so that they can be excluded from the selection dialog.
      *
      * @param int $planid

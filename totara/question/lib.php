@@ -452,14 +452,28 @@ abstract class question_base {
     }
 
     /**
+     * Returns whether a collapsible 'header' form element should be used for this question.
+     *
+     * @return bool
+     */
+    protected function add_header() {
+        return true;
+    }
+
+    /**
      * Populate edit form with question elements
      * @param MoodleQuickForm $form
      */
     public function add_field_form_elements(MoodleQuickForm $form) {
         $this->formsent = true;
 
-        // Adding the header causes a new div to start in the output, containing all following elements until the next header.
-        $form->addElement('header', 'question', format_string($this->name));
+        if ($this->add_header()) {
+            $form->addElement('header', 'question', format_string($this->name));
+        } else {
+            $form->addElement('static', 'header-placeholder' . $this->answerid);
+            $form->closeHeaderBefore('header-placeholder' . $this->answerid);
+            $form->addElement('html', html_writer::start_div('totara-question-nonfieldset-item'));
+        }
 
         if ($this->cananswer) {
             if (!empty($this->viewers)) {
@@ -479,6 +493,11 @@ abstract class question_base {
             if ($question->cananswer) {
                 $question->add_field_specific_view_elements($form);
             }
+        }
+
+        if (!$this->add_header()) {
+            // Close the div with class = totara-question-nonfieldset-item.
+            $form->addElement('html', html_writer::end_div());
         }
     }
 

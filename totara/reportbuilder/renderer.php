@@ -546,6 +546,7 @@ class totara_reportbuilder_renderer extends plugin_renderer_base {
      */
     public function export_select($report, $sid = 0) {
         global $CFG, $PAGE;
+        require_once($CFG->dirroot . '/totara/reportbuilder/export_form.php');
 
         $exportlimit = get_config('reportbuilder', 'exportadhoclimit');
         if (!empty($exportlimit) && $report->get_filtered_count() > $exportlimit) {
@@ -559,6 +560,7 @@ class totara_reportbuilder_renderer extends plugin_renderer_base {
             $url = $report->get_current_url();
         } else {
             $id = $report;
+            $report = new reportbuilder($id);
             if ($PAGE->has_set_url()) {
                 $url = $PAGE->url;
             } else {
@@ -570,8 +572,13 @@ class totara_reportbuilder_renderer extends plugin_renderer_base {
                 }
             }
         }
-        require_once($CFG->dirroot . '/totara/reportbuilder/export_form.php');
-        $export = new report_builder_export_form($url, compact('id', 'sid'), 'post', '', array('id' => 'rb_export_form'));
+
+        $extparams = array();
+        foreach ($report->get_current_params() as $param) {
+            $extparams[$param->name] = $param->value;
+        }
+
+        $export = new report_builder_export_form($url, compact('id', 'sid', 'extparams'), 'post', '', array('id' => 'rb_export_form'));
         $export->display();
     }
 

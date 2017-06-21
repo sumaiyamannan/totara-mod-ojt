@@ -118,35 +118,46 @@ abstract class backup_structure_dbops extends backup_dbops {
     public static function annotate_files($backupid, $contextid, $component, $filearea, $itemid,
             \core\progress\base $progress = null) {
         global $DB;
-        $sql = 'SELECT id
-                  FROM {files}
-                 WHERE contextid = ?
-                   AND component = ?';
-        $params = array($contextid, $component);
 
-        if (!is_null($filearea)) { // Add filearea to query and params if necessary
-            $sql .= ' AND filearea = ?';
-            $params[] = $filearea;
+        $conditions = array(
+            'contextid' => $contextid,
+            'component' => $component
+        );
+        if (!is_null($filearea)) {
+            // Add filearea to query and params if necessary.
+            $conditions['filearea'] = $filearea;
         }
-
-        if (!is_null($itemid)) { // Add itemid to query and params if necessary
-            $sql .= ' AND itemid = ?';
-            $params[] = $itemid;
+        if (!is_null($itemid)) {
+            // Add itemid to query and params if necessary.
+            $conditions['itemid'] = $itemid;
         }
         if ($progress) {
             $progress->start_progress('');
         }
-        $rs = $DB->get_recordset_sql($sql, $params);
-        foreach ($rs as $record) {
-            if ($progress) {
-                $progress->progress();
+
+        $from = 0;
+        $limit = $DB->get_max_in_params();
+        while ($ids = $DB->get_records_menu('files', $conditions, 'id DESC', 'id, 1', $from, $limit)) {
+            $count = 0; // Do not use count($ids) here because PHP counts on big arrays may be very slow.
+            foreach ($ids as $id => $unused) {
+                $count++;
+                if ($progress) {
+                    $progress->progress();
+                }
+                self::insert_backup_ids_record($backupid, 'file', $id);
             }
-            self::insert_backup_ids_record($backupid, 'file', $record->id);
+
+            if ($count < $limit) {
+                // The next get_records_menu() is not going to return anything.
+                break;
+            }
+
+            $from += $limit;
         }
+
         if ($progress) {
             $progress->end_progress();
         }
-        $rs->close();
     }
 
     /**
@@ -157,24 +168,61 @@ abstract class backup_structure_dbops extends backup_dbops {
      * @param string $itemname Item name
      * @param \core\progress\base $progress Progress tracker
      */
-    public static function move_annotations_to_final($backupid, $itemname, \core\progress\base $progress) {
+    public static function move_annotations_to_final($backupid, $itemname, \core\progress\base $progress = null) {
         global $DB;
-        $progress->start_progress('move_annotations_to_final');
-        $rs = $DB->get_recordset('backup_ids_temp', array('backupid' => $backupid, 'itemname' => $itemname));
-        $progress->progress();
-        foreach($rs as $annotation) {
-            // If corresponding 'itemfinal' annotation does not exist, update 'item' to 'itemfinal'
-            if (! $DB->record_exists('backup_ids_temp', array('backupid' => $backupid,
-                                                              'itemname' => $itemname . 'final',
-                                                              'itemid' => $annotation->itemid))) {
-                $DB->set_field('backup_ids_temp', 'itemname', $itemname . 'final', array('id' => $annotation->id));
-            }
+
+        if ($progress) {
+            $progress->start_progress('move_annotations_to_final');
+        }
+
+        // There is a unique key on backupid + itemname + itemid.
+        // However appending "final" to the itemname can occur outside of this function, such as if
+        // some smart plugin knows best.
+        // In situations where there is a "final" version and a non final version we need to delete the non-final version.
+        // Database capabilities really affect how we do this, for instance
+        // MySQL cannot open the same temp table more than once in a query.
+        // This includes both select statements and delete statements.
+        // Annoying! but luckily there is a pattern to this madness.
+        // As we expect this to be a rarity we are going to just read out and then delete in batches.
+        // We are within a transaction here so we won't use a recordset.
+        // Remember though, we don't actually expect any duplicates, we expect to read once and then be done.
+        // So while this wouldn't perform well if there were lots of duplicates its going to be lightning fast
+        // because there are none!
+
+        $sql = 'SELECT b.itemid AS xid, b.itemid
+                  FROM {backup_ids_temp} b
+                 WHERE b.backupid = :backupid AND
+                       (b.itemname = :itemname OR b.itemname = :itemnamefinal)
+              GROUP BY b.itemid
+                HAVING COUNT(b.id) > 1';
+        $params = array(
+            'backupid' => $backupid,
+            'itemname' => $itemname,
+            'itemnamefinal' => $itemname . 'final',
+        );
+        $limit = $DB->get_max_in_params();
+        while ($itemids = $DB->get_records_sql_menu($sql, $params, 0, $limit)) {
+            // Watch out, something else knows better how to get the final values.
+            list($deletein, $deleteparams) = $DB->get_in_or_equal($itemids, SQL_PARAMS_NAMED, 'd');
+            $deleteselect = 'itemname = :itemname AND backupid = :backupid AND itemid ' . $deletein;
+            $deleteparams['itemname'] = $itemname;
+            $deleteparams['backupid'] = $backupid;
+            $DB->delete_records_select('backup_ids_temp', $deleteselect, $deleteparams);
+            // Do not worry about extra DB query to get out of the while loop, we are not likely to get here.
+        }
+
+        if ($progress) {
             $progress->progress();
         }
-        $rs->close();
-        // All the remaining $itemname annotations can be safely deleted
-        $DB->delete_records('backup_ids_temp', array('backupid' => $backupid, 'itemname' => $itemname));
-        $progress->end_progress();
+
+        // Next we need to append final to all itemnames.
+        $params = array('itemname' => $itemname, 'backupid' => $backupid);
+        $DB->set_field('backup_ids_temp', 'itemname', $itemname . 'final', $params);
+
+        // Step 2 is complete.
+        if ($progress) {
+            $progress->end_progress();
+        }
     }
 
     /**

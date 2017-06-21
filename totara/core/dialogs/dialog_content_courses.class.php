@@ -197,28 +197,24 @@ class totara_dialog_content_courses extends totara_dialog_content {
                 $where = '';
 
                 if ($this->requirecompletion || $this->requirecompletioncriteria) {
-                    $where = " enablecompletion = :enablecompletion AND ";
+                    $where = " c.enablecompletion = :enablecompletion AND ";
                     $params['enablecompletion'] = COMPLETION_ENABLED;
                     if ($this->requirecompletioncriteria) {
                         $where .= "
-                            id IN (
+                            EXISTS (
                                 SELECT
                                     course
                                 FROM
-                                    {course_completion_criteria} ccc
-                                INNER JOIN
-                                    {course} c
-                                 ON c.id = ccc.course
+                                    {course_completion_criteria}
                                 WHERE
-                                    c.category = :completioncat
+                                    course = c.id
                             )
                             AND
                         ";
-                        $params['completioncat'] = $this->categoryid;
                     }
                 }
 
-                $where .= " category = :dialogcoursecat ";
+                $where .= " c.category = :dialogcoursecat ";
                 $params['dialogcoursecat'] = $this->categoryid;
                 $params['userid'] = $userid;
                 $this->courses = $coursecat->get_course_records($where, $params, array(), true);

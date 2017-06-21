@@ -40,6 +40,11 @@ $userexists = !isguestuser($userid) && $DB->record_exists('user', array('id' => 
 // Check if the current user can edit the given user's job assignments.
 $canedit = $userexists && totara_job_can_edit_job_assignments($userid);
 
+// Special hack for auth_approved, we want to allow job selection when approving requests.
+if (!$userid and has_capability('totara/hierarchy:assignuserposition', context_system::instance())) {
+    $canedit = true;
+}
+
 // The current user can see a list of users if:
 //    They can edit the current users position.
 // OR

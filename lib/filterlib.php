@@ -678,11 +678,13 @@ function filter_is_enabled($filtername) {
  * Return a list of all the filters that may be in use somewhere.
  *
  * @staticvar array $enabledfilters
+ * @param bool $resetcache - if true, will ignore whether $enabledfilters was already set.
+ *      Since Totara 2.2.57, 2.4.51, 2.5.51, 2.6.44, 2.7.27, 2.9.19, 9.7, 10
  * @return array where the keys and values are both the filter name, like 'tex'.
  */
-function filter_get_globally_enabled() {
+function filter_get_globally_enabled($resetcache = false) {
     static $enabledfilters = null;
-    if (is_null($enabledfilters)) {
+    if (is_null($enabledfilters) or $resetcache) {
         $filters = filter_get_global_states();
         $enabledfilters = array();
         foreach ($filters as $filter => $filerinfo) {

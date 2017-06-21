@@ -133,7 +133,7 @@ class tool_totara_sync_user_csv_check_sanity_testcase extends advanced_testcase 
             'import_appraiseridnumber' => '1',
             'import_auth' => '0',
             'import_city' => '0',
-            'import_country' => '0',
+            'import_country' => '1',
             'import_deleted' => '1',
             'import_department' => '0',
             'import_description' => '0',
@@ -326,6 +326,12 @@ class tool_totara_sync_user_csv_check_sanity_testcase extends advanced_testcase 
         $badids = $element->check_user_sync_disabled($synctable);
         $this->assertEquals(array(30), $badids);
         $this->assertCount(27, $DB->get_records('totara_sync_log'));
+
+        // Check invalid country.
+        $badids = $element->check_invalid_countrycode($synctable);
+        sort($badids);
+        $this->assertEquals(array(32,33), $badids);
+        $this->assertCount(29, $DB->get_records('totara_sync_log')); // Warning was logged.
     }
 
     /**
@@ -364,9 +370,11 @@ class tool_totara_sync_user_csv_check_sanity_testcase extends advanced_testcase 
             26 => 'idnum026',
             30 => 'idnum030',
             // Record with idnum31 is not here because it was merged with just a warning.
+            32 => 'idnum032',
+            33 => 'idnum033',
         ), $invalididnumbers);
 
-        $this->assertEquals(27, count($DB->get_records('totara_sync_log')));
+        $this->assertEquals(29, count($DB->get_records('totara_sync_log')));
     }
 
 }

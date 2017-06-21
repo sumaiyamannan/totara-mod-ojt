@@ -164,9 +164,6 @@ Feature: Report builder table block
     And I set the following fields to these values:
       | Block title | Report sid access test |
       | Report | User report |
-    And I press "Save changes"
-    And I configure the "Report sid access test" block
-    And I set the following fields to these values:
       | Saved search | LearnerSearch |
     And I press "Save changes"
     And I should see "learner2" in the "Report sid access test" "block"

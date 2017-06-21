@@ -102,6 +102,7 @@ $string['bydateenable'] = 'Show records based on the record date';
 $string['bytrainerenable'] = 'Show records by trainer';
 $string['byuserenable'] = 'Show records by user';
 $string['cache'] = 'Enable Report Caching';
+$string['cachedef_rb_source_directories'] = 'Report builder source directory path cache';
 $string['cachegenfail'] = 'The last attempt to generate cache failed. Please try again later.';
 $string['cachegenstarted'] = 'Cache generation started at {$a}. This process can take several minutes.';
 $string['cachenow'] = 'Generate Now';

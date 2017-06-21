@@ -1,6 +1,10 @@
 This files describes API changes in core libraries and APIs,
 information provided here is intended especially for developers.
 
+=== 9.7 ===
+
+* filter_get_globally_enabled() added first argument $resetcache
+
 === 9.5 ===
 
 * Upgraded jQuery 2.2.1 to 2.2.4

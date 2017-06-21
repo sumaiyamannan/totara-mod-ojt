@@ -138,9 +138,14 @@ class rb_filter_grpconcat_jobassignment extends rb_filter_hierarchy_multi {
      * @param object $mform a MoodleForm object to setup
      */
     function setupForm(&$mform) {
-        global $SESSION;
+        global $SESSION, $DB;
         $label = format_string($this->label);
         $advanced = $this->advanced;
+
+        // Get saved values.
+        if (isset($SESSION->reportbuilder[$this->report->get_uniqueid()][$this->name])) {
+            $saved = $SESSION->reportbuilder[$this->report->get_uniqueid()][$this->name];
+        }
 
         // Container for currently selected items.
         $objs = array();
@@ -149,6 +154,22 @@ class rb_filter_grpconcat_jobassignment extends rb_filter_hierarchy_multi {
 
 
         $content = html_writer::tag('div', '', array('class' => 'list-' . $this->name));
+
+        // Create list of saved items.
+        if (isset($saved['value'])) {
+            list($insql, $inparams) = $DB->get_in_or_equal(explode(',', $saved['value']));
+            $items = $DB->get_records_select($this->jobjoin, "id {$insql}", $inparams);
+            if (!empty($items)) {
+                $list = html_writer::start_tag('div', array('class' => 'list-' . $this->name ));
+                foreach ($items as $item) {
+                    $list .= display_selected_item($this->shortname, $item, $this->name);
+                }
+                $list .= html_writer::end_tag('div');
+                $content .= $list;
+            }
+        }
+
+        // Add choose link.
         $content .= display_choose_items_link($this->name, $this->shortname);
 
         $objs['static'] = $mform->createElement('static', $this->name . '_list', null, $content);
@@ -170,12 +191,11 @@ class rb_filter_grpconcat_jobassignment extends rb_filter_hierarchy_multi {
         $mform->setType($this->name, PARAM_SEQUENCE);
         $mform->setType($this->name . '_op', PARAM_INT);
 
-        // set default values
-        if (isset($SESSION->reportbuilder[$this->report->get_uniqueid()][$this->name])) {
-            $defaults = $SESSION->reportbuilder[$this->report->get_uniqueid()][$this->name];
-        }
-        if (isset($defaults['value'])) {
-            $mform->setDefault($this->name, $defaults['value']);
+        // Set saved values.
+        if (isset($saved)) {
+            $mform->setDefault($this->name, $saved['value']);
+            $mform->setDefault($this->name . '_op', $saved['operator']);
+            $mform->setDefault($this->name . '_child', $saved['children']);
         }
     }
 

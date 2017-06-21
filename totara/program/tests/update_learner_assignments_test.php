@@ -81,7 +81,6 @@ class totara_program_update_learner_assignments_testcase extends reportcache_adv
         $this->audienceusers[1] = array();
         for ($i = 0; $i < 20; $i++) {
             $this->users[$i] = $this->getDataGenerator()->create_user(array('firstname' => 'user' . $i));
-            $this->controluserids[] = $this->users[$i]->id;
             // Assign half of them (even $i) to audience[0], half of them (odd $i) to audience[1].
             cohort_add_member($this->audiences[$i % 2]->id, $this->users[$i]->id);
             $this->audienceusers[$i % 2][$i] = $this->users[$i];
@@ -150,7 +149,7 @@ class totara_program_update_learner_assignments_testcase extends reportcache_adv
     /**
      * Set individual assignments in a program.
      */
-    private function set_individual_assignments($program, $users, $completiontime = -1, $completionevent = 0) {
+    private function set_individual_assignments(program $program, $users, $completiontime = -1, $completionevent = 0, $completioninstance = 0) {
         $data = new stdClass();
         $data->id = $program->id;
         $data->item = array(ASSIGNTYPE_INDIVIDUAL => array());
@@ -162,7 +161,7 @@ class totara_program_update_learner_assignments_testcase extends reportcache_adv
             $data->item[ASSIGNTYPE_INDIVIDUAL][$user->id] = 1;
             $data->completiontime[ASSIGNTYPE_INDIVIDUAL][$user->id] = $completiontime;
             $data->completionevent[ASSIGNTYPE_INDIVIDUAL][$user->id] = $completionevent;
-            $data->completioninstance[ASSIGNTYPE_INDIVIDUAL][$user->id] = 0;
+            $data->completioninstance[ASSIGNTYPE_INDIVIDUAL][$user->id] = $completioninstance;
         }
 
         $category = new individuals_category();
@@ -2718,6 +2717,30 @@ class totara_program_update_learner_assignments_testcase extends reportcache_adv
         $this->assertLessThanOrEqual($timeafter, $progcoursesetcompletion1->timecompleted);
 
         $this->check_control_program();
+    }
+
+    /**
+     * When exceptions occur immediately on assignment, the timedue will be COMPLETION_TIME_NOT_SET. A bug was causing invalid
+     * timedues to be put on prog_completion records which had exceptions. This test prevents that problem from coming back.
+     */
+    public function test_exception_results_in_valid_timedue() {
+        global $DB;
+
+        // Assign a user with a completion time relative to a program that they are not in, which should result in an exception.
+        $user = $this->getDataGenerator()->create_user();
+        $otherprogid = -1;
+        $this->set_individual_assignments($this->program, array($user), '1 day', COMPLETION_EVENT_PROGRAM_COMPLETION, $otherprogid);
+
+        // Apply assignment changes.
+        $this->program->update_learner_assignments(true);
+
+        // Make sure the exception was generated.
+        $this->assertCount(1, $DB->get_records('prog_exception'));
+
+        // Make sure that the program completion record is still valid.
+        $progcompletion = prog_load_completion($this->program->id, $user->id);
+        $this->assertEmpty(prog_get_completion_errors($progcompletion));
+        $this->assertEquals(COMPLETION_TIME_NOT_SET, $progcompletion->timedue);
     }
 
     /*

@@ -18,11 +18,21 @@ Feature: Assign enrolled learning to cohort
       | user     | cohort |
       | learner1 | co1    |
       | learner2 | co1    |
+    And the following "categories" exist:
+      | name  | category | idnumber |
+      | Cat 1 | 0        | CAT1     |
+      | Cat 2 | 0        | CAT2     |
+      | Cat 3 | CAT1     | CAT3     |
     And the following "courses" exist:
-      | fullname | shortname |
-      | Course 1 | C1        |
-      | Course 2 | C2        |
-      | Course 3 | C3        |
+      | fullname | shortname | category | enablecompletion |
+      | Course 1 | C1        | 0        | 1                |
+      | Course 2 | C2        | 0        | 0                |
+      | Course 3 | C3        | 0        | 0                |
+      | Course 4 | C4        | CAT1     | 1                |
+      | Course 5 | C5        | CAT1     | 0                |
+      | Course 6 | C6        | CAT2     | 1                |
+      | Course 7 | C7        | CAT3     | 1                |
+      | Course 8 | C8        | CAT3     | 1                |
     And the following "programs" exist in "totara_program" plugin:
       | fullname  | shortname |
       | Program 1 | P1        |
@@ -672,3 +682,74 @@ Feature: Assign enrolled learning to cohort
     And I click on "OK" "link_or_button" in the "div[aria-describedby='course-cohorts-enrolled-dialog']" "css_element"
     Then I should see "Cohort 1" in the "course-cohorts-table-enrolled" "table"
     And I should not see "Cohort 2" in the "course-cohorts-table-enrolled" "table"
+
+  @javascript
+  Scenario: Check all courses are displayed correctly in the enrolled learning dialog
+    # Set completion criteria for courses: 1, 4, 6 and 8.
+    Given I click on "Find Learning" in the totara menu
+    And I follow "Course 1"
+    And I navigate to "Course completion" node in "Course administration"
+    And I click on "Condition: Manual self completion" "link"
+    And I click on "criteria_self_value" "checkbox"
+    And I press "Save changes"
+    And I click on "Find Learning" in the totara menu
+    And I follow "Course 4"
+    And I navigate to "Course completion" node in "Course administration"
+    And I click on "Condition: Manual self completion" "link"
+    And I press "Save changes"
+    And I click on "Find Learning" in the totara menu
+    And I follow "Course 6"
+    And I navigate to "Course completion" node in "Course administration"
+    And I click on "Condition: Manual self completion" "link"
+    And I press "Save changes"
+    And I click on "Find Learning" in the totara menu
+    And I follow "Course 8"
+    And I navigate to "Course completion" node in "Course administration"
+    And I click on "Condition: Manual self completion" "link"
+    And I press "Save changes"
+
+    When I navigate to "Audiences" node in "Site administration > Users > Accounts"
+    And I follow "Cohort 1"
+    And I follow "Enrolled learning"
+    And I press "Add courses"
+    And I follow "Miscellaneous"
+    Then I should see "Course 1" in the "Add Courses to Enrolled Learning" "totaradialogue"
+    And I should see "Course 2" in the "Add Courses to Enrolled Learning" "totaradialogue"
+    And I should see "Course 3" in the "Add Courses to Enrolled Learning" "totaradialogue"
+    And I should not see "Course 4" in the "Add Courses to Enrolled Learning" "totaradialogue"
+    And I should not see "Course 5" in the "Add Courses to Enrolled Learning" "totaradialogue"
+    And I should not see "Course 6" in the "Add Courses to Enrolled Learning" "totaradialogue"
+    And I should not see "Course 7" in the "Add Courses to Enrolled Learning" "totaradialogue"
+    And I should not see "Course 8" in the "Add Courses to Enrolled Learning" "totaradialogue"
+    And I click on "Miscellaneous" "link"
+
+    When I follow "Cat 1"
+    Then I should see "Course 4" in the "Add Courses to Enrolled Learning" "totaradialogue"
+    And I should see "Course 5" in the "Add Courses to Enrolled Learning" "totaradialogue"
+    And I should not see "Course 1" in the "Add Courses to Enrolled Learning" "totaradialogue"
+    And I should not see "Course 2" in the "Add Courses to Enrolled Learning" "totaradialogue"
+    And I should not see "Course 3" in the "Add Courses to Enrolled Learning" "totaradialogue"
+    And I should not see "Course 6" in the "Add Courses to Enrolled Learning" "totaradialogue"
+    And I should not see "Course 7" in the "Add Courses to Enrolled Learning" "totaradialogue"
+    And I should not see "Course 8" in the "Add Courses to Enrolled Learning" "totaradialogue"
+
+    When I follow "Cat 3"
+    Then I should see "Course 7" in the "Add Courses to Enrolled Learning" "totaradialogue"
+    And I should see "Course 8" in the "Add Courses to Enrolled Learning" "totaradialogue"
+    And I should see "Course 4" in the "Add Courses to Enrolled Learning" "totaradialogue"
+    And I should see "Course 5" in the "Add Courses to Enrolled Learning" "totaradialogue"
+    And I should not see "Course 1" in the "Add Courses to Enrolled Learning" "totaradialogue"
+    And I should not see "Course 2" in the "Add Courses to Enrolled Learning" "totaradialogue"
+    And I should not see "Course 3" in the "Add Courses to Enrolled Learning" "totaradialogue"
+    And I should not see "Course 6" in the "Add Courses to Enrolled Learning" "totaradialogue"
+    And I click on "Cat 1" "link"
+
+    When I follow "Cat 2"
+    Then I should see "Course 6" in the "Add Courses to Enrolled Learning" "totaradialogue"
+    And I should not see "Course 1" in the "Add Courses to Enrolled Learning" "totaradialogue"
+    And I should not see "Course 2" in the "Add Courses to Enrolled Learning" "totaradialogue"
+    And I should not see "Course 3" in the "Add Courses to Enrolled Learning" "totaradialogue"
+    And I should not see "Course 4" in the "Add Courses to Enrolled Learning" "totaradialogue"
+    And I should not see "Course 5" in the "Add Courses to Enrolled Learning" "totaradialogue"
+    And I should not see "Course 7" in the "Add Courses to Enrolled Learning" "totaradialogue"
+    And I should not see "Course 8" in the "Add Courses to Enrolled Learning" "totaradialogue"

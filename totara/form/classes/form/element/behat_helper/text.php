@@ -109,17 +109,9 @@ class text implements base {
         if ($this->context->running_javascript() && !$text->isVisible()) {
             throw new ExpectationException('Attempting to change a ' . $this->mytype . ' that is not visible', $this->context->getSession());
         }
-        $text->setValue($this->normalise_value_pre_set($value));
+        // Do not call any normalise_value_pre_set here,
+        // because it would end up in double normalisation in some cases,
+        // instead override this method to normalise the values if necessary.
+        $text->setValue($value);
     }
-
-    /**
-     * Normalises the given value prior to setting it.
-     *
-     * @param string $value
-     * @return string
-     */
-    protected function normalise_value_pre_set($value) {
-        return $value;
-    }
-
 }

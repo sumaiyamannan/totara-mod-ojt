@@ -62,6 +62,7 @@ function report_security_get_issue_list() {
         'report_security_check_webcron',
         'report_security_check_guest',
         'report_security_check_repositoryurl',
+        'report_security_check_xxe_risk',
     );
 }
 
@@ -227,18 +228,17 @@ function report_security_check_mediafilterswf($detailed=false) {
 
     $activefilters = filter_get_globally_enabled();
 
-    if (array_search('mediaplugin', $activefilters) !== false and !empty($CFG->filter_mediaplugin_enable_swf)) {
-        $result->status = REPORT_SECURITY_CRITICAL;
-        $result->info   = get_string('check_mediafilterswf_error', 'report_security');
+    if (array_search('mediaplugin', $activefilters) !== false and !empty($CFG->core_media_enable_swf)) {
+        $result->status = REPORT_SECURITY_WARNING;
+        $result->info   = get_string('check_mediafilterswf_warning', 'report_security');
     } else {
         $result->status = REPORT_SECURITY_OK;
         $result->info   = get_string('check_mediafilterswf_ok', 'report_security');
     }
 
     if ($detailed) {
-        $result->details = get_string('check_mediafilterswf_details', 'report_security');
+        $result->details = get_string('check_mediafilterswf_trusteddetails', 'report_security');
     }
-
     return $result;
 }
 
@@ -1025,6 +1025,41 @@ function report_security_check_cookiehttponly($detailed = false) {
 
     if ($detailed) {
         $result->details = get_string('check_cookiehttponly_details', 'report_security');
+    }
+
+    return $result;
+}
+
+/**
+ * Checks whether a DOM object will load contents of an external file by default when it loads XML.
+ *
+ * @param bool $detailed
+ * @return stdClass
+ */
+function report_security_check_xxe_risk($detailed = false) {
+    global $CFG;
+
+    require_once($CFG->dirroot . '/totara/core/environmentlib.php');
+
+    $result = new stdClass();
+    $result->issue   = 'report_security_check_xxe_risk';
+    $result->name    = get_string('check_xxe_risk_name', 'report_security');
+    $result->details = null;
+    $result->link = null;
+
+    $dom = new DOMDocument();
+    $dom->load($CFG->dirroot . "/totara/core/tests/fixtures/extentities.xml");
+    if (totara_core_xml_external_entities_check_searchdom($dom, 'filetext')) {
+        // This environment is vulnerable.
+        $result->status = REPORT_SECURITY_CRITICAL;
+        $result->info = get_string('check_xxe_risk_critical', 'report_security');
+    } else {
+        $result->status = REPORT_SECURITY_OK;
+        $result->info = get_string('check_xxe_risk_ok', 'report_security');
+    }
+
+    if ($detailed) {
+        $result->details = get_string('check_xxe_risk_details', 'report_security');
     }
 
     return $result;

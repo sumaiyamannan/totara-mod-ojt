@@ -55,17 +55,13 @@ class clean_enrolment_plugins_task extends \core\task\scheduled_task {
         }
 
         // Get program enrolment plugin.
-        /** @var \enrol_totara_program_plugin $program_plugin */
+        /* @var \enrol_totara_program_plugin $program_plugin */
         $program_plugin = enrol_get_plugin('totara_program');
 
         // Fix user enrolments for all programs.
-        $programs = $DB->get_records('prog');
-        $program_plugin = enrol_get_plugin('totara_program');
-        $debugging = debugging();
-
-        foreach ($programs as $program) {
-            prog_update_available_enrolments($program_plugin, $program->id, $debugging);
-        }
+        if (!prog_update_available_enrolments($program_plugin, null, debugging())) {
+            return false;
+        };
 
         // Fix courses that are in a courseset but do not have the enrolment plugin.
         $program_courses = prog_get_courses_associated_with_programs();

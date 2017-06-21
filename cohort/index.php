@@ -84,6 +84,7 @@ if (!empty($format)) {
     die;
 }
 
+$report->include_js();
 echo $OUTPUT->header();
 if ($debug) {
     $report->debug($debug);

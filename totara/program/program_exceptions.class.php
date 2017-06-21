@@ -235,7 +235,7 @@ class prog_exceptions_manager {
             throw new ProgramExceptionException(get_string('exceptionnotfound', 'totara_program'));
         }
 
-        if (!array_key_exists($exceptiontype, $this->exceptiontype_classnames)) {
+        if (!array_key_exists($exception->exceptiontype, $this->exceptiontype_classnames)) {
             throw new ProgramExceptionException(get_string('exceptiontypenotfound', 'totara_program'));
         }
 

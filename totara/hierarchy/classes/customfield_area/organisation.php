@@ -133,7 +133,7 @@ class organisation implements \totara_customfield\area {
         $conditions = array(
             'id' => reset($args)
         );
-        $organisationid = $DB->get_field('org_type_info_data', 'organisationid', $conditionis, MUST_EXIST);
+        $organisationid = $DB->get_field('org_type_info_data', 'organisationid', $conditions, MUST_EXIST);
         $allowaccess = self::can_view($organisationid);
 
         if ($allowaccess) {

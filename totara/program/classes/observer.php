@@ -350,6 +350,18 @@ class totara_program_observer {
         // Delete all the program user assignments for the user.
         $DB->delete_records('prog_user_assignment', array('userid' => $userid));
 
+        // Archive or keep prog_completion records, the same as if the user is being unassigned.
+        $progcompletions = prog_load_all_completions($userid);
+        foreach ($progcompletions as $progcompletion) {
+            prog_conditionally_delete_completion($progcompletion->programid, $userid);
+        }
+
+        // Archive or delete certif_completion records, the same as if the user is being unassigned.
+        $completions = certif_load_all_completions($userid);
+        foreach ($completions as $completion) {
+            certif_conditionally_delete_completion($completion['progcompletion']->programid, $userid);
+        }
+
         // Delete all the program exceptions for the user.
         $DB->delete_records('prog_exception', array('userid' => $userid));
 

@@ -961,6 +961,7 @@ $string['save'] = 'Save';
 $string['scales'] = 'Priority Scales';
 $string['scaleslocked'] = 'This template is in use and changing the scales will impact data integrity. Therefore Priority and Objective scales are locked and will not be updated when the workflow is changed.';
 $string['selectanevidencetype'] = 'Select an evidence type';
+$string['selectasdefault'] = 'Select {$a} as default';
 $string['selectedlinkedcompetenciesremovedfromcourse'] = 'The selected linked competencies have been removed from this course';
 $string['selectedlinkedcoursesremovedfromcompetency'] = 'The selected linked courses have been removed from this competency';
 $string['selectedlinkedcoursesremovedfromobjective'] = 'The selected linked courses have been removed from this objective';

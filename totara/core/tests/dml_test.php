@@ -397,4 +397,241 @@ class totara_core_dml_testcase extends database_driver_testcase {
 
         $dbman->drop_table($table);
     }
+
+    /**
+     * Test get_counted_records_sql() and get_counted_recordset_sql() methods
+     *
+     * @dataProvider trueFalseProvider
+     * @param bool $userecordset If true: get_counted_recordset_sql, false: get_counted_records_sql
+     */
+    public function test_get_counted_records_sql($userecordset) {
+        global $DB;
+        $DB = $this->tdb;
+        $dbman = $DB->get_manager();
+
+        $tablename = 'test_table';
+        $table = new xmldb_table('test_table');
+
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('parentid', XMLDB_TYPE_INTEGER, '10', null, null, null, null);
+        $table->add_field('orderby', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('groupid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('valchar', XMLDB_TYPE_CHAR, '225', null, null, null, null);
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
+        $dbman->create_table($table);
+
+        $expected_fields = array(
+            'id',
+            'parentid',
+            'orderby',
+            'groupid',
+            'valchar'
+        );
+
+        $text = str_repeat('š', 3999);
+
+        $ids = array();
+        $ids[0] = $DB->insert_record($tablename, (object)array('parentid' => null,    'orderby' => 15, 'groupid' => 12, 'valchar' => 'áéíóú'));
+        $ids[1] = $DB->insert_record($tablename, (object)array('parentid' => $ids[0], 'orderby' => 20, 'groupid' => 12, 'valchar' => '12345'));
+        $ids[2] = $DB->insert_record($tablename, (object)array('parentid' => null,    'orderby' =>  5, 'groupid' => 24, 'valchar' =>    null));
+        $ids[3] = $DB->insert_record($tablename, (object)array('parentid' => null,    'orderby' => 10, 'groupid' => 24, 'valchar' => 'abcde'));
+        $ids[4] = $DB->insert_record($tablename, (object)array('parentid' => $ids[3], 'orderby' => 12, 'groupid' => 36, 'valchar' => 'abc12'));
+        $ids[5] = $DB->insert_record($tablename, (object)array('parentid' => $ids[4], 'orderby' =>  4, 'groupid' => 36, 'valchar' => 'abc13'));
+        $ids[6] = $DB->insert_record($tablename, (object)array('parentid' => $ids[3], 'orderby' =>  8, 'groupid' => 47, 'valchar' => 'abcde'));
+        $ids[7] = $DB->insert_record($tablename, (object)array('parentid' => null,    'orderby' =>  6, 'groupid' => 58, 'valchar' => 'a\+1_'));
+        $ids[8] = $DB->insert_record($tablename, (object)array('parentid' => $ids[3], 'orderby' =>  3, 'groupid' => 58, 'valchar' =>    null));
+
+        // Prepare records array from recordset.
+        $makerecords = function($recordset) {
+            $records = array();
+            foreach ($recordset as $record) {
+                $rec = (array)$record;
+                $records[reset($rec)] = $record;
+            }
+            return $records;
+        };
+
+        // Zero query.
+        $sql = 'SeLeCt * FrOm {test_table} WHERE 1=0';
+        $count = 0;
+
+        if ($userecordset) {
+            $recordset = $DB->get_counted_recordset_sql($sql, array(), $count);
+            $this->assertSame($count, $recordset->get_count_without_limits());
+            $records = $makerecords($recordset);
+        } else {
+            $records = $DB->get_counted_records_sql($sql, array(), 0, 0, $count);
+        }
+
+        $this->assertCount(0, $records);
+        $this->assertSame(0, $count);
+
+        // Simple query.
+        $sql = 'SeLeCt * FrOm {test_table}';
+        $count = 0;
+        if ($userecordset) {
+            $recordset = $DB->get_counted_recordset_sql($sql, array(), 0, 0, $count);
+            $this->assertSame($count, $recordset->get_count_without_limits());
+            $records = $makerecords($recordset);
+            $this->assertCount(9, $records);
+        } else {
+            $records = $DB->get_counted_records_sql($sql, array(), 0, 0, $count);
+            $this->assertSame(9, $count);
+            $this->assertCount(9, $records);
+        }
+
+        $this->assertCount(9, $records);
+        $this->assertSame(9, $count);
+        $this->assertSame('abcde', $records[$ids[3]]->valchar);
+
+        // Verify that the records have the exact fields we expect.
+        foreach ($records as $record) {
+            $record_array = (array)$record;
+            $this->assertSame($expected_fields, array_keys($record_array));
+        }
+
+        // Simple query with limits.
+        $sql = 'SeLeCt id, valchar FrOm {test_table} ORDER BY id';
+        $count = 0;
+        if ($userecordset) {
+            $recordset = $DB->get_counted_recordset_sql($sql, array(), 4, 2, $count);
+            $this->assertSame($count, $recordset->get_count_without_limits());
+            $records = $makerecords($recordset);
+        } else {
+            $records = $DB->get_counted_records_sql($sql, array(), 4, 2, $count);
+        }
+
+        $this->assertCount(2, $records);
+        $this->assertSame(9, $count);
+        $this->assertSame('abc12', $records[$ids[4]]->valchar);
+        $this->assertSame('abc13', $records[$ids[5]]->valchar);
+
+        // Verify that the records have the exact fields we expect.
+        foreach ($records as $record) {
+            $record_array = (array)$record;
+            $this->assertSame(['id', 'valchar'], array_keys($record_array));
+        }
+
+        // The following tests is basically one complex query written in different way that should return the same result.
+        $complexassert = function($sql) use ($userecordset, $makerecords) {
+            global $DB;
+            $count = 0;
+            if ($userecordset) {
+                $recordset = $DB->get_counted_recordset_sql($sql, array('orderby' => 4), 1, 2, $count);
+                $this->assertSame($count, $recordset->get_count_without_limits());
+                $records = $makerecords($recordset);
+            } else {
+                $records = $DB->get_counted_records_sql($sql, array('orderby' => 4), 1, 2, $count);
+            }
+            $this->assertCount(2, $records);
+            $this->assertSame(5, $count);
+            $this->assertEquals(2, $records[10]->cnt);
+            $this->assertEquals(1, $records[12]->cnt);
+        };
+
+        // Complex one line query.
+        $sql = "SELECT MAX(tt1.orderby) as maxord, COUNT(tt2.valchar) as cnt, '$text' as long_text FROM {test_table} tt1 LEFT JOIN {test_table} tt2 ON tt2.parentid=tt1.id WHERE tt1.orderby > :orderby GROUP BY tt1.groupid ORDER BY tt1.groupid";
+        $complexassert($sql);
+
+        // Complex multi line query (line breaks in different places).
+        $sql = "
+        SELECT
+        MAX(tt1.orderby) as maxord,
+        COUNT(tt2.valchar) as cnt, '$text' as long_text
+        FROM {test_table} tt1
+        LEFT JOIN {test_table} tt2 ON tt2.parentid=tt1.id
+        WHERE tt1.orderby > :orderby
+        GROUP BY tt1.groupid
+        ORDER BY tt1.groupid";
+
+        $complexassert($sql);
+
+        $sql = "SELECT
+                  MAX(tt1.orderby) as maxord,
+                  COUNT(tt2.valchar) as cnt, '$text' as long_text
+                FROM
+                  {test_table} tt1
+                  LEFT JOIN {test_table} tt2
+                    ON tt2.parentid=tt1.id
+                WHERE
+                  tt1.orderby > :orderby
+                GROUP BY
+                  tt1.groupid
+                ORDER BY
+                  tt1.groupid";
+        $complexassert($sql);
+
+        // Complex one line query with sub query.
+        $sql = "SELECT MAX(tt1.orderby) as maxord, COUNT(tt2.valchar) as cnt, '$text' as long_text FROM {test_table} tt1 LEFT JOIN (SELECT * FROM {test_table} itt WHERE orderby > 2) tt2 ON tt2.parentid=tt1.id WHERE tt1.orderby > :orderby GROUP BY tt1.groupid ORDER BY tt1.groupid";
+        $complexassert($sql);
+
+        // Complex multi line sub queries (line breaks in different places).
+        $sql = "SELECT MAX(tt1.orderby) as maxord, COUNT(tt2.valchar) as cnt, '$text' as long_text FROM {test_table} tt1 LEFT JOIN (
+SELECT * FROM {test_table} itt WHERE orderby > 2) tt2 ON tt2.parentid=tt1.id WHERE tt1.orderby > :orderby GROUP BY tt1.groupid ORDER BY tt1.groupid";
+        $complexassert($sql);
+
+        $sql = "
+SELECT MAX(tt1.orderby) as maxord, COUNT(tt2.valchar) as cnt, '$text' as long_text
+FROM {test_table} tt1 LEFT JOIN (
+  SELECT *
+  FROM {test_table} itt
+  WHERE orderby > 2
+) tt2 ON tt2.parentid=tt1.id
+WHERE tt1.orderby > :orderby
+GROUP BY tt1.groupid
+ORDER BY tt1.groupid";
+        $complexassert($sql);
+
+        $sql = "
+  SELECT MAX(tt1.orderby) as maxord, COUNT(tt2.valchar) as cnt, '$text' as long_text
+  FROM
+    {test_table} tt1
+    LEFT JOIN (
+        SELECT
+          parentid,
+          valchar
+        FROM
+          {test_table}
+        WHERE
+          orderby > 2
+    ) tt2 ON tt2.parentid=tt1.id
+  WHERE
+    tt1.orderby > :orderby
+  GROUP BY
+    tt1.groupid
+  ORDER BY
+    tt1.groupid";
+        $complexassert($sql);
+
+        $sql = "
+  SELECT MAX(tt1.orderby) as maxord, COUNT(tt2.valchar) as cnt, (SELECT MAX(orderby) FROM {test_table}) as select_from
+  FROM
+    {test_table} tt1
+    LEFT JOIN (
+        SELECT
+          parentid,
+          valchar
+        FROM
+          {test_table}
+        WHERE
+          orderby > 2
+    ) tt2 ON tt2.parentid=tt1.id
+  WHERE
+    tt1.orderby > :orderby
+  GROUP BY
+    tt1.groupid
+  ORDER BY
+    tt1.groupid";
+        $complexassert($sql);
+
+        $dbman->drop_table($table);
+    }
+
+    /**
+     * Data provider that just returns two values: true and false
+     * Useful for running phpunit test in two modes
+     */
+    public static function trueFalseProvider() {
+        return [[true], [false]];
+    }
 }

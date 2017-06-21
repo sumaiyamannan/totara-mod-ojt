@@ -643,25 +643,7 @@ class dp_program_component extends dp_base_component {
 
         // first unassign the program from the plan
         if ($result = parent::unassign_item($item)) {
-
-            // create a new program instance
-            $program = new program($item->programid);
-
-            // check that the program is not also part of the user's required learning
-            if ($program->assigned_to_users_required_learning($userid)) {
-                return $result;
-            }
-
-            // check that the program is not assigned to any other learning plans
-            if ($program->assigned_to_users_non_required_learning($userid)) {
-                return $result;
-            }
-
-            // check that the program is not complete (don't delete the history record if the program has already been completed)
-            if (!prog_is_complete($program->id, $userid)) {
-                $result = $program->delete_completion_record($userid);
-            }
-            return $result;
+            prog_conditionally_delete_completion($item->programid, $userid);
         }
         return $result;
     }

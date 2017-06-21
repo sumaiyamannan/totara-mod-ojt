@@ -185,7 +185,7 @@ if ($viewanswer) {
             array('userid' => $viewas));
 }
 $form = new feedback360_answer_form(null, array('feedback360' => $feedback360, 'resp' => $respassignment, 'preview' => $preview,
-        'backurl' => $backurl));
+        'backurl' => $backurl), 'post', '', array('class' => 'totara-question-group'));
 
 // Process form submission.
 if ($form->is_submitted() && !$respassignment->is_completed()) {

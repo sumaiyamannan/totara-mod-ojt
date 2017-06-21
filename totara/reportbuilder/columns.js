@@ -694,23 +694,23 @@ M.totara_reportbuildercolumns = M.totara_reportbuildercolumns || {
      *
      */
     rb_get_btn_hide: function(reportid, colid) {
-        return $('<a href="' + M.cfg.wwwroot + '/totara/reportbuilder/columns.php?id=' + reportid + '&cid='+colid+'&h=1" class="hidecolbtn action-icon">' + this.hideicon +'</a>');
+        return $('<a href="' + M.cfg.wwwroot + '/totara/reportbuilder/columns.php?id=' + reportid + '&cid='+colid+'&h=1" title="' + M.util.get_string('hide', 'totara_reportbuilder') + '" class="hidecolbtn action-icon">' + this.hideicon +'</a>');
     },
 
     rb_get_btn_show: function(reportid, colid) {
-        return $('<a href="' + M.cfg.wwwroot + '/totara/reportbuilder/columns.php?id=' + reportid + '&cid='+colid+'&h=0" class="showcolbtn action-icon">' + this.showicon + '</a>');
+        return $('<a href="' + M.cfg.wwwroot + '/totara/reportbuilder/columns.php?id=' + reportid + '&cid='+colid+'&h=0" title="' + M.util.get_string('show', 'totara_reportbuilder') + '" class="showcolbtn action-icon">' + this.showicon + '</a>');
     },
 
     rb_get_btn_delete: function(reportid, colid) {
-        return $('<a href="' + M.cfg.wwwroot + '/totara/reportbuilder/columns.php?id=' + reportid + '&cid='+colid+'&d=1" class="deletecolbtn action-icon">' + this.deleteicon + '</a>');
+        return $('<a href="' + M.cfg.wwwroot + '/totara/reportbuilder/columns.php?id=' + reportid + '&cid='+colid+'&d=1" title="' + M.util.get_string('delete', 'totara_reportbuilder') + '" class="deletecolbtn action-icon">' + this.deleteicon + '</a>');
     },
 
     rb_get_btn_up: function(reportid, colid) {
-        return $('<a href="' + M.cfg.wwwroot + '/totara/reportbuilder/columns.php?id=' + reportid + '&cid='+colid+'&m=up" class="movecolupbtn action-icon">' + this.upicon + '</a>');
+        return $('<a href="' + M.cfg.wwwroot + '/totara/reportbuilder/columns.php?id=' + reportid + '&cid='+colid+'&m=up" title="' + M.util.get_string('moveup', 'totara_reportbuilder') + '" class="movecolupbtn action-icon">' + this.upicon + '</a>');
     },
 
     rb_get_btn_down: function(reportid, colid) {
-        return $('<a href="' + M.cfg.wwwroot + '/totara/reportbuilder/columns.php?id=' + reportid + '&cid='+colid+'&m=down" class="movecoldownbtn action-icon">' + this.downicon + '</a>');
+        return $('<a href="' + M.cfg.wwwroot + '/totara/reportbuilder/columns.php?id=' + reportid + '&cid='+colid+'&m=down" title="' + M.util.get_string('movedown', 'totara_reportbuilder') + '" class="movecoldownbtn action-icon">' + this.downicon + '</a>');
     },
 
     rb_get_btn_add: function(reportid) {

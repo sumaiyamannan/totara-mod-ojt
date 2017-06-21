@@ -461,4 +461,117 @@ class totara_program_observer_testcase extends reportcache_advanced_testcase {
         $this->assertEquals(0, $program1_record->assignmentsdeferred);
         $this->assertEquals(1, $program2_record->assignmentsdeferred);
     }
+
+    /**
+     * This test only covers what happens to the program and certification completion records when a user is deleted.
+     */
+    public function test_user_deleted_completion_records() {
+        global $DB;
+
+        $generator = $this->data_generator;
+
+        // Create some users.
+        $user1 = $generator->create_user();
+        $user2 = $generator->create_user();
+
+        // Create some certs.
+        $cert1 = $generator->create_certification();
+        $cert2 = $generator->create_certification();
+
+        // Create some programs.
+        $prog1 = $generator->create_program();
+        $prog2 = $generator->create_program();
+
+        // Add the users to the certs.
+        $generator->assign_to_program($cert1->id, ASSIGNTYPE_INDIVIDUAL, $user1->id);
+        $generator->assign_to_program($cert1->id, ASSIGNTYPE_INDIVIDUAL, $user2->id);
+        $generator->assign_to_program($cert2->id, ASSIGNTYPE_INDIVIDUAL, $user1->id);
+        $generator->assign_to_program($cert2->id, ASSIGNTYPE_INDIVIDUAL, $user2->id);
+
+        // Add the users to the programs.
+        $generator->assign_to_program($prog1->id, ASSIGNTYPE_INDIVIDUAL, $user1->id);
+        $generator->assign_to_program($prog1->id, ASSIGNTYPE_INDIVIDUAL, $user2->id);
+        $generator->assign_to_program($prog2->id, ASSIGNTYPE_INDIVIDUAL, $user1->id);
+        $generator->assign_to_program($prog2->id, ASSIGNTYPE_INDIVIDUAL, $user2->id);
+
+        // Mark one of the programs complete for both users.
+        $progcompletion = prog_load_completion($prog1->id, $user1->id);
+        $progcompletion->status = STATUS_PROGRAM_COMPLETE;
+        $progcompletion->timecompleted = 100;
+        $this->assertEquals(array(), prog_get_completion_errors($progcompletion));
+        $this->assertTrue(prog_write_completion($progcompletion));
+
+        $progcompletion = prog_load_completion($prog1->id, $user2->id);
+        $progcompletion->status = STATUS_PROGRAM_COMPLETE;
+        $progcompletion->timecompleted = 100;
+        $this->assertEquals(array(), prog_get_completion_errors($progcompletion));
+        $this->assertTrue(prog_write_completion($progcompletion));
+
+        // Make one of the certifications certified for both users.
+        list($certcompletion, $progcompletion) = certif_load_completion($cert1->id, $user1->id);
+        $certcompletion->status = CERTIFSTATUS_COMPLETED;
+        $certcompletion->renewalstatus = CERTIFRENEWALSTATUS_NOTDUE;
+        $certcompletion->certifpath = CERTIFPATH_RECERT;
+        $certcompletion->timecompleted = 100;
+        $certcompletion->timewindowopens = 200;
+        $certcompletion->timeexpires = 300;
+        $progcompletion->status = STATUS_PROGRAM_COMPLETE;
+        $progcompletion->timecompleted = 100;
+        $progcompletion->timedue = 300;
+        $this->assertEquals(array(), certif_get_completion_errors($certcompletion, $progcompletion));
+        $this->assertTrue(certif_write_completion($certcompletion, $progcompletion));
+
+        list($certcompletion, $progcompletion) = certif_load_completion($cert1->id, $user2->id);
+        $certcompletion->status = CERTIFSTATUS_COMPLETED;
+        $certcompletion->renewalstatus = CERTIFRENEWALSTATUS_NOTDUE;
+        $certcompletion->certifpath = CERTIFPATH_RECERT;
+        $certcompletion->timecompleted = 100;
+        $certcompletion->timewindowopens = 200;
+        $certcompletion->timeexpires = 300;
+        $progcompletion->status = STATUS_PROGRAM_COMPLETE;
+        $progcompletion->timecompleted = 100;
+        $progcompletion->timedue = 300;
+        $this->assertEquals(array(), certif_get_completion_errors($certcompletion, $progcompletion));
+        $this->assertTrue(certif_write_completion($certcompletion, $progcompletion));
+
+        // Load the current set of data.
+        $expectedcertcompletions = $DB->get_records('certif_completion');
+        $expectedprogcompletions = $DB->get_records('prog_completion');
+        list($expectedcertcompletionhistory, $progcompletion) = certif_load_completion($cert1->id, $user1->id);
+
+        // Trigger the user deleted observer by deleting user1.
+        delete_user($user1);
+
+        // Manually make the same change to the expected data.
+        foreach ($expectedcertcompletions as $key => $certcompletion) {
+            // Both cert completions for user1 are gone.
+            if ($certcompletion->userid == $user1->id) {
+                unset($expectedcertcompletions[$key]);
+            }
+        }
+        foreach ($expectedprogcompletions as $key => $progcompletion) {
+            // The incomplete prog completions for user1 are gone.
+            $deletedprogs = array($cert2->id, $prog2->id);
+            if ($progcompletion->userid == $user1->id && in_array($progcompletion->programid, $deletedprogs)) {
+                unset($expectedprogcompletions[$key]);
+            }
+        }
+        unset($expectedcertcompletionhistory->id);
+        unset($expectedcertcompletionhistory->timemodified);
+        $expectedcertcompletionhistory->unassigned = 1;
+
+        // Then just compare the current data with the expected.
+        $actualcertcompletions = $DB->get_records('certif_completion');
+        $actualprogcompletions = $DB->get_records('prog_completion');
+        $this->assertEquals($expectedcertcompletions, $actualcertcompletions);
+        $this->assertEquals($expectedprogcompletions, $actualprogcompletions);
+
+        // Make sure that the history record has been created.
+        $certcomplhistories = $DB->get_records('certif_completion_history');
+        $this->assertCount(1, $certcomplhistories);
+        $certcompletionhistory = reset($certcomplhistories);
+        unset($certcompletionhistory->id);
+        unset($certcompletionhistory->timemodified);
+        $this->assertEquals($expectedcertcompletionhistory, $certcompletionhistory);
+    }
 }

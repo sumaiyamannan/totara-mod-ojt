@@ -133,6 +133,11 @@ class select extends element {
         );
 
         $selected = $this->get_field_value();
+        if ($selected !== null) {
+            // We need string to do strict comparison later.
+            $selected = strval($selected);
+        }
+
         foreach ($this->options as $value => $text) {
             $value = (string)$value; // PHP converts type of numeric keys it seems.
             $text = clean_text($text); // No JS allowed in select options!

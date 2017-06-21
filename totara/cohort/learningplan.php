@@ -132,6 +132,7 @@ $table = new flexible_table('cohortplancreatehistory');
 $table->define_baseurl(qualified_me());
 $table->define_columns($tablecolumns);
 $table->define_headers($tableheaders);
+$table->attributes['id'] = 'cohortplancreatehistory';
 
 $table->attributes['class'] = 'fullwidth';
 

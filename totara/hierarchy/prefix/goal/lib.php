@@ -1547,7 +1547,7 @@ class goal extends hierarchy {
     public static function get_personal_scale_value(&$assignment) {
         global $DB;
         $options = array();
-        $values = $DB->get_records('goal_scale_values', array('scaleid' => $assignment->scaleid));
+        $values = $DB->get_records('goal_scale_values', array('scaleid' => $assignment->scaleid), 'sortorder');
 
         foreach ($values as $value) {
             $options[$value->id] = format_string($value->name);

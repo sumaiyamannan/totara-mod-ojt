@@ -1211,6 +1211,12 @@ class totara_sync_element_user extends totara_sync_element {
             $invalidids = array_merge($invalidids, $badids);
         }
 
+        // Check invalid country codes.
+        if (property_exists($syncfields, 'country')) {
+            $badids = $this->check_invalid_countrycode($synctable);
+            $invalidids = array_merge($invalidids, $badids);
+        }
+
         // Check invalid auth types.
         if (property_exists($syncfields, 'auth')) {
             $badids = $this->get_invalid_auth($synctable);
@@ -1792,6 +1798,49 @@ class totara_sync_element_user extends totara_sync_element {
             // Put a dummy record in here to flag a problem without skipping the user.
             $invalidids[] = 0;
         }
+
+        return $invalidids;
+    }
+
+    /**
+     * Get invalid country codes
+     *
+     * @param string $synctable sync table name
+     *
+     * @return array with ids of any rows with invalid country codes
+     */
+    public function check_invalid_countrycode($synctable) {
+        global $DB;
+
+        $params = array();
+        $invalidids = array();
+
+        // Avoid users who will be deleted.
+        $extracondition = '';
+        if (empty($this->config->sourceallrecords)) {
+            $extracondition = "AND deleted = :deleted";
+            $params['deleted'] = 0;
+        }
+
+        $sql = "SELECT id, idnumber, country
+                  FROM {{$synctable}}
+                 WHERE country != ''
+                   AND country IS NOT NULL
+                   {$extracondition}";
+
+        $rs = $DB->get_recordset_sql($sql, $params);
+
+        if (!empty($rs)) {
+            $countries = get_string_manager()->get_list_of_countries();
+            foreach ($rs as $r) {
+                if (!isset($countries[$r->country])) {
+                    $this->addlog(get_string('invalidcountrycode', 'tool_totara_sync', $r), 'error', 'checksanity');
+                    $invalidids[] = $r->id;
+                }
+            }
+        }
+
+        $rs->close();
 
         return $invalidids;
     }

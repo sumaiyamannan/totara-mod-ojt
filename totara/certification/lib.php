@@ -142,35 +142,16 @@ class certification_event_handler {
      * User is unassigned to a program event handler
      * Delete certification completion record
      *
+     * @deprecated since Totara 9.8. Call certif_conditionally_delete_completion directly instead.
      * @param \totara_program\event\program_unassigned $event
      */
     public static function unassigned(\totara_program\event\program_unassigned $event) {
-        global $DB;
+        debugging('certification_event_handler::unassigned() is deprecated, call certif_conditionally_delete_completion directly instead.', DEBUG_DEVELOPER);
 
         $programid = $event->objectid;
         $userid = $event->userid;
-        $prog = $DB->get_record('prog', array('id' => $programid));
 
-        if ($prog->certifid) {
-            $params = array('certifid' => $prog->certifid, 'userid' => $userid);
-            if ($completionrecord = $DB->get_record('certif_completion', $params)) {
-                $description = 'Unassigned';
-                if (!in_array($completionrecord->status, array(CERTIFSTATUS_UNSET, CERTIFSTATUS_ASSIGNED))) {
-                    copy_certif_completion_to_hist($prog->certifid, $userid, true);
-                    $description .= ', current completion moved to history';
-                } else {
-                    $description .= ', current completion removed (not archived due to no progress)';
-                }
-
-                $DB->delete_records('certif_completion', $params);
-
-                prog_log_completion(
-                    $event->objectid,
-                    $event->userid,
-                    $description
-                );
-            }
-        }
+        certif_conditionally_delete_completion($programid, $userid, 'Completion conditionally deleted in deprecated function certification_event_handler::unassigned()');
     }
 
     /**
@@ -360,19 +341,36 @@ function recertify_window_opens_stage() {
     // Find any users who have reached this point.
     $sql = "SELECT cfc.id as uniqueid, u.*, cf.id as certifid, cfc.userid, p.id as progid, cfc.timewindowopens as windowopens
             FROM {certif_completion} cfc
-            JOIN {certif} cf on cf.id = cfc.certifid
-            JOIN {prog} p on p.certifid = cf.id
-            JOIN {user} u on u.id = cfc.userid
-            WHERE cfc.timewindowopens < ?
-                  AND cfc.status = ?
-                  AND cfc.renewalstatus = ?
-                  AND u.deleted = 0
-                  AND u.suspended = 0";
+            JOIN {certif} cf
+              ON cf.id = cfc.certifid
+            JOIN {prog} p
+              ON p.certifid = cf.id
+            JOIN {user} u
+              ON u.id = cfc.userid
+           WHERE EXISTS (SELECT 1
+                           FROM {prog_user_assignment} pua
+                          WHERE pua.userid = u.id
+                            AND pua.programid = p.id
+                            AND pua.exceptionstatus <> :raised
+                            AND pua.exceptionstatus <> :dismissed
+                        )
+             AND cfc.timewindowopens < :window
+             AND cfc.status = :stat
+             AND cfc.renewalstatus = :renstat
+             AND u.deleted = 0
+             AND u.suspended = 0";
 
-    $results = $DB->get_records_sql($sql, array(time(), CERTIFSTATUS_COMPLETED, CERTIFRENEWALSTATUS_NOTDUE));
+    $params = array(
+        'raised' =>  PROGRAM_EXCEPTION_RAISED,
+        'dismissed' => PROGRAM_EXCEPTION_DISMISSED,
+        'window' => time(),
+        'stat' => CERTIFSTATUS_COMPLETED,
+        'renstat' => CERTIFRENEWALSTATUS_NOTDUE
+    );
+
+    $results = $DB->get_records_sql($sql, $params);
 
     require_once($CFG->dirroot.'/course/lib.php'); // Archive_course_activities().
-
     // For each certification & user.
     foreach ($results as $user) {
         // Archive completion.
@@ -724,18 +722,25 @@ function copy_certif_completion_to_hist($certificationid, $userid, $unassigned =
 }
 
 /**
- * Create the certification completion record for a user who is newly assigned.
+ * Create prog and cert completion records, if they don't already exist. New records will be in the "assigned" state.
+ * If the user has an applicable existing history record then it will be restored.
  *
- * Ideally, this function would create both certif_completion and prog_completion records and use
- * certif_write_completion to save them to the database. But since prog_completion records are
- * created during user assignment, this function instead just directly writes the certif_completion
- * record in the database, and logs the result.
+ * This function is safe to call if the completion records already exist.
+ *
+ * Note: This function should be used to create both the prog_completion and certif_completion records. It can create
+ * a certif_completion record for an existing prog_completion record, but this should only occur when re-assigning a
+ * user to a certification they were in previously (where the certif_completion record was moved to history and the
+ * prog_completion record was left). Never create a prog_completion records outside this function - it will just lead
+ * to invalid data.
  *
  * @param $programid
  * @param $userid
+ * @param string $message If provided, will be added to the start of the log message.
  */
-function certif_create_completion($programid, $userid) {
+function certif_create_completion($programid, $userid, $message = '') {
     global $DB;
+
+    $now = time();
 
     // Check that this is actually a certification.
     $program = $DB->get_record('prog', array('id' => $programid));
@@ -743,26 +748,77 @@ function certif_create_completion($programid, $userid) {
         print_error('error:missingcertifid', 'totara_certification');
     }
 
-    // Check that the certif_completion record doesn't already exist.
-    $alreadyexists = $DB->record_exists('certif_completion', array('certifid' => $program->certifid, 'userid' => $userid));
-    if ($alreadyexists) {
-        // If it already exists it is likely they have multiple assignments, which is fine so just return.
-        return;
-    }
-
-    // Check that the prog_completion record DOES already exist (it is created during program user assignment or
-    // was left over from when the user was previously assigned).
+    // Check if the prog_completion record already exists. If not, we will need to create it.
     $progcompletion = $DB->get_record('prog_completion',
         array('programid' => $program->id, 'userid' => $userid, 'coursesetid' => 0));
     if (empty($progcompletion)) {
-        $errparams = array('userid' => $userid, 'certifid' => $program->certifid);
-        print_error('error:missingprogcompletion', 'totara_certification', '', $errparams);
+        $progcompletion = new stdClass();
+        $progcompletion->programid = $programid;
+        $progcompletion->userid = $userid;
+        $progcompletion->coursesetid = 0;
+        $progcompletion->status = STATUS_PROGRAM_INCOMPLETE;
+        $progcompletion->timestarted = $now;
+        $progcompletion->timedue = COMPLETION_TIME_NOT_SET;
+        $progcompletion->timecompleted = 0;
+
+        $createprogcompletion = true;
+    } else {
+        $createprogcompletion = false;
     }
 
-    // Check if the prog_completion record looks like it is a new assignment.
-    $isnewprogcompletion = ($progcompletion->status == STATUS_PROGRAM_INCOMPLETE && empty($progcompletion->timecompleted));
+    // Check that the certif_completion record doesn't already exist.
+    $existingcertcompletion = $DB->get_record('certif_completion', array('certifid' => $program->certifid, 'userid' => $userid));
+    if (!empty($existingcertcompletion)) {
+        // If the record already exists then we don't need to create it.
+        // If the matching prog_completion record does not exist then we'll create it before returning.
+        if ($createprogcompletion) {
+            // Check the state of the current certif_completion record.
+            $existingstate = certif_get_completion_state($existingcertcompletion);
 
-    // Check to see if a certification completion record exists which is marked as "unassigned".
+            // Change the new prog_completion record to match the existing certif_completion record.
+            switch ($existingstate) {
+                case CERTIFCOMPLETIONSTATE_INVALID:
+                case CERTIFCOMPLETIONSTATE_ASSIGNED:
+                    // Leave the prog_completion as incomplete, no timedue or timecompleted.
+                    break;
+                case CERTIFCOMPLETIONSTATE_CERTIFIED:
+                    $progcompletion->status = STATUS_PROGRAM_COMPLETE;
+                    $progcompletion->timecompleted = $existingcertcompletion->timecompleted;
+                    $progcompletion->timedue = $existingcertcompletion->timeexpires;
+                    break;
+                case CERTIFCOMPLETIONSTATE_WINDOWOPEN:
+                    $progcompletion->timedue = $existingcertcompletion->timeexpires;
+                    break;
+                case CERTIFCOMPLETIONSTATE_EXPIRED:
+                    // Guess the time due using other history records.
+                    $duesql = "SELECT MAX(timeexpires)
+                                 FROM {certif_completion_history}
+                                WHERE userid = :uid
+                                  AND certifid = :cid
+                                  AND timeexpires < :now";
+                    $dueparams = array(
+                        'uid' => $userid,
+                        'cid' => $program->certifid,
+                        'now' => $now
+                    );
+                    // This can't fail, because we know we've got at least one history record, but could end up invalid.
+                    $progcompletion->timedue = $DB->get_field_sql($duesql, $dueparams);
+                    break;
+            }
+
+            // Since the certif_completion already exists, we can't use certif_write_completion (it can only create two records
+            // or update two records). Instead, we just use insert_record. This has the advantage of ignoring any validation
+            // problems that might occur since we didn't check if the certif_completion record was valid.
+            $DB->insert_record('prog_completion', $progcompletion);
+
+            // Log it manually.
+            certif_write_completion_log($programid, $userid,
+                $message . 'Created missing prog_completion record for existing certif_completion');
+        }
+        return;
+    }
+
+    // Check to see if a certification completion history record exists which is marked as "unassigned".
     $sql = "SELECT *
               FROM {certif_completion_history}
              WHERE certifid = :certifid
@@ -779,93 +835,87 @@ function certif_create_completion($programid, $userid) {
         // Check the state of the history record.
         $historystate = certif_get_completion_state($history);
 
-        // Make sure that the prog_completion record is correct for this certif_completion record.
+        // Change the (new or existing) prog_completion record to match the restored certif_completion record.
         switch ($historystate) {
             case CERTIFCOMPLETIONSTATE_INVALID:
-                // The history record status was CERTIFSTATUS_UNSET, which is impossible.
+                // Shouldn't be possible. Make no changes.
                 break;
             case CERTIFCOMPLETIONSTATE_ASSIGNED:
-                if (!$isnewprogcompletion) {
-                    $progcompletion->status = STATUS_PROGRAM_INCOMPLETE;
-                    $progcompletion->timecompleted = 0;
-                    // Don't change timedue in case it is already set.
-                    $DB->update_record('prog_completion', $progcompletion);
+                $progcompletion->status = STATUS_PROGRAM_INCOMPLETE;
+                $progcompletion->timecompleted = 0;
+                // Keep the timedue if the prog_completion already exists.
+                if ($createprogcompletion) {
+                    $progcompletion->timedue = COMPLETION_TIME_NOT_SET;
                 }
                 break;
             case CERTIFCOMPLETIONSTATE_CERTIFIED:
                 $progcompletion->status = STATUS_PROGRAM_COMPLETE;
                 $progcompletion->timecompleted = $history->timecompleted;
                 $progcompletion->timedue = $history->timeexpires;
-                $DB->update_record('prog_completion', $progcompletion);
                 break;
             case CERTIFCOMPLETIONSTATE_WINDOWOPEN:
-                if (!$isnewprogcompletion || $progcompletion->timedue != $history->timeexpires) {
-                    $progcompletion->status = STATUS_PROGRAM_INCOMPLETE;
-                    $progcompletion->timecompleted = 0;
-                    $progcompletion->timedue = $history->timeexpires;
-                    $DB->update_record('prog_completion', $progcompletion);
-                }
+                $progcompletion->status = STATUS_PROGRAM_INCOMPLETE;
+                $progcompletion->timecompleted = 0;
+                $progcompletion->timedue = $history->timeexpires;
                 break;
             case CERTIFCOMPLETIONSTATE_EXPIRED:
-                if (!$isnewprogcompletion || $progcompletion->timedue != $history->timeexpires) {
+                $progcompletion->status = STATUS_PROGRAM_INCOMPLETE;
+                $progcompletion->timecompleted = 0;
+                if ($progcompletion->timedue <= 0) {
+                    // Guess the time due using other history records.
                     $duesql = "SELECT MAX(timeexpires)
-                                 FROM {certif_completion_history}
-                                WHERE userid = :uid
-                                  AND certifid = :cid
-                                  AND timeexpires < :now";
+                                     FROM {certif_completion_history}
+                                    WHERE userid = :uid
+                                      AND certifid = :cid
+                                      AND timeexpires < :now";
                     $dueparams = array(
-                        'cid' => $program->certifid,
                         'uid' => $userid,
-                        'now' => time()
+                        'cid' => $program->certifid,
+                        'now' => $now
                     );
-                    $progdue = $DB->get_field_sql($duesql, $dueparams);
-
-                    $progcompletion->status = STATUS_PROGRAM_INCOMPLETE;
-                    $progcompletion->timecompleted = 0;
-                    $progcompletion->timedue = $progdue;
-                    $DB->update_record('prog_completion', $progcompletion);
+                    // This can't fail, because we know we've got at least one history record, but could end up zero/invalid.
+                    $progcompletion->timedue = $DB->get_field_sql($duesql, $dueparams);
                 }
                 break;
         }
 
-        // Create the new record from the history record. Don't use certif_write_completion or perform validation
-        // because we want to restore the record into the state it was before, regardless of problems.
+        // Create the new record from the history record.
         $newcompletion = clone($history);
-        $newcompletion->timemodified = time();
+        $newcompletion->timemodified = $now;
         unset($newcompletion->id);
         unset($newcompletion->unassigned);
 
-        if ($DB->insert_record('certif_completion', $newcompletion)) {
-            // Wipe the users unassigned flags since they're assigned now.
-            $sql = "UPDATE {certif_completion_history}
-                       SET  unassigned = 0
-                       WHERE userid = :uid
-                       AND certifid = :cid";
-            $params = array('uid' => $userid, 'cid' => $program->certifid);
-            $DB->execute($sql, $params);
+        $message .= 'Restored certif_completion history into current';
 
-            // Delete or update the history record depending on whether it will be made again in the future.
-            // (done second, in case the previous step fails somehow).
-            if ($historystate != CERTIFCOMPLETIONSTATE_WINDOWOPEN && $historystate != CERTIFCOMPLETIONSTATE_EXPIRED) {
-                // The history record will be created when the window opens, so delete the existing history record.
-                certif_delete_completion_history($historyid, 'Deleted certification completion history record during reassignment');
-            }
+        // Manually process the records, rather than using certif_write_completion, to avoid validation problems.
+        if ($createprogcompletion) {
+            $DB->insert_record('prog_completion', $progcompletion);
+            $message .= ' and created new prog_completion';
         } else {
-            print_error('error:cannotcreatecompletion', 'totara_certification');
-        }
-
-        // Log it.
-        certif_write_completion_log($programid, $userid, 'Restored certification completion history record into current');
-    } else {
-        // There is no history record suitable for reassignment, so set it up as a first-time assignment.
-
-        // Check that the prog_completion record is in a "new" state, waiting for the certif_completion to be created.
-        if (!$isnewprogcompletion) {
-            $progcompletion->status = STATUS_PROGRAM_INCOMPLETE;
-            $progcompletion->timecompleted = 0;
-            // Don't change timedue in case it is already set.
             $DB->update_record('prog_completion', $progcompletion);
+            $message .= ' for existing prog_completion';
         }
+        $DB->insert_record('certif_completion', $newcompletion);
+
+        // Log it manually.
+        certif_write_completion_log($programid, $userid, $message);
+
+        // Wipe all the user's unassigned flags since they're assigned now.
+        $sql = "UPDATE {certif_completion_history}
+                           SET unassigned = 0
+                         WHERE userid = :uid
+                           AND certifid = :cid";
+        $params = array('uid' => $userid, 'cid' => $program->certifid);
+        $DB->execute($sql, $params);
+
+        // Delete the history record if it will be made again in the future. Done last, in case the previous step fails somehow.
+        if ($historystate != CERTIFCOMPLETIONSTATE_WINDOWOPEN) {
+            // The history record will be created when the window opens, so delete the existing history record.
+            certif_delete_completion_history($historyid, 'Deleted certification completion history record during reassignment');
+        }
+
+    } else {
+        // There is no history record suitable for reassignment, so set it up as a new, incomplete completion.
 
         // Construct the new record.
         $certcompletion = new stdClass();
@@ -877,20 +927,29 @@ function certif_create_completion($programid, $userid) {
         $certcompletion->timecompleted = 0;
         $certcompletion->timewindowopens = 0;
         $certcompletion->timeexpires = 0;
-        $certcompletion->timemodified = time();
+        $certcompletion->timemodified = $now;
 
-        // Make sure that the records are valid.
-        $errors = certif_get_completion_errors($certcompletion, $progcompletion);
-        if (!empty($errors)) {
-            $errparams = array('userid' => $userid, 'certifid' => $program->certifid);
-            print_error('error:validationfailureassign', 'totara_certification', '', $errparams);
+        if (!$createprogcompletion) {
+            // Change the existing prog_completion record to match the new certif_completion record.
+            $progcompletion->status = STATUS_PROGRAM_INCOMPLETE;
+            $progcompletion->timecompleted = 0;
+            // Don't change timedue in case it is already set.
         }
 
-        // Save the new record.
+        $message .= 'Created new certif_completion';
+
+        // Manually process the records, rather than using certif_write_completion, to avoid validation problems.
+        if ($createprogcompletion) {
+            $DB->insert_record('prog_completion', $progcompletion);
+            $message .= ' and new prog_completion';
+        } else {
+            $DB->update_record('prog_completion', $progcompletion);
+            $message .= ' for existing prog_completion';
+        }
         $DB->insert_record('certif_completion', $certcompletion);
 
-        // Log it.
-        certif_write_completion_log($programid, $userid, 'Created certif_completion record for existing prog_completion');
+        // Log it manually.
+        certif_write_completion_log($programid, $userid, $message);
     }
 }
 
@@ -1506,9 +1565,12 @@ function certif_get_certifications($categoryid="all", $sort="cf.sortorder ASC", 
  * Remove existing certif_completions if user unassigned
  * (effectively if no corresponding rec in prog_user_assignment)
  *
+ * @deprecated since Totara 9.8. This functionality is already covered in existing Totara code.
  * @param StdClass $program
  */
 function delete_removed_users($program) {
+    debugging('delete_removed_users() is deprecated and should never be used.', DEBUG_DEVELOPER);
+
     global $DB;
 
     // Get user assignments only if there are assignments for this program.
@@ -1530,6 +1592,10 @@ function delete_removed_users($program) {
     if (count($certificationcompletions)) {
         list($usql, $params) = $DB->get_in_or_equal(array_keys($certificationcompletions));
         $DB->delete_records_select('certif_completion', "id $usql", $params);
+    }
+
+    foreach ($certificationcompletions as $completiondeleted) {
+        prog_log_completion($program->id, $completiondeleted->userid, '!!! certif_completion deleted by deprecated, faulty function delete_removed_users !!!');
     }
 }
 
@@ -2417,7 +2483,10 @@ function certif_get_completion_error_solution($problemkey, $programid = 0, $user
                 html_writer::link($url1, get_string('clicktofixcompletions', 'totara_program'));
             break;
         case 'error:stateassigned-timedueunknown':
-            $html = get_string('error:info_timedueunknown', 'totara_program');
+            $url = clone($baseurl);
+            $url->param('fixkey', 'fixassignedtimedueunknown');
+            $html = get_string('error:info_fixtimedueunknown', 'totara_program') . '<br>' .
+                html_writer::link($url, get_string('clicktofixcompletions', 'totara_program'));
             break;
         case 'error:statecertified-certprogtimecompleteddifferent':
             $url1 = clone($baseurl);
@@ -2433,6 +2502,24 @@ function certif_get_completion_error_solution($problemkey, $programid = 0, $user
             $url = clone($baseurl);
             $url->param('fixkey', 'fixprogincomplete');
             $html = get_string('error:info_fixprogincomplete', 'totara_certification') . '<br>' .
+                html_writer::link($url, get_string('clicktofixcompletions', 'totara_program'));
+            break;
+        case 'error:stateexpired-timedueempty':
+            $url = clone($baseurl);
+            $url->param('fixkey', 'fixexpiredmissingtimedue');
+            $html = get_string('error:info_fixexpiredmissingtimedue', 'totara_certification') . '<br>' .
+                html_writer::link($url, get_string('clicktofixcompletions', 'totara_program'));
+            break;
+        case 'error:missingcompletion':
+            $url = clone($baseurl);
+            $url->param('fixkey', 'fixmissingcompletionrecords');
+            $html = get_string('error:info_fixmissingcompletion', 'totara_certification') . '<br>' .
+                html_writer::link($url, get_string('clicktofixcompletions', 'totara_program'));
+            break;
+        case 'error:unassignedcertifcompletion':
+            $url = clone($baseurl);
+            $url->param('fixkey', 'fixunassignedcertifcompletionrecords');
+            $html = get_string('error:info_fixunassignedcertifcompletionrecord', 'totara_certification') . '<br>' .
                 html_writer::link($url, get_string('clicktofixcompletions', 'totara_program'));
             break;
         default:
@@ -2452,6 +2539,18 @@ function certif_get_completion_error_solution($problemkey, $programid = 0, $user
  */
 function certif_fix_completions($fixkey, $programid = 0, $userid = 0) {
     global $DB;
+
+    // Creating missing completion records is handled in a separate function, just to keep things tidy.
+    if ($fixkey == 'fixmissingcompletionrecords') {
+        certif_fix_missing_completions($programid, $userid);
+        return;
+    }
+
+    // Deleting unassigned certif completion records is handled in a separate function, just to keep things tidy.
+    if ($fixkey == 'fixunassignedcertifcompletionrecords') {
+        certif_fix_unassigned_certif_completions($programid, $userid);
+        return;
+    }
 
     // Get all completion records, applying the specified filters.
     $sql = "SELECT cc.*, pc.id AS pcid, pc.programid, pc.status AS progstatus, pc.timestarted AS progtimestarted,
@@ -2568,6 +2667,11 @@ function certif_fix_completions($fixkey, $programid = 0, $userid = 0) {
                     $result = certif_fix_cert_completion_date($certcompletion, $progcompletion);
                 }
                 break;
+            case 'fixassignedtimedueunknown':
+                if ($problemkey == 'error:stateassigned-timedueunknown') {
+                    $result = certif_fix_prog_timedue($certcompletion, $progcompletion);
+                }
+                break;
             case 'fixprogcompletiondate':
                 if ($problemkey == 'error:statecertified-certprogtimecompleteddifferent') {
                     $result = certif_fix_prog_completion_date($certcompletion, $progcompletion);
@@ -2576,6 +2680,17 @@ function certif_fix_completions($fixkey, $programid = 0, $userid = 0) {
             case 'fixprogincomplete':
                 if ($problemkey == 'error:stateassigned-progstatusincorrect|error:stateassigned-progtimecompletednotempty') {
                     $result = certif_fix_completion_prog_incomplete($certcompletion, $progcompletion);
+                }
+                break;
+            case 'fixexpiredmissingtimedue':
+                if ($problemkey == 'error:stateexpired-timedueempty') {
+                    $result = certif_fix_expired_missing_timedue($certcompletion, $progcompletion);
+                    $stillhasproblems = certif_get_completion_errors($certcompletion, $progcompletion);
+                    $stillhasproblemskey = certif_get_completion_error_problemkey($stillhasproblems);
+                    if ($stillhasproblemskey == $problemkey) {
+                        // The problem was not fixed because there was no available history expiry date. $result contains an explanation.
+                        $ignoreproblem = $problemkey;
+                    }
                 }
                 break;
         }
@@ -2589,6 +2704,42 @@ function certif_fix_completions($fixkey, $programid = 0, $userid = 0) {
     }
 
     $rs->close();
+}
+
+/**
+ * Creates missing program completion records, limited by the specified filters.
+ *
+ * @param int $programid if provided (non-0), only fix problems for this program
+ * @param int $userid if provided (non-0), only fix problems for this user
+ */
+function certif_fix_missing_completions($programid = 0, $userid = 0) {
+    $missingcompletionsrs = certif_find_missing_completions($programid, $userid);
+
+    $message = 'Automated fix \'certif_fix_missing_completions\' was applied<br>';
+
+    foreach ($missingcompletionsrs as $missingcompletion) {
+        certif_create_completion($missingcompletion->programid, $missingcompletion->userid, $message);
+    }
+
+    $missingcompletionsrs->close();
+}
+
+/**
+ * Deletes prog_completion records of users who are not assigned but have incomplete completion records, limited by the specified filters.
+ *
+ * @param int $programid if provided (non-0), only fix problems for this program
+ * @param int $userid if provided (non-0), only fix problems for this user
+ */
+function certif_fix_unassigned_certif_completions($programid = 0, $userid = 0) {
+    $unassignedcertifcompletionsrs = certif_find_unassigned_certif_completions($programid, $userid);
+
+    $message = 'Automated fix \'certif_fix_unassigned_certif_completions\' was applied<br>';
+
+    foreach ($unassignedcertifcompletionsrs as $unassignedcertifcompletion) {
+        certif_conditionally_delete_completion($unassignedcertifcompletion->programid, $unassignedcertifcompletion->userid, $message);
+    }
+
+    $unassignedcertifcompletionsrs->close();
 }
 
 /**
@@ -2805,7 +2956,7 @@ function certif_fix_completion_prog_status_reset(&$certcompletion, &$progcomplet
 
     return 'Automated fix \'certif_fix_completion_prog_status_reset\' was applied<br>' .
         '<ul><li>\'Program status\' was set to \'Program incomplete\'</li>
-        <li>\'Program completion date\' was set empty (0)</li></ul>';
+        <li>\'Program completion date\' was set to ' . prog_format_log_date($progcompletion->timecompleted) . '</li></ul>';
 }
 
 /**
@@ -2823,12 +2974,9 @@ function certif_fix_completion_prog_status_set_complete(&$certcompletion, &$prog
     $progcompletion->status = STATUS_PROGRAM_COMPLETE;
     $progcompletion->timecompleted = $certcompletion->timecompleted;
 
-    $timecompleted = userdate($progcompletion->timecompleted, '%d %B %Y, %H:%M', 0) .
-        ' (' . $progcompletion->timecompleted . ')';
-
     return 'Automated fix \'certif_fix_completion_prog_status_set_complete\' was applied<br>' .
-    '<ul><li>\'Program status\' was set to \'Program complete\'</li>
-    <li>\'Program completion date\' was set to ' . $timecompleted . '</li></ul>';
+        '<ul><li>\'Program status\' was set to \'Program complete\'</li>
+        <li>\'Program completion date\' was set to ' . prog_format_log_date($progcompletion->timecompleted) . '</li></ul>';
 }
 
 /**
@@ -2846,8 +2994,8 @@ function certif_fix_completion_prog_incomplete(&$certcompletion, &$progcompletio
     $progcompletion->timecompleted = 0;
 
     return 'Automated fix \'certif_fix_completion_prog_incomplete\' was applied<br>' .
-    '<ul><li>\'Program status\' was set to \'Program incomplete\'</li>
-    <li>\'Program completion date\' was set to \'empty\' (0)</li></ul>';
+        '<ul><li>\'Program status\' was set to \'Program incomplete\'</li>
+        <li>\'Program completion date\' was set to ' . prog_format_log_date($progcompletion->timecompleted) . '</li></ul>';
 }
 
 /**
@@ -2865,29 +3013,34 @@ function certif_fix_cert_completion_date(&$certcompletion, &$progcompletion) {
 
     $certcompletion->timecompleted = $progcompletion->timecompleted;
 
-    $timecompleted = userdate($certcompletion->timecompleted, '%d %B %Y, %H:%M', 0) .
-        ' (' . $certcompletion->timecompleted . ')';
-
     if ($certification->recertifydatetype == CERTIFRECERT_COMPLETION) {
         $certcompletion->timeexpires = get_timeexpires($certcompletion->timecompleted, $certification->activeperiod);
         $certcompletion->timewindowopens = get_timewindowopens($certcompletion->timeexpires, $certification->windowperiod);
         $progcompletion->timedue = $certcompletion->timeexpires;
 
-        $timewindowopens = userdate($certcompletion->timewindowopens, '%d %B %Y, %H:%M', 0) .
-            ' (' . $certcompletion->timewindowopens . ')';
-
-        $timeexpires = userdate($certcompletion->timeexpires, '%d %B %Y, %H:%M', 0) .
-            ' (' . $certcompletion->timeexpires . ')';
-
         return 'Automated fix \'certif_fix_cert_completion_date\' was applied using current certification settings<br>
-        <ul><li>\'Certification completion date\' was set to ' . $timecompleted . '</li>
-        <li>\'Certification window open date\' was set to ' . $timewindowopens . '</li>
-        <li>\'Certification expiry date\' was set to ' . $timeexpires . '</li>
-        <li>\'Program due date\' was set to ' . $timeexpires . '</li></ul>';
+            <ul><li>\'Certification completion date\' was set to ' . prog_format_log_date($certcompletion->timecompleted) . '</li>
+            <li>\'Certification window open date\' was set to ' . prog_format_log_date($certcompletion->timewindowopens) . '</li>
+            <li>\'Certification expiry date\' was set to ' . prog_format_log_date($certcompletion->timeexpires) . '</li>
+            <li>\'Program due date\' was set to ' . prog_format_log_date($progcompletion->timedue) . '</li></ul>';
     } else {
         return 'Automated fix \'certif_fix_cert_completion_date\' was applied<br>
-        <ul><li>\'Certification completion date\' was set to ' . $timecompleted . '</li></ul>';
+            <ul><li>\'Certification completion date\' was set to ' . prog_format_log_date($certcompletion->timecompleted) . '</li></ul>';
     }
+}
+
+/**
+ * Set the timedue to COMPLETION_TIME_NOT_SET
+ *
+ * @param stdClass $certcompletion a record from certif_completion to be fixed
+ * @param stdClass $progcompletion a corresponding record from prog_completion to be fixed
+ * @return string message for transaction log
+ */
+function certif_fix_prog_timedue(&$certcompletion, &$progcompletion) {
+    $progcompletion->timedue = COMPLETION_TIME_NOT_SET;
+
+    return 'Automated fix \'certif_fix_prog_timedue\' was applied<br>
+        <ul><li>\'Program due date\' was set to ' . COMPLETION_TIME_NOT_SET . '</li></ul>';
 }
 
 /**
@@ -2900,11 +3053,42 @@ function certif_fix_cert_completion_date(&$certcompletion, &$progcompletion) {
 function certif_fix_prog_completion_date(&$certcompletion, &$progcompletion) {
     $progcompletion->timecompleted = $certcompletion->timecompleted;
 
-    $timecompleted = userdate($progcompletion->timecompleted, '%d %B %Y, %H:%M', 0) .
-        ' (' . $progcompletion->timecompleted . ')';
-
     return 'Automated fix \'certif_fix_prog_completion_date\' was applied<br>
-        <ul><li>\'Program completion date\' was set to ' . $timecompleted . '</li></ul>';
+        <ul><li>\'Program completion date\' was set to ' . prog_format_log_date($progcompletion->timecompleted) . '</li></ul>';
+}
+
+/**
+ * Sets the program due date to the latest history expiry date before the current date. This is effectively the same as
+ * what certif_create_completion would do when reassigning a user and no date is available in the prog_completion record.
+ *
+ * @param stdClass $certcompletion a record from certif_completion to be fixed
+ * @param stdClass $progcompletion a corresponding record from prog_completion to be fixed
+ * @return string message for transaction log
+ */
+function certif_fix_expired_missing_timedue(&$certcompletion, &$progcompletion) {
+    global $DB;
+
+    $duesql = "SELECT MAX(timeexpires)
+                 FROM {certif_completion_history}
+                WHERE userid = :userid
+                  AND certifid = :certifid
+                  AND timeexpires < :now";
+    $dueparams = array(
+        'userid' => $certcompletion->userid,
+        'certifid' => $certcompletion->certifid,
+        'now' => time(),
+    );
+    $maxtimeexpires = $DB->get_field_sql($duesql, $dueparams);
+
+    if ($maxtimeexpires > 0) {
+        $progcompletion->timedue = $maxtimeexpires;
+        return 'Automated fix \'certif_fix_expired_missing_timedue\' was applied<br>
+            <ul><li>\'Program due date\' was set to ' . $maxtimeexpires . '</li></ul>';
+    } else {
+        return 'Automated fix \'certif_fix_expired_missing_timedue\' was not applied because no history record existed with
+                an expiry date before the current date. Either create an appropriate history record and apply the fix again,
+                or manually set the due date.';
+    }
 }
 
 /**
@@ -2971,6 +3155,61 @@ function certif_load_completion($programid, $userid, $mustexist = true) {
 }
 
 /**
+ * Load all certif_completion records out of the db, with their matching prog_completions. Excludes programs.
+ *
+ * Use this function to make sure you get the correct records.
+ *
+ * @param int $userid
+ * @return array(stdClass)
+ */
+function certif_load_all_completions($userid) {
+    global $DB;
+
+    $sql = "SELECT cc.*, pc.id AS pcid, pc.programid, pc.coursesetid, pc.status AS progstatus, pc.timestarted AS progtimestarted,
+                   pc.timedue, pc.timecompleted AS progtimecompleted, pc.organisationid, pc.positionid
+              FROM {certif_completion} cc
+              JOIN {prog} prog
+                ON cc.certifid = prog.certifid
+              JOIN {prog_completion} pc
+                ON pc.programid = prog.id AND cc.userid = pc.userid AND pc.coursesetid = 0
+             WHERE cc.userid = :userid";
+    $params = array('userid' => $userid);
+    $records = $DB->get_records_sql($sql, $params);
+
+    $results = array();
+
+    foreach ($records as $record) {
+        $certcompletion = new stdClass();
+        $certcompletion->id = $record->id;
+        $certcompletion->certifid = $record->certifid;
+        $certcompletion->userid = $record->userid;
+        $certcompletion->certifpath = $record->certifpath;
+        $certcompletion->status = $record->status;
+        $certcompletion->renewalstatus = $record->renewalstatus;
+        $certcompletion->timewindowopens = $record->timewindowopens;
+        $certcompletion->timeexpires = $record->timeexpires;
+        $certcompletion->timecompleted = $record->timecompleted;
+        $certcompletion->timemodified = $record->timemodified;
+
+        $progcompletion = new stdClass();
+        $progcompletion->id = $record->pcid;
+        $progcompletion->programid = $record->programid;
+        $progcompletion->coursesetid = $record->coursesetid;
+        $progcompletion->userid = $record->userid;
+        $progcompletion->status = $record->progstatus;
+        $progcompletion->timestarted = $record->progtimestarted;
+        $progcompletion->timedue = $record->timedue;
+        $progcompletion->timecompleted = $record->progtimecompleted;
+        $progcompletion->organisationid = $record->organisationid;
+        $progcompletion->positionid = $record->positionid;
+
+        $results[] = array('certcompletion' => $certcompletion, 'progcompletion' => $progcompletion);
+    }
+
+    return $results;
+}
+
+/**
  * Write a log message (in the program completion log) when a certification completion has been added or edited.
  *
  * @param int $programid
@@ -3012,37 +3251,6 @@ function certif_calculate_completion_description($certcompletion, $progcompletio
             break;
     }
 
-    if ($progcompletion->timedue > 0) {
-        $timedue = userdate($progcompletion->timedue, '%d %B %Y, %H:%M', 0) .
-            ' (' . $progcompletion->timedue . ')';
-    } else {
-        $timedue = "Not set ({$progcompletion->timedue})";
-    }
-    if ($certcompletion->timecompleted > 0) {
-        $timecompleted = userdate($certcompletion->timecompleted, '%d %B %Y, %H:%M', 0) .
-            ' (' . $certcompletion->timecompleted . ')';
-    } else {
-        $timecompleted = "Not set ({$certcompletion->timecompleted})";
-    }
-    if ($certcompletion->timewindowopens > 0) {
-        $timewindowopens = userdate($certcompletion->timewindowopens, '%d %B %Y, %H:%M', 0) .
-            ' (' . $certcompletion->timewindowopens . ')';
-    } else {
-        $timewindowopens = "Not set ({$certcompletion->timewindowopens})";
-    }
-    if ($certcompletion->timeexpires > 0) {
-        $timeexpires = userdate($certcompletion->timeexpires, '%d %B %Y, %H:%M', 0) .
-            ' (' . $certcompletion->timeexpires . ')';
-    } else {
-        $timeexpires = "Not set ({$certcompletion->timeexpires})";
-    }
-    if ($progcompletion->timecompleted > 0) {
-        $progtimecompleted = userdate($progcompletion->timecompleted, '%d %B %Y, %H:%M', 0) .
-            ' (' . $progcompletion->timecompleted . ')';
-    } else {
-        $progtimecompleted = "Not set ({$progcompletion->timecompleted})";
-    }
-
     if (empty($message)) {
         $message = 'Completion record edited';
     }
@@ -3051,12 +3259,12 @@ function certif_calculate_completion_description($certcompletion, $progcompletio
         '<ul><li>Status: ' . $CERTIFSTATUS[$certcompletion->status] . ' (' . $certcompletion->status . ')</li>' .
         '<li>Renewal status: ' . $CERTIFRENEWALSTATUS[$certcompletion->renewalstatus] . ' (' . $certcompletion->renewalstatus . ')</li>' .
         '<li>Certification path: ' . $CERTIFPATH[$certcompletion->certifpath] . ' (' . $certcompletion->certifpath . ')</li>' .
-        '<li>Due date: ' . $timedue . '</li>' .
-        '<li>Completion date: ' . $timecompleted . '</li>' .
-        '<li>Window open date: ' . $timewindowopens . '</li>' .
-        '<li>Expiry date: ' . $timeexpires . '</li>' .
+        '<li>Due date: ' . prog_format_log_date($progcompletion->timedue) . '</li>' .
+        '<li>Completion date: ' . prog_format_log_date($certcompletion->timecompleted) . '</li>' .
+        '<li>Window open date: ' . prog_format_log_date($certcompletion->timewindowopens) . '</li>' .
+        '<li>Expiry date: ' . prog_format_log_date($certcompletion->timeexpires) . '</li>' .
         '<li>Program status: ' . $progstatus . ' (' . $progcompletion->status . ')</li>' .
-        '<li>Program completion date: ' . $progtimecompleted . '</li></ul>';
+        '<li>Program completion date: ' . prog_format_log_date($progcompletion->timecompleted) . '</li></ul>';
 
     return $description;
 }
@@ -3099,24 +3307,6 @@ function certif_calculate_completion_history_description($certcomplhistory, $mes
 
     $id = isset($certcomplhistory->id) ? $certcomplhistory->id : 'Unknown - new history record';
 
-    if ($certcomplhistory->timecompleted > 0) {
-        $timecompleted = userdate($certcomplhistory->timecompleted, '%d %B %Y, %H:%M', 0) .
-            ' (' . $certcomplhistory->timecompleted . ')';
-    } else {
-        $timecompleted = "Not set ({$certcomplhistory->timecompleted})";
-    }
-    if ($certcomplhistory->timewindowopens > 0) {
-        $timewindowopens = userdate($certcomplhistory->timewindowopens, '%d %B %Y, %H:%M', 0) .
-            ' (' . $certcomplhistory->timewindowopens . ')';
-    } else {
-        $timewindowopens = "Not set ({$certcomplhistory->timewindowopens})";
-    }
-    if ($certcomplhistory->timeexpires > 0) {
-        $timeexpires = userdate($certcomplhistory->timeexpires, '%d %B %Y, %H:%M', 0) .
-            ' (' . $certcomplhistory->timeexpires . ')';
-    } else {
-        $timeexpires = "Not set ({$certcomplhistory->timeexpires})";
-    }
     $unassigned = $certcomplhistory->unassigned ? "Yes" : "No";
 
     if (empty($message)) {
@@ -3128,9 +3318,9 @@ function certif_calculate_completion_history_description($certcomplhistory, $mes
         '<li>Status: ' . $CERTIFSTATUS[$certcomplhistory->status] . ' (' . $certcomplhistory->status . ')</li>' .
         '<li>Renewal status: ' . $CERTIFRENEWALSTATUS[$certcomplhistory->renewalstatus] . ' (' . $certcomplhistory->renewalstatus . ')</li>' .
         '<li>Certification path: ' . $CERTIFPATH[$certcomplhistory->certifpath] . ' (' . $certcomplhistory->certifpath . ')</li>' .
-        '<li>Completion date: ' . $timecompleted . '</li>' .
-        '<li>Window open date: ' . $timewindowopens . '</li>' .
-        '<li>Expiry date: ' . $timeexpires . '</li>' .
+        '<li>Completion date: ' . prog_format_log_date($certcomplhistory->timecompleted) . '</li>' .
+        '<li>Window open date: ' . prog_format_log_date($certcomplhistory->timewindowopens) . '</li>' .
+        '<li>Expiry date: ' . prog_format_log_date($certcomplhistory->timeexpires) . '</li>' .
         '<li>Unassigned: ' . $unassigned . '</li></ul>';
 
     return $description;
@@ -3164,5 +3354,346 @@ function certif_delete_completion_history($chid, $message = '') {
         $info->programid,
         $info->userid,
         $description
+    );
+}
+
+/**
+ * Find all the completion records which have problems.
+ *
+ * The results are designed to be used by totara_program_renderer::get_completion_checker_results
+ *
+ * Each stdClass item in $fulllist is indexed by the problemkey and contains:
+ *  ->problem string short explaination of what the problem is (obtained from the problemkey)
+ *  ->userfullname string the full name of the affected user
+ *  ->programname string the full name of the certification
+ *  ->editcompletionurl moodle_url a link to the completion editor for this user/cert
+ *
+ * Each stdClass item in $aggregatelist is indexed by the problemkey and contains:
+ *  ->problem string short explaination of what the problem is (obtained from the problemkey)
+ *  ->category string describing the general type of problem (Files, Consistentcy, etc)
+ *  ->solution string long explanation and any info about consequences, how the problem can be manually fixed and/or links to automated fixes etc
+ *  ->count int how many records (given the specified filters) are affected by this problem
+ *
+ * $totalcount reports the total number of records that are checked given the specified filters.
+ *
+ * @param int $programid
+ * @param int $userid
+ * @return array(array $fulllist, array $aggregatelist, int $totalcount)
+ */
+function certif_get_all_completions_with_errors($programid = 0, $userid = 0) {
+    global $DB;
+
+    $aggregatelist = array();
+    $fulllist = array();
+    $totalcount = 0;
+
+    // Check existing completion records for inconsistency errors.
+    $sql = "SELECT cc.userid, pc.programid, cc.status, cc.renewalstatus, cc.timecompleted, cc.timewindowopens, prog.fullname,
+                   cc.timeexpires, cc.certifpath, pc.status AS progstatus, pc.timecompleted AS progtimecompleted, pc.timedue
+              FROM {certif_completion} cc
+              JOIN {prog} prog ON prog.certifid = cc.certifid
+              JOIN {prog_completion} pc ON pc.programid = prog.id AND pc.userid = cc.userid AND pc.coursesetid = 0";
+    $params = array();
+    if (!empty($userid)) {
+        $sql .= " AND pc.userid = :userid";
+        $params['userid'] = $userid;
+    }
+    if (!empty($programid)) {
+        $sql .= " AND pc.programid = :programid";
+        $params['programid'] = $programid;
+    }
+    $allcompletionsrs = $DB->get_recordset_sql($sql, $params);
+
+    foreach ($allcompletionsrs as $record) {
+        $certcompletion = new stdClass();
+        $certcompletion->status = $record->status;
+        $certcompletion->renewalstatus = $record->renewalstatus;
+        $certcompletion->certifpath = $record->certifpath;
+        $certcompletion->timecompleted = $record->timecompleted;
+        $certcompletion->timewindowopens = $record->timewindowopens;
+        $certcompletion->timeexpires = $record->timeexpires;
+
+        $progcompletion = new stdClass();
+        $progcompletion->status = $record->progstatus;
+        $progcompletion->timecompleted = $record->progtimecompleted;
+        $progcompletion->timedue = $record->timedue;
+
+        $errors = certif_get_completion_errors($certcompletion, $progcompletion);
+
+        if (!empty($errors)) {
+            // Aggregate this combination of errors.
+            $problemkey = certif_get_completion_error_problemkey($errors);
+            // If the problem key doesn't exist in the aggregate list already then create it.
+            if (!isset($aggregatelist[$problemkey])) {
+                $newaggregate = new stdClass();
+                $newaggregate->count = 0;
+
+                $errorstrings = array();
+                foreach ($errors as $errorkey => $errorfield) {
+                    $errorstrings[] = get_string($errorkey, 'totara_certification');
+                }
+                $newaggregate->problem = implode('<br>', $errorstrings);
+
+                $newaggregate->category = get_string('problemcategoryconsistency', 'totara_program');
+
+                // Solution is designed to fix all records affected by this problem with the given filters.
+                $newaggregate->solution = certif_get_completion_error_solution($problemkey, $programid, $userid);
+
+                $aggregatelist[$problemkey] = $newaggregate;
+            }
+            $aggregatelist[$problemkey]->count++;
+
+            $affected = new stdClass();
+            $affected->problem = $aggregatelist[$problemkey]->problem;
+            $affected->userfullname = fullname($DB->get_record('user', array('id' => $record->userid)));
+            $affected->programname = format_string($record->fullname);
+            $affected->editcompletionurl = new moodle_url('/totara/certification/edit_completion.php',
+                array('id' => $record->programid, 'userid' => $record->userid));
+            $affectedkey = $record->programid . '-' . $record->userid;
+
+            $fulllist[$affectedkey] = $affected;
+        }
+        $totalcount++;
+    }
+
+    $allcompletionsrs->close();
+
+    // Check for missing completion records.
+    $missingcompletionsrs = certif_find_missing_completions($programid, $userid);
+
+    $problemkey = 'error:missingcompletion';
+    foreach ($missingcompletionsrs as $missingcompletion) {
+        $totalcount++;
+
+        // If the problem key doesn't exist in the aggregate list already then create it.
+        if (!isset($aggregatelist[$problemkey])) {
+            $newaggregate = new stdClass();
+            $newaggregate->count = 0;
+
+            $newaggregate->problem = get_string($problemkey, 'totara_certification');
+
+            $newaggregate->category = get_string('problemcategoryfiles', 'totara_program');
+
+            // Solution is designed to fix all records affected by this problem with the given filters.
+            $newaggregate->solution = certif_get_completion_error_solution($problemkey, $programid, $userid);
+
+            $aggregatelist[$problemkey] = $newaggregate;
+        }
+        $aggregatelist[$problemkey]->count++;
+
+        $affected = new stdClass();
+        $affected->problem = $aggregatelist[$problemkey]->problem;
+        $affected->userfullname = fullname($DB->get_record('user', array('id' => $missingcompletion->userid)));
+        $affected->programname = format_string($missingcompletion->fullname);
+        $affected->editcompletionurl = new moodle_url('/totara/certification/edit_completion.php',
+            array('id' => $missingcompletion->programid, 'userid' => $missingcompletion->userid));
+        $affectedkey = $missingcompletion->programid . '-' . $missingcompletion->userid;
+
+        $fulllist[$affectedkey] = $affected;
+    }
+
+    $missingcompletionsrs->close();
+
+    // Check for unassigned certif_completion records.
+    $unassignedcertifcompletionsrs = certif_find_unassigned_certif_completions($programid, $userid);
+
+    $problemkey = 'error:unassignedcertifcompletion';
+    foreach ($unassignedcertifcompletionsrs as $unassignedcertifcompletion) {
+        // Don't increment total count, because these have already been counted earlier.
+
+        // If the problem key doesn't exist in the aggregate list already then create it.
+        if (!isset($aggregatelist[$problemkey])) {
+            $newaggregate = new stdClass();
+            $newaggregate->count = 0;
+
+            $newaggregate->problem = get_string($problemkey, 'totara_certification');
+
+            $newaggregate->category = get_string('problemcategoryfiles', 'totara_program');
+
+            // Solution is designed to fix all records affected by this problem with the given filters.
+            $newaggregate->solution = certif_get_completion_error_solution($problemkey, $programid, $userid);
+
+            $aggregatelist[$problemkey] = $newaggregate;
+        }
+        $aggregatelist[$problemkey]->count++;
+
+        $affected = new stdClass();
+        $affected->problem = $aggregatelist[$problemkey]->problem;
+        $affected->userfullname = fullname($DB->get_record('user', array('id' => $unassignedcertifcompletion->userid)));
+        $affected->programname = format_string($unassignedcertifcompletion->fullname);
+        $affected->editcompletionurl = new moodle_url('/totara/certification/edit_completion.php',
+            array('id' => $unassignedcertifcompletion->programid, 'userid' => $unassignedcertifcompletion->userid));
+        $affectedkey = $unassignedcertifcompletion->programid . '-' . $unassignedcertifcompletion->userid;
+
+        $fulllist[$affectedkey] = $affected;
+    }
+
+    $unassignedcertifcompletionsrs->close();
+
+    return array($fulllist, $aggregatelist, $totalcount);
+}
+
+/**
+ * Returns a recordset containing all user who are assigned to certs but are missing a completion record (one or both).
+ * These records should exist!
+ *
+ * @param int $programid if provided (non-0), only fix problems for this cert
+ * @param int $userid if provided (non-0), only fix problems for this user
+ * @return moodle_recordset containing programid, userid and cert's fullname
+ */
+function certif_find_missing_completions($programid = 0, $userid = 0) {
+    global $DB;
+
+    $params = array();
+    $where = "";
+
+    if (!empty($userid)) {
+        $where .= " AND pua.userid = :userid";
+        $params['userid'] = $userid;
+    }
+
+    if (!empty($programid)) {
+        $where .= " AND pua.programid = :programid";
+        $params['programid'] = $programid;
+    }
+
+    $sql = "SELECT pua.programid, pua.userid, p.fullname
+              FROM {prog_user_assignment} pua
+              JOIN {prog} p ON p.id = pua.programid AND p.certifid IS NOT NULL
+         LEFT JOIN {prog_completion} pc ON pc.programid = pua.programid AND pc.userid = pua.userid AND pc.coursesetid = 0
+         LEFT JOIN {certif_completion} cc ON cc.certifid = p.certifid AND cc.userid = pua.userid
+             WHERE (pc.id IS NULL OR cc.id IS NULL) {$where}";
+
+    return $DB->get_recordset_sql($sql, $params);
+}
+
+/**
+ * Returns a recordset containing all user who are not assigned and have a certif_completion record (in any state).
+ * These records shouldn't exist!
+ *
+ * @param int $programid if provided (non-0), only fix problems for this cert
+ * @param int $userid if provided (non-0), only fix problems for this user
+ * @return moodle_recordset containing programid, userid and program's fullname
+ */
+function certif_find_unassigned_certif_completions($programid = 0, $userid = 0) {
+    global $DB;
+
+    $params = array();
+    $where = "";
+
+    if (!empty($userid)) {
+        $where .= " AND cc.userid = :userid";
+        $params['userid'] = $userid;
+    }
+
+    if (!empty($programid)) {
+        $where .= " AND p.id = :programid";
+        $params['programid'] = $programid;
+    }
+
+    $sql = "SELECT p.id AS programid, cc.userid, p.fullname
+              FROM {certif_completion} cc
+              JOIN {prog} p ON p.certifid = cc.certifid
+         LEFT JOIN {prog_user_assignment} pua ON pua.programid = p.id AND pua.userid = cc.userid
+             WHERE pua.id IS NULL {$where}";
+
+    return $DB->get_recordset_sql($sql, $params);
+}
+
+/**
+ * Delete's a user's current certification completion record, only if the user is no longer required to complete the certification.
+ *
+ * History records are created if appropriate. The program completion record will be kept if appropriate.
+ *
+ * This should be called after a user has been removed from a cert (or in future, with modifications, a cert is removed from
+ * a user's learning plan).
+ *
+ * This function will perform the correct actions regardless of whether or not both completion records exist.
+ *
+ * @param int $programid
+ * @param int $userid
+ * @param string $message If provided, will be added to the completion log.
+ */
+function certif_conditionally_delete_completion($programid, $userid, $message = '') {
+    global $DB;
+
+    $program = new program($programid);
+
+    // Don't remove any records if the user is still assigned to the certification.
+    if ($program->assigned_to_users_required_learning($userid)) {
+        return;
+    }
+
+    // If certifications could be added to learning plans then we would perform that check here, and add tests for it.
+
+    $sql = "SELECT cc.*
+              FROM {certif_completion} cc
+              JOIN {prog} p ON p.certifid = cc.certifid
+             WHERE cc.userid = :userid AND p.id = :programid";
+    $certcompletion = $DB->get_record_sql($sql, array('userid' => $userid, 'programid' => $programid));
+
+    if (!empty($certcompletion)) {
+        $certstate = certif_get_completion_state($certcompletion);
+        if ($certstate == CERTIFCOMPLETIONSTATE_ASSIGNED) {
+            $description = $message . 'Current cert_completion deleted (not moved to history due to no progress)';
+        } else {
+            copy_certif_completion_to_hist($certcompletion->certifid, $userid, true);
+            $description = $message . 'Current cert_completion moved to history';
+        }
+        certif_delete_completion($programid, $userid, $description);
+    } else {
+        prog_log_completion($programid, $userid, 'Tried to delete cert_completion record but it didn\'t exist');
+    }
+
+    $progcompletion = prog_load_completion($programid, $userid, false);
+
+    if (!empty($progcompletion)) {
+        // We should be using prog_is_complete() here, to maintain backwards compatibility and protect against future changes,
+        // but we'll save one db query by using the data we've already got.
+        if (!isset($certstate) && $progcompletion->status != STATUS_PROGRAM_COMPLETE || $certstate == CERTIFCOMPLETIONSTATE_ASSIGNED) {
+            prog_delete_completion($programid, $userid, 'Matching prog_completion deleted');
+        } else {
+            prog_log_completion($programid, $userid, 'Matching prog_completion retained to allow restoration to previous state');
+        }
+
+    } else {
+        prog_log_completion($programid, $userid, 'Tried to delete matching prog_completion but it didn\'t exist');
+    }
+}
+
+/**
+ * Delete a certification completion record, logging it in the prog completion log.
+ *
+ * Normally you should use certif_conditionally_delete_completion, which will decide what to do with the records.
+ *
+ * !!! Only use this function if you're absolutely sure that the record needs to be deleted. !!!
+ * !!! This function should only be used by certif_conditionally_delete_completion and by    !!!
+ * !!! the certification completion editor.                                                  !!!
+ *
+ * This function does NOT touch the matching prog_completion record!
+ *
+ * @param $programid
+ * @param $userid
+ * @param string $message If provided, will override the default program completion log message.
+ */
+function certif_delete_completion($programid, $userid, $message = '') {
+    global $DB;
+
+    $sql = "SELECT cc.id
+              FROM {certif_completion} cc
+              JOIN {prog} p ON cc.certifid = p.certifid
+             WHERE p.id = :programid AND cc.userid = :userid";
+    $info = $DB->get_record_sql($sql, array('programid' => $programid, 'userid' => $userid));
+    $DB->delete_records('certif_completion', array('id' => $info->id));
+
+    if (empty($message)) {
+        $message = 'Current completion deleted';
+    }
+
+    // Record the change in the program completion log.
+    prog_log_completion(
+        $programid,
+        $userid,
+        $message
     );
 }

@@ -152,8 +152,16 @@ final class custom_fields {
 
         $values_metadata = $query->values_metadata();
         $custom_value_table = $values_metadata->sql_aliased_table();
-        $col_value_parent_id = $values_metadata->sql_column_for(
-            custom_field_values_metadata::FIELD_PARENT
+
+        list($col_value_field_id, $col_value_parent_id) = array_map(
+            function ($field) use ($values_metadata) {
+                return $values_metadata->sql_column_for($field);
+            },
+
+            array(
+                custom_field_values_metadata::FIELD_ID,
+                custom_field_values_metadata::FIELD_PARENT
+            )
         );
 
         $field_id = $query->field();
@@ -175,9 +183,12 @@ final class custom_fields {
               FROM $parent_table, $custom_def_table
              WHERE $col_parent_id = $parent_id
                AND $col_custom_id = $field_id
-               AND $parent_id not in (
-                   SELECT $col_value_parent_id FROM $custom_value_table
-               )
+               AND NOT EXISTS (
+                    SELECT 1
+                      FROM $custom_value_table
+                     WHERE $col_value_parent_id = $col_parent_id
+                       AND $col_value_field_id = $field_id
+              )
         ";
 
         $col_value = $defs_metadata->sql_column_for(

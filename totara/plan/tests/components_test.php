@@ -638,8 +638,7 @@ class totara_plan_components_testcase extends advanced_testcase {
 
         $program1 = $this->program_generator->create_program();
         $duedate = time() + DAYSECS * 10;
-        $this->program_generator->assign_to_program($program1->id, ASSIGNTYPE_INDIVIDUAL, $user->id);
-        $program1->update_learner_assignments(true);
+        $this->program_generator->assign_to_program($program1->id, ASSIGNTYPE_INDIVIDUAL, $user->id, null, true);
 
         // Check that records exist.
         $this->assertEquals(1, $DB->count_records('prog_assignment',

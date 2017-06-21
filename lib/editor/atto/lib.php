@@ -131,6 +131,8 @@ class atto_texteditor extends texteditor {
                 'editor_control_keycode',
                 'plugin_title_shortcut',
                 'textrecovered',
+                'textrecoveredwithundo',
+                'textrecoveredalert',
                 'autosavefailed',
                 'autosavesucceeded',
                 'errortextrecovery'

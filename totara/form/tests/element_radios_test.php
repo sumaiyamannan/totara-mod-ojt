@@ -258,4 +258,58 @@ class totara_form_element_radios_testcase extends advanced_testcase {
         $data = $form->get_data();
         $this->assertNull($data);
     }
+
+    public function test_current() {
+        global $OUTPUT;
+
+        $definition = new test_definition($this,
+            function (model $model, advanced_testcase $testcase) {
+                $options = array('1' => 'One', '' => 'Nothing', 'a' => 'lower a', 'A' => 'UPPER A');
+                $model->add(new radios('someradio1', 'Some select 1', $options));
+                $model->add(new radios('someradio2', 'Some select 2', $options));
+                $model->add(new radios('someradio3', 'Some select 3', $options));
+                $model->add(new radios('someradio4', 'Some select 4', $options));
+                $model->add(new radios('someradio5', 'Some select 5', $options));
+            });
+        test_form::phpunit_set_definition($definition);
+
+        test_form::phpunit_set_post_data(null);
+        $currentdata = array(
+            'someradio1' => 1,
+            'someradio2' => '1',
+            'someradio3' => '',
+            'someradio4' => 'a',
+        );
+        $form = new test_form($currentdata);
+        $data = $form->export_for_template($OUTPUT);
+
+        $this->assertSame('someradio1', $data['items'][0]['name']);
+        $this->assertSame('One', $data['items'][0]['options'][0]['text']);
+        $this->assertSame('1', $data['items'][0]['options'][0]['value']);
+        $this->assertTrue($data['items'][0]['options'][0]['checked']);
+
+        $this->assertSame('someradio2', $data['items'][1]['name']);
+        $this->assertSame('One', $data['items'][1]['options'][0]['text']);
+        $this->assertSame('1', $data['items'][1]['options'][0]['value']);
+        $this->assertTrue($data['items'][1]['options'][0]['checked']);
+
+        $this->assertSame('someradio3', $data['items'][2]['name']);
+        $this->assertSame('Nothing', $data['items'][2]['options'][1]['text']);
+        $this->assertSame('', $data['items'][2]['options'][1]['value']);
+        $this->assertTrue($data['items'][2]['options'][1]['checked']);
+
+        $this->assertSame('someradio4', $data['items'][3]['name']);
+        $this->assertSame('lower a', $data['items'][3]['options'][2]['text']);
+        $this->assertSame('a', $data['items'][3]['options'][2]['value']);
+        $this->assertTrue($data['items'][3]['options'][2]['checked']);
+        $this->assertSame('UPPER A', $data['items'][3]['options'][3]['text']);
+        $this->assertSame('A', $data['items'][3]['options'][3]['value']);
+        $this->assertFalse($data['items'][3]['options'][3]['checked']);
+
+        $this->assertSame('someradio5', $data['items'][4]['name']);
+        $this->assertFalse($data['items'][4]['options'][0]['checked']);
+        $this->assertFalse($data['items'][4]['options'][1]['checked']);
+        $this->assertFalse($data['items'][4]['options'][2]['checked']);
+        $this->assertFalse($data['items'][4]['options'][3]['checked']);
+    }
 }

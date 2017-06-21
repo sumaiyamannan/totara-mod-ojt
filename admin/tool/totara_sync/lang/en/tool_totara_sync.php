@@ -287,6 +287,7 @@ $string['emptyvaluelastnamex'] = 'Last name cannot be empty. Skipped user {$a->i
 $string['emptyvaluepasswordx'] = 'Password cannot be empty. Skipped user {$a->idnumber}';
 $string['emptyvalueusernamex'] = 'Username cannot be empty. Skipped user {$a->idnumber}';
 $string['fieldcountmismatch'] = 'Skipping row {$a->rownum} in CSV file - {$a->fieldcount} fields found but {$a->headercount} fields expected. Please make sure fields are separated by a selected delimiter ("{$a->delimiter}").';
+$string['invalidcountrycode'] = 'Invalid country code {$a->country} for user {$a->idnumber}';
 $string['invaliddateformatforfield'] = 'Invalid date format for field {$a}';
 $string['invaliddateformatforfieldforuser'] = 'Invalid date format for field {$a->field} for user {$a->user}';
 $string['invalidemailx'] = 'Invalid email address. Skipped user {$a->idnumber}';

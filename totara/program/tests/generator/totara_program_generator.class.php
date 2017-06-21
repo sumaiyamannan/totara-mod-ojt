@@ -509,25 +509,40 @@ class totara_program_generator extends component_generator_base {
      * @param int $programid Program id
      * @param int $assignmenttype Assignment type
      * @param int $itemid item to be assigned to the program. e.g Audience, position, organization, individual
-     * @param null $record
+     * @param null|array $record containing data for the prog_assignment record that will be created.
+     *       Since Totara 2.9.19, 9.7 - this previously created random completion criteria for the assignment,
+     *            now this only happens if $record is null.
+     * @param bool $updatelearnerassignments - true to run update program user assignments immediately afterwards
+     *       Added in Totara 2.9.19, 9.7, 10
      * @return bool whether this assignment will generate exceptions.
+     *       Since Totara 2.9.19, 9.7 - this always returns false if data is supplied in $record. Exceptions
+     *            will need to be checked for externally.
      */
-    public function assign_to_program($programid, $assignmenttype, $itemid, $record = null) {
+    public function assign_to_program($programid, $assignmenttype, $itemid, $record = null, $updatelearnerassignments = false) {
         global $CFG;
         require_once($CFG->dirroot . '/totara/program/lib.php');
 
-        // Set completion values.
-        $now = time();
-        $past = date('d/m/Y', $now - (DAYSECS * 14));
-        $future = date('d/m/Y', $now + (DAYSECS * 14));
-        // We can add other completion options here in future. For now a past date, future date and relative to first login.
-        $completionsettings = array(
-            array($past,     0,   null, true),
-            array($future,   0,   null, false),
-            array('3 2', COMPLETION_EVENT_FIRST_LOGIN, null, false),
-        );
-        $randomcompletion = rand(0, count($completionsettings) - 1);
-        list($completiontime, $completionevent, $completioninstance, $exceptions) = $completionsettings[$randomcompletion];
+        if (isset($record)) {
+            // Set completion values.
+            $completiontime = (isset($record['completiontime'])) ? $record['completiontime'] : COMPLETION_TIME_NOT_SET;
+            $completionevent = (isset($record['completionevent'])) ? $record['completionevent'] : COMPLETION_EVENT_NONE;
+            $completioninstance = (isset($record['completioninstance'])) ? $record['completioninstance'] : 0;
+            $includechildren = (isset($record['includechildren'])) ? $record['includechildren'] : null;
+            $exceptions = false; // We're not calculating whether exceptions were generated in this method.
+        } else {
+            $now = time();
+            $past = date('d/m/Y', $now - (DAYSECS * 14));
+            $future = date('d/m/Y', $now + (DAYSECS * 14));
+            // We can add other completion options here in future. For now a past date, future date and relative to first login.
+            $completionsettings = array(
+                array($past,     0,   null, true),
+                array($future,   0,   null, false),
+                array('3 2', COMPLETION_EVENT_FIRST_LOGIN, null, false),
+            );
+            $randomcompletion = rand(0, count($completionsettings) - 1);
+            list($completiontime, $completionevent, $completioninstance, $exceptions) = $completionsettings[$randomcompletion];
+            $includechildren = 0;
+        }
 
         // Create data.
         $data = new stdClass();
@@ -536,11 +551,17 @@ class totara_program_generator extends component_generator_base {
         $data->completiontime = array($assignmenttype => array($itemid => $completiontime));
         $data->completionevent = array($assignmenttype => array($itemid => $completionevent));
         $data->completioninstance = array($assignmenttype => array($itemid => $completioninstance));
-        $data->includechildren = array ($assignmenttype => array($itemid => 0));
+        $data->includechildren = array($assignmenttype => array($itemid => $includechildren));
 
         // Assign item to program.
         $assignmenttoprog = prog_assignments::factory($assignmenttype);
         $assignmenttoprog->update_assignments($data, false);
+
+        if ($updatelearnerassignments) {
+            $program = new program($programid);
+            $program->update_learner_assignments(true);
+        }
+
         return $exceptions;
     }
 

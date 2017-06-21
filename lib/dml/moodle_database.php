@@ -1342,6 +1342,73 @@ abstract class moodle_database {
     public abstract function get_records_sql($sql, array $params=null, $limitfrom=0, $limitnum=0);
 
     /**
+     * Get a recordset of objects and its count without limits applied given an SQL statement.
+     *
+     * This is useful for pagination in that it lets you avoid having to make a second COUNT(*) query.
+     *
+     * IMPORTANT NOTES:
+     *   - Wrap queries with UNION in single SELECT. Otherwise an incorrect count will ge given.
+     *   - If query has a "SELECT" as column, it must have FROM otherwise state may be lost and the query will fail.
+     *     Known to affect MSSQL see mssql_native_moodle_database::add_count_over_column().
+     *
+     * This method should only be used in situations where a count without limits is required.
+     * If you don't need the count please use get_recordset_sql().
+     *
+     * @since Totara 2.6.45, 2.7.28, 2.9.20, 9.8
+     *
+     * @throws dml_exception if the query has "SELECT" as a column but no "FROM" clause.
+     * @throws coding_exception if the database driver does not support this method.
+     *
+     * @param string $sql the SQL select query to execute.
+     * @param array|null $params array of sql parameters (optional)
+     * @param int $limitfrom return a subset of records, starting at this point (optional).
+     * @param int $limitnum return a subset comprising this many records (optional, required if $limitfrom is set).
+     * @param int &$count This variable will be filled with the count of rows returned by the select without limits applied. (optional)
+     *     Please note that you can also ask the returned recordset for the count by calling get_count_without_limits().
+     * @return counted_recordset A counted_recordset instance.
+     */
+    public function get_counted_recordset_sql($sql, array $params = null, $limitfrom = 0, $limitnum = 0, &$count = 0) {
+        throw new coding_exception('The database driver does not support get_counted_recordset_sql()');
+    }
+
+    /**
+     * Get a number of records as an array of objects and their count without limit statement using a SQL statement.
+     *
+     * This is useful for pagination in that it lets you avoid having to make a second COUNT(*) query.
+     *
+     * IMPORTANT NOTES:
+     *   - Internally this just calls get_counted_recordset_sql().
+     *   - Wrap queries with UNION in single SELECT. Otherwise an incorrect count will ge given.
+     *   - If query has a "SELECT" as column, it must have FROM otherwise state may be lost and the query will fail.
+     *     Known to affect MSSQL see mssql_native_moodle_database::add_count_over_column().
+     *
+     * Return value is like {@link function get_records}.
+     *
+     * @since Totara 2.6.45, 2.7.28, 2.9.20, 9.8
+     *
+     * @param string $sql the SQL select query to execute. The first column of this SELECT statement
+     *   must be a unique value (usually the 'id' field), as it will be used as the key of the
+     *   returned array.
+     * @param array|null $params An associative array of params OR null if there are none.
+     * @param int $limitfrom Return a subset of records, starting at this point. Use 0 to get the first record.
+     * @param int $limitnum Return a subset comprising this many records in total (optional, required if $limitfrom is set). Use 0 to get all.
+     * @param int &$count This variable will be filled with the count of rows returned by the select without limits applied.
+     * @return stdClass[]
+     * @throws dml_exception A DML specific exception is thrown for any errors.
+     */
+    public function get_counted_records_sql($sql, array $params = null, $limitfrom, $limitnum, &$count) {
+        $rs = $this->get_counted_recordset_sql($sql, $params, $limitfrom, $limitnum);
+        $result = array();
+        foreach ($rs as $record) {
+            $id = reset($record);
+            $result[$id] = $record;
+        }
+        $rs->close();
+        $count = $rs->get_count_without_limits();
+        return $result;
+    }
+
+    /**
      * Get the first two columns from a number of records as an associative array where all the given conditions met.
      *
      * Arguments are like {@link function get_recordset}.

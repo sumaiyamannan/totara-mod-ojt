@@ -1,6 +1,10 @@
 This files describes API changes in /mod/forum/*,
 information provided here is intended especially for developers.
 
+=== 9.7 ===
+
+* renderer.php - function subscriber_overview() now outputs an unordered list (instead of a HTML table)
+
 === 3.0 ===
  * External function get_forums_by_courses now returns and additional field "cancreatediscussions" that indicates if the user
    can create discussions in the forum.
