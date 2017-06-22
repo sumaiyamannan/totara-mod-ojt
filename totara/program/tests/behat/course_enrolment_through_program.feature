@@ -95,6 +95,47 @@ Feature: Course enrolment through programs
     Then I should see "You have been enrolled in course Course 2 via required learning program Test Program 2."
     And I log out
 
+  @block_current_learning
+  Scenario: Assigned users can launch courses they are not enrolled in with audience based visibility on
+    Given I log in as "admin"
+    And I set the following administration settings values:
+      | Enable audience-based visibility | 1 |
+    And I follow "Find Learning"
+    And I follow "Course 1"
+    And I navigate to "Edit settings" node in "Course administration"
+    And I set the field "Visibility" to "Enrolled users only"
+    And I press "Save and display"
+    And I follow "Find Learning"
+    And I follow "Course 2"
+    And I navigate to "Edit settings" node in "Course administration"
+    And I set the field "Visibility" to "Enrolled users only"
+    And I press "Save and display"
+    And I log out
+
+    When I log in as "learner2"
+    Then I should see "Test Program 1"
+    And I should see "Test Program 2"
+
+    # If you get here it is because this test fails and you've just made this block use totara/program/required.php
+    # them you can just remove this block, it is testing the course the user cannot see anywhere else is unavailable.
+    When I toggle "Test Program 1" in the current learning block
+    And I should see "Course 1" in "Test Program 1" within the current learning block
+    And I follow "Course 1"
+    Then I should see "This course is currently unavailable to students"
+
+    # Use the link to the course first up and confirm that they can access the course.
+    When I follow "Dashboard"
+    And I follow "Test Program 1"
+    Then I should see "Course 1"
+    And I follow "Course 1"
+    Then I should see "You have been enrolled in course Course 1 via required learning program Test Program 1."
+
+    # Use the 'Launch course' button to enrol in the course.
+    When I follow "Dashboard"
+    And I follow "Test Program 2"
+    And I press "Launch course"
+    Then I should see "You have been enrolled in course Course 2 via required learning program Test Program 2."
+
   Scenario: Enrolled user removed from program with Unenrol program plugin setting
     Given I log in as "admin"
     # Set the program plugin unenrolment action

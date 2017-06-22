@@ -989,11 +989,11 @@ class multi_course_set extends course_set {
                     } else if ($userid && $accessible && !empty($CFG->audiencevisibility) && $course->audiencevisible != COHORT_VISIBLE_NOUSERS) {
                         // If the program has been assigned but the user is not yet enrolled in the course,
                         // a course with audience visibility set to "Enrolled users" would not allow the user to become enrolled.
-                        // Instead, when "Launch" is clicked, we redirect to the program requirements page, which will then directly enrol them into the course.
+                        // Instead, when accessing the course, we redirect to the program requirements page, which will then directly enrol them into the course.
                         // This isn't needed for normal visibility because if the course is hidden then it will be inaccessible anyway.
-                        $coursedetails .= html_writer::link(new moodle_url('/course/view.php', array('id' => $course->id)), $coursename);
                         $params = array('id' => $this->programid, 'cid' => $course->id, 'userid' => $userid, 'sesskey' => $USER->sesskey);
                         $requrl = new moodle_url('/totara/program/required.php', $params);
+                        $coursedetails .= html_writer::link($requrl, $coursename);
                         $button = $OUTPUT->single_button($requrl, get_string('launchcourse', 'totara_program'), null);
                         $launch = html_writer::tag('div', $button, array('class' => 'prog-course-launch'));
                     } else {
