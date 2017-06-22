@@ -901,7 +901,8 @@ abstract class webservice_server implements webservice_server_interface {
                 $params['other']['username'] = $this->username;
                 $event = \core\event\webservice_login_failed::create($params);
                 $event->set_legacy_logdata(array(SITEID, 'webservice', get_string('simpleauthlog', 'webservice'), '' ,
-                    get_string('failedtolog', 'webservice').": ".$this->username."/".$this->password." - ".getremoteaddr() , 0));
+                    // TOTARA: Do not log incorrect password.
+                    get_string('failedtolog', 'webservice').": ".$this->username." - ".getremoteaddr() , 0));
                 $event->trigger();
 
                 throw new moodle_exception('wrongusernamepassword', 'webservice');
