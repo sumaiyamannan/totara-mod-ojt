@@ -1224,6 +1224,7 @@ abstract class rb_base_source {
         global $CFG;
 
         require_once($CFG->dirroot . '/lib/pear/HTML/QuickForm/button.php');
+        require_once($CFG->dirroot . '/lib/pear/HTML/QuickForm/static.php');
 
         $retval = array();
         foreach ($inlineenrolments as $inlineenrolment) {
