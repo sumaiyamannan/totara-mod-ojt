@@ -162,7 +162,7 @@ if (($searchtext !== '') && !empty($attendees)) {
     // This starts with a comma, as there may be no extra fields.
     $useridentityfields = get_extra_user_fields_sql(true, 'u', '', get_all_user_name_fields());
 
-    $attendees = $DB->get_recordset_sql("
+    $attendees = $DB->get_records_sql("
         SELECT u.id, {$usernamefields} {$useridentityfields}, u.email, ss.statuscode
         FROM {user} u
         LEFT JOIN {facetoface_signups} su
