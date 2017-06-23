@@ -74,9 +74,6 @@ $report->include_js();
 $graph = (substr($report->source, 0, strlen('graphical_feedback_questions')) ==
     'graphical_feedback_questions');
 
-$countfiltered = $report->get_filtered_count();
-$countall = $report->get_full_count();
-
 $fullname = format_string($report->fullname);
 $pagetitle = format_string(get_string('report', 'totara_reportbuilder').': '.$fullname);
 
@@ -89,6 +86,11 @@ $PAGE->set_heading(format_string($SITE->fullname));
 $output = $PAGE->get_renderer('totara_reportbuilder');
 
 echo $output->header();
+
+// Prepare the data and counts.
+$tablehtml = $report->display_table(true);
+$countfiltered = $report->get_filtered_count();
+$countall = $report->get_full_count();
 
 $report->display_redirect_link();
 
@@ -121,7 +123,7 @@ if ($graph) {
     print $report->print_feedback_results();
 } else {
     echo $output->showhide_button($report->_id, $report->shortname);
-    $report->display_table();
+    echo $tablehtml;
 }
 
 // Export button.
