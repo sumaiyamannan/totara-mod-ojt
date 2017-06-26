@@ -17,7 +17,7 @@ Feature: Manage custom assets by non-admin user
       | teacher1 | C1     | editingteacher |
 
   Scenario: Add edit seminar custom asset as editing teacher
-    And I log in as "teacher1"
+    Given I log in as "teacher1"
     And I click on "Find Learning" in the totara menu
     And I follow "Course 1"
     And I turn editing mode on
@@ -45,3 +45,33 @@ Feature: Manage custom assets by non-admin user
     And I should not see "Publish for reuse"
     When I click on "OK" "button" in the "Edit asset" "totaradialogue"
     Then I should see "Asset updated"
+
+  Scenario: Confirm images work when adding an asset through a totaradialogue
+    Given I log in as "teacher1"
+    And I click on "Find Learning" in the totara menu
+    And I follow "Course 1"
+    And I turn editing mode on
+    And I add a "Seminar" to section "1" and I fill the form with:
+      | Name        | Test seminar name        |
+      | Description | Test seminar description |
+    And I follow "Test seminar name"
+    And I follow "Add a new event"
+    And I click on "Select assets" "link"
+    And I click on "Create new asset" "link"
+    And I should see "Create new asset" in the "Create new asset" "totaradialogue"
+    And I set the following fields to these values:
+      | Asset name                    | Asset 1 |
+      | Allow asset booking conflicts | 1       |
+      | Asset description | Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. |
+    And I click on "Image" "button" in the "Create new asset" "totaradialogue"
+    And I click on "Browse repositories..." "button"
+    And I click on "Wikimedia" "link"
+    And I set the field "Search for:" to "dog"
+    And I press "Submit"
+    And I click on "dog" "text"
+    And I press "Select this file"
+    And I set the field "Describe this image for someone who cannot see it" to "hello"
+    And I press "Save image"
+    And I set the field "Asset name" to "woof"
+    And I click on "OK" "button" in the "Create new asset" "totaradialogue"
+    Then I should see "woof"

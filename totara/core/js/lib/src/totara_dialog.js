@@ -159,6 +159,8 @@ function totaraDialog(title, buttonid, config, default_url, handler) {
             obj.open();
         });
 
+        // remove focusable element
+        $.ui.dialog.prototype._focusTabbable = function () {};
     }
 
 
@@ -443,6 +445,13 @@ function totaraDialog(title, buttonid, config, default_url, handler) {
                         dialog.render(o);
                     }
 
+                    // Set first "tabbable" object focused for accessible reasons
+                    if (dialog.dialog.find('a:visible, input:visible, select:visible, button:visible').length > 0) {
+                        dialog.dialog.find('a:visible, input:visible, select:visible, button:visible')[0].focus();
+                    } else {
+                        // This should be the OK button
+                        dialog.dialog.parent().find('.ui-dialog-buttonpane button')[0].focus();
+                    }
                 }
             },
             error: function(o) {
