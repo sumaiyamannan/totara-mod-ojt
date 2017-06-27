@@ -546,6 +546,18 @@ class totara_core_dml_testcase extends database_driver_testcase {
 
         $complexassert($sql);
 
+        $sql = "
+        SELECT
+        MAX(tt1.orderby) as maxord,
+        COUNT(tt2.valchar) as cnt, ' \"FROM\" (FROM) SELECT FROM' as long_text
+        FROM {test_table} tt1
+        LEFT JOIN {test_table} tt2 ON tt2.parentid=tt1.id
+        WHERE tt1.orderby > :orderby
+        GROUP BY tt1.groupid
+        ORDER BY tt1.groupid";
+
+        $complexassert($sql);
+
         $sql = "SELECT
                   MAX(tt1.orderby) as maxord,
                   COUNT(tt2.valchar) as cnt, '$text' as long_text

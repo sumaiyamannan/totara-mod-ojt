@@ -1226,8 +1226,6 @@ abstract class moodle_database {
      * code where it's possible there might be large datasets being returned.  For known
      * small datasets use get_records_sql - it leads to simpler code.
      *
-     * The return type is like {@link function get_recordset}.
-     *
      * @param string $sql the SQL select query to execute.
      * @param array $params array of sql parameters
      * @param int $limitfrom return a subset of records, starting at this point (optional).
@@ -1348,15 +1346,12 @@ abstract class moodle_database {
      *
      * IMPORTANT NOTES:
      *   - Wrap queries with UNION in single SELECT. Otherwise an incorrect count will ge given.
-     *   - If query has a "SELECT" as column, it must have FROM otherwise state may be lost and the query will fail.
-     *     Known to affect MSSQL see mssql_native_moodle_database::add_count_over_column().
      *
      * This method should only be used in situations where a count without limits is required.
      * If you don't need the count please use get_recordset_sql().
      *
      * @since Totara 2.6.45, 2.7.28, 2.9.20, 9.8
      *
-     * @throws dml_exception if the query has "SELECT" as a column but no "FROM" clause.
      * @throws coding_exception if the database driver does not support this method.
      *
      * @param string $sql the SQL select query to execute.
@@ -1376,14 +1371,6 @@ abstract class moodle_database {
      *
      * This is useful for pagination in that it lets you avoid having to make a second COUNT(*) query.
      *
-     * IMPORTANT NOTES:
-     *   - Internally this just calls get_counted_recordset_sql().
-     *   - Wrap queries with UNION in single SELECT. Otherwise an incorrect count will ge given.
-     *   - If query has a "SELECT" as column, it must have FROM otherwise state may be lost and the query will fail.
-     *     Known to affect MSSQL see mssql_native_moodle_database::add_count_over_column().
-     *
-     * Return value is like {@link function get_records}.
-     *
      * @since Totara 2.6.45, 2.7.28, 2.9.20, 9.8
      *
      * @param string $sql the SQL select query to execute. The first column of this SELECT statement
@@ -1400,7 +1387,8 @@ abstract class moodle_database {
         $rs = $this->get_counted_recordset_sql($sql, $params, $limitfrom, $limitnum);
         $result = array();
         foreach ($rs as $record) {
-            $id = reset($record);
+            $columns = (array)$record;
+            $id = reset($columns);
             $result[$id] = $record;
         }
         $rs->close();

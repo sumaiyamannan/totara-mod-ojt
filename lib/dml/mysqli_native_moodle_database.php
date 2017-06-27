@@ -1856,14 +1856,10 @@ class mysqli_native_moodle_database extends moodle_database {
      *
      * IMPORTANT NOTES:
      *   - Wrap queries with UNION in single SELECT. Otherwise an incorrect count will ge given.
-     *   - If query has a "SELECT" as column, it must have FROM otherwise state may be lost and the query will fail.
-     *     Known to affect MSSQL see mssql_native_moodle_database::add_count_over_column().
      *
      * Since this method is a little less readable, use of it should be restricted to
      * code where it's possible there might be large datasets being returned.  For known
      * small datasets use get_records_sql - it leads to simpler code.
-     *
-     * The return type is like {@link function get_recordset}.
      *
      * @since Totara 2.6.45, 2.7.28, 2.9.20, 9.8
      *
@@ -1877,11 +1873,13 @@ class mysqli_native_moodle_database extends moodle_database {
      */
     public function get_counted_recordset_sql($sql, array $params=null, $limitfrom = 0, $limitnum = 0, &$count = 0) {
         global $CFG;
-
         require_once($CFG->libdir.'/dml/counted_recordset.php');
 
-        $replacestr = '$1 SELECT SQL_CALC_FOUND_ROWS $2 FROM';
-        $sqlcnt = preg_replace('/^([\s(])*SELECT([\s]+.*[\s]+)FROM/isU', $replacestr, $sql, 1);
+        if (!preg_match('/^\s*SELECT\s/is', $sql)) {
+            throw new dml_exception('dmlcountedrecordseterror', null, "Counted recordset query must start with SELECT");
+        }
+
+        $sqlcnt = preg_replace('/^\s*SELECT\s/is', 'SELECT SQL_CALC_FOUND_ROWS ', $sql);
 
         $recordset = $this->get_recordset_sql($sqlcnt, $params, $limitfrom, $limitnum);
 

@@ -217,6 +217,7 @@ $string['deletebasecategory'] = 'Can not delete the \'miscellaneous\' category.'
 $string['deletelastcategory'] = 'Can not delete the last category, there must always be at least one category.';
 $string['destinationcmnotexit'] = 'The destination course module does not exist';
 $string['detectedbrokenplugin'] = 'Plugin "{$a}" is defective or outdated, can not continue, sorry.';
+$string['dmlcountedrecordseterror'] = 'Error parsing SQL to execute recordset counting';
 $string['dmlexceptiononinstall'] = '<p>A database error has occurred [{$a->errorcode}].<br />{$a->debuginfo}</p>';
 $string['dmlreadexception'] = 'Error reading from database';
 $string['dmltransactionexception'] = 'Database transaction error';

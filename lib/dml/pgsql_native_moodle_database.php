@@ -1553,55 +1553,15 @@ class pgsql_native_moodle_database extends moodle_database {
     }
 
     /**
-     * Inject COUNT('x') OVER() column for counted queries
-     *
-     * IMPORTANT LIMITATION: If query has "SELECT" as column, it must have FROM otherwise this microparser will require decent state machine.
-     *
-     * @throws dml_exception if the query has "SELECT" as a column but no "FROM" clause.
-     * @param string $sql
-     * @param string $countfieldname The name to use for the count field.
-     * @return string $sql with counted column
-     */
-    private function add_count_over_column($sql, $countfieldname) {
-        // Microparser to get first topmost FROM to insert COUNT OVER before it.
-        $tokens = preg_split('/[\,\s\)]+|(\()|(\))/is', $sql, -1, PREG_SPLIT_OFFSET_CAPTURE|PREG_SPLIT_NO_EMPTY);
-        $sqlcnt = '';
-        $level = 0;
-        $found = false;
-        foreach ($tokens as $token) {
-            $itoken = strtoupper($token[0]);
-            if ($itoken == 'SELECT') {
-                $level++;
-            }
-            if ($itoken == 'FROM') {
-                $level--;
-                if ($level == 0) {
-                    $found = true;
-                    $sqlcnt = substr($sql, 0, $token[1]) . ', COUNT(\'x\') OVER () AS ' . $countfieldname . ' ' . substr($sql, $token[1]);
-                    break;
-                }
-            }
-        }
-        if (!$found) {
-            throw new dml_exception("Cannot use counted query: root SELECT doesn't have FROM clause");
-        }
-        return $sqlcnt;
-    }
-
-    /**
      * Get a number of records as a moodle_recordset and count of rows without limit statement using a SQL statement.
      * This is usefull for pagination to avoid second COUNT(*) query.
      *
      * IMPORTANT NOTES:
      *   - Wrap queries with UNION in single SELECT. Otherwise an incorrect count will ge given.
-     *   - If query has a "SELECT" as column, it must have FROM otherwise state may be lost and the query will fail.
-     *     Known to affect MSSQL see mssql_native_moodle_database::add_count_over_column().
      *
      * Since this method is a little less readable, use of it should be restricted to
      * code where it's possible there might be large datasets being returned.  For known
      * small datasets use get_records_sql - it leads to simpler code.
-     *
-     * The return type is like {@link function get_recordset}.
      *
      * @since Totara 2.6.45, 2.7.28, 2.9.20, 9.8
      *
@@ -1615,13 +1575,16 @@ class pgsql_native_moodle_database extends moodle_database {
      */
     public function get_counted_recordset_sql($sql, array $params=null, $limitfrom = 0, $limitnum = 0, &$count = 0) {
         global $CFG;
-
         require_once($CFG->libdir.'/dml/counted_recordset.php');
 
-        $countfield = 'dml_pgsql_count_rows';
-        $sqlcnt = $this->add_count_over_column($sql, $countfield);
+        if (!preg_match('/^\s*SELECT\s/is', $sql)) {
+            throw new dml_exception('dmlcountedrecordseterror', null, "Counted recordset query must start with SELECT");
+        }
+
+        $sqlcnt = preg_replace('/^\s*SELECT\s/is', "SELECT COUNT('x') OVER () AS dml_count_recordset_rows, ", $sql);
+
         $recordset = $this->get_recordset_sql($sqlcnt, $params, $limitfrom, $limitnum);
-        $recordset = new counted_recordset($recordset, $countfield);
+        $recordset = new counted_recordset($recordset, 'dml_count_recordset_rows');
         $count = $recordset->get_count_without_limits();
 
         return $recordset;
