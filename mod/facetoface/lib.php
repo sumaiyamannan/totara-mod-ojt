@@ -1405,7 +1405,7 @@ function facetoface_notify_registration_ended() {
     $conditions = array('component' => 'mod_facetoface', 'classname' => '\mod_facetoface\task\send_notifications_task');
     $lastcron = $DB->get_field('task_scheduled', 'lastruntime', $conditions);
     $time = time();
-   $params = array(
+    $params = array(
         'lastcron' => $lastcron,
         'now'      => $time
     );
@@ -1419,7 +1419,8 @@ function facetoface_notify_registration_ended() {
                     GROUP BY s.id
                 ) dates ON dates.sessid = s.id
             WHERE registrationtimefinish < :now
-            AND registrationtimefinish >= :lastcron";
+            AND registrationtimefinish >= :lastcron
+            AND registrationtimefinish != 0";
 
     $tocheck = $DB->get_records_sql($sql, $params);
 
