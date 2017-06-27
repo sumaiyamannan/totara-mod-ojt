@@ -1,4 +1,4 @@
-@totara @totara_hierarchy @totara_hierarchy_organisation @javascript
+@totara @totara_hierarchy @totara_hierarchy_organisation @totara_customfield @javascript
 Feature: Test organisation type changes in hierarchies
 
   Scenario: Change type of organisation in a hierarchy

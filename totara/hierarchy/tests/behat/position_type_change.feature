@@ -1,4 +1,4 @@
-@totara @totara_hierarchy @totara_hierarchy_position @javascript
+@totara @totara_hierarchy @totara_hierarchy_position @totara_customfield @javascript
 Feature: Test position type changes in hierarchies
 
   Scenario: Change type of position in a hierarchy

@@ -1,4 +1,4 @@
-@totara @totara_hierarchy @totara_hierarchy_goal @javascript
+@totara @totara_hierarchy @totara_hierarchy_goal @totara_customfield @javascript
 Feature: Test company goal type changes in hierarchies
 
   Scenario: Change type of company goal in a hierarchy

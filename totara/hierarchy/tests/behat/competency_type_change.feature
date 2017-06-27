@@ -1,4 +1,4 @@
-@totara @totara_hierarchy @totara_hierarchy_competency @javascript
+@totara @totara_hierarchy @totara_hierarchy_competency @totara_customfield @javascript
 Feature: Test competency type changes in hierarchies
 
   Scenario: Change type of competency in a hierarchy

@@ -1,4 +1,4 @@
-@totara @totara_completion_upload @javascript @_file_upload
+@totara @totara_customfield @totara_completion_upload @javascript @_file_upload
 Feature: Verify certification completion data with custom fields can be successfully uploaded.
 
   Background:

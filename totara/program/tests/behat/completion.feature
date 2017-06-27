@@ -513,7 +513,7 @@ Feature: Users completion of programs and coursesets
     Then I should see "100%" program progress
 
   # Completion of a program with 'some 0' content in combination with minimum score:
-  @javascript
+  @totara_customfield @javascript
   Scenario: Test program completion with courseset "some 0" and minimum score
     Given I log in as "admin"
     And I navigate to "Custom fields" node in "Site administration > Courses"

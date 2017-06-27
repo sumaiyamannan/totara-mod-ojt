@@ -1,4 +1,4 @@
-@javascript @mod_facetoface @totara @totara_reportbuilder
+@javascript @mod_facetoface @totara @totara_reportbuilder @totara_customfield
 Feature: All customfields column generator
   In order to always have all custom fields in report
   As an admin
