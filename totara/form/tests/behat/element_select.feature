@@ -18,12 +18,14 @@ Feature: Totara form select element tests
       | select with current data               | Oh yea!   |
       | Empty frozen select                    | Choose... |
       | Frozen select with current data        | 1         |
+      | Select with groups                     | Choose... |
     And I should see the following Totara form fields having these values:
       | Basic select                           |           |
       | Required basic select                  |           |
       | select with current data               | yes       |
       | Empty frozen select                    |           |
       | Frozen select with current data        | true      |
+      | Select with groups                     |           |
     And I should see the "Empty frozen select" Totara form field is frozen
     And I should see the "Frozen select with current data" Totara form field is frozen
 
@@ -63,6 +65,7 @@ Feature: Totara form select element tests
       | Basic select                           | No        |
       | Required basic select                  | No        |
       | select with current data               | Yeah?     |
+      | Select with groups                     | Six       |
       | Hidden if reference                    | Charlie   |
       | A is visible when test is selected     | Yes       |
       | C is visible when test is not selected | 0         |
@@ -73,6 +76,7 @@ Feature: Totara form select element tests
       | Basic select                           | No        |
       | Required basic select                  | No        |
       | select with current data               | Yeah?     |
+      | Select with groups                     | Six       |
       | Hidden if reference                    | Charlie   |
       | A is visible when test is selected     | Yes       |
       | C is visible when test is not selected | 0         |
@@ -88,6 +92,7 @@ Feature: Totara form select element tests
     And "select_frozen_empty" row "Post data" column of "form_results" table should contain "No post data"
     And "select_frozen_with_current_data" row "Value" column of "form_results" table should contain "«true»"
     And "select_frozen_with_current_data" row "Post data" column of "form_results" table should contain "No post data"
+    And "select_grouped" row "Value" column of "form_results" table should contain "«6»"
     And "hiddenif_primary" row "Value" column of "form_results" table should contain "«c»"
     And "hiddenif_secondary_a" row "Value" column of "form_results" table should contain "«1»"
     And "hiddenif_secondary_b" row "Value" column of "form_results" table should contain "«true»"
@@ -110,12 +115,14 @@ Feature: Totara form select element tests
       | select with current data               | Oh yea!   |
       | Empty frozen select                    | Choose... |
       | Frozen select with current data        | 1         |
+      | Select with groups                     | Choose... |
     And I should see the following Totara form fields having these values:
       | Basic select                           |           |
       | Required basic select                  |           |
       | select with current data               | yes       |
       | Empty frozen select                    |           |
       | Frozen select with current data        | true      |
+      | Select with groups                     |           |
     And I should see the "Empty frozen select" Totara form field is frozen
     And I should see the "Frozen select with current data" Totara form field is frozen
 
@@ -155,6 +162,7 @@ Feature: Totara form select element tests
       | Basic select                           | No        |
       | Required basic select                  | No        |
       | select with current data               | Yeah?     |
+      | Select with groups                     | Six       |
       | Hidden if reference                    | Charlie   |
       | A is visible when test is selected     | Yes       |
       | C is visible when test is not selected | 0         |
@@ -165,6 +173,7 @@ Feature: Totara form select element tests
       | Basic select                           | No        |
       | Required basic select                  | No        |
       | select with current data               | Yeah?     |
+      | Select with groups                     | Six       |
       | Hidden if reference                    | Charlie   |
       | A is visible when test is selected     | Yes       |
       | C is visible when test is not selected | 0         |
@@ -180,6 +189,7 @@ Feature: Totara form select element tests
     And "select_frozen_empty" row "Post data" column of "form_results" table should contain "No post data"
     And "select_frozen_with_current_data" row "Value" column of "form_results" table should contain "«true»"
     And "select_frozen_with_current_data" row "Post data" column of "form_results" table should contain "No post data"
+    And "select_grouped" row "Value" column of "form_results" table should contain "«6»"
     And "hiddenif_primary" row "Value" column of "form_results" table should contain "«c»"
     And "hiddenif_secondary_a" row "Value" column of "form_results" table should contain "«1»"
     And "hiddenif_secondary_b" row "Value" column of "form_results" table should contain "«true»"

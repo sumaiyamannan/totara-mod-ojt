@@ -40,6 +40,9 @@ class select extends element {
     /** @var string[] $options */
     private $options;
 
+    /** @var array $optgroups optional grouping of options via optgroups */
+    private $optgroups = array();
+
     /**
      * Select input constructor.
      *
@@ -72,6 +75,25 @@ class select extends element {
         // Add validators.
         $this->add_validator(new attribute_required());
         $this->add_validator(new valid_selection());
+    }
+
+    /**
+     * Specify optional grouping of options.
+     *
+     * The format of array elements is ['First group' => array('value1', 'value2')), 'Second group' => array('value3', 'value4'))]
+     *
+     * Please note that one value can be in multiple groups,
+     * the order of original options is maintained
+     * and values not present in options are ignored.
+     *
+     * @param array $optgroups
+     */
+    public function set_optgroups(array $optgroups) {
+        $this->optgroups = array();
+        // Normalise the values to be always strings!
+        foreach ($optgroups as $name => $values) {
+            $this->optgroups[(string)$name] = array_map('strval', $values);
+        }
     }
 
     /**
@@ -138,11 +160,55 @@ class select extends element {
             $selected = strval($selected);
         }
 
+        $processedgroups = array();
+        $options = array();
         foreach ($this->options as $value => $text) {
             $value = (string)$value; // PHP converts type of numeric keys it seems.
+            $foundingroup = false;
+            foreach ($this->optgroups as $groupname => $groupvalues) {
+                if (!in_array($value, $groupvalues, true)) {
+                    continue;
+                }
+                $foundingroup = true;
+                if (isset($processedgroups[$groupname])) {
+                    // Already processed
+                    continue;
+                }
+                $groupedoptions = array();
+                foreach ($groupvalues as $groupvalue) {
+                    if (isset($this->options[$groupvalue])) {
+                        $groupedoptions[] = array('value' => $groupvalue, 'text' => clean_text($this->options[$groupvalue]), 'selected' => false);
+                    }
+                }
+                $processedgroups[$groupname] = true;
+                $options[] = array('group' => true, 'label' => $groupname, 'options' => $groupedoptions);
+            }
+            if ($foundingroup) {
+                continue;
+            }
+
             $text = clean_text($text); // No JS allowed in select options!
-            $result['options'][] = array('value' => $value, 'text' => $text, 'selected' => ($selected === $value));
+            $options[] = array('value' => $value, 'text' => $text, 'selected' => false);
         }
+
+        // Select the first option that matches the $selected value.
+        foreach ($options as $k => $o) {
+            if (!empty($o['group'])) {
+                foreach ($o['options'] as $k2 => $o2) {
+                    if ($o2['value'] === $selected) {
+                        $options[$k]['options'][$k2]['selected'] = true;
+                        break 2;
+                    }
+                }
+                continue;
+            }
+            if ($o['value'] === $selected) {
+                $options[$k]['selected'] = true;
+                break;
+            }
+        }
+
+        $result['options'] = $options;
 
         $attributes = $this->get_attributes();
         $this->set_attribute_template_data($result, $attributes);
@@ -220,14 +286,14 @@ class select extends element {
 
         if (is_array($current)) {
             if ($debuggingifinvalid) {
-                debugging('Invalid current value detected in radios element ' . $this->get_name(), DEBUG_DEVELOPER);
+                debugging('Invalid current value detected in select element ' . $this->get_name(), DEBUG_DEVELOPER);
             }
             return null;
         }
 
         if (!$this->is_valid_option($current)) {
             if ($debuggingifinvalid) {
-                debugging('Invalid current value detected in radios element ' . $this->get_name(), DEBUG_DEVELOPER);
+                debugging('Invalid current value detected in select element ' . $this->get_name(), DEBUG_DEVELOPER);
             }
         }
 

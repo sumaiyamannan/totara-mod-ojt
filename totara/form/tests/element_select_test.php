@@ -263,4 +263,90 @@ class totara_form_element_select_testcase extends advanced_testcase {
         $this->assertFalse($data['items'][4]['options'][2]['selected']);
         $this->assertFalse($data['items'][4]['options'][3]['selected']);
     }
+
+    public function test_set_optgroups() {
+        global $OUTPUT;
+
+        $definition = new test_definition($this,
+            function (model $model, advanced_testcase $testcase) {
+                $options = array('y' => 'Yes', 'n' => 'No', 'm' => 'Maybe', '3' => 'Certainly', '-1' => 'Hell no!');
+                /** @var select $select */
+                $select = $model->add(new select('someselect', 'Some select', $options));
+                $select->set_optgroups(array(
+                    'Positive' => array('y', '3'),
+                    'Negative' => array('-1', 'n', '-10'),
+                    'Rubbish' => array('xxxx'),
+                    'Numbers' => array('3', '-1'),
+                ));
+            });
+        test_form::phpunit_set_definition($definition);
+
+        test_form::phpunit_set_post_data(null);
+        $currentdata = array(
+            'someselect' => '3',
+        );
+        $form = new test_form($currentdata);
+        $data = $form->export_for_template($OUTPUT);
+
+        $expected = array(
+            array(
+                'group' => true,
+                'label' => 'Positive',
+                'options' =>
+                    array(
+                        array(
+                            'value' => 'y',
+                            'text' => 'Yes',
+                            'selected' => false,
+                        ),
+                        array(
+                            'value' => '3',
+                            'text' => 'Certainly',
+                            'selected' => true,
+                        ),
+                    ),
+            ),
+            array(
+                'group' => true,
+                'label' => 'Negative',
+                'options' =>
+                    array(
+                        array(
+                            'value' => '-1',
+                            'text' => 'Hell no!',
+                            'selected' => false,
+                        ),
+                        array(
+                            'value' => 'n',
+                            'text' => 'No',
+                            'selected' => false,
+                        ),
+                    ),
+            ),
+            array(
+                'value' => 'm',
+                'text' => 'Maybe',
+                'selected' => false,
+            ),
+            array(
+                'group' => true,
+                'label' => 'Numbers',
+                'options' =>
+                    array(
+                        array(
+                            'value' => '3',
+                            'text' => 'Certainly',
+                            'selected' => false,
+                        ),
+                        array(
+                            'value' => '-1',
+                            'text' => 'Hell no!',
+                            'selected' => false,
+                        ),
+                    ),
+            ),
+        );
+
+        $this->assertSame($expected, $data['items'][0]['options']);
+    }
 }

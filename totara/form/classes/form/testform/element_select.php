@@ -72,6 +72,17 @@ class element_select extends form {
         $this->model->add(new select('select_frozen_with_current_data', 'Frozen select with current data', ['true' => '1', 'false' => '0']))->set_frozen(true);
         $this->model->add(new select('select_with_html_labels', 'Select with HTML labels', ['1' => '<b style="color:blue">Bold &amp; blue</b>', '2' => '<i style="color:green">Italic & green</i>']));
 
+        $options = array('' => get_string('choosedots'), '1' => 'One', '2' => 'Two', '3' => 'Three', '4' => 'Four', '5' => 'Five', '6' => 'Six');
+        $groupedselect = new select('select_grouped', 'Select with groups', $options);
+        $optgroups = array(
+            'Odd' => array('1', '3', '5'),
+            'Even' => array('2', '4', '6'),
+            'Primes' => array('2', '3', '5', 'bogus'),
+            'Missing' => array('10'),
+        );
+        $groupedselect->set_optgroups($optgroups);
+        $this->model->add($groupedselect);
+
         $section = $this->model->add(new section('test_hiddenif', 'Testing Hiddenif'));
         $hiddenif_primary = $section->add(new select('hiddenif_primary', 'Hidden if reference', ['a' => 'Alpha', 'b' => 'Bravo', 'c' => 'Charlie']));
         $hiddenif_secondary_a = $section->add(new select('hiddenif_secondary_a', 'A is visible when test is selected', $defaultoptions));
