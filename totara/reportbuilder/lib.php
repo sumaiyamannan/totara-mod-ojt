@@ -3935,6 +3935,8 @@ class reportbuilder {
             TABLE_VAR_PAGE    => 'spage'
         ));
         $table->sortable(true, $this->defaultsortcolumn, $this->defaultsortorder); // sort by name by default
+        $table->set_pagesize($perpage);
+        $table->pageable(true);
         $table->setup();
         $table->initialbars(true);
 
