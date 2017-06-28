@@ -914,6 +914,7 @@ $string['roomdetails'] = 'Room details';
 $string['roomhidden'] = 'Room hidden successfully';
 $string['roomname'] = 'Room name';
 $string['roomnameedit'] = 'Name';
+$string['roomnameedittoolong'] = 'Room name can only be upto {$a} characters in length';
 $string['room'] = 'Room';
 $string['rooms'] = 'Rooms';
 $string['roomshown'] = 'Room shown successfully';
