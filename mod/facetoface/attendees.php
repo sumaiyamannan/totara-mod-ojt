@@ -403,8 +403,8 @@ if ($action == 'waitlist') {
 
     $lotteryenabled = get_config(null, 'facetoface_lotteryenabled');
 
-    $actions['confirmattendees'] = get_string('confirm');
-    $actions['cancelattendees'] = get_string('cancel');
+    $actions['confirmattendees'] = get_string('confirmattendees', 'facetoface');
+    $actions['cancelattendees'] = get_string('cancelattendees', 'facetoface');
     if ($lotteryenabled) {
         $actions['playlottery'] = get_string('playlottery', 'facetoface');
     }
@@ -1171,7 +1171,7 @@ if ($show_table) {
             // Save and cancel buttons.
             echo html_writer::start_tag('p');
             echo html_writer::empty_tag('input', array('type' => 'submit', 'value' => get_string('saveattendance', 'facetoface')));
-            echo '&nbsp;' . html_writer::empty_tag('input', array('type' => 'submit', 'name' => 'cancelform', 'value' => get_string('cancel')));
+            echo '&nbsp;' . html_writer::empty_tag('input', array('type' => 'submit', 'name' => 'cancelform', 'value' => get_string('cancelattendance', 'facetoface')));
             echo html_writer::end_tag('p') . html_writer::end_tag('form');
         }
 
