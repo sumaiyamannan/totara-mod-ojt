@@ -77,21 +77,22 @@ echo $renderer->heading($PAGE->title);
 echo $renderer->render_asset_details($asset);
 
 if ($report) {
+
+    /** @var totara_reportbuilder_renderer $reportrenderer */
+    $reportrenderer = $PAGE->get_renderer('totara_reportbuilder');
+    // This must be done after the header and before any other use of the report.
+    list($reporthtml, $debughtml) = $reportrenderer->report_html($report, $debug);
+    echo $debughtml;
+
     $report->display_restrictions();
 
     echo $renderer->heading(get_string('upcomingsessionsinasset', 'facetoface'));
-
-    if ($debug) {
-        $report->debug($debug);
-    }
-
-    $reportrenderer = $PAGE->get_renderer('totara_reportbuilder');
     echo $reportrenderer->print_description($report->description, $report->_id);
 
     $report->display_search();
     $report->display_sidebar_search();
     echo $report->display_saved_search_options();
-    $report->display_table();
+    echo $reporthtml;
 
     if (!empty($backurl)) {
         echo $renderer->single_button($backurl, get_string('goback', 'facetoface'), 'get');

@@ -1223,5 +1223,20 @@ function xmldb_totara_reportbuilder_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2016092002, 'totara', 'reportbuilder');
     }
 
+    if ($oldversion < 2016092004) {
+
+        // Define field showtotalcount to be added to report_builder.
+        $table = new xmldb_table('report_builder');
+        $field = new xmldb_field('showtotalcount', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0', 'timemodified');
+
+        // Conditionally launch add field showtotalcount.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Reportbuilder savepoint reached.
+        upgrade_plugin_savepoint(true, 2016092004, 'totara', 'reportbuilder');
+    }
+
     return true;
 }

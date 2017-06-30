@@ -1056,7 +1056,14 @@ class report_builder_edit_performance_form extends moodleform {
         $id = $this->_customdata['id'];
         $schedule = $this->_customdata['schedule'];
 
-        $mform->addElement('header', 'general', get_string('initialdisplay_heading', 'totara_reportbuilder'));
+        if (get_config('totara_reportbuilder', 'allowtotalcount')) {
+            // If we are allowed to add the total count then we will add the input to enable it for this report.
+            $mform->addElement('header', 'generalperformance', get_string('generalperformancesettings', 'totara_reportbuilder'));
+            $mform->addElement('checkbox', 'showtotalcount', get_string('showtotalcount', 'totara_reportbuilder'));
+            $mform->addHelpButton('showtotalcount', 'showtotalcount', 'totara_reportbuilder');
+        }
+
+        $mform->addElement('header', 'filterperformance', get_string('initialdisplay_heading', 'totara_reportbuilder'));
         $initial_display_attributes = sizeof($report->filters) < 1 ? array('disabled' => 'disabled', 'group' => null) : null;
         $initial_display_sidenote = is_null($initial_display_attributes) ? '' : get_string('initialdisplay_disabled', 'totara_reportbuilder');
         $mform->addElement('advcheckbox', 'initialdisplay', get_string('initialdisplay', 'totara_reportbuilder'),
@@ -1065,7 +1072,7 @@ class report_builder_edit_performance_form extends moodleform {
         $mform->setDefault('initialdisplay', RB_INITIAL_DISPLAY_SHOW);
         $mform->addHelpButton('initialdisplay', 'initialdisplay', 'totara_reportbuilder');
 
-        $mform->addElement('header', 'general', get_string('reportbuildercache_heading', 'totara_reportbuilder'));
+        $mform->addElement('header', 'cachingperformance', get_string('reportbuildercache_heading', 'totara_reportbuilder'));
         if (!empty($CFG->enablereportcaching)) {
             //only show report cache settings if it is enabled
             $caching_attributes = $report->src->cacheable ? null : array('disabled' => 'disabled', 'group' => null);

@@ -40,7 +40,7 @@ $iscertif = $program->is_certif();
 
 $PAGE->set_url('/totara/program/assignment/duedates_report.php');
 $PAGE->set_context(context_system::instance());
-
+/** @var totara_reportbuilder_renderer $renderer */
 $renderer = $PAGE->get_renderer('totara_reportbuilder');
 
 if (!empty($program->certifid)) {
@@ -57,9 +57,9 @@ if (!empty($program->certifid)) {
     }
 }
 
-if ($debug) {
-    $report->debug($debug);
-}
+// This must be done after the header and before any other use of the report.
+list($reporthtml, $debughtml) = $renderer->report_html($report, $debug);
+echo $debughtml;
 
 $countall = $report->get_full_count();
 
@@ -69,4 +69,4 @@ echo $renderer->heading($heading);
 $report->display_search();
 $report->display_sidebar_search();
 
-$report->display_table();
+echo $reporthtml;

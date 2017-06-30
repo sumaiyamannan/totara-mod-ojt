@@ -86,17 +86,19 @@ if ($report) {
 
     echo $renderer->heading(get_string('upcomingsessionsinroom', 'facetoface'));
 
-    if ($debug) {
-        $report->debug($debug);
-    }
-
+    /** @var totara_reportbuilder_renderer $reportrenderer */
     $reportrenderer = $PAGE->get_renderer('totara_reportbuilder');
+
+    // This must be done after the header and before any other use of the report.
+    list($reporthtml, $debughtml) = $reportrenderer->report_html($report, $debug);
+    echo $debughtml;
+
     echo $reportrenderer->print_description($report->description, $report->_id);
 
     $report->display_search();
     $report->display_sidebar_search();
     echo $report->display_saved_search_options();
-    $report->display_table();
+    echo $reporthtml;
 
     if (!$popup && !empty($backurl)) {
         echo $renderer->single_button($backurl, get_string('goback', 'facetoface'), 'get');

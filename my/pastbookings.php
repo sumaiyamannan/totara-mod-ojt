@@ -48,6 +48,7 @@ if ($USER->id != $userid && !\totara_job\job_assignment::is_managing($USER->id, 
     print_error('error:cannotviewthispage', 'totara_core');
 }
 
+/** @var totara_reportbuilder_renderer $output */
 $output = $PAGE->get_renderer('totara_reportbuilder');
 
 if ($USER->id != $userid) {
@@ -121,14 +122,14 @@ echo $OUTPUT->header();
 $currenttab = "pastbookings";
 include('booking_tabs.php');
 
+// This must be done after the header and before any other use of the report.
+list($reporthtml, $debughtml) = $output->report_html($report, $debug);
+echo $debughtml;
+
 $report->display_restrictions();
 
-$countfiltered = $report->get_filtered_count();
-$countall = $report->get_full_count();
-
 // Display heading including filtering stats.
-$heading = $strheading . ': ' .
-    $output->print_result_count_string($countfiltered, $countall);
+$heading = $strheading . ': ' . $output->result_count_info($report);
 echo $OUTPUT->heading($heading);
 
 print $output->print_description($report->description, $report->_id);
@@ -138,16 +139,11 @@ $report->display_sidebar_search();
 
 // Print saved search buttons if appropriate.
 echo $report->display_saved_search_options();
-
 echo html_writer::empty_tag('br');
-
-print $output->showhide_button($report->_id, $report->shortname);
-
-$report->display_table();
+echo $output->showhide_button($report->_id, $report->shortname);
+echo $reporthtml;
 
 // Export button.
 $output->export_select($report, $sid);
 
 echo $OUTPUT->footer();
-
-?>

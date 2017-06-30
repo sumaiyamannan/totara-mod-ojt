@@ -43,6 +43,7 @@ if (!$user = $DB->get_record('user', array('id' => $userid))) {
     print_error('error:usernotfound', 'totara_core');
 }
 
+/** @var totara_reportbuilder_renderer $renderer */
 $renderer = $PAGE->get_renderer('totara_reportbuilder');
 
 if ($USER->id != $userid) {
@@ -68,10 +69,6 @@ $data = array(
 );
 if (!$report = reportbuilder_get_embedded_report($shortname, $data, false, $sid)) {
     print_error('error:couldnotgenerateembeddedreport', 'totara_reportbuilder');
-}
-
-if ($debug) {
-    $report->debug($debug);
 }
 
 $logurl = $PAGE->url->out_as_local_url();
@@ -116,13 +113,13 @@ echo $OUTPUT->header();
 $currenttab = "futurebookings";
 include('booking_tabs.php');
 
+// This must be done after the header and before any other use of the report.
+list($reporthtml, $debughtml) = $renderer->report_html($report, $debug);
+echo $debughtml;
+
 $report->display_restrictions();
 
-$countfiltered = $report->get_filtered_count();
-$countall = $report->get_full_count();
-
-$heading = $strheading . ': ' .
-    $renderer->print_result_count_string($countfiltered, $countall);
+$heading = $strheading . ': ' . $renderer->result_count_info($report);
 echo $OUTPUT->heading($heading);
 
 print $renderer->print_description($report->description, $report->_id);
@@ -135,13 +132,11 @@ echo $report->display_saved_search_options();
 
 echo html_writer::empty_tag('br');
 
-print $renderer->showhide_button($report->_id, $report->shortname);
+echo $renderer->showhide_button($report->_id, $report->shortname);
 
-$report->display_table();
+echo $reporthtml;
 
 // Export button.
 $renderer->export_select($report, $sid);
 
 echo $OUTPUT->footer();
-
-?>

@@ -1028,7 +1028,7 @@ function get_my_scheduled_reports_list($sqlclause=array()) {
 }
 
 function totara_print_my_courses() {
-    global $CFG, $OUTPUT;
+    global $CFG, $OUTPUT, $PAGE;
 
     // Report builder lib is required for the embedded report.
     require_once($CFG->dirroot.'/totara/reportbuilder/lib.php');
@@ -1042,12 +1042,14 @@ function totara_print_my_courses() {
         print_error('error:couldnotgenerateembeddedreport', 'totara_reportbuilder');
     }
 
-    if ($debug) {
-        $report->debug($debug);
-    }
-
     $report->include_js();
-    $report->display_table();
+
+    /** @var totara_reportbuilder_renderer $renderer */
+    $renderer = $PAGE->get_renderer('totara_reportbuilder');
+    // This must be done after the header and before any other use of the report.
+    list($reporthtml, $debughtml) = $renderer->report_html($report, $debug);
+    echo $debughtml;
+    echo $reporthtml;
 }
 
 

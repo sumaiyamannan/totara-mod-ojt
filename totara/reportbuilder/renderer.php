@@ -818,24 +818,76 @@ class totara_reportbuilder_renderer extends plugin_renderer_base {
     /**
      * Return the appropriate string describing the search matches
      *
+     * @deprecated since Totara 9.9, 10 Please call $this->result_count_info() instead.
      * @param integer $countfiltered Number of records that matched the search query
      * @param integer $countall Number of records in total (with no search)
-     *
      * @return string Text describing the number of results
      */
     public function print_result_count_string($countfiltered, $countall) {
-        // get pluralisation right
-        $resultstr = $countall == 1 ? 'record' : 'records';
 
-        if ($countfiltered == $countall) {
-            $heading = get_string('x' . $resultstr, 'totara_reportbuilder', $countall);
+        debugging(__METHOD__ . ' has been deprecated please call totara_reportbuilder_renderer::result_count_info instead', DEBUG_DEVELOPER);
+
+        $displaycountall = get_config('totara_reportbuilder', 'allowtotalcount');
+
+        // Countall is 0.
+        if (empty($displaycountall) || ($countall == 0 && $countfiltered > 0)) {
+            // If we're here then countall is obviously wrong, so don't display it.
+            $resultstr = ((int)$countfiltered === 1) ? 'xrecord' : 'xrecords';
+            $a = $countfiltered;
         } else {
+            $resultstr = ((int)$countall === 1) ? 'xofyrecord' : 'xofyrecords';
             $a = new stdClass();
             $a->filtered = $countfiltered;
             $a->unfiltered = $countall;
-            $heading = get_string('xofy' . $resultstr, 'totara_reportbuilder', $a);
+
         }
-        return html_writer::span($heading, 'rb-record-count');
+        return html_writer::span(get_string($resultstr, 'totara_reportbuilder', $a), 'rb-record-count');
+    }
+
+    /**
+     * Returns HTML containing a string detailing the result count for the given report.
+     *
+     * @param reportbuilder $report
+     * @return string
+     */
+    public function result_count_info(reportbuilder $report) {
+
+        $filteredcount = $report->get_filtered_count();
+        if ($report->can_display_total_count()) {
+            $unfilteredcount = $report->get_full_count();
+            $resultstr = ((int)$unfilteredcount === 1) ? 'record' : 'records';
+            $a = new stdClass();
+            $a->filtered = $filteredcount;
+            $a->unfiltered = $unfilteredcount;
+            $string = get_string('xofy' . $resultstr, 'totara_reportbuilder', $a);
+        } else{
+            $resultstr = ((int)$filteredcount === 1) ? 'record' : 'records';
+            $string = get_string('x' . $resultstr, 'totara_reportbuilder', $filteredcount);
+        }
+
+        return html_writer::span($string, 'rb-record-count');
+    }
+
+    /**
+     * Generates the report HTML and debug HTML if required.
+     *
+     * This method should always be called after the header has been output, before
+     * the report has been used for anything, and before any other renderer methods have been called.
+     * By doing this the report counts will be cached and you will avoid needing to run the count queries
+     * which are nearly as expensive as the reports.
+     *
+     * @since Totara 9.9, 10
+     * @param reportbuilder $report
+     * @param int $debug
+     * @return array
+     */
+    public function report_html(reportbuilder $report, $debug = 0) {
+        // Generate and output the debug HTML before we do anything else with the report.
+        // This way if there is an error it we already have debug.
+        $debughtml = ($debug > 0) ? $report->debug((int)$debug, true) : '';
+        // Now generate the report HTML before anything else, this is optimised to cache counts.
+        $reporthtml = $report->display_table(true);
+        return array($debughtml, $reporthtml);
     }
 
     /**

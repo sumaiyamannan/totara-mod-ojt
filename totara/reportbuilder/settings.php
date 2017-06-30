@@ -65,6 +65,16 @@ if ($ADMIN->fulltree) {
     $rb->add(new admin_setting_configtext('reportbuilder/globalrestrictionrecordsperpage',
         new lang_string('globalrestrictionrecordsperpage', 'totara_reportbuilder'),
         new lang_string('globalrestrictionrecordsperpage_desc', 'totara_reportbuilder'), 40, PARAM_INT));
+
+    $rb->add(
+        new admin_setting_configcheckbox(
+            'totara_reportbuilder/allowtotalcount',
+            new lang_string('allowtotalcount', 'totara_reportbuilder'),
+            new lang_string('allowtotalcount_desc', 'totara_reportbuilder'),
+            0,
+            PARAM_INT
+        )
+    );
 }
 
 // Add all above settings to the report builder settings node.

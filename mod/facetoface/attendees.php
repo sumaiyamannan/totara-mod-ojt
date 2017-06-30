@@ -785,9 +785,11 @@ if ($show_table) {
 
     if ($action == 'attendees') {
 
-        if ($debug) {
-            $report->debug($debug);
-        }
+        /** @var totara_reportbuilder_renderer $output */
+        $output = $PAGE->get_renderer('totara_reportbuilder');
+        // This must be done after the header and before any other use of the report.
+        list($reporthtml, $debughtml) = $output->report_html($report, $debug);
+        echo $debughtml;
 
         $report->display_search();
         $report->display_sidebar_search();
@@ -795,8 +797,7 @@ if ($show_table) {
         // Print saved search buttons if appropriate.
         echo $report->display_saved_search_options();
 
-        $report->display_table();
-        $output = $PAGE->get_renderer('totara_reportbuilder');
+        echo $reporthtml;
         $output->export_select($report, $sid);
 
     } else if (empty($rows)) {

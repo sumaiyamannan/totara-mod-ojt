@@ -753,9 +753,7 @@ class totara_reportbuilder_lib_testcase extends advanced_testcase {
         $this->assertRegExp('/\(\s\(auser\.id\s+=\s+:[a-z0-9_]+\)\s+AND\s+\(base\.timemodified\s+>\s+[0-9]+\s+AND\s+base\.timemodified\s+!=\s+0\s+\)\)/', $restrictions[0]);
 
         // Test we can actually display this report with these restrictions.
-        ob_start();
-        $rb->display_table();
-        ob_end_clean();
+        $rb->display_table(true);
 
         $this->resetAfterTest(true);
     }

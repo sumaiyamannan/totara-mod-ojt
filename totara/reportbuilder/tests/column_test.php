@@ -828,6 +828,9 @@ class totara_reportbuilder_column_testcase extends reportcache_advanced_testcase
         $this->resetAfterTest();
         $this->setAdminUser();
 
+        // We need to be able to calculate the total count.
+        set_config('allowtotalcount', 1, 'totara_reportbuilder');
+
         $i = 1;
         $reportname = 'Test Report';
         $filtername = 'filtering_testreport';
@@ -850,6 +853,7 @@ class totara_reportbuilder_column_testcase extends reportcache_advanced_testcase
             $report->hidden = 0;
             $report->accessmode = 0;
             $report->contentmode = 0;
+            $report->showtotalcount = 1;
             $reportid = $DB->insert_record('report_builder', $report);
             $col = new stdClass();
             $col->reportid = $reportid;
