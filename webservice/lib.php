@@ -864,7 +864,6 @@ abstract class webservice_server implements webservice_server_interface {
         }
 
         $loginfaileddefaultparams = array(
-            'context' => context_system::instance(),
             'other' => array(
                 'method' => $this->authmethod,
                 'reason' => null
@@ -893,6 +892,15 @@ abstract class webservice_server implements webservice_server_interface {
                 throw new moodle_exception('missingpassword', 'webservice');
             }
 
+            // TOTARA: We need the user record now to check login attempts.
+            $user = $DB->get_record('user', array('username'=>$this->username, 'mnethostid'=>$CFG->mnet_localhost_id), '*', IGNORE_MISSING);
+
+            if (empty($user)) {
+                throw new moodle_exception('wrongusernamepassword', 'webservice','', null,'Login attempted with username which does not exist: ' . $this->username);
+            } else if (login_is_lockedout($user)) {
+                throw new moodle_exception('wrongusernamepassword', 'webservice','', null, 'Login has exceeded lockout limit');
+            }
+
             if (!$auth->user_login_webservice($this->username, $this->password)) {
 
                 // Log failed login attempts.
@@ -905,10 +913,11 @@ abstract class webservice_server implements webservice_server_interface {
                     get_string('failedtolog', 'webservice').": ".$this->username." - ".getremoteaddr() , 0));
                 $event->trigger();
 
-                throw new moodle_exception('wrongusernamepassword', 'webservice');
-            }
+                // TOTARA: add to login attempts as the lockout threshold may be in use.
+                login_attempt_failed($user);
 
-            $user = $DB->get_record('user', array('username'=>$this->username, 'mnethostid'=>$CFG->mnet_localhost_id), '*', MUST_EXIST);
+                throw new moodle_exception('wrongusernamepassword', 'webservice','', null, 'Wrong username or password');
+            }
 
         } else if ($this->authmethod == WEBSERVICE_AUTHMETHOD_PERMANENT_TOKEN){
             $user = $this->authenticate_by_token(EXTERNAL_TOKEN_PERMANENT);
