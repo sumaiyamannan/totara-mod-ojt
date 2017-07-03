@@ -147,6 +147,20 @@ class mod_facetoface_renderer extends plugin_renderer_base {
                 $signuplink = $this->session_options_signup_link($session, $sessionstarted, $minimal, $returntoallsessions, $displaytimezones);
                 $sessionrow[] = $this->session_options_table_cell($session, $viewattendees, $editevents, $reservelink, $signuplink);
 
+                $row = new html_table_row($sessionrow);
+
+                // Set the CSS class for the row.
+                if ($sessionstarted || !empty($session->cancelledstatus)) {
+                    $row->attributes = array('class' => 'dimmed_text');
+                } else if ($isbookedsession) {
+                    $row->attributes = array('class' => 'highlight');
+                } else if ($sessionfull && $session->allowoverbook == '0') {
+                    $row->attributes = array('class' => 'dimmed_text');
+                }
+
+                // Add row to table.
+                $table->data[] = $row;
+
             } else {
                 // If there are session dates, we create one row per session date, but some will be
                 // given a rowspan value as they apply to the whole session rather than just the session date.
@@ -187,22 +201,22 @@ class mod_facetoface_renderer extends plugin_renderer_base {
 
                     // $firsessiondate should only be true on the iteration of this foreach loop.
                     $firstsessiondate = false;
+
+                    $row = new html_table_row($sessionrow);
+
+                    // Set the CSS class for the row.
+                    if ($sessionstarted || !empty($session->cancelledstatus)) {
+                        $row->attributes = array('class' => 'dimmed_text');
+                    } else if ($isbookedsession) {
+                        $row->attributes = array('class' => 'highlight');
+                    } else if ($sessionfull && $session->allowoverbook == '0') {
+                        $row->attributes = array('class' => 'dimmed_text');
+                    }
+
+                    // Add row to table.
+                    $table->data[] = $row;
                 }
             }
-
-            $row = new html_table_row($sessionrow);
-
-            // Set the CSS class for the row.
-            if ($sessionstarted || !empty($session->cancelledstatus)) {
-                $row->attributes = array('class' => 'dimmed_text');
-            } else if ($isbookedsession) {
-                $row->attributes = array('class' => 'highlight');
-            } else if ($sessionfull && $session->allowoverbook == '0') {
-                $row->attributes = array('class' => 'dimmed_text');
-            }
-
-            // Add row to table.
-            $table->data[] = $row;
         }
 
         if (empty($table->data)) {
