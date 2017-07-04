@@ -258,6 +258,11 @@ class totara_sync_source_user_database extends totara_sync_source_user {
                 }
             }
 
+            // Treat nulls in the 'deleted' database column as not deleted.
+            if (!empty($this->config->import_deleted)) {
+                $dbrow['deleted'] = empty($dbrow['deleted']) ? 0 : $dbrow['deleted'];
+            }
+
             if (empty($dbrow['username'])) {
                 $dbrow['username'] = '';
             }
