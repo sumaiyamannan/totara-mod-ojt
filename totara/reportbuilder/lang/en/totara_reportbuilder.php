@@ -818,6 +818,7 @@ When **Show records by user** is selected the report will show different records
 
 If multiple options are selected the user sees records that match any of the selected options.';
 $string['reportcachingdisabled'] = 'Report caching is disabled. <a href="{$a}">Enable report caching here</a>';
+$string['reportcachingincompatiblefilter'] = 'Filter "{$a}" is not compatible with report caching.';
 $string['reportcolumns'] = 'Report Columns';
 $string['reportconfirmdelete'] = 'Are you sure you want to delete this report?';
 $string['reportconfirmreload'] = 'This is an embedded report so you cannot delete it (that must be done by your site developer). You can choose to reset the report settings to their original values. Do you want to continue?';

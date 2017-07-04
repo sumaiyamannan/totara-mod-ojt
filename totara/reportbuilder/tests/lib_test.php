@@ -546,6 +546,19 @@ class totara_reportbuilder_lib_testcase extends advanced_testcase {
         $this->resetAfterTest(true);
     }
 
+    public function test_get_caching_probelms() {
+        set_config('enablereportcaching', 0);
+        $rb = new reportbuilder(null, $this->shortname);
+        $problems = $rb->get_caching_problems();
+        $this->assertCount(1, $problems);
+        $this->assertContains('Report caching is disabled.', $problems[0]);
+
+        set_config('enablereportcaching', 1);
+        $rb = new reportbuilder(null, $this->shortname);
+        $problems = $rb->get_caching_problems();
+        $this->assertCount(0, $problems);
+    }
+
     function test_reportbuilder_restore_saved_search() {
         global $SESSION, $USER, $DB;
         $rb = new reportbuilder($this->rb->_id, null, null, $this->savedsearch->id);

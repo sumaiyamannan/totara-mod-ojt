@@ -115,6 +115,31 @@ class rb_filter_type {
         if (isset($this->options['selectfunc'])) {
             $this->options['selectchoices'] = $this->get_select_choices($this->options['selectfunc']);
         }
+
+        // Did the developer specify caching compatibility explicitly?
+        if (!isset($this->options['cachingcompatible'])) {
+            // If not disable it if we have column vs field collision,
+            // because this it prevents the filters from working with the cache table.
+            $cachingcompatible = true;
+            if (!empty($filteroption->field)) {
+                $key = $this->type . '-' . $this->value;
+                if (isset($this->report->requiredcolumns[$key])) {
+                    $cachingcompatible = false;
+                } else if (isset($this->report->columnoptions[$key])) {
+                    $cachingcompatible = false;
+                }
+            }
+            $this->options['cachingcompatible'] = $cachingcompatible;
+        }
+    }
+
+    /**
+     * Is this filter compatible with report caching?
+     *
+     * @return bool
+     */
+    public function is_caching_compatible() {
+        return $this->options['cachingcompatible'];
     }
 
     /**

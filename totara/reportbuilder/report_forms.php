@@ -1052,6 +1052,7 @@ class report_builder_edit_performance_form extends moodleform {
     function definition() {
         global $output, $CFG;
         $mform =& $this->_form;
+        /** @var reportbuilder $report */
         $report = $this->_customdata['report'];
         $id = $this->_customdata['id'];
         $schedule = $this->_customdata['schedule'];
@@ -1073,7 +1074,8 @@ class report_builder_edit_performance_form extends moodleform {
         $mform->addHelpButton('initialdisplay', 'initialdisplay', 'totara_reportbuilder');
 
         $mform->addElement('header', 'cachingperformance', get_string('reportbuildercache_heading', 'totara_reportbuilder'));
-        if (!empty($CFG->enablereportcaching)) {
+        $problems = $report->get_caching_problems();
+        if (!$problems) {
             //only show report cache settings if it is enabled
             $caching_attributes = $report->src->cacheable ? null : array('disabled' => 'disabled', 'group' => null);
             $caching_sidenote = is_null($caching_attributes) ? '' :
@@ -1113,8 +1115,7 @@ class report_builder_edit_performance_form extends moodleform {
             //report caching is not enabled, inform user and link to settings page.
             $mform->addElement('hidden', 'cache', 0);
             $mform->setType('cache', PARAM_INT);
-            $enablelink = new moodle_url("/".$CFG->admin."/settings.php", array('section' => 'optionalsubsystems'));
-            $mform->addElement('static', 'reportcachingdisabled', '', get_string('reportcachingdisabled', 'totara_reportbuilder', $enablelink->out()));
+            $mform->addElement('static', 'reportcachingdisabled', '', implode('<br />', $problems));
         }
 
         $mform->addElement('hidden', 'id', $id);

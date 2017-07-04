@@ -439,6 +439,13 @@ class reportbuilder {
 
         $this->searchcolumns = $this->get_search_columns();
 
+        // Make sure everything is compatible with caching, if not disable the cache.
+        if ($this->cache) {
+            if ($this->get_caching_problems()) {
+                $this->cache = 0;
+            }
+        }
+
         $this->process_filters();
 
         // Allow the source to configure additional restrictions,
@@ -471,6 +478,31 @@ class reportbuilder {
     public function is_ready() {
         return $this->ready;
     }
+
+    /**
+     * Returns list of reasons why caching cannot be enabled
+     * for this report.
+     *
+     * @return string[]
+     */
+    public function get_caching_problems() {
+        global $CFG;
+
+        if (empty($CFG->enablereportcaching)) {
+            $enablelink = new moodle_url("/".$CFG->admin."/settings.php", array('section' => 'optionalsubsystems'));
+            return array(get_string('reportcachingdisabled', 'totara_reportbuilder', $enablelink->out()));
+        }
+
+        $problems = array();
+        foreach ($this->filters as $filter) {
+            /** @var rb_filter_type $filter */
+            if (!$filter->is_caching_compatible()) {
+                $problems[] = get_string('reportcachingincompatiblefilter', 'totara_reportbuilder', $filter->label);
+            }
+        }
+        return $problems;
+    }
+
     /**
      * Shortcut to function in report source.
      *
