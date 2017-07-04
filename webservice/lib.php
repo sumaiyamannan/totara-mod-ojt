@@ -330,19 +330,12 @@ class webservice {
             // create a token for the service which have no token already
             foreach ($serviceidlist as $serviceid) {
                 if (!in_array($serviceid, $tokenizedservice)) {
-                    // create the token for this service
-                    $newtoken = new stdClass();
-                    $newtoken->token = totara_core_generate_unique_db_value('external_tokens', 'token');
-                    // check that the user has capability on this service
-                    $newtoken->tokentype = EXTERNAL_TOKEN_PERMANENT;
-                    $newtoken->userid = $userid;
-                    $newtoken->externalserviceid = $serviceid;
-                    // TODO MDL-31190 find a way to get the context - UPDATE FOLLOWING LINE
-                    $newtoken->contextid = context_system::instance()->id;
-                    $newtoken->creatorid = $userid;
-                    $newtoken->timecreated = time();
-
-                    $DB->insert_record('external_tokens', $newtoken);
+                    external_generate_token(
+                        EXTERNAL_TOKEN_PERMANENT,
+                        $serviceid,
+                        $userid,
+                        context_system::instance()
+                    );
                 }
             }
 
