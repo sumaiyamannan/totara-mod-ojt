@@ -879,7 +879,7 @@ class totara_reportbuilder_renderer extends plugin_renderer_base {
      * @since Totara 9.9, 10
      * @param reportbuilder $report
      * @param int $debug
-     * @return array
+     * @return array The report html and the debughtml
      */
     public function report_html(reportbuilder $report, $debug = 0) {
         // Generate and output the debug HTML before we do anything else with the report.
@@ -887,7 +887,7 @@ class totara_reportbuilder_renderer extends plugin_renderer_base {
         $debughtml = ($debug > 0) ? $report->debug((int)$debug, true) : '';
         // Now generate the report HTML before anything else, this is optimised to cache counts.
         $reporthtml = $report->display_table(true);
-        return array($debughtml, $reporthtml);
+        return array($reporthtml, $debughtml);
     }
 
     /**
