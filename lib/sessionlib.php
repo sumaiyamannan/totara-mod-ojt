@@ -73,7 +73,8 @@ function confirm_sesskey($sesskey=NULL) {
         $sesskey = required_param('sesskey', PARAM_RAW);  // Check script parameters
     }
 
-    return (sesskey() === $sesskey);
+    // Totara: Using a timing-attack-safe function to compare the hashes.
+    return hash_equals(sesskey(), $sesskey);
 }
 
 /**
