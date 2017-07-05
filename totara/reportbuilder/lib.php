@@ -5335,6 +5335,10 @@ function sql_table_from_select($table, $select, array $params) {
                     $altersql = "ALTER TABLE {$table} ALTER COLUMN {$field->column_name} type varchar(255)";
                     $DB->execute($altersql);
                 }
+                if ($field->data_type == 'text') {
+                    // Not creating indexes on text fields
+                    continue 2;
+                }
             break;
         }
         $DB->execute($sql);
