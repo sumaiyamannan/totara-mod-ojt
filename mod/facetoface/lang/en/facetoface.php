@@ -108,6 +108,7 @@ $string['approvaltime'] = 'Time approved';
 $string['approve'] = 'Approve';
 $string['approved'] = 'Approved';
 $string['approvername'] = 'Approver name';
+$string['approverrolename'] = 'Approver role';
 $string['areyousureconfirmwaitlist'] = 'This will be over the event capacity allowance. Are you sure you want to continue?';
 $string['assessmentyour'] = 'Your assessment';
 $string['assetalreadybooked'] = ' (asset unavailable on selected dates)';
