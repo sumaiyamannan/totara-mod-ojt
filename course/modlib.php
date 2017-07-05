@@ -368,7 +368,10 @@ function set_moduleinfo_defaults($moduleinfo) {
     }
 
     // Convert the 'use grade' checkbox into a grade-item number: 0 if checked, null if not.
-    if (isset($moduleinfo->completionusegrade) && $moduleinfo->completionusegrade) {
+    // TOTARA CHANGE: to allow restricted access on completion+passgrade requirements.
+    $completionusegrade = isset($moduleinfo->completionusegrade) && $moduleinfo->completionusegrade;
+    $completionpass = isset($moduleinfo->completionpass) && $moduleinfo->completionpass;
+    if ($completionusegrade || $completionpass) {
         $moduleinfo->completiongradeitemnumber = 0;
     } else {
         $moduleinfo->completiongradeitemnumber = null;
