@@ -193,7 +193,7 @@ class totara_reportbuilder_upgradelib_testcase extends advanced_testcase {
         $this->assertEquals($this->contfil->advanced, $control->advanced);
     }
 
-    public function test_upgradelib_migrate_savedsearches() {
+    public function test_upgradelib_migrate_saved_search_filters() {
         global $DB;
 
         totara_reportbuilder_migrate_saved_search_filters(array('fullname' => 'shortname'), 'user', 'user');
@@ -235,5 +235,63 @@ class totara_reportbuilder_upgradelib_testcase extends advanced_testcase {
             $this->assertEquals(0, $value['operator']);
             $this->assertEquals('a', $value['value']);
         }
+    }
+
+    public function test_upgradelib_migrate_saved_searches() {
+        global $DB;
+
+        $saved = $DB->get_record('report_builder_saved', array('id' => $this->rbsaved->id));
+        totara_reportbuilder_migrate_saved_searches('*', 'user', 'fullname', 'user', 'shortname');
+
+        $saved = $DB->get_record('report_builder_saved', array('id' => $this->rbsaved->id));
+        $this->assertEquals($this->rbsaved->name, $saved->name);
+        $search = unserialize($saved->search);
+        foreach ($search as $key => $value) {
+            $this->assertEquals('user-shortname', $key);
+            $this->assertEquals(0, $value['operator']);
+            $this->assertEquals('a', $value['value']);
+        }
+
+        $control = $DB->get_record('report_builder_saved', array('id' => $this->contsave->id));
+        $this->assertEquals($this->contsave->name, $control->name);
+        $search = unserialize($control->search);
+        foreach ($search as $key => $value) {
+            $this->assertEquals('user-username', $key);
+            $this->assertEquals(0, $value['operator']);
+            $this->assertEquals('a', $value['value']);
+        }
+
+        totara_reportbuilder_migrate_saved_searches('user', 'user', 'shortname', 'manager', 'middlename');
+
+        $saved = $DB->get_record('report_builder_saved', array('id' => $this->rbsaved->id));
+        $this->assertEquals($this->rbsaved->name, $saved->name);
+        $search = unserialize($saved->search);
+        foreach ($search as $key => $value) {
+            $this->assertEquals('manager-middlename', $key);
+            $this->assertEquals(0, $value['operator']);
+            $this->assertEquals('a', $value['value']);
+        }
+
+        $control = $DB->get_record('report_builder_saved', array('id' => $this->contsave->id));
+        $this->assertEquals($this->contsave->name, $control->name);
+        $search = unserialize($control->search);
+        foreach ($search as $key => $value) {
+            $this->assertEquals('user-username', $key);
+            $this->assertEquals(0, $value['operator']);
+            $this->assertEquals('a', $value['value']);
+        }
+
+        // Check if source is incorrect, record is not migrated.
+        totara_reportbuilder_migrate_saved_searches('course_completions', 'manager', 'middlename', 'user', 'shortname');
+
+        $saved = $DB->get_record('report_builder_saved', array('id' => $this->rbsaved->id));
+        $this->assertEquals($this->rbsaved->name, $saved->name);
+        $search = unserialize($saved->search);
+        foreach ($search as $key => $value) {
+            $this->assertEquals('manager-middlename', $key);
+            $this->assertEquals(0, $value['operator']);
+            $this->assertEquals('a', $value['value']);
+        }
+
     }
 }

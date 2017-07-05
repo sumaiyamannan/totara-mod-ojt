@@ -4228,27 +4228,27 @@ abstract class rb_base_source {
 
         $filteroptions[] = new rb_filter_option(
             'job_assignment',
-            'allstartdates',
+            'allstartdatesfilter',
             get_string('jobassign_jobstart', 'totara_reportbuilder'),
             'grpconcat_date',
             array(
                 'prefix' => 'job',
                 'datefield' => 'startdate',
             ),
-            'startdate',
+            "{$users}.id",
             $users
         );
 
         $filteroptions[] = new rb_filter_option(
             'job_assignment',
-            'allenddates',
+            'allenddatesfilter',
             get_string('jobassign_jobend', 'totara_reportbuilder'),
             'grpconcat_date',
             array(
                 'prefix' => 'job',
                 'datefield' => 'enddate',
             ),
-            'enddate',
+            "{$users}.id",
             $users
         );
 
@@ -5011,14 +5011,14 @@ abstract class rb_base_source {
                 case 'datetime' :
                     $filteroptions[] = new rb_filter_option(
                         'job_assignment',
-                        $uniquename,
+                        $uniquename.'filter',
                         s($field->fullname),
                         'grpconcat_date',
                         array(
                             'datefield' => $field->shortname,
                             'prefix' => $prefix,
                         ),
-                        $field->shortname,
+                        "{$userjoin}.id",
                         $userjoin
                     );
                     break;

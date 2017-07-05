@@ -977,8 +977,7 @@ class totara_reportbuilder_column_testcase extends reportcache_advanced_testcase
                     $this->fail("Filter '{$filteroption->type}-{$filteroption->value}' in '{$sourcename}' has custom field and is colliding with required column, you need to add 'cachingcompatible' to filter options");
                 }
                 if (reportbuilder::get_single_item($src->columnoptions, $filteroption->type, $filteroption->value)) {
-                    // TODO: uncomment following after TL-14793 lands
-                    //$this->fail("Filter '{$filteroption->type}-{$filteroption->value}' in '{$sourcename}' has custom field and is colliding with column option, you need to add 'cachingcompatible' to filter options");
+                    $this->fail("Filter '{$filteroption->type}-{$filteroption->value}' in '{$sourcename}' has custom field and is colliding with column option, you need to add 'cachingcompatible' to filter options");
                 }
             }
         }
