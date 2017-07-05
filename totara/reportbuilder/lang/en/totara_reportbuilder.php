@@ -410,7 +410,7 @@ $string['graphorientationrow'] = 'Data series in rows';
 $string['graphseries'] = 'Data sources';
 $string['graphseries_help'] = 'Select one or more columns to use as data sources for the graph. Only columns with compatible numeric data are included.';
 $string['graphsettings'] = 'Custom settings';
-$string['graphsettings_help'] = 'Advanced SGVGraph settings in PHP ini file format. See <a href="http://www.goat1000.com/svggraph-settings.php" target="_blank">http://www.goat1000.com/svggraph-settings.php<a/> for more information.';
+$string['graphsettings_help'] = 'Advanced SVGGraph settings in PHP ini file format. See <a href="http://www.goat1000.com/svggraph-settings.php" target="_blank">http://www.goat1000.com/svggraph-settings.php</a> for more information.';
 $string['graphstacked'] = 'Stacked';
 $string['graphtype'] = 'Graph type';
 $string['graphtype_help'] = 'Select graph type to display a graph in report, select "None" to remove the graph from report.';
@@ -950,7 +950,7 @@ from the report.
 from the dropdown menu and clicking **Save changes**.';
 $string['sorting'] = 'Sorting';
 $string['source'] = 'Source';
-$string['standardfilter'] = 'Standard filter options.';
+$string['standardfilter'] = 'Standard filter options';
 $string['standardfilterdesc'] = 'The choices below determine which filter will appear above the report and how they are labelled.';
 $string['standardfilter_help'] = '
 **Standard filter options** allows you to customise the filters that appear above your report. The available filters are
