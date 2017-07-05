@@ -27,7 +27,7 @@ require_once($CFG->dirroot.'/totara/core/dialogs/dialog_content_programs.class.p
 require_once($CFG->dirroot.'/blocks/totara_program_completion/locallib.php');
 
 $blockid = required_param('blockid', PARAM_INT);  // Block instance id.
-$selected = optional_param('selected', array(), PARAM_SEQUENCE);
+$selectedids = optional_param('selected', '', PARAM_SEQUENCE);
 $categoryid = optional_param('parentid', 'cat0', PARAM_ALPHANUM); // Category id.
 // Strip cat from begining of categoryid.
 $categoryid = (int) substr($categoryid, 3);
@@ -35,8 +35,14 @@ $categoryid = (int) substr($categoryid, 3);
 require_login();
 $PAGE->set_context(context_system::instance());
 
-if (!empty($selected)) {
-    $selected = $DB->get_records_select('prog', "id IN ({$selected})", array(), '', 'id, fullname');
+// Convert to an array with no blanks.
+$selectedids = array_filter(explode(',', $selectedids));
+if (empty($selectedids)) {
+    $selected = array();
+} else {
+    $visible_programs = prog_get_programs($categoryid, '', 'p.id, p.fullname');
+    $selectedids = array_flip($selectedids);
+    $selected = array_intersect_key($visible_programs, $selectedids);
 }
 
 // Setup dialog.
