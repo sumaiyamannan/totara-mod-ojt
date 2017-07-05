@@ -52,6 +52,10 @@ class orderedlist_to_newline extends base {
 
         $output = implode($newitems, " \n");
 
+        if ($format !== 'html') {
+            $output = static::to_plaintext($output);
+        }
+
         // For excel and ods export, force cell type to be a string.
         if ($format == "excel" || $format == "ods") {
             return array('string', $output, null);
