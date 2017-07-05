@@ -27,6 +27,7 @@ require_once($CFG->dirroot . '/totara/job/lib.php');
 
 $userid = required_param('userid', PARAM_INT);
 $managerid = optional_param('parentid', false, PARAM_ALPHANUM);
+$disablecreateempty = optional_param('disablecreateempty', false, PARAM_BOOL);
 
 // If you can select a manager on signup and you don't have an account.
 $manageronsignup = (!empty($CFG->registerauth) && get_config('totara_job', 'allowsignupmanager') && $userid === 0);
@@ -59,6 +60,9 @@ $contextsystem = context_system::instance();
 $PAGE->set_context($contextsystem);
 
 $dialog = new totara_job_dialog_assign_manager($userid, $managerid);
+if ($disablecreateempty) {
+    $dialog->do_not_create_empty(true);
+}
 $dialog->load_data();
 
 echo $dialog->generate_markup();

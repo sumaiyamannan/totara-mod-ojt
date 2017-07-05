@@ -28,7 +28,9 @@ M.totara_jobassignment = M.totara_jobassignment || {
     Y: null,
     // optional php params and defaults defined here, args passed to init method
     // below will override these values
-    config: {},
+    config: {
+        disablecreateempty:false // whether to show "create empty job assignment" option
+    },
 
     /**
      * module initialisation method called by php js_init_call()
@@ -96,7 +98,7 @@ M.totara_jobassignment = M.totara_jobassignment || {
             totaraAssignManagerDialog(
                 'manager',
                 M.util.get_string('choosemanager', 'totara_job') + M.totara_jobassignment.config.dialog_display_manager,
-                url + '?userid='+M.totara_jobassignment.config.userid,
+                url + '?userid='+M.totara_jobassignment.config.userid + '&disablecreateempty='+M.totara_jobassignment.config.disablecreateempty,
                 'managerid',
                 'managerjaid',
                 'managertitle',
