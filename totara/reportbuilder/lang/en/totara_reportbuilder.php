@@ -1136,6 +1136,7 @@ $string['usersposmulti'] = 'User\'s Position (multi-item)';
 $string['userspospathids'] = 'User\'s Position Path IDs';
 $string['userspostypeall'] = 'User\'s Position Type(s)';
 $string['userstatus'] = 'User Status';
+$string['userstempmanagernameall'] = 'User\'s Temporary Manager Name(s)';
 $string['usertempreports'] = 'Records for user\'s temporary reports for any of the user\'s job assignments';
 $string['usertimecreated'] = 'User Creation Time';
 $string['usertimemodified'] = 'User Last Modified';

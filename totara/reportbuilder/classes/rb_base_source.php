@@ -2608,6 +2608,121 @@ abstract class rb_base_source {
             )
         );
 
+        $columnoptions[] = new rb_column_option(
+            $groupname,
+            'jobassignments',
+            get_string('jobassignments', 'totara_job'),
+            "(SELECT COUNT('x') FROM {job_assignment} ja WHERE ja.userid = $join.id)",
+            array(
+                'nosort' => true,
+                'joins' => $join,
+                'displayfunc' => 'user_jobassignments',
+                'addtypetoheading' => $addtypetoheading,
+                'extrafields' => array('userid' => "$join.id", 'deleted' => "$join.deleted"),
+            )
+        );
+
+        $columnoptions[] = new rb_column_option(
+            $groupname,
+            'jobpositionnames',
+            get_string('usersposnameall', 'totara_reportbuilder'),
+            "(SELECT " . $DB->sql_group_concat('p.fullname', ', ', 'p.fullname') . "
+                FROM {pos} p
+                JOIN {job_assignment} ja ON ja.positionid = p.id
+               WHERE ja.userid = $join.id AND p.fullname IS NOT NULL)",
+            array(
+                'displayfunc' => 'formatstring',
+                'joins' => $join,
+                'addtypetoheading' => $addtypetoheading,
+            )
+        );
+        $columnoptions[] = new rb_column_option(
+            $groupname,
+            'jobpositionidnumbers',
+            get_string('usersposidnumberall', 'totara_reportbuilder'),
+            "(SELECT " . $DB->sql_group_concat('p.idnumber', ', ', 'p.idnumber') . "
+                FROM {pos} p
+                JOIN {job_assignment} ja ON ja.positionid = p.id
+               WHERE ja.userid = $join.id AND p.idnumber IS NOT NULL AND p.idnumber <> '')",
+            array(
+                'displayfunc' => 'plaintext',
+                'joins' => $join,
+                'addtypetoheading' => $addtypetoheading,
+            )
+        );
+        $columnoptions[] = new rb_column_option(
+            $groupname,
+            'joborganisationnames',
+            get_string('usersorgnameall', 'totara_reportbuilder'),
+            "(SELECT " . $DB->sql_group_concat('o.fullname', ', ', 'o.fullname') . "
+                FROM {org} o
+                JOIN {job_assignment} ja ON ja.organisationid = o.id
+               WHERE ja.userid = $join.id AND o.fullname IS NOT NULL)",
+            array(
+                'displayfunc' => 'formatstring',
+                'joins' => $join,
+                'addtypetoheading' => $addtypetoheading,
+            )
+        );
+        $columnoptions[] = new rb_column_option(
+            $groupname,
+            'joborganisationidnumbers',
+            get_string('usersorgidnumberall', 'totara_reportbuilder'),
+            "(SELECT " . $DB->sql_group_concat('o.idnumber', ', ', 'o.idnumber') . "
+                FROM {org} o
+                JOIN {job_assignment} ja ON ja.organisationid = o.id
+               WHERE ja.userid = $join.id AND o.idnumber IS NOT NULL AND o.idnumber <> '')",
+            array(
+                'displayfunc' => 'plaintext',
+                'joins' => $join,
+                'addtypetoheading' => $addtypetoheading,
+            )
+        );
+        $columnoptions[] = new rb_column_option(
+            $groupname,
+            'jobmanagernames',
+            get_string('usersmanagernameall', 'totara_reportbuilder'),
+            "(SELECT " . $DB->sql_group_concat($DB->sql_concat_join("' '", array('m.firstname', 'm.lastname')), ', ', 'm.firstname') . "
+                FROM {user} m
+                JOIN {job_assignment} mja ON mja.userid = m.id
+                JOIN {job_assignment} ja ON ja.managerjaid = mja.id
+               WHERE ja.userid = $join.id)",
+            array(
+                'displayfunc' => 'plaintext',
+                'joins' => $join,
+                'addtypetoheading' => $addtypetoheading,
+            )
+        );
+        $columnoptions[] = new rb_column_option(
+            $groupname,
+            'jobappraisernames',
+            get_string('usersappraisernameall', 'totara_reportbuilder'),
+            "(SELECT " . $DB->sql_group_concat($DB->sql_concat_join("' '", array('a.firstname', 'a.lastname')), ', ', 'a.firstname') . "
+                FROM {user} a
+                JOIN {job_assignment} ja ON ja.appraiserid = a.id
+               WHERE ja.userid = $join.id)",
+            array(
+                'displayfunc' => 'plaintext',
+                'joins' => $join,
+                'addtypetoheading' => $addtypetoheading,
+            )
+        );
+        $columnoptions[] = new rb_column_option(
+            $groupname,
+            'jobtempmanagernames',
+            get_string('userstempmanagernameall', 'totara_reportbuilder'),
+            "(SELECT " . $DB->sql_group_concat($DB->sql_concat_join("' '", array('m.firstname', 'm.lastname')), ', ', 'm.firstname') . "
+                FROM {user} m
+                JOIN {job_assignment} mja ON mja.userid = m.id
+                JOIN {job_assignment} ja ON ja.tempmanagerjaid = mja.id
+               WHERE ja.userid = $join.id AND ja.tempmanagerexpirydate > " . time() . ")", // This is not compatible with caching much!
+            array(
+                'displayfunc' => 'plaintext',
+                'joins' => $join,
+                'addtypetoheading' => $addtypetoheading,
+            )
+        );
+
         return true;
     }
 
