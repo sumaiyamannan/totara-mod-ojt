@@ -94,14 +94,15 @@ echo $output->heading($strheading, 2);
 $report->display_restrictions();
 
 // Display heading including filtering stats.
+$countfiltered = $report->get_filtered_count();
 if ($report->can_display_total_count()) {
     $resultstr = 'recordsshown';
     $a = new stdClass();
-    $a->countfiltered = $report->get_filtered_count();
+    $a->countfiltered = $countfiltered;
     $a->countall = $report->get_full_count();
 } else{
     $resultstr = 'recordsall';
-    $a = $report->get_filtered_count();
+    $a = $countfiltered;
 }
 echo $output->heading(get_string($resultstr, 'totara_message', $a), 3);
 

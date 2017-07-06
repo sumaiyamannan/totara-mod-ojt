@@ -114,7 +114,7 @@ $report->display_sidebar_search();
 
 // Print saved search buttons if appropriate.
 echo $report->display_saved_search_options();
-echo $tablehtml;
+echo $reporthtml;
 
 // Export button.
 $renderer->export_select($report, $sid);
