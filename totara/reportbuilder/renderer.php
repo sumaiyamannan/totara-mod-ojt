@@ -95,7 +95,10 @@ class totara_reportbuilder_renderer extends plugin_renderer_base {
                     array('title' => $strdelete));
                 $cache = '';
                 if (!empty($CFG->enablereportcaching) && !empty($report->cache)) {
-                    $cache = $this->cachenow_button($report->id, true);
+                    $reportbuilder = new reportbuilder($report->id);
+                    if (empty($reportbuilder->get_caching_problems())) {
+                        $cache = $this->cachenow_button($report->id, true);
+                    }
                 }
                 $clone = $this->output->action_icon($cloneurl, new pix_icon('/t/copy', $strclone, 'moodle'), null,
                     array('title' => $strclone));
@@ -192,7 +195,10 @@ class totara_reportbuilder_renderer extends plugin_renderer_base {
                     array('title' => $strreload));
             $cache = '';
             if (!empty($CFG->enablereportcaching) && !empty($report->cache)) {
-                 $cache = $this->cachenow_button($report->id, true);
+                $reportbuilder = new reportbuilder($report->id);
+                if (empty($reportbuilder->get_caching_problems())) {
+                    $cache = $this->cachenow_button($report->id, true);
+                }
             }
             $clone = $this->output->action_icon($cloneurl, new pix_icon('/t/copy', $strclone, 'moodle'), null,
                     array('title' => $strclone));
