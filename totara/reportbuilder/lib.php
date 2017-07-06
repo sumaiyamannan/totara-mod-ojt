@@ -5289,6 +5289,7 @@ function sql_table_from_select($table, $select, array $params) {
     }
 
     // Create indexes
+    $indexcount = 0;
     $fields = $DB->get_records_sql($columnssql);
     foreach ($fields as $field) {
         $hashfieldname = substr(md5($field->$fieldname), 0, 15);
@@ -5298,6 +5299,10 @@ function sql_table_from_select($table, $select, array $params) {
         switch ($DB->get_dbfamily()) {
             // NOTE: Continue inside switch needs to use "2" because switch behaves like a looping structure.
             case 'mysql':
+                if ($indexcount > 62) {
+                    // MySQL has limit on the number of indexes per table.
+                    break 2;
+                }
                 // Do not index fields with size 0
                 if (strpos($field->type, '(0)') !== false) {
                     continue 2;
@@ -5341,6 +5346,7 @@ function sql_table_from_select($table, $select, array $params) {
                 }
             break;
         }
+        $indexcount++;
         $DB->execute($sql);
     }
     $DB->reset_caches();
