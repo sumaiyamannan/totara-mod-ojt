@@ -45,8 +45,18 @@ class totara_reportbuilder_rb_jobassignment_cache_test extends reportcache_advan
                                     'heading' => '', 'sortorder' => 3),
                                 array('id' => 4, 'reportid' => 6, 'type' => 'job_assignment', 'value' => 'allorganisations',
                                     'heading' => '', 'sortorder' => 4),
+                                array('id' => 5, 'reportid' => 6, 'type' => 'job_assignment', 'value' => 'allstartdatesfilter',
+                                    'heading' => '', 'sortorder' => 5),
+                                array('id' => 6, 'reportid' => 6, 'type' => 'job_assignment', 'value' => 'allenddatesfilter',
+                                    'heading' => '', 'sortorder' => 6),
                                 array('id' => 7, 'reportid' => 6, 'type' => 'job_assignment', 'value' => 'allappraisers',
-                                    'heading' => '', 'sortorder' => 5));
+                                    'heading' => '', 'sortorder' => 7));
+
+    protected $report_builder_columns_additional_data = array(
+                                array('id' => 2, 'reportid' => 6, 'type' => 'job_assignment', 'value' => 'allstartdates',
+                                    'heading' => '', 'sortorder' => 3),
+                                array('id' => 3, 'reportid' => 6, 'type' => 'job_assignment', 'value' => 'allenddates',
+                                    'heading' => '', 'sortorder' => 4));
 
     /**
      * Prepare mock data for testing
@@ -74,7 +84,8 @@ class totara_reportbuilder_rb_jobassignment_cache_test extends reportcache_advan
         $this->enable_caching($this->report_builder_data['id']);
         $this->assertSame(RB_CACHE_FLAG_OK, $this->get_report_cache_status($this->report_builder_data['id'], array()));
 
-        $this->loadDataSet($this->createArrayDataSet(array('report_builder_filters' => $this->report_builder_filters_additional_data)));
+        $this->loadDataSet($this->createArrayDataSet(array('report_builder_filters' => $this->report_builder_filters_additional_data,
+                                                           'report_builder_columns' => $this->report_builder_columns_additional_data)));
 
         $report = new reportbuilder($this->report_builder_data['id']);
         // Make sure the cached table is not longer valid.
