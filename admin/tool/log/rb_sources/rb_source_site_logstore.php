@@ -50,6 +50,9 @@ class rb_source_site_logstore extends rb_base_source {
         $this->sourcetitle = get_string('sourcetitle', 'rb_source_site_logstore');
         $this->sourcewhere = 'anonymous = 0';
 
+        // No caching!!! The table is way too big and there are tons of extra fields.
+        $this->cacheable = false;
+
         parent::__construct();
     }
 
@@ -147,16 +150,14 @@ class rb_source_site_logstore extends rb_base_source {
                 'component',
                 get_string('component', 'rb_source_site_logstore'),
                 'base.component',
-                array('displayfunc' => 'component',
-                      'extrafields' => $eventextrafields)
+                array('displayfunc' => 'component')
             ),
             new rb_column_option(
                 'logstore_standard_log',
                 'context',
                 get_string('context', 'rb_source_site_logstore'),
                 'base.contextid',
-                array('displayfunc' => 'context',
-                      'extrafields' => $eventextrafields)
+                array('displayfunc' => 'context')
             ),
             new rb_column_option(
                 'logstore_standard_log',
@@ -217,10 +218,8 @@ class rb_source_site_logstore extends rb_base_source {
                 'logstore_standard_log',
                 'name',
                 get_string('name', 'rb_source_site_logstore'),
-                'base.id',
-                array('displayfunc' => 'name',
-                      'extrafields' => $eventextrafields
-                     )
+                'base.eventname',
+                array('displayfunc' => 'name')
             ),
             new rb_column_option(
                 'logstore_standard_log',
@@ -518,13 +517,15 @@ class rb_source_site_logstore extends rb_base_source {
 
     /**
      * Displays event name
-     * @param string $id
+     * @param string $eventname
      * @param stdClass $row
      * @return string
      */
-    public function rb_display_name($id, $row) {
-        $event = \core\event\base::restore((array)$row, array());
-        return $event->get_name();
+    public function rb_display_name($eventname, $row) {
+        if (!class_exists($eventname) or !is_subclass_of($eventname, 'core\event\base')) {
+            return s($eventname);
+        }
+        return $eventname::get_name();
     }
 
     /**
@@ -558,15 +559,13 @@ class rb_source_site_logstore extends rb_base_source {
      * @return string
      */
     public function rb_display_context($id, $row) {
-        $event = \core\event\base::restore((array)$row, array());
-        // Code used from report/log/classes/table_log.php:col_context.
         // Add context name.
-        if ($event->contextid) {
+        if ($id) {
             // If context name was fetched before then return, else get one.
-            if (isset($this->contextname[$event->contextid])) {
-                return $this->contextname[$event->contextid];
+            if (isset($this->contextname[$id])) {
+                return $this->contextname[$id];
             } else {
-                $context = context::instance_by_id($event->contextid, IGNORE_MISSING);
+                $context = context::instance_by_id($id, IGNORE_MISSING);
                 if ($context) {
                     $contextname = $context->get_context_name(true);
                     if (empty($this->download) && $url = $context->get_url()) {
@@ -580,7 +579,7 @@ class rb_source_site_logstore extends rb_base_source {
             $contextname = get_string('other');
         }
 
-        $this->contextname[$event->contextid] = $contextname;
+        $this->contextname[$id] = $contextname;
         return $contextname;
     }
 
@@ -602,12 +601,12 @@ class rb_source_site_logstore extends rb_base_source {
 
     /**
      * Generate the component column.
-     * @param string $desc
+     * @param string $component
      * @param stdClass $row
      * @return string
      */
-    public function rb_display_component($desc, $row) {
-        return $this->get_component_str($row->component);
+    public function rb_display_component($component, $row) {
+        return $this->get_component_str($component);
     }
 
     /**

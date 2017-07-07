@@ -978,11 +978,6 @@ class totara_reportbuilder_column_testcase extends reportcache_advanced_testcase
             // Default size is too small for some of our reports when all columns and filters are included.
             $prevsbs = $DB->get_field_sql("SELECT @@sort_buffer_size");
             $DB->execute("SET sort_buffer_size=1048580");
-
-            if ($sourcename === 'site_logstore') {
-                // TODO: TL-14824 we must eliminate unnecessary extra fields in this source !!!!!!!
-                return;
-            }
         }
 
         // Test we can execute the query with all columns and filters.
