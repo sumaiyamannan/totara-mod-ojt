@@ -153,7 +153,7 @@ Feature: Test that paging in report builder works correctly
     # Now to quickly test the total count of these fields.
     When I press "Edit this report"
     And I click on "Performance" "link" in the ".tabtree" "css_element"
-    Then I should see "Restrict Initial Display"
+    Then I should see "Filters Performance Settings"
     And I should not see "Display a total count of records"
 
     When I set the following administration settings values:
@@ -161,7 +161,7 @@ Feature: Test that paging in report builder works correctly
     And I navigate to "Manage reports" node in "Site administration > Reports > Report builder"
     And I follow "Custom user report"
     And I click on "Performance" "link" in the ".tabtree" "css_element"
-    Then I should see "Restrict Initial Display"
+    Then I should see "Filters Performance Settings"
     And I should see "Display a total count of records"
 
     When I set the field "Display a total count of records" to "1"
