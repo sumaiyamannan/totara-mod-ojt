@@ -1008,6 +1008,15 @@ class totara_reportbuilder_column_testcase extends reportcache_advanced_testcase
             }
         }
 
+        // Remove all filters that are not compatible with caching.
+        foreach ($rb->filters as $filter) {
+            /** @var rb_filter_type $filter */
+            if ($filter->is_caching_compatible()) {
+                continue;
+            }
+            $DB->delete_records('report_builder_filters', array('reportid' => $rb->_id, 'type' => $filter->type, 'value' => $filter->value));
+        }
+
         // TODO: skip some sources until TL-14821 gets fixed
         if ($sourcename !== 'course_completion_by_org' and $sourcename !== 'course_completion') {
             // Now genrate the cache table and run the query.
