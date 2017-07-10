@@ -205,8 +205,33 @@ class tool_totara_sync_user_csv_fasthash_testcase extends advanced_testcase {
         $this->assertCount(5, $users);
 
         $user1 = $DB->get_record('user', array('idnumber' => 'imp001'));
+        $user2 = $DB->get_record('user', array('idnumber' => 'imp002'));
+        $user3 = $DB->get_record('user', array('idnumber' => 'imp003'));
 
         // Check password is correct (import001).
         $this->assertTrue(password_verify('import001', $user1->password));
+        $this->assertTrue(password_verify('import002', $user2->password));
+        $this->assertTrue(password_verify('import003', $user3->password));
+
+        // Do another sync and check that the password is updated
+        // correctly.
+        $data = file_get_contents(__DIR__ . '/fixtures/user_password_2.csv');
+        $filepath = $this->filedir . '/csv/ready/user.csv';
+        file_put_contents($filepath, $data);
+
+        $result = $element->sync();
+        $this->assertTrue($result);
+
+        $users = $DB->get_records('user');
+        $this->assertCount(5, $users);
+
+        $user1 = $DB->get_record('user', array('idnumber' => 'imp001'));
+        $user2 = $DB->get_record('user', array('idnumber' => 'imp002'));
+        $user3 = $DB->get_record('user', array('idnumber' => 'imp003'));
+
+        // Check password is correct.
+        $this->assertTrue(password_verify('import001', $user1->password));
+        $this->assertTrue(password_verify('newpassword2', $user2->password));
+        $this->assertTrue(password_verify('newpassword3', $user3->password));
     }
 }

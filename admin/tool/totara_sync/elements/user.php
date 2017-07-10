@@ -496,7 +496,7 @@ class totara_sync_element_user extends totara_sync_element {
                     if ($userauth->can_change_password()) {
                         $passwordupdateproblem = false;
                         if (strtolower($user->auth) === 'manual' && !empty($CFG->tool_totara_sync_enable_fasthash)) {
-                            if (!update_internal_user_password($user, $newpassword, true)) {
+                            if (!update_internal_user_password($user, $suser->password, true)) {
                                 $passwordupdateproblem = true;
                             }
                         } else if (!$userauth->user_update_password($user, $suser->password)) {
