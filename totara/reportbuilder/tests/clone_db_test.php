@@ -115,7 +115,7 @@ class totara_reportbuilder_clone_db_testcase extends advanced_testcase {
         $reads = $reportdb->perf_get_reads();
         $writes = $reportdb->perf_get_writes();
         $report->display_table(true);
-        $this->assertSame($reads + 1, $reportdb->perf_get_reads());
+        $this->assertGreaterThanOrEqual($reads + 1, $reportdb->perf_get_reads());
         $this->assertSame($writes, $reportdb->perf_get_writes());
 
         $report = new reportbuilder($rid, null, false, null, null, true);
