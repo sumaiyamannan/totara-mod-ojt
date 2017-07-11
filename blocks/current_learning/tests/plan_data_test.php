@@ -31,16 +31,22 @@ class block_current_learning_plan_data_testcase extends block_current_learning_t
 
     private $generator;
     private $plan_generator;
+    private $program_generator;
 
     private $user1, $user2;
     private $course1, $course2;
-    private $planrecord1, $planrecord2;
+    private $program1, $program2;
+    private $planrecord1;
 
     protected function tearDown() {
         $this->generator = null;
         $this->plan_generator = null;
+        $this->program_generator = null;
         $this->user1 = null;
         $this->course1 = null;
+        $this->course2 = null;
+        $this->program1 = null;
+        $this->program2 = null;
         $this->planrecord1 = null;
         parent::tearDown();
     }
@@ -53,6 +59,7 @@ class block_current_learning_plan_data_testcase extends block_current_learning_t
 
         $this->generator = $this->getDataGenerator();
         $this->plan_generator = $this->generator->get_plugin_generator('totara_plan');
+        $this->program_generator = $this->generator->get_plugin_generator('totara_program');
 
         $this->resetAfterTest();
         $CFG->enablecompletion = true;
@@ -64,6 +71,13 @@ class block_current_learning_plan_data_testcase extends block_current_learning_t
         // Create some courses.
         $this->course1 = $this->generator->create_course();
         $this->course2 = $this->generator->create_course();
+
+        // Create some programs.
+        $this->program1 = $this->program_generator->create_program();
+        $this->program2 = $this->program_generator->create_program();
+
+        // Add some courses to the programs.
+        $this->program_generator->add_courses_and_courseset_to_program($this->program1, [ [$this->course1]]);
 
         // Create a learning plan.
         $this->planrecord1 = $this->plan_generator->create_learning_plan(array('userid' => $this->user1->id));
@@ -144,5 +158,83 @@ class block_current_learning_plan_data_testcase extends block_current_learning_t
             }
         }
         $this->assertEquals(1, $count);
+    }
+
+    public function test_programs_from_plan() {
+
+        // All programs added to any of the learner's active learning plans should be displayed.
+
+        $plan = new development_plan($this->planrecord1->id);
+
+        // Add a program to the plan.
+        $this->plan_generator->add_learning_plan_program($plan->id, $this->program1->id);
+
+        // Plan approved.
+        $plan->set_status(DP_PLAN_STATUS_APPROVED, DP_PLAN_REASON_CREATE);
+
+        $learning_data = $this->get_learning_data($this->user1->id);
+        $this->assertTrue($this->program_in_learning_data($this->program1, $learning_data));
+
+        // Plan not approved.
+        $plan->set_status(DP_PLAN_STATUS_UNAPPROVED, DP_PLAN_REASON_CREATE);
+        $learning_data = $this->get_learning_data($this->user1->id);
+        $this->assertNotTrue($this->program_in_learning_data($this->program1, $learning_data));
+
+        // Plan completed.
+        $plan->set_status(DP_PLAN_STATUS_COMPLETE, DP_PLAN_REASON_CREATE);
+        $learning_data = $this->get_learning_data($this->user1->id);
+        $this->assertNotTrue($this->program_in_learning_data($this->program1, $learning_data));
+    }
+
+    public function test_object_instances() {
+
+        // Create a plan with a course and a program.
+        $plan = new development_plan($this->planrecord1->id);
+        $this->plan_generator->add_learning_plan_course($plan->id, $this->course1->id);
+        $this->plan_generator->add_learning_plan_program($plan->id, $this->program1->id);
+        $plan->set_status(DP_PLAN_STATUS_APPROVED, DP_PLAN_REASON_CREATE);
+
+        // Get the learning items.
+        $items = totara_plan\user_learning\item::all($this->user1);
+
+        // We expect one plan in the correct instance.
+        $this->assertCount(1, $items);
+        $item = current($items);
+        $this->assertInstanceOf('totara_plan\user_learning\item', $item);
+
+        // We expect one program in the correct instance.
+        $programs = $item->get_programs();
+        $this->assertCount(1, $programs);
+        $program = current($programs);
+        $this->assertInstanceOf('totara_program\user_learning\item', $program);
+
+        // We expect one course in the correct instance.
+        $courses = $item->get_courses();
+        $this->assertCount(1, $courses);
+        $course = current($courses);
+        $this->assertInstanceOf('core_course\user_learning\item', $course);
+    }
+
+    public function test_object_empty_plan() {
+
+        // Create a plan with a course and a program.
+        $plan = new development_plan($this->planrecord1->id);
+        $plan->set_status(DP_PLAN_STATUS_APPROVED, DP_PLAN_REASON_CREATE);
+
+        // Get the learning items.
+        $items = totara_plan\user_learning\item::all($this->user1);
+
+        // We expect one plan in the correct instance.
+        $this->assertCount(1, $items);
+        $item = current($items);
+        $this->assertInstanceOf('totara_plan\user_learning\item', $item);
+
+        // We expect an empty array.
+        $courses = $item->get_courses();
+        $this->assertEquals(array(), $courses);
+
+        // We expect an empty array.
+        $programs = $item->get_programs();
+        $this->assertEquals(array(), $programs);
     }
 }

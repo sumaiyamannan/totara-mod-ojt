@@ -391,7 +391,8 @@ class block_current_learning extends block_base {
         foreach ($items as $item) {
             if ($item instanceof \totara_plan\user_learning\item) {
                 $courses = $item->get_courses();
-                $items = array_merge($items, array_values($courses));
+                $programs = $item->get_programs();
+                $items = array_merge($items, array_values($courses), array_values($programs));
             }
         }
         return $items;
