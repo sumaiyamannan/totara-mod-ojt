@@ -101,3 +101,28 @@ function totara_mssql_environment_check(environment_results $result) {
     // Not mssql.
     return null;
 }
+
+/**
+ * Check that database is reading committed snapshots.
+ *
+ * @param environment_results $result
+ * @return environment_results
+ */
+function totara_mssql_environment_read_committed_snapshot(environment_results $result) {
+    global $DB, $CFG;
+
+    if ($DB->get_dbfamily() !== 'mssql') {
+        // Not mssql.
+        return null;
+    }
+
+    $on = $DB->get_field_sql("SELECT is_read_committed_snapshot_on FROM sys.databases WHERE name= :dbname", array('dbname' => $CFG->dbname));
+    if (!$on) {
+        $result->setRestrictStr(array('requiredreadcommittedsnapshot', 'totara_mssql'));
+        $result->setStatus(false);
+    } else {
+        $result->setStatus(true);
+    }
+    $result->info = 'mssql_read_committed_snapshot';
+    return $result;
+}
