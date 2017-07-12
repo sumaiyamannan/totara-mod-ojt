@@ -111,6 +111,15 @@ abstract class rb_base_source {
             }
         }
 
+        // Make sure that there are no column options using subqueries if report is grouped.
+        if ($this->get_grouped_column_options()) {
+            foreach ($this->columnoptions as $k => $option) {
+                if ($option->issubquery) {
+                    unset($this->columnoptions[$k]);
+                }
+            }
+        }
+
         // basic sanity checking of joinlist
         $this->validate_joinlist();
         //create array to store the join functions and join table
@@ -2619,6 +2628,7 @@ abstract class rb_base_source {
                 'displayfunc' => 'user_jobassignments',
                 'addtypetoheading' => $addtypetoheading,
                 'extrafields' => array('userid' => "$join.id", 'deleted' => "$join.deleted"),
+                'issubquery' => true,
             )
         );
 
@@ -2634,6 +2644,7 @@ abstract class rb_base_source {
                 'displayfunc' => 'formatstring',
                 'joins' => $join,
                 'addtypetoheading' => $addtypetoheading,
+                'issubquery' => true,
             )
         );
         $columnoptions[] = new rb_column_option(
@@ -2648,6 +2659,7 @@ abstract class rb_base_source {
                 'displayfunc' => 'plaintext',
                 'joins' => $join,
                 'addtypetoheading' => $addtypetoheading,
+                'issubquery' => true,
             )
         );
         $columnoptions[] = new rb_column_option(
@@ -2662,6 +2674,7 @@ abstract class rb_base_source {
                 'displayfunc' => 'formatstring',
                 'joins' => $join,
                 'addtypetoheading' => $addtypetoheading,
+                'issubquery' => true,
             )
         );
         $columnoptions[] = new rb_column_option(
@@ -2676,6 +2689,7 @@ abstract class rb_base_source {
                 'displayfunc' => 'plaintext',
                 'joins' => $join,
                 'addtypetoheading' => $addtypetoheading,
+                'issubquery' => true,
             )
         );
         $columnoptions[] = new rb_column_option(
@@ -2691,6 +2705,7 @@ abstract class rb_base_source {
                 'displayfunc' => 'plaintext',
                 'joins' => $join,
                 'addtypetoheading' => $addtypetoheading,
+                'issubquery' => true,
             )
         );
         $columnoptions[] = new rb_column_option(
@@ -2705,6 +2720,7 @@ abstract class rb_base_source {
                 'displayfunc' => 'plaintext',
                 'joins' => $join,
                 'addtypetoheading' => $addtypetoheading,
+                'issubquery' => true,
             )
         );
         $columnoptions[] = new rb_column_option(
@@ -2720,6 +2736,7 @@ abstract class rb_base_source {
                 'displayfunc' => 'plaintext',
                 'joins' => $join,
                 'addtypetoheading' => $addtypetoheading,
+                'issubquery' => true,
             )
         );
 
