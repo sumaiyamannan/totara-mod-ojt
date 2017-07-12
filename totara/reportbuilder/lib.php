@@ -3788,9 +3788,17 @@ class reportbuilder {
     function get_full_count() {
         global $CFG;
 
-        // Don't do the calculation if the results are initially hidden or if we cannot display the total count.
-        if ($this->is_initially_hidden() || !$this->can_display_total_count()) {
+        // Don't do the calculation if the results are initially hidden.
+        if ($this->is_initially_hidden()) {
             return 0;
+        }
+
+        if (!$this->can_display_total_count()) {
+            // Return null if we cannot display the total count, its better than 0 in the situation that the calling code code
+            // didn't check if the total count can be displayed before asking for it because the report that is being
+            // displayed likely still has records.
+            debugging('Please check if the total count is available before attempting to get it. Call can_display_total_count() to check.', DEBUG_DEVELOPER);
+            return null;
         }
 
         // Use cached value if present.
