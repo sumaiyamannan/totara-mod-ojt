@@ -32,6 +32,12 @@ $adminediting = optional_param('adminedit', -1, PARAM_BOOL);
 
 /// no guest autologin
 require_login(0, false);
+
+if (isguestuser()) {
+    // And no guest access!
+    print_error('accessdenied', 'admin');
+}
+
 $PAGE->set_context(context_system::instance());
 $PAGE->set_url('/admin/category.php', array('category' => $category));
 $PAGE->set_pagetype('admin-setting-' . $category);
