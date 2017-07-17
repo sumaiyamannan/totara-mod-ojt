@@ -1510,10 +1510,12 @@ class mssql_native_moodle_database extends moodle_database {
 
     /**
      * Get a number of records as a moodle_recordset and count of rows without limit statement using a SQL statement.
-     * This is usefull for pagination to avoid second COUNT(*) query.
+     * This is useful for pagination to avoid second COUNT(*) query.
      *
      * IMPORTANT NOTES:
      *   - Wrap queries with UNION in single SELECT. Otherwise an incorrect count will ge given.
+     *   - If an offset greater than 0 and greater than the total number of records is given the SQL query will be
+     *     executed twice, a second time with a 0 offset and limit 1 in order to get a true total count.
      *
      * Since this method is a little less readable, use of it should be restricted to
      * code where it's possible there might be large datasets being returned.  For known
@@ -1528,6 +1530,7 @@ class mssql_native_moodle_database extends moodle_database {
      * @param int &$count this variable will be filled with count of rows returned by select without limit statement
      * @return counted_recordset A counted_recordset instance.
      * @throws dml_exception A DML specific exception is thrown for any errors.
+     * @throws coding_exception If an invalid result not containing the count is experienced
      */
     public function get_counted_recordset_sql($sql, array $params=null, $limitfrom = 0, $limitnum = 0, &$count = 0) {
         global $CFG;
@@ -1537,10 +1540,28 @@ class mssql_native_moodle_database extends moodle_database {
             throw new dml_exception('dmlcountedrecordseterror', null, "Counted recordset query must start with SELECT");
         }
 
-        $sqlcnt = preg_replace('/^\s*SELECT\s/is', "SELECT COUNT('x') OVER () AS dml_count_recordset_rows, ", $sql);
+        $countorfield = 'dml_count_recordset_rows';
+        $sqlcnt = preg_replace('/^\s*SELECT\s/is', "SELECT COUNT('x') OVER () AS {$countorfield}, ", $sql);
 
         $recordset = $this->get_recordset_sql($sqlcnt, $params, $limitfrom, $limitnum);
-        $recordset = new counted_recordset($recordset, 'dml_count_recordset_rows');
+        if ($limitfrom > 0 and !$recordset->valid()) {
+            // Bad luck, we are out of range and do not know how many are there, we need to make another query.
+            $rs2 = $this->get_recordset_sql($sqlcnt, $params, 0, 1);
+            if ($rs2->valid()) {
+                $current = $rs2->current();
+                $rs2->close();
+                if (!property_exists($current, $countorfield)) {
+                    throw new dml_exception("Expected column {$countorfield} used for counting records without limit was not found");
+                } else if (!isset($current->{$countorfield})) {
+                    throw new coding_exception("Invalid count result in {$countorfield} used for counting records without limit");
+                }
+                $recordset = new counted_recordset($recordset, (int)$current->{$countorfield});
+                $count = $recordset->get_count_without_limits();
+                return $recordset;
+            }
+            $rs2->close();
+        }
+        $recordset = new counted_recordset($recordset, $countorfield);
         $count = $recordset->get_count_without_limits();
 
         return $recordset;

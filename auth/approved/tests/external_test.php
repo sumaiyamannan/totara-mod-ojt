@@ -353,7 +353,7 @@ class auth_approved_external_testcase extends advanced_testcase {
 
         $result = \auth_approved_external::job_assignment_by_user_names('', 5, 10);
         // This is invalid, we expect a 0 count and 0 results.
-        $this->assert_search_result_valid($result, 0, true);
+        $this->assert_search_result_valid($result, 44, true);
         $this->assertCount(0, $result['managers']);
 
         // Now to test limiting by organisations and hierarchies.

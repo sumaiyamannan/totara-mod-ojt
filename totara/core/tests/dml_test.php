@@ -506,6 +506,19 @@ class totara_core_dml_testcase extends database_driver_testcase {
         $this->assertSame('abc12', $records[$ids[4]]->valchar);
         $this->assertSame('abc13', $records[$ids[5]]->valchar);
 
+        // Simple query with limits outside of bounds.
+        $sql = 'SeLeCt id, valchar FrOm {test_table} ORDER BY id';
+        $count = null;
+        if ($userecordset) {
+            $recordset = $DB->get_counted_recordset_sql($sql, array(), 1000, 100, $count);
+            $this->assertSame($count, $recordset->get_count_without_limits());
+            $records = $makerecords($recordset);
+        } else {
+            $records = $DB->get_counted_records_sql($sql, array(), 1000, 100, $count);
+        }
+        $this->assertCount(0, $records);
+        $this->assertSame(9, $count);
+
         // Verify that the records have the exact fields we expect.
         foreach ($records as $record) {
             $record_array = (array)$record;
