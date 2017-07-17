@@ -39,13 +39,14 @@ require_once($CFG->dirroot.'/cache/tests/fixtures/lib.php');
  * @copyright  2012 Sam Hemelryk
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class core_cache_testcase extends advanced_testcase {
+class core_cache_cache_testcase extends advanced_testcase {
 
     /**
      * Set things back to the default before each test.
      */
     public function setUp() {
         parent::setUp();
+        cache_factory::instance(true);
         cache_factory::reset();
         cache_config_testing::create_default_configuration();
     }
@@ -54,8 +55,8 @@ class core_cache_testcase extends advanced_testcase {
      * Final task is to reset the cache system
      */
     public static function tearDownAfterClass() {
-        parent::tearDownAfterClass();
         cache_factory::reset();
+        parent::tearDownAfterClass();
     }
 
     /**

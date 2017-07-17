@@ -47,6 +47,7 @@ class core_cache_administration_helper_testcase extends advanced_testcase {
      */
     public function setUp() {
         parent::setUp();
+        cache_factory::instance(true);
         cache_factory::reset();
         cache_config_testing::create_default_configuration();
     }
@@ -55,8 +56,8 @@ class core_cache_administration_helper_testcase extends advanced_testcase {
      * Final task is to reset the cache system
      */
     public static function tearDownAfterClass() {
-        parent::tearDownAfterClass();
         cache_factory::reset();
+        parent::tearDownAfterClass();
     }
 
     /**

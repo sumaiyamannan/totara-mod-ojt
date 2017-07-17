@@ -485,6 +485,8 @@ class cache_helper {
         foreach ($config->get_all_stores() as $store) {
             self::purge_store($store['name'], $config);
         }
+        // Totara: the factory needs to know that the stores were purged to invalidate all caches!
+        $factory->purged_all_stores();
     }
 
     /**

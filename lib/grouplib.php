@@ -984,10 +984,10 @@ function _group_verify_activegroup($courseid, $groupmode, $groupingid, array $al
  * Caches group data for a particular course to speed up subsequent requests.
  *
  * @param int $courseid The course id to cache data for.
- * @param cache $cache The cache if it has already been initialised. If not a new one will be created.
+ * @param cache_loader $cache The cache if it has already been initialised. If not a new one will be created.
  * @return stdClass A data object containing groups, groupings, and mappings.
  */
-function groups_cache_groupdata($courseid, cache $cache = null) {
+function groups_cache_groupdata($courseid, cache_loader $cache = null) {
     global $DB;
 
     if ($cache === null) {
@@ -1044,7 +1044,7 @@ function groups_cache_groupdata($courseid, cache $cache = null) {
  * @param cache $cache The cache if it has already been initialised. If not a new one will be created.
  * @return stdClass
  */
-function groups_get_course_data($courseid, cache $cache = null) {
+function groups_get_course_data($courseid, cache_loader $cache = null) {
     if ($cache === null) {
         // Initialise a cache if we wern't given one.
         $cache = cache::make('core', 'groupdata');

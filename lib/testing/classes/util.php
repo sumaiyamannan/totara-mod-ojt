@@ -725,14 +725,6 @@ abstract class testing_util {
         } else if (count(scandir("$CFG->dataroot/cache")) > 2) {
             remove_dir("$CFG->dataroot/localcache", true);
         }
-
-        // Purge all data from the caches. This is required for consistency between tests.
-        // Any file caches that happened to be within the data root will have already been clearer (because we just deleted cache)
-        // and now we will purge any other caches as well.  This must be done before the cache_factory::reset() as that
-        // removes all definitions of caches and purge does not have valid caches to operate on.
-        cache_helper::purge_all();
-        // Reset the cache API so that it recreates it's required directories as well.
-        cache_factory::reset();
     }
 
     /**
