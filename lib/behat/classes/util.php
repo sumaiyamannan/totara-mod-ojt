@@ -48,11 +48,6 @@ class behat_util extends testing_util {
     const BEHATSITENAME = "Acceptance test site";
 
     /**
-     * @var array Files to skip when resetting dataroot folder
-     */
-    protected static $datarootskiponreset = array('.', '..', 'behat', 'behattestdir.txt');
-
-    /**
      * @var array Files to skip when dropping dataroot folder
      */
     protected static $datarootskipondrop = array('.', '..', 'lock');
@@ -74,7 +69,9 @@ class behat_util extends testing_util {
             behat_error(BEHAT_EXITCODE_INSTALLED);
         }
 
-        // New dataroot.
+        // Torara: Empty dataroot and initialise it.
+        self::drop_dataroot();
+        testing_initdataroot($CFG->dataroot, 'behat');
         self::reset_dataroot();
 
         $options = array();
@@ -105,9 +102,7 @@ class behat_util extends testing_util {
         // Some more Totara tricks.
         $DB->set_field('task_scheduled', 'disabled', 1, array('component' => 'tool_langimport')); // No cron lang updates in behat.
 
-        // We need to keep the installed dataroot filedir files.
-        // So each time we reset the dataroot before running a test, the default files are still installed.
-        self::save_original_data_files();
+        // Totara: there is no need to save filedir files, we do not delete them in tests!
 
         $frontpagesummary = new admin_setting_special_frontpagedesc();
         $frontpagesummary->write_setting(self::BEHATSITENAME);
@@ -140,7 +135,6 @@ class behat_util extends testing_util {
         // Totara: Add behat filesystem repository to eliminate problematic file uploads in behat.
         // NOTE: Repository API is a total mess, let's just insert the records directly here
         //       and allow all registered users to access the repo.
-        mkdir("$CFG->dataroot/repository/behat", 02777, true);
         $maxorder = $DB->get_field('repository', 'MAX(sortorder)', array());
         $typeid = $DB->insert_record('repository', (object)array('type' => 'filesystem', 'sortorder' => $maxorder + 1, 'visible' => 1));
         $instanceid = $DB->insert_record('repository_instances',
@@ -168,9 +162,8 @@ class behat_util extends testing_util {
             throw new coding_exception('This method can be only used by Behat CLI tool');
         }
 
-        self::reset_dataroot();
-        self::drop_dataroot();
         self::drop_database(true);
+        self::drop_dataroot();
     }
 
     /**
@@ -349,6 +342,23 @@ class behat_util extends testing_util {
      */
     protected final static function get_test_file_path() {
         return behat_command::get_behat_dir() . '/test_environment_enabled.txt';
+    }
+
+    /**
+     * Purge dataroot directory
+     * @static
+     * @return void
+     */
+    public static function reset_dataroot() {
+        global $CFG;
+
+        // Totara: Clear file status cache to make sure we know about all files.
+        clearstatcache();
+
+        parent::reset_dataroot();
+
+        // Totara: Add behat filesystem repository to eliminate problematic file uploads in behat.
+        mkdir("$CFG->dataroot/repository/behat", 02777, true);
     }
 
     /**

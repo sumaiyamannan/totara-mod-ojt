@@ -35,11 +35,6 @@
 abstract class testing_util {
 
     /**
-     * @var string dataroot (likely to be $CFG->dataroot).
-     */
-    private static $dataroot = null;
-
-    /**
      * @var testing_data_generator
      */
     protected static $generator = null;
@@ -70,56 +65,9 @@ abstract class testing_util {
     protected static $sequencenames = null;
 
     /**
-     * @var string name of the json file where we store the list of dataroot files to not reset during reset_dataroot.
-     */
-    private static $originaldatafilesjson = 'originaldatafiles.json';
-
-    /**
-     * @var boolean set to true once $originaldatafilesjson file is created.
-     */
-    private static $originaldatafilesjsonadded = false;
-
-    /**
      * @var int next sequence value for a single test cycle.
      */
     protected static $sequencenextstartingid = null;
-
-    /**
-     * Return the name of the JSON file containing the init filenames.
-     *
-     * @static
-     * @return string
-     */
-    public static function get_originaldatafilesjson() {
-        return self::$originaldatafilesjson;
-    }
-
-    /**
-     * Return the dataroot. It's useful when mocking the dataroot when unit testing this class itself.
-     *
-     * @static
-     * @return string the dataroot.
-     */
-    public static function get_dataroot() {
-        global $CFG;
-
-        //  By default it's the test framework dataroot.
-        if (empty(self::$dataroot)) {
-            self::$dataroot = $CFG->dataroot;
-        }
-
-        return self::$dataroot;
-    }
-
-    /**
-     * Set the dataroot. It's useful when mocking the dataroot when unit testing this class itself.
-     *
-     * @param string $dataroot the dataroot of the test framework.
-     * @static
-     */
-    public static function set_dataroot($dataroot) {
-        self::$dataroot = $dataroot;
-    }
 
     /**
      * Returns the testing framework name
@@ -156,7 +104,7 @@ abstract class testing_util {
 
         $framework = self::get_framework();
 
-        if (!file_exists(self::get_dataroot() . '/' . $framework . 'testdir.txt')) {
+        if (!file_exists($CFG->dataroot . '/' . $framework . 'testdir.txt')) {
             // this is already tested in bootstrap script,
             // but anyway presence of this file means the dataroot is for testing
             return false;
@@ -181,11 +129,11 @@ abstract class testing_util {
      * @return bool
      */
     public static function is_test_data_updated() {
-        global $DB;
+        global $DB, $CFG;
 
         $framework = self::get_framework();
 
-        $datarootpath = self::get_dataroot() . '/' . $framework;
+        $datarootpath = $CFG->dataroot . '/' . $framework;
         if (!file_exists($datarootpath . '/tabledata.ser') or !file_exists($datarootpath . '/tablestructure.ser')) {
             return false;
         }
@@ -236,12 +184,12 @@ abstract class testing_util {
             }
         }
         $data = serialize($data);
-        $datafile = self::get_dataroot() . '/' . $framework . '/tabledata.ser';
+        $datafile = $CFG->dataroot . '/' . $framework . '/tabledata.ser';
         file_put_contents($datafile, $data);
         testing_fix_file_permissions($datafile);
 
         $structure = serialize($structure);
-        $structurefile = self::get_dataroot() . '/' . $framework . '/tablestructure.ser';
+        $structurefile = $CFG->dataroot . '/' . $framework . '/tablestructure.ser';
         file_put_contents($structurefile, $structure);
         testing_fix_file_permissions($structurefile);
     }
@@ -259,7 +207,7 @@ abstract class testing_util {
         set_config($framework . 'test', $hash);
 
         // hash all plugin versions - helps with very fast detection of db structure changes
-        $hashfile = self::get_dataroot() . '/' . $framework . '/versionshash.txt';
+        $hashfile = $CFG->dataroot . '/' . $framework . '/versionshash.txt';
         file_put_contents($hashfile, $hash);
         testing_fix_file_permissions($hashfile);
     }
@@ -270,10 +218,12 @@ abstract class testing_util {
      * @return array  $table=>$records
      */
     protected static function get_tabledata() {
+        global $CFG;
+
         if (!isset(self::$tabledata)) {
             $framework = self::get_framework();
 
-            $datafile = self::get_dataroot() . '/' . $framework . '/tabledata.ser';
+            $datafile = $CFG->dataroot . '/' . $framework . '/tabledata.ser';
             if (!file_exists($datafile)) {
                 // Not initialised yet.
                 return array();
@@ -296,10 +246,12 @@ abstract class testing_util {
      * @return array $table=>$records
      */
     public static function get_tablestructure() {
+        global $CFG;
+
         if (!isset(self::$tablestructure)) {
             $framework = self::get_framework();
 
-            $structurefile = self::get_dataroot() . '/' . $framework . '/tablestructure.ser';
+            $structurefile = $CFG->dataroot . '/' . $framework . '/tablestructure.ser';
             if (!file_exists($structurefile)) {
                 // Not initialised yet.
                 return array();
@@ -734,53 +686,53 @@ abstract class testing_util {
     public static function reset_dataroot() {
         global $CFG;
 
-        $childclassname = self::get_framework() . '_util';
+        // Totara: do not clear stat cache here, we do not want to slow down phpunit.
 
-        // Do not delete automatically installed files.
-        self::skip_original_data_files($childclassname);
+        $framework = self::get_framework();
 
-        // Clear file status cache, before checking file_exists.
-        clearstatcache();
+        $datarootskiponreset = array('.', '..', '.htaccess', 'filedir', 'trashdir', 'temp', 'cache', 'localcache');
+        $datarootskiponreset[] = $framework;
+        $datarootskiponreset[] = $framework . 'testdir.txt';
 
         // Clean up the dataroot folder.
-        $handle = opendir(self::get_dataroot());
-        while (false !== ($item = readdir($handle))) {
-            if (in_array($item, $childclassname::$datarootskiponreset)) {
+        $files = scandir($CFG->dataroot);
+        foreach ($files as $item) {
+            if (in_array($item, $datarootskiponreset)) {
                 continue;
             }
-            if (is_dir(self::get_dataroot()."/$item")) {
-                remove_dir(self::get_dataroot()."/$item", false);
+            if (is_dir("$CFG->dataroot/$item")) {
+                remove_dir("$CFG->dataroot/$item", false);
             } else {
-                unlink(self::get_dataroot()."/$item");
+                unlink("$CFG->dataroot/$item");
             }
         }
-        closedir($handle);
 
-        // Clean up the dataroot/filedir folder.
-        if (file_exists(self::get_dataroot() . '/filedir')) {
-            $handle = opendir(self::get_dataroot() . '/filedir');
-            while (false !== ($item = readdir($handle))) {
-                if (in_array('filedir' . DIRECTORY_SEPARATOR . $item, $childclassname::$datarootskiponreset)) {
-                    continue;
-                }
-                if (is_dir(self::get_dataroot()."/filedir/$item")) {
-                    remove_dir(self::get_dataroot()."/filedir/$item", false);
-                } else {
-                    unlink(self::get_dataroot()."/filedir/$item");
-                }
-            }
-            closedir($handle);
+        // Totara: there is no need to purge the file dir during tests!
+
+        // Reset the cache and temp dirs if not empty.
+        if (!file_exists("$CFG->dataroot/temp")) {
+            make_temp_directory('');
+        } else if (count(scandir("$CFG->dataroot/temp")) > 2) {
+            remove_dir("$CFG->dataroot/temp", true);
+        }
+        if (!file_exists("$CFG->dataroot/cache")) {
+            make_cache_directory('');
+        } else if (count(scandir("$CFG->dataroot/cache")) > 2) {
+            remove_dir("$CFG->dataroot/cache", true);
+        }
+        if (!file_exists("$CFG->dataroot/localcache")) {
+            make_localcache_directory('');
+        } else if (count(scandir("$CFG->dataroot/cache")) > 2) {
+            remove_dir("$CFG->dataroot/localcache", true);
         }
 
-        make_temp_directory('');
-        make_cache_directory('');
-        make_localcache_directory('');
+        // Purge all data from the caches. This is required for consistency between tests.
+        // Any file caches that happened to be within the data root will have already been clearer (because we just deleted cache)
+        // and now we will purge any other caches as well.  This must be done before the cache_factory::reset() as that
+        // removes all definitions of caches and purge does not have valid caches to operate on.
+        cache_helper::purge_all();
         // Reset the cache API so that it recreates it's required directories as well.
         cache_factory::reset();
-        // Purge all data from the caches. This is required for consistency.
-        // Any file caches that happened to be within the data root will have already been clearer (because we just deleted cache)
-        // and now we will purge any other caches as well.
-        cache_helper::purge_all();
     }
 
     /**
@@ -911,90 +863,7 @@ abstract class testing_util {
     protected static function drop_dataroot() {
         global $CFG;
 
-        $framework = self::get_framework();
-        $childclassname = $framework . '_util';
-
-        $files = scandir(self::get_dataroot() . '/'  . $framework);
-        foreach ($files as $file) {
-            if (in_array($file, $childclassname::$datarootskipondrop)) {
-                continue;
-            }
-            $path = self::get_dataroot() . '/' . $framework . '/' . $file;
-            if (is_dir($path)) {
-                remove_dir($path, false);
-            } else {
-                unlink($path);
-            }
-        }
-
-        $jsonfilepath = self::get_dataroot() . '/' . self::$originaldatafilesjson;
-        if (file_exists($jsonfilepath)) {
-            // Delete the json file.
-            unlink($jsonfilepath);
-            // Delete the dataroot filedir.
-            remove_dir(self::get_dataroot() . '/filedir', false);
-        }
-    }
-
-    /**
-     * Skip the original dataroot files to not been reset.
-     *
-     * @static
-     * @param string $utilclassname the util class name..
-     */
-    protected static function skip_original_data_files($utilclassname) {
-        $jsonfilepath = self::get_dataroot() . '/' . self::$originaldatafilesjson;
-        if (file_exists($jsonfilepath)) {
-
-            $listfiles = file_get_contents($jsonfilepath);
-
-            // Mark each files as to not be reset.
-            if (!empty($listfiles) && !self::$originaldatafilesjsonadded) {
-                $originaldatarootfiles = json_decode($listfiles);
-                // Keep the json file. Only drop_dataroot() should delete it.
-                $originaldatarootfiles[] = self::$originaldatafilesjson;
-                $utilclassname::$datarootskiponreset = array_merge($utilclassname::$datarootskiponreset,
-                    $originaldatarootfiles);
-                self::$originaldatafilesjsonadded = true;
-            }
-        }
-    }
-
-    /**
-     * Save the list of the original dataroot files into a json file.
-     */
-    protected static function save_original_data_files() {
-        global $CFG;
-
-        $jsonfilepath = self::get_dataroot() . '/' . self::$originaldatafilesjson;
-
-        // Save the original dataroot files if not done (only executed the first time).
-        if (!file_exists($jsonfilepath)) {
-
-            $listfiles = array();
-            $currentdir = 'filedir' . DIRECTORY_SEPARATOR . '.';
-            $parentdir = 'filedir' . DIRECTORY_SEPARATOR . '..';
-            $listfiles[$currentdir] = $currentdir;
-            $listfiles[$parentdir] = $parentdir;
-
-            $filedir = self::get_dataroot() . '/filedir';
-            if (file_exists($filedir)) {
-                $directory = new RecursiveDirectoryIterator($filedir);
-                foreach (new RecursiveIteratorIterator($directory) as $file) {
-                    if ($file->isDir()) {
-                        $key = substr($file->getPath(), strlen(self::get_dataroot() . '/'));
-                    } else {
-                        $key = substr($file->getPathName(), strlen(self::get_dataroot() . '/'));
-                    }
-                    $listfiles[$key] = $key;
-                }
-            }
-
-            // Save the file list in a JSON file.
-            $fp = fopen($jsonfilepath, 'w');
-            fwrite($fp, json_encode(array_values($listfiles)));
-            fclose($fp);
-        }
+        remove_dir($CFG->dataroot, false);
     }
 
     /**

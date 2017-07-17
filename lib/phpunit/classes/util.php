@@ -55,11 +55,6 @@ class phpunit_util extends testing_util {
     protected static $eventsink = null;
 
     /**
-     * @var array Files to skip when resetting dataroot folder
-     */
-    protected static $datarootskiponreset = array('.', '..', 'phpunittestdir.txt', 'phpunit', '.htaccess');
-
-    /**
      * @var array Files to skip when dropping dataroot folder
      */
     protected static $datarootskipondrop = array('.', '..', 'lock', 'webrunner.xml');
@@ -420,7 +415,7 @@ class phpunit_util extends testing_util {
      * @return void may terminate execution with exit code
      */
     public static function drop_site($displayprogress = false) {
-        global $DB, $CFG;
+        global $CFG;
 
         if (!self::is_test_site()) {
             phpunit_bootstrap_error(PHPUNIT_EXITCODE_CONFIGERROR, 'Can not drop non-test site!!');
@@ -431,12 +426,12 @@ class phpunit_util extends testing_util {
             echo "Purging dataroot:\n";
         }
 
-        self::reset_dataroot();
-        testing_initdataroot($CFG->dataroot, 'phpunit');
-        self::drop_dataroot();
-
-        // drop all tables
+        // Drop all tables.
         self::drop_database($displayprogress);
+
+        // Purge dataroot only, but keep the directory.
+        self::drop_dataroot();
+        testing_initdataroot($CFG->dataroot, 'phpunit');
     }
 
     /**
@@ -468,6 +463,11 @@ class phpunit_util extends testing_util {
         $options['shortname'] = 'phpunit';
         $options['fullname'] = 'PHPUnit test site';
 
+        // Torara: Empty dataroot and initialise it.
+        self::drop_dataroot();
+        testing_initdataroot($CFG->dataroot, 'phpunit');
+        self::reset_dataroot();
+
         install_cli_database($options, false);
 
         // Set the admin email address.
@@ -483,9 +483,7 @@ class phpunit_util extends testing_util {
         set_config('enableblogs', 1);
         $DB->delete_records('user_preferences', array()); // Totara admin site page default.
 
-        // We need to keep the installed dataroot filedir files.
-        // So each time we reset the dataroot before running a test, the default files are still installed.
-        self::save_original_data_files();
+        // Totara: there is no need to save filedir files, we do not delete them in tests!
 
         // Store version hash in the database and in a file.
         self::store_versions_hash();
