@@ -46,6 +46,9 @@ class mssql_native_moodle_database extends moodle_database {
      */
     protected $supportsoffsetfetch;
 
+    /** @var array cached server information */
+    protected $serverinfo = null;
+
     /**
      * Detects if all needed PHP stuff installed.
      * Note: can be used before connect()
@@ -243,7 +246,7 @@ class mssql_native_moodle_database extends moodle_database {
 
         $serverinfo = $this->get_server_info();
         // Fetch/offset is supported staring from SQL Server 2012.
-        $this->supportsoffsetfetch = $serverinfo['version'] > '11';
+        $this->supportsoffsetfetch = version_compare($serverinfo['version'], '11', '>');
 
         // Connection stabilised and configured, going to instantiate the temptables controller
         $this->temptables = new mssql_native_moodle_temptables($this);
@@ -294,26 +297,32 @@ class mssql_native_moodle_database extends moodle_database {
      * @return array Array containing 'description' and 'version' info
      */
     public function get_server_info() {
-        static $info;
-        if (!$info) {
-            $info = array();
-            $sql = 'sp_server_info 2';
-            $this->query_start($sql, null, SQL_QUERY_AUX);
-            $result = mssql_query($sql, $this->mssql);
-            $this->query_end($result);
-            $row = mssql_fetch_row($result);
-            $info['description'] = $row[2];
-            $this->free_result($result);
-
-            $sql = 'sp_server_info 500';
-            $this->query_start($sql, null, SQL_QUERY_AUX);
-            $result = mssql_query($sql, $this->mssql);
-            $this->query_end($result);
-            $row = mssql_fetch_row($result);
-            $info['version'] = $row[2];
-            $this->free_result($result);
+        if (!$this->mssql) {
+            return null;
         }
-        return $info;
+
+        if (isset($this->serverinfo)) {
+            return $this->serverinfo;
+        }
+
+        // Totara: do not make the 2nd query just to get the product name!
+
+        $sql = 'sp_server_info 500';
+        $this->query_start($sql, null, SQL_QUERY_AUX);
+        $result = mssql_query($sql, $this->mssql);
+        $this->query_end($result);
+        $row = mssql_fetch_row($result);
+        $this->free_result($result);
+        if (!$row) {
+            return null;
+        }
+
+        $this->serverinfo = array(
+            'description' => $row[2],
+            'version' => $row[2],
+        );
+
+        return $this->serverinfo;
     }
 
     /**

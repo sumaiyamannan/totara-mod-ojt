@@ -44,6 +44,9 @@ class mysqli_native_moodle_database extends moodle_database {
 
     private $transactions_supported = null;
 
+    /** @var array cached server information */
+    protected $serverinfo = null;
+
     /**
      * Attempt to create the database
      * @param string $dbhost
@@ -504,7 +507,20 @@ class mysqli_native_moodle_database extends moodle_database {
      * @return array Array containing 'description' and 'version' info
      */
     public function get_server_info() {
-        return array('description'=>$this->mysqli->server_info, 'version'=>$this->mysqli->server_info);
+        if (!$this->mysqli) {
+            return null;
+        }
+
+        if (isset($this->serverinfo)) {
+            return $this->serverinfo;
+        }
+
+        $this->serverinfo = array(
+            'description' => $this->mysqli->server_info,
+            'version' => $this->mysqli->server_info,
+        );
+
+        return $this->serverinfo;
     }
 
     /**
