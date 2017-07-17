@@ -460,7 +460,7 @@ class totara_program_lib_testcase extends reportcache_advanced_testcase {
             $this->getDataGenerator()->assign_to_program($cert2->id, ASSIGNTYPE_INDIVIDUAL, $user->id);
         }
         $endassigntime = time();
-        sleep(1);
+        $this->waitForSecond();
 
         // Mark all the users complete in all the courses, causing completion in all programs/certs.
         foreach ($users as $user) {

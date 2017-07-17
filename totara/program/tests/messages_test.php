@@ -79,12 +79,6 @@ class totara_program_messages_testcase extends reportcache_advanced_testcase {
 
         $this->program_generator = $this->getDataGenerator()->get_plugin_generator('totara_program');
 
-        // Function in lib/moodlelib.php email_to_user require this.
-        if (!isset($UNITTEST)) {
-            $UNITTEST = new stdClass();
-            $UNITTEST->running = true;
-        }
-
         // Create users.
         $this->assertEquals(2, $DB->count_records('user'));
         $this->manager = $this->getDataGenerator()->create_user();
@@ -99,12 +93,7 @@ class totara_program_messages_testcase extends reportcache_advanced_testcase {
         $this->program2 = $this->program_generator->create_program();
         $this->assertEquals(2, $DB->count_records('prog'));
 
-        unset_config('noemailever');
         $this->sink = $this->redirectMessages();
-
-        // Make sure the mail is redirecting and the sink is clear.
-        $this->assertTrue(phpunit_util::is_redirecting_phpmailer());
-        $this->sink->clear();
     }
 
     public function test_program_enrolment_and_unenrollment_messages() {
@@ -125,7 +114,7 @@ class totara_program_messages_testcase extends reportcache_advanced_testcase {
         $this->program_generator->assign_program($this->program1->id, $usersprogram1);
 
         // Attempt to send any program messages.
-        sleep(1); // Messages are only sent if they were created before "now", so we need to wait one second.
+        $this->waitForSecond(); // Messages are only sent if they were created before "now", so we need to wait one second.
         ob_start(); // Start a buffer to catch all the mtraces in the task.
         $task = new \totara_program\task\send_messages_task();
         $task->execute();
@@ -150,7 +139,7 @@ class totara_program_messages_testcase extends reportcache_advanced_testcase {
         $this->program_generator->assign_program($this->program1->id, $usersprogram1);
 
         // Attempt to send any program messages.
-        sleep(1); // Messages are only sent if they were created before "now", so we need to wait one second.
+        $this->waitForSecond(); // Messages are only sent if they were created before "now", so we need to wait one second.
         ob_start(); // Start a buffer to catch all the mtraces in the task.
         $task = new \totara_program\task\send_messages_task();
         $task->execute();
@@ -173,7 +162,7 @@ class totara_program_messages_testcase extends reportcache_advanced_testcase {
         $this->program_generator->assign_program($this->program1->id, $usersprogram1);
 
         // Attempt to send any program messages.
-        sleep(1); // Messages are only sent if they were created before "now", so we need to wait one second.
+        $this->waitForSecond(); // Messages are only sent if they were created before "now", so we need to wait one second.
         ob_start(); // Start a buffer to catch all the mtraces in the task.
         $task = new \totara_program\task\send_messages_task();
         $task->execute();
@@ -202,7 +191,7 @@ class totara_program_messages_testcase extends reportcache_advanced_testcase {
         $this->program_generator->assign_program($this->program1->id, $usersprogram1);
 
         // Attempt to send any program messages.
-        sleep(1); // Messages are only sent if they were created before "now", so we need to wait one second.
+        $this->waitForSecond(); // Messages are only sent if they were created before "now", so we need to wait one second.
         ob_start(); // Start a buffer to catch all the mtraces in the task.
         $task = new \totara_program\task\send_messages_task();
         $task->execute();
@@ -231,7 +220,7 @@ class totara_program_messages_testcase extends reportcache_advanced_testcase {
         $this->program_generator->assign_program($this->program1->id, $usersprogram1);
 
         // Attempt to send any program messages.
-        sleep(1); // Messages are only sent if they were created before "now", so we need to wait one second.
+        $this->waitForSecond(); // Messages are only sent if they were created before "now", so we need to wait one second.
         ob_start(); // Start a buffer to catch all the mtraces in the task.
         $task = new \totara_program\task\send_messages_task();
         $task->execute();
@@ -441,7 +430,7 @@ class totara_program_messages_testcase extends reportcache_advanced_testcase {
         $this->assertTrue(prog_write_completion($progcompl6));
 
         // Attempt to send any program messages.
-        sleep(1); // Messages are only sent if they were created before "now", so we need to wait one second.
+        $this->waitForSecond(); // Messages are only sent if they were created before "now", so we need to wait one second.
         ob_start(); // Start a buffer to catch all the mtraces in the task.
         $task = new \totara_program\task\send_messages_task();
         $task->execute();
@@ -468,7 +457,7 @@ class totara_program_messages_testcase extends reportcache_advanced_testcase {
         $completion->mark_complete();
 
         // Attempt to send any program messages.
-        sleep(1); // Messages are only sent if they were created before "now", so we need to wait one second.
+        $this->waitForSecond(); // Messages are only sent if they were created before "now", so we need to wait one second.
         ob_start(); // Start a buffer to catch all the mtraces in the task.
         $task = new \totara_program\task\send_messages_task();
         $task->execute();
@@ -568,7 +557,7 @@ class totara_program_messages_testcase extends reportcache_advanced_testcase {
         $this->assertTrue(prog_write_completion($progcompl6));
 
         // Attempt to send any program messages.
-        sleep(1); // Messages are only sent if they were created before "now", so we need to wait one second.
+        $this->waitForSecond(); // Messages are only sent if they were created before "now", so we need to wait one second.
         ob_start(); // Start a buffer to catch all the mtraces in the task.
         $task = new \totara_program\task\send_messages_task();
         $task->execute();
@@ -593,7 +582,7 @@ class totara_program_messages_testcase extends reportcache_advanced_testcase {
         $completion->mark_complete();
 
         // Attempt to send any program messages.
-        sleep(1); // Messages are only sent if they were created before "now", so we need to wait one second.
+        $this->waitForSecond(); // Messages are only sent if they were created before "now", so we need to wait one second.
         ob_start(); // Start a buffer to catch all the mtraces in the task.
         $task = new \totara_program\task\send_messages_task();
         $task->execute();
@@ -815,7 +804,7 @@ class totara_program_messages_testcase extends reportcache_advanced_testcase {
         $DB->execute($sql, $params);
 
         // Attempt to send any program messages.
-        sleep(1); // Messages are only sent if they were created before "now", so we need to wait one second.
+        $this->waitForSecond(); // Messages are only sent if they were created before "now", so we need to wait one second.
         ob_start(); // Start a buffer to catch all the mtraces in the task.
         $task = new \totara_program\task\send_messages_task();
         $task->execute();
@@ -842,7 +831,7 @@ class totara_program_messages_testcase extends reportcache_advanced_testcase {
         $completion->mark_complete();
 
         // Attempt to send any program messages.
-        sleep(1); // Messages are only sent if they were created before "now", so we need to wait one second.
+        $this->waitForSecond(); // Messages are only sent if they were created before "now", so we need to wait one second.
         ob_start(); // Start a buffer to catch all the mtraces in the task.
         $task = new \totara_program\task\send_messages_task();
         $task->execute();
@@ -964,7 +953,7 @@ class totara_program_messages_testcase extends reportcache_advanced_testcase {
         $DB->execute($sql, $params);
 
         // Attempt to send any program messages.
-        sleep(1); // Messages are only sent if they were created before "now", so we need to wait one second.
+        $this->waitForSecond(); // Messages are only sent if they were created before "now", so we need to wait one second.
         ob_start(); // Start a buffer to catch all the mtraces in the task.
         $task = new \totara_program\task\send_messages_task();
         $task->execute();
@@ -989,7 +978,7 @@ class totara_program_messages_testcase extends reportcache_advanced_testcase {
         $completion->mark_complete();
 
         // Attempt to send any program messages.
-        sleep(1); // Messages are only sent if they were created before "now", so we need to wait one second.
+        $this->waitForSecond(); // Messages are only sent if they were created before "now", so we need to wait one second.
         ob_start(); // Start a buffer to catch all the mtraces in the task.
         $task = new \totara_program\task\send_messages_task();
         $task->execute();
@@ -1057,7 +1046,7 @@ class totara_program_messages_testcase extends reportcache_advanced_testcase {
         $completion->mark_complete();
 
         // Attempt to send any program messages.
-        sleep(1); // Messages are only sent if they were created before "now", so we need to wait one second.
+        $this->waitForSecond(); // Messages are only sent if they were created before "now", so we need to wait one second.
         ob_start(); // Start a buffer to catch all the mtraces in the task.
         $task = new \totara_program\task\send_messages_task();
         $task->execute();
@@ -1077,7 +1066,7 @@ class totara_program_messages_testcase extends reportcache_advanced_testcase {
             array('programid' => $this->program1->id, 'userid' => $this->user3->id));
 
         // Attempt to send any program messages.
-        sleep(1); // Messages are only sent if they were created before "now", so we need to wait one second.
+        $this->waitForSecond(); // Messages are only sent if they were created before "now", so we need to wait one second.
         ob_start(); // Start a buffer to catch all the mtraces in the task.
         $task = new \totara_program\task\send_messages_task();
         $task->execute();
@@ -1105,7 +1094,7 @@ class totara_program_messages_testcase extends reportcache_advanced_testcase {
             array('programid' => $this->program1->id, 'userid' => $this->user1->id));
 
         // Attempt to send any program messages.
-        sleep(1); // Messages are only sent if they were created before "now", so we need to wait one second.
+        $this->waitForSecond(); // Messages are only sent if they were created before "now", so we need to wait one second.
         ob_start(); // Start a buffer to catch all the mtraces in the task.
         $task = new \totara_program\task\send_messages_task();
         $task->execute();
@@ -1158,7 +1147,7 @@ class totara_program_messages_testcase extends reportcache_advanced_testcase {
         $this->program_generator->assign_program($this->program1->id, $usersprogram1);
 
         // Attempt to send any program messages.
-        sleep(1); // Messages are only sent if they were created before "now", so we need to wait one second.
+        $this->waitForSecond(); // Messages are only sent if they were created before "now", so we need to wait one second.
         ob_start(); // Start a buffer to catch all the mtraces in the task.
         $task = new \totara_program\task\send_messages_task();
         $task->execute();

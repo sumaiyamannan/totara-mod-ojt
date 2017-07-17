@@ -3279,7 +3279,7 @@ class mod_facetoface_lib_testcase extends advanced_testcase {
         $this->assertEquals(false, $DB->record_exists('course_modules_completion',
             array('coursemoduleid' => $cminfo->id, 'userid' => $this->user1->id, 'completionstate' => COMPLETION_COMPLETE)));
 
-        sleep(1);
+        $this->waitForSecond();
         totara_core_reaggregate_course_modules_completion();
 
         $this->assertEquals(true, $DB->record_exists('course_modules_completion',
@@ -3374,7 +3374,7 @@ class mod_facetoface_lib_testcase extends advanced_testcase {
         $this->assertEquals(false, $DB->record_exists('course_modules_completion',
             array('coursemoduleid' => $cminfo->id, 'userid' => $this->user1->id, 'completionstate' => COMPLETION_COMPLETE)));
 
-        sleep(1);
+        $this->waitForSecond();
         totara_core_reaggregate_course_modules_completion();
 
         $this->assertEquals(true, $DB->record_exists('course_modules_completion',
@@ -3466,7 +3466,7 @@ class mod_facetoface_lib_testcase extends advanced_testcase {
         $this->assertEquals(false, $DB->record_exists('course_modules_completion',
             array('coursemoduleid' => $cminfo->id, 'userid' => $this->user1->id, 'completionstate' => COMPLETION_COMPLETE)));
 
-        sleep(1);
+        $this->waitForSecond();
         totara_core_reaggregate_course_modules_completion();
 
         // The activity should now be complete.

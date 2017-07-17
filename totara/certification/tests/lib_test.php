@@ -2362,7 +2362,7 @@ class totara_certification_lib_testcase extends reportcache_advanced_testcase {
         // already. But timestarted and timedue should be unaltered.
         $DB->delete_records('certif_completion', array('id' => $certcompletion->id));
 
-        sleep(1);
+        $this->waitForSecond();
         $timebefore = time();
         certif_create_completion($cert->id, $user->id);
         $timeafter = time();
@@ -2393,7 +2393,7 @@ class totara_certification_lib_testcase extends reportcache_advanced_testcase {
         $certcompletion = $newcertcompletion;
         $DB->delete_records('prog_completion', array('id' => $progcompletion->id));
 
-        sleep(1);
+        $this->waitForSecond();
         $timebefore = time();
         certif_create_completion($cert->id, $user->id);
         $timeafter = time();

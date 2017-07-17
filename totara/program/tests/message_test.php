@@ -203,7 +203,7 @@ class totara_program_message_testcase extends advanced_testcase {
 
         // The latest assignment will be used for the displayed completion criteria. Sleep for 1 second so
         // the timestamps are different.
-        sleep(1);
+        $this->waitForSecond();
 
         $audience1 = $this->getDataGenerator()->create_cohort();
         /** @var totara_cohort_generator $cohortgenerator */

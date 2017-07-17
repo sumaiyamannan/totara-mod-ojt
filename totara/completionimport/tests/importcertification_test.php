@@ -460,7 +460,7 @@ class importcertification_testcase extends reportcache_advanced_testcase {
         $DB->set_field('prog_completion', 'timedue', COMPLETION_TIME_UNKNOWN,
             array('programid' => $this->program->id, 'userid' => $this->users[10]->id, 'coursesetid' => 0));
 
-        sleep(1);
+        $this->waitForSecond();
 
         // Validate the test data.
         $icd = $this->initialcompletiondate;
@@ -530,7 +530,7 @@ class importcertification_testcase extends reportcache_advanced_testcase {
         $csvexport = new csv_export_writer($this->csvdelimiter, $this->csvseparator);
         $csvexport->add_data($fields);
 
-        sleep(1);
+        $this->waitForSecond();
 
         $now = time();
 

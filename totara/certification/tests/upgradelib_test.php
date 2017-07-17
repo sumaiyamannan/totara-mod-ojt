@@ -515,7 +515,7 @@ class totara_certification_upgradelib_testcase extends reportcache_advanced_test
         $user1prog1prenonzerocompletion = $DB->get_record_select('prog_completion', $where, $params);
 
         // Wait one second, so that the existing timestamps will all be older.
-        sleep(1);
+        $this->waitForSecond();
 
         // Run the upgrade.
         totara_certification_upgrade_non_zero_prog_completions();

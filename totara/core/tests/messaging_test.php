@@ -105,7 +105,7 @@ class totara_core_messaging_testcase extends advanced_testcase {
         $program1 = $this->programgenerator->create_program();
         $this->programgenerator->assign_program($program1->id, array($this->user1->id, $this->user2->id));
 
-        sleep(1); // Messages are only sent if they were created before "now", so we need to wait one second.
+        $this->waitForSecond(); // Messages are only sent if they were created before "now", so we need to wait one second.
 
         // Attempt to send any program messages.
         $task = new \totara_program\task\send_messages_task();
