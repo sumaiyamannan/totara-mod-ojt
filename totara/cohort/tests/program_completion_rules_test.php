@@ -90,7 +90,6 @@ class totara_cohort_program_completion_rules_testcase extends reportcache_advanc
         set_config('enablecompletion', 1);
         $this->resetAfterTest(true);
         $this->setAdminUser();
-        $this->preventResetByRollback();
 
         // Set totara_cohort generator.
         $this->cohort_generator = $this->getDataGenerator()->get_plugin_generator('totara_cohort');

@@ -37,7 +37,6 @@ class totara_reportbuilder_rb_goal_details_embedded_testcase extends advanced_te
         parent::setup();
         $this->setAdminUser();
         $this->resetAfterTest(true);
-        $this->preventResetByRollback();
 
         // Create users.
         $this->user1 = $this->getDataGenerator()->create_user();

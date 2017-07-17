@@ -838,11 +838,6 @@ class totara_reportbuilder_column_testcase extends reportcache_advanced_testcase
         $src = reportbuilder::get_source_object($sourcename, true); // Caching here is completely fine.
         $src->phpunit_column_test_add_data($this);
 
-        if ($src->cacheable) {
-            // We are going to create cache tables.
-            $this->preventResetByRollback();
-        }
-
         // Create a report.
         $report = new stdClass();
         $report->fullname = 'Big test report';

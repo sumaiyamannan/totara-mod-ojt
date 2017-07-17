@@ -271,7 +271,6 @@ class enrol_self_testcase extends advanced_testcase {
     public function test_send_expiry_notifications() {
         global $DB, $CFG;
         $this->resetAfterTest();
-        $this->preventResetByRollback(); // Messaging does not like transactions...
 
         /** @var $selfplugin enrol_self_plugin */
         $selfplugin = enrol_get_plugin('self');
@@ -446,7 +445,6 @@ class enrol_self_testcase extends advanced_testcase {
     public function test_show_enrolme_link() {
         global $DB, $CFG;
         $this->resetAfterTest();
-        $this->preventResetByRollback(); // Messaging does not like transactions...
 
         /** @var $selfplugin enrol_self_plugin */
         $selfplugin = enrol_get_plugin('self');
@@ -578,7 +576,6 @@ class enrol_self_testcase extends advanced_testcase {
     public function test_can_self_enrol() {
         global $DB, $CFG, $OUTPUT;
         $this->resetAfterTest();
-        $this->preventResetByRollback();
 
         $selfplugin = enrol_get_plugin('self');
 

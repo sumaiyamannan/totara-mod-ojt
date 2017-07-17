@@ -43,7 +43,6 @@ class mod_facetoface_notifications_testcase extends advanced_testcase {
      */
     public function setUp() {
         parent::setUp();
-        $this->preventResetByRollback();
         $this->resetAfterTest();
     }
 
@@ -52,7 +51,7 @@ class mod_facetoface_notifications_testcase extends advanced_testcase {
         $session = $this->f2f_generate_data();
 
         // Call facetoface_delete_session function for session1.
-        $emailsink = $this->redirectEmails();
+        $emailsink = $this->redirectMessages();
         facetoface_delete_session($session);
         $emailsink->close();
 
@@ -65,7 +64,7 @@ class mod_facetoface_notifications_testcase extends advanced_testcase {
         $session = $this->f2f_generate_data(false);
 
         // Call facetoface_delete_session function for session1.
-        $emailsink = $this->redirectEmails();
+        $emailsink = $this->redirectMessages();
         facetoface_delete_session($session);
         $emailsink->close();
 
@@ -140,13 +139,13 @@ class mod_facetoface_notifications_testcase extends advanced_testcase {
         $statuscode = MDL_F2F_STATUS_REQUESTED;
 
         // Signup user1.
-        $emailsink = $this->redirectEmails();
+        $emailsink = $this->redirectMessages();
         $this->setUser($student1);
         facetoface_user_signup($session, $facetoface, $course, $discountcode, $notificationtype, $statuscode);
         $emailsink->close();
 
         // Signup user2.
-        $emailsink = $this->redirectEmails();
+        $emailsink = $this->redirectMessages();
         $this->setUser($student2);
         facetoface_user_signup($session, $facetoface, $course, $discountcode, $notificationtype, $statuscode);
         $emailsink->close();
@@ -347,13 +346,13 @@ class mod_facetoface_notifications_testcase extends advanced_testcase {
         $session = facetoface_get_session($facetofacegenerator->add_session($sessiondata));
         $sessionolddates = facetoface_get_session_dates($session->id);
 
-        $emailsink = $this->redirectEmails();
+        $emailsink = $this->redirectMessages();
         facetoface_user_import($course, $facetoface, $session, $student1->id);
         $emailsink->close();
 
         $preemails = $emailsink->get_messages();
         foreach($preemails as $preemail) {
-            $this->assertContains("This is to confirm that you are now booked", $preemail->body);
+            $this->assertContains("This is to confirm that you are now booked", $preemail->fullmessagehtml);
         }
 
         // Get ical specifics.
@@ -365,7 +364,7 @@ class mod_facetoface_notifications_testcase extends advanced_testcase {
         $date1edit->timestart = time() + 2 * WEEKSECS;
         $date1edit->timefinish = time() + 2 * WEEKSECS + 3600;
 
-        $emailsink = $this->redirectEmails();
+        $emailsink = $this->redirectMessages();
         // Change one date and cancel second.
         facetoface_update_session($session, array($date1edit));
         // Refresh session data.
@@ -379,8 +378,8 @@ class mod_facetoface_notifications_testcase extends advanced_testcase {
 
         $emails = $emailsink->get_messages();
         $emailsink->close();
-        $this->assertContains("Your session has changed", $emails[0]->body);
-        $this->assertContains("BOOKING CANCELLED", $emails[1]->body);
+        $this->assertContains("Your session has changed", $emails[0]->fullmessagehtml);
+        $this->assertContains("BOOKING CANCELLED", $emails[1]->fullmessagehtml);
 
         // Check ical specifics.
         $before0ids = $this->get_ical_values($before0->content, 'UID');
@@ -406,7 +405,7 @@ class mod_facetoface_notifications_testcase extends advanced_testcase {
         $this->assertGreaterThanOrEqual($before0seqs[0], $after1seqs[0]);
 
         // Now test cancelling the session.
-        $emailsink = $this->redirectEmails();
+        $emailsink = $this->redirectMessages();
         $result = facetoface_cancel_session(facetoface_get_session($session->id), null);
         $this->assertTrue($result);
 
@@ -414,10 +413,10 @@ class mod_facetoface_notifications_testcase extends advanced_testcase {
         $this->assertCount(1, $messages);
         $message = reset($messages);
         $this->assertContains('Seminar event cancellation', $message->subject);
-        $this->assertContains('This is to advise that the following session has been cancelled', $message->body);
-        $this->assertContains('Course: Test course 1', $message->body);
-        $this->assertContains('Seminar: facetoface', $message->body);
-        $this->assertContains('Date(s) and location(s):', $message->body);
+        $this->assertContains('This is to advise that the following session has been cancelled', $message->fullmessagehtml);
+        $this->assertContains('Course:   Test course 1', $message->fullmessagehtml);
+        $this->assertContains('Seminar:   facetoface', $message->fullmessagehtml);
+        $this->assertContains('Date(s) and location(s):', $message->fullmessagehtml);
 
         $session = facetoface_get_session($session->id);
         $this->assertEquals(1, $session->cancelledstatus);
@@ -1177,7 +1176,7 @@ class mod_facetoface_notifications_testcase extends advanced_testcase {
         // Default test Manager copy is enable and suppressccmanager is disabled.
         list($session, $facetoface, $course, $student1, $student2, $teacher1, $manager) = $this->f2fsession_generate_data();
 
-        $emailsink = $this->redirectEmails();
+        $emailsink = $this->redirectMessages();
         facetoface_user_import($course, $facetoface, $session, $student1->id);
         $emailsink->close();
 
@@ -1196,7 +1195,7 @@ class mod_facetoface_notifications_testcase extends advanced_testcase {
         if ($suppressccmanager) {
             $params['ccmanager'] = 0;
         }
-        $emailsink = $this->redirectEmails();
+        $emailsink = $this->redirectMessages();
         facetoface_user_import($course, $facetoface, $session, $student1->id, $params);
         $emailsink->close();
 
@@ -1216,7 +1215,7 @@ class mod_facetoface_notifications_testcase extends advanced_testcase {
         );
         $this->update_f2f_notification($params, 0);
 
-        $emailsink = $this->redirectEmails();
+        $emailsink = $this->redirectMessages();
         facetoface_user_import($course, $facetoface, $session, $student1->id);
         $emailsink->close();
 
@@ -1242,7 +1241,7 @@ class mod_facetoface_notifications_testcase extends advanced_testcase {
         if ($suppressccmanager) {
             $data['ccmanager'] = 0;
         }
-        $emailsink = $this->redirectEmails();
+        $emailsink = $this->redirectMessages();
         facetoface_user_import($course, $facetoface, $session, $student1->id, $data);
         $emailsink->close();
 
@@ -1255,13 +1254,13 @@ class mod_facetoface_notifications_testcase extends advanced_testcase {
         // Default test Manager copy is enable and suppressccmanager is disabled.
         list($session, $facetoface, $course, $student1, $student2, $teacher1, $manager) = $this->f2fsession_generate_data();
 
-        $emailsink = $this->redirectEmails();
+        $emailsink = $this->redirectMessages();
         facetoface_user_import($course, $facetoface, $session, $student1->id);
         $emailsink->close();
 
         $attendees = facetoface_get_attendees($session->id, array(MDL_F2F_STATUS_BOOKED));
 
-        $emailsink = $this->redirectEmails();
+        $emailsink = $this->redirectMessages();
         foreach ($attendees as $attendee) {
             if (facetoface_user_cancel($session, $attendee->id)) {
                 facetoface_send_cancellation_notice($facetoface, $session, $attendee->id);
@@ -1280,13 +1279,13 @@ class mod_facetoface_notifications_testcase extends advanced_testcase {
 
         $suppressccmanager = true;
 
-        $emailsink = $this->redirectEmails();
+        $emailsink = $this->redirectMessages();
         facetoface_user_import($course, $facetoface, $session, $student1->id);
         $emailsink->close();
 
         $attendees = facetoface_get_attendees($session->id, array(MDL_F2F_STATUS_BOOKED));
 
-        $emailsink = $this->redirectEmails();
+        $emailsink = $this->redirectMessages();
         foreach ($attendees as $attendee) {
             if (facetoface_user_cancel($session, $attendee->id)) {
                 if ($suppressccmanager) {
@@ -1306,7 +1305,7 @@ class mod_facetoface_notifications_testcase extends advanced_testcase {
         // Test Manager copy is disabled and suppressccmanager is disbaled.
         list($session, $facetoface, $course, $student1, $student2, $teacher1, $manager) = $this->f2fsession_generate_data();
 
-        $emailsink = $this->redirectEmails();
+        $emailsink = $this->redirectMessages();
         facetoface_user_import($course, $facetoface, $session, $student1->id);
         $emailsink->close();
 
@@ -1319,7 +1318,7 @@ class mod_facetoface_notifications_testcase extends advanced_testcase {
         );
         $this->update_f2f_notification($params, 1);
 
-        $emailsink = $this->redirectEmails();
+        $emailsink = $this->redirectMessages();
         foreach ($attendees as $attendee) {
             if (facetoface_user_cancel($session, $attendee->id)) {
                 $facetoface->ccmanager = 1;
@@ -1331,8 +1330,8 @@ class mod_facetoface_notifications_testcase extends advanced_testcase {
 
         $emails = $emailsink->get_messages();
         $this->assertCount(1, $emails, 'Only one message is expected');
-        $this->assertEquals($manager->email, $emails[0]->to);
-        $joinedbody = str_replace("=\n", "", $emails[0]->body);
+        $this->assertEquals($manager->id, $emails[0]->useridto);
+        $joinedbody = str_replace("=\n", "", $emails[0]->fullmessagehtml);
         $this->assertContains('you as their Team Leader', $joinedbody);
     }
 
@@ -1341,7 +1340,7 @@ class mod_facetoface_notifications_testcase extends advanced_testcase {
         // Test Manager copy is disabled and suppressccmanager is disbaled.
         list($session, $facetoface, $course, $student1, $student2, $teacher1, $manager) = $this->f2fsession_generate_data();
 
-        $emailsink = $this->redirectEmails();
+        $emailsink = $this->redirectMessages();
         facetoface_user_import($course, $facetoface, $session, $student1->id);
         $emailsink->close();
 
@@ -1354,7 +1353,7 @@ class mod_facetoface_notifications_testcase extends advanced_testcase {
         );
         $this->update_f2f_notification($params, 0);
 
-        $emailsink = $this->redirectEmails();
+        $emailsink = $this->redirectMessages();
         foreach ($attendees as $attendee) {
             if (facetoface_user_cancel($session, $attendee->id)) {
                 facetoface_send_cancellation_notice($facetoface, $session, $attendee->id);
@@ -1373,7 +1372,7 @@ class mod_facetoface_notifications_testcase extends advanced_testcase {
 
         $suppressccmanager = true;
 
-        $emailsink = $this->redirectEmails();
+        $emailsink = $this->redirectMessages();
         facetoface_user_import($course, $facetoface, $session, $student1->id);
         $emailsink->close();
 
@@ -1386,7 +1385,7 @@ class mod_facetoface_notifications_testcase extends advanced_testcase {
         );
         $this->update_f2f_notification($params, 0);
 
-        $emailsink = $this->redirectEmails();
+        $emailsink = $this->redirectMessages();
         foreach ($attendees as $attendee) {
             if (facetoface_user_cancel($session, $attendee->id)) {
                 if ($suppressccmanager) {
@@ -1416,7 +1415,7 @@ class mod_facetoface_notifications_testcase extends advanced_testcase {
     public function test_user_timezone() {
         global $DB;
 
-        $emailsink = $this->redirectEmails();
+        $emailsink = $this->redirectMessages();
         list($sessiondate, $student1, $student2, $student3) = $this->f2fsession_generate_timezone(99);
         $emailsink->close();
 
@@ -1431,27 +1430,27 @@ class mod_facetoface_notifications_testcase extends advanced_testcase {
         // Test user timezone date with session timezone date.
         $this->assertContains(
             $alldates,
-            $haystack[0]->body,
+            $haystack[0]->fullmessagehtml,
             'Wrong session timezone date for student 1 Face-to-face booking confirmation notification');
 
         $alldates = $this->get_user_date($sessiondate, $student2);
         // Test user timezone date with session timezone date.
         $this->assertContains(
             $alldates,
-            $haystack[1]->body,
+            $haystack[1]->fullmessagehtml,
             'Wrong session timezone date for student 2 Face-to-face booking confirmation notification');
 
         $alldates = $this->get_user_date($sessiondate, $student3);
         // Test user timezone date with session timezone date.
         $this->assertContains(
             $alldates,
-            $haystack[2]->body,
+            $haystack[2]->fullmessagehtml,
             'Wrong session timezone date for student 3 Face-to-face booking confirmation notification');
 
         $scheduled = $DB->get_records_select('facetoface_notification', 'conditiontype = ?', array(MDL_F2F_CONDITION_BEFORE_SESSION));
         $this->assertCount(1, $scheduled);
         $notify = reset($scheduled);
-        $emailsink = $this->redirectEmails();
+        $emailsink = $this->redirectMessages();
         $notification = new \facetoface_notification((array)$notify, false);
         $notification->send_scheduled();
         $emailsink->close();
@@ -1466,21 +1465,21 @@ class mod_facetoface_notifications_testcase extends advanced_testcase {
         // Test user timezone date with session timezone date.
         $this->assertContains(
             $alldates,
-            $haystack[0]->body,
+            $haystack[0]->fullmessagehtml,
             'Wrong session timezone date for student 1 of Face-to-face booking reminder notification');
 
         $alldates = $this->get_user_date($sessiondate, $student2);
         // Test user timezone date with session timezone date.
         $this->assertContains(
             $alldates,
-            $haystack[1]->body,
+            $haystack[1]->fullmessagehtml,
             'Wrong session timezone date for student 2 of Face-to-face booking reminder notification');
 
         $alldates = $this->get_user_date($sessiondate, $student3);
         // Test user timezone date with session timezone date.
         $this->assertContains(
             $alldates,
-            $haystack[2]->body,
+            $haystack[2]->fullmessagehtml,
             'Wrong session timezone date for student 3 of Face-to-face booking reminder notification');
     }
 
@@ -1490,7 +1489,7 @@ class mod_facetoface_notifications_testcase extends advanced_testcase {
         $test = new stdClass();
         $test->timezone = 'America/New_York';
 
-        $emailsink = $this->redirectEmails();
+        $emailsink = $this->redirectMessages();
         list($sessiondate, $student1, $student2, $student3) = $this->f2fsession_generate_timezone($test->timezone);
         $emailsink->close();
 
@@ -1506,25 +1505,25 @@ class mod_facetoface_notifications_testcase extends advanced_testcase {
         // Test user timezone date with session timezone date.
         $this->assertContains(
             $alldates,
-            $haystack[0]->body,
+            $haystack[0]->fullmessagehtml,
             'Wrong session timezone date for student 1 Face-to-face booking confirmation notification');
 
         // Test user timezone date with session timezone date.
         $this->assertContains(
             $alldates,
-            $haystack[1]->body,
+            $haystack[1]->fullmessagehtml,
             'Wrong session timezone date for student 2 Face-to-face booking confirmation notification');
 
         // Test user timezone date with session timezone date.
         $this->assertContains(
             $alldates,
-            $haystack[2]->body,
+            $haystack[2]->fullmessagehtml,
             'Wrong session timezone date for student 3 Face-to-face booking confirmation notification');
 
         $scheduled = $DB->get_records_select('facetoface_notification', 'conditiontype = ?', array(MDL_F2F_CONDITION_BEFORE_SESSION));
         $this->assertCount(1, $scheduled);
         $notify = reset($scheduled);
-        $emailsink = $this->redirectEmails();
+        $emailsink = $this->redirectMessages();
         $notification = new \facetoface_notification((array)$notify, false);
         $notification->send_scheduled();
         $emailsink->close();
@@ -1538,19 +1537,19 @@ class mod_facetoface_notifications_testcase extends advanced_testcase {
         // Test user timezone date with session timezone date.
         $this->assertContains(
             $alldates,
-            $haystack[0]->body,
+            $haystack[0]->fullmessagehtml,
             'Wrong session timezone date for student 1 of Face-to-face booking reminder notification');
 
         // Test user timezone date with session timezone date.
         $this->assertContains(
             $alldates,
-            $haystack[1]->body,
+            $haystack[1]->fullmessagehtml,
             'Wrong session timezone date for student 2 of Face-to-face booking reminder notification');
 
         // Test user timezone date with session timezone date.
         $this->assertContains(
             $alldates,
-            $haystack[2]->body,
+            $haystack[2]->fullmessagehtml,
             'Wrong session timezone date for student 3 of Face-to-face booking reminder notification');
     }
 
@@ -1604,7 +1603,7 @@ class mod_facetoface_notifications_testcase extends advanced_testcase {
         $this->assertEquals(MDL_F2F_STATUS_DECLINED, $DB->get_field_sql($sql, array('sid' => $session->id, 'uid' => $user4->id)));
 
         // Now test cancelling the session.
-        $emailsink = $this->redirectEmails();
+        $emailsink = $this->redirectMessages();
         $result = facetoface_cancel_session($session, null);
         $this->assertTrue($result);
         $emailsink->close();
@@ -1614,13 +1613,13 @@ class mod_facetoface_notifications_testcase extends advanced_testcase {
 
         // Users that have cancelled their session or their request have been declined should not being affected when a
         // session is cancelled.
-        $affectedusers = array($user2->email, $user3->email);
+        $affectedusers = array($user2->id, $user3->id);
         foreach ($messages as $message) {
             $this->assertContains('Seminar event cancellation', $message->subject);
-            $this->assertContains('This is to advise that the following session has been cancelled', $message->body);
-            $this->assertContains('Course: Test course 1', $message->body);
-            $this->assertContains('Seminar: Seminar 1', $message->body);
-            $this->assertContains($message->to, $affectedusers);
+            $this->assertContains('This is to advise that the following session has been cancelled', $message->fullmessagehtml);
+            $this->assertContains('Course:   Test course 1', $message->fullmessagehtml);
+            $this->assertContains('Seminar:   Seminar 1', $message->fullmessagehtml);
+            $this->assertContains($message->useridto, $affectedusers);
         }
     }
 
@@ -1682,9 +1681,9 @@ class mod_facetoface_notifications_testcase extends advanced_testcase {
 
     private function notification_content_test($needlebody, $emails, $message) {
 
-        $this->assertContains($needlebody, $emails[0]->body, $message);
-        $this->assertContains($needlebody, $emails[1]->body, $message);
-        $this->assertContains($needlebody, $emails[2]->body, $message);
+        $this->assertContains($needlebody, $emails[0]->fullmessagehtml, $message);
+        $this->assertContains($needlebody, $emails[1]->fullmessagehtml, $message);
+        $this->assertContains($needlebody, $emails[2]->fullmessagehtml, $message);
     }
 
     private function get_user_date($sessiondate, $date) {
@@ -1742,13 +1741,13 @@ class mod_facetoface_notifications_testcase extends advanced_testcase {
 
         $session = facetoface_get_session($facetofacegenerator->add_session($sessiondata));
 
-        $emailsink = $this->redirectEmails();
+        $emailsink = $this->redirectMessages();
         facetoface_user_import($course, $facetoface, $session, $student1->id);
         $emailsink->close();
 
         $preemails = $emailsink->get_messages();
         foreach($preemails as $preemail) {
-            $this->assertContains("This is to advise that you have been added to the waitlist", $preemail->body);
+            $this->assertContains("This is to advise that you have been added to the waitlist", $preemail->fullmessagehtml);
         }
     }
 }

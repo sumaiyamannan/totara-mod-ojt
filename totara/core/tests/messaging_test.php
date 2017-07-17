@@ -42,7 +42,6 @@ class totara_core_messaging_testcase extends advanced_testcase {
     }
 
     public function setUp() {
-        global $UNITTEST;
         parent::setup();
 
         $this->programgenerator = $this->getDataGenerator()->get_plugin_generator('totara_program');
@@ -63,14 +62,6 @@ class totara_core_messaging_testcase extends advanced_testcase {
         \totara_job\job_assignment::create_default($this->user1->id, array('managerjaid' => $manager1ja->id));
         \totara_job\job_assignment::create_default($this->user2->id, array('managerjaid' => $manager2ja->id));
         \totara_job\job_assignment::create_default($this->user3->id, array('managerjaid' => $manager1ja->id));
-
-        // Function in lib/moodlelib.php email_to_user require this.
-        if (!isset($UNITTEST)) {
-            $UNITTEST = new stdClass();
-            $UNITTEST->running = true;
-        }
-
-        unset_config('noemailever');
     }
 
     /**

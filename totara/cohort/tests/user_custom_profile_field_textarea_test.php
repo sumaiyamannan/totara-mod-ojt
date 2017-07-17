@@ -64,7 +64,6 @@ class totara_cohort_user_custom_profile_field_textarea_testcase extends advanced
         parent::setup();
         $this->resetAfterTest(true);
         $this->setAdminUser();
-        $this->preventResetByRollback();
 
         $generator = $this->getDataGenerator();
 

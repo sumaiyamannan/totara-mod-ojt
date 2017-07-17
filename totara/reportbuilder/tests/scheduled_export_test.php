@@ -32,7 +32,6 @@ class totara_reportbuilder_scheduled_export_testcase extends advanced_testcase {
 
         $this->resetAfterTest();
         $this->setAdminUser(); // We need permissions to access all reports.
-        $this->preventResetByRollback();
 
         set_config('exporttofilesystem', '0', 'reportbuilder');
 
@@ -233,7 +232,6 @@ class totara_reportbuilder_scheduled_export_testcase extends advanced_testcase {
 
         $this->resetAfterTest();
         $this->setAdminUser(); // We need permissions to access all reports.
-        $this->preventResetByRollback();
 
         $testdir = make_writable_directory($CFG->dataroot . '/mytest');
         $testdir = realpath($testdir);
@@ -336,7 +334,6 @@ class totara_reportbuilder_scheduled_export_testcase extends advanced_testcase {
 
         $this->resetAfterTest();
         $this->setAdminUser(); // We need permissions to access all reports.
-        $this->preventResetByRollback();
 
         set_config('exporttofilesystem', '0', 'reportbuilder');
 

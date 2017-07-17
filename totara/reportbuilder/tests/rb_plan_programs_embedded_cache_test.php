@@ -80,7 +80,6 @@ class totara_reportbuilder_rb_plan_programs_embedded_cache_testcase extends repo
         parent::setup();
         $this->setAdminUser();
         $this->resetAfterTest(true);
-        $this->preventResetByRollback();
         $this->cleanup();
 
         $this->getDataGenerator()->reset();
@@ -157,8 +156,6 @@ class totara_reportbuilder_rb_plan_programs_embedded_cache_testcase extends repo
      * @dataProvider provider_use_cache
      */
     public function test_plan_programs($usecache) {
-        $this->resetAfterTest(true);
-        $this->preventResetByRollback();
         if ($usecache) {
             $this->enable_caching($this->report_builder_data['id']);
         }

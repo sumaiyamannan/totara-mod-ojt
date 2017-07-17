@@ -39,7 +39,6 @@ class totara_reportbuilder_rb_plan_evidence_embedded_testcase extends advanced_t
         parent::setup();
         $this->setAdminUser();
         $this->resetAfterTest(true);
-        $this->preventResetByRollback();
 
         // Create users.
         $this->user1 = $this->getDataGenerator()->create_user();

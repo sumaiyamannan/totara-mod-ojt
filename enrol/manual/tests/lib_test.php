@@ -333,7 +333,6 @@ class enrol_manual_lib_testcase extends advanced_testcase {
     public function test_send_expiry_notifications() {
         global $DB, $CFG;
         $this->resetAfterTest();
-        $this->preventResetByRollback(); // Messaging does not like transactions...
 
         $trace = new null_progress_trace();
 

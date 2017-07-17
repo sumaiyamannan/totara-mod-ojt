@@ -1612,8 +1612,6 @@ class mod_facetoface_lib_testcase extends advanced_testcase {
 
         set_config('facetoface_selectjobassignmentonsignupglobal', true);
 
-        $this->preventResetByRollback();
-
         // Set up three users, one learner, a primary mgr and a secondary mgr.
         $user1 = $this->getDataGenerator()->create_user();
         $user2 = $this->getDataGenerator()->create_user();
@@ -1887,8 +1885,6 @@ class mod_facetoface_lib_testcase extends advanced_testcase {
     function test_facetoface_send_notice() {
         $this->init_sample_data();
 
-        $this->preventResetByRollback();
-
         $fields = array('username', 'email', 'institution', 'department', 'city', 'idnumber', 'icq', 'skype',
             'yahoo', 'aim', 'msn', 'phone1', 'phone2', 'address', 'url', 'description');
 
@@ -1972,10 +1968,6 @@ class mod_facetoface_lib_testcase extends advanced_testcase {
         global $CFG;
         $this->init_sample_data();
 
-        // Turn this stuff off. We need to fix these tests one day!
-        $CFG->noemailever = false;
-
-        $this->preventResetByRollback();
         $fields = array('username', 'email', 'institution', 'department', 'city', 'idnumber', 'icq', 'skype',
             'yahoo', 'aim', 'msn', 'phone1', 'phone2', 'address', 'url', 'description');
 
@@ -2088,8 +2080,6 @@ class mod_facetoface_lib_testcase extends advanced_testcase {
 
     function test_facetoface_send_confirmation_notice() {
         $this->init_sample_data();
-
-        $this->preventResetByRollback();
 
         // Set up three users, one learner, a primary mgr and a secondary mgr.
         $user1 = $this->getDataGenerator()->create_user();
@@ -2592,8 +2582,6 @@ class mod_facetoface_lib_testcase extends advanced_testcase {
         global $DB;
         $this->init_sample_data();
 
-        $this->preventResetByRollback();
-
         $teacher1 = $this->getDataGenerator()->create_user();
         $student1 = $this->getDataGenerator()->create_user();
         $course1 = $this->getDataGenerator()->create_course();
@@ -2671,8 +2659,6 @@ class mod_facetoface_lib_testcase extends advanced_testcase {
         global $DB;
         $this->init_sample_data();
 
-        $this->preventResetByRollback();
-
         $teacher1 = $this->getDataGenerator()->create_user();
         $student1 = $this->getDataGenerator()->create_user();
         $course1 = $this->getDataGenerator()->create_course();
@@ -2722,8 +2708,6 @@ class mod_facetoface_lib_testcase extends advanced_testcase {
     public function test_under_capacity_notification() {
         global $DB;
         $this->init_sample_data();
-
-        $this->preventResetByRollback();
 
         $teacher1 = $this->getDataGenerator()->create_user();
         $student1 = $this->getDataGenerator()->create_user();
@@ -2927,7 +2911,6 @@ class mod_facetoface_lib_testcase extends advanced_testcase {
     public function test_facetoface_messages($emailonlyfromnoreplyaddress, $noreplyaddress, $senderfrom) {
         $this->init_sample_data();
 
-        $this->preventResetByRollback();
         $this->setAdminUser();
 
         $facetofacegenerator = $this->getDataGenerator()->get_plugin_generator('mod_facetoface');

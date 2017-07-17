@@ -184,7 +184,6 @@ class mod_assign_lib_testcase extends mod_assign_base_testcase {
 
     public function test_print_recent_activity() {
         // Submitting an assignment generates a notification.
-        $this->preventResetByRollback();
         $sink = $this->redirectMessages();
 
         $this->setUser($this->editingteachers[0]);
@@ -205,7 +204,6 @@ class mod_assign_lib_testcase extends mod_assign_base_testcase {
     /** Make sure fullname dosn't trigger any warnings when assign_print_recent_activity is triggered. */
     public function test_print_recent_activity_fullname() {
         // Submitting an assignment generates a notification.
-        $this->preventResetByRollback();
         $sink = $this->redirectMessages();
 
         $this->setUser($this->editingteachers[0]);
@@ -228,7 +226,6 @@ class mod_assign_lib_testcase extends mod_assign_base_testcase {
     /** Make sure blind marking shows participant \d+ not fullname when assign_print_recent_activity is triggered. */
     public function test_print_recent_activity_fullname_blind_marking() {
         // Submitting an assignment generates a notification in blind marking.
-        $this->preventResetByRollback();
         $sink = $this->redirectMessages();
 
         $this->setUser($this->editingteachers[0]);
@@ -251,7 +248,6 @@ class mod_assign_lib_testcase extends mod_assign_base_testcase {
 
     public function test_assign_get_recent_mod_activity() {
         // Submitting an assignment generates a notification.
-        $this->preventResetByRollback();
         $sink = $this->redirectMessages();
 
         $this->setUser($this->editingteachers[0]);

@@ -188,7 +188,6 @@ class importcertification_testcase extends reportcache_advanced_testcase {
         global $DB, $CFG;
 
         $this->resetAfterTest(true);
-        $this->preventResetByRollback();
 
         $importname = 'certification';
         $pluginname = 'totara_completionimport_' . $importname;

@@ -69,7 +69,6 @@ class totara_reportbuilder_rb_plan_programs_recurring_embedded_cache_testcase ex
         set_config('enablecompletion', 1);
         $this->setAdminUser();
         $this->resetAfterTest(true);
-        $this->preventResetByRollback();
         $this->cleanup();
 
         $this->getDataGenerator()->reset();
@@ -151,8 +150,6 @@ class totara_reportbuilder_rb_plan_programs_recurring_embedded_cache_testcase ex
      * @dataProvider provider_use_cache
      */
     public function test_plan_programs_reccuring($usecache) {
-        $this->resetAfterTest(true);
-        $this->preventResetByRollback();
         if ($usecache) {
             $this->enable_caching($this->report_builder_data['id']);
         }

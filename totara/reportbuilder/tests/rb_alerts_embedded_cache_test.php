@@ -150,8 +150,6 @@ class totara_reportbuilder_rb_alerts_embedded_cache_testcase extends reportcache
      * @dataProvider provider_use_cache
      */
     public function test_alerts($usecache) {
-        $this->resetAfterTest(true);
-        $this->preventResetByRollback();
         if ($usecache) {
             $this->enable_caching($this->report_builder_data['id']);
         }

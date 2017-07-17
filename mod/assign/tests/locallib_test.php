@@ -709,7 +709,6 @@ class mod_assign_locallib_testcase extends mod_assign_base_testcase {
     public function test_submit_to_default_group() {
         global $DB, $SESSION;
 
-        $this->preventResetByRollback();
         $sink = $this->redirectMessages();
 
         $this->setUser($this->editingteachers[0]);
@@ -996,7 +995,6 @@ class mod_assign_locallib_testcase extends mod_assign_base_testcase {
         $assign->testable_apply_grade_to_user($data, $this->students[2]->id, 0);
 
         // Now run cron and see that one message was sent.
-        $this->preventResetByRollback();
         $sink = $this->redirectMessages();
         cron_setup_user();
         $this->expectOutputRegex('/Done processing 2 assignment submissions/');
@@ -1042,7 +1040,6 @@ class mod_assign_locallib_testcase extends mod_assign_base_testcase {
         $assign->testable_apply_grade_to_user($data, $this->students[1]->id, 0);
 
         // Now run cron and see that one message was sent.
-        $this->preventResetByRollback();
         $sink = $this->redirectMessages();
         cron_setup_user();
         $this->expectOutputRegex('/Done processing 1 assignment submissions/');
@@ -1962,7 +1959,6 @@ class mod_assign_locallib_testcase extends mod_assign_base_testcase {
     public function test_teacher_submit_for_student() {
         global $PAGE;
 
-        $this->preventResetByRollback();
         $sink = $this->redirectMessages();
 
         $this->setUser($this->editingteachers[0]);

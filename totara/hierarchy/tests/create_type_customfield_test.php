@@ -29,7 +29,7 @@ require_once($CFG->dirroot . '/totara/customfield/lib.php');
 /**
  * Test hierarchy type creation.
  */
-class create_type_customfield_testcase extends advanced_testcase {
+class totara_hierarchy_create_type_customfield_testcase extends advanced_testcase {
 
     /**
      * @var totara_hierarchy_generator
@@ -45,7 +45,6 @@ class create_type_customfield_testcase extends advanced_testcase {
         parent::setup();
         $this->resetAfterTest(true);
         $this->setAdminUser();
-        $this->preventResetByRollback();
 
         $generator = $this->getDataGenerator();
 

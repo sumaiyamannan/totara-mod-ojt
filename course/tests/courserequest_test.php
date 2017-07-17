@@ -79,7 +79,6 @@ class core_course_courserequest_testcase extends advanced_testcase {
     public function test_approve_request() {
         global $DB;
         $this->resetAfterTest(true);
-        $this->preventResetByRollback();
 
         $defaultcategory = $DB->get_field_select('course_categories', "MIN(id)", "parent=0");
         set_config('enablecourserequests', 1);
@@ -134,7 +133,6 @@ class core_course_courserequest_testcase extends advanced_testcase {
     public function test_reject_request() {
         global $DB;
         $this->resetAfterTest(true);
-        $this->preventResetByRollback();
 
         $this->setAdminUser();
         set_config('enablecourserequests', 1);

@@ -55,8 +55,6 @@ class core_completion_course_completion_testcase extends reportcache_advanced_te
         $this->resetAfterTest();
         $CFG->enablecompletion = true;
 
-        $this->preventResetByRollback();
-
         $this->assertEquals(2, $DB->count_records('user')); // Guest + Admin
 
         // Create three users.

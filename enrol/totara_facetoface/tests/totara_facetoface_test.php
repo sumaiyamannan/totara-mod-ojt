@@ -354,7 +354,6 @@ class enrol_totara_facetoface_testcase extends advanced_testcase {
     public function test_send_expiry_notifications() {
         global $DB, $CFG;
         $this->resetAfterTest();
-        $this->preventResetByRollback(); // Messaging does not like transactions.
 
         $selfplugin = enrol_get_plugin('totara_facetoface');
         $manualplugin = enrol_get_plugin('manual');
@@ -540,7 +539,6 @@ class enrol_totara_facetoface_testcase extends advanced_testcase {
     public function test_show_enrolme_link() {
         global $DB, $CFG;
         $this->resetAfterTest();
-        $this->preventResetByRollback(); // Messaging does not like transactions.
 
         $selfplugin = enrol_get_plugin('totara_facetoface');
 
@@ -691,7 +689,6 @@ class enrol_totara_facetoface_testcase extends advanced_testcase {
     public function test_can_enrol() {
         global $DB, $CFG;
         $this->resetAfterTest();
-        $this->preventResetByRollback();
 
         $selfplugin = enrol_get_plugin('totara_facetoface');
 
@@ -750,7 +747,6 @@ class enrol_totara_facetoface_testcase extends advanced_testcase {
         $CFG->debug = false; // Suppress debugging as faked raises a message fails the test.
 
         $this->resetAfterTest();
-        $this->preventResetByRollback();
 
         $this->setAdminUser(); // This prevents problems with missing from user data. The notification code is sloppy.
 
@@ -908,7 +904,6 @@ class enrol_totara_facetoface_testcase extends advanced_testcase {
         $CFG->debug = false; // Suppress debugging as faked raises a message fails the test.
 
         $this->resetAfterTest();
-        $this->preventResetByRollback();
 
         $this->setAdminUser(); // This prevents problems with missing from user data. The notification code is sloppy.
 

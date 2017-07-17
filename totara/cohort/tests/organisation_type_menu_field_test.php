@@ -105,7 +105,6 @@ extends advanced_testcase {
         parent::setup();
         $this->resetAfterTest(true);
         $this->setAdminUser();
-        $this->preventResetByRollback();
 
         $generator = $this->getDataGenerator();
         $this->cohorts = $generator->get_plugin_generator('totara_cohort');
