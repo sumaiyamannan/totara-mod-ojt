@@ -5552,6 +5552,19 @@ function facetoface_get_customfield_filters() {
 function facetoface_pluginfile($course, $cm, $context, $filearea, $args, $forcedownload, array $options=array()) {
     global $DB;
 
+    if ($context->contextlevel == CONTEXT_SYSTEM && ($filearea === 'room' || $filearea === 'asset')) {
+        // NOTE: we do not know where is the room and asset description visible,
+        //       this means we cannot do any strict access control, bad luck.
+        $fs = get_file_storage();
+        $relativepath = implode('/', $args);
+        $fullpath = "/$context->id/mod_facetoface/$filearea/$relativepath";
+        if (!$file = $fs->get_file_by_hash(sha1($fullpath))) {
+            return false;
+        }
+        // This function will stop code.
+        send_stored_file($file, 360, 0, true, $options);
+    }
+
     $sessionid = (int)array_shift($args);
     if (!$DB->get_record('facetoface_sessions', array('id' => $sessionid, 'facetoface' => $cm->instance))) {
         return false;
@@ -5566,14 +5579,6 @@ function facetoface_pluginfile($course, $cm, $context, $filearea, $args, $forced
         }
         return $file;
     };
-
-    if ($context->contextlevel == CONTEXT_SYSTEM && ($filearea === 'room' || $filearea === 'asset')) {
-        // NOTE: we do not know where is the room and asset description visible,
-        //       this means we cannot do any strict access control, bad luck.
-        $storedfile = $fileinstance();
-        // This function will stop code.
-        send_stored_file($storedfile, 360, 0, true, $options);
-    }
 
     if ($context->contextlevel != CONTEXT_MODULE || $filearea !== 'session') {
         return false;
