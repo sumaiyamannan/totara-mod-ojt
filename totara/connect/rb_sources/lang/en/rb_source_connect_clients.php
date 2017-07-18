@@ -22,4 +22,5 @@
  */
 
 $string['embeddedreportname'] = 'Totara Connect clients';
+$string['type_connect_clients'] = 'Client information';
 $string['sourcetitle'] = 'Totara Connect clients';
