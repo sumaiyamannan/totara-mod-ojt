@@ -48,7 +48,6 @@ class item extends item_base implements item_has_progress {
      */
     protected $courses;
     protected $competencies;
-    protected $programs;
 
     protected $progress_canbecompleted = null;
     protected $progress_percentage;
@@ -73,7 +72,6 @@ class item extends item_base implements item_has_progress {
             $item = new self($user, $plan);
 
             $item->get_courses();
-            $item->get_programs();
 
             $items[] = $item;
         }
@@ -181,16 +179,6 @@ class item extends item_base implements item_has_progress {
     }
 
     /**
-     * Get the programs assigned to the plan.
-     *
-     * @return \totara_plan\user_learning\program[] An array of program learning items
-     */
-    public function get_programs() {
-        $this->ensure_plan_content_loaded();
-        return $this->programs;
-    }
-
-    /**
      * Ensure the plan record has been loaded and
      * if not then load it.
      *
@@ -209,19 +197,14 @@ class item extends item_base implements item_has_progress {
     public function ensure_plan_content_loaded() {
         global $DB;
         $this->ensure_plan_loaded();
+        if ($this->courses === null) {
+            // We only do this once.
+            $this->courses = array();
 
-        // Get the plan content.
-        if ($this->courses === null || $this->programs === null) {
             $content = $this->plan->get_assigned_items(DP_APPROVAL_APPROVED);
             if (empty($content)) {
                 return;
             }
-        }
-
-        // Get the plan courses.
-        if ($this->courses === null) {
-            // We only do this once.
-            $this->courses = array();
 
             if (!empty($content['course'])) {
                 $courseids = array();
@@ -238,18 +221,8 @@ class item extends item_base implements item_has_progress {
                     $this->courses[] = $item;
                 }
             }
-        }
 
-        // Get the plan programs.
-        if ($this->programs === null) {
-            // We only do this once.
-            $this->programs = array();
-            if (!empty($content['program'])) {
-                foreach ($content['program'] as $planprogram) {
-                    $item = \totara_program\user_learning\item::one($this->user, $planprogram);
-                    $this->programs[] = $item;
-                }
-            }
+            // TODO: Finish this for the rest of plan content.
         }
     }
 
