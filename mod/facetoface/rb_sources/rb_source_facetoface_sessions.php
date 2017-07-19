@@ -682,7 +682,7 @@ class rb_source_facetoface_sessions extends rb_facetoface_base_source {
         $this->add_user_fields_to_filters($filteroptions);
         $this->add_course_fields_to_filters($filteroptions);
         $this->add_course_category_fields_to_filters($filteroptions);
-        $this->add_job_assignment_fields_to_filters($filteroptions);
+        $this->add_job_assignment_fields_to_filters($filteroptions, 'base', 'userid');
         $this->add_tag_fields_to_filters('course', $filteroptions);
 
         // add session role fields to filters

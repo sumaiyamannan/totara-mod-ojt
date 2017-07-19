@@ -4341,12 +4341,14 @@ abstract class rb_base_source {
     /**
      * Adds some common user position filters to the $filteroptions array
      *
-     * @param array &$columnoptions Array of current filter options
+     * @param array &$filteroptions Array of current filter options
      *                              Passed by reference and updated by
      *                              this method
+     * @param string $userjoin Table name to join to which has the user's id
+     * @param string $userfield Field name containing the user's id
      * @return True
      */
-    protected function add_job_assignment_fields_to_filters(&$filteroptions, $users='auser') {
+    protected function add_job_assignment_fields_to_filters(&$filteroptions, $userjoin = 'auser', $userfield = 'id') {
         global $DB, $CFG;
 
         // Job assignment field filters.
@@ -4366,8 +4368,8 @@ abstract class rb_base_source {
                 'prefix' => 'job',
                 'datefield' => 'startdate',
             ),
-            "{$users}.id",
-            $users
+            "{$userjoin}.{$userfield}",
+            $userjoin
         );
 
         $filteroptions[] = new rb_filter_option(
@@ -4379,8 +4381,8 @@ abstract class rb_base_source {
                 'prefix' => 'job',
                 'datefield' => 'enddate',
             ),
-            "{$users}.id",
-            $users
+            "{$userjoin}.{$userfield}",
+            $userjoin
         );
 
         // Position field filters.
@@ -4394,8 +4396,8 @@ abstract class rb_base_source {
                 'jobfield' => 'positionid',                                 // Jobfield, map to the column in the job_assignments table.
                 'jobjoin' => 'pos',                                         // The table that the job join information can be found in.
             ),
-            "{$users}.id",                                                  // $field
-            $users                                                          // $joins string | array
+            "{$userjoin}.{$userfield}",                                                  // $field
+            $userjoin                                                          // $joins string | array
         );
         $filteroptions[] = new rb_filter_option(
             'job_assignment',                                               // type
@@ -4439,8 +4441,8 @@ abstract class rb_base_source {
                 'jobfield' => 'organisationid',                             // Jobfield, map to the column in the job_assignments table.
                 'jobjoin' => 'org',                                         // The table that the job join information can be found in.
             ),
-            "{$users}.id",                                                  // $field
-            $users                                                          // $joins string | array
+            "{$userjoin}.{$userfield}",                                                  // $field
+            $userjoin                                                          // $joins string | array
         );
         $filteroptions[] = new rb_filter_option(
             'job_assignment',                                               // type
@@ -4485,8 +4487,8 @@ abstract class rb_base_source {
                 'extfield' => 'userid',                                     // Extfield, this overrides the jobfield as the select after joining.
                 'extjoin' => 'job_assignment',                              // Extjoin, whether an additional join is required.
             ),
-            "{$users}.id",                                                  // $field
-            $users                                                          // $joins string | array
+            "{$userjoin}.{$userfield}",                                                  // $field
+            $userjoin                                                          // $joins string | array
         );
         $filteroptions[] = new rb_filter_option(
             'job_assignment',                                               // type
@@ -4521,18 +4523,18 @@ abstract class rb_base_source {
                 'jobfield' => 'appraiserid',                                // Jobfield, map to the column in the job_assignments table.
                 'jobjoin' => 'user',                                        // The table that the job join information can be found in.
             ),
-            "{$users}.id",                                                  // $field
-            $users                                                          // $joins string | array
+            "{$userjoin}.{$userfield}",                                                  // $field
+            $userjoin                                                          // $joins string | array
         );
 
         // Set up the position and organisation custom field filters.
         $posfields = $DB->get_records('pos_type_info_field', array('hidden' => '0'));
-        $this->add_job_custom_field_filters('pos', $posfields, $filteroptions, $users);
+        $this->add_job_custom_field_filters('pos', $posfields, $filteroptions, $userjoin, $userfield);
 
         $orgfields = $DB->get_records('org_type_info_field', array('hidden' => '0'));
-        $this->add_job_custom_field_filters('org', $orgfields, $filteroptions, $users);
+        $this->add_job_custom_field_filters('org', $orgfields, $filteroptions, $userjoin, $userfield);
 
-        return $filteroptions;
+        return true;
     }
 
     /**
@@ -5132,7 +5134,15 @@ abstract class rb_base_source {
         }
     }
 
-    private function add_job_custom_field_filters($prefix, $fields, &$filteroptions, $userjoin = 'auser') {
+    /**
+     * @param $prefix
+     * @param $fields
+     * @param $filteroptions
+     * @param string $userjoin Table name to join to which has the user's id
+     * @param string $userfield Field name containing the user's id
+     * @return bool
+     */
+    private function add_job_custom_field_filters($prefix, $fields, &$filteroptions, $userjoin = 'auser', $userfield = 'id') {
         global $CFG;
 
         foreach ($fields as $field) {
@@ -5149,7 +5159,7 @@ abstract class rb_base_source {
                             'datefield' => $field->shortname,
                             'prefix' => $prefix,
                         ),
-                        "{$userjoin}.id",
+                        "{$userjoin}.{$userfield}",
                         $userjoin
                     );
                     break;
