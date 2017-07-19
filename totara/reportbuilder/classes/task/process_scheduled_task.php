@@ -80,6 +80,10 @@ class process_scheduled_task extends \core\task\scheduled_task {
 
                 // Hack $USER - includes current language change, $PAGE init, etc.
                 cron_setup_user($user);
+
+                // Reset any user specific caches. This isn't going to be fast but it is required.
+                // All caches must be generated for the same user.
+                \reportbuilder::reset_caches();
                 \reportbuilder::reset_source_object_cache();
 
                 // Send email or save report.
