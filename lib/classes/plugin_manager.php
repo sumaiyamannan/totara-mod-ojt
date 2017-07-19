@@ -1371,6 +1371,7 @@ class core_plugin_manager {
             ),
             // Other Totara leftovers and mistakes.
             'connect' => array('totara'),
+            'auth' => array('gauth')
         );
 
         if (!isset($plugins[$type])) {
@@ -1415,7 +1416,7 @@ class core_plugin_manager {
                 'nntp', 'nologin', 'none', 'pam', 'pop3', 'radius',
                 'shibboleth', 'webservice'
                 // Totara
-                , 'gauth', 'connect', 'approved'
+                , 'connect', 'approved'
             ),
 
             'availability' => array(
