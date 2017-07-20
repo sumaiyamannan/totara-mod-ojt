@@ -1618,7 +1618,9 @@ class program {
         if ($prog_completion && $prog_completion->status == STATUS_PROGRAM_COMPLETE) {
             $out .= html_writer::start_tag('div', array('class' => 'programendnote'));
             $out .= $OUTPUT->heading(get_string('programends', 'totara_program'), 2);
-            $out .= html_writer::tag('div', $this->endnote, array('class' => 'endnote'));
+            $out .= html_writer::tag('div',
+                file_rewrite_pluginfile_urls($this->endnote, 'pluginfile.php', $this->context->id, 'totara_program', 'endnote', 0),
+                array('class' => 'endnote'));
             $out .= html_writer::end_tag('div');
         }
 

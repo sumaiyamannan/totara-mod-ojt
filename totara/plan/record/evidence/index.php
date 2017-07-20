@@ -70,10 +70,6 @@ if ($USER->id == $userid) {
 $reportfilters = array('userid' => $userid);
 $report = reportbuilder_get_embedded_report('plan_evidence', $reportfilters, false, $sid);
 
-if ($debug) {
-    $report->debug($debug);
-}
-
 $logurl = $PAGE->url->out_as_local_url();
 if ($format != '') {
     $report->export_data($format);
@@ -97,7 +93,14 @@ $PAGE->set_button($report->edit_button());
 $PAGE->set_totara_menu_selected($menuitem);
 dp_display_plans_menu($userid, 0, $usertype, 'evidence/index', 'none', false);
 
+/** @var totara_reportbuilder_renderer $renderer */
+$renderer = $PAGE->get_renderer('totara_reportbuilder');
+
 echo $OUTPUT->header();
+
+// This must be done after the header and before any other use of the report.
+list($reporthtml, $debughtml) = $renderer->report_html($report, $debug);
+echo $debughtml;
 
 echo $OUTPUT->container_start('', 'dp-plan-content');
 
@@ -107,11 +110,7 @@ dp_print_rol_tabs(null, 'evidence', $userid);
 
 $report->display_restrictions();
 
-$countfiltered = $report->get_filtered_count();
-$countall = $report->get_full_count();
-
-$renderer = $PAGE->get_renderer('totara_reportbuilder');
-$heading = $renderer->print_result_count_string($countfiltered, $countall);
+$heading = $renderer->result_count_info($report);
 echo $OUTPUT->heading($heading);
 
 echo $renderer->print_description($report->description, $report->_id);
@@ -127,8 +126,7 @@ print $OUTPUT->single_button(
                 array('id' => 0, 'userid' => $userid)), get_string('addevidence', 'totara_plan'), 'get');
 
 echo $renderer->showhide_button($report->_id, $report->shortname);
-
-$report->display_table();
+echo $reporthtml;
 
 // Export button.
 $renderer->export_select($report, $sid);

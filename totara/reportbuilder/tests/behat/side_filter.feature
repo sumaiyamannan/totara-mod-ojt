@@ -1,4 +1,4 @@
-@totara @totara_reportbuilder @javascript
+@totara @totara_reportbuilder @totara_customfield @javascript
 Feature: Filter reportbuilder results by multicheck filters on sidebar
   As an admin
   I filter reportbuilder results using faceted search

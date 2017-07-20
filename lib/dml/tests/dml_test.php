@@ -4070,6 +4070,16 @@ class core_dml_testcase extends database_driver_testcase {
         $DB->insert_record($tablename, array('name'=>'one]two'));
         $DB->insert_record($tablename, array('name'=>'onetwo'));
         $DB->insert_record($tablename, array('name'=>'onex'));
+        $DB->insert_record($tablename, array('name'=>'one|two'));
+        $DB->insert_record($tablename, array('name'=>'one`two'));
+        $DB->insert_record($tablename, array('name'=>'one~two'));
+        $DB->insert_record($tablename, array('name'=>'one@two'));
+        $DB->insert_record($tablename, array('name'=>'one#two'));
+        $DB->insert_record($tablename, array('name'=>'one&two'));
+        $DB->insert_record($tablename, array('name'=>'one*two'));
+        $DB->insert_record($tablename, array('name'=>'one\'two'));
+        $DB->insert_record($tablename, array('name'=>'one"two'));
+        $DB->insert_record($tablename, array('name'=>'\totara_message\event\alert_sent'));
 
         $search = 'one_two';
         $sql = "SELECT * FROM {{$tablename}} WHERE ".$DB->sql_like('name', '?');
@@ -4119,6 +4129,101 @@ class core_dml_testcase extends database_driver_testcase {
         $this->assertCount(1, $records);
         $record = reset($records);
         $this->assertSame($search, $record->name);
+
+        $search = 'one|two';
+        $sql = "SELECT * FROM {{$tablename}} WHERE ".$DB->sql_like('name', '?');
+        $records = $DB->get_records_sql($sql, array('%' . $DB->sql_like_escape($search) . '%'));
+        $this->assertCount(1, $records);
+        $record = reset($records);
+        $this->assertSame($search, $record->name);
+
+        $search = 'one`two';
+        $sql = "SELECT * FROM {{$tablename}} WHERE ".$DB->sql_like('name', '?');
+        $records = $DB->get_records_sql($sql, array('%' . $DB->sql_like_escape($search) . '%'));
+        $this->assertCount(1, $records);
+        $record = reset($records);
+        $this->assertSame($search, $record->name);
+
+        $search = 'one~two';
+        $sql = "SELECT * FROM {{$tablename}} WHERE ".$DB->sql_like('name', '?');
+        $records = $DB->get_records_sql($sql, array('%' . $DB->sql_like_escape($search) . '%'));
+        $this->assertCount(1, $records);
+        $record = reset($records);
+        $this->assertSame($search, $record->name);
+
+        $search = 'one@two';
+        $sql = "SELECT * FROM {{$tablename}} WHERE ".$DB->sql_like('name', '?');
+        $records = $DB->get_records_sql($sql, array('%' . $DB->sql_like_escape($search) . '%'));
+        $this->assertCount(1, $records);
+        $record = reset($records);
+        $this->assertSame($search, $record->name);
+
+        $search = 'one#two';
+        $sql = "SELECT * FROM {{$tablename}} WHERE ".$DB->sql_like('name', '?');
+        $records = $DB->get_records_sql($sql, array('%' . $DB->sql_like_escape($search) . '%'));
+        $this->assertCount(1, $records);
+        $record = reset($records);
+        $this->assertSame($search, $record->name);
+
+        $search = 'one&two';
+        $sql = "SELECT * FROM {{$tablename}} WHERE ".$DB->sql_like('name', '?');
+        $records = $DB->get_records_sql($sql, array('%' . $DB->sql_like_escape($search) . '%'));
+        $this->assertCount(1, $records);
+        $record = reset($records);
+        $this->assertSame($search, $record->name);
+
+        $search = 'one*two';
+        $sql = "SELECT * FROM {{$tablename}} WHERE ".$DB->sql_like('name', '?');
+        $records = $DB->get_records_sql($sql, array('%' . $DB->sql_like_escape($search) . '%'));
+        $this->assertCount(1, $records);
+        $record = reset($records);
+        $this->assertSame($search, $record->name);
+
+        $search = 'one\'two';
+        $sql = "SELECT * FROM {{$tablename}} WHERE ".$DB->sql_like('name', '?');
+        $records = $DB->get_records_sql($sql, array('%' . $DB->sql_like_escape($search) . '%'));
+        $this->assertCount(1, $records);
+        $record = reset($records);
+        $this->assertSame($search, $record->name);
+
+        $search = 'one\'two';
+        $sql = "SELECT * FROM {{$tablename}} WHERE ".$DB->sql_like('name', '?');
+        $records = $DB->get_records_sql($sql, array('%' . $DB->sql_like_escape($search, '\'') . '%'));
+        $this->assertCount(0, $records);
+
+        $search = 'one"two';
+        $sql = "SELECT * FROM {{$tablename}} WHERE ".$DB->sql_like('name', '?');
+        $records = $DB->get_records_sql($sql, array('%' . $DB->sql_like_escape($search) . '%'));
+        $this->assertCount(1, $records);
+        $record = reset($records);
+        $this->assertSame($search, $record->name);
+
+        $search = '\totara_message\event\alert_sent';
+        $sql = "SELECT * FROM {{$tablename}} WHERE ".$DB->sql_like('name', '?');
+        $records = $DB->get_records_sql($sql, array('%' . $DB->sql_like_escape($search) . '%'));
+        $this->assertCount(1, $records);
+        $record = reset($records);
+        $this->assertSame($search, $record->name);
+
+        $search = '\totara_message\event\alert_sent';
+        $sql = "SELECT * FROM {{$tablename}} WHERE ".$DB->sql_like('name', '?');
+        $records = $DB->get_records_sql($sql, array('%' . $DB->sql_like_escape($search, '') . '%'));
+        $this->assertCount(0, $records);
+
+        $search = '\totara_message\event\alert_sent';
+        $sql = "SELECT * FROM {{$tablename}} WHERE ".$DB->sql_like('name', '?');
+        $records = $DB->get_records_sql($sql, array('%' . $DB->sql_like_escape($search, '%') . '%'));
+        $this->assertCount(0, $records);
+
+        $search = '\totara_message\event\alert_sent';
+        $sql = "SELECT * FROM {{$tablename}} WHERE ".$DB->sql_like('name', '?');
+        $records = $DB->get_records_sql($sql, array('%' . $DB->sql_like_escape($search, '_') . '%'));
+        $this->assertCount(0, $records);
+
+        $search = 'one%two';
+        $sql = "SELECT * FROM {{$tablename}} WHERE ".$DB->sql_like('name', '?');
+        $records = $DB->get_records_sql($sql, array('%' . $DB->sql_like_escape($search, '%') . '%'));
+        $this->assertCount(17, $records);
     }
 
     public function test_coalesce() {

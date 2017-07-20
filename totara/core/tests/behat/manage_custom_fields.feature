@@ -1,4 +1,4 @@
-@javascript @totara @totara_core
+@javascript @totara @totara_core @totara_customfield
 Feature: Test new custom field capabilities
     In order to check that new manage custom fields capabilities
     working correctly

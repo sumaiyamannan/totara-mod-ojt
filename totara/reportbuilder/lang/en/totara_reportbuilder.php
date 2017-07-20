@@ -74,6 +74,8 @@ $string['aggregatetypesum_name'] = 'Sum';
 $string['aggregatetypesum_heading'] = 'Sum of {$a}';
 $string['alldata'] = 'All data';
 $string['allofthefollowing'] = 'All of the following';
+$string['allowtotalcount'] = 'Allow reports to show total count';
+$string['allowtotalcount_desc'] = 'When enabled Report Builder reports can be configured to show a total count of records, before filters have been applied. Please be aware that getting this count can be an expensive operation, and for performance reasons we recommend you leave this setting off.';
 $string['allreports'] = 'All Reports';
 $string['allrestrictions'] = '&laquo; All Restrictions';
 $string['allscheduledreports'] = 'All scheduled reports';
@@ -383,6 +385,7 @@ $string['financialyeardaystart'] = 'Financial year day start';
 $string['financialyearmonthstart'] = 'Financial year month start';
 $string['format'] = 'Format';
 $string['general'] = 'General';
+$string['generalperformancesettings'] = 'General Performance Settings';
 $string['globalrestriction'] = 'Global report restrictions';
 $string['globalrestriction_help'] = 'Specify if global report restrictions are enabled in this report.';
 $string['globalrestrictiondefault'] = 'Enable global restrictions in new user reports';
@@ -410,7 +413,7 @@ $string['graphorientationrow'] = 'Data series in rows';
 $string['graphseries'] = 'Data sources';
 $string['graphseries_help'] = 'Select one or more columns to use as data sources for the graph. Only columns with compatible numeric data are included.';
 $string['graphsettings'] = 'Custom settings';
-$string['graphsettings_help'] = 'Advanced SGVGraph settings in PHP ini file format. See <a href="http://www.goat1000.com/svggraph-settings.php" target="_blank">http://www.goat1000.com/svggraph-settings.php<a/> for more information.';
+$string['graphsettings_help'] = 'Advanced SVGGraph settings in PHP ini file format. See <a href="http://www.goat1000.com/svggraph-settings.php" target="_blank">http://www.goat1000.com/svggraph-settings.php</a> for more information.';
 $string['graphstacked'] = 'Stacked';
 $string['graphtype'] = 'Graph type';
 $string['graphtype_help'] = 'Select graph type to display a graph in report, select "None" to remove the graph from report.';
@@ -818,6 +821,7 @@ When **Show records by user** is selected the report will show different records
 
 If multiple options are selected the user sees records that match any of the selected options.';
 $string['reportcachingdisabled'] = 'Report caching is disabled. <a href="{$a}">Enable report caching here</a>';
+$string['reportcachingincompatiblefilter'] = 'Filter "{$a}" is not compatible with report caching.';
 $string['reportcolumns'] = 'Report Columns';
 $string['reportconfirmdelete'] = 'Are you sure you want to delete this report?';
 $string['reportconfirmreload'] = 'This is an embedded report so you cannot delete it (that must be done by your site developer). You can choose to reset the report settings to their original values. Do you want to continue?';
@@ -922,6 +926,8 @@ $string['showrecordsinorg'] = 'Staff in any of the user\'s assigned organisation
 $string['showrecordsinorgandbelow'] = 'Staff at or below any of the user\'s assigned organisations';
 $string['showrecordsinpos'] = 'Staff in any of the user\'s assigned positions';
 $string['showrecordsinposandbelow'] = 'Staff at or below any of the user\'s assigned positions';
+$string['showtotalcount'] = 'Display a total count of records';
+$string['showtotalcount_help'] = 'When enabled the report will display a total count of records when not filtered. For performance reasons we recommend you leave this setting off.';
 $string['sidebarfilter'] = 'Sidebar filter options';
 $string['sidebarfilterdesc'] = 'The choices below determine which filters appear to the side of the report and how they are labelled.';
 $string['sidebarfilter_help'] = '
@@ -947,7 +953,7 @@ from the report.
 from the dropdown menu and clicking **Save changes**.';
 $string['sorting'] = 'Sorting';
 $string['source'] = 'Source';
-$string['standardfilter'] = 'Standard filter options.';
+$string['standardfilter'] = 'Standard filter options';
 $string['standardfilterdesc'] = 'The choices below determine which filter will appear above the report and how they are labelled.';
 $string['standardfilter_help'] = '
 **Standard filter options** allows you to customise the filters that appear above your report. The available filters are
@@ -1049,6 +1055,9 @@ $string['unknown'] = 'Unknown';
 $string['unknownlanguage'] = 'Unknown Language ({$a})';
 $string['uninstalledlanguage'] = 'Uninstalled Language {$a->name} ({$a->code})';
 $string['updatescheduledreport'] = 'Successfully updated Scheduled Report';
+$string['useclonedb'] = 'Use database clone';
+$string['useclonedb_help'] = 'If enabled the report will use the database clone. This may improve performance, but the data may be outdated if the clone is not synchronised properly with the main database. This option is not compatible with standard report caching.';
+$string['useclonedbheader'] = 'Database connection';
 $string['useralternatename'] = 'User Alternate Name';
 $string['useraddress'] = 'User\'s Address';
 $string['usercity'] = 'User\'s City';
@@ -1133,6 +1142,7 @@ $string['usersposmulti'] = 'User\'s Position (multi-item)';
 $string['userspospathids'] = 'User\'s Position Path IDs';
 $string['userspostypeall'] = 'User\'s Position Type(s)';
 $string['userstatus'] = 'User Status';
+$string['userstempmanagernameall'] = 'User\'s Temporary Manager Name(s)';
 $string['usertempreports'] = 'Records for user\'s temporary reports for any of the user\'s job assignments';
 $string['usertimecreated'] = 'User Creation Time';
 $string['usertimemodified'] = 'User Last Modified';

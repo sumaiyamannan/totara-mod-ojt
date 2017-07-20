@@ -74,9 +74,6 @@ $report->include_js();
 $graph = (substr($report->source, 0, strlen('graphical_feedback_questions')) ==
     'graphical_feedback_questions');
 
-$countfiltered = $report->get_filtered_count();
-$countall = $report->get_full_count();
-
 $fullname = format_string($report->fullname);
 $pagetitle = format_string(get_string('report', 'totara_reportbuilder').': '.$fullname);
 
@@ -86,25 +83,25 @@ $PAGE->navbar->add(get_string('reports', 'totara_core'), new moodle_url('/my/rep
 $PAGE->navbar->add($fullname);
 $PAGE->set_heading(format_string($SITE->fullname));
 
+/** @var totara_reportbuilder_renderer $output */
 $output = $PAGE->get_renderer('totara_reportbuilder');
 
 echo $output->header();
 
-$report->display_redirect_link();
+// This must be done after the header and before any other use of the report.
+list($tablehtml, $debughtml) = $output->report_html($report, $debug);
 
+$report->display_redirect_link();
 $report->display_restrictions();
 
 // Display heading including filtering stats.
 if ($graph) {
-    echo $output->heading($fullname);
+    $heading = $fullname;
 } else {
-    echo $output->heading("$fullname: " .
-        $output->print_result_count_string($countfiltered, $countall));
+    $heading = $fullname . ': ' . $output->result_count_info($report);
 }
-
-if ($debug) {
-    $report->debug($debug);
-}
+echo $output->heading($heading);
+echo $debughtml;
 
 // print report description if set
 echo $output->print_description($report->description, $report->_id);
@@ -121,7 +118,7 @@ if ($graph) {
     print $report->print_feedback_results();
 } else {
     echo $output->showhide_button($report->_id, $report->shortname);
-    $report->display_table();
+    echo $tablehtml;
 }
 
 // Export button.

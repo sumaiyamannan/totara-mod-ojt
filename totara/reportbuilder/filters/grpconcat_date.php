@@ -51,8 +51,7 @@ class rb_filter_grpconcat_date extends rb_filter_date {
      */
     function get_sql_filter($data) {
         $unique = rb_unique_param('grpdt_flt');
-        $field = $this->get_field();
-        $usertab  = $this->joins;
+        $userfield = $this->get_field();
 
         $daysbefore = $data['daysbefore'];
         $daysafter = $data['daysafter'];
@@ -130,7 +129,7 @@ class rb_filter_grpconcat_date extends rb_filter_date {
 
             $sql = " EXISTS ( SELECT 1
                              {$fromsql}
-                               WHERE ja.userid = {$usertab}.id
+                               WHERE ja.userid = {$userfield}
                                  AND {$field} != :{$uniquenull}
                                  AND ( {$precond} OR {$postcond} )
                             )";

@@ -34,36 +34,6 @@ use Behat\Mink\Exception\ExpectationException;
  * @package totara_form
  */
 class editor extends textarea {
-
-    /**
-     * The element node, containing the whole element markup.
-     * @var \Behat\Mink\Element\NodeElement
-     */
-    protected $node;
-
-    /**
-     * The context that is currently working with this element.
-     * @var \behat_totara_form
-     */
-    protected $context;
-
-    /**
-     * The type of this instance.
-     * @var string
-     */
-    protected $mytype;
-
-    /**
-     * Constructs an editor behat element helper.
-     *
-     * @param \Behat\Mink\Element\NodeElement $node
-     * @param \behat_totara_form $context
-     */
-    public function __construct(\Behat\Mink\Element\NodeElement $node, \behat_totara_form $context) {
-        parent::__construct($node, $context);
-        $this->mytype = get_class($this);
-    }
-
     /**
      * Returns the editor input.
      *
@@ -72,7 +42,7 @@ class editor extends textarea {
      */
     protected function get_editor_input() {
         $id = $this->node->getAttribute('data-element-id');
-        $idliteral = $this->context->getSession()->getSelectorsHandler()->xpathLiteral($id);
+        $idliteral = \behat_context_helper::escape($id);
         $editors = $this->node->findAll('xpath', "//textarea[@id={$idliteral}]");
         if (!is_array($editors) || empty($editors)) {
             throw new ExpectationException('Could not find expected editor', $this->context->getSession());
@@ -91,10 +61,11 @@ class editor extends textarea {
      */
     public function get_value() {
         $editor = $this->get_editor_input();
-        if ($this->context->running_javascript() && !$editor->isVisible()) {
-            throw new ExpectationException('Attempting to change a ' . $this->mytype . ' that is not visible', $this->context->getSession());
+        if (!$this->context->running_javascript() and $this->is_frozen()) {
+            // This is tricky, because Goutte does not return the disabled element value.
+            return (string)$editor->getText();
         }
-        return $editor->getValue();
+        return (string)$editor->getValue();
     }
 
     /**
@@ -112,11 +83,25 @@ class editor extends textarea {
         }
         // We don't check visibility here because the editor that is in use will determine what is visible.
         // Really this next bit is just bit of a hack, there should be an API to set the value of an editor.
-        $value = addslashes($value);
         $js  = 'if (window.totara_form_editors.'.$editorid.') {';
-        $js .=     'window.totara_form_editors.'.$editorid.'.setValue("'.$value.'");';
+        $js .=     'window.totara_form_editors.'.$editorid.'.setValue('.json_encode($value).');';
         $js .= '}';
         $this->context->getSession()->executeScript($js);
+    }
+
+    /**
+     * Asserts the field has expected value.
+     *
+     * @param string $expectedvalue
+     * @return void
+     */
+    public function assert_value($expectedvalue) {
+        $value = $this->get_value();
+        if ($expectedvalue === $value) {
+            return;
+        }
+
+        throw new ExpectationException("Totara form {$this->mytype} element '{$this->locator}' does not match expected value: {$expectedvalue}", $this->context->getSession());
     }
 
 }

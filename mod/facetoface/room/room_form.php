@@ -56,6 +56,9 @@ class mod_facetoface_room_form extends moodleform {
         $mform->setType('name', PARAM_TEXT);
         $mform->addRule('name', null, 'required', null, 'client');
 
+        $roomnamelength = 100;
+        $mform->addRule('name', get_string('roomnameedittoolong', 'facetoface', $roomnamelength), 'maxlength', $roomnamelength);
+
         // This form is loaded as ajax into page that has "capacity" so give it different name to avoid conflicts.
         $mform->addElement('text', 'roomcapacity', get_string('maxbookings', 'facetoface'));
         $mform->setType('roomcapacity', PARAM_INT);

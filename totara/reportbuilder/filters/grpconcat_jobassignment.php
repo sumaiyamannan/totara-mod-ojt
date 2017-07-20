@@ -270,9 +270,8 @@ class rb_filter_grpconcat_jobassignment extends rb_filter_hierarchy_multi {
         $items    = explode(',', $data['value']);
         $operator = $data['operator'];
         $children = $data['children'];
-        $query    = $this->get_field();
-        $field    = $this->options['jobfield'];
-        $usertab  = $this->joins;
+        $userfield    = $this->get_field();
+        $jobfield    = $this->jobfield;
         $unique   = rb_unique_param('uja'.$this->shortname);
 
         // don't filter if none selected
@@ -294,7 +293,7 @@ class rb_filter_grpconcat_jobassignment extends rb_filter_hierarchy_multi {
         if ($operator == self::JOB_OPERATOR_CONTAINS || $operator == self::JOB_OPERATOR_NOTCONTAINS) {
             $not = ($operator == self::JOB_OPERATOR_NOTCONTAINS) ? 'NOT ' : '';
             list($insql, $params) = $DB->get_in_or_equal($items, SQL_PARAMS_NAMED, $unique);
-            $subtable = $unique . 'tab';
+            $jobtable = $unique . 'tab';
 
             // Build the sql statement from the filter options.
             if (!empty($this->options['extjoin']) && !empty($this->options['extfield'])) {
@@ -303,17 +302,17 @@ class rb_filter_grpconcat_jobassignment extends rb_filter_hierarchy_multi {
                 $exttable = $unique . 'ext';
                 $extjoin = $this->options['extjoin'];
                 $extfield = $this->options['extfield'];
-                $fromsql = " FROM {job_assignment} {$subtable} " .
+                $fromsql = " FROM {job_assignment} {$jobtable} " .
                            " INNER JOIN {{$extjoin}} {$exttable} " .
-                           " ON {$subtable}.{$field} = {$exttable}.id " .
-                           " WHERE {$subtable}.userid = {$usertab}.id " .
+                           " ON {$jobtable}.{$jobfield} = {$exttable}.id " .
+                           " WHERE {$jobtable}.userid = {$userfield} " .
                            " AND {$exttable}.{$extfield} {$insql}";
 
 
             } else {
-                $fromsql = " FROM {job_assignment} {$subtable} " .
-                           " WHERE {$subtable}.userid = {$usertab}.id " .
-                           " AND {$subtable}.{$field} {$insql}";
+                $fromsql = " FROM {job_assignment} {$jobtable} " .
+                           " WHERE {$jobtable}.userid = {$userfield} " .
+                           " AND {$jobtable}.{$jobfield} {$insql}";
             }
             $query = " {$not}EXISTS (SELECT 1 " . $fromsql . ")";
         } else if ($operator == self::JOB_OPERATOR_EQUALS || $operator == self::JOB_OPERATOR_NOTEQUALS) {
@@ -321,7 +320,7 @@ class rb_filter_grpconcat_jobassignment extends rb_filter_hierarchy_multi {
             $subquery = array();
             foreach ($items as $item) {
                 $unique   = rb_unique_param('uja'.$this->shortname);
-                $subtable = $unique . 'tab' . $item;
+                $jobtable = $unique . 'tab' . $item;
 
                 // Build the sql statement from the filter options.
                 if (!empty($this->options['extjoin']) && !empty($this->options['extfield'])) {
@@ -330,15 +329,15 @@ class rb_filter_grpconcat_jobassignment extends rb_filter_hierarchy_multi {
                     $exttable = $unique . 'ext' . $item;
 
                     // Allow for one layer of abstraction for managerjaid etc.
-                    $fromsql = " FROM {job_assignment} {$subtable} " .
+                    $fromsql = " FROM {job_assignment} {$jobtable} " .
                                " INNER JOIN {{$extjoin}} {$exttable} " .
-                               " ON {$subtable}.{$field} = {$exttable}.id " .
-                               " WHERE {$subtable}.userid = {$usertab}.id " .
+                               " ON {$jobtable}.{$jobfield} = {$exttable}.id " .
+                               " WHERE {$jobtable}.userid = {$userfield} " .
                                " AND {$exttable}.{$extfield} = :{$unique}";
                 } else {
-                    $fromsql = " FROM {job_assignment} {$subtable} " .
-                               " WHERE {$subtable}.userid = {$usertab}.id " .
-                               " AND {$subtable}.{$field} = :{$unique} ";
+                    $fromsql = " FROM {job_assignment} {$jobtable} " .
+                               " WHERE {$jobtable}.userid = {$userfield} " .
+                               " AND {$jobtable}.{$jobfield} = :{$unique} ";
                 }
                 $subquery[] = " {$not}EXISTS (SELECT 1 " . $fromsql . ")";
                 $params[$unique] = $item;

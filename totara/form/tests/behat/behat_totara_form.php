@@ -78,7 +78,7 @@ class behat_totara_form extends behat_base {
 
         // The action depends on the field type.
         foreach ($datahash as $locator => $value) {
-            $this->i_set_totara_form_field_value($locator, $value);
+            $this->i_set_totara_form_field_value($locator, trim($value));
         }
     }
 
@@ -91,40 +91,136 @@ class behat_totara_form extends behat_base {
      */
     public function i_set_totara_form_field_value($locator, $value) {
         $field = $this->get_field_element_given_locator($locator);
-        $field->set_value($value);
+        $field->assert_not_frozen();
+        $field->set_value((string)$value);
     }
 
     /**
-     * Returns a behat_helper instance for the given node.
+     * Asserts a Totara form fields have expected values.
+     *
+     * This can only be used for Totara forms.
+     *
+     * @Given /^I should see the following Totara form fields having these values:$/
+     * @param TableNode $data
+     */
+    public function i_should_see_the_following_totara_form_fields_having_these_values(TableNode $data) {
+
+        if ($this->running_javascript()) {
+            // If there are multiple sections we need to click the expand all link.
+            $this->wait_for_pending_js();
+            $nodes = $this->getSession()->getPage()->findAll('xpath', "//form[@data-totara-form]//a[contains(text(), 'Expand all')]");
+            if (is_array($nodes)) {
+                foreach ($nodes as $node) {
+                    if ($node->isVisible()) {
+                        $node->click();
+                    }
+                }
+            }
+        }
+
+        $datahash = $data->getRowsHash();
+
+        // The action depends on the field type.
+        foreach ($datahash as $locator => $value) {
+            $this->i_should_see_totara_form_field_value($locator, trim($value));
+        }
+    }
+
+    /**
+     * Asserts a Totara form field has expected value.
+     *
+     * This can only be used for Totara form fields.
+     *
+     * @Given /^I should see the "(?P<locator>(?:[^"]|\\")*)" Totara form field has value "(?P<value>(?:[^"]|\\")*)"$/
+     */
+    public function i_should_see_totara_form_field_value($locator, $value) {
+        $field = $this->get_field_element_given_locator($locator);
+        $field->assert_value((string)$value);
+    }
+
+    /**
+     * Asserts a Totara form fields are frozen.
+     *
+     * This can only be used for Totara forms.
+     *
+     * @Given /^I should see the following Totara form fields frozen:$/
+     * @param TableNode $data
+     */
+    public function i_should_see_the_following_totara_form_fields_frozen(TableNode $data) {
+
+        if ($this->running_javascript()) {
+            // If there are multiple sections we need to click the expand all link.
+            $this->wait_for_pending_js();
+            $nodes = $this->getSession()->getPage()->findAll('xpath', "//form[@data-totara-form]//a[contains(text(), 'Expand all')]");
+            if (is_array($nodes)) {
+                foreach ($nodes as $node) {
+                    if ($node->isVisible()) {
+                        $node->click();
+                    }
+                }
+            }
+        }
+
+        $datahash = $data->getRowsHash();
+
+        // The action depends on the field type.
+        foreach ($datahash as $locator => $nothing) {
+            $this->i_should_see_frozen_totara_form_field($locator);
+        }
+    }
+
+    /**
+     * Asserts a Totara form field is frozen.
+     *
+     * This can only be used for Totara form fields.
+     *
+     * @Given /^I should see the "(?P<locator>(?:[^"]|\\")*)" Totara form field is frozen$/
+     */
+    public function i_should_see_frozen_totara_form_field($locator) {
+        $field = $this->get_field_element_given_locator($locator);
+        $field->assert_frozen();
+    }
+
+    /**
+     * Returns a behat_helper instance for the given node
+     * and verify the element is visible.
      *
      * @param string $locator
-     * @return totara_form\form\element\behat_helper\base
-     * @throws ExpectationException
+     * @return totara_form\form\element\behat_helper\element
+     * @throws ExpectationException if element cannot be found or is not visible
      */
     protected function get_field_element_given_locator($locator) {
         // Locator could be a label, an input name, or a field.
         if ($this->running_javascript()) {
             $this->wait_for_pending_js();
         }
-        $locatorliteral = $this->getSession()->getSelectorsHandler()->xpathLiteral($locator);
-        $xpath = "//form[@data-totara-form]//*[label[contains(text(), {$locatorliteral})] or *[@name={$locatorliteral}] or *[@id={$locatorliteral}] or *[@data-element-label and contains(text(), {$locatorliteral})]]//ancestor::*[@data-element-type][1]";
+        $locator = trim($locator);
+        $locatorliteral = behat_context_helper::escape($locator);
+        $xpath = "//form[@data-totara-form]//*[label[text()={$locatorliteral}] or *[@name={$locatorliteral}] or *[@id={$locatorliteral}] or *[@data-element-label and text()={$locatorliteral}]]//ancestor::*[@data-element-type][1]";
         $nodes = $this->getSession()->getPage()->findAll('xpath', $xpath);
         if (empty($nodes)) {
-            throw new ExpectationException('Unable to find an element using '.$locatorliteral, $this->getSession());
+            throw new ExpectationException('Unable to find a Totara form element with label, name or id = ' . $locatorliteral, $this->getSession());
+        }
+        if (count($nodes) > 1) {
+            throw new ExpectationException('Found more than one Totara form element with matching label, name or id = ' . $locatorliteral, $this->getSession());
         }
         $node = reset($nodes);
 
         $type = $node->getAttribute('data-element-type');
         if (!preg_match('#^([^\\\\]+)\\\\form\\\\element\\\\([^\\\\]+)$#', $type, $matches)) {
-            throw new ExpectationException('Unrecognised element type '.$type, $this->getSession());
+            throw new ExpectationException('Unrecognised element type ' . $type, $this->getSession());
         }
         $component = $matches[1];
         $elementtype = $matches[2];
         $behatelement = $component.'\\form\\element\\behat_helper\\'.$elementtype;
         if (!class_exists($behatelement)) {
-            throw new ExpectationException('No behat element equivalent for '.$type, $this->getSession());
+            throw new ExpectationException("No Totara form behat element equivalent for '{$type}': " . $locatorliteral, $this->getSession());
         }
-        return new $behatelement($node, $this);
+        if ($this->running_javascript() and !$node->isVisible()) {
+            throw new ExpectationException('Totara form element is not visible: ' . $locatorliteral, $this->getSession());
+        }
+
+        return new $behatelement($node, $this, $locator);
     }
 
     /**

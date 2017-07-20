@@ -266,17 +266,18 @@ function totara_sync_get_element($element) {
     return $elements[$element];
 }
 
+/**
+ * Create the directory to be used for directory check csv sources
+ *
+ * @param string $dirpath the directory path
+ * @return bool
+ */
 function totara_sync_make_dirs($dirpath) {
     global $CFG;
 
-    $dirarray = explode('/', $dirpath);
-    $currdir = '';
-    foreach ($dirarray as $dir) {
-        $currdir = $currdir.$dir.'/';
-        if (!file_exists($currdir)) {
-            if (!mkdir($currdir, $CFG->directorypermissions)) {
-                return false;
-            }
+    if (!is_dir($dirpath)) {
+        if (!mkdir($dirpath, $CFG->directorypermissions, true)) {
+            return false;
         }
     }
 

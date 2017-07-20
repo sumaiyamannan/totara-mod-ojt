@@ -833,12 +833,15 @@ class core_course_renderer extends plugin_renderer_base {
         $accesstext = '';
         $textclasses = '';
         if ($mod->uservisible) {
-            $conditionalhidden = $this->is_cm_conditionally_hidden($mod);
-            $accessiblebutdim = (!$mod->visible || $conditionalhidden) &&
-                has_capability('moodle/course:viewhiddenactivities', $mod->context);
+            // It is visible to the user, but should it be dimmed?
+            // To decide this we check if one of the following is true:
+            //   - If it is hidden and the user holds the viewhiddenactivities capability.
+            //   - If the activity is not available for the user yet.
+            $notavailable = !$mod->available;
+            $accessiblebutdim = $notavailable || (!$mod->visible && has_capability('moodle/course:viewhiddenactivities', $mod->context));
             if ($accessiblebutdim) {
                 $textclasses .= ' dimmed_text';
-                if ($conditionalhidden) {
+                if ($notavailable) {
                     $textclasses .= ' conditionalhidden';
                 }
                 // Show accessibility note only if user can access the module himself.
@@ -1036,8 +1039,9 @@ class core_course_renderer extends plugin_renderer_base {
         }
 
         // show availability info (if module is not available)
-        $output .= $this->course_section_cm_availability($mod, $displayoptions);
-
+        if (!$mod->available) {
+            $output .= $this->course_section_cm_availability($mod, $displayoptions);
+        }
         $output .= html_writer::end_tag('div'); // $indentclasses
 
         // End of indentation div.

@@ -285,6 +285,7 @@ class rb_source_dp_program extends rb_base_source {
                 'displayfunc' => 'program_previous_completion',
                 'extrafields' => array(
                     'program_id' => "base.id",
+                    'program_fullname' => "base.fullname",
                     'userid' => "program_completion.userid"
                 ),
             )
@@ -367,10 +368,14 @@ class rb_source_dp_program extends rb_base_source {
         return prog_display_link_icon($row->programid, $row->userid);
     }
 
-    public function rb_display_program_previous_completion($name, $row) {
+    public function rb_display_program_previous_completion($count, $row) {
         global $OUTPUT;
+        if (!$count) {
+            return 0;
+        }
+        $description = html_writer::span(get_string('viewpreviouscompletions', 'rb_source_dp_program', $row->program_fullname), 'sr-only');
         return $OUTPUT->action_link(new moodle_url('/totara/plan/record/programs.php',
-                array('program_id' => $row->program_id, 'userid' => $row->userid, 'history' => 1)), $name);
+                array('program_id' => $row->program_id, 'userid' => $row->userid, 'history' => 1)), $count . $description);
     }
 
     protected function define_filteroptions() {

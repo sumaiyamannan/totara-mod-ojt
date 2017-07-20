@@ -52,7 +52,7 @@ class element_checkboxes extends form {
     public static function get_current_data_for_test() {
         return [
             'checkboxes_with_current_data' => ['yes'],
-            'checkboxes_frozen_with_current_data' => ['true'],
+            'checkboxes_frozen_with_current_data' => ['true', 'false'],
         ];
     }
 
@@ -69,7 +69,7 @@ class element_checkboxes extends form {
         $checkboxes_required->add_help_button('cachejs', 'core_admin'); // Just a random help string.
         $checkboxes_horizontal = $this->model->add(new checkboxes('checkboxes_horizontal', 'Horizontal checkboxes', $defaultoptions));
         $checkboxes_horizontal->set_attribute('horizontal', true);
-        $this->model->add(new checkboxes('checkboxes_with_current_data', 'checkboxes with current data', ['whatever' => 'Yeah?', 'yes' => 'Oh yea!', 'nah' => 'Never!']))->add_help_button('cachejs', 'core_admin'); // Just a random help string.;
+        $this->model->add(new checkboxes('checkboxes_with_current_data', 'Checkboxes with current data', ['whatever' => 'Yeah?', 'yes' => 'Oh yea!', 'nah' => 'Never!']))->add_help_button('cachejs', 'core_admin'); // Just a random help string.;
         $this->model->add(new checkboxes('checkboxes_frozen_empty', 'Empty frozen checkboxes', $defaultoptions))->set_frozen(true);
         $this->model->add(new checkboxes('checkboxes_frozen_with_current_data', 'Frozen checkboxes with current data', ['true' => '1', 'false' => '0']))->set_frozen(true);
         $this->model->add(new checkboxes('checkboxes_with_html_labels', 'Checkboxes with HTML labels', ['1' => '<b style="color:blue">Bold &amp; blue</b>', '2' => '<i style="color:green">Italic & green</i>']));

@@ -1052,11 +1052,21 @@ class report_builder_edit_performance_form extends moodleform {
     function definition() {
         global $output, $CFG;
         $mform =& $this->_form;
+        /** @var reportbuilder $report */
         $report = $this->_customdata['report'];
         $id = $this->_customdata['id'];
         $schedule = $this->_customdata['schedule'];
 
-        $mform->addElement('header', 'general', get_string('initialdisplay_heading', 'totara_reportbuilder'));
+        if (get_config('totara_reportbuilder', 'allowtotalcount')) {
+            // If we are allowed to add the total count then we will add the input to enable it for this report.
+            $mform->addElement('header', 'generalperformance', get_string('generalperformancesettings', 'totara_reportbuilder'));
+            $mform->setExpanded('generalperformance');
+            $mform->addElement('checkbox', 'showtotalcount', get_string('showtotalcount', 'totara_reportbuilder'));
+            $mform->addHelpButton('showtotalcount', 'showtotalcount', 'totara_reportbuilder');
+        }
+
+        $mform->addElement('header', 'filterperformance', get_string('initialdisplay_heading', 'totara_reportbuilder'));
+        $mform->setExpanded('filterperformance');
         $initial_display_attributes = sizeof($report->filters) < 1 ? array('disabled' => 'disabled', 'group' => null) : null;
         $initial_display_sidenote = is_null($initial_display_attributes) ? '' : get_string('initialdisplay_disabled', 'totara_reportbuilder');
         $mform->addElement('advcheckbox', 'initialdisplay', get_string('initialdisplay', 'totara_reportbuilder'),
@@ -1065,8 +1075,10 @@ class report_builder_edit_performance_form extends moodleform {
         $mform->setDefault('initialdisplay', RB_INITIAL_DISPLAY_SHOW);
         $mform->addHelpButton('initialdisplay', 'initialdisplay', 'totara_reportbuilder');
 
-        $mform->addElement('header', 'general', get_string('reportbuildercache_heading', 'totara_reportbuilder'));
-        if (!empty($CFG->enablereportcaching)) {
+        $mform->addElement('header', 'cachingperformance', get_string('reportbuildercache_heading', 'totara_reportbuilder'));
+        $mform->setExpanded('cachingperformance');
+        $problems = $report->get_caching_problems();
+        if (!$problems) {
             //only show report cache settings if it is enabled
             $caching_attributes = $report->src->cacheable ? null : array('disabled' => 'disabled', 'group' => null);
             $caching_sidenote = is_null($caching_attributes) ? '' :
@@ -1106,8 +1118,18 @@ class report_builder_edit_performance_form extends moodleform {
             //report caching is not enabled, inform user and link to settings page.
             $mform->addElement('hidden', 'cache', 0);
             $mform->setType('cache', PARAM_INT);
-            $enablelink = new moodle_url("/".$CFG->admin."/settings.php", array('section' => 'optionalsubsystems'));
-            $mform->addElement('static', 'reportcachingdisabled', '', get_string('reportcachingdisabled', 'totara_reportbuilder', $enablelink->out()));
+            $mform->addElement('static', 'reportcachingdisabled', '', implode('<br />', $problems));
+        }
+
+        if (totara_is_clone_db_configured()) {
+            $mform->addElement('header', 'useclonedbheader', get_string('useclonedbheader', 'totara_reportbuilder'));
+            $mform->setExpanded('useclonedbheader');
+            $mform->addElement('checkbox', 'useclonedb', get_string('useclonedb', 'totara_reportbuilder'));
+            $mform->addHelpButton('useclonedb', 'useclonedb', 'totara_reportbuilder');
+
+            if (!empty($CFG->enablereportcaching) and $report->src->cacheable) {
+                $mform->disabledIf('useclonedb', 'cache', 'checked');
+            }
         }
 
         $mform->addElement('hidden', 'id', $id);

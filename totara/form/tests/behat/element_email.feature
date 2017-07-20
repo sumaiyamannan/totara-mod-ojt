@@ -12,10 +12,19 @@ Feature: Totara form email element tests
   Scenario: Test basic email elements in Totara forms
     When I select "Basic email element [totara_form\form\testform\element_email]" from the "Test form" singleselect
     Then I should see "Form: Basic email element"
+    And I should see the following Totara form fields having these values:
+      | Basic email                    |                     |
+      | email with current data        | contact@example.com |
+      | Frozen email with current data | sales@example.com   |
+    And I should see the "Empty frozen email" Totara form field is frozen
+    And I should see the "Frozen email with current data" Totara form field is frozen
 
     When I set the following Totara form fields to these values:
-      | Basic email | learner@example.com |
-      | Required basic email | trainer@example.com |
+      | Basic email                    | learner@example.com |
+      | Required basic email           | trainer@example.com |
+    And I should see the following Totara form fields having these values:
+      | Basic email                    | learner@example.com |
+      | Required basic email           | trainer@example.com |
     And I press "Save changes"
     Then I should see "The form has been submit"
     And "email_basic" row "Value" column of "form_results" table should contain "«learner@example.com»"
@@ -38,7 +47,7 @@ Feature: Totara form email element tests
     When I press "Reset"
     Then I should see "Form: Basic email element"
     When I set the following Totara form fields to these values:
-      | Basic email | samh@example.com |
+      | Basic email          | samh@example.com    |
       | Required basic email | trainer@example.com |
     And I press "Save changes"
     Then I should see "The form has been submit"
@@ -67,10 +76,20 @@ Feature: Totara form email element tests
   Scenario: Test required email elements in Totara forms with JavaScript enabled
     When I select "Basic email element [totara_form\form\testform\element_email]" from the "Test form" singleselect
     Then I should see "Form: Basic email element"
+    And I should see the following Totara form fields having these values:
+      | Basic email                    |                     |
+      | email with current data        | contact@example.com |
+      | Frozen email with current data | sales@example.com   |
+    And I should see the "Empty frozen email" Totara form field is frozen
+    And I should see the "Frozen email with current data" Totara form field is frozen
     And I should see "There are required fields in this form marked"
+
     When I set the following Totara form fields to these values:
-      | Basic email | learner@example.com |
-      | Required basic email | trainer@example.com |
+      | Basic email                    | learner@example.com |
+      | Required basic email           | trainer@example.com |
+    And I should see the following Totara form fields having these values:
+      | Basic email                    | learner@example.com |
+      | Required basic email           | trainer@example.com |
     And I press "Save changes"
     Then I should see "The form has been submit"
     And "email_basic" row "Value" column of "form_results" table should contain "«learner@example.com»"

@@ -120,6 +120,9 @@ class dp_course_component extends dp_base_component {
     /**
      * Get list of items assigned to plan
      *
+     * We don't check visiblity of items as we assume that if an item has
+     * been added to the plan then they should have visiblity of that item.
+     *
      * Optionally, filtered by status
      *
      * @access  public
@@ -131,7 +134,7 @@ class dp_course_component extends dp_base_component {
      * @return  array
      */
     public function get_assigned_items($approved = null, $orderby='', $limitfrom='', $limitnum='', $linkedcounts=false) {
-        global $DB;
+        global $DB, $CFG;
 
         // Generate where clause (using named parameters because of how query is built)
         $where = "a.planid = :planid";
@@ -165,13 +168,6 @@ class dp_course_component extends dp_base_component {
                 AND cc.userid = :planuserid )";
             $params['planuserid'] = $this->plan->userid;
         }
-
-        list($visibilitysql, $visibilityparams) = totara_visibility_where($this->plan->userid,
-                                                                          'c.id',
-                                                                          'c.visible',
-                                                                          'c.audiencevisible',
-                                                                          'c',
-                                                                          'course');
 
         $countselect = '';
         $countjoin = '';
@@ -209,9 +205,24 @@ class dp_course_component extends dp_base_component {
             $params['comp2'] = 'competency';
         }
 
+        $systemcontext = context_system::instance();
+        $canviewhidden = has_capability('moodle/course:viewhiddencourses', $systemcontext, $this->plan->userid);
 
-        $params = array_merge($params, $visibilityparams);
-        $where .= " AND {$visibilitysql} ";
+        // Basic visiblity checks
+        // (we check course visiblity based on what the user the plan belongs to can see).
+        if (empty($CFG->audiencevisibility)) {
+            // If audience visiblity is off.
+            if (!$canviewhidden) {
+                $params = array_merge($params, array('coursevisible' => '1'));
+                $where .= " AND c.visible = :coursevisible ";
+            }
+        } else {
+            // Only hide if audience visiblity is set to "no users".
+            if (!$canviewhidden) {
+                $params = array_merge($params, array('audvisnousers' => COHORT_VISIBLE_NOUSERS));
+                $where .= " AND c.audiencevisible != :audvisnousers ";
+            }
+        }
 
         $sql = "
             SELECT
@@ -616,12 +627,15 @@ class dp_course_component extends dp_base_component {
 
                 if (!$this->plan->is_complete() && $this->can_update_items()) {
                     //if the course is mandatory disable the delete checkbox
+                    $id = 'delete_linked_course_assign_' . $ca->id;
+                    $a = array('name' => $ca->fullname, 'component' => get_string('course'));
+                    $label = html_writer::label(get_string('selectlinked','totara_plan', $a), $id, '', array('class' => 'sr-only'));
                     if (!empty($mandatory_list) && in_array($ca->id, $mandatory_list)) {
-                        $row[] = html_writer::checkbox('delete_linked_course_assign['.$ca->id.']', '1', false,
-                            get_string('mandatory', 'totara_plan'), array('disabled' => 'true'));
+                        $row[] = $label . html_writer::checkbox('delete_linked_course_assign['.$ca->id.']', '1', false,
+                            get_string('mandatory', 'totara_plan'), array('disabled' => 'true', 'id' => $id));
                     }
                     else{
-                        $row[] = html_writer::checkbox('delete_linked_course_assign['.$ca->id.']', '1', false);
+                        $row[] = $label . html_writer::checkbox('delete_linked_course_assign['.$ca->id.']', '1', false, '', array('id' => $id));
                     }
                 }
 

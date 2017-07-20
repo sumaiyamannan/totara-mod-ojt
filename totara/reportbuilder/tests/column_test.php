@@ -828,6 +828,9 @@ class totara_reportbuilder_column_testcase extends reportcache_advanced_testcase
         $this->resetAfterTest();
         $this->setAdminUser();
 
+        // We need to be able to calculate the total count.
+        set_config('allowtotalcount', 1, 'totara_reportbuilder');
+
         $i = 1;
         $reportname = 'Test Report';
         $filtername = 'filtering_testreport';
@@ -840,6 +843,17 @@ class totara_reportbuilder_column_testcase extends reportcache_advanced_testcase
             $this->preventResetByRollback();
         }
 
+        // Create a report.
+        $report = new stdClass();
+        $report->fullname = 'Big test report';
+        $report->shortname = 'bigtest';
+        $report->source = $sourcename;
+        $report->hidden = 0;
+        $report->accessmode = 0;
+        $report->contentmode = 0;
+        $report->showtotalcount = 1;
+        $bigreportid = $DB->insert_record('report_builder', $report);
+
         $sortorder = 1;
         foreach ($src->columnoptions as $column) {
             // Create a report.
@@ -850,6 +864,7 @@ class totara_reportbuilder_column_testcase extends reportcache_advanced_testcase
             $report->hidden = 0;
             $report->accessmode = 0;
             $report->contentmode = 0;
+            $report->showtotalcount = 1;
             $reportid = $DB->insert_record('report_builder', $report);
             $col = new stdClass();
             $col->reportid = $reportid;
@@ -859,29 +874,11 @@ class totara_reportbuilder_column_testcase extends reportcache_advanced_testcase
             $col->sortorder = $sortorder++;
             $colid = $DB->insert_record('report_builder_columns', $col);
 
+            // Add column to the big report with everything.
+            $col->reportid = $bigreportid;
+            $DB->insert_record('report_builder_columns', $col);
+
             // Create the reportbuilder object.
-            $rb = new reportbuilder($reportid);
-            $sql = $rb->build_query();
-
-            $message = "\nReport title : {$title}\n";
-            $message .= "Report sourcename : {$sourcename}\n";
-            $message .= "Column option : Test {$column->type}_{$column->value} column\n";
-            $message .= "SQL : {$sql[0]}\n";
-            $message .= "SQL Params : " . var_export($sql[1], true) . "\n";
-
-            // Get the column option object.
-            $columnoption = reportbuilder::get_single_item($rb->columnoptions, $column->type, $column->value);
-
-            // The answer here depends on if the column we are testing.
-            $expectedcount = $src->phpunit_column_test_expected_count($columnoption);
-            $this->assertEquals($expectedcount, $rb->get_full_count(), $message);
-
-            if (!$src->cacheable) {
-                continue;
-            }
-
-            // Now, test the same with report caching.
-            $this->enable_caching($reportid);
             $rb = new reportbuilder($reportid);
             $sql = $rb->build_query();
 
@@ -930,6 +927,10 @@ class totara_reportbuilder_column_testcase extends reportcache_advanced_testcase
             $fil->sortorder = $sortorder++;
             $filid = $DB->insert_record('report_builder_filters', $fil);
 
+            // Add column to the big report with everything.
+            $fil->reportid = $bigreportid;
+            $DB->insert_record('report_builder_filters', $fil);
+
             // Set session to filter by this column.
             $fname = $filter->type . '-' . $filter->value;
             switch($filter->filtertype) {
@@ -948,14 +949,85 @@ class totara_reportbuilder_column_testcase extends reportcache_advanced_testcase
 
             // Create the reportbuilder object.
             $rb = new reportbuilder($reportid);
-            $sql = $rb->build_query(false, true);
 
-            $message = "\nReport title : {$title}\n";
-            $message .= "Report sourcename : {$sourcename}\n";
-            $message .= "Filter option : Test {$filter->type}_{$filter->value} filter\n";
-            $message .= "SQL : {$sql[0]}\n";
-            $message .= "SQL Params : " . var_export($sql[1], true) . "\n";
-            $this->assertRegExp('/[012]/', (string)$rb->get_filtered_count(), $message);
+            // Just try to get the count, we cannot guess the actual number here.
+            $rb->get_filtered_count();
+        }
+
+        // Test filters are compatible with caching.
+        if ($src->cacheable) {
+            foreach ($src->filteroptions as $filteroption) {
+                if (isset($filteroption->filteroptions['cachingcompatible'])) {
+                    // Developer says they know, no need to test!
+                    continue;
+                }
+                if (empty($filteroption->field)) {
+                    // The filter is using column info to get the field data.
+                    continue;
+                }
+                if (reportbuilder::get_single_item($src->requiredcolumns, $filteroption->type, $filteroption->value)) {
+                    $this->fail("Filter '{$filteroption->type}-{$filteroption->value}' in '{$sourcename}' has custom field and is colliding with required column, you need to add 'cachingcompatible' to filter options");
+                }
+                if (reportbuilder::get_single_item($src->columnoptions, $filteroption->type, $filteroption->value)) {
+                    $this->fail("Filter '{$filteroption->type}-{$filteroption->value}' in '{$sourcename}' has custom field and is colliding with column option, you need to add 'cachingcompatible' to filter options");
+                }
+            }
+        }
+
+        if ($DB->get_dbfamily() === 'mysql') {
+            // Default size is too small for some of our reports when all columns and filters are included.
+            $prevsbs = $DB->get_field_sql("SELECT @@sort_buffer_size");
+            $DB->execute("SET sort_buffer_size=1048580");
+        }
+
+        // Test we can execute the query with all columns and filters.
+        $rb = new reportbuilder($bigreportid);
+        list($sql, $params, $cacheschedule) = $rb->build_query(false, true, false);
+        $rs = $DB->get_counted_recordset_sql($sql, $params);
+        $rs->close();
+
+        if (!$src->cacheable) {
+            if ($DB->get_dbfamily() === 'mysql') {
+                $DB->execute("SET sort_buffer_size=$prevsbs");
+            }
+            return;
+        }
+
+        if (get_class($DB) === 'mysqli_native_moodle_database') {
+            $info = $DB->get_server_info();
+            if (version_compare($info['version'], '5.7') < 0) {
+                $DB->execute("SET sort_buffer_size=$prevsbs");
+                $this->markTestSkipped('MySQL versions lower than 5.7 have severe limits, skipping source caching test');
+            }
+        }
+        if (get_class($DB) === 'mariadb_native_moodle_database') {
+            $info = $DB->get_server_info();
+            if (version_compare($info['version'], '10.2') < 0) {
+                $DB->execute("SET sort_buffer_size=$prevsbs");
+                $this->markTestSkipped('MariaDB versions lower than 10.2 have severe limits, skipping source caching test');
+            }
+        }
+
+        // Remove all filters that are not compatible with caching.
+        foreach ($rb->filters as $filter) {
+            /** @var rb_filter_type $filter */
+            if ($filter->is_caching_compatible()) {
+                continue;
+            }
+            $DB->delete_records('report_builder_filters', array('reportid' => $rb->_id, 'type' => $filter->type, 'value' => $filter->value));
+        }
+
+        // Now generate the cache table and run the query.
+        $this->enable_caching($bigreportid);
+        $rb = new reportbuilder($bigreportid);
+        if ($rb->cache) {
+            list($sql, $params, $cacheschedule) = $rb->build_query(false, true, true);
+            $rs = $DB->get_counted_recordset_sql($sql, $params);
+            $rs->close();
+        }
+
+        if ($DB->get_dbfamily() === 'mysql') {
+            $DB->execute("SET sort_buffer_size=$prevsbs");
         }
     }
 }

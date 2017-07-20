@@ -238,6 +238,12 @@ class behat_totara_data_generators extends behat_base {
                 'datagenerator' => 'global_restriction',
                 'required' => array()
             )
+        ),
+        'auth_approved' => array(
+            'signups' => array(
+                'datagenerator' => 'signup',
+                'required' => array()
+            )
         )
     );
 

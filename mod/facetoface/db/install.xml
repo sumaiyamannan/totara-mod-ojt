@@ -73,8 +73,8 @@
         <FIELD NAME="mincapacity" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="The minimum number of people for this session to take place."/>
         <FIELD NAME="cutoff" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="86400" SEQUENCE="false" COMMENT="The number of seconds before the session start by which the minimum capacity should be reached"/>
         <FIELD NAME="sendcapacityemail" TYPE="int" LENGTH="1" NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="Notification flag for minimum bookings capactiy email."/>
-        <FIELD NAME="registrationtimestart" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
-        <FIELD NAME="registrationtimefinish" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="registrationtimestart" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="registrationtimefinish" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="cancelledstatus" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Session cancelled status"/>
       </FIELDS>
       <KEYS>

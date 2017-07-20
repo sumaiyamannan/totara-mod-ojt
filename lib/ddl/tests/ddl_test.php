@@ -1016,6 +1016,7 @@ class core_ddl_testcase extends database_driver_testcase {
         // Column is char 30 not null default 'test' now.
         $columns = $DB->get_columns('test_table_cust0');
         $this->assertSame('C', $columns['anothernumber']->meta_type);
+        $this->assertSame('4', $DB->get_field('test_table_cust0', 'anothernumber', array('id' => $recoriginal)));
         // TODO: check the rest of attributes.
 
         // Change column back from char to integer.
@@ -1025,6 +1026,7 @@ class core_ddl_testcase extends database_driver_testcase {
         // Column is integer 8 not null default 5 now.
         $columns = $DB->get_columns('test_table_cust0');
         $this->assertSame('I', $columns['anothernumber']->meta_type);
+        $this->assertSame('4', $DB->get_field('test_table_cust0', 'anothernumber', array('id' => $recoriginal)));
         // TODO: check the rest of attributes.
 
         // Change column once more from integer to char.
@@ -1034,6 +1036,7 @@ class core_ddl_testcase extends database_driver_testcase {
         // Column is char 30 not null default "test'n drop" now.
         $columns = $DB->get_columns('test_table_cust0');
         $this->assertSame('C', $columns['anothernumber']->meta_type);
+        $this->assertSame('4', $DB->get_field('test_table_cust0', 'anothernumber', array('id' => $recoriginal)));
         // TODO: check the rest of attributes.
 
         // Insert one string value and try to convert to integer. Must throw exception.
@@ -1061,6 +1064,7 @@ class core_ddl_testcase extends database_driver_testcase {
         // Column is float 20,10 null default null.
         $columns = $DB->get_columns('test_table_cust0');
         $this->assertSame('N', $columns['anothernumber']->meta_type); // Floats are seen as number.
+        $this->assertSame(4, (int)$DB->get_field('test_table_cust0', 'anothernumber', array('id' => $recoriginal)));
         // TODO: check the rest of attributes.
 
         // Change the column back from float to varchar.
@@ -1070,6 +1074,7 @@ class core_ddl_testcase extends database_driver_testcase {
         // Column is char 20 not null default "test" now.
         $columns = $DB->get_columns('test_table_cust0');
         $this->assertSame('C', $columns['anothernumber']->meta_type);
+        $this->assertSame(4, (int)$DB->get_field('test_table_cust0', 'anothernumber', array('id' => $recoriginal)));
         // TODO: check the rest of attributes.
 
         // Change the column from varchar to number.
@@ -1079,6 +1084,7 @@ class core_ddl_testcase extends database_driver_testcase {
         // Column is number 20,10 null default null now.
         $columns = $DB->get_columns('test_table_cust0');
         $this->assertSame('N', $columns['anothernumber']->meta_type);
+        $this->assertSame(4, (int)$DB->get_field('test_table_cust0', 'anothernumber', array('id' => $recoriginal)));
         // TODO: check the rest of attributes.
 
         // Change the column from number to integer.
@@ -1088,6 +1094,7 @@ class core_ddl_testcase extends database_driver_testcase {
         // Column is integer 2 null default null now.
         $columns = $DB->get_columns('test_table_cust0');
         $this->assertSame('I', $columns['anothernumber']->meta_type);
+        $this->assertSame('4', $DB->get_field('test_table_cust0', 'anothernumber', array('id' => $recoriginal)));
         // TODO: check the rest of attributes.
 
         // Change the column from integer to text.
@@ -1097,6 +1104,7 @@ class core_ddl_testcase extends database_driver_testcase {
         // Column is char text not null default null.
         $columns = $DB->get_columns('test_table_cust0');
         $this->assertSame('X', $columns['anothernumber']->meta_type);
+        $this->assertSame('4', $DB->get_field('test_table_cust0', 'anothernumber', array('id' => $recoriginal)));
 
         // Change the column back from text to number.
         $field = new xmldb_field('anothernumber');
@@ -1105,6 +1113,7 @@ class core_ddl_testcase extends database_driver_testcase {
         // Column is number 20,10 null default null now.
         $columns = $DB->get_columns('test_table_cust0');
         $this->assertSame('N', $columns['anothernumber']->meta_type);
+        $this->assertSame(4, (int)$DB->get_field('test_table_cust0', 'anothernumber', array('id' => $recoriginal)));
         // TODO: check the rest of attributes.
 
         // Change the column from number to text.
@@ -1114,20 +1123,10 @@ class core_ddl_testcase extends database_driver_testcase {
         // Column is char text not null default "test" now.
         $columns = $DB->get_columns('test_table_cust0');
         $this->assertSame('X', $columns['anothernumber']->meta_type);
+        $this->assertSame(4, (int)$DB->get_field('test_table_cust0', 'anothernumber', array('id' => $recoriginal)));
         // TODO: check the rest of attributes.
 
-        // Change the column back from text to integer.
-        $field = new xmldb_field('anothernumber');
-        $field->set_attributes(XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, 10);
-        $dbman->change_field_type($table, $field);
-        // Column is integer 10 not null default 10.
-        $columns = $DB->get_columns('test_table_cust0');
-        $this->assertSame('I', $columns['anothernumber']->meta_type);
-        // TODO: check the rest of attributes.
-
-        // Check original value has survived to all the type changes.
-        $this->assertnotEmpty($rec = $DB->get_record('test_table_cust0', array('id' => $recoriginal)));
-        $this->assertEquals(4, $rec->anothernumber);
+        // Totara: do not go back to integer here because the string may be in decimal format which fails in MariaDB 10.2
 
         $dbman->drop_table($table);
         $this->assertFalse($dbman->table_exists($table));
@@ -1834,6 +1833,31 @@ class core_ddl_testcase extends database_driver_testcase {
         $this->assertTrue(count($reserved) > 1);
     }
 
+    public function test_for_reserved_words() {
+        $reserved = sql_generator::getAllReservedWords();
+        $reserved_words = array_keys($reserved);
+
+        /** @var xmldb_table[] $tables */
+        $tables = $this->tdb->get_manager()->get_install_xml_schema()->getTables();
+        $fielderror = new sql_reserved_word_field_error($reserved);
+        foreach ($tables as $table) {
+
+            // We don't test table names as we have a database prefix, if someone uses an empty prefix or a prefix that leads to a
+            // conflict by they find out it will be too late.
+            // We only worry about testing field names.
+            $tablename = $table->getName();
+
+            /** @var xmldb_field[] $fields */
+            $fields = $table->getFields();
+            $this->assertNotEmpty($fields);
+            foreach ($fields as $field) {
+                $fieldname = $field->getName();
+                $this->assertSame($fieldname, strtolower($fieldname));
+                $this->assertNotContains($fieldname, $reserved_words, $fielderror->set($tablename, $fieldname));
+            }
+        }
+    }
+
     public function test_index_hints() {
         $DB = $this->tdb;
         $dbman = $DB->get_manager();
@@ -2178,4 +2202,68 @@ class core_ddl_testcase extends database_driver_testcase {
             $this->assertInstanceOf('dml_write_exception', $e);
         }
     }
+}
+
+/**
+ * SQL reserved word error helper for field collisions.
+ *
+ * This helper class simply allows us to print a meaningful error message that shared the database(s)
+ * where the field name is a reserved word.
+ */
+class sql_reserved_word_field_error {
+
+    /**
+     * The current table
+     * @var string
+     */
+    private $table = 'unknown';
+
+    /**
+     * The current field
+     * @var string
+     */
+    private $field = 'unknown';
+
+    /**
+     * An associative array of reserved words, where the value is an array of databases where the word is reserved.
+     * @var array[]
+     */
+    private $words;
+
+    /**
+     * sql_reserved_word_field_error constructor.
+     *
+     * @param array[] $words An associative array of reserved words, where the value is an array of databases where the word
+     *     is reserved.
+     */
+    public function __construct(array $words) {
+        $this->words = $words;
+    }
+
+    /**
+     * Updates the table and field, returns itself to make this method chainable.
+     *
+     * @chainable
+     * @param string $table
+     * @param string $field
+     * @return sql_reserved_word_field_error
+     */
+    public function set($table, $field) {
+        $this->table = $table;
+        $this->field = $field;
+        return $this;
+    }
+
+    /**
+     * Returns the error as a string.
+     * @return string
+     */
+    public function __toString() {
+        if (isset($this->words[$this->field])) {
+            return "Field name is a reserved word '{$this->table}.{$this->field}' in ".join(', ', $this->words[$this->field]);
+        } else {
+            return "Field name is a reserved word '{$this->table}.{$this->field}' in unknown";
+        }
+    }
+
 }

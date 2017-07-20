@@ -205,11 +205,6 @@ class totara_form_element_datetime_testcase extends advanced_testcase {
     }
 
     public function test_behat_normalise_value_pre_set() {
-        global $CFG;
-        require_once("$CFG->dirroot/totara/form/classes/form/element/behat_helper/base.php");
-        require_once("$CFG->dirroot/totara/form/classes/form/element/behat_helper/text.php");
-        require_once("$CFG->dirroot/totara/form/classes/form/element/behat_helper/datetime.php");
-
         $this->assertSame('2017-12-23T13:27', \totara_form\form\element\behat_helper\datetime::normalise_value_pre_set('2017-12-23T13:27'));
         $this->assertSame('2017-12-23T13:27', \totara_form\form\element\behat_helper\datetime::normalise_value_pre_set('17-12-23T13:27'));
         $this->assertSame('2017-12-23T13:27', \totara_form\form\element\behat_helper\datetime::normalise_value_pre_set('2017 12 23 13:27'));

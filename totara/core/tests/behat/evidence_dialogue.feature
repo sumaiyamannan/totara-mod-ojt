@@ -1,4 +1,4 @@
-@totara @totara_core @ndl1
+@totara @totara_core @totara_customfield
 Feature: Test evidence dialogue search
   In order to test the evidence dialog search
   As an admin

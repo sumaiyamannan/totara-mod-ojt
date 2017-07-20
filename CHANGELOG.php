@@ -3,6 +3,314 @@
 
 Totara LMS Changelog
 
+Release 9.9 (19th July 2017):
+=============================
+
+
+Security issues:
+
+    TL-9391        Made file access in programs stricter
+
+                   Restricted File access in programs to:
+                    * Users that are not logged in cannot see any files in programs.
+                    * Users who are not assigned can only see the summary and overview files
+                    * Only users who can view hidden programs can see the files in programs
+                   that are not visible
+
+    TL-12940       Applied account lockout threshold when using webservice authentication
+
+                   Previously, the account lockout threshold, for number of incorrect
+                   passwords, was not taken into account when webservice authentication was
+                   being used. The account lockout functionality now applies to webservice
+                   authentication. Please note that this refers to the authentication type
+                   that allows users to log in with username and password, not when accessing
+                   their account using a webservice token.
+
+    TL-12942       Stopped the supplied passwords being logged in failed web services authentication
+
+                   When web service authentication was used and legacy logging was enabled,
+                   entries recorded to the logs for failed log in attempts included the
+                   supplied password in plain text. This is no longer recorded.
+
+                   The password was not added to entries in other logs included with Totara
+                   aside from the legacy log.
+
+Report Builder improvements:
+
+    TL-2821        Capability to configure a second database connection for Report Builder
+
+                   It is now possible to configure a second database connection for use by
+                   Report Builder.
+                   The purpose of this secondary connection is so that you can direct the main
+                   Report Builder queries at a read-only database clone.
+                   The upside of which is that you can isolate the database access related
+                   performance cost of Report Builder to an isolated database server.
+                   This in turn prevents the expensive report builder queries from being
+                   executed on the primary database, hopefully leading to a better user
+                   experience on high concurrency sites.
+                   These settings should be considered highly advanced.
+                   Support cannot be provided on configuring a read only slave, you will need
+                   in house expertise to achieve this.
+                   Those wishing to use the second database connection can find instructions
+                   for it within config-dist.php.
+
+    TL-6834        Improved the performance of Report Builder reports by avoiding unnecessary count queries
+
+                   Previously when displaying a report in the browser the report query would
+                   be executed either two or three times.
+                   Once to get the filtered count of results.
+                   Potentially once more to get the unfiltered count of results.
+                   Once to get the first page of data.
+
+                   The report page, and all embedded reports now use a new counted recordset
+                   query that gives the first page of data and the filtered count of results
+                   in a single query, preventing the need to run the expensive report query to
+                   get the filtered count.
+                   Additionally TL-14791 prevents the need to run the query to get the
+                   unfiltered count unless the site administrator has explicitly requested it
+                   and the report creator explicitly turned it on for that report.
+                   This reduction of expensive queries greatly improves the performance of
+                   viewing a report in the browser.
+
+    TL-14237       Fixed an SQL error when caching a report with Job Assignment fields
+
+                   Removed an issue where caching of a report failed due to the SQL failing.
+                   This is only for the User's Position(s), User's Organisation(s), User's
+                   Manager(s) and User's Appraiser(s) filters.
+
+    TL-14398       Report Builder source caching is now user specific
+
+                   Previously the Report Builder source cache was shared between users.
+                   When scheduled reports were being run this could lead to several issues,
+                   notably incorrect results when applying filters, and performance issues.
+                   The cache is now user specific. This consumes more memory but fixes the
+                   user specific scheduled reports and improves overall performance when
+                   generating scheduled reports created by many users.
+
+    TL-14421       Improved the performance of the Site log report source when the event name filter was available
+
+                   The "Event name" filter has been changed from an option selector to a
+                   freetext filter improving the performance of the site log report.
+
+    TL-14432       Improved performance when generating report caches for reports with text based columns
+
+                   Previously all fields within a Report Builder cache had an index created
+                   upon them.
+                   This included both text and blob type fields and duly could lead to
+                   degraded performance or even failure when trying to populate a Report
+                   Builder cache.
+                   As of this release indexes are no longer created for text or blob type
+                   columns.
+                   This may slow down the export of a full cached report on some databases if
+                   the report contains many text or blob columns, but will greatly improve the
+                   overall performance of the cache generation and help avoid memory
+                   limitations in all databases.
+
+    TL-14744       Fixed a JavaScript bug within the enhanced course catalog when no filters are available
+    TL-14761       New better performing Job columns
+
+                   Several new Job columns have been added to the available user columns in
+                   reports that can include user columns.
+
+                   The new Job columns can be found under the "User" option group, the
+                   available columns are as follows:
+
+                   * User's Position Name(s)
+                   * User's Position ID Numbers(s)
+                   * User's Organisation Name(s)
+                   * User's Organisation ID Numbers(s)
+                   * User's Manager Name(s)
+                   * User's Appraiser Name(s)
+                   * User's Temporary Manager Name(s)
+                   * Job assignments
+
+                   There are already several Job columns available in many sources, however
+                   they operate slightly differently and perform very poorly on large sites.
+                   The new columns have nearly the same result, but are calculated much more
+                   quickly. In testing they were between 70-90% faster than the current
+                   columns.
+
+                   There is only one difference between the new and old columns and that is
+                   how they are sorted when the user had multiple jobs.
+                   The old columns all sorted the information in the column by the Job sort
+                   order. This meant that all of the old columns were sorted in the same way
+                   and the information aligned across multiple columns.
+                   The new columns sort the data alphabetically, which means that when viewing
+                   multiple columns the first organisation and the first position may not
+                   belong to the same Job.
+
+                   We strongly recommend that all reports use the new columns.
+                   This needs to be done manually by changing from the Job columns shown under
+                   "All User's Job Assignments" to those appearing under "User".
+                   If you must use the old columns please be aware that performance,
+                   particularly on MySQL and MSSQL could be a major issue on large sites.
+
+                   The old fields are now deprecated and will be removed after the release of
+                   Totara 10.
+
+    TL-14780       Fixed the unnecessary use of LIKE within course category filter multichoice
+
+                   The course category multichoice filter was unnecessarily using like for
+                   category path conditions.
+                   It can use = and has been converted to do so, improving the overall
+                   performance of the report when this filter is in use.
+
+    TL-14791       Report Builder reports no longer show a total count by default
+
+                   The total unfiltered count of records is no longer shown alongside the
+                   filtered count in Report Builder reports.
+                   If you want this functionality back then you must first turn on "Allow
+                   Report Builder reports to show Total Count" at the site level, and then for
+                   each report where you want it displayed edit the report and turn on
+                   "Display a Total Count of records" (found under the Performance tab).
+                   Please be aware that for performance reasons we recommend you leave these
+                   settings off.
+
+    TL-14793       Filters which are not compatible with report caching can now prevent report caching
+
+                   Previously filters that were not compatible with report caching, such as
+                   those filters using correlated subqueries, could be added to a report and
+                   report caching turned on.
+                   This either lead to an error or poor performance.
+                   When such a filter is in use in a report, report caching is now prevented.
+
+    TL-14816       Added detection of filters that prevent report caching
+
+                   Report Builder now reviews the filters that are being used on a report that
+                   is configured to be cached before attempting to generate the cache in order
+                   to check if the filter is compatible with caching.
+                   If the filter is not compatible with caching then the report will not use
+                   caching.
+                   This prevents errors being encountered when trying to filter a cached
+                   report for filters that are not compatible with caching.
+
+    TL-14824       Improved the performance of the Site logs report source
+
+                   Several columns in the Site logs report source were requiring additional
+                   fields that did not perform well, and were not actually required for the
+                   display of the columns in the report.
+                   These additional fields have been removed, improving the performance of the
+                   Site logs report source.
+
+New features:
+
+    TL-11096       New signup with approval authentication plugin
+
+                   Thanks to Learning Pool for providing an initial plugin which informed the
+                   design of this piece of work.
+
+                   The new auth_approved plugin is similar to the existing auth_email plugin.
+                   However, the auth_approved plugin has an approval process in which the
+                   applicant gets a system access only if an approver approves of the signup.
+                   The approver is any system user that has the new auth/approved:approve
+                   capability. In addition, if the user also has the
+                   totara/hierarchy:assignuserposition capability, he can change the
+                   organisation/position/manager details that the applicant provided in his
+                   signup.
+
+                   The new plugin also has features to bulk approve or reject signups as well
+                   as send custom emails to potential system users.
+
+                   Finally, the new plugin also defines a report source that can be used as a
+                   basis for custom reports.
+
+Improvements:
+
+    TL-3212        Improved notification template field behavior for seminar activity
+    TL-11294       Added additional link text to the previous certification completions column when viewing a users record of learning
+    TL-11295       Added accessibility link text to the previous program completions column when viewing a user's record of learning
+    TL-12659       Added labels to linked component checkboxes in learning plans
+    TL-12748       Speed up password hashing when importing users in HR Import
+    TL-12960       Drag and drop question images are scaled when they are too big for the available space
+    TL-14709       Changed manager job selection dialog to optionally disallow new job assignment creation
+    TL-14755       Added an environment test for misconfigured MSSQL databases
+    TL-14762       Added support for optgroups in Totara form select element
+    TL-14820       Improved unit test performance and coverage for all Reportbuilder sources
+    TL-14947       Improved unit test coverage of DB reserved words
+
+Bug fixes:
+
+    TL-14336       Removed audience visibility checks for courses added to Learning Plans
+
+                   This change is to bring Learning Plans in line with the behaviour that
+                   already exists within Programs and Certifications.
+
+    TL-14341       Fixed page ordering for draft appraisals without stage due dates
+    TL-14361       Fixed Seminar direct enrolment not allowing enrolments after upgrade
+    TL-14379       Fixed double encoding of report names on "My Reports" page
+    TL-14435       Fixed the use of an unexpected recordset when removing Seminar attendees
+    TL-14446       Fixed incorrect link to Course using audience visibility when viewing a Program
+    TL-14680       Hide manager reservation link when seminar event is cancelled
+    TL-14701       Removed unused 'timemodified' form element from learning plan competencies
+    TL-14713       Fixed escape character escaping within the "sql_like_escape" database function
+    TL-14719       Prevented duplicate form ID attributes from being output on initial load and dynamic dialog forms
+    TL-14735       JavaScript pix helper now converts pix icons that only supply the icon name to flex icons
+    TL-14741       Fixed a php open_basedir restriction issue when used with HR Import directory check
+    TL-14750       Fixed restricted access based on quizzes using the require passing grade completion criteria
+
+                   Previously, quizzes using the completion criteria "require passing grade"
+                   were simply being marked as complete instead of as passed/failed. Since
+                   they were correctly being marked as complete this had very little effect
+                   except for restricted access. If a second activity had restricted access
+                   based on the quiz where it required "complete with a passing grade", access
+                   was never granted. This patch fixes that going forwards. To avoid making
+                   assumptions about users completions, existing completion records have been
+                   left alone. These can be manually checked with the upcoming completion
+                   editor. In the mean time, if you are using the quiz completion criteria
+                   "require passing grade" without the secondary "or all attempts used",
+                   changing the access restriction to "Quiz must be marked as complete" will
+                   have the same effect.
+
+    TL-14765       Retrieving a counted recordset now works with a wider selection of queries
+    TL-14778       Added new strings to the Seminar language pack to ease translation
+
+                   Several strings being used by the Seminar module from the main language
+                   have now been copied and are included in the Seminar language files in
+                   order to allow them to be translated specifically for Seminar activities.
+
+    TL-14794       Fixed Seminar list under course activity
+    TL-14798       Ensured html entities are removed for export in the orderedlist_to_newline display class
+    TL-14803       Fixed certificate custom text to support multi-language content
+    TL-14804       Fixed issue with null in deleted column when using HR import
+
+                   When importing an element using database HR Import if there is a null in
+                   the database column a database write error was thrown. Now a null value
+                   will be treated as 0 (not deleted).
+
+    TL-14806       Ensured when enabling or disabling an HR Import element, the notification is not incorrectly displayed multiple times
+    TL-14809       Corrected typos within graph custom settings inline help
+    TL-14814       Close button in YUI dialogs is fully contained within the header bar
+    TL-14929       Fixed the display of available activities if the user holds the viewhiddenactivities capability
+
+                   Previously available and visible activities were shown to the user as
+                   hidden (dimmed) if the user held the viewhiddenactivities capability,
+                   despite the activity being both visible and available.
+                   Activities are now shown as visible correctly when the user can both access
+                   them and holds the above mentioned capability.
+
+    TL-14934       Fixed a coding error when using fasthashing for passwords in HR Import
+    TL-14993       Prevented all access to the admin pages from the guest user
+    TL-15014       Fixed inconsistencies in counted recordsets across all databases
+
+                   The total count result is now consistent across all databases when
+                   providing an offset greater than the total number of rows.
+
+    TL-15036       Added missing column type descriptor in the Totara Connect report source
+
+Miscellaneous Moodle fixes:
+
+    TL-14920       MDL-56565: Prevented other users' username being displayed when manipulating URLs
+    TL-14927       MDL-59456: Fixed a CAS authentication bypass issue when running against an old CAS server
+
+Contributions:
+
+    * Alex Glover at Kineo UK - TL-14341
+    * Artur Rietz at Webanywhere - TL-14398
+    * Jo Jones at Kineo UK - TL-14432
+    * Russell England at Kineo USA - TL-14435
+    * Pavel Tsakalidis for proposing the approach used in TL-6834
+
+
 Release 9.8 (21st June 2017):
 =============================
 

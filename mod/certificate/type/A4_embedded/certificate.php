@@ -40,7 +40,7 @@ if (isset($certrecord->timearchived)) {
 
 $pdf = new PDF($certificate->orientation, 'mm', 'A4', true, 'UTF-8', false);
 
-$pdf->SetTitle($certificate->name);
+$pdf->SetTitle(format_string($certificate->name));
 $pdf->SetProtection(array('modify'));
 $pdf->setPrintHeader(false);
 $pdf->setPrintFooter(false);
@@ -127,4 +127,4 @@ if ($certificate->printteacher) {
     }
 }
 
-certificate_print_text($pdf, $custx, $custy, 'L', null, null, null, $certificate->customtext);
+certificate_print_text($pdf, $custx, $custy, 'L', null, null, null, format_string($certificate->customtext));

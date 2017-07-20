@@ -29,125 +29,139 @@ use Behat\Mink\Exception\ExpectationException;
  * A checkboxes element helper.
  *
  * @author Sam Hemelryk <sam.hemelryk@totaralearning.com>
+ * @author Petr Skoda <petr.skoda@totaralearning.com>
  * @copyright 2016 Totara Learning Solutions Ltd {@link http://www.totaralms.com/}
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @package totara_form
  */
-class checkboxes implements base {
-
-    /**
-     * The element node, containing the whole element markup.
-     * @var \Behat\Mink\Element\NodeElement
-     */
-    protected $node;
-
-    /**
-     * The context that is currently working with this element.
-     * @var \behat_totara_form
-     */
-    protected $context;
-
-    /**
-     * Constructs a checkboxes behat element helper.
-     *
-     * @param \Behat\Mink\Element\NodeElement $node
-     * @param \behat_totara_form $context
-     */
-    public function __construct(\Behat\Mink\Element\NodeElement $node, \behat_totara_form $context) {
-        $this->node = $node;
-        $this->context = $context;
-    }
+class checkboxes extends element {
 
     /**
      * Returns the checkboxes input.
      *
      * @return \Behat\Mink\Element\NodeElement[]
-     * @throws \Behat\Mink\Exception\ExpectationException
      */
     protected function get_checkboxes_input() {
         $checkboxes = $this->node->findAll('xpath', "//input[@type='checkbox']");
         if (empty($checkboxes)) {
-            throw new ExpectationException('Could not find expected checkbox inputs', $this->context->getSession());
+            throw new ExpectationException("Could not find expected {$this->mytype} inputs: {$this->locator}", $this->context->getSession());
         }
         return $checkboxes;
     }
 
     /**
-     * Returns the value of the checkboxes if it is checked, or the unchecked value otherwise.
-     *
-     * @return string
-     */
-    public function get_value() {
-        $checkboxes = $this->get_checkboxes_input();
-        $values = array();
-        foreach ($checkboxes as $checkbox) {
-            if ($checkbox->isChecked()) {
-                $values[] = $checkbox->getAttribute('value');
-            } else {
-                $values[] = $checkbox->getAttribute('data-value-unchecked');
-            }
-        }
-        return $values;
-    }
-
-    /**
      * Checks or unchecks the checkboxes based on the given value.
      *
+     * NOTE: use either real values or labels, but not a mixture.
+     *
      * @param string $value A comma separate list of checkbox values and/or labels.
-     * @throws \Behat\Mink\Exception\ExpectationException
      */
     public function set_value($value) {
-        $checkboxes = $this->get_checkboxes_input();
-        $values = $this->split_values($value);
-        $labels = array();
-        foreach ($values as $value) {
-            $valueliteral = $this->context->getSession()->getSelectorsHandler()->xpathLiteral($value);
-            /** @var \Behat\Mink\Element\NodeElement[] $label_nodes */
-            $label_nodes = $this->node->findAll('xpath', "//label[contains(text(), {$valueliteral})]");
-            foreach ($label_nodes as $node) {
-                $labels[] = $node->getAttribute('for');
-            }
-        }
         if (!$this->context->running_javascript()) {
+            throw new \coding_exception('Goutte driver supports checkboxes with value 1 only, you need to use @javascript tag to force use of Selenium when testing checkboxes element');
+        }
+        $checkboxes = $this->get_checkboxes_input();
+        $setvalues = self::split_values($value);
+
+        $allvalues = array();
+        $alllabels = array();
+        foreach ($checkboxes as $checkbox) {
+            $allvalues[] = (string)$checkbox->getAttribute('value');
+            $idliteral = \behat_context_helper::escape($checkbox->getAttribute('id'));
+            /** @var \Behat\Mink\Element\NodeElement $label */
+            $label = $this->node->find('xpath', "//label[@for=$idliteral]");
+            $alllabels[] = $label->getText();
+        }
+
+        $missing = array_diff($setvalues, $allvalues);
+        if (!$missing) {
+            if (array_intersect($setvalues, $alllabels)) {
+                throw new ExpectationException("Totara form {$this->mytype} element '{$this->locator}' selection options are both in values and labels: {$value}", $this->context->getSession());
+            }
             foreach ($checkboxes as $checkbox) {
-                $checkboxid = (string)$checkbox->getAttribute('id');
-                $checkboxvalue = (string)$checkbox->getAttribute('value');
-                if (in_array($checkboxvalue, $values) || in_array($checkboxid, $labels)) {
+                $thisvalue = (string)$checkbox->getAttribute('value');
+                if (in_array($thisvalue, $setvalues, true)) {
                     if (!$checkbox->isChecked()) {
-                        $checkbox->check();
+                        $checkbox->click();
                     }
-                } else if ($checkbox->isChecked()) {
-                    $checkbox->uncheck();
+                } else {
+                    if ($checkbox->isChecked()) {
+                        $checkbox->click();
+                    }
                 }
             }
             return;
         }
-        foreach ($checkboxes as $checkbox) {
-            if (!$checkbox->isVisible()) {
-                throw new ExpectationException('Attempting to change a checkboxes that is not visible: '.$checkbox->getAttribute('name'), $this->context->getSession());
-            }
 
-            $checkboxvalue = (string)$checkbox->getAttribute('value');
-            $checkboxid = (string)$checkbox->getAttribute('id');
-            if (in_array($checkboxvalue, $values)|| in_array($checkboxid, $labels)) {
-                if (!$checkbox->isChecked()) {
-                    $checkbox->check();
-                }
-            } else if ($checkbox->isChecked() || !empty($checkbox->getAttribute('checked'))) {
-                $checkbox->click();
+        $missing = array_diff($setvalues, $alllabels);
+        if (!$missing) {
+            if (array_intersect($setvalues, $allvalues)) {
+                throw new ExpectationException("Totara form {$this->mytype} element '{$this->locator}' selection options are both in values and labels: {$value}", $this->context->getSession());
             }
+            foreach ($checkboxes as $checkbox) {
+                $idliteral = \behat_context_helper::escape($checkbox->getAttribute('id'));
+                /** @var \Behat\Mink\Element\NodeElement $label */
+                $label = $this->node->find('xpath', "//label[@for=$idliteral]");
+                $label = $label->getText();
+                if (in_array($label, $setvalues, true)) {
+                    if (!$checkbox->isChecked()) {
+                        $checkbox->click();
+                    }
+                } else {
+                    if ($checkbox->isChecked()) {
+                        $checkbox->click();
+                    }
+                }
+            }
+            return;
         }
+
+        // Developer included some bogus options, fail!
+        throw new ExpectationException("Totara form {$this->mytype} element '{$this->locator}' does not contain all given options", $this->context->getSession());
     }
 
     /**
-     * Splits a string into multiple values. A comma is used to separate and can be escaped with a backslash.
-     * @param string $value
-     * @return string[]
+     * Asserts the field has expected value.
+     *
+     * @param string $expectedvalue
+     * @return void
      */
-    protected function split_values($value) {
-        $values = preg_split('#(?<!\\\)\,#', $value);
-        $values = array_map('trim', $values);
-        return $values;
+    public function assert_value($expectedvalue) {
+        $checkboxes = $this->get_checkboxes_input();
+
+        $expectedvalues = self::split_values($expectedvalue);
+        sort($expectedvalues);
+
+        $values = array();
+        foreach ($checkboxes as $checkbox) {
+            if ($checkbox->isChecked()) {
+                $values[] = $checkbox->getAttribute('value');
+            }
+        }
+        sort($values);
+
+        if ($expectedvalues == $values) {
+            return;
+        }
+
+        // We do not have value match, let's try a label match.
+        $labels = array();
+        foreach ($checkboxes as $checkbox) {
+            if (!$checkbox->isChecked()) {
+                continue;
+            }
+            $idliteral = \behat_context_helper::escape($checkbox->getAttribute('id'));
+            /** @var \Behat\Mink\Element\NodeElement $label */
+            $label = $this->node->find('xpath', "//label[@for=$idliteral]");
+            $labels[] = $label->getText();
+        }
+        sort($labels);
+
+        if ($expectedvalues == $labels) {
+            return;
+        }
+
+        throw new ExpectationException("Totara form {$this->mytype} element '{$this->locator}' does not match expected options: {$expectedvalue}", $this->context->getSession());
     }
 
 }

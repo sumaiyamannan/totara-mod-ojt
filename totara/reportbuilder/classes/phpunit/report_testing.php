@@ -214,9 +214,10 @@ trait report_testing {
      *
      * @param string $source
      * @param string $fullname
+     * @param bool $showtotalcount
      * @return int report id
      */
-    protected function create_report($source, $fullname) {
+    protected function create_report($source, $fullname, $showtotalcount = false) {
         global $DB;
 
         $todb = new \stdClass();
@@ -227,6 +228,7 @@ trait report_testing {
         $todb->recordsperpage = 40;
         $todb->contentmode = REPORT_BUILDER_CONTENT_MODE_NONE;
         $todb->embedded = 0;
+        $todb->showtotalcount = $showtotalcount ? 1 : 0;
         $todb->id = $DB->insert_record('report_builder', $todb);
 
         // Set up access permissions.

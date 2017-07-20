@@ -65,7 +65,7 @@ class element_editor extends form {
         $editor_required = $this->model->add(new editor('editor_required', 'Required basic editor'));
         $editor_required->set_attribute('required', true);
         $editor_required->add_help_button('cachejs', 'core_admin'); // Just a random help string.
-        $this->model->add(new editor('editor_with_current_data', 'Text with current data'))->add_help_button('cachejs', 'core_admin'); // Just a random help string.;
+        $this->model->add(new editor('editor_with_current_data', 'Editor with current data'))->add_help_button('cachejs', 'core_admin'); // Just a random help string.;
         $this->model->add(new editor('editor_frozen_empty', 'Empty frozen editor'))->set_frozen(true);
         $this->model->add(new editor('editor_frozen_with_current_data', 'Frozen editor with current data'))->set_frozen(true);
 

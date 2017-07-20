@@ -1167,6 +1167,10 @@ function xmldb_totara_reportbuilder_upgrade($oldversion) {
             // Then move position assignment filters to job assignment filters.
             totara_reportbuilder_migrate_filter_types($filters, $oldtype, 'job_assignment');
             // Update the filters in any saved searches to match updated filters.
+            // NOTE: this function contains code specific to the migration
+            // from 2.9 to 9.0 for multiple jobs. DO NOT USE this function
+            // for generic saved search migrations, use
+            // {@link totara_reportbuilder_migrate_saved_searches()} instead.
             totara_reportbuilder_migrate_saved_search_filters($filters, $oldtype, 'job_assignment');
         }
 
@@ -1217,10 +1221,113 @@ function xmldb_totara_reportbuilder_upgrade($oldversion) {
         );
 
         // Re-run saved searched migration for the job assignments update.
+        // NOTE: this function contains code specific to the migration
+        // from 2.9 to 9.0 for multiple jobs. DO NOT USE this function
+        // for generic saved search migrations, use
+        // {@link totara_reportbuilder_migrate_saved_searches()} instead.
         totara_reportbuilder_migrate_saved_search_filters($filters, $oldtype, 'job_assignment');
 
         // Reportbuilder savepoint reached.
         upgrade_plugin_savepoint(true, 2016092002, 'totara', 'reportbuilder');
+    }
+
+    if ($oldversion < 2016092004) {
+
+        // Define field showtotalcount to be added to report_builder.
+        $table = new xmldb_table('report_builder');
+        $field = new xmldb_field('showtotalcount', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0', 'timemodified');
+
+        // Conditionally launch add field showtotalcount.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Reportbuilder savepoint reached.
+        upgrade_plugin_savepoint(true, 2016092004, 'totara', 'reportbuilder');
+    }
+
+    if ($oldversion < 2016092005) {
+
+        // Update filter to match updated code.
+        reportbuilder_rename_data('filters', '*', 'job_assignment', 'allstartdates', 'job_assignment', 'allstartdatesfilter');
+        reportbuilder_rename_data('filters', '*', 'job_assignment', 'allenddates', 'job_assignment', 'allenddatesfilter');
+        // Fix saved searches.
+        totara_reportbuilder_migrate_saved_searches('*', 'job_assignment', 'allstartdates', 'job_assignment', 'allstartdatesfilter');
+        totara_reportbuilder_migrate_saved_searches('*', 'job_assignment', 'allenddates', 'job_assignment', 'allenddatesfilter');
+
+        // Update active datetime job custom fields.
+        $posfields = $DB->get_records('pos_type_info_field', array('hidden' => '0', 'datatype' => 'datetime'));
+        foreach ($posfields as $field) {
+            $oldname = "pos_custom_{$field->id}";
+            // Update filter to match updated code.
+            reportbuilder_rename_data('filters', '*', 'job_assignment', $oldname, 'job_assignment', $oldname.'filter');
+            // Fix saved searches.
+            totara_reportbuilder_migrate_saved_searches('*', 'job_assignment', $oldname, 'job_assignment', $oldname.'filter');
+        }
+        $orgfields = $DB->get_records('org_type_info_field', array('hidden' => '0', 'datatype' => 'datetime'));
+        foreach ($orgfields as $field) {
+            $oldname = "org_custom_{$field->id}";
+            // Update filter to match updated code.
+            reportbuilder_rename_data('filters', '*', 'job_assignment', $oldname, 'job_assignment', $oldname.'filter');
+            // Fix saved searches.
+            totara_reportbuilder_migrate_saved_searches('*', 'job_assignment', $oldname, 'job_assignment', $oldname.'filter');
+        }
+
+        // Reportbuilder savepoint reached.
+        upgrade_plugin_savepoint(true, 2016092005, 'totara', 'reportbuilder');
+    }
+
+    if ($oldversion < 2016092006) {
+
+        // Define field useclonedb to be added to report_builder.
+        $table = new xmldb_table('report_builder');
+        $field = new xmldb_field('useclonedb', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0', 'showtotalcount');
+
+        // Conditionally launch add field useclonedb.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Migrate existing setting from the POC patch.
+        $useclonedb = get_config('totara_reportbuilder', 'useclonedb');
+        if ($useclonedb) {
+            $useclonedb = explode(',', $useclonedb);
+            foreach ($useclonedb as $rid) {
+                $DB->set_field('report_builder', 'useclonedb', 1, array('id' => $rid));
+            }
+        }
+        unset_config('useclonedb', 'totara_reportbuilder');
+
+        // Reportbuilder savepoint reached.
+        upgrade_plugin_savepoint(true, 2016092006, 'totara', 'reportbuilder');
+    }
+
+    if ($oldversion < 2016092007) {
+
+        // Converting select filter operators to text filter operators for search of standard log report.
+        $searches = $DB->get_recordset('report_builder_saved', null, '', 'id, search');
+        foreach ($searches as $search) {
+            $todb = new \stdClass();
+            $todb->id = $search->id;
+            $filter = unserialize($search->search);
+            if (array_key_exists('logstore_standard_log-eventname', $filter)) {
+                $newfilter = $filter;
+                // Test the operator for 'is equal to'
+                if ($filter['logstore_standard_log-eventname']['operator'] == 1) {
+                    $newfilter['logstore_standard_log-eventname']['operator'] = 2;
+                    $todb->search = serialize($newfilter);
+                    $DB->update_record('report_builder_saved', $todb);
+                }
+                // Test the operator for 'isn't equal to'
+                if ($filter['logstore_standard_log-eventname']['operator'] == 2) {
+                    $newfilter['logstore_standard_log-eventname']['operator'] = 1;
+                    $todb->search = serialize($newfilter);
+                    $DB->update_record('report_builder_saved', $todb);
+                }
+            }
+        }
+        $searches->close();
+        upgrade_plugin_savepoint(true, 2016092007, 'totara', 'reportbuilder');
     }
 
     return true;

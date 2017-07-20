@@ -111,6 +111,15 @@ abstract class rb_base_source {
             }
         }
 
+        // Make sure that there are no column options using subqueries if report is grouped.
+        if ($this->get_grouped_column_options()) {
+            foreach ($this->columnoptions as $k => $option) {
+                if ($option->issubquery) {
+                    unset($this->columnoptions[$k]);
+                }
+            }
+        }
+
         // basic sanity checking of joinlist
         $this->validate_joinlist();
         //create array to store the join functions and join table
@@ -301,9 +310,8 @@ abstract class rb_base_source {
 
         // don't let source define join with same name as an SQL
         // reserved word
-        // from http://docs.moodle.org/en/XMLDB_reserved_words
-        $reserved_words = explode(', ', 'access, accessible, add, all, alter, analyse, analyze, and, any, array, as, asc, asensitive, asymmetric, audit, authorization, autoincrement, avg, backup, before, begin, between, bigint, binary, blob, both, break, browse, bulk, by, call, cascade, case, cast, change, char, character, check, checkpoint, close, cluster, clustered, coalesce, collate, column, comment, commit, committed, compress, compute, condition, confirm, connect, connection, constraint, contains, containstable, continue, controlrow, convert, count, create, cross, current, current_date, current_role, current_time, current_timestamp, current_user, cursor, database, databases, date, day_hour, day_microsecond, day_minute, day_second, dbcc, deallocate, dec, decimal, declare, default, deferrable, delayed, delete, deny, desc, describe, deterministic, disk, distinct, distinctrow, distributed, div, do, double, drop, dual, dummy, dump, each, else, elseif, enclosed, end, errlvl, errorexit, escape, escaped, except, exclusive, exec, execute, exists, exit, explain, external, false, fetch, file, fillfactor, float, float4, float8, floppy, for, force, foreign, freetext, freetexttable, freeze, from, full, fulltext, function, goto, grant, group, having, high_priority, holdlock, hour_microsecond, hour_minute, hour_second, identified, identity, identity_insert, identitycol, if, ignore, ilike, immediate, in, increment, index, infile, initial, initially, inner, inout, insensitive, insert, int, int1, int2, int3, int4, int8, integer, intersect, interval, into, is, isnull, isolation, iterate, join, key, keys, kill, leading, leave, left, level, like, limit, linear, lineno, lines, load, localtime, localtimestamp, lock, long, longblob, longtext, loop, low_priority, master_heartbeat_period, master_ssl_verify_server_cert, match, max, maxextents, mediumblob, mediumint, mediumtext, middleint, min, minus, minute_microsecond, minute_second, mirrorexit, mlslabel, mod, mode, modifies, modify, national, natural, new,' .
-            ' no_write_to_binlog, noaudit, nocheck, nocompress, nonclustered, not, notnull, nowait, null, nullif, number, numeric, of, off, offline, offset, offsets, old, on, once, online, only, open, opendatasource, openquery, openrowset, openxml, optimize, option, optionally, or, order, out, outer, outfile, over, overlaps, overwrite, pctfree, percent, perm, permanent, pipe, pivot, placing, plan, precision, prepare, primary, print, prior, privileges, proc, procedure, processexit, public, purge, raid0, raiserror, range, raw, read, read_only, read_write, reads, readtext, real, reconfigure, references, regexp, release, rename, repeat, repeatable, replace, replication, require, resource, restore, restrict, return, returning, revoke, right, rlike, rollback, row, rowcount, rowguidcol, rowid, rownum, rows, rule, save, schema, schemas, second_microsecond, select, sensitive, separator, serializable, session, session_user, set, setuser, share, show, shutdown, similar, size, smallint, some, soname, spatial, specific, sql, sql_big_result, sql_calc_found_rows, sql_small_result, sqlexception, sqlstate, sqlwarning, ssl, start, starting, statistics, straight_join, successful, sum, symmetric, synonym, sysdate, system_user, table, tape, temp, temporary, terminated, textsize, then, tinyblob, tinyint, tinytext, to, top, trailing, tran, transaction, trigger, true, truncate, tsequal, uid, uncommitted, undo, union, unique, unlock, unsigned, update, updatetext, upgrade, usage, use, user, using, utc_date, utc_time, utc_timestamp, validate, values, varbinary, varchar, varchar2, varcharacter, varying, verbose, view, waitfor, when, whenever, where, while, with, work, write, writetext, x509, xor, year_month, zerofill');
+        $reserved_words = sql_generator::getAllReservedWords();
+        $reserved_words = array_keys($reserved_words);
 
         foreach ($joinlist as $item) {
             // check join list for duplicate names
@@ -1224,6 +1232,7 @@ abstract class rb_base_source {
         global $CFG;
 
         require_once($CFG->dirroot . '/lib/pear/HTML/QuickForm/button.php');
+        require_once($CFG->dirroot . '/lib/pear/HTML/QuickForm/static.php');
 
         $retval = array();
         foreach ($inlineenrolments as $inlineenrolment) {
@@ -2604,6 +2613,129 @@ abstract class rb_base_source {
                 'displayfunc' => 'nice_datetime',
                 'dbdatatype' => 'timestamp',
                 'addtypetoheading' => $addtypetoheading
+            )
+        );
+
+        $columnoptions[] = new rb_column_option(
+            $groupname,
+            'jobassignments',
+            get_string('jobassignments', 'totara_job'),
+            "(SELECT COUNT('x') FROM {job_assignment} ja WHERE ja.userid = $join.id)",
+            array(
+                'nosort' => true,
+                'joins' => $join,
+                'displayfunc' => 'user_jobassignments',
+                'addtypetoheading' => $addtypetoheading,
+                'extrafields' => array('userid' => "$join.id", 'deleted' => "$join.deleted"),
+                'issubquery' => true,
+            )
+        );
+
+        $columnoptions[] = new rb_column_option(
+            $groupname,
+            'jobpositionnames',
+            get_string('usersposnameall', 'totara_reportbuilder'),
+            "(SELECT " . $DB->sql_group_concat('p.fullname', ', ', 'p.fullname') . "
+                FROM {pos} p
+                JOIN {job_assignment} ja ON ja.positionid = p.id
+               WHERE ja.userid = $join.id AND p.fullname IS NOT NULL)",
+            array(
+                'displayfunc' => 'formatstring',
+                'joins' => $join,
+                'addtypetoheading' => $addtypetoheading,
+                'issubquery' => true,
+            )
+        );
+        $columnoptions[] = new rb_column_option(
+            $groupname,
+            'jobpositionidnumbers',
+            get_string('usersposidnumberall', 'totara_reportbuilder'),
+            "(SELECT " . $DB->sql_group_concat('p.idnumber', ', ', 'p.idnumber') . "
+                FROM {pos} p
+                JOIN {job_assignment} ja ON ja.positionid = p.id
+               WHERE ja.userid = $join.id AND p.idnumber IS NOT NULL AND p.idnumber <> '')",
+            array(
+                'displayfunc' => 'plaintext',
+                'joins' => $join,
+                'addtypetoheading' => $addtypetoheading,
+                'issubquery' => true,
+            )
+        );
+        $columnoptions[] = new rb_column_option(
+            $groupname,
+            'joborganisationnames',
+            get_string('usersorgnameall', 'totara_reportbuilder'),
+            "(SELECT " . $DB->sql_group_concat('o.fullname', ', ', 'o.fullname') . "
+                FROM {org} o
+                JOIN {job_assignment} ja ON ja.organisationid = o.id
+               WHERE ja.userid = $join.id AND o.fullname IS NOT NULL)",
+            array(
+                'displayfunc' => 'formatstring',
+                'joins' => $join,
+                'addtypetoheading' => $addtypetoheading,
+                'issubquery' => true,
+            )
+        );
+        $columnoptions[] = new rb_column_option(
+            $groupname,
+            'joborganisationidnumbers',
+            get_string('usersorgidnumberall', 'totara_reportbuilder'),
+            "(SELECT " . $DB->sql_group_concat('o.idnumber', ', ', 'o.idnumber') . "
+                FROM {org} o
+                JOIN {job_assignment} ja ON ja.organisationid = o.id
+               WHERE ja.userid = $join.id AND o.idnumber IS NOT NULL AND o.idnumber <> '')",
+            array(
+                'displayfunc' => 'plaintext',
+                'joins' => $join,
+                'addtypetoheading' => $addtypetoheading,
+                'issubquery' => true,
+            )
+        );
+        $columnoptions[] = new rb_column_option(
+            $groupname,
+            'jobmanagernames',
+            get_string('usersmanagernameall', 'totara_reportbuilder'),
+            "(SELECT " . $DB->sql_group_concat($DB->sql_concat_join("' '", array('m.firstname', 'm.lastname')), ', ', 'm.firstname') . "
+                FROM {user} m
+                JOIN {job_assignment} mja ON mja.userid = m.id
+                JOIN {job_assignment} ja ON ja.managerjaid = mja.id
+               WHERE ja.userid = $join.id)",
+            array(
+                'displayfunc' => 'plaintext',
+                'joins' => $join,
+                'addtypetoheading' => $addtypetoheading,
+                'issubquery' => true,
+            )
+        );
+        $columnoptions[] = new rb_column_option(
+            $groupname,
+            'jobappraisernames',
+            get_string('usersappraisernameall', 'totara_reportbuilder'),
+            "(SELECT " . $DB->sql_group_concat($DB->sql_concat_join("' '", array('a.firstname', 'a.lastname')), ', ', 'a.firstname') . "
+                FROM {user} a
+                JOIN {job_assignment} ja ON ja.appraiserid = a.id
+               WHERE ja.userid = $join.id)",
+            array(
+                'displayfunc' => 'plaintext',
+                'joins' => $join,
+                'addtypetoheading' => $addtypetoheading,
+                'issubquery' => true,
+            )
+        );
+        $columnoptions[] = new rb_column_option(
+            $groupname,
+            'jobtempmanagernames',
+            get_string('userstempmanagernameall', 'totara_reportbuilder'),
+            "(SELECT " . $DB->sql_group_concat($DB->sql_concat_join("' '", array('m.firstname', 'm.lastname')), ', ', 'm.firstname') . "
+                FROM {user} m
+                JOIN {job_assignment} mja ON mja.userid = m.id
+                JOIN {job_assignment} ja ON ja.tempmanagerjaid = mja.id
+               WHERE ja.userid = $join.id AND ja.tempmanagerexpirydate > " . time() . ")", // This is not compatible with caching much!
+            array(
+                'displayfunc' => 'plaintext',
+                'joins' => $join,
+                'addtypetoheading' => $addtypetoheading,
+                'issubquery' => true,
             )
         );
 
@@ -4227,27 +4359,27 @@ abstract class rb_base_source {
 
         $filteroptions[] = new rb_filter_option(
             'job_assignment',
-            'allstartdates',
+            'allstartdatesfilter',
             get_string('jobassign_jobstart', 'totara_reportbuilder'),
             'grpconcat_date',
             array(
                 'prefix' => 'job',
                 'datefield' => 'startdate',
             ),
-            'startdate',
+            "{$users}.id",
             $users
         );
 
         $filteroptions[] = new rb_filter_option(
             'job_assignment',
-            'allenddates',
+            'allenddatesfilter',
             get_string('jobassign_jobend', 'totara_reportbuilder'),
             'grpconcat_date',
             array(
                 'prefix' => 'job',
                 'datefield' => 'enddate',
             ),
-            'enddate',
+            "{$users}.id",
             $users
         );
 
@@ -4262,7 +4394,7 @@ abstract class rb_base_source {
                 'jobfield' => 'positionid',                                 // Jobfield, map to the column in the job_assignments table.
                 'jobjoin' => 'pos',                                         // The table that the job join information can be found in.
             ),
-            'id',                                                           // $field
+            "{$users}.id",                                                  // $field
             $users                                                          // $joins string | array
         );
         $filteroptions[] = new rb_filter_option(
@@ -4307,7 +4439,7 @@ abstract class rb_base_source {
                 'jobfield' => 'organisationid',                             // Jobfield, map to the column in the job_assignments table.
                 'jobjoin' => 'org',                                         // The table that the job join information can be found in.
             ),
-            'id',                                                           // $field
+            "{$users}.id",                                                  // $field
             $users                                                          // $joins string | array
         );
         $filteroptions[] = new rb_filter_option(
@@ -4353,7 +4485,7 @@ abstract class rb_base_source {
                 'extfield' => 'userid',                                     // Extfield, this overrides the jobfield as the select after joining.
                 'extjoin' => 'job_assignment',                              // Extjoin, whether an additional join is required.
             ),
-            'id',                                                           // $field
+            "{$users}.id",                                                  // $field
             $users                                                          // $joins string | array
         );
         $filteroptions[] = new rb_filter_option(
@@ -4389,7 +4521,7 @@ abstract class rb_base_source {
                 'jobfield' => 'appraiserid',                                // Jobfield, map to the column in the job_assignments table.
                 'jobjoin' => 'user',                                        // The table that the job join information can be found in.
             ),
-            'id',                                                           // $field
+            "{$users}.id",                                                  // $field
             $users                                                          // $joins string | array
         );
 
@@ -5010,14 +5142,14 @@ abstract class rb_base_source {
                 case 'datetime' :
                     $filteroptions[] = new rb_filter_option(
                         'job_assignment',
-                        $uniquename,
+                        $uniquename.'filter',
                         s($field->fullname),
                         'grpconcat_date',
                         array(
                             'datefield' => $field->shortname,
                             'prefix' => $prefix,
                         ),
-                        $field->shortname,
+                        "{$userjoin}.id",
                         $userjoin
                     );
                     break;

@@ -1,5 +1,11 @@
 List of upgrade and API changes in Totara core
 
+=== 9.9 ===
+
+* totara/core/templates/report_list.mustache context object has changed, the property ->report_list[]->name is no
+    longer sanitised (as it sanitised in the template and in the flex/pix templates);
+* updated totara_core_renderer::report_list_export_for_template()
+
 === 9.6 ===
 
 * updated totara/core/templates/course_progress_bar.mustache

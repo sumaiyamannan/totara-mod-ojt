@@ -216,27 +216,26 @@ class block_totara_report_table extends block_base {
             }
         }
 
-        $countfiltered = $report->get_filtered_count();
-        $countall = $report->get_full_count();
-
-        if ($this->config->hideifnoresults && ((isset($sid) && $countfiltered == 0) || $countall == 0)) {
-            return $this->content;
-        }
-
         $reporturl = new moodle_url($report->report_url());
         if ($sid) {
             $reporturl->param('sid', $sid);
         }
-
-        // Use output buffering so we can call the existing display_table() function.
-        ob_start();
         $report->set_baseurl($reporturl);
-        $report->display_table();
-        $output = ob_get_contents();
-        ob_end_clean();
+        /** @var totara_reportbuilder_renderer $renderer */
+        $renderer = $this->page->get_renderer('totara_reportbuilder');
+        list($reporthtml, $debughtml) = $renderer->report_html($report, 0);
+
+        // We only want to show the report if it is not empty, or if it is empty but has been filtered and has total results.
+        if (!empty($this->config->hideifnoresults)) {
+            // Done inside a nested IF just to be extremely sure the count calls aren't executed unless needed.
+            // full_count is likely a second super expensive query.
+            if ((isset($sid) && $report->get_filtered_count() == 0) || $report->get_full_count() == 0) {
+                return $this->content;
+            }
+        }
 
         // The table has already been rendered so just return the class.
-        $this->content->text = $output;
+        $this->content->text = $reporthtml;
         $this->content->footer = html_writer::link($reporturl, get_string('viewfullreport', 'block_totara_report_table'));
 
         return $this->content;

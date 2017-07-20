@@ -318,37 +318,55 @@ class rb_source_course_completion_by_org extends rb_base_source {
                 'course_completion',
                 'total',
                 get_string('totalcompletions', 'rb_source_course_completion_by_org'),
-                'number'
+                'number',
+                array(
+                    'cachingcompatible' => false, // Current filter code is not compatible with aggregated columns.
+                )
             ),
             new rb_filter_option(
                 'course_completion',
                 'completed',
                 get_string('numcompleted', 'rb_source_course_completion_by_org'),
-                'number'
+                'number',
+                array(
+                    'cachingcompatible' => false, // Current filter code is not compatible with aggregated columns.
+                )
             ),
             new rb_filter_option(
                 'course_completion',
                 'completedrpl',
                 get_string('numcompletedviarpl', 'rb_source_course_completion_by_org'),
-                'number'
+                'number',
+                array(
+                    'cachingcompatible' => false, // Current filter code is not compatible with aggregated columns.
+                )
             ),
             new rb_filter_option(
                 'course_completion',
                 'inprogress',
                 get_string('numinprogress', 'rb_source_course_completion_by_org'),
-                'number'
+                'number',
+                array(
+                    'cachingcompatible' => false, // Current filter code is not compatible with aggregated columns.
+                )
             ),
             new rb_filter_option(
                 'course_completion',
                 'notstarted',
                 get_string('numnotstarted', 'rb_source_course_completion_by_org'),
-                'number'
+                'number',
+                array(
+                    'cachingcompatible' => false, // Current filter code is not compatible with aggregated columns.
+                )
             ),
             new rb_filter_option(
                 'user',
                 'allparticipants',
                 get_string('participants', 'rb_source_course_completion_by_org'),
-                'text'
+                'text',
+                array(
+                    'cachingcompatible' => false, // Current filter code is not compatible with aggregated columns.
+                )
             ),
             new rb_filter_option(
                 'course_completion',

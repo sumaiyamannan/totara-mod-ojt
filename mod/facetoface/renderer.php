@@ -205,7 +205,7 @@ class mod_facetoface_renderer extends plugin_renderer_base {
                     $row = new html_table_row($sessionrow);
 
                     // Set the CSS class for the row.
-                    if ($sessionstarted) {
+                    if ($sessionstarted || !empty($session->cancelledstatus)) {
                         $row->attributes = array('class' => 'dimmed_text');
                     } else if ($isbookedsession) {
                         $row->attributes = array('class' => 'highlight');
@@ -514,6 +514,9 @@ class mod_facetoface_renderer extends plugin_renderer_base {
     private function session_options_reserve_link($session, $signupcount, $reserveinfo = array()) {
 
         $reservelink = '';
+        if (!empty($session->cancelledstatus)) {
+            return $reservelink;
+        }
 
         // Output links to reserve/allocate spaces.
         if (!empty($reserveinfo)) {

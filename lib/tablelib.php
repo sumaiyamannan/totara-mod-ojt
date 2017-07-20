@@ -313,6 +313,16 @@ class flexible_table {
     }
 
     /**
+     * Sets just the pagesize for the table.
+     *
+     * @since Totara 2.7.29, 2.9.21, 9.9, 10
+     * @param int $perpage
+     */
+    public function set_pagesize($perpage) {
+        $this->pagesize = $perpage;
+    }
+
+    /**
      * Sets the pagesize variable to the given integer, the totalrows variable
      * to the given integer, and the use_pages variable to true.
      * @param int $perpage

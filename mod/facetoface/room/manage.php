@@ -88,6 +88,8 @@ if ($delete) {
 }
 
 $PAGE->set_button($report->edit_button());
+/** @var totara_reportbuilder_renderer $reportrenderer */
+$reportrenderer = $PAGE->get_renderer('totara_reportbuilder');
 
 echo $OUTPUT->header();
 
@@ -95,17 +97,15 @@ $report->display_restrictions();
 
 echo $OUTPUT->heading(get_string('managerooms', 'facetoface'));
 
-if ($debug) {
-    $report->debug($debug);
-}
-
-$reportrenderer = $PAGE->get_renderer('totara_reportbuilder');
+// This must be done after the header and before any other use of the report.
+list($reporthtml, $debughtml) = $reportrenderer->report_html($report, $debug);
+echo $debughtml;
 echo $reportrenderer->print_description($report->description, $report->_id);
 
 $report->display_search();
 $report->display_sidebar_search();
 echo $report->display_saved_search_options();
-$report->display_table();
+echo $reporthtml;
 
 $addurl = new moodle_url('/mod/facetoface/room/edit.php');
 

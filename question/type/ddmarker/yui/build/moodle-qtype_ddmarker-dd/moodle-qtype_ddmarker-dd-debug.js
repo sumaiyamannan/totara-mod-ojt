@@ -135,8 +135,8 @@ Y.extend(DDMARKER_DD, Y.Base, {
     convert_to_window_xy : function (bgimgxy) {
         // The +1 seems rather odd, but seems to give the best results in
         // the three main browsers at a range of zoom levels.
-        return [Number(bgimgxy[0]) + this.doc.bg_img().getX() + 1,
-                Number(bgimgxy[1]) + this.doc.bg_img().getY() + 1];
+        return [Number(bgimgxy[0]) + this.doc.bg_img().getX(),
+                Number(bgimgxy[1]) + this.doc.bg_img().getY()];
     },
     shapes : [],
     draw_drop_zone : function (dropzoneno, markertext, shape, coords, colour, link) {
@@ -374,8 +374,8 @@ Y.extend(DDMARKER_QUESTION, M.qtype_ddmarker.dd_base_class, {
         var dd = new Y.DD.Drag({
             node: drag,
             dragMode: 'intersect'
-        }).plug(Y.Plugin.DDConstrained, {constrain2node: this.doc.top_node()});
-        dd.after('drag:start', function(e){
+        });
+        dd.after('drag:start', function(e) {
             var dragnode = e.target.get('node');
             dragnode.addClass('beingdragged');
             var choiceno = this.get_choiceno_for_node(dragnode);
@@ -425,6 +425,11 @@ Y.extend(DDMARKER_QUESTION, M.qtype_ddmarker.dd_base_class, {
                 coords[coords.length] = bgimgxy;
             }
         }
+        var scale = this.doc.bg_img().get('width') / this.doc.bg_img().get('naturalWidth');
+        coords.forEach(function(coord) {
+            coord[0] = coord[0] / scale;
+            coord[1] = coord[1] / scale;
+        }, this);
         this.set_form_value(choiceno, coords.join(';'));
     },
     reset_drag_xy : function (choiceno) {
@@ -452,9 +457,9 @@ Y.extend(DDMARKER_QUESTION, M.qtype_ddmarker.dd_base_class, {
         bgimgxy[1] = Math.min(this.doc.bg_img().get('height'), bgimgxy[1]);
         return this.convert_to_window_xy(bgimgxy);
     },
-    convert_to_bg_img_xy : function (windowxy) {
-        return [Number(windowxy[0]) - this.doc.bg_img().getX() - 1,
-                Number(windowxy[1]) - this.doc.bg_img().getY() - 1];
+    convert_to_bg_img_xy: function(windowxy) {
+        return [Number(windowxy[0]) - this.doc.bg_img().getX(),
+                Number(windowxy[1]) - this.doc.bg_img().getY()];
     },
     redraw_drags_and_drops : function() {
         this.doc.drag_items().each(function(item) {
@@ -466,12 +471,19 @@ Y.extend(DDMARKER_QUESTION, M.qtype_ddmarker.dd_base_class, {
             var choiceno = this.get_choiceno_for_node(input);
             var coords = this.get_coords(input);
             var dragitemhome = this.doc.drag_item_home(choiceno);
+            var scale = this.doc.bg_img().get('width') / this.doc.bg_img().get('naturalWidth');
             for (var i = 0; i < coords.length; i++) {
                 var dragitem = this.doc.drag_item_for_choice(choiceno, i);
                 if (!dragitem || dragitem.hasClass('beingdragged')) {
                     dragitem = this.clone_new_drag_item(dragitemhome, i);
                 } else {
                     dragitem.removeClass('unneeded');
+                }
+
+                var drag_home_xy = this.drag_home_xy(choiceno);
+                if (drag_home_xy[0] !== coords[i][0] || drag_home_xy[1] !== coords[i][1]) {
+                    coords[i][0] = ((coords[i][0] - this.doc.bg_img().getX()) * scale) + this.doc.bg_img().getX();
+                    coords[i][1] = ((coords[i][1] - this.doc.bg_img().getY()) * scale) + this.doc.bg_img().getY();
                 }
                 dragitem.setXY(coords[i]);
             }

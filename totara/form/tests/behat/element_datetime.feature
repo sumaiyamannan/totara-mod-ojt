@@ -12,10 +12,18 @@ Feature: Totara form datetime element tests
   Scenario: Test basic datetime elements in Totara forms
     When I select "Basic datetime element [totara_form\form\testform\element_datetime]" from the "Test form" singleselect
     Then I should see "Form: Basic datetime element"
+    And I should see the following Totara form fields having these values:
+      | Basic datetime                    |                  |
+      | Required basic datetime           |                  |
+      | datetime with current data        | 2016/03/08 06:05 |
+      | Frozen datetime with current data | 2016/06/23 19:27 |
+    And I should see the "Empty frozen datetime" Totara form field is frozen
+    And I should see the "Frozen datetime with current data" Totara form field is frozen
+    And I should see "There are required fields in this form marked"
 
     When I set the following Totara form fields to these values:
-      | Basic datetime | 2015-07-26 12:34 |
-      | Required basic datetime | 2018-09-09T09:09 |
+      | Basic datetime                    | 2015-07-26 12:34 |
+      | Required basic datetime           | 2018-09-09T09:09 |
     And I press "Save changes"
     Then I should see "The form has been submit"
     And "datetime_basic" row "Value" column of "form_results" table should contain "«1437885240 (2015/07/26 12:34 Australia/Perth)»"
@@ -37,10 +45,20 @@ Feature: Totara form datetime element tests
   Scenario: Test required datetime elements in Totara forms with JavaScript enabled
     When I select "Basic datetime element [totara_form\form\testform\element_datetime]" from the "Test form" singleselect
     Then I should see "Form: Basic datetime element"
+    And I should see the following Totara form fields having these values:
+      | Basic datetime                    |                  |
+      | Required basic datetime           |                  |
+      | datetime with current data        | 2016/03/08 06:05 |
+      | Frozen datetime with current data | 2016/06/23 19:27 |
+    And I should see the "Empty frozen datetime" Totara form field is frozen
+    And I should see the "Frozen datetime with current data" Totara form field is frozen
     And I should see "There are required fields in this form marked"
     When I set the following Totara form fields to these values:
-      | Basic datetime | 2015/07/26 12:34 |
-      | Required basic datetime | 2018/09/09 09:09 |
+      | Basic datetime                    | 2015/07/26 12:34 |
+      | Required basic datetime           | 2018/09/09 09:09 |
+    And I should see the following Totara form fields having these values:
+      | Basic datetime                    | 2015/07/26 12:34 |
+      | Required basic datetime           | 2018/09/09 09:09 |
     And I press "Save changes"
     Then I should see "The form has been submit"
     And "datetime_basic" row "Value" column of "form_results" table should contain "«1437885240 (2015/07/26 12:34 Australia/Perth)»"

@@ -681,12 +681,15 @@ class dp_competency_component extends dp_base_component {
                 }
 
                 if (!$this->plan->is_complete() && $this->can_update_items()) {
+                    $id = 'delete_linked_course_assign_' . $ca->id;
+                    $a = array('name' => $ca->fullname, 'component' => get_string('competency', 'totara_plan'));
+                    $label = html_writer::label(get_string('selectlinked','totara_plan', $a), $id, '', array('class' => 'sr-only'));
                     if (!empty($mandatory_list) && in_array($ca->id, $mandatory_list)) {
                         // If this course has a mandatory link to the competency disable checkbox
-                        $row[] = html_writer::checkbox('delete_linked_comp_assign['.$ca->id.']', '1', false,
-                            get_string('mandatory', 'totara_plan'), array('disabled' => 'true'));
+                        $row[] = $label . html_writer::checkbox('delete_linked_comp_assign['.$ca->id.']', '1', false,
+                            get_string('mandatory', 'totara_plan'), array('disabled' => 'true', 'id' => $id));
                     } else {
-                        $row[] = html_writer::checkbox('delete_linked_comp_assign['.$ca->id.']', '1', false);
+                        $row[] = $label . html_writer::checkbox('delete_linked_comp_assign['.$ca->id.']', '1', false, '', array('id' => $id));
                     }
                 }
 

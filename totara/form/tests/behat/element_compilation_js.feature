@@ -45,7 +45,7 @@ Feature: Totara form JavaScript based element compilation tests
 
     When I set the following Totara form fields to these values:
       | Checkbox          | 1                    |
-      | Checkboxes        | Yes,2                |
+      | Checkboxes        | Yes,No               |
       | Date and time     | 1985-03-07 22:05     |
       | Editor            | I am some rich text  |
       | Email             | admin@example.com    |
@@ -57,7 +57,7 @@ Feature: Totara form JavaScript based element compilation tests
       | Tel               | *123                 |
       | Text              | Test 123             |
       | Textarea          | Take off your shoes  |
-      | URL               | http://totaralms.com |
+      | Web URL           | http://totaralms.com |
       | Yes or No         | 1                    |
     And I start watching to see if a new page loads
     And I press "Save changes"
@@ -65,7 +65,7 @@ Feature: Totara form JavaScript based element compilation tests
     And I should not see "The form has been submit"
     And a new page should not have loaded since I started watching
     And "checkbox" row "Value" column of "form_results" table should contain "«checked»"
-    And "checkboxes" row "Value" column of "form_results" table should contain "«[ '1' , '2' ]»"
+    And "checkboxes" row "Value" column of "form_results" table should contain "«[ '1' , '0' ]»"
     And "datetime" row "Value" column of "form_results" table should contain "1985/03/07 22:05"
     And "editor" row "Value" column of "form_results" table should contain "«I am some rich text»"
     And "email" row "Value" column of "form_results" table should contain "«admin@example.com»"

@@ -1572,19 +1572,57 @@ function prog_get_courses_associated_with_programs($courses = null) {
     return $DB->get_records_sql($sql, $params);
 }
 
+/**
+ * Serves the folder files.
+ *
+ * @package  mod_folder
+ * @category files
+ * @param int $course course object
+ * @param stdClass $cm course module
+ * @param stdClass $context context object
+ * @param string $filearea file area
+ * @param array $args extra arguments
+ * @param bool $forcedownload whether or not force download
+ * @param array $options additional options affecting the file serving
+ * @return bool false if file not found, does not return if found - just send the file
+ */
 function totara_program_pluginfile($course, $cm, $context, $filearea, $args, $forcedownload, $options=array()) {
+    global $USER;
+
+    $programid = $context->instanceid;
     $component = 'totara_program';
     $itemid = $args[0];
     $filename = $args[1];
-    $fs = get_file_storage();
 
+    if (!isloggedin()) {
+        send_file_not_found();
+    }
+
+    if (!has_capability("totara/program:viewprogram", $context)) {
+        send_file_not_found();
+    }
+
+    $program = new program($programid);
+
+    // If the file is in summary, overview, user is site admin or user has capability to edit the program don't worry if they are assigned to the program.
+    if (!(is_siteadmin($USER) || has_capability('totara/program:configuredetails', $context)) && $filearea != 'summary' && $filearea != 'overviewfiles') {
+        if (!$program->user_is_assigned($USER->id)) {
+            send_file_not_found();
+        }
+    }
+
+    if (!$program->is_viewable($USER)) {
+        send_file_not_found();
+    }
+
+    $fs = get_file_storage();
     $file = $fs->get_file($context->id, $component, $filearea, $itemid, '/', $filename);
 
     if (empty($file)) {
         send_file_not_found();
     }
 
-    send_stored_file($file, 60*60*24, 0, false, $options); //enable long cache and disable forcedownload
+    send_stored_file($file, 60*60*24, 0, false, $options); // Enable long cache and disable forcedownload
 }
 
 /**

@@ -63,7 +63,8 @@ class tabexport_source extends \totara_core\tabexport_source {
             }
         }
 
-        $this->rs = $DB->get_recordset_sql($sql . $order, $params);
+        $reportdb = $this->report->get_report_db();
+        $this->rs = $reportdb->get_recordset_sql($sql . $order, $params);
     }
 
     /**
@@ -129,7 +130,8 @@ class tabexport_source extends \totara_core\tabexport_source {
 
         list($sql, $params) = $this->report->build_query(false, true, true);
 
-        $rs = $DB->get_recordset_sql($sql, $params, 0, $graphrecord->maxrecords);
+        $reportdb = $this->report->get_report_db();
+        $rs = $reportdb->get_recordset_sql($sql, $params, 0, $graphrecord->maxrecords);
         foreach($rs as $record) {
             $graph->add_record($record);
         }

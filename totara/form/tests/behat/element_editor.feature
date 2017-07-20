@@ -12,9 +12,18 @@ Feature: Totara form editor element tests
   Scenario: Test basic editor elements in Totara forms
     When I select "Basic editor element [totara_form\form\testform\element_editor]" from the "Test form" singleselect
     Then I should see "Form: Basic editor element"
+    And I should see the following Totara form fields having these values:
+      | Basic editor                    |               |
+      | Editor with current data        | Cheerios      |
+      | Frozen editor with current data | Sausage rolls |
+    And I should see the "Empty frozen editor" Totara form field is frozen
+    And I should see the "Frozen editor with current data" Totara form field is frozen
 
     When I set the following Totara form fields to these values:
-      | Basic editor | One |
+      | Basic editor          | One |
+      | Required basic editor | Two |
+    And I should see the following Totara form fields having these values:
+      | Basic editor          | One |
       | Required basic editor | Two |
     And I press "Save changes"
     Then I should see "The form has been submit"
@@ -119,8 +128,18 @@ Feature: Totara form editor element tests
     When I select "Basic editor element [totara_form\form\testform\element_editor]" from the "Test form" singleselect
     Then I should see "Form: Basic editor element"
     And I should see "There are required fields in this form marked"
+    And I should see the following Totara form fields having these values:
+      | Basic editor                    |               |
+      | Editor with current data        | Cheerios      |
+      | Frozen editor with current data | Sausage rolls |
+    And I should see the "Empty frozen editor" Totara form field is frozen
+    And I should see the "Frozen editor with current data" Totara form field is frozen
+
     When I set the following Totara form fields to these values:
-      | Basic editor | One |
+      | Basic editor          | One |
+      | Required basic editor | Two |
+    And I should see the following Totara form fields having these values:
+      | Basic editor          | One |
       | Required basic editor | Two |
     And I press "Save changes"
     Then I should see "The form has been submit"
@@ -243,7 +262,7 @@ Feature: Totara form editor element tests
     When I set the following Totara form fields to these values:
       | Basic editor | One |
       | Required basic editor | Two |
-      | Text with current data | Three |
+      | Editor with current data | Three |
       | Visible when 'Hidden if reference' is not empty | Four |
       | Visible when 'Hidden if reference' equals 'Behat' | Five |
       | Visible when 'Hidden if reference' is filled | Six |

@@ -33,85 +33,59 @@ use Behat\Mink\Exception\ExpectationException;
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @package totara_form
  */
-class text implements base {
+class text extends element {
 
     /**
-     * The element node, containing the whole element markup.
-     * @var \Behat\Mink\Element\NodeElement
-     */
-    protected $node;
-
-    /**
-     * The context that is currently working with this element.
-     * @var \behat_totara_form
-     */
-    protected $context;
-
-    /**
-     * The type of this instance.
-     * @var string
-     */
-    protected $mytype;
-
-    /**
-     * Constructs a text behat element helper.
-     *
-     * @param \Behat\Mink\Element\NodeElement $node
-     * @param \behat_totara_form $context
-     */
-    public function __construct(\Behat\Mink\Element\NodeElement $node, \behat_totara_form $context) {
-        $this->node = $node;
-        $this->context = $context;
-        $this->mytype = str_replace('totara_form\\form\\element\\behat_helper\\', '', get_class($this));
-    }
-
-    /**
-     * Returns the text input.
+     * Returns the input element.
      *
      * @return \Behat\Mink\Element\NodeElement
-     * @throws \Behat\Mink\Exception\ExpectationException
      */
     protected function get_text_input() {
         $id = $this->node->getAttribute('data-element-id');
-        $idliteral = $this->context->getSession()->getSelectorsHandler()->xpathLiteral($id);
+        $idliteral = \behat_context_helper::escape($id);
         $texts = $this->node->findAll('xpath', "//input[@id={$idliteral}]");
         if (empty($texts) || !is_array($texts)) {
-            throw new ExpectationException('Could not find expected ' . $this->mytype . ' input ('.$idliteral.')', $this->context->getSession());
+            throw new ExpectationException("Could not find expected {$this->mytype} input: {$this->locator}", $this->context->getSession());
         }
         if (count($texts) > 1) {
-            throw new ExpectationException('Found multiple ' . $this->mytype . ' inputs where only one was expected', $this->context->getSession());
+            throw new ExpectationException("Found multiple {$this->mytype} inputs where only one was expected: {$this->locator}", $this->context->getSession());
         }
         return reset($texts);
     }
 
     /**
-     * Returns the value of the text if it is checked, or the unchecked value otherwise.
+     * Returns the value of the input.
      *
      * @return string
-     * @throws \Behat\Mink\Exception\ExpectationException
      */
-    public function get_value() {
-        $text = $this->get_text_input();
-        if ($this->context->running_javascript() && !$text->isVisible()) {
-            throw new ExpectationException('Attempting to change a ' . $this->mytype . ' that is not visible', $this->context->getSession());
-        }
-        return $text->getValue();
+    protected function get_value() {
+        return (string)$this->get_text_input()->getValue();
     }
 
     /**
      * Sets the value of the text input
      *
      * @param string $value
-     * @throws \Behat\Mink\Exception\ExpectationException
      */
     public function set_value($value) {
         $text = $this->get_text_input();
-        if ($this->context->running_javascript() && !$text->isVisible()) {
-            throw new ExpectationException('Attempting to change a ' . $this->mytype . ' that is not visible', $this->context->getSession());
-        }
         // Do not call any normalise_value_pre_set here,
         // because it would end up in double normalisation in some cases,
         // instead override this method to normalise the values if necessary.
         $text->setValue($value);
     }
+
+    /**
+     * Asserts the field has expected value.
+     *
+     * @param string $expectedvalue
+     * @return void
+     */
+    public function assert_value($expectedvalue) {
+        if ($expectedvalue === $this->get_value()) {
+            return;
+        }
+        throw new ExpectationException("Totara form {$this->mytype} element '{$this->locator}' does not match expected value: {$expectedvalue}", $this->context->getSession());
+    }
+
 }

@@ -12,9 +12,18 @@ Feature: Totara form text element tests
   Scenario: Test basic text elements in Totara forms
     When I select "Basic text element [totara_form\form\testform\element_text]" from the "Test form" singleselect
     Then I should see "Form: Basic text element"
+    And I should see the following Totara form fields having these values:
+      | Basic text                    |               |
+      | Text with current data        | Cheerios      |
+      | Frozen text with current data | Sausage rolls |
+    And I should see the "Empty frozen text" Totara form field is frozen
+    And I should see the "Frozen text with current data" Totara form field is frozen
 
     When I set the following Totara form fields to these values:
       | Basic text | One |
+      | Required basic text | Two |
+    And I should see the following Totara form fields having these values:
+      | Basic text          | One |
       | Required basic text | Two |
     And I press "Save changes"
     Then I should see "The form has been submit"
@@ -37,6 +46,11 @@ Feature: Totara form text element tests
 
     When I press "Reset"
     Then I should see "Form: Basic text element"
+    And I should see the following Totara form fields having these values:
+      | Basic text                    |               |
+      | Text with current data        | Cheerios      |
+      | Frozen text with current data | Sausage rolls |
+
     When I set the following Totara form fields to these values:
       | Basic text | 2016 |
       | Required basic text | Two |
@@ -119,8 +133,18 @@ Feature: Totara form text element tests
     When I select "Basic text element [totara_form\form\testform\element_text]" from the "Test form" singleselect
     Then I should see "Form: Basic text element"
     And I should see "There are required fields in this form marked"
+    And I should see the following Totara form fields having these values:
+      | Basic text                    |               |
+      | Text with current data        | Cheerios      |
+      | Frozen text with current data | Sausage rolls |
+    And I should see the "Empty frozen text" Totara form field is frozen
+    And I should see the "Frozen text with current data" Totara form field is frozen
+
     When I set the following Totara form fields to these values:
       | Basic text | One |
+      | Required basic text | Two |
+    And I should see the following Totara form fields having these values:
+      | Basic text          | One |
       | Required basic text | Two |
     And I press "Save changes"
     Then I should see "The form has been submit"

@@ -23,3 +23,4 @@
  */
 $string['pluginname'] = 'Report Builder MSSQL support';
 $string['mssqlgroupconcatfail'] = 'Automatic update failed with reason "{$a}". Please, copy code from textarea below and execute it in MSSQL Server as Server Admin role. Afterwards refresh this page.';
+$string['requiredreadcommittedsnapshot'] = 'Invalid database setting detected, you must enable reading of committed snapshots: ALTER DATABASE yourdatabasename SET READ_COMMITTED_SNAPSHOT ON;';

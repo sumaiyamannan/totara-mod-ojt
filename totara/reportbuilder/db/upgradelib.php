@@ -138,6 +138,86 @@ function totara_reportbuilder_migrate_filter_types($values, $oldtype, $newtype) 
 
 /**
  * Update the filters in any saved searches, generally used after migrating filter types.
+ *
+ * NOTE: This is a generic function suitable for general use
+ * when migrating saved search data for any filter. This should
+ * be used instead of {@link totara_reportbuilder_migrate_saved_search_filters()} which was specific to the 2.9 -> 9.0
+ * multiple jobs migration.
+ *
+ * @param string $source Name of the source or '*' to update all sources
+ * @param string $oldtype The type of the item to change
+ * @param string $oldvalue The value of the item to change
+ * @param string $newtype The new type of the item
+ * @param string $newvalue The new value of the item
+ * @return boolean True if data was updated, false otherwise.
+ *
+ */
+function totara_reportbuilder_migrate_saved_searches($source, $oldtype, $oldvalue, $newtype, $newvalue) {
+    global $DB;
+
+    $savedsearchesupdated = false;
+
+    if ($source == '*') {
+        $sourcesql = '';
+        $params = array();
+    } else {
+        $sourcesql = ' WHERE rb.source = :source';
+        $params = array('source' => $source);
+    }
+
+    // Get all saved searches for specified source.
+    $sql = "SELECT rbs.* FROM {report_builder_saved} rbs
+        JOIN {report_builder} rb
+        ON rb.id = rbs.reportid
+        {$sourcesql}";
+    $savedsearches = $DB->get_records_sql($sql, $params);
+
+    // Loop through them all and json_decode
+    foreach ($savedsearches as $saved) {
+        if (empty($saved->search)) {
+            continue;
+        }
+
+        $search = unserialize($saved->search);
+
+        if (!is_array($search)) {
+            continue;
+        }
+
+        // Check for any filters that will need to be updated.
+        $update = false;
+        foreach ($search as $oldkey => $info) {
+            list($type, $value) = explode('-', $oldkey);
+
+            if ($type == $oldtype && $value == $oldvalue) {
+                $update = true;
+
+                $newkey = "{$newtype}-{$newvalue}";
+                $search[$newkey] = $info;
+                unset($search[$oldkey]);
+            }
+        }
+
+        if ($update) {
+            // Re encode and update the database.
+            $todb = new \stdClass;
+            $todb->id = $saved->id;
+            $todb->search = serialize($search);
+            $DB->update_record('report_builder_saved', $todb);
+            $savedsearchesupdated = true;
+        }
+    }
+
+    return $savedsearchesupdated;
+}
+
+/**
+ * Update the filters in any saved searches, generally used after migrating filter types.
+ *
+ * NOTE: this function contains code specific to the migration
+ * from 2.9 to 9.0 for multiple jobs. DO NOT USE this function
+ * for generic saved search migrations, use
+ * {@link totara_reportbuilder_migrate_saved_searches()} instead.
  */
 function totara_reportbuilder_migrate_saved_search_filters($values, $oldtype, $newtype) {
     global $DB;

@@ -186,7 +186,12 @@ class sqlsrv_native_moodle_database extends moodle_database {
         sqlsrv_configure("LogSeverity", SQLSRV_LOG_SEVERITY_ERROR);
 
         $this->store_settings($dbhost, $dbuser, $dbpass, $dbname, $prefix, $dboptions);
-        $this->sqlsrv = sqlsrv_connect($this->dbhost, array
+        $dbhost = $this->dbhost;
+        if (!empty($dboptions['dbport'])) {
+            $dbhost .= ','.$dboptions['dbport'];
+        }
+
+        $this->sqlsrv = sqlsrv_connect($dbhost, array
          (
           'UID' => $this->dbuser,
           'PWD' => $this->dbpass,
@@ -1302,6 +1307,7 @@ class sqlsrv_native_moodle_database extends moodle_database {
      */
     public function sql_like_escape($text, $escapechar = '\\') {
         // Totara fix for weird [] LIKEs in SQL Server.
+        $text = str_replace($escapechar, $escapechar.$escapechar, $text);
         $text = str_replace('_', $escapechar.'_', $text);
         $text = str_replace('%', $escapechar.'%', $text);
         $text = str_replace('[', $escapechar.'[', $text);
@@ -1572,55 +1578,17 @@ class sqlsrv_native_moodle_database extends moodle_database {
     }
 
     /**
-     * Inject COUNT('x') OVER() column for counted queries.
-     *
-     * IMPORTANT LIMITATION: If query has "SELECT" as column, it must have FROM otherwise this microparser will require decent state machine.
-     *
-     * @throws dml_exception if the query has "SELECT" as a column but no "FROM" clause.
-     * @param string $sql
-     * @param string $countfieldname The name to use for the count field.
-     * @return string $sql with counted column
-     */
-    private function add_count_over_column($sql, $countfieldname) {
-        // Microparser to get first topmost FROM to insert COUNT OVER before it.
-        $tokens = preg_split('/[\,\s\)]+|(\()|(\))/is', $sql, -1, PREG_SPLIT_OFFSET_CAPTURE|PREG_SPLIT_NO_EMPTY);
-        $sqlcnt = '';
-        $level = 0;
-        $found = false;
-        foreach ($tokens as $token) {
-            $itoken = strtoupper($token[0]);
-            if ($itoken == 'SELECT') {
-                $level++;
-            }
-            if ($itoken == 'FROM') {
-                $level--;
-                if ($level == 0) {
-                    $found = true;
-                    $sqlcnt = substr($sql, 0, $token[1]) . ', COUNT(\'x\') OVER () AS ' . $countfieldname . ' ' . substr($sql, $token[1]);
-                    break;
-                }
-            }
-        }
-        if (!$found) {
-            throw new dml_exception("Cannot use counted query: root SELECT doesn't have FROM clause");
-        }
-        return $sqlcnt;
-    }
-
-    /**
      * Get a number of records as a moodle_recordset and count of rows without limit statement using a SQL statement.
-     * This is usefull for pagination to avoid second COUNT(*) query.
+     * This is useful for pagination to avoid second COUNT(*) query.
      *
      * IMPORTANT NOTES:
      *   - Wrap queries with UNION in single SELECT. Otherwise an incorrect count will ge given.
-     *   - If query has a "SELECT" as column, it must have FROM otherwise state may be lost and the query will fail.
-     *     Known to affect MSSQL see mssql_native_moodle_database::add_count_over_column().
+     *   - If an offset greater than 0 and greater than the total number of records is given the SQL query will be
+     *     executed twice, a second time with a 0 offset and limit 1 in order to get a true total count.
      *
      * Since this method is a little less readable, use of it should be restricted to
      * code where it's possible there might be large datasets being returned.  For known
      * small datasets use get_records_sql - it leads to simpler code.
-     *
-     * The return type is like {@link function get_recordset}.
      *
      * @since Totara 2.6.45, 2.7.28, 2.9.20, 9.8
      *
@@ -1631,16 +1599,38 @@ class sqlsrv_native_moodle_database extends moodle_database {
      * @param int &$count this variable will be filled with count of rows returned by select without limit statement
      * @return counted_recordset A moodle_recordset instance.
      * @throws dml_exception A DML specific exception is thrown for any errors.
+     * @throws coding_exception If an invalid result not containing the count is experienced
      */
     public function get_counted_recordset_sql($sql, array $params=null, $limitfrom = 0, $limitnum = 0, &$count = 0) {
         global $CFG;
-
         require_once($CFG->libdir.'/dml/counted_recordset.php');
 
-        $countfield = 'dml_sqlsrv_count_rows';
-        $sqlcnt = $this->add_count_over_column($sql, $countfield);
+        if (!preg_match('/^\s*SELECT\s/is', $sql)) {
+            throw new dml_exception('dmlcountedrecordseterror', null, "Counted recordset query must start with SELECT");
+        }
+
+        $countorfield = 'dml_count_recordset_rows';
+        $sqlcnt = preg_replace('/^\s*SELECT\s/is', "SELECT COUNT('x') OVER () AS {$countorfield}, ", $sql);
+
         $recordset = $this->get_recordset_sql($sqlcnt, $params, $limitfrom, $limitnum);
-        $recordset = new counted_recordset($recordset, $countfield);
+        if ($limitfrom > 0 and !$recordset->valid()) {
+            // Bad luck, we are out of range and do not know how many are there, we need to make another query.
+            $rs2 = $this->get_recordset_sql($sqlcnt, $params, 0, 1);
+            if ($rs2->valid()) {
+                $current = $rs2->current();
+                $rs2->close();
+                if (!property_exists($current, $countorfield)) {
+                    throw new dml_exception("Expected column {$countorfield} used for counting records without limit was not found");
+                } else if (!isset($current->{$countorfield})) {
+                    throw new coding_exception("Invalid count result in {$countorfield} used for counting records without limit");
+                }
+                $recordset = new counted_recordset($recordset, (int)$current->{$countorfield});
+                $count = $recordset->get_count_without_limits();
+                return $recordset;
+            }
+            $rs2->close();
+        }
+        $recordset = new counted_recordset($recordset, $countorfield);
         $count = $recordset->get_count_without_limits();
 
         return $recordset;

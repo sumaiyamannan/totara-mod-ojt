@@ -3422,7 +3422,7 @@ class appraisal_page {
             $paramsstageids = array($stageid);
         }
 
-        $sql = "SELECT DISTINCT ap.*, ast.timedue
+        $sql = "SELECT DISTINCT ap.*, ast.id AS stageid, ast.timedue
                   FROM {appraisal_stage_page} ap
                   JOIN {appraisal_stage} ast
                     ON ap.appraisalstageid = ast.id
@@ -3432,7 +3432,7 @@ class appraisal_page {
                     ON aqfr.appraisalquestfieldid = aqf.id
                  WHERE ap.appraisalstageid {$sqlstageids}
                    AND aqfr.appraisalrole = ? AND {$sqlrights}
-                 ORDER BY ast.timedue, ap.sortorder";
+                 ORDER BY ast.timedue, ast.id, ap.sortorder";
         $params = array_merge($paramsstageids, array($role), $paramrights);
         $pagesrs = $DB->get_records_sql($sql, $params);
 

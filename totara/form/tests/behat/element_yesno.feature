@@ -45,8 +45,6 @@ Feature: Totara form yesno element tests
       | Basic yesno | Yes |
       | Required basic yesno | Yes |
       | yesno with current data | No |
-      | Empty frozen yesno | No |
-      | Frozen yesno with current data | No |
       | Hidden if reference | Yes |
       | A is visible when hiddenif reference is yes | Yes |
       | D is visible when hiddenif reference is yes | Yes |

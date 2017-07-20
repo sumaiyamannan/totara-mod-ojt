@@ -80,7 +80,14 @@
     <div class="tf_element_input">{{> totara_form/validation_errors}}<select id="{{id}}" {{#frozen}}disabled data-{{/frozen}}name="{{name}}"
                                                                         {{#required}}required{{/required}} {{#size}}size="{{.}}"{{/size}} >
         {{#options}}
-            <option value="{{value}}" {{#selected}}selected{{/selected}}>{{{text}}}</option>
+            {{#group}}
+                <optgroup label="{{label}}">
+                    {{#options}}
+                        <option value="{{value}}" {{#selected}}selected{{/selected}}>{{{text}}}</option>
+                    {{/options}}
+                </optgroup>
+            {{/group}}
+            {{^group}}<option value="{{value}}" {{#selected}}selected{{/selected}}>{{{text}}}</option>{{/group}}
         {{/options}}
     </select></div>
 </div>

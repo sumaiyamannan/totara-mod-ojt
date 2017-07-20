@@ -158,9 +158,13 @@ class rb_filter_category extends rb_filter_type {
         switch($operator) {
             case 1:
                 $notlike = false;
+                $equal = '=';
+                $logicaloperator = 'OR';
                 break;
             case 2:
                 $notlike = true;
+                $equal = '<>';
+                $logicaloperator = 'AND';
                 break;
             default:
                 // Return 1=1 instead of TRUE for MSSQL support.
@@ -183,17 +187,13 @@ class rb_filter_category extends rb_filter_type {
             $path = $DB->get_field('course_categories', 'path', array('id' => $itemid));
             $uniqueparam  = rb_unique_param("ccp_{$count}");
             $uniqueparam2 = rb_unique_param("ccp2_{$count}");
-            if ($operator == 2) {
-                $sql .= '((' . $DB->sql_like($query, ":{$uniqueparam}", true, true, $notlike) .
-                                                ") AND ( {$query} <> :{$uniqueparam2} ))";
-                $params[$uniqueparam] = $DB->sql_like_escape($path) . $recursive;
-                $params[$uniqueparam2] = $path;
-            } else {
-                $sql .= '((' . $DB->sql_like($query, ":{$uniqueparam}", true, true, $notlike) .
-                                                ") OR ( {$query} = :{$uniqueparam2} ))";
-                $params[$uniqueparam] = $DB->sql_like_escape($path) . $recursive;
-                $params[$uniqueparam2] = $path;
+            $sqlquery = "({$query} {$equal} :{$uniqueparam})";
+            $params[$uniqueparam] = $path;
+            if (!empty($recursive)) {
+                $sqlquery = "({$sqlquery} {$logicaloperator} (" . $DB->sql_like($query, ":{$uniqueparam2}", true, true, $notlike) . '))';
+                $params[$uniqueparam2] = $DB->sql_like_escape($path) . $recursive;
             }
+            $sql .= $sqlquery;
             $count++;
         }
 
