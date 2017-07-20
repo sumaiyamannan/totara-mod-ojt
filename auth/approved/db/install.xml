@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<XMLDB PATH="auth/approved/db" VERSION="2017051600" COMMENT="XMLDB file for self-registration with approval auth plugin"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
+<XMLDB PATH="auth/approved/db" VERSION="20170516" COMMENT="XMLDB file for self-registration with approval auth plugin"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
 >
   <TABLES>
     <TABLE NAME="auth_approved_request" COMMENT="Self registration with approval details">
@@ -35,9 +35,6 @@
         <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
         <FIELD NAME="timeresolved" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
       </FIELDS>
-      <INDEXES>
-        <INDEX NAME="confirmtoken" UNIQUE="true" FIELDS="confirmtoken"/>
-      </INDEXES>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
         <KEY NAME="positionid" TYPE="foreign" FIELDS="positionid" REFTABLE="pos" REFFIELDS="id"/>
@@ -46,6 +43,9 @@
         <KEY NAME="userid" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id"/>
         <KEY NAME="resolvedby" TYPE="foreign" FIELDS="resolvedby" REFTABLE="user" REFFIELDS="id"/>
       </KEYS>
+      <INDEXES>
+        <INDEX NAME="confirmtoken" UNIQUE="true" FIELDS="confirmtoken"/>
+      </INDEXES>
     </TABLE>
     <TABLE NAME="auth_approved_request_snapshots" COMMENT="History of auth_approved_request records">
       <FIELDS>
