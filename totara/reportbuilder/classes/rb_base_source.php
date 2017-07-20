@@ -846,14 +846,21 @@ abstract class rb_base_source {
      * @return string The percentage with 1 decimal place
      */
     function rb_display_course_grade_percent($item, $row) {
-        if ($item === null || $item === '' || empty($row->maxgrade)) {
+        if ($row->status == COMPLETION_STATUS_COMPLETEVIARPL && !empty($row->rplgrade)) {
+            // If RPL then print the RPL grade.
+            return sprintf('%.1f%%', $row->rplgrade);
+        } else if (!empty($row->maxgrade) && !empty($item)) {
+            // Create a percentage using the max grade.
+            $percent = ($item / $row->maxgrade) * 100;
+
+            return sprintf('%.1f%%', $percent);
+        } else if ($item !== null && $item !== '') {
+            // If the item has a value show it.
+            return $item;
+        } else {
+            // Otherwise show a '-'
             return '-';
         }
-
-        // Create a percentage using the max grade.
-        $percent = ($item / $row->maxgrade) * 100;
-
-        return sprintf('%.1f%%', $percent);
     }
 
     /**

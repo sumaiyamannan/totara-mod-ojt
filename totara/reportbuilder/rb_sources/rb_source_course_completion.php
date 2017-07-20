@@ -304,7 +304,9 @@ class rb_source_course_completion extends rb_base_source {
                 array(
                     'joins' => 'grade_grades',
                     'extrafields' => array(
-                        'maxgrade' => 'grade_grades.rawgrademax'
+                        'maxgrade' => 'grade_grades.rawgrademax',
+                        'rplgrade' => 'base.rplgrade',
+                        'status' => 'base.status'
                     ),
                     'displayfunc' => 'course_grade_percent',
                 )
