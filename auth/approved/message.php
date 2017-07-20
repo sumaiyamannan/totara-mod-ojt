@@ -32,6 +32,9 @@ $PAGE->set_url('/auth/approved/message.php');
 $PAGE->set_context($syscontext);
 $PAGE->set_pagelayout('report');
 
+\navigation_node::override_active_url(\auth_approved\util::get_report_url($reportid), true);
+$PAGE->navbar->add(get_string('message', 'auth_approved'));
+
 require_login();
 require_capability('auth/approved:approve', $syscontext);
 
