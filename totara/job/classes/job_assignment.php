@@ -1744,9 +1744,10 @@ class job_assignment {
      * data that is for display, and has formatted those parts that need formatting.
      *
      * @param \renderer_base $output
+     * @param integer $courseid     The optional course id param for the view url.
      * @return \stdClass
      */
-    public function export_for_template(\renderer_base $output) {
+    public function export_for_template(\renderer_base $output, $courseid = null) {
 
         // Lets re-use the get_data method. Its a great starting point.
         $data = new \stdClass();
@@ -1767,7 +1768,13 @@ class job_assignment {
         $data->tempmanagerjaid        = $this->tempmanagerjaid;
         $data->appraiserid            = $this->appraiserid;
         $data->sortorder              = $this->sortorder;
-        $data->editurl = new \moodle_url('/totara/job/jobassignment.php', array('jobassignmentid' => $this->id));
+
+        $urlparams = array('jobassignmentid' => $this->id);
+        if (!empty($courseid)) {
+            $urlparams['course'] = $courseid;
+        }
+        $editurl = new \moodle_url('/totara/job/jobassignment.php', $urlparams);
+        $data->editurl = $editurl->out(false);
 
         $dates = ['startdate', 'enddate', 'positionassignmentdate', 'tempmanagerexpirydate', 'timecreated', 'timemodified'];
         foreach ($dates as $date) {
