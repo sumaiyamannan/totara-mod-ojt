@@ -34,7 +34,7 @@ function totara_gap_can_edit_aspirational_position($userid) {
         return true;
     }
 
-    if (!empty($userid)) {
+    if (!empty($userid) && $userid > 0) {
         $personalcontext = context_user::instance($userid);
 
         // can assign this particular user's position
