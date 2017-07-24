@@ -118,7 +118,7 @@ class feedback_item_info extends feedback_item_base {
                 switch($presentation) {
                     case 1:
                         $datavalue->value = $value->value;
-                        $datavalue->show = userdate($datavalue->value);
+                        $datavalue->show = empty($datavalue->value) ? '-' : userdate($datavalue->value);
                         break;
                     case 2:
                         $datavalue->value = $value->value;
