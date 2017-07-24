@@ -737,7 +737,7 @@ from
         $competencyid = isset($row->competencyid) ? $row->competencyid : null;
 
         if (!$planid) {
-            return '';
+            return $status;
         } else {
             if (array_key_exists($planid, $this->dp_plans)) {
                 $plan = $this->dp_plans[$planid];
