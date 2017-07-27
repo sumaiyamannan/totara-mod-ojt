@@ -142,8 +142,8 @@ class totara_reportbuilder_lib_testcase extends advanced_testcase {
         $rbcol8 = new stdClass();
         $rbcol8->reportid = $report->id;
         $rbcol8->type = 'competency_evidence';
-        $rbcol8->value = 'completeddate';
-        $rbcol8->heading = 'Completion Date';
+        $rbcol8->value = 'timemodified';
+        $rbcol8->heading = 'Time Modified';
         $rbcol8->sortorder = 8;
         $rbcol8->hidden = 0;
         $rbcol8->customheading = 0;
@@ -202,7 +202,7 @@ class totara_reportbuilder_lib_testcase extends advanced_testcase {
         $rbfilter7 = new stdClass();
         $rbfilter7->reportid = $report->id;
         $rbfilter7->type = 'competency_evidence';
-        $rbfilter7->value = 'completeddate';
+        $rbfilter7->value = 'timemodified';
         $rbfilter7->advanced = 0;
         $rbfilter7->sortorder = 7;
         $rbfilter7->id = $DB->insert_record('report_builder_filters', $rbfilter7);
@@ -502,6 +502,7 @@ class totara_reportbuilder_lib_testcase extends advanced_testcase {
         $comprecord->assessorname = 'Assessor';
         $comprecord->assessmenttype = '';
         $comprecord->proficiency = 1;
+        $comprecord->timeproficient = 1100775600;
         $comprecord->timecreated = 1100775600;
         $comprecord->timemodified = 1100775600;
         $comprecord->reaggregate = 0;
@@ -1007,7 +1008,7 @@ class totara_reportbuilder_lib_testcase extends advanced_testcase {
                     'value' => 'fire',
                 )
             ),
-            'competency_evidence-completeddate' => array(
+            'competency_evidence-timemodified' => array(
                 array(
                     'after' => 0,
                     'before' => 1271764800,
@@ -1458,7 +1459,7 @@ class totara_reportbuilder_lib_testcase extends advanced_testcase {
         $this->assertArrayHasKey($compstr, $filters);
         $this->assertArrayHasKey($userstr, $filters);
 
-        $this->assertArrayHasKey('competency_evidence-completeddate', $filters[$compevidstr]);
+        $this->assertArrayHasKey('competency_evidence-timemodified', $filters[$compevidstr]);
         $this->assertArrayHasKey('competency-fullname', $filters[$compstr]);
         $this->assertArrayHasKey('user-fullname', $filters[$userstr]);
     }

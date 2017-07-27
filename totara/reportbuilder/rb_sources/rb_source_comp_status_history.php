@@ -153,6 +153,13 @@ class rb_source_comp_status_history extends rb_base_source {
             ),
             new rb_column_option(
                 'history',
+                'proficientdate',
+                get_string('proficientdate', 'rb_source_competency_evidence'),
+                'base.timeproficient',
+                array('displayfunc' => 'nice_date', 'dbdatatype' => 'timestamp')
+            ),
+            new rb_column_option(
+                'history',
                 'timemodified',
                 get_string('comptimemodifiedcolumn', 'rb_source_comp_status_history'),
                 'base.timemodified',
@@ -198,7 +205,15 @@ class rb_source_comp_status_history extends rb_base_source {
                 get_string('comptimemodifiedcolumn', 'rb_source_comp_status_history'),
                 'date',
                 array('includetime' => true)
-            )
+            ),
+            new rb_filter_option(
+                'history',
+                'proficientdate',
+                get_string('proficientdate', 'rb_source_competency_evidence'),
+                'date',
+                array()
+            ),
+
         );
 
         $this->add_user_fields_to_filters($filteroptions);

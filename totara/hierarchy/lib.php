@@ -88,26 +88,33 @@ function totara_hierarchy_install_default_comp_scale() {
     global $USER, $DB;
     $now = time();
 
-    $todb = new stdClass;
-    $todb->name = get_string('competencyscale', 'totara_hierarchy');
-    $todb->description = '';
-    $todb->usermodified = $USER->id;
-    $todb->timemodified = $now;
-    $scaleid = $DB->insert_record('comp_scale', $todb);
+    $scale = new stdClass;
+    $scale->name = get_string('competencyscale', 'totara_hierarchy');
+    $scale->description = '';
+    $scale->usermodified = $USER->id;
+    $scale->timemodified = $now;
+    $scaleid = $DB->insert_record('comp_scale', $scale);
 
     $comp_scale_vals = array(
         array('name'=>get_string('competent', 'totara_hierarchy'), 'scaleid' => $scaleid, 'sortorder' => 1, 'usermodified' => $USER->id, 'timemodified' => $now, 'proficient' => 1),
         array('name'=>get_string('competentwithsupervision', 'totara_hierarchy'), 'scaleid' => $scaleid, 'sortorder' => 2, 'usermodified' => $USER->id, 'timemodified' => $now),
         array('name'=>get_string('notcompetent', 'totara_hierarchy'), 'scaleid' => $scaleid, 'sortorder' => 3, 'usermodified' => $USER->id, 'timemodified' => $now)
-        );
+    );
 
     foreach ($comp_scale_vals as $svrow) {
-        $todb = new stdClass;
+        $svalue = new stdClass;
         foreach ($svrow as $key => $val) {
             // Insert default competency scale values, if non-existent
-            $todb->$key = $val;
+            $svalue->$key = $val;
         }
-        $svid = $DB->insert_record('comp_scale_values', $todb);
+        $svid = $DB->insert_record('comp_scale_values', $svalue);
+
+        // Make the notcompetent scale value the default for the scale.
+        if ($svalue->sortorder == 3) {
+            $scale->id = $scaleid;
+            $scale->defaultid = $svid;
+            $DB->update_record('comp_scale', $scale);
+        }
     }
 
     unset($comp_scale_vals, $scaleid, $svid, $todb);
