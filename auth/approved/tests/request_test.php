@@ -1080,4 +1080,210 @@ class auth_approved_request_testcase extends advanced_testcase {
         $this->assertArrayHasKey('managerfreetext', $errors);
         $this->assertContains(get_string('errormissingmgr', 'auth_approved'), $errors['managerfreetext']);
     }
+
+    private function hierarchy_data($type, $no) {
+        $generator = $this->getDataGenerator()->get_plugin_generator('totara_hierarchy');
+        $hierarchyfn = "create_$type";
+        $hierarchyframeworkfn = $hierarchyfn . "_frame";
+
+        $frameworkids = array_map(
+            function ($i) use ($generator, $hierarchyframeworkfn) {
+                return (int)$generator->$hierarchyframeworkfn([])->id;
+            },
+
+            range(0, $no)
+            );
+
+        $hierarchyids = array_map(
+            function ($frameworkid) use ($generator, $hierarchyfn) {
+                $data = ['frameworkid' => $frameworkid];
+                return (int)$generator->$hierarchyfn($data)->id;
+            },
+
+            $frameworkids
+            );
+
+        return [$frameworkids, $hierarchyids];
+    }
+
+    public function test_valid_signup_positionid() {
+        $this->resetAfterTest();
+
+        list($frameworks, $hierarchies) = $this->hierarchy_data('pos', 10);
+        $delimiter = 3;
+        $excludedframeworks = array_slice($frameworks, $delimiter);
+        $excludedpositions = array_slice($hierarchies, $delimiter);
+        $includedpositions = array_slice($hierarchies, 0, $delimiter);
+        $includedframeworks = array_slice($frameworks, 0, $delimiter);
+        $included = implode(',', $includedframeworks);
+
+        set_config('allowposition', false, 'auth_approved');
+        set_config('positionframeworks', $included, 'auth_approved');
+        $validpositionid = $includedpositions[0];
+        $this->assertFalse(\auth_approved\request::is_valid_signup_positionid($validpositionid), 'id not required');
+
+        set_config('allowposition', true, 'auth_approved');
+        set_config('positionframeworks', $included, 'auth_approved');
+        $this->assertFalse(\auth_approved\request::is_valid_signup_positionid(1), 'non existent id');
+        $this->assertFalse(\auth_approved\request::is_valid_signup_positionid(0), 'empty id is true');
+
+        set_config('allowposition', true, 'auth_approved');
+        set_config('positionframeworks', '', 'auth_approved');
+        $this->assertTrue(\auth_approved\request::is_valid_signup_positionid($excludedpositions[0]), 'all positions allowed');
+
+        set_config('allowposition', true, 'auth_approved');
+        set_config('positionframeworks', $included, 'auth_approved');
+        foreach ($includedpositions as $id) {
+            $this->assertTrue(\auth_approved\request::is_valid_signup_positionid($id), 'allowed positions');
+        }
+        foreach ($excludedpositions as $id) {
+            $this->assertFalse(\auth_approved\request::is_valid_signup_positionid($id), 'disallowed positions');
+        }
+    }
+
+    public function test_valid_signup_organisationid() {
+        $this->resetAfterTest();
+
+        list($frameworks, $hierarchies) = $this->hierarchy_data('org', 10);
+        $delimiter = 5;
+        $excludedframeworks = array_slice($frameworks, $delimiter);
+        $excludedorganisations = array_slice($hierarchies, $delimiter);
+        $includedorganisations = array_slice($hierarchies, 0, $delimiter);
+        $includedframeworks = array_slice($frameworks, 0, $delimiter);
+        $included = implode(',', $includedframeworks);
+
+        set_config('alloworganisation', false, 'auth_approved');
+        set_config('organisationframeworks', $included, 'auth_approved');
+        $validorganisationid = $includedorganisations[0];
+        $this->assertFalse(\auth_approved\request::is_valid_signup_organisationid($validorganisationid), 'id not required');
+
+        set_config('alloworganisation', true, 'auth_approved');
+        set_config('organisationframeworks', $included, 'auth_approved');
+        $this->assertFalse(\auth_approved\request::is_valid_signup_organisationid(1), 'non existent id');
+        $this->assertFalse(\auth_approved\request::is_valid_signup_organisationid(0), 'empty id is true');
+
+        set_config('alloworganisation', true, 'auth_approved');
+        set_config('organisationframeworks', '', 'auth_approved');
+        $this->assertTrue(\auth_approved\request::is_valid_signup_organisationid($excludedorganisations[0]), 'all organisations allowed');
+
+        set_config('alloworganisation', true, 'auth_approved');
+        set_config('organisationframeworks', $included, 'auth_approved');
+        foreach ($includedorganisations as $id) {
+            $this->assertTrue(\auth_approved\request::is_valid_signup_organisationid($id), 'allowed organisations');
+        }
+        foreach ($excludedorganisations as $id) {
+            $this->assertFalse(\auth_approved\request::is_valid_signup_organisationid($id), 'disallowed organisations');
+        }
+    }
+
+    public function test_valid_signup_managerjaid() {
+        $this->resetAfterTest();
+
+        list($frameworks, $hierarchies) = $this->hierarchy_data('org', 10);
+        $delimiter = 5;
+        $excludedorgframeworks = array_slice($frameworks, $delimiter);
+        $excludedorganisations = array_slice($hierarchies, $delimiter);
+        $includedorganisations = array_slice($hierarchies, 0, $delimiter);
+        $includedorgframeworks = array_slice($frameworks, 0, $delimiter);
+        $includedorg = implode(',', $includedorgframeworks);
+
+        list($frameworks, $hierarchies) = $this->hierarchy_data('pos', 6);
+        $delimiter = 2;
+        $excludedposframeworks = array_slice($frameworks, $delimiter);
+        $excludedpositions = array_slice($hierarchies, $delimiter);
+        $includedpositions = array_slice($hierarchies, 0, $delimiter);
+        $includedorgframeworks = array_slice($frameworks, 0, $delimiter);
+        $includedpos = implode(',', $includedorgframeworks);
+
+        $includedjasbyposition = [];
+        foreach ($excludedorganisations as $orgid) {
+            foreach ($includedpositions as $posid) {
+                $userid = $this->getDataGenerator()->create_user()->id;
+                $ja = \totara_job\job_assignment::create([
+                    'userid' => $userid,
+                    'idnumber' => "$userid",
+                    'positionid' => $posid,
+                    'organisationid' => $orgid
+                ]);
+                $includedjasbyposition[] = $ja->id;
+            }
+        }
+
+        $includedjasbyorganisation = [];
+        foreach ($includedorganisations as $orgid) {
+            foreach ($excludedpositions as $posid) {
+                $userid = $this->getDataGenerator()->create_user()->id;
+                $ja = \totara_job\job_assignment::create([
+                    'userid' => $userid,
+                    'idnumber' => "$userid",
+                    'positionid' => $posid,
+                    'organisationid' => $orgid
+                ]);
+                $includedjasbyorganisation[] = $ja->id;
+            }
+        }
+
+        $includedjasbyboth = [];
+        foreach ($includedorganisations as $orgid) {
+            foreach ($includedpositions as $posid) {
+                $userid = $this->getDataGenerator()->create_user()->id;
+                $ja = \totara_job\job_assignment::create([
+                    'userid' => $userid,
+                    'idnumber' => "$userid",
+                    'positionid' => $posid,
+                    'organisationid' => $orgid
+                ]);
+                $includedjasbyboth[] = $ja->id;
+            }
+        }
+
+        $excludedjas[] = \totara_job\job_assignment::create([
+            'userid' => $this->getDataGenerator()->create_user()->id,
+            'idnumber' => "aaa"
+        ])->id;
+        foreach ($excludedorganisations as $orgid) {
+            foreach ($excludedpositions as $posid) {
+                $userid = $this->getDataGenerator()->create_user()->id;
+                $ja = \totara_job\job_assignment::create([
+                    'userid' => $userid,
+                    'idnumber' => "$userid",
+                    'positionid' => $posid,
+                    'organisationid' => $orgid
+                ]);
+                $excludedjas[] = $ja->id;
+            }
+        }
+
+        set_config('allowmanager', false, 'auth_approved');
+        set_config('managerorganisationframeworks', $includedorg, 'auth_approved');
+        set_config('managerpositionframeworks', $includedpos, 'auth_approved');
+        $this->assertFalse(\auth_approved\request::is_valid_signup_mgrjaid($includedjasbyboth[0]), 'ja not required');
+
+        set_config('allowmanager', true, 'auth_approved');
+        set_config('managerorganisationframeworks', $includedorg, 'auth_approved');
+        set_config('managerpositionframeworks', $includedpos, 'auth_approved');
+        $this->assertFalse(\auth_approved\request::is_valid_signup_mgrjaid(1), 'non existent jaid');
+        $this->assertFalse(\auth_approved\request::is_valid_signup_mgrjaid(0), 'empty jaid is true');
+
+        set_config('allowmanager', true, 'auth_approved');
+        set_config('managerorganisationframeworks', '', 'auth_approved');
+        set_config('managerpositionframeworks', '', 'auth_approved');
+        $this->assertTrue(\auth_approved\request::is_valid_signup_mgrjaid($excludedjas[0]), 'all jas allowed');
+
+        set_config('allowmanager', true, 'auth_approved');
+        set_config('managerorganisationframeworks', $includedorg, 'auth_approved');
+        set_config('managerpositionframeworks', $includedpos, 'auth_approved');
+        foreach ($includedjasbyposition as $id) {
+            $this->assertTrue(\auth_approved\request::is_valid_signup_mgrjaid($id), 'allowed ja by position');
+        }
+        foreach ($includedjasbyorganisation as $id) {
+            $this->assertTrue(\auth_approved\request::is_valid_signup_mgrjaid($id), 'allowed ja by organisation');
+        }
+        foreach ($includedjasbyboth as $id) {
+            $this->assertTrue(\auth_approved\request::is_valid_signup_mgrjaid($id), 'allowed ja by both');
+        }
+        foreach ($excludedjas as $id) {
+            $this->assertFalse(\auth_approved\request::is_valid_signup_mgrjaid($id), 'disallowed jas');
+        }
+    }
 }
