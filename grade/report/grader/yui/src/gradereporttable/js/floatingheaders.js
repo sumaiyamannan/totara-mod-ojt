@@ -476,39 +476,34 @@ FloatingHeaders.prototype = {
         // Get the XY for the floating element.
         coordinates = this._getRelativeXY(this.firstUserCell);
 
-        // Generate the new fields.
-        userColumn.each(function(node) {
-            var height = node.getComputedStyle(HEIGHT);
-            // Nasty hack to account for Internet Explorer
-            if(Y.UA.ie !== 0) {
-                var allHeight = node.get('offsetHeight');
-                var marginHeight = parseInt(node.getComputedStyle('marginTop'),10) +
-                    parseInt(node.getComputedStyle('marginBottom'),10);
-                var paddingHeight = parseInt(node.getComputedStyle('paddingTop'),10) +
-                    parseInt(node.getComputedStyle('paddingBottom'),10);
-                var borderHeight = parseInt(node.getComputedStyle('borderTopWidth'),10) +
-                    parseInt(node.getComputedStyle('borderBottomWidth'),10);
-                height = allHeight - marginHeight - paddingHeight - borderHeight;
-            }
-            // Create and configure the new container.
-            var containerNode = Y.Node.create('<div></div>');
-            containerNode.set('innerHTML', node.get('innerHTML'))
+        var self = this;
+
+        // TOTARA: node.getComputedStyle and 'Nasty hack' replaced with jQuery method due to bug in IE11.
+        require(['jquery'], function($) {
+
+            // Generate the new fields.
+            userColumn.each(function (node) {
+                var height = $(node.getDOMNode()).outerHeight() + 'px';
+                // Create and configure the new container.
+                var containerNode = Y.Node.create('<div></div>');
+                containerNode.set('innerHTML', node.get('innerHTML'))
                     .setAttribute('class', node.getAttribute('class'))
                     .setAttribute('data-uid', node.ancestor('tr').getData('uid'))
                     .setStyles({
                         height: height,
-                        width:  node.getComputedStyle(WIDTH)
+                        width: node.getComputedStyle(WIDTH)
                     });
 
-            // Add the new nodes to our floating table.
-            floatingUserColumn.appendChild(containerNode);
-        }, this);
+                // Add the new nodes to our floating table.
+                floatingUserColumn.appendChild(containerNode);
+            }, self);
 
-        // Style the floating user container.
-        floatingUserColumn.setStyles({
-            left:       coordinates[0] + 'px',
-            position:   'absolute',
-            top:        coordinates[1] + 'px'
+            // Style the floating user container.
+            floatingUserColumn.setStyles({
+                left: coordinates[0] + 'px',
+                position: 'absolute',
+                top: coordinates[1] + 'px'
+            });
         });
 
         // Append to the grader region.
@@ -917,27 +912,21 @@ FloatingHeaders.prototype = {
         var userWidth = this.firstUserCell.getComputedStyle(WIDTH);
         var userCells = Y.all(SELECTORS.USERCELL);
         this.userColumnHeader.one('.cell').setStyle('width', userWidth);
-        this.userColumn.all('.cell').each(function(cell, idx) {
-            var height = userCells.item(idx).getComputedStyle(HEIGHT);
-            // Nasty hack to account for Internet Explorer
-            if(Y.UA.ie !== 0) {
-                var node = userCells.item(idx);
-                var allHeight = node.getDOMNode ?
-                    node.getDOMNode().getBoundingClientRect().height :
-                    node.get('offsetHeight');
-                var marginHeight = parseInt(node.getComputedStyle('marginTop'),10) +
-                    parseInt(node.getComputedStyle('marginBottom'),10);
-                var paddingHeight = parseInt(node.getComputedStyle('paddingTop'),10) +
-                    parseInt(node.getComputedStyle('paddingBottom'),10);
-                var borderHeight = parseInt(node.getComputedStyle('borderTopWidth'),10) +
-                    parseInt(node.getComputedStyle('borderBottomWidth'),10);
-                height = allHeight - marginHeight - paddingHeight - borderHeight;
-            }
-            cell.setStyles({
-                width: userWidth,
-                height: height
-            });
-        }, this);
+
+        // TOTARA: node.getComputedStyle and 'Nasty hack' replaced with jQuery method due to bug in IE11.
+        var self = this;
+
+        require(['jquery'], function($) {
+
+            this.userColumn.all('.cell').each(function (cell, idx) {
+                var height = $(userCells.item(idx).getDOMNode()).outerHeight() + 'px';
+                cell.setStyles({
+                    width: userWidth,
+                    height: height
+                });
+            }, self);
+
+        });
 
         // Resize headers & footers.
         // This is an expensive operation, not expected to happen often.
