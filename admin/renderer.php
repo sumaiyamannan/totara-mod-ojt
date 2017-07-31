@@ -701,7 +701,7 @@ class core_admin_renderer extends plugin_renderer_base {
      * @return string HTML to output.
      */
     protected function release_notes_link() {
-        $releasenoteslink = get_string('releasenoteslink', 'admin', 'http://community.totaralms.com/mod/forum/view.php?id=1834');
+        $releasenoteslink = get_string('releasenoteslink', 'admin', 'https://totara.community/mod/forum/view.php?id=1834');
         return $this->notification($releasenoteslink, 'notifymessage');
     }
 

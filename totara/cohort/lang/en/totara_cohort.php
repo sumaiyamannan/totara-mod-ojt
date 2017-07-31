@@ -138,7 +138,7 @@ The following dynamic audience needs your attention:
 $string['cohortbrokenrulesnotice'] = 'Some broken rules have been found. While there are broken rules the audience membership will not be updated';
 $string['cohortbrokenrulesubject'] = 'Some broken rules have been found';
 $string['cohortbugheading'] = 'There was a bug in Totara 2.4.8 - 2.4.12 which may have affected your
-site. <a href="http://community.totaralms.com/mod/forum/discuss.php?d=3407" target="_blank">More information about this issue.</a>';
+site. <a href="https://totara.community/mod/forum/discuss.php?d=3407" target="_blank">More information about this issue.</a>';
 $string['cohortbugfixingxrules'] = 'The system has been able to fix {$a} audience rule(s) automatically.';
 $string['cohortbugnounfixable'] = 'All the detected issues were able to be fixed. No more action is required.';
 $string['cohortbugneedfixing'] = 'The system has determined that the following rules may have been affected, but is unable to fix them automatically. Once the upgrade is complete, please review these
