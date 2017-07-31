@@ -1992,7 +1992,7 @@ class totara_appraisal_renderer extends plugin_renderer_base {
                     $form = new appraisal_answer_form(null, array('appraisal' => $appraisal, 'page' => $page,
                     'userassignment' => $newuserassignment, 'roleassignment' => $roleassignment,
                     'otherassignments' => $otherassignments, 'spaces' => $spaces, 'nouserpic' => $nouserpic,
-                    'action' => 'print', 'preview' => false, 'islastpage' => false, 'readonly' => true),
+                    'action' => 'print', 'preview' => false, 'export' => true, 'islastpage' => false, 'readonly' => true),
                         'post', '', array('class' => 'totara-question-group'));
 
                     foreach ($assignments as $assignment) {

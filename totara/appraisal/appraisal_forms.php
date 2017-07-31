@@ -132,6 +132,7 @@ class appraisal_answer_form extends moodleform {
         $roleassignment = $this->_customdata['roleassignment'];
         $action = $this->_customdata['action'];
         $preview = $this->_customdata['preview'];
+        $export = isset($this->_customdata['export']) ? $this->_customdata['export'] : false;
         $islastpage = $this->_customdata['islastpage'];
         $otherassignments = $this->_customdata['otherassignments'];
         $readonly = isset($this->_customdata['readonly']) ? $this->_customdata['readonly'] : false;
@@ -152,6 +153,7 @@ class appraisal_answer_form extends moodleform {
         $mform->addElement('hidden', 'stageid')->setValue($page->appraisalstageid);
         $mform->addElement('hidden', 'action')->setValue($action);
         $mform->addElement('hidden', 'preview')->setValue($preview);
+        $mform->addElement('hidden', 'export')->setValue($export);
 
         $questions = appraisal_question::fetch_page_role($page->id, $roleassignment);
 
