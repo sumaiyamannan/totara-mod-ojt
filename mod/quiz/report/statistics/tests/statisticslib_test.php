@@ -37,10 +37,19 @@ require_once($CFG->dirroot . '/mod/quiz/report/statistics/statisticslib.php');
 class quiz_statistics_statisticslib_testcase extends basic_testcase {
 
     public function test_quiz_statistics_renumber_placeholders_no_op() {
+        global $DB;
+
         list($sql, $params) = quiz_statistics_renumber_placeholders(
                 ' IN (:u1, :u2)', array('u1' => 1, 'u2' => 2), 'u');
         $this->assertEquals(' IN (:u1, :u2)', $sql);
         $this->assertEquals(array('u1' => 1, 'u2' => 2), $params);
+
+        // Test exactly as it is used in code.
+        list($grpsql, $grpparams) = $DB->get_in_or_equal([3], SQL_PARAMS_NAMED, 'statsuser');
+        list($grpsql, $grpparams) = quiz_statistics_renumber_placeholders($grpsql, $grpparams, 'statsuser');
+        // Generally, we expect param name in sql and key in array params to be equal, and params value = 3
+        $this->assertEquals('= :uq_statsuser_1', $grpsql);
+        $this->assertEquals(array('uq_statsuser_1' => 3), $grpparams);
     }
 
     public function test_quiz_statistics_renumber_placeholders_work_to_do() {

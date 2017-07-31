@@ -50,6 +50,7 @@ function quiz_statistics_attempts_sql($quizid, $groupstudents, $whichattempts = 
         list($grpsql, $grpparams) = quiz_statistics_renumber_placeholders(
                 $grpsql, $grpparams, 'statsuser');
         $whereqa .= " AND quiza.userid $grpsql";
+        $qaparams = array_merge($qaparams, $grpparams);
         $qaparams += $grpparams;
     }
 
@@ -76,13 +77,15 @@ function quiz_statistics_attempts_sql($quizid, $groupstudents, $whichattempts = 
 function quiz_statistics_renumber_placeholders($sql, $params, $paramprefix) {
     $basenumber = null;
     $newparams = array();
-    $newsql = preg_replace_callback('~:' . preg_quote($paramprefix, '~') . '(\d+)\b~',
+    // This function is used only in quiz_statistics_attempts_sql() which is use $DB->get_in_or_equal, which changes prefix
+    // to uq_prefix_.
+    $newsql = preg_replace_callback('~:(' .preg_quote('uq_' . $paramprefix . '_', '~') . '|' . preg_quote($paramprefix, '~') . ')(\d+)\b~',
             function($match) use ($paramprefix, $params, &$newparams, &$basenumber) {
                 if ($basenumber === null) {
-                    $basenumber = $match[1] - 1;
+                    $basenumber = $match[2] - 1;
                 }
-                $oldname = $paramprefix . $match[1];
-                $newname = $paramprefix . ($match[1] - $basenumber);
+                $oldname = $match[1] . $match[2];
+                $newname = $match[1] . ($match[2] - $basenumber);
                 $newparams[$newname] = $params[$oldname];
                 return ':' . $newname;
             }, $sql);
