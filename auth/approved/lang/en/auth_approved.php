@@ -73,6 +73,7 @@ $string['cannotfindpos'] = 'If you are unable to find your position, please cont
 $string['cannotfindmgr'] = 'If you are unable to find your manager, please contact us at {$a}';
 $string['confirmed'] = 'Email confirmed';
 $string['confirmtokenaccepted'] = 'Thank you for confirming your account request, an email should have been sent to your address at {$a} with information describing the account approval process.';
+$string['confirmtokenacceptedapproved'] = 'Thank you for confirming your account request, you can now log in using your requested username: {$a}';
 $string['confirmtokenapproved'] = 'User account request was already approved';
 $string['confirmtokenconfirmed'] = 'User account request was already confirmed';
 $string['confirmtokeninvalid'] = 'Invalid confirmation request';

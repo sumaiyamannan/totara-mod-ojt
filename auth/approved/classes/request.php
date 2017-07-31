@@ -138,31 +138,31 @@ final class request {
      * Confirm that user owns the email address used in request.
      *
      * @param string $token
-     * @return array (bool success, string notification)
+     * @return array (bool success, string notification, continue button or null)
      */
     public static function confirm_request($token) {
         global $DB;
 
         if (strlen($token) !== 32) {
             // Cannot be a correct token, better not rely on database value comparison only.
-            return array(false, get_string('confirmtokeninvalid', 'auth_approved'));
+            return array(false, get_string('confirmtokeninvalid', 'auth_approved'), null);
         }
 
         $request = $DB->get_record('auth_approved_request', array('confirmtoken' => $token));
         if (!$request) {
-            return array(false, get_string('confirmtokeninvalid', 'auth_approved'));
+            return array(false, get_string('confirmtokeninvalid', 'auth_approved'), null);
         }
         if ($request->status == self::STATUS_APPROVED) {
-            return array(false, get_string('confirmtokenapproved', 'auth_approved'));
+            return array(false, get_string('confirmtokenapproved', 'auth_approved'), null);
         }
         if ($request->status == self::STATUS_REJECTED) {
-            return array(false, get_string('confirmtokenrejected', 'auth_approved'));
+            return array(false, get_string('confirmtokenrejected', 'auth_approved'), null);
         }
         if ($request->status != self::STATUS_PENDING) {
             throw new \coding_exception('Unknown request status');
         }
         if ($request->confirmed) {
-            return array(false, get_string('confirmtokenconfirmed', 'auth_approved'));
+            return array(false, get_string('confirmtokenconfirmed', 'auth_approved'), null);
         }
 
         $trans = $DB->start_delegated_transaction();
@@ -176,8 +176,7 @@ final class request {
 
         \auth_approved\event\request_confirmed::create_from_request($request)->trigger();
 
-        comms::email_approval_info($request);
-        comms::notify_confirmed_request($request);
+        $approved = false;
 
         $hasfreeformentry = !empty($request->positionfreetext)
                             || !empty($request->organisationfreetext)
@@ -204,10 +203,20 @@ final class request {
             $errors = self::validate_signup_form_data($data, self::STAGE_APPROVAL);
             if (!$errors) {
                 self::approve_request($request->id, '', true);
+                $approved = true;
             }
         }
 
-        return array(true, get_string('confirmtokenaccepted', 'auth_approved', $request->email));
+        if ($approved) {
+            // Do not send any confirmation about approved email,
+            // also there is no need to notify approvers any more.
+            $loginbutton = new \single_button(new \moodle_url(get_login_url()), get_string('login'), 'get');
+            return array(true, get_string('confirmtokenacceptedapproved', 'auth_approved', s($request->username)), $loginbutton);
+        } else {
+            comms::email_approval_info($request);
+            comms::notify_confirmed_request($request);
+            return array(true, get_string('confirmtokenaccepted', 'auth_approved', $request->email), null);
+        }
     }
 
     /**
