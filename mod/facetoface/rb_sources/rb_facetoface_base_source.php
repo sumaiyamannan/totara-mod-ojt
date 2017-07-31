@@ -551,7 +551,12 @@ abstract class rb_facetoface_base_source extends rb_base_source {
         }
 
         $sessionid = $row->session_id;
-        $strdate = userdate($date, get_string('strftimedate', 'langconfig'), $targetTZ);
+        if (empty($CFG->facetoface_displaysessiontimezones)) {
+            $strdate = userdate($date, get_string('strfdateshortmonth', 'langconfig'));
+        } else {
+            $strdate = userdate($date, get_string('strftimedate', 'langconfig'), $targetTZ);
+        }
+
         return $OUTPUT->action_link(new moodle_url('/mod/facetoface/attendees.php', array('s' => $sessionid)), $strdate);
     }
 
