@@ -278,6 +278,11 @@ if ($action !== false && confirm_sesskey()) {
                     $mform->display();
                 }
             } else {
+                // Show warning about deleting category
+                $warningnotification = get_string('deletecategorywarning', 'moodle', $category->get_formatted_name());
+                $notify = new \core\output\notification($warningnotification, \core\output\notification::NOTIFY_PROBLEM);
+                echo $OUTPUT->render($notify);
+
                 // Display the form.
                 $mform->display();
             }

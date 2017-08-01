@@ -472,6 +472,7 @@ $string['deletecategoryunavail'] = 'This category can not be deleted';
 $string['deletecategoryempty'] = 'This category is empty.';
 $string['deletecategorycheck'] = 'Are you absolutely sure you want to completely delete this category <b>\'{$a}\'</b>?<br />This will move all courses into the parent category if there is one, or into Miscellaneous.';
 $string['deletecategorycheck2'] = 'If you delete this category, you need to choose what to do with the courses and subcategories it contains.';
+$string['deletecategorywarning'] = '<strong>You are about to delete \'{$a}\' category</strong><br />If you do not choose to move it, all content within the category and all subcategories will be permanently lost.';
 $string['deletecomment'] = 'Delete this comment';
 $string['deletecompletely'] = 'Delete completely';
 $string['deletecourse'] = 'Delete a course';
