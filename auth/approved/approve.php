@@ -67,7 +67,7 @@ $data = request::decode_signup_form_data($request);
 $errors = request::validate_signup_form_data($data, request::STAGE_APPROVAL);
 if ($errors) {
     $errorlist = array_reduce(
-        $errors,
+        array_unique($errors),
 
         function ($str, $error) {
             $listentry = "<li>$error</li>";
