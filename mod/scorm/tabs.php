@@ -46,7 +46,7 @@ if (has_capability('mod/scorm:viewreport', $contextmodule)) {
     $row[] = new tabobject('reports', "$CFG->wwwroot/mod/scorm/report.php?id=$cm->id", get_string('reports', 'scorm'));
 }
 
-if (!($currenttab == 'info' && count($row) == 1)) {
+if (!empty($row)) {
     $tabs[] = $row;
 }
 
