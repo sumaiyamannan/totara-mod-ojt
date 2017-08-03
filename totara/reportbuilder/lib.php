@@ -1293,9 +1293,13 @@ class reportbuilder {
 
         $out = array();
         if (!empty($having_sqls)) {
+            // Remove empty values.
+            $having_sqls = array_filter($having_sqls);
             $out['having'] = implode(' AND ', $having_sqls);
         }
         if (!empty($where_sqls)) {
+            // Remove empty values.
+            $where_sqls = array_filter($where_sqls);
             $out['where'] = implode(' AND ', $where_sqls);
         }
 
