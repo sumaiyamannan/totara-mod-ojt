@@ -1178,8 +1178,14 @@ function totara_setup_assigndialogs($module, $itemid, $datatable = false, $notic
         'name' => 'totara_assigngroups',
         'fullpath' => '/totara/core/lib/assign/assigngroup_dialog.js',
         'requires' => array('json'));
-    $args = array('args' => '{"module":"'.$module.'", "suffix": "'.$suffix.'", "sesskey":"'.sesskey() .
-                            '","notice":"'.addslashes_js($notice).'"}');
+    $args = array(
+        'args' => json_encode((object)[
+            'module' => $module,
+            'suffix' => $suffix,
+            'sesskey' => sesskey(),
+            'notice' => $notice
+        ]
+    ));
 
     $PAGE->requires->js_init_call('M.totara_assigngroupdialog.init', $args, false, $jsmodule);
 
