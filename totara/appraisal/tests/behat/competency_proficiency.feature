@@ -111,7 +111,7 @@ Feature: Appraisal question: Competencies from Learning Plan - test that changin
     And I click on "Save" "button" in the "Choose competencies to review" "totaradialogue"
     And I wait "1" seconds
     Then I should see "Competency 1"
-    And I should see "Not Set"
+    And I should see "Not competent"
     And "Current competency status" "select" should not exist
 
     # Give an answer and make sure that it is saved.
@@ -119,7 +119,7 @@ Feature: Appraisal question: Competencies from Learning Plan - test that changin
     And I press "Complete Stage"
     And I press "View"
     Then I should see "Competency 1"
-    And I should see "Not Set"
+    And I should see "Not competent"
     And I should see "This is learner's answer"
     And I log out
 
@@ -130,7 +130,7 @@ Feature: Appraisal question: Competencies from Learning Plan - test that changin
     And I click on "Appraisal competency test" "link"
     And I press "Start"
     Then I should see "This is learner's answer"
-    And I should see "Not Set"
+    And I should see "Not competent"
 
     # Make sure manager can change the proficiency and it is saved.
     When I set the field "Current competency status" to "Competent with supervision"
