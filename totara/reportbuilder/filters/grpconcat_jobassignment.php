@@ -124,6 +124,9 @@ class rb_filter_grpconcat_jobassignment extends rb_filter_hierarchy_multi {
         list($isql, $iparams) = $DB->get_in_or_equal($value);
         $items = $DB->get_records_select($type, "id {$isql}", $iparams);
         foreach ($items as $item) {
+            if ($this->shortname == 'man' || $this->shortname == 'app') {
+                $item->fullname = isset($item->fullname) ? $item->fullname : fullname($item);
+            }
             $selected[] = '"' . format_string($item->fullname) . '"';
         }
 
