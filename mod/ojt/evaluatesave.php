@@ -71,9 +71,9 @@ if ($completion = $DB->get_record('ojt_completion', $params)) {
             $completion->status = $completion->status == OJT_COMPLETE ? OJT_INCOMPLETE : OJT_COMPLETE;
             break;
         case 'savecomment':
-            $completion->comment = required_param('comment', PARAM_TEXT);
+            $completion->complcomment = required_param('comment', PARAM_TEXT);
             // append a date to the comment string
-            $completion->comment .= ' - '.userdate(time(), $dateformat).'.';
+            $completion->complcomment .= ' - '.userdate(time(), $dateformat).'.';
             break;
         default:
     }
@@ -88,9 +88,9 @@ if ($completion = $DB->get_record('ojt_completion', $params)) {
             $completion->status = OJT_COMPLETE;
             break;
         case 'savecomment':
-            $completion->comment = required_param('comment', PARAM_TEXT);
+            $completion->complcomment = required_param('comment', PARAM_TEXT);
             // append a date to the comment string
-            $completion->comment .= ' - '.userdate(time(), $dateformat).'.';
+            $completion->complcomment .= ' - '.userdate(time(), $dateformat).'.';
             break;
         default:
     }

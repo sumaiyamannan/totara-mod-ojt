@@ -60,6 +60,30 @@ function xmldb_ojt_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2016031400, 'ojt');
     }
 
+    if($oldversion < 2017072700) {
+        $table = new xmldb_table('ojt_topic_signoff');
+        $field = new xmldb_field('comment', XMLDB_TYPE_TEXT, null, null, XMLDB_NOTNULL, null, null, 'timemodified');
+
+        // This field is unused, so drop it.
+        // Condtionally drop field if it exists.
+        if($dbman->field_exists($table, $field)) {
+            $dbman->drop_field($table, $field);
+        }
+
+        $table = new xmldb_table('ojt_completion');
+        $field = new xmldb_field('comment', XMLDB_TYPE_TEXT, null, null, XMLDB_NOTNULL, null, null, 'timemodified');
+
+        // Rename field to complcomment as comment is a reserved name.
+        // Condtionally rename field if it exists.
+        if($dbman->field_exists($table, $field)) {
+            $dbman->rename_field($table, $field, 'complcomment');
+        }
+
+
+        // ojt savepoint reached.
+        upgrade_mod_savepoint(true, 2017072700, 'ojt');
+    }
+
 
     return true;
 }
