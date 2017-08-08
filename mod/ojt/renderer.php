@@ -136,10 +136,10 @@ class mod_ojt_renderer extends plugin_renderer_base {
                     $completionicon = $item->status == OJT_COMPLETE ? 'i/completion-manual-y' : 'i/completion-manual-n';
                     $cellcontent = $this->output->pix_icon($completionicon, '', 'core',
                         array('class' => 'ojt-completion-toggle', 'ojt-item-id' => $item->id));
-                    $cellcontent .= html_writer::tag('textarea', $item->comment,
+                    $cellcontent .= html_writer::tag('textarea', $item->complcomment,
                         array('name' => 'comment-'.$item->id, 'rows' => 3,
                             'class' => 'ojt-completion-comment', 'ojt-item-id' => $item->id));
-                    $cellcontent .= html_writer::tag('div', format_text($item->comment, FORMAT_PLAIN),
+                    $cellcontent .= html_writer::tag('div', format_text($item->complcomment, FORMAT_PLAIN),
                         array('class' => 'ojt-completion-comment-print', 'ojt-item-id' => $item->id));
                 } else {
                     // Show static stuff.
@@ -152,7 +152,7 @@ class mod_ojt_renderer extends plugin_renderer_base {
                             get_string('completionstatus'.OJT_INCOMPLETE, 'ojt'));
                     }
 
-                    $cellcontent .= format_text($item->comment, FORMAT_PLAIN);
+                    $cellcontent .= format_text($item->complcomment, FORMAT_PLAIN);
                 }
                 $userobj = new stdClass();
                 $userobj = username_load_fields_from_object($userobj, $item, $prefix = 'modifier');
