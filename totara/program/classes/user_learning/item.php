@@ -72,7 +72,8 @@ class item extends item_base implements item_has_progress, item_has_dueinfo {
         $user = self::resolve_user($userorid);
         $programs = \prog_get_all_programs($user->id, '', '', '', false, false, true, true, false);
         foreach ($programs as $program) {
-            $prog = new self($user, $program);
+            $class = get_called_class();
+            $prog = new $class($user, $program);
             $items = array_merge($items, [$prog], $prog->get_courseset_courses());
         }
         return $items;
@@ -109,7 +110,8 @@ class item extends item_base implements item_has_progress, item_has_dueinfo {
             $data->shortname = $program->shortname;
             $data->summary = $program->summary;
 
-            $item = new self($user, $data);
+            $class = get_called_class();
+            $item = new $class($user, $data);
             $item->get_courseset_courses();
 
             return $item;

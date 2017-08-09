@@ -206,12 +206,16 @@ class block_current_learning_plan_data_testcase extends block_current_learning_t
         $programs = $item->get_programs();
         $this->assertCount(1, $programs);
         $program = current($programs);
+        $this->assertInstanceOf('totara_plan\user_learning\program', $program);
+        // Should also be an instance of totara_program through inheritance
         $this->assertInstanceOf('totara_program\user_learning\item', $program);
 
         // We expect one course in the correct instance.
         $courses = $item->get_courses();
         $this->assertCount(1, $courses);
         $course = current($courses);
+        $this->assertInstanceOf('totara_plan\user_learning\course', $course);
+        // Should also be an instance of core_course item through inheritance
         $this->assertInstanceOf('core_course\user_learning\item', $course);
     }
 

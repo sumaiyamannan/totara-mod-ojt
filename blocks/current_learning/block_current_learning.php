@@ -135,6 +135,7 @@ class block_current_learning extends block_base {
                     $template = 'block_current_learning/course_row';
                     break;
                 case 'totara_program\user_learning\item':
+                case 'totara_plan\user_learning\program':
                 case 'totara_certification\user_learning\item':
                     $template = 'block_current_learning/program_row';
                     break;
