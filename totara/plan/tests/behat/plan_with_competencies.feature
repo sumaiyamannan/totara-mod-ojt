@@ -78,14 +78,14 @@ Background:
   # Make sure the ajax competency update request works
   When I click on "Team" in the totara menu
   And I click on "Records" "link" in the "firstname1 lastname1" "table_row"
-  And the field "competencyevidencestatus1" matches value "Not Set"
+  And the field "competencyevidencestatus1" matches value "Not competent"
   And I set the field "competencyevidencestatus1" to "Competent"
   And I click on "Other Evidence" "link" in the ".tabtree" "css_element"
   And I click on "Competencies" "link" in the ".tabtree" "css_element"
   Then the field "competencyevidencestatus1" matches value "Competent"
   And I log out
 
-      # Test Record of Learning: Competencies report with Global report restriction.
+  # Test Record of Learning: Competencies report with Global report restriction.
   And I log in as "admin"
   And I navigate to "Audiences" node in "Site administration > Users > Accounts"
   And I follow "Audience 1"
