@@ -770,7 +770,7 @@ class admin_category implements parentable_part_of_admin_tree {
     public $name;
     /** @var string The displayed name for this category. Usually obtained through get_string() */
     public $visiblename;
-    /** @var bool Should this category be hidden in admin tree block? */
+    /** @var bool Should this category be hidden in admin tree block? DO NOT USE THIS DIRECTLY - use is_hidden() instead!!!*/
     public $hidden;
     /** @var mixed Either a string or an array or strings */
     public $path;
@@ -794,7 +794,8 @@ class admin_category implements parentable_part_of_admin_tree {
      *
      * @param string $name The internal name for this category. Must be unique amongst ALL part_of_admin_tree objects
      * @param string $visiblename The displayed named for this category. Usually obtained through get_string()
-     * @param bool $hidden hide category in admin tree block, defaults to false
+     * @param bool $hidden hide category in admin tree block, defaults to false. Note this is the initial visibility;
+     *        the final visibility depends on whether all the children of this node are visible.
      */
     public function __construct($name, $visiblename, $hidden=false) {
         $this->children    = array();
@@ -999,7 +1000,18 @@ class admin_category implements parentable_part_of_admin_tree {
      * @return bool True if hidden
      */
     public function is_hidden() {
-        return $this->hidden;
+        if ($this->hidden) {
+            return true;
+        }
+
+        foreach ($this->children as $child) {
+            if (!$child->is_hidden() && $child->check_access()) {
+                return false;
+            }
+
+        }
+
+        return true;
     }
 
     /**
