@@ -25,11 +25,13 @@ defined('MOODLE_INTERNAL') || die();
 
 $string['datetimevalidationerror'] = 'Invalid date or time';
 $string['done'] = 'Done';
+$string['durationvalidationerror'] = 'Invalid duration format';
 $string['emailvalidationerror'] = 'Invalid email address format';
 $string['mytimezone'] = '{$a} (my timezone)';
 $string['nonemptyvalidationerror'] = 'Value is required';
 $string['now'] = 'Now';
 $string['pluginname'] = 'Totara forms';
 $string['submissionerror'] = 'Form could not be submitted, validation failed';
+$string['somefieldsrequired'] = 'There are required fields in this form marked';
 $string['urlvalidationerror'] = 'Invalid URL address format';
-$string['durationvalidationerror'] = 'Invalid duration format';
+$string['utc10datevalidationerror'] = 'Invalid date, expected valid date in YYYY-MM-DD format';
