@@ -564,6 +564,8 @@ function certification_fix_missing_certif_completions() {
         prog_update_completion($missingcertif->userid, $programs[$missingcertif->progid]);
     }
 
+    $missingcertifs->close();
+
     return $missingcount;
 }
 
@@ -1975,7 +1977,7 @@ function certif_process_submitted_edit_completion_history($submitted) {
  * @param int $originalstate CERTIFCOMPLETIONSTATE_XXXX
  * @param int $newstate CERTIFCOMPLETIONSTATE_XXX
  * @param object $newcertcompletion like a record in certif_completion (not all fields are required)
- * @return array
+ * @return array(array $userresults, array $cronresults)
  */
 function certif_get_completion_change_consequences($originalstate, $newstate, $newcertcompletion) {
     $userresults = array();
@@ -2885,7 +2887,7 @@ function certif_write_completion_history($certcomplhistory, $message = '') {
             'timecompleted' => $certcomplhistory->timecompleted
         ));
         if ($historyexists) {
-            print_error(get_string('error:updatinginvalidcompletionrecords', 'totara_certification'));
+            print_error(get_string('error:updatinginvalidcompletionhistoryrecord', 'totara_certification'));
         };
         if (empty($message)) {
             $message = "Completion history created";
@@ -2897,7 +2899,7 @@ function certif_write_completion_history($certcomplhistory, $message = '') {
         $params = array('ccid' => $certcomplhistory->id, 'userid' => $certcomplhistory->userid,
             'certifid' => $certcomplhistory->certifid);
         if (!$DB->record_exists_sql($sql, $params)) {
-            print_error(get_string('error:updatinginvalidcompletionrecords', 'totara_certification'));
+            print_error(get_string('error:updatinginvalidcompletionhistoryrecord', 'totara_certification'));
         };
     }
 
@@ -3255,7 +3257,7 @@ function certif_write_completion_log($programid, $userid, $message = '', $change
 }
 
 /**
- * Calculate the description string for a certification completion history log message.
+ * Calculate the description string for a certification completion log message.
  *
  * @param stdClass $certcompletion
  * @param stdClass $progcompletion

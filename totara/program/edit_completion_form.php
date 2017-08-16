@@ -201,7 +201,8 @@ class prog_edit_completion_history_and_transactions_form extends moodleform {
                 }
                 $mform->addElement('html',
                     html_writer::start_tag('tr') .
-                    html_writer::tag('td', userdate($record->timemodified, get_string('strftimedatetimeshort', 'langconfig'))) .
+                    html_writer::tag('td', userdate($record->timemodified, get_string('strftimedateseconds', 'langconfig')) .
+                        " ({$record->timemodified})") .
                     html_writer::tag('td', $changeby) .
                     html_writer::tag('td', $record->description) .
                     html_writer::end_tag('tr')

@@ -97,7 +97,7 @@ if ($progcompletion && empty($exceptions) && !$dismissedexceptions) {
     $customdata = array(
         'id' => $id,
         'userid' => $userid,
-        'showinitialstateinvalid' => !empty($currentformdata->errors),
+        'showinitialstateinvalid' => !empty($errors),
         'hascurrentrecord' => !empty($progcompletion),
         'status' => $progcompletion->status,
         'solution' => prog_get_completion_error_solution($problemkey, $id, $userid, true),

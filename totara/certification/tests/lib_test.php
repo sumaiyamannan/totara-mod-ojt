@@ -4092,7 +4092,7 @@ class totara_certification_lib_testcase extends reportcache_advanced_testcase {
             certif_write_completion_history($originalhistory);
             $this->fail('Expected exception was not thrown.');
         } catch (\moodle_exception $e) {
-            $this->assertContains('Call to certif_update_completion with completion records that do not match each other or the existing records', $e->getMessage());
+            $this->assertContains('Call to certif_write_completion_history with completion record that does not match the existing record', $e->getMessage());
         }
         $this->assertEquals(1, $DB->count_records('certif_completion_history'));
     }
@@ -4113,7 +4113,7 @@ class totara_certification_lib_testcase extends reportcache_advanced_testcase {
             certif_write_completion_history($timewindowopenshistory);
             $this->fail('Expected exception was not thrown.');
         } catch (\moodle_exception $e) {
-            $this->assertContains('Call to certif_update_completion with completion records that do not match each other or the existing records', $e->getMessage());
+            $this->assertContains('Call to certif_write_completion_history with completion record that does not match the existing record', $e->getMessage());
         }
         $this->assertEquals(1, $DB->count_records('certif_completion_history'));
         $this->assertTrue($DB->record_exists('certif_completion_history', (array) $originalhistory));
