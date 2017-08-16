@@ -566,7 +566,8 @@ if ($form = data_submitted()) {
                         $body = get_string('messagesenttostaffmember', 'facetoface', fullname($recipient))."\n\n".$data->body['text'];
                         $bodyplain = html_to_text($body);
 
-                        foreach ($managers as $manager) {
+                        foreach ($managers as $managerid) {
+                            $manager = \core_user::get_user($managerid, '*', MUST_EXIST);
                             if (email_to_user($manager, $facetofaceuser, $data->subject, $bodyplain, $body) === true) {
                                 $emailcount += 1;
                             }
