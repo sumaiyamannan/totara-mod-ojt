@@ -696,6 +696,7 @@ $string['floor'] = 'Floor';
 $string['forceselectjobassignment'] = 'Prevent signup if no job assignment is selected or can be found';
 $string['format'] = 'Format';
 $string['freebetween'] = 'Free between the following times';
+$string['freebetweendates'] = 'Free between {$a->start} and {$a->end}';
 $string['full'] = 'Date is fully occupied';
 $string['generalsettings'] = 'General settings';
 $string['gettointerestreport'] = 'To view the declare interest report go to the seminar activity and follow the \'Declared interest report\' link in the module admin menu.';
