@@ -98,15 +98,8 @@ class totara_core_renderer extends plugin_renderer_base {
     public function totara_print_copyright($totara_release) {
         $output = '';
         $output .= html_writer::start_div('totara-copyright');
-        $text = get_string('totaralogo', 'totara_core');
-        $icon = new pix_icon('logo', $text, 'totara_core',
-            array('width' => 253, 'height' => 177, 'class' => 'totaralogo'));
-        $url = new moodle_url('http://www.totaralms.com');
-        $output .= $this->output->action_icon($url, $icon, null, array('target' => '_blank'));
-        $output .= html_writer::empty_tag('br');
-        $output .= html_writer::empty_tag('br');
         $text = get_string('version') . ' ' . $totara_release;
-        $url = new moodle_url('http://www.totaralms.com');
+        $url = new moodle_url('https://www.totaralearning.com');
         $attributes = array('href' => $url, 'target' => '_blank');
         $output .= html_writer::tag('a', $text, $attributes);
 
@@ -121,7 +114,7 @@ class totara_core_renderer extends plugin_renderer_base {
 
         $output .= html_writer::empty_tag('br');
         $output .= html_writer::empty_tag('br');
-        $output .= get_string('totaracopyright', 'totara_core');
+        $output .= get_string('totaracopyright', 'totara_core', get_string('totaralearn', 'totara_core'));
         $output .= html_writer::end_div();
         return $output;
     }

@@ -53,7 +53,7 @@
 
     echo $OUTPUT->heading(get_string("totararegistration", 'totara_core'), 3, 'main');
 
-    echo $OUTPUT->box(get_string("totararegistrationinfo", 'totara_core'));
+    echo $OUTPUT->box(get_string("totararegistrationinfo", 'totara_core', get_string('totaralearn', 'totara_core')));
 
     $mform->display();
 

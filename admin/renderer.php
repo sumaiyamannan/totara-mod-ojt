@@ -46,8 +46,11 @@ class core_admin_renderer extends plugin_renderer_base {
         $continue = new single_button(new moodle_url($this->page->url, array(
             'lang' => $CFG->lang, 'agreelicense' => 1)), get_string('continue'), 'get');
 
+        $a = new stdClass();
+        $a->url = 'https://www.totaralearning.com/';
+        $a->totaralearn = get_string('totaralearn', 'totara_core');
         $output .= $this->header();
-        $output .= $this->heading('<a href="http://www.totaralms.com/">Totara LMS</a> - Totara Learning Management System', 2, 'centered');
+        $output .= $this->heading(get_string('totaralearnlink', 'totara_core', $a), 2, 'centered');
         $output .= $this->heading(get_string('copyrightnotice'), 2, 'centered');
         $output .= $this->box($copyrightnotice, 'copyrightnotice');
         $output .= html_writer::empty_tag('br');
@@ -285,7 +288,7 @@ class core_admin_renderer extends plugin_renderer_base {
         // skodak: Martin likes to threaten people, so just style his copyright notice the standard way.
         // Totara: Remove generalbox markup.
         $output .= html_writer::start_div('copyright-acknowledgements');
-        $output .= get_string('totaracopyrightacknowledge', 'totara_core');
+        $output .= get_string('totaracopyrightacknowledge', 'totara_core', get_string('totaralearn', 'totara_core'));
 
         //////////////////////////////////////////////////////////////////////////////////////////////////
         ////  IT IS ILLEGAL AND A VIOLATION OF THE GPL TO HIDE, REMOVE OR MODIFY THIS COPYRIGHT NOTICE ///
