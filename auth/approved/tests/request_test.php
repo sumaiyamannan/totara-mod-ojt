@@ -1107,6 +1107,7 @@ class auth_approved_request_testcase extends advanced_testcase {
     }
 
     public function test_valid_signup_positionid() {
+        global $DB;
         $this->resetAfterTest();
 
         list($frameworks, $hierarchies) = $this->hierarchy_data('pos', 10);
@@ -1124,7 +1125,8 @@ class auth_approved_request_testcase extends advanced_testcase {
 
         set_config('allowposition', true, 'auth_approved');
         set_config('positionframeworks', $included, 'auth_approved');
-        $this->assertFalse(\auth_approved\request::is_valid_signup_positionid(1), 'non existent id');
+        $maxid = $DB->get_field_sql('SELECT MAX(id) from {pos}');
+        $this->assertFalse(\auth_approved\request::is_valid_signup_positionid($maxid + 1), 'non existent id');
         $this->assertFalse(\auth_approved\request::is_valid_signup_positionid(0), 'empty id is true');
 
         set_config('allowposition', true, 'auth_approved');
@@ -1142,6 +1144,7 @@ class auth_approved_request_testcase extends advanced_testcase {
     }
 
     public function test_valid_signup_organisationid() {
+        global $DB;
         $this->resetAfterTest();
 
         list($frameworks, $hierarchies) = $this->hierarchy_data('org', 10);
@@ -1159,7 +1162,8 @@ class auth_approved_request_testcase extends advanced_testcase {
 
         set_config('alloworganisation', true, 'auth_approved');
         set_config('organisationframeworks', $included, 'auth_approved');
-        $this->assertFalse(\auth_approved\request::is_valid_signup_organisationid(1), 'non existent id');
+        $maxid = $DB->get_field_sql('SELECT MAX(id) from {org}');
+        $this->assertFalse(\auth_approved\request::is_valid_signup_organisationid($maxid + 1), 'non existent id');
         $this->assertFalse(\auth_approved\request::is_valid_signup_organisationid(0), 'empty id is true');
 
         set_config('alloworganisation', true, 'auth_approved');
@@ -1177,6 +1181,7 @@ class auth_approved_request_testcase extends advanced_testcase {
     }
 
     public function test_valid_signup_managerjaid() {
+        global $DB;
         $this->resetAfterTest();
 
         list($frameworks, $hierarchies) = $this->hierarchy_data('org', 10);
@@ -1262,7 +1267,8 @@ class auth_approved_request_testcase extends advanced_testcase {
         set_config('allowmanager', true, 'auth_approved');
         set_config('managerorganisationframeworks', $includedorg, 'auth_approved');
         set_config('managerpositionframeworks', $includedpos, 'auth_approved');
-        $this->assertFalse(\auth_approved\request::is_valid_signup_mgrjaid(1), 'non existent jaid');
+        $maxid = $DB->get_field_sql('SELECT MAX(id) from {job_assignment}');
+        $this->assertFalse(\auth_approved\request::is_valid_signup_mgrjaid($maxid + 1), 'non existent jaid');
         $this->assertFalse(\auth_approved\request::is_valid_signup_mgrjaid(0), 'empty jaid is true');
 
         set_config('allowmanager', true, 'auth_approved');
