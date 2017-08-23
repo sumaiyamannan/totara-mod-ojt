@@ -205,14 +205,14 @@ final class util {
     /**
      * Given a manager jaid return the title to display as an option in the autocomplete, or false if its not valid.
      *
-     * @param string $id
+     * @param string $jobid
      * @return bool|string
      * @throws \coding_exception
      */
-    public static function get_manager_job_assignment_option($id) {
+    public static function get_manager_job_assignment_option($jobid) {
         global $DB;
 
-        $params = ['jaid' => $id];
+        $params = ['jaid' => $jobid];
 
         $orgjoin = '';
         $orgwhere = '';
@@ -232,9 +232,12 @@ final class util {
             }
             if (!$containsall) {
                 list($orgwhere, $orgparams) = $DB->get_in_or_equal($organisationframeworkids, SQL_PARAMS_NAMED, 'orgframework');
+                // It is possible for ja.organisationid to be null but this will cause problems if the position id belongs to a
+                // valid position framework. Need to use a left out join to ensure such a ja with a valid position id gets
+                // picked up.
                 $params = array_merge($params, $orgparams);
-                $orgjoin = 'JOIN {org} o ON o.id = ja.organisationid';
-                $orgwhere = ' AND o.frameworkid '.$orgwhere;
+                $orgjoin = 'LEFT OUTER JOIN {org} o ON o.id = ja.organisationid';
+                $orgwhere = 'o.frameworkid '.$orgwhere;
             }
         }
 
@@ -256,18 +259,29 @@ final class util {
             }
             if (!$containsall) {
                 list($poswhere, $posparams) = $DB->get_in_or_equal($positionframeworkids, SQL_PARAMS_NAMED, 'posframework');
+                // It is possible for ja.positionid to be null but this will cause problems if the organisation id belongs to a
+                // valid organisation framework. Need to use a left out join to ensure such a ja with a valid organisation id gets
+                // picked up.
                 $params = array_merge($params, $posparams);
-                $posjoin = 'JOIN {pos} p ON p.id = ja.positionid';
-                $poswhere = ' AND p.frameworkid ' . $poswhere;
+                $posjoin = 'LEFT OUTER JOIN {pos} p ON p.id = ja.positionid';
+                $poswhere = 'p.frameworkid ' . $poswhere;
             }
         }
 
+        $posorgwhere = '';
+        if (!empty($poswhere) && !empty($orgwhere)) {
+            $posorgwhere = "AND ({$poswhere} OR {$orgwhere})";
+        } else if (!empty($poswhere)) {
+            $posorgwhere = " AND {$poswhere}";
+        } else if (!empty($orgwhere)) {
+            $posorgwhere = " AND {$orgwhere}";
+        }
         $userfields = get_all_user_name_fields(true, 'u');
         $sql = "SELECT ja.idnumber AS jobidnumber, ja.fullname AS jobtitle, {$userfields}
                   FROM {job_assignment} ja
                   JOIN {user} u ON u.id = ja.userid
                   {$posjoin} {$orgjoin}
-                  WHERE ja.id = :jaid {$poswhere} {$orgwhere}";
+                  WHERE ja.id = :jaid {$posorgwhere}";
 
         $job = $DB->get_record_sql($sql, $params, IGNORE_MISSING);
         if ($job === false) {

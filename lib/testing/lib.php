@@ -137,19 +137,20 @@ function testing_is_mingw() {
 function testing_initdataroot($dataroot, $framework) {
     global $CFG;
 
-    $filename = $dataroot . '/' . $framework . 'testdir.txt';
-
     umask(0);
+
+    // Totara: create the dataroot dir if necessary.
+    $varname = $framework . '_dataroot';
+    $datarootdir = $CFG->{$varname} . '/' . $framework;
+    if (!file_exists($datarootdir)) {
+        mkdir($datarootdir, $CFG->directorypermissions, true);
+    }
+
+    $filename = $dataroot . '/' . $framework . 'testdir.txt';
     if (!file_exists($filename)) {
         file_put_contents($filename, 'Contents of this directory are used during tests only, do not delete this file!');
     }
     testing_fix_file_permissions($filename);
-
-    $varname = $framework . '_dataroot';
-    $datarootdir = $CFG->{$varname} . '/' . $framework;
-    if (!file_exists($datarootdir)) {
-        mkdir($datarootdir, $CFG->directorypermissions);
-    }
 }
 
 /**

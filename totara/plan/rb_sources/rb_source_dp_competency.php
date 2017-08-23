@@ -568,7 +568,7 @@ from
         );
 
         $this->add_user_fields_to_filters($filteroptions);
-        $this->add_job_assignment_fields_to_filters($filteroptions);
+        $this->add_job_assignment_fields_to_filters($filteroptions, 'base', 'userid');
         $this->add_cohort_user_fields_to_filters($filteroptions);
 
         return $filteroptions;
@@ -737,7 +737,7 @@ from
         $competencyid = isset($row->competencyid) ? $row->competencyid : null;
 
         if (!$planid) {
-            return '';
+            return $status;
         } else {
             if (array_key_exists($planid, $this->dp_plans)) {
                 $plan = $this->dp_plans[$planid];

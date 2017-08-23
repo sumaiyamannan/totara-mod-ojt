@@ -47,6 +47,7 @@ $string['certificate:receivenotification'] = 'Receive notifications when users a
 $string['certificate:student'] = 'Retrieve a certificate';
 $string['certificate:view'] = 'View a certificate';
 $string['certificatename'] = 'Certificate Name';
+$string['certificateremoved'] = 'Delete Certificates';
 $string['certificatereport'] = 'Certificates Report';
 $string['certificatesfor'] = 'Certificates for';
 $string['certificatetype'] = 'Certificate Type';

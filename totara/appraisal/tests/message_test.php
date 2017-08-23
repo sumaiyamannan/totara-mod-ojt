@@ -365,7 +365,7 @@ class appraisal_message_test extends appraisal_testcase {
     }
 
     public function test_process_event() {
-        global $CFG, $DB, $UNITTEST;
+        global $CFG, $DB;
 
         $this->resetAfterTest();
         $this->preventResetByRollback();

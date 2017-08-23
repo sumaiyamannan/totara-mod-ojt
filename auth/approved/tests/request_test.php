@@ -302,15 +302,17 @@ class auth_approved_request_testcase extends advanced_testcase {
 
         // First up lets try with an invalid token. This shouldn't generate any messages, so no need for sinks.
         $result = \auth_approved\request::confirm_request('gorilla');
-        $this->assertCount(2, $result);
+        $this->assertCount(3, $result);
         $this->assertFalse($result[0]);
         $this->assertSame(get_string('confirmtokeninvalid', 'auth_approved'), $result[1]);
+        $this->assertNull($result[2]);
 
         // Next lets try with a token that doesn't exist. This shouldn't generate any messages, so no need for sinks.
         $result = \auth_approved\request::confirm_request(str_repeat('x', 32));
-        $this->assertCount(2, $result);
+        $this->assertCount(3, $result);
         $this->assertFalse($result[0]);
         $this->assertSame(get_string('confirmtokeninvalid', 'auth_approved'), $result[1]);
+        $this->assertNull($result[2]);
 
         $emailsink = $this->redirectEmails();
         $eventsink = $this->redirectEvents();
@@ -332,9 +334,10 @@ class auth_approved_request_testcase extends advanced_testcase {
 
         $result = \auth_approved\request::confirm_request($token);
         $this->assertInternalType('array', $result);
-        $this->assertCount(2, $result);
+        $this->assertCount(3, $result);
         $this->assertTrue($result[0]);
         $this->assertSame('Thank you for confirming your account request, an email should have been sent to your address at test_1@example.com with information describing the account approval process.', $result[1]);
+        $this->assertNull($result[2]);
 
         $this->assertSame(1, $emailsink->count());
         $this->assertSame(1, $eventsink->count());
@@ -377,9 +380,10 @@ class auth_approved_request_testcase extends advanced_testcase {
 
         // Attempt to confirm it again.
         $result = \auth_approved\request::confirm_request($token);
-        $this->assertCount(2, $result);
+        $this->assertCount(3, $result);
         $this->assertFalse($result[0]);
         $this->assertSame('User account request was already confirmed', $result[1]);
+        $this->assertNull($result[2]);
 
         // We better not have sent any email or notices.
         $this->assertSame(0, $emailsink->count());
@@ -400,9 +404,10 @@ class auth_approved_request_testcase extends advanced_testcase {
         $token = $DB->get_field('auth_approved_request', 'confirmtoken', ['id' => $request->id]);
         \auth_approved\request::approve_request($request->id, 'Test', true);
         $result = \auth_approved\request::confirm_request($token);
-        $this->assertCount(2, $result);
+        $this->assertCount(3, $result);
         $this->assertFalse($result[0]);
         $this->assertSame('User account request was already approved', $result[1]);
+        $this->assertNull($result[2]);
     }
 
     public function test_confirm_request_already_rejected() {
@@ -413,9 +418,10 @@ class auth_approved_request_testcase extends advanced_testcase {
         $token = $DB->get_field('auth_approved_request', 'confirmtoken', ['id' => $request->id]);
         \auth_approved\request::reject_request($request->id, 'Test');
         $result = \auth_approved\request::confirm_request($token);
-        $this->assertCount(2, $result);
+        $this->assertCount(3, $result);
         $this->assertFalse($result[0]);
         $this->assertSame(get_string('confirmtokenrejected', 'auth_approved'), $result[1]);
+        $this->assertNull($result[2]);
     }
 
     public function test_confirm_request_invalid_status() {
@@ -452,27 +458,19 @@ class auth_approved_request_testcase extends advanced_testcase {
 
         $result = \auth_approved\request::confirm_request($token);
         $this->assertInternalType('array', $result);
-        $this->assertCount(2, $result);
+        $this->assertCount(3, $result);
         $this->assertTrue($result[0]);
-        $this->assertSame('Thank you for confirming your account request, an email should have been sent to your address at test_1@example.com with information describing the account approval process.', $result[1]);
-
-        $this->assertSame(2, $emailsink->count());
+        $this->assertSame('Thank you for confirming your account request, you can now log in using your requested username: ' . $request->username, $result[1]);
+        $this->assertInstanceOf('single_button', $result[2]);
+        $this->assertSame(get_login_url(), $result[2]->url->out(false));
         $this->assertSame(3, $eventsink->count());
         $this->assertSame(0, $messagesink->count());
+        $this->assertSame(1, $emailsink->count());
 
         $emails = $emailsink->get_messages();
 
-        // First up the account has been confirmed now.
-        $email = reset($emails);
-        $this->assertSame('PHPUnit test site: Account request confirmed', $email->subject);
-        $this->assertSame($supportuser->email, $email->from);
-        $this->assertSame($request->email, $email->to);
-        $this->assertContains('Thank you for confirming your account request at \'PHPUnit test site\'', $email->body);
-        $this->assertContains('If you need help, please contact support at this address: '.$supportuser->email, $email->body);
-        $this->assertNotContains('monkey', $email->body);
-
-        // Second the account has been created.
-        $email = next($emails);
+        // The account has been created confirmation.
+        $email = $emails[0];
         $this->assertSame('PHPUnit test site: Account request approved', $email->subject);
         $this->assertSame($supportuser->email, $email->from);
         $this->assertSame($request->email, $email->to);
@@ -545,27 +543,20 @@ class auth_approved_request_testcase extends advanced_testcase {
 
         $result = \auth_approved\request::confirm_request($token);
         $this->assertInternalType('array', $result);
-        $this->assertCount(2, $result);
+        $this->assertCount(3, $result);
         $this->assertTrue($result[0]);
-        $this->assertSame('Thank you for confirming your account request, an email should have been sent to your address at test_1@example.com with information describing the account approval process.', $result[1]);
+        $this->assertSame('Thank you for confirming your account request, you can now log in using your requested username: ' . $request->username, $result[1]);
+        $this->assertInstanceOf('single_button', $result[2]);
+        $this->assertSame(get_login_url(), $result[2]->url->out(false));
 
-        $this->assertSame(2, $emailsink->count());
+        $this->assertSame(1, $emailsink->count());
         $this->assertSame(3, $eventsink->count());
         $this->assertSame(0, $messagesink->count());
 
         $emails = $emailsink->get_messages();
 
-        // First up the account has been confirmed now.
-        $email = reset($emails);
-        $this->assertSame('PHPUnit test site: Account request confirmed', $email->subject);
-        $this->assertSame($supportuser->email, $email->from);
-        $this->assertSame($request->email, $email->to);
-        $this->assertContains('Thank you for confirming your account request at \'PHPUnit test site\'', $email->body);
-        $this->assertContains('If you need help, please contact support at this address: '.$supportuser->email, $email->body);
-        $this->assertNotContains('monkey', $email->body);
-
-        // Second the account has been created.
-        $email = next($emails);
+        // The account has been created.
+        $email = $emails[0];
         $this->assertSame('PHPUnit test site: Account request approved', $email->subject);
         $this->assertSame($supportuser->email, $email->from);
         $this->assertSame($request->email, $email->to);
@@ -1088,5 +1079,217 @@ class auth_approved_request_testcase extends advanced_testcase {
         $this->assertContains(get_string('errormissingmgr', 'auth_approved'), $errors['managerjaid']);
         $this->assertArrayHasKey('managerfreetext', $errors);
         $this->assertContains(get_string('errormissingmgr', 'auth_approved'), $errors['managerfreetext']);
+    }
+
+    private function hierarchy_data($type, $no) {
+        $generator = $this->getDataGenerator()->get_plugin_generator('totara_hierarchy');
+        $hierarchyfn = "create_$type";
+        $hierarchyframeworkfn = $hierarchyfn . "_frame";
+
+        $frameworkids = array_map(
+            function ($i) use ($generator, $hierarchyframeworkfn) {
+                return (int)$generator->$hierarchyframeworkfn([])->id;
+            },
+
+            range(0, $no)
+            );
+
+        $hierarchyids = array_map(
+            function ($frameworkid) use ($generator, $hierarchyfn) {
+                $data = ['frameworkid' => $frameworkid];
+                return (int)$generator->$hierarchyfn($data)->id;
+            },
+
+            $frameworkids
+            );
+
+        return [$frameworkids, $hierarchyids];
+    }
+
+    public function test_valid_signup_positionid() {
+        global $DB;
+        $this->resetAfterTest();
+
+        list($frameworks, $hierarchies) = $this->hierarchy_data('pos', 10);
+        $delimiter = 3;
+        $excludedframeworks = array_slice($frameworks, $delimiter);
+        $excludedpositions = array_slice($hierarchies, $delimiter);
+        $includedpositions = array_slice($hierarchies, 0, $delimiter);
+        $includedframeworks = array_slice($frameworks, 0, $delimiter);
+        $included = implode(',', $includedframeworks);
+
+        set_config('allowposition', false, 'auth_approved');
+        set_config('positionframeworks', $included, 'auth_approved');
+        $validpositionid = $includedpositions[0];
+        $this->assertFalse(\auth_approved\request::is_valid_signup_positionid($validpositionid), 'id not required');
+
+        set_config('allowposition', true, 'auth_approved');
+        set_config('positionframeworks', $included, 'auth_approved');
+        $maxid = $DB->get_field_sql('SELECT MAX(id) from {pos}');
+        $this->assertFalse(\auth_approved\request::is_valid_signup_positionid($maxid + 1), 'non existent id');
+        $this->assertFalse(\auth_approved\request::is_valid_signup_positionid(0), 'empty id is true');
+
+        set_config('allowposition', true, 'auth_approved');
+        set_config('positionframeworks', '', 'auth_approved');
+        $this->assertTrue(\auth_approved\request::is_valid_signup_positionid($excludedpositions[0]), 'all positions allowed');
+
+        set_config('allowposition', true, 'auth_approved');
+        set_config('positionframeworks', $included, 'auth_approved');
+        foreach ($includedpositions as $id) {
+            $this->assertTrue(\auth_approved\request::is_valid_signup_positionid($id), 'allowed positions');
+        }
+        foreach ($excludedpositions as $id) {
+            $this->assertFalse(\auth_approved\request::is_valid_signup_positionid($id), 'disallowed positions');
+        }
+    }
+
+    public function test_valid_signup_organisationid() {
+        global $DB;
+        $this->resetAfterTest();
+
+        list($frameworks, $hierarchies) = $this->hierarchy_data('org', 10);
+        $delimiter = 5;
+        $excludedframeworks = array_slice($frameworks, $delimiter);
+        $excludedorganisations = array_slice($hierarchies, $delimiter);
+        $includedorganisations = array_slice($hierarchies, 0, $delimiter);
+        $includedframeworks = array_slice($frameworks, 0, $delimiter);
+        $included = implode(',', $includedframeworks);
+
+        set_config('alloworganisation', false, 'auth_approved');
+        set_config('organisationframeworks', $included, 'auth_approved');
+        $validorganisationid = $includedorganisations[0];
+        $this->assertFalse(\auth_approved\request::is_valid_signup_organisationid($validorganisationid), 'id not required');
+
+        set_config('alloworganisation', true, 'auth_approved');
+        set_config('organisationframeworks', $included, 'auth_approved');
+        $maxid = $DB->get_field_sql('SELECT MAX(id) from {org}');
+        $this->assertFalse(\auth_approved\request::is_valid_signup_organisationid($maxid + 1), 'non existent id');
+        $this->assertFalse(\auth_approved\request::is_valid_signup_organisationid(0), 'empty id is true');
+
+        set_config('alloworganisation', true, 'auth_approved');
+        set_config('organisationframeworks', '', 'auth_approved');
+        $this->assertTrue(\auth_approved\request::is_valid_signup_organisationid($excludedorganisations[0]), 'all organisations allowed');
+
+        set_config('alloworganisation', true, 'auth_approved');
+        set_config('organisationframeworks', $included, 'auth_approved');
+        foreach ($includedorganisations as $id) {
+            $this->assertTrue(\auth_approved\request::is_valid_signup_organisationid($id), 'allowed organisations');
+        }
+        foreach ($excludedorganisations as $id) {
+            $this->assertFalse(\auth_approved\request::is_valid_signup_organisationid($id), 'disallowed organisations');
+        }
+    }
+
+    public function test_valid_signup_managerjaid() {
+        global $DB;
+        $this->resetAfterTest();
+
+        list($frameworks, $hierarchies) = $this->hierarchy_data('org', 10);
+        $delimiter = 5;
+        $excludedorgframeworks = array_slice($frameworks, $delimiter);
+        $excludedorganisations = array_slice($hierarchies, $delimiter);
+        $includedorganisations = array_slice($hierarchies, 0, $delimiter);
+        $includedorgframeworks = array_slice($frameworks, 0, $delimiter);
+        $includedorg = implode(',', $includedorgframeworks);
+
+        list($frameworks, $hierarchies) = $this->hierarchy_data('pos', 6);
+        $delimiter = 2;
+        $excludedposframeworks = array_slice($frameworks, $delimiter);
+        $excludedpositions = array_slice($hierarchies, $delimiter);
+        $includedpositions = array_slice($hierarchies, 0, $delimiter);
+        $includedorgframeworks = array_slice($frameworks, 0, $delimiter);
+        $includedpos = implode(',', $includedorgframeworks);
+
+        $includedjasbyposition = [];
+        foreach ($excludedorganisations as $orgid) {
+            foreach ($includedpositions as $posid) {
+                $userid = $this->getDataGenerator()->create_user()->id;
+                $ja = \totara_job\job_assignment::create([
+                    'userid' => $userid,
+                    'idnumber' => "$userid",
+                    'positionid' => $posid,
+                    'organisationid' => $orgid
+                ]);
+                $includedjasbyposition[] = $ja->id;
+            }
+        }
+
+        $includedjasbyorganisation = [];
+        foreach ($includedorganisations as $orgid) {
+            foreach ($excludedpositions as $posid) {
+                $userid = $this->getDataGenerator()->create_user()->id;
+                $ja = \totara_job\job_assignment::create([
+                    'userid' => $userid,
+                    'idnumber' => "$userid",
+                    'positionid' => $posid,
+                    'organisationid' => $orgid
+                ]);
+                $includedjasbyorganisation[] = $ja->id;
+            }
+        }
+
+        $includedjasbyboth = [];
+        foreach ($includedorganisations as $orgid) {
+            foreach ($includedpositions as $posid) {
+                $userid = $this->getDataGenerator()->create_user()->id;
+                $ja = \totara_job\job_assignment::create([
+                    'userid' => $userid,
+                    'idnumber' => "$userid",
+                    'positionid' => $posid,
+                    'organisationid' => $orgid
+                ]);
+                $includedjasbyboth[] = $ja->id;
+            }
+        }
+
+        $excludedjas[] = \totara_job\job_assignment::create([
+            'userid' => $this->getDataGenerator()->create_user()->id,
+            'idnumber' => "aaa"
+        ])->id;
+        foreach ($excludedorganisations as $orgid) {
+            foreach ($excludedpositions as $posid) {
+                $userid = $this->getDataGenerator()->create_user()->id;
+                $ja = \totara_job\job_assignment::create([
+                    'userid' => $userid,
+                    'idnumber' => "$userid",
+                    'positionid' => $posid,
+                    'organisationid' => $orgid
+                ]);
+                $excludedjas[] = $ja->id;
+            }
+        }
+
+        set_config('allowmanager', false, 'auth_approved');
+        set_config('managerorganisationframeworks', $includedorg, 'auth_approved');
+        set_config('managerpositionframeworks', $includedpos, 'auth_approved');
+        $this->assertFalse(\auth_approved\request::is_valid_signup_mgrjaid($includedjasbyboth[0]), 'ja not required');
+
+        set_config('allowmanager', true, 'auth_approved');
+        set_config('managerorganisationframeworks', $includedorg, 'auth_approved');
+        set_config('managerpositionframeworks', $includedpos, 'auth_approved');
+        $maxid = $DB->get_field_sql('SELECT MAX(id) from {job_assignment}');
+        $this->assertFalse(\auth_approved\request::is_valid_signup_mgrjaid($maxid + 1), 'non existent jaid');
+        $this->assertFalse(\auth_approved\request::is_valid_signup_mgrjaid(0), 'empty jaid is true');
+
+        set_config('allowmanager', true, 'auth_approved');
+        set_config('managerorganisationframeworks', '', 'auth_approved');
+        set_config('managerpositionframeworks', '', 'auth_approved');
+        $this->assertTrue(\auth_approved\request::is_valid_signup_mgrjaid($excludedjas[0]), 'all jas allowed');
+
+        set_config('allowmanager', true, 'auth_approved');
+        set_config('managerorganisationframeworks', $includedorg, 'auth_approved');
+        set_config('managerpositionframeworks', $includedpos, 'auth_approved');
+        foreach ($includedjasbyposition as $id) {
+            $this->assertTrue(\auth_approved\request::is_valid_signup_mgrjaid($id), 'allowed ja by position');
+        }
+        foreach ($includedjasbyorganisation as $id) {
+            $this->assertTrue(\auth_approved\request::is_valid_signup_mgrjaid($id), 'allowed ja by organisation');
+        }
+        foreach ($includedjasbyboth as $id) {
+            $this->assertTrue(\auth_approved\request::is_valid_signup_mgrjaid($id), 'allowed ja by both');
+        }
+        foreach ($excludedjas as $id) {
+            $this->assertFalse(\auth_approved\request::is_valid_signup_mgrjaid($id), 'disallowed jas');
+        }
     }
 }

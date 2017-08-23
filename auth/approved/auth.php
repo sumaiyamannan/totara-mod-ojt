@@ -88,21 +88,35 @@ final class auth_plugin_approved extends auth_plugin_base {
         // Do we have external defaults?
         if (get_config('auth_approved', 'allowexternaldefaults')) {
             // These "defaults" are a feature, it allows the client to give users a URL that has pre-filled data.
+            $positionid = optional_param('positionid', 0, PARAM_INT);
+            if (!\auth_approved\request::is_valid_signup_positionid($positionid)) {
+                $positionid = 0;
+            }
+
+            $organisationid = optional_param('organisationid', 0, PARAM_INT);
+            if (!\auth_approved\request::is_valid_signup_organisationid($organisationid)) {
+                $organisationid = 0;
+            }
+
             $defaults['username'] = optional_param('username', '', PARAM_USERNAME);
             $defaults['firstname'] = optional_param('firstname', '', PARAM_NOTAGS);
             $defaults['lastname'] = optional_param('lastname', '', PARAM_NOTAGS);
             $defaults['email'] = optional_param('email', '', PARAM_EMAIL);
             $defaults['city'] = optional_param('city', $defaults['city'], PARAM_NOTAGS);
             $defaults['country'] = optional_param('country', '', PARAM_ALPHANUM);
-            $defaults['positionid'] = optional_param('positionid', 0, PARAM_INT);
+            $defaults['positionid'] = $positionid;
             $defaults['positionfreetext'] = optional_param('positionfreetext', '', PARAM_NOTAGS);
-            $defaults['organisationid'] = optional_param('organisationid', 0, PARAM_INT);
+            $defaults['organisationid'] = $organisationid;
             $defaults['organisationfreetext'] = optional_param('organisationfreetext', '', PARAM_NOTAGS);
             $defaults['managerfreetext'] = optional_param('managerfreetext', '', PARAM_NOTAGS);
         }
 
         // Regardless we need to pick up the managerjaid and translate it to an option if it is set and valid.
-        $defaults['managerjaid'] = optional_param('managerjaid', null, PARAM_INT);
+        $managerjaid = optional_param('managerjaid', null, PARAM_INT);
+        if (!\auth_approved\request::is_valid_signup_mgrjaid($managerjaid)) {
+            $managerjaid = null;
+        }
+        $defaults['managerjaid'] = $managerjaid;
 
         // Does anything want to alter the defaults? Please tread lightly, safety is off in hooks.
         $hook = new \auth_approved\hook\request_defaults($defaults);

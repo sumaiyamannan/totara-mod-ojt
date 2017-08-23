@@ -66,7 +66,6 @@ class totara_cohort_user_rules_testcase extends reportcache_advanced_testcase {
         global $DB;
         $this->resetAfterTest(true);
         $this->setAdminUser();
-        $this->preventResetByRollback();
         $userscreated = 0;
 
         $this->profilevegetableid = $this->add_user_profile_text_field('vegetable', 'parsnip');

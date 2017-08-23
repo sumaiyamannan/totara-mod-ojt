@@ -298,7 +298,7 @@ class tool_totara_sync_user_database_testcase extends advanced_testcase {
         $elements = totara_sync_get_elements(true);
         $element = $elements['user'];
         $result = $element->sync();
-        sleep(1);
+        $this->waitForSecond();
         return $result;
     }
 

@@ -616,4 +616,11 @@ class cache_factory {
         $factory->reset_cache_instances();
         $factory->set_state(self::STATE_STORES_DISABLED);
     }
+
+    /**
+     * Called at the end of \cache_helper::purge_all(),
+     */
+    public function purged_all_stores() {
+       // NOTE: this is intended to allow factory for cleanup up any caches that hold store data.
+    }
 }

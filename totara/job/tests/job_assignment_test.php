@@ -316,7 +316,7 @@ class totara_job_job_assignment_testcase extends advanced_testcase {
         );
 
         $this->setUser($updatinguser); // A different user is doing the update.
-        sleep(1); // Ensure that the time has moved forward.
+        $this->waitForSecond(); // Ensure that the time has moved forward.
         $updatetimebefore = time();
         $jobassignment->update($updatedata);
         $updatetimeafter = time();
@@ -349,7 +349,7 @@ class totara_job_job_assignment_testcase extends advanced_testcase {
 
         // Show that positionassignmentdate does not change if the positionid is specified but does not change.
         $previousposassignmentdate = $jobassignment->positionassignmentdate;
-        sleep(1);
+        $this->waitForSecond();
         $posupdatetimebefore = time();
         $jobassignment->update(array('positionid' => $updatedata['positionid'], 'organisationid' => 777));
         $posupdatetimeafter = time();
@@ -371,7 +371,7 @@ class totara_job_job_assignment_testcase extends advanced_testcase {
         // Make sure that passing no data doesn't fail and doesn't update the timemodified or usermodified.
         $previoustimemodified = $jobassignment->timemodified;
         $previoususermodified = $jobassignment->usermodified;
-        sleep(1);
+        $this->waitForSecond();
         $this->setAdminUser();
         $this->assertNotEquals($previoususermodified, $USER->id);
         $jobassignment->update(array()); // Empty array.
@@ -445,7 +445,7 @@ class totara_job_job_assignment_testcase extends advanced_testcase {
         $this->assertEquals('/' . $jobassignment->id, $jobassignment->managerjapath);
 
         // Check that updating the position to null causes the positionassignmentdate to be updated.
-        sleep(1);
+        $this->waitForSecond();
         $timebefore = time();
         $jobassignment->update(array('positionid' => null));
         $this->assertNull($jobassignment->positionid);
@@ -1304,7 +1304,7 @@ class totara_job_job_assignment_testcase extends advanced_testcase {
 
         // Check that they are swapped.
         $previoustimemodified = max(array($u2ja1->timemodified, $u2ja2->timemodified, $u2ja3->timemodified));
-        sleep(1);
+        $this->waitForSecond();
         $this->assertEquals(1, $u2ja1->sortorder);
         $this->assertEquals(2, $u2ja2->sortorder);
         $this->assertEquals(3, $u2ja3->sortorder);
@@ -1367,7 +1367,7 @@ class totara_job_job_assignment_testcase extends advanced_testcase {
 
         // Check that it is moved up.
         $previoustimemodified = max(array($u2ja1->timemodified, $u2ja2->timemodified, $u2ja3->timemodified));
-        sleep(1);
+        $this->waitForSecond();
         $this->assertEquals(1, $u2ja1->sortorder);
         $this->assertEquals(2, $u2ja2->sortorder);
         $this->assertEquals(3, $u2ja3->sortorder);
@@ -1430,7 +1430,7 @@ class totara_job_job_assignment_testcase extends advanced_testcase {
 
         // Check that it is moved down.
         $previoustimemodified = max(array($u2ja1->timemodified, $u2ja2->timemodified, $u2ja3->timemodified));
-        sleep(1);
+        $this->waitForSecond();
         $this->assertEquals(1, $u2ja1->sortorder);
         $this->assertEquals(2, $u2ja2->sortorder);
         $this->assertEquals(3, $u2ja3->sortorder);

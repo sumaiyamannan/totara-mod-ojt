@@ -77,7 +77,7 @@ M.totara_question_multichoice = M.totara_question_multichoice || {
         var $this = $(this);
         if ($($this.find('span')).length > 0) {
             $this.find('span').hide();
-            var $makeDefault = $('<span class="makedefaultlink">');
+            var $makeDefault = $('<span class="makedefaultlink fitemtitle">');
             var $makeDefaultLink = $('<a href="#">' + M.util.get_string('defaultmake', 'totara_question') + '</a>');
             var $unselect = $('<span class="unselectlink">' + M.util.get_string('defaultselected', 'totara_question') + ' </span>').hide();
             var $unselectLink = $('<a href="#">' + M.util.get_string('defaultunselect', 'totara_question') + '</a>');

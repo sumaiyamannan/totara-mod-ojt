@@ -944,6 +944,7 @@ class dp_competency_component extends dp_base_component {
                         $details->organisationid = $jobassignment->organisationid;
                     }
 
+                    $details->timeproficient = time();
                     $details->assessorname = fullname($USER);
                     $details->assessorid = $USER->id;
                     $result = hierarchy_add_competency_evidence($competencyid, $this->plan->userid, $evidence, $this, $details);

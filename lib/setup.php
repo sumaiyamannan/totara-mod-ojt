@@ -1059,6 +1059,19 @@ if (totara_feature_disabled('totaradashboard')) {
     $CFG->allowdefaultpageselection = '0';
 }
 
+// Totara: This function to protect against timing attacks was added in PHP 5.6.0.
+if (!function_exists('hash_equals')) {
+    function hash_equals($known_string, $user_string) {
+        // If the function doesn't exist, fall back to the standard comparison.
+        // It's not safe against timing attacks but it's the best we can do and the risk is very low.
+        if ($known_string === $user_string) {
+            return true;
+        }
+
+        return false;
+    }
+}
+
 // this is a funny trick to make Eclipse believe that $OUTPUT and other globals
 // contains an instance of core_renderer, etc. which in turn fixes autocompletion ;-)
 if (false) {

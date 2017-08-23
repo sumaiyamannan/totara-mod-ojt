@@ -35,6 +35,9 @@ $PAGE->set_url('/auth/approved/approve.php');
 $PAGE->set_context($syscontext);
 $PAGE->set_pagelayout('report');
 
+\navigation_node::override_active_url(\auth_approved\util::get_report_url($reportid), true);
+$PAGE->navbar->add(get_string('approve', 'auth_approved'));
+
 admin_externalpage_setup('authapprovedpending', '', null, '', array('pagelayout'=>'report'));
 
 if (!is_enabled_auth('approved')) {
@@ -64,7 +67,7 @@ $data = request::decode_signup_form_data($request);
 $errors = request::validate_signup_form_data($data, request::STAGE_APPROVAL);
 if ($errors) {
     $errorlist = array_reduce(
-        $errors,
+        array_unique($errors),
 
         function ($str, $error) {
             $listentry = "<li>$error</li>";

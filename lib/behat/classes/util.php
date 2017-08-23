@@ -48,11 +48,6 @@ class behat_util extends testing_util {
     const BEHATSITENAME = "Acceptance test site";
 
     /**
-     * @var array Files to skip when resetting dataroot folder
-     */
-    protected static $datarootskiponreset = array('.', '..', 'behat', 'behattestdir.txt');
-
-    /**
      * @var array Files to skip when dropping dataroot folder
      */
     protected static $datarootskipondrop = array('.', '..', 'lock');
@@ -74,7 +69,9 @@ class behat_util extends testing_util {
             behat_error(BEHAT_EXITCODE_INSTALLED);
         }
 
-        // New dataroot.
+        // Torara: Empty dataroot and initialise it.
+        self::drop_dataroot();
+        testing_initdataroot($CFG->dataroot, 'behat');
         self::reset_dataroot();
 
         $options = array();
@@ -105,9 +102,7 @@ class behat_util extends testing_util {
         // Some more Totara tricks.
         $DB->set_field('task_scheduled', 'disabled', 1, array('component' => 'tool_langimport')); // No cron lang updates in behat.
 
-        // We need to keep the installed dataroot filedir files.
-        // So each time we reset the dataroot before running a test, the default files are still installed.
-        self::save_original_data_files();
+        // Totara: there is no need to save filedir files, we do not delete them in tests!
 
         $frontpagesummary = new admin_setting_special_frontpagedesc();
         $frontpagesummary->write_setting(self::BEHATSITENAME);
@@ -140,7 +135,6 @@ class behat_util extends testing_util {
         // Totara: Add behat filesystem repository to eliminate problematic file uploads in behat.
         // NOTE: Repository API is a total mess, let's just insert the records directly here
         //       and allow all registered users to access the repo.
-        mkdir("$CFG->dataroot/repository/behat", 02777, true);
         $maxorder = $DB->get_field('repository', 'MAX(sortorder)', array());
         $typeid = $DB->insert_record('repository', (object)array('type' => 'filesystem', 'sortorder' => $maxorder + 1, 'visible' => 1));
         $instanceid = $DB->insert_record('repository_instances',
@@ -168,9 +162,8 @@ class behat_util extends testing_util {
             throw new coding_exception('This method can be only used by Behat CLI tool');
         }
 
-        self::reset_dataroot();
-        self::drop_dataroot();
         self::drop_database(true);
+        self::drop_dataroot();
     }
 
     /**
@@ -352,6 +345,23 @@ class behat_util extends testing_util {
     }
 
     /**
+     * Purge dataroot directory
+     * @static
+     * @return void
+     */
+    public static function reset_dataroot() {
+        global $CFG;
+
+        // Totara: Clear file status cache to make sure we know about all files.
+        clearstatcache();
+
+        parent::reset_dataroot();
+
+        // Totara: Add behat filesystem repository to eliminate problematic file uploads in behat.
+        mkdir("$CFG->dataroot/repository/behat", 02777, true);
+    }
+
+    /**
      * Reset contents of all database tables to initial values, reset caches, etc.
      */
     public static function reset_all_data() {
@@ -360,6 +370,14 @@ class behat_util extends testing_util {
 
         // Purge dataroot directory.
         self::reset_dataroot();
+
+        // Purge all data from the caches. This is required for consistency between tests.
+        // Any file caches that happened to be within the data root will have already been clearer (because we just deleted cache)
+        // and now we will purge any other caches as well.  This must be done before the cache_factory::reset() as that
+        // removes all definitions of caches and purge does not have valid caches to operate on.
+        cache_helper::purge_all();
+        // Reset the cache API so that it recreates it's required directories as well.
+        cache_factory::reset();
 
         // Reset all static caches.
         accesslib_clear_all_caches(true);

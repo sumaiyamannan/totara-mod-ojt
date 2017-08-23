@@ -165,7 +165,7 @@ define(['jquery', 'core/config', 'core/templates', 'core/notification'], functio
          */
         isEmpty: function() {
             var value = this.getValue();
-            if (value === null || value === '' || value === 0 || value === [] || value === []) {
+            if (value === null || value === '' || value === 0 || value === []) {
                 return true;
             }
             if (value.hasOwnProperty('isEmpty')) {
@@ -1033,6 +1033,19 @@ define(['jquery', 'core/config', 'core/templates', 'core/notification'], functio
         },
 
         /**
+         * Submits the form via JavaScript.
+         *
+         * The equivalent to clicking a submit button with no name.
+         *
+         * Use reload if you just want to reload, and ajaxSubmit if you want to submit via AJAX and
+         * handle the outcome in JavaScript.
+         */
+        submit: function() {
+            // Trigger the form submission.
+            this.form.trigger('submit');
+        },
+
+        /**
          * Reloads the form.
          *
          * @param {HTMLElement} button
@@ -1367,6 +1380,26 @@ define(['jquery', 'core/config', 'core/templates', 'core/notification'], functio
          */
         preventSubmissionOnSubmit: function(e) {
             e.preventDefault();
+        },
+
+        /**
+         * Show the loading icon for the form
+         */
+        showLoading: function() {
+            if ($(MODULE.LOADING, this.node).length > 0) {
+                $(MODULE.LOADING, this.node).show();
+            }
+        },
+
+        /**
+         * Hide the loading icon for the form
+         *
+         * There isn't much need for this as most of the time, the form throws itself away and re-creates itself
+         */
+        hideLoading: function() {
+            if ($(MODULE.LOADING, this.node).length > 0) {
+                $(MODULE.LOADING, this.node).hide();
+            }
         }
 
     });
@@ -1422,13 +1455,14 @@ define(['jquery', 'core/config', 'core/templates', 'core/notification'], functio
          * Item identifiers.
          *
          * @namespace
-         * @type {{FORM: string, ELEMENT: string, GROUP: string, INPUT: string}}
+         * @type {{FORM: string, ELEMENT: string, GROUP: string, INPUT: string, LOADING: string}}
          */
         itemIdentifiers: {
             FORM: 'data-totara-form',
             ELEMENT: 'element',
             GROUP: 'group',
-            INPUT: 'data-totara-form-element-input'
+            INPUT: 'data-totara-form-element-input',
+            LOADING: '.tf_loading_form'
         },
 
         /**

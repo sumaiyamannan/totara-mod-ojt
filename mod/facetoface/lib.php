@@ -1941,6 +1941,7 @@ function facetoface_write_activity_attendance(&$worksheet, $coursecontext, $star
             s.id AS sessionid,
             u.*,
             f.course AS courseid,
+            f.selectjobassignmentonsignup,
             ss.grade,
             sign.timecreated,
             su.jobassignmentid
@@ -2186,12 +2187,17 @@ function facetoface_write_activity_attendance(&$worksheet, $coursecontext, $star
                 }
 
                 $selectjobassignmentonsignupglobal = get_config(null, 'facetoface_selectjobassignmentonsignupglobal');
-                if (!empty($selectjobassignmentonsignupglobal)) {
-                    $jobassignment = \totara_job\job_assignment::get_with_id($attendee->jobassignmentid);
-                    if ($jobassignment->userid != $attendee->userid) {
-                        // Error!!!
+                $selectjobassignmentonsignupsession = $sessionsignups[$attendee->sessionid][$attendee->id]->selectjobassignmentonsignup;
+                if (!empty($selectjobassignmentonsignupglobal) && !empty($selectjobassignmentonsignupsession)) {
+                    if (!empty($attendee->jobassignmentid)) {
+                        $jobassignment = \totara_job\job_assignment::get_with_id($attendee->jobassignmentid);
+                        if ($jobassignment == null || $jobassignment->userid != $attendee->id) {
+                            // Error!!!
+                        }
+                        $label = position::job_position_label($jobassignment);
+                    } else {
+                        $label = '';
                     }
-                    $label = position::job_position_label($jobassignment);
                     $worksheet->write_string($i, $j++, $label);
                 }
                 $worksheet->write_string($i,$j++,$attendee->grade);
@@ -5552,6 +5558,19 @@ function facetoface_get_customfield_filters() {
 function facetoface_pluginfile($course, $cm, $context, $filearea, $args, $forcedownload, array $options=array()) {
     global $DB;
 
+    if ($context->contextlevel == CONTEXT_SYSTEM && ($filearea === 'room' || $filearea === 'asset')) {
+        // NOTE: we do not know where is the room and asset description visible,
+        //       this means we cannot do any strict access control, bad luck.
+        $fs = get_file_storage();
+        $relativepath = implode('/', $args);
+        $fullpath = "/$context->id/mod_facetoface/$filearea/$relativepath";
+        if (!$file = $fs->get_file_by_hash(sha1($fullpath))) {
+            return false;
+        }
+        // This function will stop code.
+        send_stored_file($file, 360, 0, true, $options);
+    }
+
     $sessionid = (int)array_shift($args);
     if (!$DB->get_record('facetoface_sessions', array('id' => $sessionid, 'facetoface' => $cm->instance))) {
         return false;
@@ -5566,14 +5585,6 @@ function facetoface_pluginfile($course, $cm, $context, $filearea, $args, $forced
         }
         return $file;
     };
-
-    if ($context->contextlevel == CONTEXT_SYSTEM && ($filearea === 'room' || $filearea === 'asset')) {
-        // NOTE: we do not know where is the room and asset description visible,
-        //       this means we cannot do any strict access control, bad luck.
-        $storedfile = $fileinstance();
-        // This function will stop code.
-        send_stored_file($storedfile, 360, 0, true, $options);
-    }
 
     if ($context->contextlevel != CONTEXT_MODULE || $filearea !== 'session') {
         return false;

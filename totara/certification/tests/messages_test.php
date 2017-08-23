@@ -264,7 +264,7 @@ class totara_certification_messages_testcase extends reportcache_advanced_testca
         $this->assertTrue(certif_write_completion($certcompl2, $progcompl2));
 
         // Attempt to send any program messages.
-        sleep(1); // Messages are only sent if they were created before "now", so we need to wait one second.
+        $this->waitForSecond(); // Messages are only sent if they were created before "now", so we need to wait one second.
         ob_start(); // Start a buffer to catch all the mtraces in the task.
         $task = new \totara_program\task\send_messages_task();
         $task->execute();
@@ -287,7 +287,7 @@ class totara_certification_messages_testcase extends reportcache_advanced_testca
         $completion->mark_complete();
 
         // Attempt to send any program messages.
-        sleep(1); // Messages are only sent if they were created before "now", so we need to wait one second.
+        $this->waitForSecond(); // Messages are only sent if they were created before "now", so we need to wait one second.
         ob_start(); // Start a buffer to catch all the mtraces in the task.
         $task = new \totara_program\task\send_messages_task();
         $task->execute();
@@ -327,7 +327,7 @@ class totara_certification_messages_testcase extends reportcache_advanced_testca
             array('userid' => $this->user2->id, 'messageid' => $messageid)));
 
         // Attempt to send any program messages.
-        sleep(1); // Messages are only sent if they were created before "now", so we need to wait one second.
+        $this->waitForSecond(); // Messages are only sent if they were created before "now", so we need to wait one second.
         ob_start(); // Start a buffer to catch all the mtraces in the task.
         $task = new \totara_program\task\send_messages_task();
         $task->execute();
@@ -399,7 +399,7 @@ class totara_certification_messages_testcase extends reportcache_advanced_testca
         $this->assertTrue(certif_write_completion($certcompl2, $progcompl2));
 
         // Attempt to send any program messages.
-        sleep(1); // Messages are only sent if they were created before "now", so we need to wait one second.
+        $this->waitForSecond(); // Messages are only sent if they were created before "now", so we need to wait one second.
         ob_start(); // Start a buffer to catch all the mtraces in the task.
         $task = new \totara_program\task\send_messages_task();
         $task->execute();
@@ -422,7 +422,7 @@ class totara_certification_messages_testcase extends reportcache_advanced_testca
         $completion->mark_complete();
 
         // Attempt to send any program messages.
-        sleep(1); // Messages are only sent if they were created before "now", so we need to wait one second.
+        $this->waitForSecond(); // Messages are only sent if they were created before "now", so we need to wait one second.
         ob_start(); // Start a buffer to catch all the mtraces in the task.
         $task = new \totara_program\task\send_messages_task();
         $task->execute();
@@ -462,7 +462,7 @@ class totara_certification_messages_testcase extends reportcache_advanced_testca
             array('userid' => $this->user2->id, 'messageid' => $messageid)));
 
         // Attempt to send any program messages.
-        sleep(1); // Messages are only sent if they were created before "now", so we need to wait one second.
+        $this->waitForSecond(); // Messages are only sent if they were created before "now", so we need to wait one second.
         ob_start(); // Start a buffer to catch all the mtraces in the task.
         $task = new \totara_program\task\send_messages_task();
         $task->execute();
@@ -728,7 +728,7 @@ class totara_certification_messages_testcase extends reportcache_advanced_testca
         $this->assertEquals(0, $DB->count_records('prog_messagelog'));
 
         // First course set due message, primary path. Course set due messages go out 20 days before due date.
-        sleep(1); // Messages are only sent if they were created before "now", so we need to wait one second.
+        $this->waitForSecond(); // Messages are only sent if they were created before "now", so we need to wait one second.
         ob_start();
         $task = new \totara_program\task\send_messages_task();
         $this->sink->clear();
@@ -782,7 +782,7 @@ class totara_certification_messages_testcase extends reportcache_advanced_testca
             array('userid' => $this->user2->id, 'messageid' => $messageid)));
 
         // Second course set due message, recert path. Course set due messages go out 20 days before due date.
-        sleep(1); // Messages are only sent if they were created before "now", so we need to wait one second.
+        $this->waitForSecond(); // Messages are only sent if they were created before "now", so we need to wait one second.
         ob_start();
         $task = new \totara_program\task\send_messages_task();
         $this->sink->clear();
@@ -836,7 +836,7 @@ class totara_certification_messages_testcase extends reportcache_advanced_testca
             array('userid' => $this->user2->id, 'messageid' => $messageid)));
 
         // Third course set due message, repeat on recert path. Course set due messages go out 20 days before due date.
-        sleep(1); // Messages are only sent if they were created before "now", so we need to wait one second.
+        $this->waitForSecond(); // Messages are only sent if they were created before "now", so we need to wait one second.
         ob_start();
         $task = new \totara_program\task\send_messages_task();
         $this->sink->clear();
@@ -883,7 +883,7 @@ class totara_certification_messages_testcase extends reportcache_advanced_testca
             array('userid' => $this->user2->id, 'messageid' => $messageid)));
 
         // Fourth course set due message, repeat on primary path. Course set due messages go out 20 days before due date.
-        sleep(1); // Messages are only sent if they were created before "now", so we need to wait one second.
+        $this->waitForSecond(); // Messages are only sent if they were created before "now", so we need to wait one second.
         ob_start();
         $task = new \totara_program\task\send_messages_task();
         $this->sink->clear();
@@ -977,7 +977,7 @@ class totara_certification_messages_testcase extends reportcache_advanced_testca
         $this->assertEquals(0, $DB->count_records('prog_messagelog'));
 
         // First course set overdue message, primary path. Course set overdue messages go out 10 days after due date.
-        sleep(1); // Messages are only sent if they were created before "now", so we need to wait one second.
+        $this->waitForSecond(); // Messages are only sent if they were created before "now", so we need to wait one second.
         ob_start();
         $task = new \totara_program\task\send_messages_task();
         $this->sink->clear();
@@ -1031,7 +1031,7 @@ class totara_certification_messages_testcase extends reportcache_advanced_testca
             array('userid' => $this->user2->id, 'messageid' => $messageid)));
 
         // Second course set overdue message, recert path. Course set overdue messages go out 10 days after due date.
-        sleep(1); // Messages are only sent if they were created before "now", so we need to wait one second.
+        $this->waitForSecond(); // Messages are only sent if they were created before "now", so we need to wait one second.
         ob_start();
         $task = new \totara_program\task\send_messages_task();
         $this->sink->clear();
@@ -1085,7 +1085,7 @@ class totara_certification_messages_testcase extends reportcache_advanced_testca
             array('userid' => $this->user2->id, 'messageid' => $messageid)));
 
         // Third course set overdue message, repeat on recert path. Course set overdue messages go out 10 days after due date.
-        sleep(1); // Messages are only sent if they were created before "now", so we need to wait one second.
+        $this->waitForSecond(); // Messages are only sent if they were created before "now", so we need to wait one second.
         ob_start();
         $task = new \totara_program\task\send_messages_task();
         $this->sink->clear();
@@ -1132,7 +1132,7 @@ class totara_certification_messages_testcase extends reportcache_advanced_testca
             array('userid' => $this->user2->id, 'messageid' => $messageid)));
 
         // Third course set overdue message, repeat on recert path. Course set overdue messages go out 10 days after due date.
-        sleep(1); // Messages are only sent if they were created before "now", so we need to wait one second.
+        $this->waitForSecond(); // Messages are only sent if they were created before "now", so we need to wait one second.
         ob_start();
         $task = new \totara_program\task\send_messages_task();
         $this->sink->clear();
@@ -1374,7 +1374,7 @@ class totara_certification_messages_testcase extends reportcache_advanced_testca
         $completion->mark_complete();
 
         // Attempt to send any program messages.
-        sleep(1); // Messages are only sent if they were created before "now", so we need to wait one second.
+        $this->waitForSecond(); // Messages are only sent if they were created before "now", so we need to wait one second.
         ob_start(); // Start a buffer to catch all the mtraces in the task.
         $task = new \totara_program\task\send_messages_task();
         $task->execute();
@@ -1642,7 +1642,7 @@ class totara_certification_messages_testcase extends reportcache_advanced_testca
         $completion->mark_complete();
 
         // Attempt to send any program messages.
-        sleep(1); // Messages are only sent if they were created before "now", so we need to wait one second.
+        $this->waitForSecond(); // Messages are only sent if they were created before "now", so we need to wait one second.
         ob_start(); // Start a buffer to catch all the mtraces in the task.
         $task = new \totara_program\task\send_messages_task();
         $task->execute();
@@ -1675,7 +1675,7 @@ class totara_certification_messages_testcase extends reportcache_advanced_testca
         $certcron->execute();
 
         // Attempt to send any program messages.
-        sleep(1); // Messages are only sent if they were created before "now", so we need to wait one second.
+        $this->waitForSecond(); // Messages are only sent if they were created before "now", so we need to wait one second.
         ob_start(); // Start a buffer to catch all the mtraces in the task.
         $task = new \totara_program\task\send_messages_task();
         $task->execute();
@@ -1705,7 +1705,7 @@ class totara_certification_messages_testcase extends reportcache_advanced_testca
         $certcron->execute();
 
         // Attempt to send any program messages.
-        sleep(1); // Messages are only sent if they were created before "now", so we need to wait one second.
+        $this->waitForSecond(); // Messages are only sent if they were created before "now", so we need to wait one second.
         ob_start(); // Start a buffer to catch all the mtraces in the task.
         $task = new \totara_program\task\send_messages_task();
         $task->execute();
@@ -1727,7 +1727,7 @@ class totara_certification_messages_testcase extends reportcache_advanced_testca
         $completion->mark_complete();
 
         // Attempt to send any program messages.
-        sleep(1); // Messages are only sent if they were created before "now", so we need to wait one second.
+        $this->waitForSecond(); // Messages are only sent if they were created before "now", so we need to wait one second.
         ob_start(); // Start a buffer to catch all the mtraces in the task.
         $task = new \totara_program\task\send_messages_task();
         $task->execute();
@@ -1755,7 +1755,7 @@ class totara_certification_messages_testcase extends reportcache_advanced_testca
         $certcron->execute();
 
         // Attempt to send any program messages.
-        sleep(1); // Messages are only sent if they were created before "now", so we need to wait one second.
+        $this->waitForSecond(); // Messages are only sent if they were created before "now", so we need to wait one second.
         ob_start(); // Start a buffer to catch all the mtraces in the task.
         $task = new \totara_program\task\send_messages_task();
         $task->execute();

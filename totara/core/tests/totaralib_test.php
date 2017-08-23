@@ -240,7 +240,7 @@ class totaralib_test extends advanced_testcase {
         $this->assertEquals(true, $DB->record_exists('course_modules_completion',
             array('coursemoduleid' => $cminfo->id, 'userid' => $learner->id, 'completionstate' => COMPLETION_INCOMPLETE)));
 
-        sleep(1);
+        $this->waitForSecond();
         totara_core_reaggregate_course_modules_completion();
 
         // MANUAL COMPLETIONS - Cron will not update to complete again.
@@ -300,7 +300,7 @@ class totaralib_test extends advanced_testcase {
         $this->assertEquals(true, $DB->record_exists('course_modules_completion',
             array('coursemoduleid' => $cminfo->id, 'userid' => $learner->id, 'completionstate' => COMPLETION_INCOMPLETE)));
 
-        sleep(1);
+        $this->waitForSecond();
         totara_core_reaggregate_course_modules_completion();
 
         // VIEWED COMPLETIONS - should be reaggregated to complete again.

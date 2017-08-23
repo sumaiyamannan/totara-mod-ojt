@@ -33,7 +33,6 @@ class totara_reportbuilder_sourceobjects_cache_testcase extends advanced_testcas
 
         $this->resetAfterTest();
         $this->setAdminUser(); // We need permissions to access all reports.
-        $this->preventResetByRollback();
 
         // Create two users and report.
         $user1 = $this->getDataGenerator()->create_user();

@@ -43,6 +43,10 @@ trait report_testing {
     protected function enable_caching($reportid) {
         global $DB;
 
+        if ($DB->get_dbfamily() !== 'postgres') {
+            $this->preventResetByRollback();
+        }
+
         set_config('enablereportcaching', 1);
         // Schedule cache.
         $DB->execute('UPDATE {report_builder} SET cache = 1 WHERE id = ?', array($reportid));

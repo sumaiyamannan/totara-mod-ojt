@@ -32,7 +32,6 @@ class mod_facetoface_reservation_testcase extends advanced_testcase {
      */
     public function test_facetoface_remove_allocations() {
         $this->resetAfterTest(true);
-        $this->preventResetByRollback();
 
         $manager = $this->getDataGenerator()->create_user();
         $user1 = $this->getDataGenerator()->create_user();

@@ -46,6 +46,9 @@ class pgsql_native_moodle_database extends moodle_database {
     /** @var bool savepoint hack for MDL-35506 - workaround for automatic transaction rollback on error */
     protected $savepointpresent = false;
 
+    /** @var array cached server information */
+    protected $serverinfo = null;
+
     /**
      * Detects if all needed PHP stuff installed.
      * Note: can be used before connect()
@@ -264,13 +267,28 @@ class pgsql_native_moodle_database extends moodle_database {
      * @return array Array containing 'description' and 'version' info
      */
     public function get_server_info() {
-        static $info;
-        if (!$info) {
-            $this->query_start("--pg_version()", null, SQL_QUERY_AUX);
-            $info = pg_version($this->pgsql);
-            $this->query_end(true);
+        if (!$this->pgsql) {
+            return null;
         }
-        return array('description'=>$info['server'], 'version'=>$info['server']);
+
+        if (isset($this->serverinfo)) {
+            return $this->serverinfo;
+        }
+
+        $this->query_start("--pg_version()", null, SQL_QUERY_AUX);
+        $info = pg_version($this->pgsql);
+        $this->query_end(true);
+
+        if (!$info) {
+            return null;
+        }
+
+        $this->serverinfo = array(
+            'description' => $info['server'],
+            'version' => $info['server'],
+        );
+
+        return $this->serverinfo;
     }
 
     /**

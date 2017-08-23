@@ -59,10 +59,6 @@ if (file_exists(__DIR__.'/../../../../vendor/phpunit/phpunit/composer.json')) {
     phpunit_bootstrap_error(PHPUNIT_EXITCODE_PHPUNITMISSING);
 }
 
-if ($options['install'] or $options['drop']) {
-    define('CACHE_DISABLE_ALL', true);
-}
-
 if ($options['run']) {
     unset($options);
     unset($unrecognized);
@@ -74,10 +70,11 @@ if ($options['run']) {
         }
     }
     $_SERVER['argv'] = array_values($_SERVER['argv']);
-    PHPUnit_TextUI_Command::main();
-    exit(0);
+    PHPUnit_TextUI_Command::main(true);
+    exit(0); // Not reached.
 }
 
+define('CACHE_DISABLE_ALL', true); // Totara: do not cache anything!
 define('PHPUNIT_UTIL', true);
 
 require(__DIR__ . '/../../../../lib/phpunit/bootstrap.php');

@@ -269,7 +269,7 @@ class rb_source_totaramessages extends rb_base_source {
 
         // Include some standard filters. Including the user that the message was sent from.
         $this->add_user_fields_to_filters($filteroptions, 'user', true);
-        $this->add_job_assignment_fields_to_filters($filteroptions);
+        $this->add_job_assignment_fields_to_filters($filteroptions, 'msg', 'useridfrom'); // Note these relate to the sender.
         $this->add_cohort_user_fields_to_filters($filteroptions);
 
         return $filteroptions;
@@ -478,4 +478,22 @@ class rb_source_totaramessages extends rb_base_source {
         return $out;
     }
 
+    public function get_required_jss() {
+        global $CFG;
+
+        require_once($CFG->dirroot.'/totara/core/js/lib/setup.php');
+        $code = array();
+        $code[] = TOTARA_JS_DIALOG;
+        local_js($code);
+
+        $jsdetails = new stdClass();
+        $jsdetails->initcall = 'M.totara_message.init';
+        $jsdetails->jsmodule = array('name' => 'totara_message',
+            'fullpath' => '/totara/message/module.js');
+        $jsdetails->strings = array(
+            'block_totara_alerts' => array('reviewitems')
+        );
+
+        return array($jsdetails);
+    }
 }

@@ -27,27 +27,7 @@ defined('MOODLE_INTERNAL') || die();
 /**
  * Test evidence customfield creation.
  */
-class evidence_customfield_testcase extends advanced_testcase {
-
-    protected $plangenerator = null;
-
-    protected function tearDown() {
-        $this->plangenerator = null;
-        parent::tearDown();
-    }
-
-    protected function setUp() {
-        parent::setup();
-        $this->resetAfterTest(true);
-        $this->setAdminUser();
-        $this->preventResetByRollback();
-
-        $generator = $this->getDataGenerator();
-
-        // Set totara_plangenerator.
-        $this->plangenerator = $generator->get_plugin_generator('totara_plan');
-    }
-
+class totara_plan_evidence_customfield_testcase extends advanced_testcase {
     public function test_customfield_new_installation_creation() {
         global $DB;
 

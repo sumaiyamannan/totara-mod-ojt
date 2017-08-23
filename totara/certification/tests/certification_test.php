@@ -105,7 +105,7 @@ class totara_certification_certification_testcase extends reportcache_advanced_t
         $this->setuptimeminimum = $setuptime;
         // By waiting a little bit, we ensure that our time asserts are correct, and not just happening
         // within a single second, which could cause intermittent testing failures.
-        sleep(1);
+        $this->waitForSecond();
         $startoftoday = totara_date_parse_from_format('d/m/Y', date('d/m/Y', $setuptime));
 
         // Create users.
@@ -205,7 +205,7 @@ class totara_certification_certification_testcase extends reportcache_advanced_t
             $this->coursesforcompletion[] = $this->courses[$certprogram->id];
         }
 
-        sleep(1);
+        $this->waitForSecond();
         $this->setuptimemaximum = time();
     }
 
@@ -220,14 +220,14 @@ class totara_certification_certification_testcase extends reportcache_advanced_t
         // Complete some users in the first three certifications.
         $this->firstcompletiontime = time();
         $this->firstcompletiontimeminimum = $this->firstcompletiontime;
-        sleep(1);
+        $this->waitForSecond();
         foreach ($this->coursesforcompletion as $course) {
             for ($i = 1; $i <= CERTIFICATION_PART_2_USERS; $i++) {
                 $completion = new completion_completion(array('userid' => $this->users[$i]->id, 'course' => $course->id));
                 $completion->mark_complete($this->firstcompletiontime);
             }
         }
-        sleep(1);
+        $this->waitForSecond();
         $this->firstcompletiontimemaximum = time();
     }
 
@@ -322,14 +322,14 @@ class totara_certification_certification_testcase extends reportcache_advanced_t
         // Complete some users in the first two certifications.
         $this->secondcompletiontime = time();
         $this->secondcompletiontimeminimum = $this->secondcompletiontime;
-        sleep(1);
+        $this->waitForSecond();
         foreach ($this->coursesforcompletion as $course) {
             for ($i = 1; $i <= CERTIFICATION_PART_4_USERS; $i++) {
                 $completion = new completion_completion(array('userid' => $this->users[$i]->id, 'course' => $course->id));
                 $completion->mark_complete($this->secondcompletiontime);
             }
         }
-        sleep(1);
+        $this->waitForSecond();
         $this->secondcompletiontimemaximum = time();
     }
 
@@ -410,14 +410,14 @@ class totara_certification_certification_testcase extends reportcache_advanced_t
         // Run cron.
         $this->secondcrontime = time();
         $this->secondcrontimeminimum = $this->secondcrontime;
-        sleep(1);
+        $this->waitForSecond();
         ob_start();
         $certcron = new \totara_certification\task\update_certification_task();
         $certcron->execute();
         $assignmentscron = new \totara_program\task\user_assignments_task();
         $assignmentscron->execute();
         ob_end_clean();
-        sleep(1);
+        $this->waitForSecond();
         $this->secondcrontimemaximum = time();
     }
 
@@ -432,14 +432,14 @@ class totara_certification_certification_testcase extends reportcache_advanced_t
         // Complete all users in the first two certifications.
         $this->thirdcompletiontime = time();
         $this->thirdcompletiontimeminimum = $this->thirdcompletiontime;
-        sleep(1);
+        $this->waitForSecond();
         foreach ($this->coursesforcompletion as $course) {
             for ($i = 1; $i <= CERTIFICATION_USERS; $i++) {
                 $completion = new completion_completion(array('userid' => $this->users[$i]->id, 'course' => $course->id));
                 $completion->mark_complete($this->thirdcompletiontime);
             }
         }
-        sleep(1);
+        $this->waitForSecond();
         $this->thirdcompletiontimemaximum = time();
 
     }

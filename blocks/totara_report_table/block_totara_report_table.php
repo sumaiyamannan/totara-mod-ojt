@@ -216,6 +216,7 @@ class block_totara_report_table extends block_base {
             }
         }
 
+        $report->include_js();
         $reporturl = new moodle_url($report->report_url());
         if ($sid) {
             $reporturl->param('sid', $sid);

@@ -50,6 +50,9 @@ class sqlsrv_native_moodle_database extends moodle_database {
     /** @var array list of open recordsets */
     protected $recordsets = array();
 
+    /** @var array cached server information */
+    protected $serverinfo = null;
+
     /**
      * Constructor - instantiates the database, specifying if it's external (connect to other systems) or no (Moodle DB)
      *              note this has effect to decide if prefix checks must be performed or no
@@ -260,7 +263,7 @@ class sqlsrv_native_moodle_database extends moodle_database {
 
         $serverinfo = $this->get_server_info();
         // Fetch/offset is supported staring from SQL Server 2012.
-        $this->supportsoffsetfetch = $serverinfo['version'] > '11';
+        $this->supportsoffsetfetch = version_compare($serverinfo['version'], '11', '>');
 
         // Connection established and configured, going to instantiate the temptables controller
         $this->temptables = new sqlsrv_native_moodle_temptables($this);
@@ -305,21 +308,28 @@ class sqlsrv_native_moodle_database extends moodle_database {
 
     /**
      * Returns database server info array
-     * @return array Array containing 'description', 'version' and 'database' (current db) info
+     * @return array Array containing 'description' and 'version' info
      */
     public function get_server_info() {
-        static $info;
-
-        if (!$info) {
-            $server_info = sqlsrv_server_info($this->sqlsrv);
-
-            if ($server_info) {
-                $info['description'] = $server_info['SQLServerName'];
-                $info['version'] = $server_info['SQLServerVersion'];
-                $info['database'] = $server_info['CurrentDatabase'];
-            }
+        if (!$this->sqlsrv) {
+            return null;
         }
-        return $info;
+
+        if (isset($this->serverinfo)) {
+            return $this->serverinfo;
+        }
+
+        $server_info = sqlsrv_server_info($this->sqlsrv);
+        if (!$server_info) {
+            return null;
+        }
+
+        $this->serverinfo = array(
+            'description' => $server_info['SQLServerVersion'],
+            'version' => $server_info['SQLServerVersion'],
+        );
+
+        return $this->serverinfo;
     }
 
     /**

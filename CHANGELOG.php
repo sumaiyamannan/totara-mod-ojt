@@ -3,6 +3,155 @@
 
 Totara LMS Changelog
 
+Release 9.10 (23rd August 2017):
+================================
+
+
+Important:
+
+    TL-7753        The gauth authentication plugin has been removed from all versions of Totara
+
+                   The gauth plugin has now been removed from Totara 10, 9.10, 2.9.22, 2.7.30,
+                   and 2.6.47.
+                   It was removed because the Google OpenID 2.0 API used by this plugin has
+                   been shut down.
+                   The plugin itself has not worked since April 2015 for this reason.
+                   No alternative is available as a brand new plugin would need to be written
+                   to use the API's currently provided by Google.
+
+Security issues:
+
+    TL-10753       Prevented viewing of hidden program names in Program completions block ajax
+
+                   Previously, a user visiting an AJAX script for the program completions
+                   block could see names of hidden programs if certain values were used in the
+                   URL. Names of programs can now only be seen if the user has permission to
+                   view them.
+
+    TL-14213       Converted sesskey checks to use timing attack safe function hash_equals()
+
+Improvements:
+
+    TL-12886       Improved formatting when viewing user details within a course
+    TL-14368       Added an autosubmit handler to Totara forms
+    TL-14726       Stopped duplicate calls to the core_output_load_template webservice
+
+                   When requesting the same template numerous times in quick succession via
+                   JavaScript, the template library was firing duplicate requests to the
+                   server. This improvement stops duplicate requests from happening.
+
+    TL-14781       Improved efficiency of job assignment filter joins
+
+                   Previously, job assignment filters were joining to the user table. Now,
+                   they can join to the user id in another table, such as the report's base
+                   table. If data from the user table is not needed then that join will no
+                   longer be needed in order to use the job assignment filters. These changes
+                   potentially result in a small performance improvement.
+
+    TL-14986       Added proficiency achieved date to competencies
+
+                   Added new column called "timeproficient" to both the comp_record and
+                   comp_record_history tables, this field defaults to the first time when a
+                   user is marked proficient in a competency. There are also new "Date
+                   proficiency achieved" columns/filters for the competency report sources,
+                   and a date selector on the set competency status form allowing you to edit
+                   the field. Please note that this field only works for future proficiencies,
+                   but existing ones can be edited via the competency status form.
+                   This change has also added a default value when the default competency
+                   scale is created, so new installs will include a default value of 'Not
+                   competent'.
+
+    TL-14988       Ensured that a competency status is displayed on the Record of Learning even if a learning plan has been deleted
+    TL-15002       Added navigation links on the Approval plugin edit signup page
+    TL-15006       Cleaned up and improved dataroot reset in behat and phpunit tests
+    TL-15009       Added new faster static MUC cache for phpunit tests
+    TL-15016       Improved the summary of the mod/facetoface:signupwaitlist capability to avoid confusion
+    TL-15755       Unnecessary confirmation related emails are not sent when request is approved automatically in Self-registration with approval
+    TL-15760       Updated hardcoded URLs to point to new community site location
+
+                   Links to the community in code were updated from community.totaralms.com to
+                   the new url of totara.community.
+
+Bug fixes:
+
+    TL-12295       Added replacement email verification for openbackpack connections
+
+                   The Persona system has been shut down. (For more information see,
+                   https://wiki.mozilla.org/Identity/Persona_Shutdown_Guidelines_for_Reliers).
+                   This introduces a replacement email verification process to ensure the
+                   badges functionality continues to be supported.
+
+                   This is a backport of MDL-57429 / TL-14568.
+
+    TL-12459       Prevented the leave page confirmation when approving changes after adding an Audience rule
+    TL-12855       Fixed quiz statistics for separate groups
+    TL-14148       Fixed static server version caching in database drivers
+    TL-14170       Fixed LDAP/user profile custom field sync bug
+    TL-14239       The required fields note now appears correctly when a Totara form is loaded via JavaScript
+    TL-14316       Fixed the loading of YUI dialogs within Totara dialogs
+    TL-14805       Ensured appraisal question field labels display consistently
+    TL-14813       Pix to Flex icon conversion now honours custom pix title attributes
+    TL-14828       Forum posts only marked as read when full post is displayed
+    TL-14935       Ensured that programs and their courses appear within the Current Learning Block when they are within an approved Learning Plan
+    TL-14953       Fixed missing JavaScript dependencies in the report table block
+
+                   While the Report Table Block allows the use of embedded report sources, it
+                   does not add embedded restrictions (which are only added on pages where the
+                   embedded report is displayed already).
+                   This means specific embedded restrictions will not be applied in the table
+                   and content displayed in block might be different from content displayed on
+                   page.
+                   For example, Alerts embedded report page will display only user's messages,
+                   while the same report in the Report Builder block will display messages for
+                   all users. It is better to use non-embedded report sources and saved
+                   searches to restrict information displayed.
+
+    TL-14954       Fixed the display of translated month names in date pickers
+    TL-14984       Fixed the display of grades in the Record of Learning grades column
+    TL-14994       Added missing parameter to job assignments url on the user profile page
+    TL-15000       Removed duplicate error messages when approving signups
+    TL-15011       Added check for valid hierarchy ids when accessing auth approved signup page with external defaults
+    TL-15022       Fixed 'Responsetime' for anonymous users from showing epoch date
+    TL-15024       Fixed an error that occurred when exporting assignees and their job assignments for Seminar events
+    TL-15039       Fixed an SQL error that occurred when searching in filters using just a space
+    TL-15040       Fixed the information sent in the attached ical when notifying users that a Seminar's date and details have been changed
+    TL-15054       Fixed inconsistent behaviour when changing number of course sections
+    TL-15057       ORACLE SQL keywords are now ignored when validating install.xml files
+    TL-15080       Fixed context of dynamic audiences rules permission check
+
+                   totara/cohort:managerules permissions were incorrectly checked in System
+                   context in some cases instead of in the Category context.
+
+    TL-15083       Updated the capability check in totara_gap_can_edit_aspirational_position to ensure new users can be created without error
+
+                   When a new user is added, their id is -1 until their record has been
+                   created. The totara_gap_can_edit_aspirational_position function has been
+                   updated to recognise this and to allow for new users to be added.
+
+    TL-15086       Fixed SCORM view page to display content depending on permissions
+
+                   If the user has the mod/scorm:savetrack capability, they can see the info
+                   page and enter the SCORM lesson.
+                   If the user has the mod/scorm:viewreport capability, they can see the SCORM
+                   reports.
+
+    TL-15095       Fixed known compatibility problems with MariaDB 10.2.7
+    TL-15097       Added a missing language string used within course reset
+    TL-15100       Fixed session start date link format without timezone
+    TL-15103       Fixed handling of html markup in multilingual authentication instructions
+    TL-15303       Fixed element heights set by JavaScript in grader report
+    TL-15731       Fixed the display of personal goal text area custom fields in Appraisal snapshots
+    TL-15738       Fixed program progress bar in Program Overview report source
+    TL-15775       Fixed incorrect encoding of language strings in Appraisal dialogs
+    TL-15811       Fixed admin tree rendering to handle empty sub items
+    TL-15838       Fixed Seminar Message Users to send a message to CC user manager
+
+Contributions:
+
+    * Richard Eastbury at Think Associates - TL-15775
+    * Russell England at Kineo USA - TL-15083
+
+
 Release 9.9 (19th July 2017):
 =============================
 

@@ -29,6 +29,13 @@ class customfield_textarea extends customfield_base {
         $cols = $this->field->param1;
         $rows = $this->field->param2;
         $context = context_system::instance();
+
+        $isexport = false;
+        if ($mform->elementExists('export')) {
+            // The export element is used by appraisals snapshots, if set the output should be static.
+            $isexport = $mform->getElement('export')->getValue();
+        }
+
         // Create the form field.
         if ($this->itemid == 0) { // If its new record.
             $mform->addElement('editor', $this->inputname, format_string($this->field->fullname), array('cols' => $cols, 'rows' => $rows), $TEXTAREA_OPTIONS);
@@ -38,7 +45,7 @@ class customfield_textarea extends customfield_base {
             }
             $mform->setType($this->inputname, PARAM_CLEANHTML);
         } else { // If its existing record.
-            if ($this->is_locked()) {
+            if ($this->is_locked() || $isexport) {
                 $data = file_rewrite_pluginfile_urls($this->data, 'pluginfile.php', $context->id, 'totara_customfield', $this->prefix, $this->dataid);
                 $mform->addElement('static', 'freezedisplay', format_string($this->field->fullname), format_text($data, FORMAT_MOODLE));
             } else {

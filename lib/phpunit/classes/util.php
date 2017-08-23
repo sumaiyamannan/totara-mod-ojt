@@ -55,14 +55,12 @@ class phpunit_util extends testing_util {
     protected static $eventsink = null;
 
     /**
-     * @var array Files to skip when resetting dataroot folder
-     */
-    protected static $datarootskiponreset = array('.', '..', 'phpunittestdir.txt', 'phpunit', '.htaccess');
-
-    /**
      * @var array Files to skip when dropping dataroot folder
      */
     protected static $datarootskipondrop = array('.', '..', 'lock', 'webrunner.xml');
+
+    /** @var phpunit_cache_factory $cachefactory */
+    protected static $cachefactory;
 
     /**
      * Load global $CFG;
@@ -275,6 +273,19 @@ class phpunit_util extends testing_util {
         // purge dataroot directory
         self::reset_dataroot();
 
+        if (self::$cachefactory) {
+            // Totara: switch back to fast phpunit caches.
+            self::$cachefactory->phpunit_reset();
+        } else {
+            // Purge all data from the caches. This is required for consistency between tests.
+            // Any file caches that happened to be within the data root will have already been clearer (because we just deleted cache)
+            // and now we will purge any other caches as well.  This must be done before the cache_factory::reset() as that
+            // removes all definitions of caches and purge does not have valid caches to operate on.
+            cache_helper::purge_all();
+            // Reset the cache API so that it recreates it's required directories as well.
+            cache_factory::reset();
+        }
+
         // restore original config once more in case resetting of caches changed CFG
         $CFG = self::get_global_backup('CFG');
 
@@ -342,8 +353,18 @@ class phpunit_util extends testing_util {
         self::$globals['DB'] = $DB;
         self::$globals['FULLME'] = $FULLME;
 
+        if (empty($CFG->altcacheconfigpath) and !defined('TEST_CACHE_USING_ALT_CACHE_CONFIG_PATH')) {
+            require_once(__DIR__ . '/cache_factory.php');
+            self::$cachefactory = new phpunit_cache_factory();
+        }
+
         // refresh data in all tables, clear caches, etc.
         self::reset_all_data();
+
+        if (self::$cachefactory) {
+            self::$cachefactory->prime_caches();
+            self::reset_all_data();
+        }
     }
 
     /**
@@ -420,7 +441,7 @@ class phpunit_util extends testing_util {
      * @return void may terminate execution with exit code
      */
     public static function drop_site($displayprogress = false) {
-        global $DB, $CFG;
+        global $CFG;
 
         if (!self::is_test_site()) {
             phpunit_bootstrap_error(PHPUNIT_EXITCODE_CONFIGERROR, 'Can not drop non-test site!!');
@@ -431,12 +452,12 @@ class phpunit_util extends testing_util {
             echo "Purging dataroot:\n";
         }
 
-        self::reset_dataroot();
-        testing_initdataroot($CFG->dataroot, 'phpunit');
-        self::drop_dataroot();
-
-        // drop all tables
+        // Drop all tables.
         self::drop_database($displayprogress);
+
+        // Purge dataroot only, but keep the directory.
+        self::drop_dataroot();
+        testing_initdataroot($CFG->dataroot, 'phpunit');
     }
 
     /**
@@ -468,6 +489,11 @@ class phpunit_util extends testing_util {
         $options['shortname'] = 'phpunit';
         $options['fullname'] = 'PHPUnit test site';
 
+        // Torara: Empty dataroot and initialise it.
+        self::drop_dataroot();
+        testing_initdataroot($CFG->dataroot, 'phpunit');
+        self::reset_dataroot();
+
         install_cli_database($options, false);
 
         // Set the admin email address.
@@ -483,9 +509,7 @@ class phpunit_util extends testing_util {
         set_config('enableblogs', 1);
         $DB->delete_records('user_preferences', array()); // Totara admin site page default.
 
-        // We need to keep the installed dataroot filedir files.
-        // So each time we reset the dataroot before running a test, the default files are still installed.
-        self::save_original_data_files();
+        // Totara: there is no need to save filedir files, we do not delete them in tests!
 
         // Store version hash in the database and in a file.
         self::store_versions_hash();

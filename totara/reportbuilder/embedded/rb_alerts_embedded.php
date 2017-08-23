@@ -29,6 +29,8 @@ class rb_alerts_embedded extends rb_base_embedded {
     public $hidden, $accessmode, $accesssettings, $shortname;
 
     public function __construct($data) {
+        global $USER;
+
         $userid = array_key_exists('userid', $data) ? $data['userid'] : null;
 
         $this->url = '/totara/message/alerts.php';
@@ -91,6 +93,9 @@ class rb_alerts_embedded extends rb_base_embedded {
         // also limited to single user
         if (isset($userid)) {
             $this->embeddedparams['userid'] = $userid;
+        } else {
+            // Restrict to own messages only
+            $this->embeddedparams['userid'] = $USER->id;
         }
         // also limited by role
         if (isset($roleid)) {

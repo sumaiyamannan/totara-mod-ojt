@@ -447,7 +447,7 @@ class rb_source_program_completion extends rb_base_source {
         // Include some standard filters.
         $this->add_user_fields_to_filters($filteroptions);
         $this->add_course_category_fields_to_filters($filteroptions, 'prog', 'category');
-        $this->add_job_assignment_fields_to_filters($filteroptions);
+        $this->add_job_assignment_fields_to_filters($filteroptions, 'base', 'userid');
         $this->add_program_fields_to_filters($filteroptions, "totara_{$this->instancetype}");
         $this->add_cohort_user_fields_to_filters($filteroptions);
         $this->add_cohort_program_fields_to_filters($filteroptions, "totara_{$this->instancetype}");

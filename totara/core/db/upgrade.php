@@ -1544,5 +1544,43 @@ function xmldb_totara_core_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2016101911, 'totara', 'core');
     }
 
+    // We removed the gauth plugin in Totara 10, 9.10, 2.9.22, 2.7.30, and 2.6.47.
+    // The Google OpenID 2.0 API was deprecated May 2014, and shut down April 2015.
+    // https://developers.google.com/identity/sign-in/auth-migration
+    if ($oldversion < 2016101915) {
+
+        if (file_exists($CFG->dirroot . '/auth/gauth/version.php')) {
+            // This should not happen, this is not a standard distribution!
+            // Nothing to do here.
+        } else if (!get_config('auth_gauth', 'version')) {
+            // Not installed. Weird but fine.
+            // Nothing to do here.
+        } else if ($DB->record_exists('user', array('auth' => 'gauth', 'deleted' => 0))) {
+            // We need to remove the gauth plugin from the list of enabled plugins, if it has been enabled.
+            $enabledauth = $DB->get_record('config', ['name' => 'auth'], '*', IGNORE_MISSING);
+            if (!empty($enabledauth) && strpos($enabledauth->value, 'gauth')) {
+                $auths = explode(',', $enabledauth->value);
+                $auths = array_unique($auths);
+                if (($key = array_search('gauth', $auths)) !== false) {
+                    unset($auths[$key]);
+                    set_config('auth', implode(',', $auths));
+                }
+            }
+            // Note that if any users were created via gauth they won't have successfully logged in in the past 2 years.
+            // Consequently we are going to leave their auth set to gauth.
+            // They won't be able to log in, the admin will need to change their auth to manual.
+
+            // Additionally all settings associated with the gauth plugin have been left in place just
+            // in case anyone has fixed this plugin themselves, in which case they can put the files back
+            // and simply re-enable the plugin after uprgade and everything will continue to work just fine.
+        } else {
+            // It is installed, and it is not used.
+            // We can run the full uninstall_plugin for this, yay!
+            uninstall_plugin('auth', 'gauth');
+        }
+
+        upgrade_plugin_savepoint(true, 2016101915, 'totara', 'core');
+    }
+
     return true;
 }

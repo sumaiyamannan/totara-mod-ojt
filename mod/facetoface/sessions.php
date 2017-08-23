@@ -365,14 +365,6 @@ if ($fromform = $mform->get_data()) { // Form submitted
     if ($update) {
         // Now that we have updated the session record fetch the rest of the data we need.
         facetoface_update_attendees($session);
-
-        // Send any necessary datetime change notifications but only if date/time is known.
-        if (!empty($sessiondates) && facetoface_session_dates_check($olddates, $sessiondates)) {
-            $attendees = facetoface_get_attendees($session->id);
-            foreach ($attendees as $user) {
-                facetoface_send_datetime_change_notice($facetoface, $session, $user->id, $olddates);
-            }
-        }
     }
 
     // Save trainer roles.
@@ -389,6 +381,14 @@ if ($fromform = $mform->get_data()) { // Form submitted
     facetoface_update_calendar_entries($session, $facetoface);
 
     if ($update) {
+        // Send any necessary datetime change notifications but only if date/time is known.
+        if (!empty($sessiondates) && facetoface_session_dates_check($olddates, $sessiondates)) {
+            $attendees = facetoface_get_attendees($session->id);
+            foreach ($attendees as $user) {
+                facetoface_send_datetime_change_notice($facetoface, $session, $user->id, $olddates);
+            }
+        }
+
         \mod_facetoface\event\session_updated::create_from_session($session, $context)->trigger();
     } else {
         \mod_facetoface\event\session_created::create_from_session($session, $context)->trigger();

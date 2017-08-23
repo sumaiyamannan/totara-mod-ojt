@@ -569,6 +569,22 @@ class totara_reportbuilder_column_testcase extends reportcache_advanced_testcase
 
     protected $tool_customlang_components_data = array('id' => 1, 'name' => 'totara', 'version' => '1985031400');
 
+    public static function setUpBeforeClass() {
+        parent::setUpBeforeClass();
+        global $DB;
+        if ($DB->get_dbfamily() === 'mysql') {
+            // MySQL default size is too small for some of our reports when all columns and filters are included.
+            $sbs = $DB->get_field_sql("SELECT @@sort_buffer_size");
+            $required = 2097152;
+            if (strpos($DB->get_dbcollation(), 'utf8mb4') !== false) {
+                $required = 6291456;
+            }
+            if ($sbs < $required) {
+                $DB->execute("SET sort_buffer_size=$required");
+            }
+        }
+    }
+
     protected function tearDown() {
         $this->user_info_field_data = null;
         $this->user_info_data_data = null;
@@ -838,11 +854,6 @@ class totara_reportbuilder_column_testcase extends reportcache_advanced_testcase
         $src = reportbuilder::get_source_object($sourcename, true); // Caching here is completely fine.
         $src->phpunit_column_test_add_data($this);
 
-        if ($src->cacheable) {
-            // We are going to create cache tables.
-            $this->preventResetByRollback();
-        }
-
         // Create a report.
         $report = new stdClass();
         $report->fullname = 'Big test report';
@@ -974,12 +985,6 @@ class totara_reportbuilder_column_testcase extends reportcache_advanced_testcase
             }
         }
 
-        if ($DB->get_dbfamily() === 'mysql') {
-            // Default size is too small for some of our reports when all columns and filters are included.
-            $prevsbs = $DB->get_field_sql("SELECT @@sort_buffer_size");
-            $DB->execute("SET sort_buffer_size=1048580");
-        }
-
         // Test we can execute the query with all columns and filters.
         $rb = new reportbuilder($bigreportid);
         list($sql, $params, $cacheschedule) = $rb->build_query(false, true, false);
@@ -987,23 +992,18 @@ class totara_reportbuilder_column_testcase extends reportcache_advanced_testcase
         $rs->close();
 
         if (!$src->cacheable) {
-            if ($DB->get_dbfamily() === 'mysql') {
-                $DB->execute("SET sort_buffer_size=$prevsbs");
-            }
             return;
         }
 
-        if (get_class($DB) === 'mysqli_native_moodle_database') {
+        if ($DB->get_dbvendor() === 'mysql') {
             $info = $DB->get_server_info();
-            if (version_compare($info['version'], '5.7') < 0) {
-                $DB->execute("SET sort_buffer_size=$prevsbs");
+            if (version_compare($info['version'], '5.7', '<')) {
                 $this->markTestSkipped('MySQL versions lower than 5.7 have severe limits, skipping source caching test');
             }
         }
-        if (get_class($DB) === 'mariadb_native_moodle_database') {
+        if ($DB->get_dbvendor() === 'mariadb') {
             $info = $DB->get_server_info();
-            if (version_compare($info['version'], '10.2') < 0) {
-                $DB->execute("SET sort_buffer_size=$prevsbs");
+            if (version_compare($info['version'], '10.2', '<')) {
                 $this->markTestSkipped('MariaDB versions lower than 10.2 have severe limits, skipping source caching test');
             }
         }
@@ -1024,10 +1024,6 @@ class totara_reportbuilder_column_testcase extends reportcache_advanced_testcase
             list($sql, $params, $cacheschedule) = $rb->build_query(false, true, true);
             $rs = $DB->get_counted_recordset_sql($sql, $params);
             $rs->close();
-        }
-
-        if ($DB->get_dbfamily() === 'mysql') {
-            $DB->execute("SET sort_buffer_size=$prevsbs");
         }
     }
 }

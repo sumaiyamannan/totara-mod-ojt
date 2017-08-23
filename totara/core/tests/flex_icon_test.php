@@ -210,6 +210,25 @@ class totara_core_flex_icon_testcase extends advanced_testcase {
         $pixicon = new pix_icon('grrrrgrgrg', 'Some Forum', 'forum');
         $flexicon = flex_icon::create_from_pix_icon($pixicon);
         $this->assertNull($flexicon);
+
+        // Title text explicitly set when creating pix_icon instance
+        // should be reflected in resulting flex_icon instance.
+        $attributes = array('class' => 'activityicon otherclass', 'title' => 'Title text');
+        $pixicon = new pix_icon('icon', 'Alt text', 'forum', $attributes);
+        $flexicon = flex_icon::create_from_pix_icon($pixicon);
+        $this->assertInstanceOf('core\output\flex_icon', $flexicon);
+        $this->assertSame('mod_forum|icon', $flexicon->identifier);
+        $this->assertSame(array('classes' => 'activityicon otherclass', 'alt' => 'Alt text', 'title' => 'Title text'),
+            $flexicon->customdata);
+
+        // Title MUST NOT be set if it simply duplicates alt text.
+        // Conversion code ignores setting title if alt already set and is the same.
+        $attributes = array('alt' => 'Alt text', 'title' => 'Alt text');
+        $pixicon = new pix_icon('icon', 'Alt text', 'forum', $attributes);
+        $flexicon = flex_icon::create_from_pix_icon($pixicon);
+        $this->assertInstanceOf('core\output\flex_icon', $flexicon);
+        $this->assertSame('mod_forum|icon', $flexicon->identifier);
+        $this->assertSame(array('alt' => 'Alt text'), $flexicon->customdata);
     }
 
     public function test_create_from_pix_url() {

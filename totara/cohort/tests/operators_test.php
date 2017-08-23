@@ -60,7 +60,6 @@ class totara_cohort_operators_testcase extends reportcache_advanced_testcase {
         set_config('enablecompletion', 1);
         $this->resetAfterTest(true);
         $this->setAdminUser();
-        $this->preventResetByRollback();
 
         $users = array();
         $userdata = array();

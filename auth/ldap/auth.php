@@ -78,6 +78,7 @@ if (!defined('LDAP_OPT_DIAGNOSTIC_MESSAGE')) {
 
 require_once($CFG->libdir.'/authlib.php');
 require_once($CFG->libdir.'/ldaplib.php');
+require_once($CFG->dirroot.'/user/profile/lib.php');
 require_once($CFG->dirroot.'/user/lib.php');
 
 /**
@@ -546,9 +547,6 @@ class auth_plugin_ldap extends auth_plugin_base {
     function user_signup($user, $notify=true) {
         global $CFG, $DB, $PAGE, $OUTPUT;
 
-        require_once($CFG->dirroot.'/user/profile/lib.php');
-        require_once($CFG->dirroot.'/user/lib.php');
-
         if ($this->user_exists($user->username)) {
             print_error('auth_ldap_user_exists', 'auth_ldap');
         }
@@ -961,7 +959,10 @@ class auth_plugin_ldap extends auth_plugin_base {
 
                 $id = user_create_user($user, false);
                 echo "\t"; print_string('auth_dbinsertuser', 'auth_db', array('name'=>$user->username, 'id'=>$id)); echo "\n";
-                $euser = $DB->get_record('user', array('id' => $id));
+
+                // Save user profile custom fields.
+                $user->id = $id;
+                profile_save_data($user);
 
                 if (!empty($this->config->forcechangepassword)) {
                     set_user_preference('auth_forcepasswordchange', 1, $id);
@@ -1012,6 +1013,8 @@ class auth_plugin_ldap extends auth_plugin_base {
             print_error('auth_dbusernotexist', 'auth_db', '', $username);
             die;
         }
+        // Load user profile custom fields if any.
+        profile_load_data($user);
 
         // Protect the userid from being overwritten
         $userid = $user->id;
@@ -1042,6 +1045,9 @@ class auth_plugin_ldap extends auth_plugin_base {
                     }
                 }
                 user_update_user($newuser, false, $triggerevent);
+
+                // Save user profile custom fields.
+                profile_save_data($newuser);
             }
         } else {
             return false;

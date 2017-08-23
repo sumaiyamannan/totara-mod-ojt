@@ -99,7 +99,7 @@ class auth_approved_external extends external_api {
             if (!$containsall) {
                 list($orgwhere, $orgparams) = $DB->get_in_or_equal($organisationframeworkids, SQL_PARAMS_NAMED, 'orgframework');
                 $sqlparams = array_merge($sqlparams, $orgparams);
-                $orgjoin = 'JOIN {org} o ON o.id = ja.organisationid';
+                $orgjoin = 'LEFT OUTER JOIN {org} o ON o.id = ja.organisationid';
                 $orgwhere = ' o.frameworkid '.$orgwhere;
             }
         }
@@ -123,7 +123,7 @@ class auth_approved_external extends external_api {
             if (!$containsall) {
                 list($poswhere, $posparams) = $DB->get_in_or_equal($positionframeworkids, SQL_PARAMS_NAMED, 'posframework');
                 $sqlparams = array_merge($sqlparams, $posparams);
-                $posjoin = 'JOIN {pos} p ON p.id = ja.positionid';
+                $posjoin = 'LEFT OUTER JOIN {pos} p ON p.id = ja.positionid';
                 $poswhere = ' p.frameworkid ' . $poswhere;
             }
         }

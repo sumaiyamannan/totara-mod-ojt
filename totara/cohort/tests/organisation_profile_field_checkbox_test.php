@@ -71,7 +71,6 @@ class totara_cohort_organisation_profile_field_checkbox_testcase extends advance
         parent::setup();
         $this->resetAfterTest(true);
         $this->setAdminUser();
-        $this->preventResetByRollback();
 
         $generator = $this->getDataGenerator();
 

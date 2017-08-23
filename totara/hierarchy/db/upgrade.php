@@ -1243,5 +1243,24 @@ function xmldb_totara_hierarchy_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2016092001, 'totara', 'hierarchy');
     }
 
+    if ($oldversion < 2016092002) {
+        // The timeproficient field will be a manually set completion date/time for competencies.
+        $field = new xmldb_field('timeproficient', XMLDB_TYPE_INTEGER, '18', null, null, null, null, 'proficiency');
+
+        // Add timeproficient to comp_record table.
+        $table = new xmldb_table('comp_record');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Add timeproficient to comp_record_history table.
+        $table = new xmldb_table('comp_record_history');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        upgrade_plugin_savepoint(true, 2016092002, 'totara', 'hierarchy');
+    }
+
     return true;
 }

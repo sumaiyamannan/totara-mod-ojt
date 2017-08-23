@@ -39,12 +39,6 @@ class feedback360_email_preference_test extends feedback360_testcase {
 
 
     /**
-     * Original configuration value to enable sending emails.
-     */
-    private $cfgemail = NULL;
-
-
-    /**
      * String in email text that indicates that changing email preferences text
      * is present. Although the actual email message is internationalized, this
      * part of the email text does not change since it deals with the fixed part
@@ -57,8 +51,6 @@ class feedback360_email_preference_test extends feedback360_testcase {
      * PhpUnit fixture method that runs before the test method executes.
      */
     public function setUp() {
-        global $CFG;
-
         parent::setUp();
 
         $this->preventResetByRollback();
@@ -66,9 +58,6 @@ class feedback360_email_preference_test extends feedback360_testcase {
 
         $this->emailsink = $this->redirectEmails();
         $this->assertTrue(phpunit_util::is_redirecting_phpmailer());
-
-        $this->cfgemail = isset($CFG->noemailever) ? $CFG->noemailever : NULL;
-        $CFG->noemailever = false;
     }
 
 
@@ -76,17 +65,8 @@ class feedback360_email_preference_test extends feedback360_testcase {
      * PhpUnit fixture method that runs after the test method executes.
      */
     protected function tearDown() {
-        global $CFG;
-        if (isset($this->cfgemail)) {
-            $CFG->noemailever = $this->cfgemail;
-            unset($this->cfgemail);
-        }
-
         $this->emailsink->close();
-        unset($this->emailsink);
-
         $this->emailsink = null;
-        $this->cfgemail = null;
         $this->fingerprint = null;
         parent::tearDown();
     }

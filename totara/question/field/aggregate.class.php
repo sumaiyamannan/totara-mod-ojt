@@ -64,7 +64,9 @@ class question_aggregate extends question_base{
 
         if ($readonly) {
             $questions = html_writer::start_tag('ul');
-            foreach ($this->__get('param1') as $qid) {
+            $param1 = $this->__get('param1');
+            $questionsid = (is_array($param1)) ? $param1 : array();
+            foreach ($questionsid as $qid) {
                 $questions .= html_writer::tag('li', format_string($options[$qid]));
             }
             $questions .= html_writer::end_tag('ul');

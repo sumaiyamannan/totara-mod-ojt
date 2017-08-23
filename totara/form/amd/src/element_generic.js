@@ -88,6 +88,20 @@ define(['totara_form/form'], function(Form) {
         return null;
     };
 
+    /**
+     * Shows the loading icon for the form control
+     *
+     * Usually hide will not be called as a reload wipes and rebuilds the form
+     */
+    GenericElement.prototype.showLoading = function() {};
+
+    /**
+     * Hides the loading icon for the form control
+     *
+     * This wont normally be called as most of the functionality will wipe the form
+     */
+    GenericElement.prototype.hideLoading = function() {};
+
     return GenericElement;
 
 });

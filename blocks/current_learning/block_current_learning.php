@@ -135,6 +135,7 @@ class block_current_learning extends block_base {
                     $template = 'block_current_learning/course_row';
                     break;
                 case 'totara_program\user_learning\item':
+                case 'totara_plan\user_learning\program':
                 case 'totara_certification\user_learning\item':
                     $template = 'block_current_learning/program_row';
                     break;
@@ -391,7 +392,8 @@ class block_current_learning extends block_base {
         foreach ($items as $item) {
             if ($item instanceof \totara_plan\user_learning\item) {
                 $courses = $item->get_courses();
-                $items = array_merge($items, array_values($courses));
+                $programs = $item->get_programs();
+                $items = array_merge($items, array_values($courses), array_values($programs));
             }
         }
         return $items;

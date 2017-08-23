@@ -22,3 +22,7 @@ The following files have been deprecated and should no longer be linked to:
 * totara/hierarchy/prefix/position/assigncompetencytemplate/assign.php
 
 * totara/hierarchy/prefix/competency/template/lib.php has been deprecated and should no longer be included anywhere.
+
+=== 9.10 ===
+
+* Added an optional timeproficient column to mdl_comp_record and mdl_comp_record_history which can be used to record when a user becomes proficient in a competency

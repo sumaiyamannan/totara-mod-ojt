@@ -395,7 +395,7 @@ class rb_source_dp_program extends rb_base_source {
         );
 
         $this->add_user_fields_to_filters($filteroptions);
-        $this->add_job_assignment_fields_to_filters($filteroptions);
+        $this->add_job_assignment_fields_to_filters($filteroptions, 'program_completion', 'userid');
         $this->add_cohort_user_fields_to_filters($filteroptions);
         $this->add_course_category_fields_to_filters($filteroptions, 'base', 'category');
         $this->add_cohort_program_fields_to_filters($filteroptions, 'totara_program');

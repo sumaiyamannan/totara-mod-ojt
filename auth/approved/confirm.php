@@ -42,9 +42,13 @@ ignore_user_abort(true); // Make sure we do not get interrupted!
 $PAGE->set_title(get_string('emailconfirm', 'auth_approved'));
 echo $OUTPUT->header();
 
-list($success, $message) = \auth_approved\request::confirm_request($token);
+list($success, $message, $continuebutton) = \auth_approved\request::confirm_request($token);
 $class = $success ? 'notifysuccess' : 'notifyproblem';
 echo $OUTPUT->notification($message, $class);
+
+if ($continuebutton) {
+    echo $OUTPUT->render($continuebutton);
+}
 
 echo $OUTPUT->footer();
 die;

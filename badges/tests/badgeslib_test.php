@@ -195,7 +195,6 @@ class core_badges_badgeslib_testcase extends advanced_testcase {
     }
 
     public function test_badge_awards() {
-        $this->preventResetByRollback(); // Messaging is not compatible with transactions.
         $badge = new badge($this->badgeid);
         $user1 = $this->getDataGenerator()->create_user();
 
@@ -214,9 +213,6 @@ class core_badges_badgeslib_testcase extends advanced_testcase {
      */
     public function test_badges_get_user_badges() {
         global $DB;
-
-        // Messaging is not compatible with transactions.
-        $this->preventResetByRollback();
 
         $badges = array();
         $user1 = $this->getDataGenerator()->create_user();
@@ -385,7 +381,6 @@ class core_badges_badgeslib_testcase extends advanced_testcase {
      * Test badges observer when course module completion event id fired.
      */
     public function test_badges_observer_course_module_criteria_review() {
-        $this->preventResetByRollback(); // Messaging is not compatible with transactions.
         $badge = new badge($this->coursebadge);
         $this->assertFalse($badge->is_issued($this->user->id));
 
@@ -403,7 +398,7 @@ class core_badges_badgeslib_testcase extends advanced_testcase {
         $completioninfo = new completion_info($this->course);
         $coursemodules = get_coursemodules_in_course('forum', $this->course->id);
 
-        $sink = $this->redirectEmails();
+        $sink = $this->redirectMessages();
         foreach ($coursemodules as $cm) {
             $completioninfo->set_module_viewed($cm, $this->user->id);
         }
@@ -420,7 +415,6 @@ class core_badges_badgeslib_testcase extends advanced_testcase {
      * Test badges observer when course_completed event is fired.
      */
     public function test_badges_observer_course_criteria_review() {
-        $this->preventResetByRollback(); // Messaging is not compatible with transactions.
         $badge = new badge($this->coursebadge);
         $this->assertFalse($badge->is_issued($this->user->id));
 
@@ -437,7 +431,7 @@ class core_badges_badgeslib_testcase extends advanced_testcase {
         $this->assertFalse($badge->is_issued($this->user->id));
 
         // Mark course as complete.
-        $sink = $this->redirectEmails();
+        $sink = $this->redirectMessages();
         $ccompletion->mark_complete();
         $this->assertCount(1, $sink->get_messages());
         $sink->close();
@@ -459,7 +453,6 @@ class core_badges_badgeslib_testcase extends advanced_testcase {
             'shortname' => 'newfield', 'name' => 'Description of new field', 'categoryid' => 1,
             'datatype' => 'textarea'));
 
-        $this->preventResetByRollback(); // Messaging is not compatible with transactions.
         $badge = new badge($this->coursebadge);
 
         $criteria_overall = award_criteria::build(array('criteriatype' => BADGE_CRITERIA_TYPE_OVERALL, 'badgeid' => $badge->id));
@@ -476,7 +469,7 @@ class core_badges_badgeslib_testcase extends advanced_testcase {
         // Set the required fields and make sure the badge got issued.
         $this->user->address = 'Test address';
         $this->user->aim = '999999999';
-        $sink = $this->redirectEmails();
+        $sink = $this->redirectMessages();
         profile_save_data((object)array('id' => $this->user->id, 'profile_field_newfield' => 'X'));
         user_update_user($this->user, false);
         $this->assertCount(1, $sink->get_messages());
@@ -490,7 +483,6 @@ class core_badges_badgeslib_testcase extends advanced_testcase {
      * Test badges assertion generated when a badge is issued.
      */
     public function test_badges_assertion() {
-        $this->preventResetByRollback(); // Messaging is not compatible with transactions.
         $badge = new badge($this->coursebadge);
         $this->assertFalse($badge->is_issued($this->user->id));
 
@@ -500,7 +492,7 @@ class core_badges_badgeslib_testcase extends advanced_testcase {
         $criteria_overall1->save(array('agg' => BADGE_CRITERIA_AGGREGATION_ALL, 'field_address' => 'address'));
 
         $this->user->address = 'Test address';
-        $sink = $this->redirectEmails();
+        $sink = $this->redirectMessages();
         user_update_user($this->user, false);
         $this->assertCount(1, $sink->get_messages());
         $sink->close();

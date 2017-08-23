@@ -26,7 +26,7 @@ defined('MOODLE_INTERNAL') || die();
 /**
  * Test hierarchy type creation.
  */
-class create_type_testcase extends advanced_testcase {
+class totara_hierarchy_create_type_testcase extends advanced_testcase {
 
     protected $hierarchy_generator = null;
 
@@ -39,7 +39,6 @@ class create_type_testcase extends advanced_testcase {
         parent::setup();
         $this->resetAfterTest(true);
         $this->setAdminUser();
-        $this->preventResetByRollback();
 
         $generator = $this->getDataGenerator();
 

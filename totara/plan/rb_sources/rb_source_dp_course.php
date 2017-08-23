@@ -415,7 +415,9 @@ class rb_source_dp_course extends rb_base_source {
                         'course_completion'
                     ),
                     'extrafields' => array(
-                        'maxgrade' => 'grade_grades.rawgrademax'
+                        'maxgrade' => 'grade_grades.rawgrademax',
+                        'rplgrade' => 'course_completion.rplgrade',
+                        'status' => 'course_completion.status'
                     ),
                     'displayfunc' => 'course_grade_percent',
                 )
@@ -545,7 +547,7 @@ class rb_source_dp_course extends rb_base_source {
         );
 
         $this->add_user_fields_to_filters($filteroptions);
-        $this->add_job_assignment_fields_to_filters($filteroptions);
+        $this->add_job_assignment_fields_to_filters($filteroptions, 'base', 'userid');
         $this->add_cohort_user_fields_to_filters($filteroptions);
         $this->add_cohort_course_fields_to_filters($filteroptions);
 

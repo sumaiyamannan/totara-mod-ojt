@@ -40,11 +40,15 @@ class rb_source_goal_custom extends rb_base_source {
         $this->add_global_report_restriction_join('base', 'userid');
 
         $this->base = "(SELECT g.id, g.fullname AS name, gua.userid,
-            'company' AS personalcompany, COALESCE(t.fullname, 'notype') AS typename
+            'company' AS personalcompany, COALESCE(t.fullname, 'notype') AS typename,
+                    g.targetdate, gr.scalevalueid
                 FROM {goal} g JOIN {goal_user_assignment} gua ON g.id = gua.goalid
                 LEFT JOIN {goal_type} t ON t.id = g.typeid
+                JOIN {goal_scale_assignments} gsa ON g.frameworkid = gsa.frameworkid
+                JOIN {goal_record} gr ON gua.userid=gr.userid AND g.id = gr.goalid
                 UNION
-                SELECT gp.id, gp.name, gp.userid, 'personal' AS personalcompany, COALESCE(ut.fullname, 'notype') AS typename
+                SELECT gp.id, gp.name, gp.userid, 'personal' AS personalcompany, COALESCE(ut.fullname, 'notype') AS typename,
+                    gp.targetdate, gp.scalevalueid
                 FROM {goal_personal} gp
                 LEFT JOIN {goal_user_type} ut ON ut.id = gp.typeid
                 WHERE deleted = 0)";
@@ -114,6 +118,13 @@ class rb_source_goal_custom extends rb_base_source {
                 '{goal_type}',
                 'base.typeid = goal_type.id AND personalcompany = \'company\'',
                 REPORT_BUILDER_RELATION_MANY_TO_ONE
+            ),
+            new rb_join(
+                'goal_scale_values',
+                'LEFT',
+                '{goal_scale_values}',
+                'base.scalevalueid = goal_scale_values.id',
+                REPORT_BUILDER_RELATION_ONE_TO_ONE
             )
         );
         $this->add_user_table_to_joinlist($joinlist, 'base', 'userid');
@@ -198,7 +209,25 @@ class rb_source_goal_custom extends rb_base_source {
                 array(
                     'columngenerator' => 'allcompanygoalcustomfields'
                 )
-            )
+            ),
+            new rb_column_option(
+                'goal',
+                'targetdate',
+                get_string('targetdate', 'rb_source_goal_custom'),
+                'base.targetdate',
+                array(
+                    'displayfunc' => 'nice_date'
+                )
+            ),
+            new rb_column_option(
+                'goal',
+                'scalevaluename',
+                get_string('status', 'rb_source_goal_custom'),
+                'goal_scale_values.name',
+                array(
+                    'joins' => 'goal_scale_values'
+                )
+            ),
         );
 
         $this->add_user_fields_to_columns($columnoptions);

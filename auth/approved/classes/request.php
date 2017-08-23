@@ -138,31 +138,31 @@ final class request {
      * Confirm that user owns the email address used in request.
      *
      * @param string $token
-     * @return array (bool success, string notification)
+     * @return array (bool success, string notification, continue button or null)
      */
     public static function confirm_request($token) {
         global $DB;
 
         if (strlen($token) !== 32) {
             // Cannot be a correct token, better not rely on database value comparison only.
-            return array(false, get_string('confirmtokeninvalid', 'auth_approved'));
+            return array(false, get_string('confirmtokeninvalid', 'auth_approved'), null);
         }
 
         $request = $DB->get_record('auth_approved_request', array('confirmtoken' => $token));
         if (!$request) {
-            return array(false, get_string('confirmtokeninvalid', 'auth_approved'));
+            return array(false, get_string('confirmtokeninvalid', 'auth_approved'), null);
         }
         if ($request->status == self::STATUS_APPROVED) {
-            return array(false, get_string('confirmtokenapproved', 'auth_approved'));
+            return array(false, get_string('confirmtokenapproved', 'auth_approved'), null);
         }
         if ($request->status == self::STATUS_REJECTED) {
-            return array(false, get_string('confirmtokenrejected', 'auth_approved'));
+            return array(false, get_string('confirmtokenrejected', 'auth_approved'), null);
         }
         if ($request->status != self::STATUS_PENDING) {
             throw new \coding_exception('Unknown request status');
         }
         if ($request->confirmed) {
-            return array(false, get_string('confirmtokenconfirmed', 'auth_approved'));
+            return array(false, get_string('confirmtokenconfirmed', 'auth_approved'), null);
         }
 
         $trans = $DB->start_delegated_transaction();
@@ -176,8 +176,7 @@ final class request {
 
         \auth_approved\event\request_confirmed::create_from_request($request)->trigger();
 
-        comms::email_approval_info($request);
-        comms::notify_confirmed_request($request);
+        $approved = false;
 
         $hasfreeformentry = !empty($request->positionfreetext)
                             || !empty($request->organisationfreetext)
@@ -204,10 +203,20 @@ final class request {
             $errors = self::validate_signup_form_data($data, self::STAGE_APPROVAL);
             if (!$errors) {
                 self::approve_request($request->id, '', true);
+                $approved = true;
             }
         }
 
-        return array(true, get_string('confirmtokenaccepted', 'auth_approved', $request->email));
+        if ($approved) {
+            // Do not send any confirmation about approved email,
+            // also there is no need to notify approvers any more.
+            $loginbutton = new \single_button(new \moodle_url(get_login_url()), get_string('login'), 'get');
+            return array(true, get_string('confirmtokenacceptedapproved', 'auth_approved', s($request->username)), $loginbutton);
+        } else {
+            comms::email_approval_info($request);
+            comms::notify_confirmed_request($request);
+            return array(true, get_string('confirmtokenaccepted', 'auth_approved', $request->email), null);
+        }
     }
 
     /**
@@ -645,5 +654,114 @@ final class request {
         global $DB;
         $record = $DB->get_record('auth_approved_request', array('id' => $id), '*', MUST_EXIST);
         return comms::email_custom_message($record->email, $subject, $body);
+    }
+
+    /**
+     * Checks if the specified signup position id is a valid one.
+     *
+     * @param int $id position id to check.
+     *
+     * @return true if the position is valid.
+     */
+    public static function is_valid_signup_positionid($id) {
+        return self::is_valid_signup_hierarchyid($id, 'position', 'allowposition', 'positionframeworks');
+    }
+
+    /**
+     * Checks if the specified signup organisation id is a valid one.
+     *
+     * @param int $id organisation id to check.
+     *
+     * @return true if the organisation is valid.
+     */
+    public static function is_valid_signup_organisationid($id) {
+        return self::is_valid_signup_hierarchyid($id, 'organisation', 'alloworganisation', 'organisationframeworks');
+    }
+
+    /**
+     * Checks if the specified signup position/organization id is a valid one.
+     *
+     * @param int $id hierarchy id to check.
+     * @param string $table table to lookup.
+     * @param string $cfgidreqdkey key to use when looking up configuration to
+     *        see if the hierarchy id field is required.
+     * @param string $cfgfwkey key to use when looking up configuration to find
+     *        the list of allowed hierarchy frameworks.
+     *
+     * @return true if the hierarchy is valid.
+     */
+    private static function is_valid_signup_hierarchyid($id, $table, $cfgidreqdkey, $cfgfwkey) {
+        if (!get_config('auth_approved', $cfgidreqdkey)) {
+            return false;
+        }
+
+        if (empty($id)) {
+            return false;
+        }
+
+        $hierarchy = \hierarchy::load_hierarchy($table)->get_item($id);
+        if (!$hierarchy) {
+            return false;
+        }
+
+        $frameworks = get_config('auth_approved', $cfgfwkey);
+        if (empty($frameworks) || strpos($frameworks, '-1') !== false) {
+            return true;
+        }
+
+        $frameworkid = $hierarchy->frameworkid;
+        return strpos($frameworks, "$frameworkid") !== false;
+    }
+
+    /**
+     * Checks if the specified signup manager assignment id is a valid one.
+     *
+     * @param int $id manager job assignment id to check.
+     *
+     * @return true if the hierarchy is valid.
+     */
+    public static function is_valid_signup_mgrjaid($id) {
+        if (!get_config('auth_approved', 'allowmanager')) {
+            return false;
+        }
+
+        if (empty($id)) {
+            return false;
+        }
+
+        $orgframeworks = get_config('auth_approved', 'managerorganisationframeworks');
+        $constrainedbyorg = !empty($orgframeworks) && (strpos($orgframeworks, '-1') === false);
+
+        $posframeworks = get_config('auth_approved', 'managerpositionframeworks');
+        $constrainedbypos = !empty($posframeworks) && (strpos($posframeworks, '-1') === false);
+
+        if (!$constrainedbyorg && !$constrainedbypos) {
+            return true;
+        }
+
+        $job = \totara_job\job_assignment::get_with_id($id, false);
+        if (!$job) {
+            return false;
+        }
+
+        if ($constrainedbyorg && $job->organisationid) {
+            $hierarchy = \hierarchy::load_hierarchy('organisation')->get_item($job->organisationid);
+            $fwid = $hierarchy ? $hierarchy->frameworkid : -1;
+
+            if (strpos($orgframeworks, "$fwid") !== false) {
+                return true;
+            }
+        }
+
+        if ($constrainedbypos && $job->positionid) {
+            $hierarchy = \hierarchy::load_hierarchy('position')->get_item($job->positionid);
+            $fwid = $hierarchy ? $hierarchy->frameworkid : -1;
+
+            if (strpos($posframeworks, "$fwid") !== false) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

@@ -3503,7 +3503,8 @@ function forum_print_post($post, $discussion, $forum, &$cm, $course, $ownpost=fa
     $output .= html_writer::end_tag('div'); // forumpost
 
     // Mark the forum post as read if required
-    if ($istracked && !$CFG->forum_usermarksread && !$postisread) {
+    // We are changing normal behaviour to mark post as read. They need to be full printed to be considered read.
+    if ($istracked && !$CFG->forum_usermarksread && !$postisread && !$shortenpost) {
         forum_tp_mark_post_read($USER->id, $post);
     }
 

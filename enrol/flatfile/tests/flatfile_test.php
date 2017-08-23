@@ -272,8 +272,6 @@ class enrol_flatfile_testcase extends advanced_testcase {
         global $CFG, $DB;
         $this->resetAfterTest();
 
-        $this->preventResetByRollback();
-
         /** @var enrol_flatfile_plugin $flatfileplugin  */
         $flatfileplugin = enrol_get_plugin('flatfile');
         /** @var enrol_manual_plugin $manualplugin  */

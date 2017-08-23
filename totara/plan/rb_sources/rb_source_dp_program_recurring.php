@@ -294,7 +294,7 @@ class rb_source_dp_program_recurring extends rb_base_source {
             );
 
         $this->add_user_fields_to_filters($filteroptions);
-        $this->add_job_assignment_fields_to_filters($filteroptions);
+        $this->add_job_assignment_fields_to_filters($filteroptions, 'base', 'userid');
         $this->add_cohort_user_fields_to_filters($filteroptions);
 
         return $filteroptions;

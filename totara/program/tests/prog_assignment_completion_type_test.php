@@ -62,7 +62,7 @@ class totara_program_prog_assignment_completion_type_testcase extends reportcach
         $this->resetAfterTest(true);
 
         $this->beforesetuptime = time();
-        sleep(1);
+        $this->waitForSecond();
 
         $this->programgenerator = $this->getDataGenerator()->get_plugin_generator('totara_program');
         $this->programs[0] = $this->programgenerator->create_program();
@@ -181,7 +181,7 @@ class totara_program_prog_assignment_completion_type_testcase extends reportcach
         // Data for prog_assigment_completion_enrollment_date.
         $this->users[1000] = $this->getDataGenerator()->create_user();
 
-        sleep(1);
+        $this->waitForSecond();
         $this->aftersetuptime = time();
 
         $this->prog_assigment_completion_first_login();
@@ -390,7 +390,7 @@ class totara_program_prog_assignment_completion_type_testcase extends reportcach
         // User who is not yet assigned.
         $assignment = new stdClass();
         $assignment->id = 0;
-        sleep(1);
+        $this->waitForSecond();
         $before = time();
         $timestamp = $completionobject->get_timestamp($this->users[1000]->id, $assignment);
         $after = time();

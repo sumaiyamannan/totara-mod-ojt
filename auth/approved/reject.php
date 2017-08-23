@@ -33,6 +33,9 @@ $PAGE->set_url('/auth/approved/reject.php');
 $PAGE->set_context($syscontext);
 $PAGE->set_pagelayout('report');
 
+\navigation_node::override_active_url(\auth_approved\util::get_report_url($reportid), true);
+$PAGE->navbar->add(get_string('reject', 'auth_approved'));
+
 admin_externalpage_setup('authapprovedpending', '', null, '', array('pagelayout'=>'report'));
 
 if (!is_enabled_auth('approved')) {

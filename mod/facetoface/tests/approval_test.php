@@ -34,7 +34,7 @@ require_once($CFG->dirroot . '/mod/facetoface/lib.php');
 require_once($CFG->dirroot . '/mod/facetoface/mod_form.php');
 require_once($CFG->dirroot . '/totara/hierarchy/prefix/position/lib.php');
 
-class mod_facetoface_approvals_testcase extends advanced_testcase {
+class mod_facetoface_approval_testcase extends advanced_testcase {
 
     /**
      * Intercept emails and stores them locally for later verification.
@@ -48,8 +48,8 @@ class mod_facetoface_approvals_testcase extends advanced_testcase {
     private $cfgemail = null;
 
     protected function tearDown() {
+        $this->emailsink->close();
         $this->emailsink = null;
-        $this->cfgemail = null;
         parent::tearDown();
     }
 
@@ -57,18 +57,9 @@ class mod_facetoface_approvals_testcase extends advanced_testcase {
      * PhpUnit fixture method that runs before the test method executes.
      */
     public function setUp() {
-        global $CFG;
-
         parent::setUp();
-
-        $this->preventResetByRollback();
         $this->resetAfterTest();
-
         $this->emailsink = $this->redirectEmails();
-        $this->assertTrue(phpunit_util::is_redirecting_phpmailer());
-
-        $this->cfgemail = isset($CFG->noemailever) ? $CFG->noemailever : null;
-        $CFG->noemailever = false;
     }
 
     /**

@@ -167,7 +167,7 @@ class cache implements cache_loader {
      * @param string $area The area for the definition
      * @param array $identifiers Any additional identifiers that should be provided to the definition.
      * @param string $unused Used to be datasourceaggregate but that was removed and this is now unused.
-     * @return cache_application|cache_session|cache_store
+     * @return cache_loader
      */
     public static function make($component, $area, array $identifiers = array(), $unused = null) {
         $factory = cache_factory::instance();
@@ -186,7 +186,7 @@ class cache implements cache_loader {
      *   - simpledata : Set to true if the type of the data you are going to store is scalar, or an array of scalar vars
      *   - staticacceleration : If set to true the cache will hold onto data passing through it.
      *   - staticaccelerationsize : The max size for the static acceleration array.
-     * @return cache_application|cache_session|cache_store
+     * @return cache_loader
      */
     public static function make_from_params($mode, $component, $area, array $identifiers = array(), array $options = array()) {
         $factory = cache_factory::instance();

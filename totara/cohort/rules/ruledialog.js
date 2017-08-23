@@ -431,6 +431,8 @@ var cohort_handler_responsefunc = function(response) {
 
         $('#cohort_rules_action_box').show();
 
+        window.onbeforeunload = null;
+
         // Close dialog
         this._dialog.hide();
     } else {

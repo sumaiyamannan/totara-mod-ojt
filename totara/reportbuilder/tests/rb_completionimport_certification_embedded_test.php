@@ -38,7 +38,6 @@ class totara_reportbuilder_rb_completionimport_certification_embedded_testcase e
         set_config('enablecompletion', 1);
         $this->setAdminUser();
         $this->resetAfterTest(true);
-        $this->preventResetByRollback();
 
         // Create users.
         $this->user1 = $this->getDataGenerator()->create_user();

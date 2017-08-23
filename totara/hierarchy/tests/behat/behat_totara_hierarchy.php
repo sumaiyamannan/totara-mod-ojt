@@ -115,6 +115,7 @@ class behat_totara_hierarchy extends behat_base {
             'visible',
             'parent', // ID number.
             'type', // ID number.
+            'targetdate' // For goals. Uses d/m/Y format.
         );
 
         $data = $table->getHash();
@@ -134,7 +135,11 @@ class behat_totara_hierarchy extends behat_base {
                 if (in_array($fieldname, $required)) {
                     $record[$fieldname] = $value;
                 } else if (in_array($fieldname, $optional)) {
-                    $record[$fieldname] = $value;
+                    if ($fieldname === 'targetdate') {
+                        $record[$fieldname] = totara_date_parse_from_format('d/m/Y', $value);
+                    } else {
+                        $record[$fieldname] = $value;
+                    }
                 } else {
                     throw new Exception('Unknown field '.$fieldname.' in hierarchy definition');
                 }
@@ -163,6 +168,63 @@ class behat_totara_hierarchy extends behat_base {
             unset($record['type']);
 
             $this->get_data_generator()->create_hierarchy($frameworkid, $prefix, $record);
+        }
+    }
+
+    /**
+     * @Given /^a goal scale called "(?P<scalename_string>(?:[^"]|\\")*)" exists with the following values:$/
+     * @param string $scalename
+     * @param TableNode $table
+     * @throws Exception
+     */
+    public function goal_scale_called_exists($scalename, TableNode $table) {
+        global $USER, $DB;
+
+        $required = array(
+            'value'
+        );
+
+        $data = $table->getHash();
+        $firstrow = reset($data);
+
+        // Check required fields are present.
+        foreach ($required as $reqname) {
+            if (!isset($firstrow[$reqname])) {
+                throw new Exception('Goal scale values require the field '.$reqname.' to be set');
+            }
+        }
+
+        // The below is largely copied from totara/hierarchy/prefix/goal/scale/edit.php.
+        $scalenew = new stdClass();
+        $scalenew->name = $scalename;
+        $scalenew->timemodified = time();
+        if (empty($USER->id)) {
+            $scalenew->usermodified = get_admin()->id;
+        } else {
+            $scalenew->usermodified = $USER->id;
+        }
+        $scalenew->description = '';
+        $scalenew->id = $DB->insert_record('goal_scale', $scalenew);
+
+        $sortorder = 1;
+        $scaleidlist = array();
+        foreach ($data as $row) {
+            $scalevalrec = new stdClass();
+            $scalevalrec->scaleid = $scalenew->id;
+            $scalevalrec->name = trim($row['value']);
+            $scalevalrec->sortorder = $sortorder;
+            $scalevalrec->timemodified = time();
+            $scalevalrec->usermodified = $scalenew->usermodified;
+            $scalevalrec->proficient = ($sortorder == 1) ? 1 : 0;
+            $result = $DB->insert_record('goal_scale_values', $scalevalrec);
+            $scaleidlist[] = $result;
+            $sortorder++;
+        }
+
+        if (count($scaleidlist)) {
+            $scalenew->defaultid = $scaleidlist[count($scaleidlist)-1];
+            $scalenew->proficient = $scaleidlist[0];
+            $DB->update_record('goal_scale', $scalenew);
         }
     }
 

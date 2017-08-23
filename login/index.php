@@ -405,6 +405,13 @@ if (isloggedin() and !isguestuser()) {
     echo $OUTPUT->confirm(get_string('alreadyloggedin', 'error', fullname($USER)), $logout, $continue);
     echo $OUTPUT->box_end();
 } else {
+    // Format auth_instructions and possible embedded image before displaying it
+    require_once("$CFG->libdir/filelib.php");
+    $context = context_system::instance();
+    $options = array('noclean' => true, 'filter' => true, 'context' => $context);
+    $instructions = file_rewrite_pluginfile_urls($CFG->auth_instructions, 'pluginfile.php', $context->id, 'login', 'instructions', null);
+    $auth_instructions = trim(format_text($instructions, FORMAT_HTML, $options, null));
+
     include("index_form.html");
     if ($errormsg) {
         $PAGE->requires->js_init_call('M.util.focus_login_error', null, true);

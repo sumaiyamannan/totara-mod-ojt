@@ -42,7 +42,6 @@ class totara_core_messaging_testcase extends advanced_testcase {
     }
 
     public function setUp() {
-        global $UNITTEST;
         parent::setup();
 
         $this->programgenerator = $this->getDataGenerator()->get_plugin_generator('totara_program');
@@ -63,14 +62,6 @@ class totara_core_messaging_testcase extends advanced_testcase {
         \totara_job\job_assignment::create_default($this->user1->id, array('managerjaid' => $manager1ja->id));
         \totara_job\job_assignment::create_default($this->user2->id, array('managerjaid' => $manager2ja->id));
         \totara_job\job_assignment::create_default($this->user3->id, array('managerjaid' => $manager1ja->id));
-
-        // Function in lib/moodlelib.php email_to_user require this.
-        if (!isset($UNITTEST)) {
-            $UNITTEST = new stdClass();
-            $UNITTEST->running = true;
-        }
-
-        unset_config('noemailever');
     }
 
     /**
@@ -114,7 +105,7 @@ class totara_core_messaging_testcase extends advanced_testcase {
         $program1 = $this->programgenerator->create_program();
         $this->programgenerator->assign_program($program1->id, array($this->user1->id, $this->user2->id));
 
-        sleep(1); // Messages are only sent if they were created before "now", so we need to wait one second.
+        $this->waitForSecond(); // Messages are only sent if they were created before "now", so we need to wait one second.
 
         // Attempt to send any program messages.
         $task = new \totara_program\task\send_messages_task();

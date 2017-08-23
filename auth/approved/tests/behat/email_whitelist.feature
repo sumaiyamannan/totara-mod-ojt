@@ -94,7 +94,7 @@ Feature: auth_approved: email whitelist
     Then I should see "An email should have been sent to your address at bond@example.org"
 
     When I confirm self-registration request from email "bond@example.org"
-    Then I should see "Thank you for confirming your account request"
+    Then I should see "Thank you for confirming your account request, you can now log in using your requested username: jb007"
 
     # Successful signup outcome #1: plugin table has no "pending" record.
     When I log in as "admin"
@@ -120,11 +120,11 @@ Feature: auth_approved: email whitelist
     Then I should see "James Bond"
     And I should see "Current Learning"
 
-    # Successful signup outcome #4: approver gets notification
+    # Successful signup outcome #4: approver does not get confirmation notification because the request was auto-approved
     When I log out
     And I log in as "itmgr"
     Then I should see "New signup request"
-    And I should see "Signup applicant email confirmed"
+    And I should not see "Signup applicant email confirmed"
 
 
   # -------------------------------
@@ -162,7 +162,7 @@ Feature: auth_approved: email whitelist
     Then I should see "An email should have been sent to your address at bond@example.org"
 
     When I confirm self-registration request from email "bond@example.org"
-    Then I should see "Thank you for confirming your account request"
+    Then I should see "Thank you for confirming your account request, you can now log in using your requested username: jb007"
 
     # Successful signup outcome #1: plugin table has no "pending" record.
     When I log in as "admin"
@@ -191,11 +191,11 @@ Feature: auth_approved: email whitelist
     Then I should see "James Bond"
     And I should see "Current Learning"
 
-    # Successful signup outcome #4: approver gets notification
+    # Successful signup outcome #4: approver does not get confirmation notification because the request was auto-approved
     When I log out
     And I log in as "itmgr"
     Then I should see "New signup request"
-    And I should see "Signup applicant email confirmed"
+    And I should not see "Signup applicant email confirmed"
 
 
   # -------------------------------
@@ -234,7 +234,7 @@ Feature: auth_approved: email whitelist
     Then I should see "An email should have been sent to your address at bond@example.org"
 
     When I confirm self-registration request from email "bond@example.org"
-    Then I should see "Thank you for confirming your account request"
+    Then I should see "Thank you for confirming your account request, an email should have been sent to your address at bond@example.org with information describing the account approval process."
 
     # Successful signup outcome #1: plugin table has "pending" record - because of free form entry.
     When I log in as "admin"
@@ -294,7 +294,7 @@ Feature: auth_approved: email whitelist
     Then I should see "An email should have been sent to your address at bond@example.org"
 
     When I confirm self-registration request from email "bond@example.org"
-    Then I should see "Thank you for confirming your account request"
+    Then I should see "Thank you for confirming your account request, an email should have been sent to your address at bond@example.org with information describing the account approval process."
 
     # Successful signup outcome #1: plugin table has "pending" record - because of free form entry.
     When I log in as "admin"

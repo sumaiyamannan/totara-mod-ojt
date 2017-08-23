@@ -88,7 +88,7 @@ Feature: auth_approved: email confirmation
 
     When I log out
     And I confirm self-registration request from email "bond@example.gov"
-    Then I should see "Thank you for confirming your account request"
+    Then I should see "Thank you for confirming your account request, an email should have been sent to your address at bond@example.gov with information describing the account approval process."
 
     # Successful confirmation outcome #1: plugin table has updated record.
     When I log in as "admin"
@@ -139,7 +139,6 @@ Feature: auth_approved: email confirmation
     When I log out
     And I confirm self-registration request from email "bond@example.gov"
     Then I should see "User account request was already approved"
-
     When I log in as "admin"
     And I navigate to "Live logs" node in "Site administration > Reports"
     Then I should not see "Self-registration with approval"

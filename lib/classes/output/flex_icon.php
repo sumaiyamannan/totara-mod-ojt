@@ -174,6 +174,12 @@ class flex_icon extends \pix_icon {
             $customdata['alt'] = $icon->attributes['alt'];
         }
 
+        if (isset($icon->attributes['title'])) {
+            if ((!isset($icon->attributes['alt']) || $icon->attributes['alt'] !== $icon->attributes['title'])) {
+                $customdata['title'] = $icon->attributes['title'];
+            }
+        }
+
         return new flex_icon($flexidentifier, $customdata);
     }
 

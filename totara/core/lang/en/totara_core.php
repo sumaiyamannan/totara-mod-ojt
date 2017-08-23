@@ -294,6 +294,7 @@ $string['lasterroroccuredat'] = 'Last error occured at {$a}';
 $string['learning'] = 'Learning';
 $string['learningplans'] = 'Learning Plans';
 $string['learningrecords'] = 'Learning Records';
+$string['loading'] = 'Loading';
 $string['localpostinstfailed'] = 'There was a problem setting up local modifications to this installation.';
 $string['managecertifications'] = 'Manage certifications';
 $string['managecustomicons'] = 'Manage custom icons';
@@ -551,7 +552,7 @@ These updates allow Totara to know what versions of Totaralms and support softwa
 This information will allow Totara to better examine and resolve any support issues you face in the future.</p>
 <p>This information will be securely transmitted and held in confidence.</p>';
 $string['totararelease'] = 'Totara release identifier';
-$string['totarareleaselink'] = 'See the <a href="https://community.totaralms.com/mod/forum/view.php?id=1834" target=\"_blank\">release notes</a> for more details.';
+$string['totarareleaselink'] = 'See the <a href="https://totara.community/mod/forum/view.php?id=1834" target=\"_blank\">release notes</a> for more details.';
 $string['totararequiredupgradeversion'] = 'Totara 2.2.13';
 $string['totarauniqueidnumbercheckfail'] = 'The following tables contain non-unique values in the column idnumber:<br/><br/>
 {$a}

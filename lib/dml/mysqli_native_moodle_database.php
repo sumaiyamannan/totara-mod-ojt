@@ -44,6 +44,9 @@ class mysqli_native_moodle_database extends moodle_database {
 
     private $transactions_supported = null;
 
+    /** @var array cached server information */
+    protected $serverinfo = null;
+
     /**
      * Attempt to create the database
      * @param string $dbhost
@@ -504,7 +507,20 @@ class mysqli_native_moodle_database extends moodle_database {
      * @return array Array containing 'description' and 'version' info
      */
     public function get_server_info() {
-        return array('description'=>$this->mysqli->server_info, 'version'=>$this->mysqli->server_info);
+        if (!$this->mysqli) {
+            return null;
+        }
+
+        if (isset($this->serverinfo)) {
+            return $this->serverinfo;
+        }
+
+        $this->serverinfo = array(
+            'description' => $this->mysqli->server_info,
+            'version' => $this->mysqli->server_info,
+        );
+
+        return $this->serverinfo;
     }
 
     /**
@@ -717,8 +733,14 @@ class mysqli_native_moodle_database extends moodle_database {
         $info->name           = $rawcolumn->column_name;
         $info->type           = $rawcolumn->data_type;
         $info->meta_type      = $this->mysqltype2moodletype($rawcolumn->data_type);
-        $info->default_value  = $rawcolumn->column_default;
-        $info->has_default    = !is_null($rawcolumn->column_default);
+        // Totara: MariaDB 10.2.7 stared to add quotes around strings the same way as PG, but unfortunately it uses NULL string incorrectly there.
+        if ($rawcolumn->column_default === 'NULL' or $rawcolumn->column_default === null) {
+            $info->default_value  = null;
+            $info->has_default = false;
+        } else {
+            $info->default_value = trim($rawcolumn->column_default, "'");
+            $info->has_default = true;
+        }
         $info->not_null       = ($rawcolumn->is_nullable === 'NO');
         $info->primary_key    = ($rawcolumn->column_key === 'PRI');
         $info->binary         = false;

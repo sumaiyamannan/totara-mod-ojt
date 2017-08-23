@@ -143,9 +143,16 @@ class rb_source_competency_evidence extends rb_base_source {
             ),
             new rb_column_option(
                 'competency_evidence',
-                'completeddate',
-                get_string('completiondate', 'rb_source_competency_evidence'),
+                'timemodified',
+                get_string('timemodified', 'rb_source_competency_evidence'),
                 'base.timemodified',
+                array('displayfunc' => 'nice_date', 'dbdatatype' => 'timestamp')
+            ),
+            new rb_column_option(
+                'competency_evidence',
+                'proficientdate',
+                get_string('proficientdate', 'rb_source_competency_evidence'),
+                'base.timeproficient',
                 array('displayfunc' => 'nice_date', 'dbdatatype' => 'timestamp')
             ),
             new rb_column_option(
@@ -311,8 +318,8 @@ class rb_source_competency_evidence extends rb_base_source {
         $filteroptions = array(
             new rb_filter_option(
                 'competency_evidence',  // type
-                'completeddate',        // value
-                get_string('completeddate', 'rb_source_competency_evidence'),       // label
+                'timemodified',        // value
+                get_string('timemodified', 'rb_source_competency_evidence'),       // label
                 'date',                 // filtertype
                 array()                 // options
             ),
@@ -325,6 +332,13 @@ class rb_source_competency_evidence extends rb_base_source {
                     'selectfunc' => 'proficiency_list',
                     'attributes' => rb_filter_option::select_width_limiter(),
                 )
+            ),
+            new rb_filter_option(
+                'competency_evidence',  // type
+                'proficientdate',        // value
+                get_string('proficientdate', 'rb_source_competency_evidence'),       // label
+                'date',                 // filtertype
+                array()                 // options
             ),
             new rb_filter_option(
                 'competency_evidence',
@@ -434,7 +448,7 @@ class rb_source_competency_evidence extends rb_base_source {
         );
         // include some standard filters
         $this->add_user_fields_to_filters($filteroptions);
-        $this->add_job_assignment_fields_to_filters($filteroptions);
+        $this->add_job_assignment_fields_to_filters($filteroptions, 'base', 'userid');
         $this->add_cohort_user_fields_to_filters($filteroptions);
 
         return $filteroptions;
@@ -510,7 +524,7 @@ class rb_source_competency_evidence extends rb_base_source {
             ),
             array(
                 'type'  => 'competency_evidence',
-                'value' => 'completeddate',
+                'value' => 'timemodified',
             ),
         );
         return $defaultcolumns;
@@ -550,7 +564,7 @@ class rb_source_competency_evidence extends rb_base_source {
             ),
             array(
                 'type' => 'competency_evidence',
-                'value' => 'completeddate',
+                'value' => 'timemodified',
                 'advanced' => 1,
             ),
             array(
