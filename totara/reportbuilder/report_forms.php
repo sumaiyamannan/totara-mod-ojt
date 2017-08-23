@@ -1067,7 +1067,8 @@ class report_builder_edit_performance_form extends moodleform {
 
         $mform->addElement('header', 'filterperformance', get_string('initialdisplay_heading', 'totara_reportbuilder'));
         $mform->setExpanded('filterperformance');
-        $initial_display_attributes = sizeof($report->filters) < 1 ? array('disabled' => 'disabled', 'group' => null) : null;
+        $sizeoffilters = sizeof($report->filters) + sizeof($report->searchcolumns);
+        $initial_display_attributes = $sizeoffilters < 1 ? array('disabled' => 'disabled', 'group' => null) : null;
         $initial_display_sidenote = is_null($initial_display_attributes) ? '' : get_string('initialdisplay_disabled', 'totara_reportbuilder');
         $mform->addElement('advcheckbox', 'initialdisplay', get_string('initialdisplay', 'totara_reportbuilder'),
             $initial_display_sidenote, $initial_display_attributes, array(RB_INITIAL_DISPLAY_SHOW, RB_INITIAL_DISPLAY_HIDE));
