@@ -74,21 +74,19 @@ class rb_source_course_completion_all extends rb_base_source {
         $ccuniqueid = $DB->sql_concat_join("'CC'", array(sql_cast2char('cc.id')));
         $cchuniqueid = $DB->sql_concat_join("'CCH'", array(sql_cast2char('cch.id')));
         $grade = "CASE WHEN cc.status = " . COMPLETION_STATUS_COMPLETEVIARPL . " THEN cc.rplgrade ELSE gg.finalgrade END";
-        $base = "(SELECT " . $ccuniqueid . " AS id, cc.userid, cc.course AS courseid,
-                         cc.timecompleted, " . $grade . " AS grade, 1 AS iscurrent
+        $base = "(
+              SELECT {$ccuniqueid} AS id, cc.userid, cc.course AS courseid, cc.timecompleted, {$grade} AS grade, gi.grademax, gi.grademin, 1 AS iscurrent
                 FROM {course_completions} cc
                 {$global_restriction_join_cc}
-                LEFT JOIN {grade_items} gi
-                  ON cc.course = gi.courseid
-                 AND gi.itemtype = 'course'
-                LEFT JOIN {grade_grades} gg
-                  ON gi.id = gg.itemid
-                 AND gg.userid = cc.userid
+           LEFT JOIN {grade_items} gi ON cc.course = gi.courseid AND gi.itemtype = 'course'
+           LEFT JOIN {grade_grades} gg ON gi.id = gg.itemid AND gg.userid = cc.userid
                WHERE cc.status > " . COMPLETION_STATUS_NOTYETSTARTED . "
-               UNION ALL
-              SELECT " . $cchuniqueid . " AS id, userid, courseid, timecompleted, grade, 0 AS iscurrent
+           UNION ALL
+              SELECT {$cchuniqueid} AS id,cch.userid, cch.courseid, cch.timecompleted, cch.grade, gi.grademax, gi.grademin, 0 AS iscurrent
                 FROM {course_completion_history} cch
                 {$global_restriction_join_cch}
+           LEFT JOIN {grade_items} gi ON cch.courseid = gi.courseid AND gi.itemtype = 'course'
+           LEFT JOIN {grade_grades} gg ON gi.id = gg.itemid AND gg.userid = cch.userid
               )";
         return $base;
     }
@@ -132,7 +130,11 @@ class rb_source_course_completion_all extends rb_base_source {
                 get_string('grade', 'rb_source_course_completion_all'),
                 'base.grade',
                 array(
-                    'displayfunc' => 'percent'
+                    'displayfunc' => 'grade_string',
+                    'extrafields' => array(
+                        'grademax' => 'base.grademax',
+                        'grademin' => 'base.grademin',
+                    )
                 )
             ),
         );

@@ -32,7 +32,10 @@ class rb_source_dp_course_completion_history extends rb_source_course_completion
         // Apply global user restrictions.
         $this->add_global_report_restriction_join('base', 'userid');
 
-        $base = "{course_completion_history}";
+        $base = "(SELECT cch.id, cch.userid, cch.courseid, cch.timecompleted, cch.grade, gi.grademax, gi.grademin, 0 AS iscurrent
+                    FROM {course_completion_history} cch
+               LEFT JOIN {grade_items} gi ON cch.courseid = gi.courseid AND gi.itemtype = 'course'
+               LEFT JOIN {grade_grades} gg ON gi.id = gg.itemid AND gg.userid = cch.userid)";
         return $base;
     }
 
