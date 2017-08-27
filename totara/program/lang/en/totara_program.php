@@ -41,7 +41,7 @@ $string['addorganisationtoprogram'] = 'Add organisation to program';
 $string['addorremovecourses'] = 'Add/remove courses';
 $string['addpositiontoprogram'] = 'Add position to program';
 $string['addprogramcontent'] = 'Add program content';
-$string['addprogramcontent_help'] = 'By adding sets of course you can build up the learning path of the program. Once sets are added the relationships between them can be defined. Sets can be created from manually adding courses, selecting a predefined competency or setting up a single course with recurrence.
+$string['addprogramcontent_help'] = 'By adding sets of courses you can build up the learning path of the program. Once sets are added the relationships between them can be defined. Sets can be created from manually adding courses, selecting a predefined competency or setting up a single course with recurrence.
 
 Once a number of sets have been created, set dividers are employed to allow the creation of sequences (i.e. dependencies) between each set. An example program with four course sets defined could have dependencies as follows:
 

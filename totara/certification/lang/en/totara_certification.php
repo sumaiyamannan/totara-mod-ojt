@@ -24,7 +24,7 @@
 
 $string['activeperiod'] = 'Active Period';
 $string['addcertifprogramcontent'] = 'Add certification program content';
-$string['addcertifprogramcontent_help'] = 'By adding sets of course you can build up the learning path of the certification program.
+$string['addcertifprogramcontent_help'] = 'By adding sets of courses you can build up the learning path of the certification program.
 Once sets are added the relationships between them can be defined. Sets are created from manually adding courses.
 
 Once a number of sets have been created, set dividers are employed to allow the creation of sequences (i.e. dependencies) between each set.
@@ -51,8 +51,8 @@ $string['certification:createcertification'] = 'Create certification';
 $string['certification:deletecertification'] = 'Delete certification';
 $string['certification:viewhiddencertifications'] = 'View hidden certifications';
 $string['certificationcontent'] = 'Define the program content by adding sets of courses';
-$string['certificationcreatesuccess'] = 'Certification created sucessfully';
-$string['certificationdeletesuccess'] = 'Certification "{$a}" deleted sucessfully';
+$string['certificationcreatesuccess'] = 'Certification created successfully';
+$string['certificationdeletesuccess'] = 'Certification "{$a}" deleted successfully';
 $string['certificationdetailssaved'] = 'Certification details saved';
 $string['certificationduex'] = 'Certification due {$a}';
 $string['certificationhistory'] = 'Previous Certification';
@@ -131,7 +131,7 @@ $string['completiontimeduesameasexpiry'] = 'Automatically set to the Expiry date
 $string['completiontimeexpires'] = 'Expiry date';
 $string['completiontimewindowopens'] = 'Window open date';
 $string['completionunassigned'] = 'Unassigned';
-$string['completionunassigned_help'] = 'If yes, then the record was created when the user was unassigned from the certification. There should be at most one unassigned certification completion history record. The \'Unassgined\' record is used when re-assigning users to certifications which they were removed from.';
+$string['completionunassigned_help'] = 'If yes, then the record was created when the user was unassigned from the certification. There should be at most one unassigned certification completion history record. The \'Unassigned\' record is used when re-assigning users to certifications which they were removed from.';
 $string['comptype'] = 'Certification type';
 $string['comptype_help'] = 'Select required Learning Component (currently just program)';
 $string['comptypenotimplemented'] = 'Certification type not implemented';
