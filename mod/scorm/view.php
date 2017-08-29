@@ -64,6 +64,9 @@ require_login($course, false, $cm);
 $context = context_course::instance($course->id);
 $contextmodule = context_module::instance($cm->id);
 
+// Trigger module viewed event.
+scorm_view($scorm, $course, $cm, $contextmodule);
+
 $shouldshowinfopage = has_capability('mod/scorm:savetrack', $contextmodule);
 $shouldshowreportspage = has_capability('mod/scorm:viewreport', $contextmodule);
 if (!$shouldshowinfopage && $shouldshowreportspage) {
@@ -131,8 +134,6 @@ $strscorm  = get_string("modulename", "scorm");
 $shortname = format_string($course->shortname, true, array('context' => $context));
 $pagetitle = strip_tags($shortname.': '.format_string($scorm->name));
 
-// Trigger module viewed event.
-scorm_view($scorm, $course, $cm, $contextmodule);
 
 if (empty($preventskip) && empty($launch) && (has_capability('mod/scorm:skipview', $contextmodule))) {
     scorm_simple_play($scorm, $USER, $contextmodule, $cm->id);
