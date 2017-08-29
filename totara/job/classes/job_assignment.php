@@ -381,7 +381,7 @@ class job_assignment {
             // Record is identical to the data in the database, so we can create the object from it.
             $jobassignment = new job_assignment($record);
 
-            $jobassignment->updated_manager(null, null);
+            $jobassignment->updated_manager(null);
             $jobassignment->updated_temporary_manager(null, null);
 
             $transaction->allow_commit();
@@ -734,6 +734,8 @@ class job_assignment {
      * Call when the manager might have changed. Will update the role assignments of the manager
      * and the manager paths of all (management) children.
      *
+     * Figures out if any change has actually occurred and does nothing if there is no change.
+     *
      * @param int $oldmanagerjaid
      */
     private function updated_manager($oldmanagerjaid) {
@@ -758,6 +760,8 @@ class job_assignment {
 
     /**
      * Given old and new managers, remove old manager role and add new manager role. Works with temp managers as well.
+     *
+     * Figures out if any change has actually occurred and does nothing if there is no change.
      *
      * @param int $oldmanagerjaid
      * @param int $newmanagerjaid
@@ -808,6 +812,14 @@ class job_assignment {
 
     /**
      * Updates the manager job assignment paths of all management subordinates.
+     *
+     * Assumes that a change has occurred (check before calling) and that the manager's ja path has been updated.
+     *
+     * What's actually happening: This function was called because this user's manager changed. We need to update all
+     * the manager ja paths for all job assignments of which this job assignment is manager, and below. The set of users
+     * can't have changed due to this update - the same set of users will be managed after the update, but their manager
+     * path needs to be updated to include the new manager's manager (and above). The manager's ja path (above) must
+     * have already been recalculated before calling this function.
      */
     private function update_descendant_manager_paths() {
         global $DB;
@@ -819,11 +831,13 @@ class job_assignment {
         $substr_sql = $DB->sql_substr('managerjapath', "$position_sql + $length_sql");
 
         $managerjapath = $DB->sql_concat("'{$newjapath}/'", $substr_sql);
-        $like = $DB->sql_like('managerjapath', '?');
+        $now = time();
+        $like = $DB->sql_like('managerjapath', ':likethisid');
         $sql = "UPDATE {job_assignment}
-                   SET managerjapath = {$managerjapath}
+                   SET managerjapath = {$managerjapath},
+                       timemodified = :now
                  WHERE $like";
-        $params = array("%/{$this->id}/%");
+        $params = array('likethisid' => "%/{$this->id}/%", 'now' => $now);
 
         if (!$DB->execute($sql, $params)) {
             throw new exception('job_assignment::update_descendant_manager_paths: Could not update manager path of child items in manager hierarchy');
@@ -833,6 +847,8 @@ class job_assignment {
     /**
      * Call when the temp manager might have changed. Will update the role assignments of the temp manager
      * and trigger all messages that happen as the result of a change of temporary manager (including date change).
+     *
+     * Figures out if any change has actually occurred and does nothing if there is no change.
      *
      * Note that if the temporary manager stays the same but the job assignment is changed, this does not trigger new messages.
      *

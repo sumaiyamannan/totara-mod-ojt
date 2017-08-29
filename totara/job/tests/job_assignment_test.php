@@ -468,9 +468,100 @@ class totara_job_job_assignment_testcase extends advanced_testcase {
 
     /**
      * Tests update_descendant_manager_paths.
+     *
+     * TL1 > Man1 > Learn1a
+     *            > Learn2
+     *     > Learn1b
+     * TL2 > Man2 > Learn1c
+     *            > Learn3 > Sub1
+     *     > Man3 > Learn4
+     *
+     * Move Man2 to TL1. Man2, Learn1c, Learn3 and Sub1 should be updated - timemodified and managerjapath.
      */
     public function test_update_descendant_manager_paths() {
-        // TODO Writeme.
+        // Set up management hierarchy.
+        $tl1ja = \totara_job\job_assignment::create_default($this->users[1]->id);
+        $tl2ja = \totara_job\job_assignment::create_default($this->users[2]->id);
+        $man1ja = \totara_job\job_assignment::create_default($this->users[3]->id, array('managerjaid' => $tl1ja->id));
+        $man2ja = \totara_job\job_assignment::create_default($this->users[4]->id, array('managerjaid' => $tl2ja->id));
+        $man3ja = \totara_job\job_assignment::create_default($this->users[5]->id, array('managerjaid' => $tl2ja->id));
+        $learn1aja = \totara_job\job_assignment::create_default($this->users[6]->id, array('managerjaid' => $man1ja->id));
+        $learn1bja = \totara_job\job_assignment::create_default($this->users[6]->id, array('managerjaid' => $tl1ja->id));
+        $learn1cja = \totara_job\job_assignment::create_default($this->users[6]->id, array('managerjaid' => $man2ja->id));
+        $learn2ja = \totara_job\job_assignment::create_default($this->users[7]->id, array('managerjaid' => $man1ja->id));
+        $learn3ja = \totara_job\job_assignment::create_default($this->users[8]->id, array('managerjaid' => $man2ja->id));
+        $learn4ja = \totara_job\job_assignment::create_default($this->users[9]->id, array('managerjaid' => $man3ja->id));
+        $sub1ja = \totara_job\job_assignment::create_default($this->users[10]->id, array('managerjaid' => $learn3ja->id));
+
+        // Reload the job assignments, because they might have been modified as the managers were set up.
+        $originaltl1ja = \totara_job\job_assignment::get_with_id($tl1ja->id);
+        $originaltl2ja = \totara_job\job_assignment::get_with_id($tl2ja->id);
+        $originalman1ja = \totara_job\job_assignment::get_with_id($man1ja->id);
+        $originalman2ja = \totara_job\job_assignment::get_with_id($man2ja->id);
+        $originalman3ja = \totara_job\job_assignment::get_with_id($man3ja->id);
+        $originallearn1aja = \totara_job\job_assignment::get_with_id($learn1aja->id);
+        $originallearn1bja = \totara_job\job_assignment::get_with_id($learn1bja->id);
+        $originallearn1cja = \totara_job\job_assignment::get_with_id($learn1cja->id);
+        $originallearn2ja = \totara_job\job_assignment::get_with_id($learn2ja->id);
+        $originallearn3ja = \totara_job\job_assignment::get_with_id($learn3ja->id);
+        $originallearn4ja = \totara_job\job_assignment::get_with_id($learn4ja->id);
+        $originalsub1ja = \totara_job\job_assignment::get_with_id($sub1ja->id);
+
+        // Sleep for one second so that we know the time has changed.
+        sleep(1);
+
+        // Call update_descendant_manager_paths indirectly.
+        $man2ja = \totara_job\job_assignment::get_with_id($man2ja->id);
+        $timebefore = time();
+        $man2ja->update(array('managerjaid' => $tl1ja->id));
+
+        // Reload the data.
+        $resulttl1ja = \totara_job\job_assignment::get_with_id($tl1ja->id);
+        $resulttl2ja = \totara_job\job_assignment::get_with_id($tl2ja->id);
+        $resultman1ja = \totara_job\job_assignment::get_with_id($man1ja->id);
+        $resultman2ja = \totara_job\job_assignment::get_with_id($man2ja->id);
+        $resultman3ja = \totara_job\job_assignment::get_with_id($man3ja->id);
+        $resultlearn1aja = \totara_job\job_assignment::get_with_id($learn1aja->id);
+        $resultlearn1bja = \totara_job\job_assignment::get_with_id($learn1bja->id);
+        $resultlearn1cja = \totara_job\job_assignment::get_with_id($learn1cja->id);
+        $resultlearn2ja = \totara_job\job_assignment::get_with_id($learn2ja->id);
+        $resultlearn3ja = \totara_job\job_assignment::get_with_id($learn3ja->id);
+        $resultlearn4ja = \totara_job\job_assignment::get_with_id($learn4ja->id);
+        $resultsub1ja = \totara_job\job_assignment::get_with_id($sub1ja->id);
+
+        // Check that control data is unchanged.
+        $this->assertEquals($originaltl1ja, $resulttl1ja);
+        $this->assertEquals($originaltl2ja, $resulttl2ja);
+        $this->assertEquals($originalman1ja, $resultman1ja);
+        $this->assertEquals($originalman3ja, $resultman3ja);
+        $this->assertEquals($originallearn1aja, $resultlearn1aja);
+        $this->assertEquals($originallearn1bja, $resultlearn1bja);
+        $this->assertEquals($originallearn2ja, $resultlearn2ja);
+        $this->assertEquals($originallearn4ja, $resultlearn4ja);
+
+        // Check all the timemodifieds.
+        $this->assertLessThan($timebefore, $resulttl1ja->timemodified);
+        $this->assertLessThan($timebefore, $resulttl2ja->timemodified);
+        $this->assertLessThan($timebefore, $resultman1ja->timemodified);
+        $this->assertGreaterThanOrEqual($timebefore, $resultman2ja->timemodified);
+        $this->assertLessThan($timebefore, $resultman3ja->timemodified);
+        $this->assertLessThan($timebefore, $resultlearn1aja->timemodified);
+        $this->assertLessThan($timebefore, $resultlearn1bja->timemodified);
+        $this->assertGreaterThanOrEqual($timebefore, $resultlearn1cja->timemodified);
+        $this->assertLessThan($timebefore, $resultlearn2ja->timemodified);
+        $this->assertGreaterThanOrEqual($timebefore, $resultlearn3ja->timemodified);
+        $this->assertLessThan($timebefore, $resultlearn4ja->timemodified);
+        $this->assertGreaterThanOrEqual($timebefore, $resultsub1ja->timemodified);
+
+        // Check the modified paths.
+        $expectedman2path = $originaltl1ja->managerjapath . '/' . $man2ja->id;
+        $this->assertEquals($expectedman2path, $resultman2ja->managerjapath);
+        $expectedlearn1cpath = $expectedman2path . '/' . $learn1cja->id;
+        $this->assertEquals($expectedlearn1cpath, $resultlearn1cja->managerjapath);
+        $expectedlearn3path = $expectedman2path . '/' . $learn3ja->id;
+        $this->assertEquals($expectedlearn3path, $resultlearn3ja->managerjapath);
+        $expectedsub1path = $expectedlearn3path . '/' . $sub1ja->id;
+        $this->assertEquals($expectedsub1path, $resultsub1ja->managerjapath);
     }
 
     /**
