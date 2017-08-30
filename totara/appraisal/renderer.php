@@ -1225,6 +1225,8 @@ class totara_appraisal_renderer extends plugin_renderer_base {
      * @return string HTML
      */
     public function display_assigned_groups($assignments, $itemid) {
+        global $CFG;
+
         $tableheader = array(get_string('assigngrouptypename', 'totara_appraisal'),
                              get_string('assignsourcename', 'totara_appraisal'),
                              get_string('assignincludechildren', 'totara_appraisal'),
