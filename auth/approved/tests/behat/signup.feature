@@ -1,4 +1,4 @@
-@auth @auth_approved @javascript
+@totara @auth @auth_approved @javascript
 Feature: auth_approved: signup workflow
   In order to access courses in a Totara website
   As an external user
@@ -102,9 +102,10 @@ Feature: auth_approved: signup workflow
     And "jb007" row "Email confirmed" column of "auth_approved_pending_requests" table should contain "No"
 
     # Successful signup outcome #2: audit trail created.
-    When I navigate to "Live logs" node in "Site administration > Reports"
-    Then "Self-registration with approval" row "Event name" column of "reportloglive" table should contain "User added new account request"
-    And "Self-registration with approval" row "Description" column of "reportloglive" table should contain "jb007 (bond@example.gov) registered for system access"
+    When I navigate to "Logs" node in "Site administration > Reports"
+    And I press "Get these logs"
+    Then "Self-registration with approval" row "Event name" column of "reportlog" table should contain "User added new account request"
+    And "Self-registration with approval" row "Description" column of "reportlog" table should contain "jb007 (bond@example.gov) registered for system access"
 
     # Successful signup outcome #3: applicant still cannot log in
     When I log out
@@ -183,9 +184,10 @@ Feature: auth_approved: signup workflow
 
     # Successful signup outcome #2: audit trail created.
     When I press "Cancel"
-    And I navigate to "Live logs" node in "Site administration > Reports"
-    Then "Self-registration with approval" row "Event name" column of "reportloglive" table should contain "User added new account request"
-    And "Self-registration with approval" row "Description" column of "reportloglive" table should contain "jb007 (bond@example.gov) registered for system access"
+    And I navigate to "Logs" node in "Site administration > Reports"
+    And I press "Get these logs"
+    Then "Self-registration with approval" row "Event name" column of "reportlog" table should contain "User added new account request"
+    And "Self-registration with approval" row "Description" column of "reportlog" table should contain "jb007 (bond@example.gov) registered for system access"
 
     # Successful signup outcome #3: applicant still cannot log in
     When I log out

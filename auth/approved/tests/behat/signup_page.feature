@@ -1,4 +1,4 @@
-@auth @auth_approved @javascript
+@totara @auth @auth_approved @javascript
 Feature: auth_approved: signup page fields
   In order to access courses in a Totara website
   As an external user
