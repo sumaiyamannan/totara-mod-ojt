@@ -1889,8 +1889,9 @@ class totara_sync_element_user extends totara_sync_element {
         $rs = $DB->get_recordset_sql($sql, $params);
 
         foreach ($rs as $r) {
-
-            if (!exists_auth_plugin($r->auth)) {
+            // Plugin names must be lowercase, we cannot use file_exists on OSX and Windows filesystems,
+            // we should fix exists_auth_plugin() in the future.
+            if (strtolower($r->auth) !== $r->auth or !exists_auth_plugin($r->auth)) {
                 $this->addlog(get_string('invalidauthxforuserx', 'tool_totara_sync', $r), 'error', 'checksanity');
                 $invalidids[] = $r->id;
             }
