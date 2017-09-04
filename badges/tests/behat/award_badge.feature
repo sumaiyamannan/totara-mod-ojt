@@ -247,6 +247,23 @@ Feature: Award badges
     And I follow "Profile" in the user menu
     And I follow "Course 1"
     Then I should see "Course Badge"
+    And I log out
+    # Ensure the badge is still awarded and visible after the course has been deleted.
+    When I log in as "admin"
+    And I navigate to "Manage courses and categories" node in "Site administration > Courses"
+    And I click on "Miscellaneous" "text" in the ".category-listing" "css_element"
+    And I go to the courses management page
+    And I click on category "Miscellaneous" in the management interface
+    And I click on "delete" action for "Course 1" in management course listing
+    And I press "Delete"
+    Then I should see "C1 has been completely deleted"
+    And I log out
+    When I log in as "student1"
+    And I follow "Profile" in the user menu
+    Then I should see "Course Badge"
+    When I follow "Course Badge"
+    Then I should see "Course Badge"
+    And I should see "Warning: This activity is no longer available."
 
   @javascript
   Scenario: Award badge on course completion
@@ -312,6 +329,24 @@ Feature: Award badges
     And I log in as "student1"
     And I follow "Profile" in the user menu
     Then I should see "Course Badge"
+    And I log out
+    # Ensure the badge is still awarded and visible after the course has been deleted.
+    When I log in as "admin"
+    And I navigate to "Manage courses and categories" node in "Site administration > Courses"
+    And I click on "Miscellaneous" "text" in the ".category-listing" "css_element"
+    And I go to the courses management page
+    And I click on category "Miscellaneous" in the management interface
+    And I click on "delete" action for "Course 1" in management course listing
+    And I press "Delete"
+    Then I should see "C1 has been completely deleted"
+    And I log out
+    When I log in as "student1"
+    And I follow "Profile" in the user menu
+    Then I should see "Course Badge"
+    When I follow "Course Badge"
+    Then I should see "Course Badge"
+    And I should see "Warning: This course is no longer available."
+
 
   @javascript
   Scenario: All of the selected roles can award badges
