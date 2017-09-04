@@ -342,6 +342,8 @@ class completion_completion extends data_object {
         $status = completion_completion::get_status($this);
         if ($status) {
             $status = constant('COMPLETION_STATUS_'.strtoupper($status));
+        } else {
+            $status = COMPLETION_STATUS_NOTYETSTARTED;
         }
 
         $this->status = $status;
