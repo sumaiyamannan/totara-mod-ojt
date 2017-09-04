@@ -1342,7 +1342,7 @@ class totara_sync_element_user extends totara_sync_element {
      *
      * @return array with invalid ids from synctable for duplicated values
      */
-    function get_duplicated_values($synctable, $synctable_clone, $field, $identifier) {
+    public function get_duplicated_values($synctable, $synctable_clone, $field, $identifier) {
         global $CFG, $DB;
 
         $params = array();
@@ -1353,10 +1353,16 @@ class totara_sync_element_user extends totara_sync_element {
             $params[0] = 0;
         }
         if (!empty($CFG->totara_job_allowmultiplejobs) && !empty($this->config->linkjobassignmentidnumber)) {
-            // These three fields must be unique. By doing a DISTINCT on these columns, we can find any records
+            // We can only use the email field if it's being used in the import data.
+            if ($field == 'email') {
+                $emailfield = ', email';
+            } else {
+                $emailfield = '';
+            }
+
+            // These fields must be unique. By doing a DISTINCT on these columns, we can find any records
             // that are genuinely not unique, rather than duplicates caused by multiple job assignments.
-            $duplicatessubquery =
-                "(SELECT DISTINCT idnumber, username, email FROM {{$synctable_clone}}) dis";
+            $duplicatessubquery = "(SELECT DISTINCT idnumber, username{$emailfield} FROM {{$synctable_clone}}) dis";
         } else {
             $duplicatessubquery = "{{$synctable_clone}}";
         }
