@@ -3551,12 +3551,8 @@ function facetoface_add_session_to_calendar($session, $facetoface, $calendartype
         $newevent->visible = 1;
         $newevent->timemodified = time();
 
-        if ($calendartype == 'user' && $eventtype == 'booking') {
-            //Check for and Delete the 'created' calendar event to reduce multiple entries for the same event
-            $DB->delete_records('event', array('userid' => $userid, 'instance' => $session->facetoface,
-                                               'eventtype' => 'facetofacesession'));
-        }
-
+        // Remove all calendar events related to current session and user before adding new event to avoid duplication.
+        $result = $result && facetoface_remove_session_from_calendar($session, $courseid, $userid);
         $result = $result && $DB->insert_record('event', $newevent);
     }
 
