@@ -135,28 +135,40 @@ final class course_editor {
      *
      * @param int $courseid
      * @param int $userid
-     * @return array(array(stdClass) $criteria, int $overall)
-     *         each $criteria contains 'type', 'title', 'status', 'complete', 'timecompleted', 'details' and 'editurl',
-     *         $overall is one of COMPLETION_AGGREGATION_ALL or COMPLETION_AGGREGATION_ANY
+     * @return array(array(stdClass) $progs, array(stdClass) $certs)
+     *         each $prog contains 'name', 'status', 'timecompleted', etc.
+     *         each $cert contains 'name', 'status', 'certifpath', 'renewalstatus', 'timecompleted', etc.
      */
     public static function get_all_progs_and_certs($courseid, $userid) {
-        global $DB;
+        global $CFG, $DB;
 
-        $rows = array();
+        $progseditenabled = $CFG->enableprogramcompletioneditor && !totara_feature_disabled('programs');
+        $certseditenabled = $CFG->enableprogramcompletioneditor && !totara_feature_disabled('certifications');
 
         // Programs first.
+        $progs = array();
+
         $sql = "SELECT DISTINCT prog.id AS programid, prog.fullname, pc.status, pc.timecompleted
               FROM {prog} prog
-              JOIN {prog_courseset} pcs
-                ON prog.id = pcs.programid
-              JOIN {prog_courseset_course} pcsc
-                ON pcs.id = pcsc.coursesetid
+              JOIN (SELECT pcs.programid
+                      FROM {prog_courseset_course} pcsc
+                      JOIN {prog_courseset} pcs
+                        ON pcs.id = pcsc.coursesetid
+                     WHERE pcsc.courseid = :courseid1
+                     UNION
+                    SELECT pcs.programid
+                      FROM {comp_criteria} cc
+                      JOIN {prog_courseset} pcs
+                        ON pcs.competencyid = cc.competencyid
+                       AND cc.itemtype = 'coursecompletion'
+                     WHERE cc.iteminstance = :courseid2
+                   ) cp
+                ON prog.id = cp.programid
          LEFT JOIN {prog_completion} pc
                 ON pc.programid = prog.id
                AND pc.coursesetid = 0
                AND pc.userid = :userid1
-             WHERE pcsc.courseid = :courseid
-               AND prog.certifid IS NULL
+             WHERE prog.certifid IS NULL
                AND EXISTS (SELECT pc2.id
                              FROM {prog_completion} pc2
                             WHERE pc2.programid = prog.id
@@ -168,7 +180,13 @@ final class course_editor {
                             WHERE pch.programid = prog.id
                               AND pch.userid = :userid3
                               AND pch.coursesetid = 0)";
-        $params = array('courseid' => $courseid, 'userid1' => $userid, 'userid2' => $userid, 'userid3' => $userid);
+        $params = array(
+            'courseid1' => $courseid,
+            'courseid2' => $courseid,
+            'userid1' => $userid,
+            'userid2' => $userid,
+            'userid3' => $userid,
+        );
         $records = $DB->get_records_sql($sql, $params);
 
         $progurl = new \moodle_url('/totara/program/edit_completion.php');
@@ -184,23 +202,32 @@ final class course_editor {
             $editurl = clone($progurl);
             $editurl->param('id', $record->programid);
             $editurl->param('userid', $userid);
-            $row->editurl = $editurl;
 
-            $rows[] = $row;
+            $program = new \program($record->programid);
+            $programcontext = $program->get_context();
+            if ($progseditenabled && has_capability('totara/program:editcompletion', $programcontext)) {
+                $row->editurl = $editurl;
+            } else {
+                $row->editurl = false;
+            }
+
+            $progs[] = $row;
         }
 
         // Then certs.
+        $certs = array();
+
         $sql = "SELECT DISTINCT prog.id AS programid, prog.fullname, cc.certifpath, cc.status, cc.renewalstatus, cc.timecompleted
               FROM {prog} prog
               JOIN {prog_courseset} pcs
                 ON prog.id = pcs.programid
               JOIN {prog_courseset_course} pcsc
                 ON pcs.id = pcsc.coursesetid
+               AND pcsc.courseid = :courseid
          LEFT JOIN {certif_completion} cc
                 ON cc.certifid = prog.certifid
                AND cc.userid = :userid1
-             WHERE pcsc.courseid = :courseid
-               AND EXISTS (SELECT cc2.id
+             WHERE EXISTS (SELECT cc2.id
                              FROM {certif_completion} cc2
                             WHERE cc2.certifid = prog.certifid
                               AND cc2.userid = :userid2
@@ -227,12 +254,19 @@ final class course_editor {
             $editurl = clone($certurl);
             $editurl->param('id', $record->programid);
             $editurl->param('userid', $userid);
-            $row->editurl = $editurl;
 
-            $rows[] = $row;
+            $program = new \program($record->programid);
+            $programcontext = $program->get_context();
+            if ($certseditenabled && has_capability('totara/program:editcompletion', $programcontext)) {
+                $row->editurl = $editurl;
+            } else {
+                $row->editurl = false;
+            }
+
+            $certs[] = $row;
         }
 
-        return $rows;
+        return array($progs, $certs);
     }
 
     /**
@@ -241,7 +275,7 @@ final class course_editor {
      * @param int $courseid
      * @param int $userid
      * @return array(array(stdClass) $criteria, int $overall)
-     *         each $criteria contains 'type', 'title', 'status', 'complete', 'timecompleted', 'details' and 'editurl',
+     *         each $criteria contains 'type', 'title', 'status', 'complete', 'timecompleted', 'details', 'editurl', etc.
      *         $overall is one of COMPLETION_AGGREGATION_ALL or COMPLETION_AGGREGATION_ANY
      */
     public static function get_all_criteria($courseid, $userid) {
@@ -363,9 +397,7 @@ final class course_editor {
      *
      * @param int $courseid
      * @param int $userid
-     * @return array(array(stdClass) $criteria, int $overall)
-     *         each $criteria contains 'type', 'title', 'status', 'complete', 'timecompleted', 'details' and 'editurl',
-     *         $overall is one of COMPLETION_AGGREGATION_ALL or COMPLETION_AGGREGATION_ANY
+     * @return array(stdClass) containing 'name' (always "Unknown"), 'rpl', 'timecompleted', 'delteurl', etc.
      */
     public static function get_orphaned_criteria($courseid, $userid) {
         global $DB;
@@ -411,7 +443,7 @@ final class course_editor {
      *
      * @param int $courseid
      * @param int $userid
-     * @return array(stdClass) containing 'name' (of module), 'status', 'timecompleted' and 'editurl'
+     * @return array(stdClass) containing 'name' (of module), 'status', 'timecompleted', 'editurl', etc.
      */
     public static function get_all_modules($courseid, $userid) {
         global $DB;
@@ -474,7 +506,7 @@ final class course_editor {
      *
      * @param int $courseid
      * @param int $userid
-     * @return array(stdClass) containing
+     * @return array(stdClass) containing 'chid', 'timecompleted', 'grade', 'editurl' and 'deleteurl'.
      */
     public static function get_all_history($courseid, $userid) {
         global $DB, $PAGE;

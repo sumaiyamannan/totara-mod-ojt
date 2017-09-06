@@ -71,8 +71,8 @@ if ($fixkey) {
     if ($returntoeditor) {
         $url = new moodle_url('/totara/completioneditor/course_completion_overview.php', array('id' => $courseid, 'userid' => $userid));
     }
-    redirect($url, get_string('completionchangessaved', 'totara_completioneditor'),
-        null, \core\output\notification::NOTIFY_SUCCESS);
+    totara_set_notification(get_string('completionchangessaved', 'totara_completioneditor'),
+        $url,array('class' => 'notifysuccess'));
 }
 
 // Set up the page.

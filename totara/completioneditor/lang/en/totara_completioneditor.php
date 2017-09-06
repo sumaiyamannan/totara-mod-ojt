@@ -24,6 +24,7 @@
 $string['allrequired'] = 'all required';
 $string['anyrequired'] = 'any required';
 $string['certificationcompletionedit'] = 'Edit certification completion';
+$string['certificationcompletionnoedit'] = 'You can\'t edit this certification completion record';
 $string['checkcoursecompletions'] = 'Check course completions';
 $string['completionchangessaved'] = 'Completion changes have been saved';
 $string['completionchangeuser'] = 'For the user, the consequences of these changes are:';
@@ -98,6 +99,7 @@ $string['overview'] = 'Overview';
 $string['pluginname'] = 'Completion editor';
 $string['problem'] = 'Problem';
 $string['programcompletionedit'] = 'Edit program completion';
+$string['programcompletionnoedit'] = 'You can\'t edit this program completion record';
 $string['progorcerttimecompleted'] = 'Time completed or certified';
 $string['transactiondatetime'] = 'Date / time';
 $string['transactions'] = 'Transactions';

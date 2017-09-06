@@ -64,14 +64,18 @@ class totara_completioneditor_course_editor_testcase extends advanced_testcase {
         $programgenerator->assign_program($prog1->id, array($user1->id));
         $programgenerator->assign_program($cert1->id, array($user2->id));
 
-        $results = course_editor::get_all_progs_and_certs($course1->id, $user1->id);
-        $this->assertNotEmpty($results);
-        $results = course_editor::get_all_progs_and_certs($course1->id, $user2->id);
-        $this->assertEmpty($results);
-        $results = course_editor::get_all_progs_and_certs($course2->id, $user1->id);
-        $this->assertEmpty($results);
-        $results = course_editor::get_all_progs_and_certs($course2->id, $user2->id);
-        $this->assertNotEmpty($results);
+        list($resultprogs, $resultcerts) = course_editor::get_all_progs_and_certs($course1->id, $user1->id);
+        $this->assertNotEmpty($resultprogs);
+        $this->assertEmpty($resultcerts);
+        list($resultprogs, $resultcerts) = course_editor::get_all_progs_and_certs($course1->id, $user2->id);
+        $this->assertEmpty($resultprogs);
+        $this->assertEmpty($resultcerts);
+        list($resultprogs, $resultcerts) = course_editor::get_all_progs_and_certs($course2->id, $user1->id);
+        $this->assertEmpty($resultprogs);
+        $this->assertEmpty($resultcerts);
+        list($resultprogs, $resultcerts) = course_editor::get_all_progs_and_certs($course2->id, $user2->id);
+        $this->assertEmpty($resultprogs);
+        $this->assertNotEmpty($resultcerts);
     }
 
     /**

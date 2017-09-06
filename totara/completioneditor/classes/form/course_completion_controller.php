@@ -303,8 +303,8 @@ class course_completion_controller extends form_controller {
         /////////////////////////////////////////////////////////////////
         /// Programs and certifications.
         if ($section == 'overview') {
-            $progsandcerts = course_editor::get_all_progs_and_certs($courseid, $userid);
-            $params['progsandcertstable'] = $output->related_progs_and_certs($progsandcerts);
+            list($progs, $certs) = course_editor::get_all_progs_and_certs($courseid, $userid);
+            $params['progsandcertstable'] = $output->related_progs_and_certs($progs, $certs);
         }
 
         /////////////////////////////////////////////////////////////////

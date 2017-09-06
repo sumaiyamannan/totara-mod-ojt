@@ -73,12 +73,12 @@ if (!empty($deletehistory)) {
     // Validate that the record to be deleted matches the course and user.
     $historycompletion = \core_completion\helper::load_course_completion_history($chid);
     if ($historycompletion->courseid != $courseid || $historycompletion->userid != $userid) {
-        redirect($url, get_string('error:impossibledatasubmitted', 'totara_completioneditor'),
-            null, \core\output\notification::NOTIFY_ERROR);
+        totara_set_notification(get_string('error:impossibledatasubmitted', 'totara_completioneditor'),
+            $url,array('class' => 'notifyproblem'));
     }
     \core_completion\helper::delete_course_completion_history($chid, 'History manually deleted');
-    redirect($url, get_string('coursecompletionhistorydeleted', 'totara_completioneditor'),
-        null, \core\output\notification::NOTIFY_SUCCESS);
+    totara_set_notification(get_string('coursecompletionhistorydeleted', 'totara_completioneditor'),
+        $url,array('class' => 'notifysuccess'));
 }
 
 if (!empty($deleteorphanedcritcomplid)) {
@@ -90,12 +90,12 @@ if (!empty($deleteorphanedcritcomplid)) {
     $critcompl = $DB->get_record('course_completion_crit_compl',
         array('id' => $deleteorphanedcritcomplid, 'userid' => $userid, 'course' => $courseid));
     if (empty($critcompl)) {
-        redirect($url, get_string('error:impossibledatasubmitted', 'totara_completioneditor'),
-            null, \core\output\notification::NOTIFY_ERROR);
+        totara_set_notification(get_string('error:impossibledatasubmitted', 'totara_completioneditor'),
+            $url,array('class' => 'notifyproblem'));
     }
     \core_completion\helper::delete_criteria_completion($deleteorphanedcritcomplid, 'Orphaned crit compl manually deleted');
-    redirect($url, get_string('coursecompletionorphanedcritcompldeleted', 'totara_completioneditor'),
-        null, \core\output\notification::NOTIFY_SUCCESS);
+    totara_set_notification(get_string('coursecompletionorphanedcritcompldeleted', 'totara_completioneditor'),
+        $url,array('class' => 'notifysuccess'));
 }
 
 // Load the form with the current data.
@@ -119,8 +119,8 @@ if ($form->is_cancelled()) {
     }
 
     // Reload the form with the original data.
-    redirect($url, get_string('completionupdatecancelled', 'totara_completioneditor'),
-        null, \core\output\notification::NOTIFY_SUCCESS);
+    totara_set_notification(get_string('completionupdatecancelled', 'totara_completioneditor'),
+        $url,array('class' => 'notifysuccess'));
 
 } else if ($data = $form->get_data()) {
 
@@ -154,8 +154,8 @@ if ($form->is_cancelled()) {
         \core_completion\helper::write_course_completion_history($historycompletion, $message);
 
         $url->param('section', 'history');
-        redirect($url, get_string('completionchangessaved', 'totara_completioneditor'),
-            null, \core\output\notification::NOTIFY_SUCCESS);
+        totara_set_notification(get_string('completionchangessaved', 'totara_completioneditor'),
+            $url,array('class' => 'notifysuccess'));
     }
 
     $ismodule = !empty($cmid);
@@ -168,8 +168,8 @@ if ($form->is_cancelled()) {
         $ccccerrors = !empty($cccc) ? \core_completion\helper::get_criteria_completion_errors($cccc) : array();
 
         if (!empty($cmcerrors) || !empty($ccccerrors)) {
-            redirect($url, get_string('error:impossibledatasubmitted', 'totara_completioneditor'),
-                null, \core\output\notification::NOTIFY_ERROR);
+            totara_set_notification(get_string('error:impossibledatasubmitted', 'totara_completioneditor'),
+                $url,array('class' => 'notifyproblem'));
         }
 
         if (!empty($cmc)) {
@@ -189,8 +189,8 @@ if ($form->is_cancelled()) {
         }
 
         $url->param('section', 'criteria');
-        redirect($url, get_string('completionchangessaved', 'totara_completioneditor'),
-            null, \core\output\notification::NOTIFY_SUCCESS);
+        totara_set_notification(get_string('completionchangessaved', 'totara_completioneditor'),
+            $url,array('class' => 'notifysuccess'));
     }
 
     if (!empty($data->savecurrent)) {
@@ -199,11 +199,11 @@ if ($form->is_cancelled()) {
 
         if (\core_completion\helper::write_course_completion($coursecompletion, 'Completion manually edited')) {
             $url->remove_params(['section']);
-            redirect($url, get_string('completionchangessaved', 'totara_completioneditor'),
-                null, \core\output\notification::NOTIFY_SUCCESS);
+            totara_set_notification(get_string('completionchangessaved', 'totara_completioneditor'),
+                $url,array('class' => 'notifysuccess'));
         } else {
-            redirect($url, get_string('error:impossibledatasubmitted', 'totara_completioneditor'),
-                null, \core\output\notification::NOTIFY_ERROR);
+            totara_set_notification(get_string('error:impossibledatasubmitted', 'totara_completioneditor'),
+                $url,array('class' => 'notifyproblem'));
         }
     }
 }

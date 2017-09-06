@@ -68,7 +68,7 @@ class course_renderer extends \plugin_renderer_base {
 
                     $errorstrings = array();
                     foreach ($errors as $errorkey => $errorfield) {
-                        $errorstrings[] = get_string($errorkey, 'totara_completioneditor');
+                        $errorstrings[] = get_string($errorkey, 'completion');
                     }
 
                     $aggregatedata[$problemkey]->problem = implode('<br/>', $errorstrings);
@@ -533,85 +533,125 @@ class course_renderer extends \plugin_renderer_base {
     /**
      * Generates HTML to display the programs and certifications relating to a course completion record.
      *
-     * @param array $progsandcerts
+     * @param array $progs
+     * @param array $certs
      * @return string HTML fragment
      */
-    public function related_progs_and_certs($progsandcerts) {
+    public function related_progs_and_certs($progs, $certs) {
+        global $CFG;
+
         $out = '';
 
-        if (empty($progsandcerts)) {
+        if (empty($progs) && empty($certs)) {
             return $out;
         }
+
+        $progsenabled = $CFG->enableprogramcompletioneditor && !totara_feature_disabled('programs');
+        $certsenabled = $CFG->enableprogramcompletioneditor && !totara_feature_disabled('certifications');
+        $haseditcolumn = !empty($progs) && $progsenabled || !empty($certs) && $certsenabled;
 
         ob_start();
         $table = new \totara_table('coursecompletionprogsandcerts');
         $table->define_baseurl($this->page->url);
 
-        $table->define_columns(array(
+        $columns = array(
             'name',
             'status',
             'timecompleted',
-            'edit',
-        ));
-        $table->define_headers(array(
+        );
+        $headers = array(
             get_string('name'),
             get_string('status'),
             get_string('progorcerttimecompleted', 'totara_completioneditor'),
-            get_string('edit'),
-        ));
+        );
+        if ($haseditcolumn) {
+            $columns[] = 'edit';
+            $headers[] = get_string('edit');
+        }
+        $table->define_columns($columns);
+        $table->define_headers($headers);
 
         $streditprog = get_string('programcompletionedit', 'totara_completioneditor');
         $streditcert = get_string('certificationcompletionedit', 'totara_completioneditor');
+        $strnoeditprog = get_string('programcompletionnoedit', 'totara_completioneditor');
+        $strnoeditcert = get_string('certificationcompletionnoedit', 'totara_completioneditor');
 
         $table->setup();
 
-        foreach ($progsandcerts as $item) {
-            if (empty($item->timecompleted)) {
-                $timecompleted = '-';
+        foreach ($progs as $prog) {
+            if (empty($prog->status)) {
+                $status = 'Not currently assigned';
+            } else if ($prog->status == STATUS_PROGRAM_COMPLETE) {
+                $status = get_string('statusprogramcomplete', 'totara_program');
             } else {
-                $timecompleted = userdate($item->timecompleted,get_string('strftimedatetime', 'langconfig'));
+                $status = get_string('statusprogramincomplete', 'totara_program');
             }
 
-            if ($item->type == 'program') {
-                if (empty($item->status)) {
-                    $status = 'Not currently assigned';
-                } else if ($item->status == STATUS_PROGRAM_COMPLETE) {
-                    $status = get_string('statusprogramcomplete', 'totara_program');
-                } else {
-                    $status = get_string('statusprogramincomplete', 'totara_program');
-                }
-
-                $editlink = \html_writer::link($item->editurl, $this->output->pix_icon('/t/edit', $streditprog),
-                    array('title' => $streditprog, 'class' => 'editprogorcertcompletionbutton'));
+            if (empty($prog->timecompleted)) {
+                $timecompleted = '-';
             } else {
-                $certcompletionstate = certif_get_completion_state($item);
-                switch ($certcompletionstate) {
-                    case CERTIFCOMPLETIONSTATE_ASSIGNED:
-                        $status = get_string('stateassigned', 'totara_certification');
-                        break;
-                    case CERTIFCOMPLETIONSTATE_CERTIFIED:
-                        $status = get_string('statecertified', 'totara_certification');
-                        break;
-                    case CERTIFCOMPLETIONSTATE_WINDOWOPEN:
-                        $status = get_string('statewindowopen', 'totara_certification');
-                        break;
-                    case CERTIFCOMPLETIONSTATE_EXPIRED:
-                        $status = get_string('stateexpired', 'totara_certification');
-                        break;
-                    default:
-                        $status = get_string('stateinvalid', 'totara_certification');
-                }
-
-                $editlink = \html_writer::link($item->editurl, $this->output->pix_icon('/t/edit', $streditcert),
-                    array('title' => $streditcert, 'class' => 'editprogorcertcompletionbutton'));
+                $timecompleted = userdate($prog->timecompleted,get_string('strftimedatetime', 'langconfig'));
             }
 
             $tablerow = array(
-                $item->name,
+                $prog->name,
                 $status,
                 $timecompleted,
-                $editlink,
             );
+
+            if ($haseditcolumn) {
+                if ($prog->editurl) {
+                    $editlink = \html_writer::link($prog->editurl, $this->output->pix_icon('t/edit', $streditprog),
+                        array('title' => $streditprog, 'class' => 'editprogorcertcompletionbutton'));
+                } else {
+                    $editlink = $this->output->pix_icon('t/edit', $strnoeditprog);
+                }
+                $tablerow[] = $editlink;
+            }
+
+            $table->add_data($tablerow);
+        }
+
+        foreach ($certs as $cert) {
+            $certcompletionstate = certif_get_completion_state($cert);
+            switch ($certcompletionstate) {
+                case CERTIFCOMPLETIONSTATE_ASSIGNED:
+                    $status = get_string('stateassigned', 'totara_certification');
+                    break;
+                case CERTIFCOMPLETIONSTATE_CERTIFIED:
+                    $status = get_string('statecertified', 'totara_certification');
+                    break;
+                case CERTIFCOMPLETIONSTATE_WINDOWOPEN:
+                    $status = get_string('statewindowopen', 'totara_certification');
+                    break;
+                case CERTIFCOMPLETIONSTATE_EXPIRED:
+                    $status = get_string('stateexpired', 'totara_certification');
+                    break;
+                default:
+                    $status = get_string('stateinvalid', 'totara_certification');
+            }
+
+            if (empty($cert->timecompleted)) {
+                $timecompleted = '-';
+            } else {
+                $timecompleted = userdate($cert->timecompleted,get_string('strftimedatetime', 'langconfig'));
+            }
+
+            $tablerow = array(
+                $cert->name,
+                $status,
+                $timecompleted,
+            );
+
+            if ($haseditcolumn) {
+                if ($cert->editurl) {
+                    $editlink = \html_writer::link($cert->editurl, $this->output->pix_icon('t/edit', $streditcert),
+                        array('title' => $streditcert, 'class' => 'editprogorcertcompletionbutton'));
+                } else {
+                    $editlink = $this->output->pix_icon('t/edit', $strnoeditcert);
+                }
+                $tablerow[] = $editlink;
+            }
 
             $table->add_data($tablerow);
         }
