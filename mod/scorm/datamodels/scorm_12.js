@@ -123,27 +123,31 @@ function SCORMapi1_2(def, cmiobj, cmiint, cmistring256, cmistring4096, scormdebu
         };
     }
 
-    var cmi, nav;
+    var cmi = new Object();
+        cmi.core = new Object();
+        cmi.core.score = new Object();
+        cmi.objectives = new Object();
+        cmi.student_data = new Object();
+        cmi.student_preference = new Object();
+        cmi.interactions = new Object();
+        cmi.evaluation = new Object();
+        cmi.evaluation.comments = new Object();
+
+    // Navigation Object
+    var nav = new Object();
+
     function initdatamodel(scoid){
         prerequrl = cfgwwwroot + "/mod/scorm/prereqs.php?a=" + scormid + "&scoid=" + scoid + "&attempt=" + attempt + "&mode=" + viewmode + "&currentorg=" + currentorg + "&sesskey=" + sesskey;
         datamodelurlparams = "id=" + cmid + "&a=" + scormid + "&sesskey=" + sesskey + "&attempt=" + attempt + "&scoid=" + scoid;
 
-        //
-        // Datamodel inizialization
-        //
-        cmi = new Object();
-            cmi.core = new Object();
-            cmi.core.score = new Object();
-            cmi.objectives = new Object();
-            cmi.student_data = new Object();
-            cmi.student_preference = new Object();
-            cmi.interactions = new Object();
-            // deprecated evaluation attributes
-            cmi.evaluation = new Object();
-            cmi.evaluation.comments = new Object();
-
-        // Navigation Object
-        nav = new Object();
+        cmi.core = new Object();
+        cmi.core.score = new Object();
+        cmi.objectives = new Object();
+        cmi.student_data = new Object();
+        cmi.student_preference = new Object();
+        cmi.interactions = new Object();
+        cmi.evaluation = new Object();
+        cmi.evaluation.comments = new Object();
 
         for (element in datamodel[scoid]) {
             if (element.match(/\.n\./) == null) {
