@@ -1137,49 +1137,56 @@ class core_completion_helper_testcase extends advanced_testcase {
 
         $this->resetAfterTest(true);
 
-        $coursemoduleids = array(567, 678, 789, 890);
+        $courseids = array(567, 678, 789, 890);
+        $coursemoduleids = array();
         $userids = array(123, 234, 345, 456);
 
-        foreach ($coursemoduleids as $coursemoduleid) {
+        foreach ($courseids as $courseid) {
             $module = new stdClass();
-            $module->course = $coursemoduleid;
-            $DB->insert_record('course_modules', $module);
+            $module->course = $courseid;
+            $id = $DB->insert_record('course_modules', $module);
+            $coursemoduleids[$courseid] = $id;
             foreach ($userids as $userid) {
                 $modulecompletion = new stdClass();
-                $modulecompletion->coursemoduleid = $coursemoduleid;
+                $modulecompletion->coursemoduleid = $coursemoduleids[$courseid];
                 $modulecompletion->userid = $userid;
                 $modulecompletion->completionstate = COMPLETION_INCOMPLETE;
                 $modulecompletion->timemodified = 987654;
                 $DB->insert_record('course_modules_completion', $modulecompletion);
             }
         }
-        $DB->execute('UPDATE {course_modules} SET id = course');
 
         $totalcount = count($userids) * count($coursemoduleids);
 
         $this->assertEquals($totalcount, $DB->count_records('course_modules_completion'));
         $this->assertEquals(0, $DB->count_records('course_completion_log'));
 
-        $modulecompletions = $DB->get_records('course_modules_completion', array('coursemoduleid' => 678, 'userid' => 345));
+        $modulecompletions = $DB->get_records('course_modules_completion',
+            array('coursemoduleid' => $coursemoduleids[678], 'userid' => 345));
         $this->assertCount(1, $modulecompletions);
         $modulecompletion = reset($modulecompletions);
         helper::delete_module_completion($modulecompletion->id);
         $this->assertEquals($totalcount - 1, $DB->count_records('course_modules_completion'));
-        $this->assertEquals(0, $DB->count_records('course_modules_completion', array('coursemoduleid' => 678, 'userid' => 345)));
+        $this->assertEquals(0, $DB->count_records('course_modules_completion',
+            array('coursemoduleid' => $coursemoduleids[678], 'userid' => 345)));
 
-        $modulecompletions = $DB->get_records('course_modules_completion', array('coursemoduleid' => 678, 'userid' => 123));
+        $modulecompletions = $DB->get_records('course_modules_completion',
+            array('coursemoduleid' => $coursemoduleids[678], 'userid' => 123));
         $this->assertCount(1, $modulecompletions);
         $modulecompletion = reset($modulecompletions);
         helper::delete_module_completion($modulecompletion->id);
         $this->assertEquals($totalcount - 2, $DB->count_records('course_modules_completion'));
-        $this->assertEquals(0, $DB->count_records('course_modules_completion', array('coursemoduleid' => 678, 'userid' => 123)));
+        $this->assertEquals(0, $DB->count_records('course_modules_completion',
+            array('coursemoduleid' => $coursemoduleids[678], 'userid' => 123)));
 
-        $modulecompletions = $DB->get_records('course_modules_completion', array('coursemoduleid' => 890, 'userid' => 345));
+        $modulecompletions = $DB->get_records('course_modules_completion',
+            array('coursemoduleid' => $coursemoduleids[890], 'userid' => 345));
         $this->assertCount(1, $modulecompletions);
         $modulecompletion = reset($modulecompletions);
         helper::delete_module_completion($modulecompletion->id, 'This is a custom message');
         $this->assertEquals($totalcount - 3, $DB->count_records('course_modules_completion'));
-        $this->assertEquals(0, $DB->count_records('course_modules_completion', array('coursemoduleid' => 890, 'userid' => 345)));
+        $this->assertEquals(0, $DB->count_records('course_modules_completion',
+            array('coursemoduleid' => $coursemoduleids[890], 'userid' => 345)));
 
         $logs = $DB->get_records('course_completion_log', array(), 'id DESC');
         $this->assertCount(3, $logs);
