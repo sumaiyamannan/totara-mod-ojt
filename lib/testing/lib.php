@@ -238,6 +238,10 @@ function testing_update_composer_dependencies() {
         passthru("php composer.phar update", $code);
     } else {
         passthru("php composer.phar install", $code);
+        if ($code == 2) {
+            // Switched php version most likely.
+            passthru("php composer.phar update", $code);
+        }
     }
     if ($code != 0) {
         exit($code);
