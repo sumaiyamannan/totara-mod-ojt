@@ -61,7 +61,7 @@ function clustercache_setup_cache (){
 
 function clustercache_create_local_file_store($storename) {
     global $CFG;
-    $metadatafilepath = $CFG->dirroot . '/deploymentREADME.php';
+    $metadatafilepath = $CFG->dirroot . '/site-environment-data.php';
     if (!file_exists($metadatafilepath)) {
         // Unable to get needed info about where to create cache.
         return 0;
@@ -110,7 +110,7 @@ function clustercache_create_local_file_store($storename) {
 function clustercache_create_memcache_cluster_store($storename) {
     global $CFG;
 
-    $metadatafilepath = $CFG->dirroot . '/deploymentREADME.php';
+    $metadatafilepath = $CFG->dirroot . '/site-environment-data.php';
     if (!file_exists($metadatafilepath)) {
         // Unable to get needed info.
         print "metadata file path ($metadatafilepath) doesn't exist<br/>\n";
