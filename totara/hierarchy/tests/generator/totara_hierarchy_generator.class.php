@@ -76,6 +76,18 @@ class totara_hierarchy_generator extends component_generator_base {
                                      'organisation' => 0,
                                      'position' => 0);
 
+    public function reset() {
+        parent::reset();
+        $this->frameworkcount = array ('competency' => 0,
+            'goal' => 0,
+            'organisation' => 0,
+            'position' => 0);
+        $this->hierarchycount = array ('competency' => 0,
+            'goal' => 0,
+            'organisation' => 0,
+            'position' => 0);
+    }
+
     /**
      * Redirect behat generator with appropriate prefix.
      */
