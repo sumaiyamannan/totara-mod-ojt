@@ -38,7 +38,7 @@ $personalcontext = context_user::instance($user->id);
 
 $PAGE->set_course($course);
 
-if (!completion_can_view_data($user->id, $course->id)) {
+if (!report_completion_can_access_user_report($user, $course)) {
     // this should never happen
     print_error('nocapability', 'report_completion');
 }

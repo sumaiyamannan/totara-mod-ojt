@@ -61,6 +61,52 @@ function report_completion_extend_navigation_user($navigation, $user, $course) {
 }
 
 /**
+ * Is current user allowed to access this report
+ *
+ * @private defined in lib.php for performance reasons
+ *
+ * @param stdClass $user
+ * @param stdClass $course
+ * @return bool
+ */
+function report_completion_can_access_user_report($user, $course) {
+    global $USER, $CFG;
+
+    if (empty($CFG->enablecompletion)) {
+        return false;
+    }
+
+    if ($course->id != SITEID and !$course->enablecompletion) {
+        return false;
+    }
+
+    $coursecontext = context_course::instance($course->id);
+    $personalcontext = context_user::instance($user->id);
+
+    if ($user->id == $USER->id) {
+        if ($course->showreports and (is_viewing($coursecontext, $USER) or is_enrolled($coursecontext, $USER))) {
+            return true;
+        }
+    } else if (has_capability('moodle/user:viewuseractivitiesreport', $personalcontext)) {
+        if ($course->showreports and (is_viewing($coursecontext, $user) or is_enrolled($coursecontext, $user))) {
+            return true;
+        }
+
+    }
+
+    // Check if $USER shares group with $user (in case separated groups are enabled and 'moodle/site:accessallgroups' is disabled).
+    if (!groups_user_groups_visible($course, $user->id)) {
+        return false;
+    }
+
+    if (has_capability('report/completion:view', $coursecontext)) {
+        return true;
+    }
+
+    return false;
+}
+
+/**
  * Return a list of page types
  * @param string $pagetype current page type
  * @param stdClass $parentcontext Block's parent context
