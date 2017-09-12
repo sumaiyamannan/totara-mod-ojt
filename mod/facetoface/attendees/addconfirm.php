@@ -87,7 +87,7 @@ if ($fromform = $mform->get_data()) {
             MDL_F2F_STATUS_PARTIALLY_ATTENDED, MDL_F2F_STATUS_FULLY_ATTENDED));
     }
 
-    $approvalrequired = !empty($fromform->ignoreapproval) ? APPROVAL_NONE  : $facetoface->approvaltype;
+    $approvalrequired = !empty($fromform->ignoreapproval) ? APPROVAL_NONE  : $approvalreqd;
 
     // Add those awaiting approval
     foreach ($waitingapproval as $waiting) {
