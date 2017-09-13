@@ -119,8 +119,13 @@ class totara_question_renderer extends plugin_renderer_base {
             $form_prefix . '_' . $prefix . '_review' . ' totara-question-review-extralinks');
 
         // Start a new div so that we can identify it for deletion.
+        if ($review->cananswer) {
+            $cssid_reviewitem = 'id_question-review-item-' . reset($currentuseritems)->id;
+        } else {
+            $cssid_reviewitem = 'id_question-review-item-0';
+        }
         $form->addElement('html', html_writer::start_div('question-review-item',
-            array('id' => 'id_question-review-item-' . reset($currentuseritems)->id)));
+            array('id' => $cssid_reviewitem)));
         $form->addElement('html', html_writer::div(html_writer::tag('h3', $title) . $extralinks, 'totara-question-review-item-title clearfix'));
 
         $review->add_item_specific_edit_elements($form, $anyitem);

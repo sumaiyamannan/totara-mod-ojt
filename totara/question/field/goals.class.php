@@ -488,11 +488,17 @@ class question_goals extends reviewrating {
      * @return bool
      */
     public function can_view_more_info($itemgroup){
+
+        // The $itemgroup will relate to one item, e.g. one goal.
+        $anyitemset = reset($itemgroup);
+        $anyitem = reset($anyitemset);
+        if (!empty($anyitem->ismissing)) {
+            return false;
+        }
+
         $goal = new goal();
         $permissions = $goal->get_permissions(null, $this->subjectid);
 
-        $anyitemset = reset($itemgroup);
-        $anyitem = reset($anyitemset);
         $scope = $anyitem->scope;
 
         if ($scope == goal::SCOPE_PERSONAL) {

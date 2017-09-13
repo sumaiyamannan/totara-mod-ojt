@@ -136,6 +136,12 @@ class question_objfromplan extends review{
      * @return bool
      */
     public function can_view_more_info($itemgroup){
+        // The $itemgroup will relate to one item, e.g. one objective.
+        $anyitemset = reset($itemgroup);
+        $anyitem = reset($anyitemset);
+        if (!empty($anyitem->ismissing)) {
+            return false;
+        }
         return dp_can_view_users_plans($this->subjectid);
     }
 
@@ -148,12 +154,14 @@ class question_objfromplan extends review{
     public function get_more_info_url($itemgroup){
         global $DB;
 
-        $currentuseritem = reset($itemgroup[$this->answerid]);
-        $planid = $DB->get_field('dp_plan_objective', 'planid', array('id'=>$currentuseritem->itemid));
+        // The $itemgroup will relate to one item, e.g. one objective.
+        $anyitemset = reset($itemgroup);
+        $anyitem = reset($anyitemset);
+        $planid = $DB->get_field('dp_plan_objective', 'planid', array('id'=>$anyitem->itemid));
 
         return new moodle_url('/totara/plan/components/objective/view.php',
             array(
-                'itemid' => $currentuseritem->itemid,
+                'itemid' => $anyitem->itemid,
                 'id' => $planid
             )
         );
