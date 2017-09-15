@@ -234,10 +234,11 @@ class enrol_totara_facetoface_plugin extends enrol_plugin {
      * @param stdClass $session fetched session
      * @param stdClass $facetoface fetched face to face activity
      * @param integer $notificationtype Notification type code
-     * @param string $signupnote Session sign up note
+     * @param string $signupnote Session sign up note (Deprecated)
+     * @param stdClass $fromform Submitted form data
      * @return array('result' => bool, 'message' => string)
      */
-    protected function signup_totara_facetoface_sid($course, $signupparams, $session, $facetoface, $notificationtype, $signupnote = '') {
+    protected function signup_totara_facetoface_sid($course, $signupparams, $session, $facetoface, $notificationtype, $signupnote = '', $fromform = null) {
         global $USER;
 
         // If multiple sessions are allowed then just check against this session.
@@ -265,13 +266,14 @@ class enrol_totara_facetoface_plugin extends enrol_plugin {
         $result = facetoface_user_import($course, $facetoface, $session, $USER->id, $signupparams);
 
         if ($result['result'] === true) {
-            // Add signup note.
+            if (!empty($fromform)) {
+                $signup = facetoface_get_attendee($session->id, $USER->id);
+                $fromform->id = $signup->submissionid;
+                customfield_save_data($fromform, 'facetofacesignup', 'facetoface_signup');
+            }
+
             if ($signupnote) {
-                $signupstatus = facetoface_get_attendee($session->id, $USER->id);
-                $signupdata = new stdClass();
-                $signupdata->id = $signupstatus->submissionid;
-                $signupdata->customfield_signupnote = $signupnote;
-                customfield_save_data($signupdata, 'facetofacesignup', 'facetoface_signup');
+                debugging('Param $signupnote in signup_totara_facetoface_sid method is deprecated and not used anymore');
             }
 
             $needapproval = false;
@@ -383,12 +385,6 @@ class enrol_totara_facetoface_plugin extends enrol_plugin {
                 $signupparams['discountcode'] = empty($fromform->{'discountcode' . $sid}) ? '' : $fromform->{'discountcode' . $sid};
                 $signupparams['notificationtype'] = $notificationtype;
                 $signupparams['autoenrol'] = false;
-                $signupnote = empty($fromform->{'signupnote' . $sid}) ? '' : $fromform->{'signupnote' . $sid};
-
-                if (empty($signupnote)) {
-                    // If this method was called by a signup for an individual session, the signup note may not have an attached $sid.
-                    $signupnote = empty($fromform->customfield_signupnote) ? '' : $fromform->customfield_signupnote;
-                }
 
                 // Selected job assignment choice.
                 if (!empty($fromform->{'selectedjobassignment_' . $session->facetoface})) {
@@ -398,8 +394,7 @@ class enrol_totara_facetoface_plugin extends enrol_plugin {
                 $session = $sessions[$sid];
                 $facetoface = $facetofaces[$session->facetoface];
 
-                $result = $this->signup_totara_facetoface_sid($course, $signupparams, $session, $facetoface, $notificationtype,
-                        $signupnote);
+                $result = $this->signup_totara_facetoface_sid($course, $signupparams, $session, $facetoface, $notificationtype, '', $fromform);
 
                 // Need approval has priority to enrol in one signup.
                 // However, if other signup allow enrolment without approval then they take a lead.

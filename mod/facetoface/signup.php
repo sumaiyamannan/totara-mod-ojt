@@ -180,6 +180,10 @@ if ($fromform = $mform->get_data()) { // Form submitted
                 $data = clone($fromform);
                 $data->sid = array($session->id);
                 $enrolments[$instance->enrol]->enrol_totara_facetoface($instance, $data, $course, $returnurl);
+                // We expect enrol module to take all required sign up action and redirect, so it should never return.
+                debugging("Seminar direct enrolment should never return to signup page");
+                exit();
+
             }
         }
     }
