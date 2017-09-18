@@ -55,12 +55,12 @@ class MoodleQuickForm_passwordunmask extends MoodleQuickForm_password {
         global $CFG;
         // no standard mform in moodle should allow autocomplete of passwords
         if (empty($attributes)) {
-            $attributes = array('autocomplete'=>'off');
+            $attributes = array('autocomplete'=>'new-password');
         } else if (is_array($attributes)) {
-            $attributes['autocomplete'] = 'off';
+            $attributes['autocomplete'] = 'new-password';
         } else {
             if (strpos($attributes, 'autocomplete') === false) {
-                $attributes .= ' autocomplete="off" ';
+                $attributes .= ' autocomplete="new-password" ';
             }
         }
 
