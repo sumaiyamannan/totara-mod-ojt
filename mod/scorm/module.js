@@ -310,14 +310,13 @@ M.mod_scorm.init = function(Y, nav_display, navposition_left, navposition_top, h
             }
 
             // Calculate the rough new height from the viewport height.
-            var newheight = Y.one('body').get('winHeight') - 5
-                - Y.one('#scorm_layout').getY()
-                - window.pageYOffset;
-            if (newheight < 680 || isNaN(newheight)) {
-                newheight = 680;
-            }
+            var margintop = Y.one('#scormpage').getY();
+            var marginbottom = parseInt(Y.one('#scorm_navpanel').getComputedStyle('height'), 10) + 40;
+            var newheight = Y.one('body').get('winHeight') - margintop - marginbottom - 10;
             Y.one('#scorm_layout').setStyle('height', newheight);
 
+            navpanely = margintop + newheight + 20;
+            Y.one('#scorm_navpanel').setY(navpanely);
         };
 
         // Handle AJAX Request
