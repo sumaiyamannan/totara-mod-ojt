@@ -1743,6 +1743,365 @@ class totara_program_lib_testcase extends reportcache_advanced_testcase {
         $this->assertCount($this->numtestusers * $this->numtestcerts, $fulllist);
     }
 
+    /**
+     * Test prog_fix_orphaned_exceptions_assign - ensure that the correct records are repaired.
+     */
+    public function test_prog_fix_orphaned_exceptions_assign_with_programs() {
+        global $DB;
+
+        // Set up some data that is valid.
+        $this->setup_completions();
+        list($fulllist, $aggregatelist, $totalcount) = prog_get_all_completions_with_errors();
+        $this->assertCount(0, $fulllist);
+        list($fulllist, $aggregatelist, $totalcount) = certif_get_all_completions_with_errors();
+        $this->assertCount(0, $fulllist);
+
+        // Break all the records, progs and certs.
+        $DB->set_field('prog_user_assignment', 'exceptionstatus', PROGRAM_EXCEPTION_RAISED);
+
+        // Check that all of the records are broken, progs and certs.
+        $expectedfixedcount = 0;
+        $this->assertEquals($expectedfixedcount,
+            $DB->count_records('prog_user_assignment', array('exceptionstatus' => PROGRAM_EXCEPTION_RESOLVED)));
+        list($fulllist, $aggregatelist, $totalcount) = prog_get_all_completions_with_errors();
+        $this->assertCount($this->numtestusers * $this->numtestprogs - $expectedfixedcount, $fulllist);
+        list($fulllist, $aggregatelist, $totalcount) = certif_get_all_completions_with_errors();
+        $this->assertCount($this->numtestusers * $this->numtestcerts, $fulllist);
+
+        // Apply the fix to just one user/prog.
+        prog_fix_orphaned_exceptions_assign($this->programs[6]->id, $this->users[2]->id, 'program');
+
+        // Check that the correct records have been fixed.
+        $expectedfixedcount = 1; // One cell in the matrix.
+        $this->assertEquals($expectedfixedcount,
+            $DB->count_records('prog_user_assignment', array('exceptionstatus' => PROGRAM_EXCEPTION_RESOLVED)));
+        list($fulllist, $aggregatelist, $totalcount) = prog_get_all_completions_with_errors();
+        $this->assertCount($this->numtestusers * $this->numtestprogs - $expectedfixedcount, $fulllist);
+
+        // Apply the fix to just one user, all progs (don't need to reset, just overlap).
+        prog_fix_orphaned_exceptions_assign(0, $this->users[2]->id, 'program');
+
+        // Check that the correct records have been fixed.
+        $expectedfixedcount = $this->numtestprogs; // One column in the matrix.
+        $this->assertEquals($expectedfixedcount,
+            $DB->count_records('prog_user_assignment', array('exceptionstatus' => PROGRAM_EXCEPTION_RESOLVED)));
+        list($fulllist, $aggregatelist, $totalcount) = prog_get_all_completions_with_errors();
+        $this->assertCount($this->numtestusers * $this->numtestprogs - $expectedfixedcount, $fulllist);
+
+        // Apply the fix to just one prog, all users (don't need to reset, just overlap).
+        prog_fix_orphaned_exceptions_assign($this->programs[6]->id, 0, 'program');
+
+        // Check that the correct records have been fixed.
+        $expectedfixedcount = $this->numtestprogs + $this->numtestusers - 1; // One column and one row in the matrix.
+        $this->assertEquals($expectedfixedcount,
+            $DB->count_records('prog_user_assignment', array('exceptionstatus' => PROGRAM_EXCEPTION_RESOLVED)));
+        list($fulllist, $aggregatelist, $totalcount) = prog_get_all_completions_with_errors();
+        $this->assertCount($this->numtestusers * $this->numtestprogs - $expectedfixedcount, $fulllist);
+
+        // Apply the fix to all records (overlaps previous fixes).
+        prog_fix_orphaned_exceptions_assign(0, 0, 'program');
+
+        // Check that the correct records have been fixed.
+        $expectedfixedcount = $this->numtestprogs * $this->numtestusers; // The whole matrix.
+        $this->assertEquals($expectedfixedcount,
+            $DB->count_records('prog_user_assignment', array('exceptionstatus' => PROGRAM_EXCEPTION_RESOLVED)));
+        list($fulllist, $aggregatelist, $totalcount) = prog_get_all_completions_with_errors();
+        $this->assertCount(0, $fulllist);
+
+        // Make sure that no certs were fixed.
+        list($fulllist, $aggregatelist, $totalcount) = certif_get_all_completions_with_errors();
+        $this->assertCount($this->numtestusers * $this->numtestcerts, $fulllist);
+    }
+
+    /**
+     * Test prog_fix_orphaned_exceptions_assign - ensure that the correct records are repaired.
+     */
+    public function test_prog_fix_orphaned_exceptions_assign_with_certifications() {
+        global $DB;
+
+        // Set up some data that is valid.
+        $this->setup_completions();
+        list($fulllist, $aggregatelist, $totalcount) = prog_get_all_completions_with_errors();
+        $this->assertCount(0, $fulllist);
+        list($fulllist, $aggregatelist, $totalcount) = certif_get_all_completions_with_errors();
+        $this->assertCount(0, $fulllist);
+
+        // Break all the records, progs and certs.
+        $DB->set_field('prog_user_assignment', 'exceptionstatus', PROGRAM_EXCEPTION_RAISED);
+
+        // Check that all of the records are broken, progs and certs.
+        $expectedfixedcount = 0;
+        $this->assertEquals($expectedfixedcount,
+            $DB->count_records('prog_user_assignment', array('exceptionstatus' => PROGRAM_EXCEPTION_RESOLVED)));
+        list($fulllist, $aggregatelist, $totalcount) = prog_get_all_completions_with_errors();
+        $this->assertCount($this->numtestusers * $this->numtestprogs - $expectedfixedcount, $fulllist);
+        list($fulllist, $aggregatelist, $totalcount) = certif_get_all_completions_with_errors();
+        $this->assertCount($this->numtestusers * $this->numtestcerts, $fulllist);
+
+        // Apply the fix to just one user/cert.
+        prog_fix_orphaned_exceptions_assign($this->certifications[6]->id, $this->users[2]->id, 'certification');
+
+        // Check that the correct records have been fixed.
+        $expectedfixedcount = 1; // One cell in the matrix.
+        $this->assertEquals($expectedfixedcount,
+            $DB->count_records('prog_user_assignment', array('exceptionstatus' => PROGRAM_EXCEPTION_RESOLVED)));
+        list($fulllist, $aggregatelist, $totalcount) = certif_get_all_completions_with_errors();
+        $this->assertCount($this->numtestusers * $this->numtestcerts - $expectedfixedcount, $fulllist);
+
+        // Apply the fix to just one user, all certs (don't need to reset, just overlap).
+        prog_fix_orphaned_exceptions_assign(0, $this->users[2]->id, 'certification');
+
+        // Check that the correct records have been fixed.
+        $expectedfixedcount = $this->numtestcerts; // One column in the matrix.
+        $this->assertEquals($expectedfixedcount,
+            $DB->count_records('prog_user_assignment', array('exceptionstatus' => PROGRAM_EXCEPTION_RESOLVED)));
+        list($fulllist, $aggregatelist, $totalcount) = certif_get_all_completions_with_errors();
+        $this->assertCount($this->numtestusers * $this->numtestcerts - $expectedfixedcount, $fulllist);
+
+        // Apply the fix to just one cert, all users (don't need to reset, just overlap).
+        prog_fix_orphaned_exceptions_assign($this->certifications[6]->id, 0, 'certification');
+
+        // Check that the correct records have been fixed.
+        $expectedfixedcount = $this->numtestcerts + $this->numtestusers - 1; // One column and one row in the matrix.
+        $this->assertEquals($expectedfixedcount,
+            $DB->count_records('prog_user_assignment', array('exceptionstatus' => PROGRAM_EXCEPTION_RESOLVED)));
+        list($fulllist, $aggregatelist, $totalcount) = certif_get_all_completions_with_errors();
+        $this->assertCount($this->numtestusers * $this->numtestcerts - $expectedfixedcount, $fulllist);
+
+        // Apply the fix to all records (overlaps previous fixes).
+        prog_fix_orphaned_exceptions_assign(0, 0, 'certification');
+
+        // Check that the correct records have been fixed.
+        $expectedfixedcount = $this->numtestcerts * $this->numtestusers; // The whole matrix.
+        $this->assertEquals($expectedfixedcount,
+            $DB->count_records('prog_user_assignment', array('exceptionstatus' => PROGRAM_EXCEPTION_RESOLVED)));
+        list($fulllist, $aggregatelist, $totalcount) = certif_get_all_completions_with_errors();
+        $this->assertCount(0, $fulllist);
+
+        // Make sure that no progs were fixed.
+        list($fulllist, $aggregatelist, $totalcount) = prog_get_all_completions_with_errors();
+        $this->assertCount($this->numtestusers * $this->numtestprogs, $fulllist);
+    }
+
+    /**
+     * Test prog_fix_orphaned_exceptions_recalculate - ensure that the correct records are repaired.
+     */
+    public function test_prog_fix_orphaned_exceptions_recalculate_with_programs() {
+        global $DB;
+
+        // Set up some data that is valid.
+        $this->setup_completions();
+        list($fulllist, $aggregatelist, $totalcount) = prog_get_all_completions_with_errors();
+        $this->assertCount(0, $fulllist);
+        list($fulllist, $aggregatelist, $totalcount) = certif_get_all_completions_with_errors();
+        $this->assertCount(0, $fulllist);
+
+        // Break all the records, progs and certs.
+        $DB->set_field('prog_user_assignment', 'exceptionstatus', PROGRAM_EXCEPTION_RAISED);
+
+        // Check that all of the records are broken, progs and certs.
+        $expectedfixedcount = 0;
+        $this->assertEquals($expectedfixedcount,
+            $DB->count_records('prog_user_assignment', array('exceptionstatus' => PROGRAM_EXCEPTION_NONE)));
+        list($fulllist, $aggregatelist, $totalcount) = prog_get_all_completions_with_errors();
+        $this->assertCount($this->numtestusers * $this->numtestprogs - $expectedfixedcount, $fulllist);
+        list($fulllist, $aggregatelist, $totalcount) = certif_get_all_completions_with_errors();
+        $this->assertCount($this->numtestusers * $this->numtestcerts, $fulllist);
+
+        // Apply the fix to just one user/prog.
+        prog_fix_orphaned_exceptions_recalculate($this->programs[6]->id, $this->users[2]->id, 'program');
+
+        // Check that the correct records have been fixed.
+        $expectedfixedcount = 1; // One cell in the matrix.
+        $this->assertEquals($expectedfixedcount,
+            $DB->count_records('prog_user_assignment', array('exceptionstatus' => PROGRAM_EXCEPTION_NONE)));
+        list($fulllist, $aggregatelist, $totalcount) = prog_get_all_completions_with_errors();
+        $this->assertCount($this->numtestusers * $this->numtestprogs - $expectedfixedcount, $fulllist);
+
+        // Apply the fix to just one user, all progs (don't need to reset, just overlap).
+        prog_fix_orphaned_exceptions_recalculate(0, $this->users[2]->id, 'program');
+
+        // Check that the correct records have been fixed.
+        $expectedfixedcount = $this->numtestprogs; // One column in the matrix.
+        $this->assertEquals($expectedfixedcount,
+            $DB->count_records('prog_user_assignment', array('exceptionstatus' => PROGRAM_EXCEPTION_NONE)));
+        list($fulllist, $aggregatelist, $totalcount) = prog_get_all_completions_with_errors();
+        $this->assertCount($this->numtestusers * $this->numtestprogs - $expectedfixedcount, $fulllist);
+
+        // Apply the fix to just one prog, all users (don't need to reset, just overlap).
+        prog_fix_orphaned_exceptions_recalculate($this->programs[6]->id, 0, 'program');
+
+        // Check that the correct records have been fixed.
+        $expectedfixedcount = $this->numtestprogs + $this->numtestusers - 1; // One column and one row in the matrix.
+        $this->assertEquals($expectedfixedcount,
+            $DB->count_records('prog_user_assignment', array('exceptionstatus' => PROGRAM_EXCEPTION_NONE)));
+        list($fulllist, $aggregatelist, $totalcount) = prog_get_all_completions_with_errors();
+        $this->assertCount($this->numtestusers * $this->numtestprogs - $expectedfixedcount, $fulllist);
+
+        // Apply the fix to all records (overlaps previous fixes).
+        prog_fix_orphaned_exceptions_recalculate(0, 0, 'program');
+
+        // Check that the correct records have been fixed.
+        $expectedfixedcount = $this->numtestprogs * $this->numtestusers; // The whole matrix.
+        $this->assertEquals($expectedfixedcount,
+            $DB->count_records('prog_user_assignment', array('exceptionstatus' => PROGRAM_EXCEPTION_NONE)));
+        list($fulllist, $aggregatelist, $totalcount) = prog_get_all_completions_with_errors();
+        $this->assertCount(0, $fulllist);
+
+        // Make sure that no certs were fixed.
+        list($fulllist, $aggregatelist, $totalcount) = certif_get_all_completions_with_errors();
+        $this->assertCount($this->numtestusers * $this->numtestcerts, $fulllist);
+    }
+
+    /**
+     * Test prog_fix_orphaned_exceptions - ensure that the correct records are repaired.
+     */
+    public function test_prog_fix_orphaned_exceptions_recalculate_with_certifications() {
+        global $DB;
+
+        // Set up some data that is valid.
+        $this->setup_completions();
+        list($fulllist, $aggregatelist, $totalcount) = prog_get_all_completions_with_errors();
+        $this->assertCount(0, $fulllist);
+        list($fulllist, $aggregatelist, $totalcount) = certif_get_all_completions_with_errors();
+        $this->assertCount(0, $fulllist);
+
+        // Break all the records, progs and certs.
+        $DB->set_field('prog_user_assignment', 'exceptionstatus', PROGRAM_EXCEPTION_RAISED);
+
+        // Check that all of the records are broken, progs and certs.
+        $expectedfixedcount = 0;
+        $this->assertEquals($expectedfixedcount,
+            $DB->count_records('prog_user_assignment', array('exceptionstatus' => PROGRAM_EXCEPTION_NONE)));
+        list($fulllist, $aggregatelist, $totalcount) = prog_get_all_completions_with_errors();
+        $this->assertCount($this->numtestusers * $this->numtestprogs - $expectedfixedcount, $fulllist);
+        list($fulllist, $aggregatelist, $totalcount) = certif_get_all_completions_with_errors();
+        $this->assertCount($this->numtestusers * $this->numtestcerts, $fulllist);
+
+        // Apply the fix to just one user/cert.
+        prog_fix_orphaned_exceptions_recalculate($this->certifications[6]->id, $this->users[2]->id, 'certification');
+
+        // Check that the correct records have been fixed.
+        $expectedfixedcount = 1; // One cell in the matrix.
+        $this->assertEquals($expectedfixedcount,
+            $DB->count_records('prog_user_assignment', array('exceptionstatus' => PROGRAM_EXCEPTION_NONE)));
+        list($fulllist, $aggregatelist, $totalcount) = certif_get_all_completions_with_errors();
+        $this->assertCount($this->numtestusers * $this->numtestcerts - $expectedfixedcount, $fulllist);
+
+        // Apply the fix to just one user, all certs (don't need to reset, just overlap).
+        prog_fix_orphaned_exceptions_recalculate(0, $this->users[2]->id, 'certification');
+
+        // Check that the correct records have been fixed.
+        $expectedfixedcount = $this->numtestcerts; // One column in the matrix.
+        $this->assertEquals($expectedfixedcount,
+            $DB->count_records('prog_user_assignment', array('exceptionstatus' => PROGRAM_EXCEPTION_NONE)));
+        list($fulllist, $aggregatelist, $totalcount) = certif_get_all_completions_with_errors();
+        $this->assertCount($this->numtestusers * $this->numtestcerts - $expectedfixedcount, $fulllist);
+
+        // Apply the fix to just one cert, all users (don't need to reset, just overlap).
+        prog_fix_orphaned_exceptions_recalculate($this->certifications[6]->id, 0, 'certification');
+
+        // Check that the correct records have been fixed.
+        $expectedfixedcount = $this->numtestcerts + $this->numtestusers - 1; // One column and one row in the matrix.
+        $this->assertEquals($expectedfixedcount,
+            $DB->count_records('prog_user_assignment', array('exceptionstatus' => PROGRAM_EXCEPTION_NONE)));
+        list($fulllist, $aggregatelist, $totalcount) = certif_get_all_completions_with_errors();
+        $this->assertCount($this->numtestusers * $this->numtestcerts - $expectedfixedcount, $fulllist);
+
+        // Apply the fix to all records (overlaps previous fixes).
+        prog_fix_orphaned_exceptions_recalculate(0, 0, 'certification');
+
+        // Check that the correct records have been fixed.
+        $expectedfixedcount = $this->numtestcerts * $this->numtestusers; // The whole matrix.
+        $this->assertEquals($expectedfixedcount,
+            $DB->count_records('prog_user_assignment', array('exceptionstatus' => PROGRAM_EXCEPTION_NONE)));
+        list($fulllist, $aggregatelist, $totalcount) = certif_get_all_completions_with_errors();
+        $this->assertCount(0, $fulllist);
+
+        // Make sure that no progs were fixed.
+        list($fulllist, $aggregatelist, $totalcount) = prog_get_all_completions_with_errors();
+        $this->assertCount($this->numtestusers * $this->numtestprogs, $fulllist);
+    }
+
+    /**
+     * Test prog_fix_orphaned_exceptions_recalculate - ensure that the correct records have new, valid exceptions.
+     */
+    public function test_prog_fix_orphaned_exceptions_recalculate_with_exceptions() {
+        global $DB;
+
+        // Set up some data that is valid.
+        $this->setup_completions();
+        list($fulllist, $aggregatelist, $totalcount) = prog_get_all_completions_with_errors();
+        $this->assertCount(0, $fulllist);
+        list($fulllist, $aggregatelist, $totalcount) = certif_get_all_completions_with_errors();
+        $this->assertCount(0, $fulllist);
+
+        // Break all the records, progs and certs.
+        $DB->set_field('prog_user_assignment', 'exceptionstatus', PROGRAM_EXCEPTION_RAISED);
+        $totalraised = $DB->count_records('prog_user_assignment', array('exceptionstatus' => PROGRAM_EXCEPTION_RAISED));
+        $DB->set_field('prog_completion', 'timedue', time() - DAYSECS * 10, array('coursesetid' => 0));
+
+        // Check that all of the records are broken, progs and certs.
+        $expectedfixedcount = 0;
+        $this->assertEquals($expectedfixedcount,
+            $DB->count_records('prog_user_assignment', array('exceptionstatus' => PROGRAM_EXCEPTION_NONE)));
+        list($fulllist, $aggregatelist, $totalcount) = prog_get_all_completions_with_errors();
+        $this->assertCount($this->numtestusers * $this->numtestprogs - $expectedfixedcount, $fulllist);
+        $this->assertEquals($this->numtestusers * $this->numtestprogs, $totalcount);
+        list($fulllist, $aggregatelist, $totalcount) = certif_get_all_completions_with_errors();
+        $this->assertCount($this->numtestusers * $this->numtestcerts, $fulllist);
+        $this->assertEquals($this->numtestusers * $this->numtestcerts, $totalcount);
+        $this->assertEquals(0, $DB->count_records('prog_exception')); // This is the important bit.
+
+        // Apply the fix to just one user/prog.
+        prog_fix_orphaned_exceptions_recalculate($this->programs[6]->id, $this->users[2]->id, 'program');
+
+        // Check that the correct records have been fixed.
+        $expectedfixedcount = 1; // One cell in the matrix.
+        $this->assertEquals($totalraised,
+            $DB->count_records('prog_user_assignment', array('exceptionstatus' => PROGRAM_EXCEPTION_RAISED)));
+        $this->assertEquals($expectedfixedcount, $DB->count_records('prog_exception'));
+        list($fulllist, $aggregatelist, $totalcount) = prog_get_all_completions_with_errors();
+        $this->assertCount($this->numtestusers * $this->numtestprogs - $expectedfixedcount, $fulllist);
+
+        // Apply the fix to just one user, all progs (don't need to reset, just overlap).
+        prog_fix_orphaned_exceptions_recalculate(0, $this->users[2]->id, 'program');
+
+        // Check that the correct records have been fixed.
+        $expectedfixedcount = $this->numtestprogs; // One column in the matrix.
+        $this->assertEquals($totalraised,
+            $DB->count_records('prog_user_assignment', array('exceptionstatus' => PROGRAM_EXCEPTION_RAISED)));
+        $this->assertEquals($expectedfixedcount, $DB->count_records('prog_exception'));
+        list($fulllist, $aggregatelist, $totalcount) = prog_get_all_completions_with_errors();
+        $this->assertCount($this->numtestusers * $this->numtestprogs - $expectedfixedcount, $fulllist);
+
+        // Apply the fix to just one prog, all users (don't need to reset, just overlap).
+        prog_fix_orphaned_exceptions_recalculate($this->programs[6]->id, 0, 'program');
+
+        // Check that the correct records have been fixed.
+        $expectedfixedcount = $this->numtestprogs + $this->numtestusers - 1; // One column and one row in the matrix.
+        $this->assertEquals($totalraised,
+            $DB->count_records('prog_user_assignment', array('exceptionstatus' => PROGRAM_EXCEPTION_RAISED)));
+        $this->assertEquals($expectedfixedcount, $DB->count_records('prog_exception'));
+        list($fulllist, $aggregatelist, $totalcount) = prog_get_all_completions_with_errors();
+        $this->assertCount($this->numtestusers * $this->numtestprogs - $expectedfixedcount, $fulllist);
+
+        // Apply the fix to all records (overlaps previous fixes).
+        prog_fix_orphaned_exceptions_recalculate(0, 0, 'program');
+
+        // Check that the correct records have been fixed.
+        $expectedfixedcount = $this->numtestprogs * $this->numtestusers; // The whole matrix.
+        $this->assertEquals($totalraised,
+            $DB->count_records('prog_user_assignment', array('exceptionstatus' => PROGRAM_EXCEPTION_RAISED)));
+        $this->assertEquals($expectedfixedcount, $DB->count_records('prog_exception'));
+        list($fulllist, $aggregatelist, $totalcount) = prog_get_all_completions_with_errors();
+        $this->assertCount(0, $fulllist);
+
+        // Make sure that no certs were fixed.
+        list($fulllist, $aggregatelist, $totalcount) = certif_get_all_completions_with_errors();
+        $this->assertCount($this->numtestusers * $this->numtestcerts, $fulllist);
+    }
+
     public function test_prog_create_completion() {
         $this->resetAfterTest(true);
 
@@ -1990,5 +2349,101 @@ class totara_program_lib_testcase extends reportcache_advanced_testcase {
         $this->assertTrue(isset($unassignedaggregate->solution));
 
         $this->assertEquals($this->numtestusers * $this->numtestprogs, $totalcount); // Excludes certs.
+    }
+
+    public function test_prog_find_orphaned_exceptions_with_programs() {
+        global $DB;
+
+        // Set up some data that is valid.
+        $this->setup_completions();
+
+        // Show that there are no problems
+        $this->assert_count_and_close_recordset(0, prog_find_orphaned_exceptions(0, 0, 'program'));
+        list($fulllist, $aggregatelist, $totalcount) = prog_get_all_completions_with_errors();
+        $this->assertCount(0, $fulllist);
+        list($fulllist, $aggregatelist, $totalcount) = certif_get_all_completions_with_errors();
+        $this->assertCount(0, $fulllist);
+
+        // Break all the records, progs and certs.
+        $DB->set_field('prog_user_assignment', 'exceptionstatus', PROGRAM_EXCEPTION_RAISED);
+
+        // Check that all of the records are broken, progs and certs.
+        $this->assert_count_and_close_recordset($this->numtestusers * $this->numtestprogs, prog_find_orphaned_exceptions(0, 0, 'program'));
+        list($fulllist, $aggregatelist, $totalcount) = prog_get_all_completions_with_errors();
+        $this->assertCount($this->numtestusers * $this->numtestprogs, $fulllist);
+        list($fulllist, $aggregatelist, $totalcount) = certif_get_all_completions_with_errors();
+        $this->assertCount($this->numtestusers * $this->numtestcerts, $fulllist);
+
+        // Apply the fix to just one user, all progs.
+        prog_fix_orphaned_exceptions_assign(0, $this->users[2]->id, 'program');
+
+        // Apply the fix to just one prog, all users (overlapping).
+        prog_fix_orphaned_exceptions_assign($this->programs[6]->id, 0, 'program');
+
+        // Test the function is returning the correct records when no user or program is specified.
+        $expectedfixedcount = $this->numtestusers * $this->numtestprogs - $this->numtestprogs - $this->numtestusers + 1;
+        $this->assert_count_and_close_recordset($expectedfixedcount, prog_find_orphaned_exceptions(0, 0, 'program'));
+
+        // Test the function is returning the correct records when just the program is specified.
+        $this->assert_count_and_close_recordset($this->numtestusers - 1, prog_find_orphaned_exceptions($this->programs[4]->id, 0, 'program'));
+        $this->assert_count_and_close_recordset(0, prog_find_orphaned_exceptions($this->programs[6]->id, 0, 'program')); // All were fixed.
+
+        // Test the function is returning the correct records when just the user is specified.
+        $this->assert_count_and_close_recordset($this->numtestprogs - 1, prog_find_orphaned_exceptions(0, $this->users[7]->id, 'program'));
+        $this->assert_count_and_close_recordset(0, prog_find_orphaned_exceptions(0, $this->users[2]->id, 'program')); // All were fixed.
+
+        // Test the function is returning the correct records when program and user are specified.
+        $this->assert_count_and_close_recordset(1, prog_find_orphaned_exceptions($this->programs[4]->id, $this->users[6]->id, 'program'));
+        $this->assert_count_and_close_recordset(0, prog_find_orphaned_exceptions($this->programs[6]->id, $this->users[3]->id, 'program'));
+        $this->assert_count_and_close_recordset(0, prog_find_orphaned_exceptions($this->programs[5]->id, $this->users[2]->id, 'program'));
+        $this->assert_count_and_close_recordset(0, prog_find_orphaned_exceptions($this->programs[6]->id, $this->users[2]->id, 'program'));
+    }
+
+    public function test_prog_find_orphaned_exceptions_with_certifications() {
+        global $DB;
+
+        // Set up some data that is valid.
+        $this->setup_completions();
+
+        // Show that there are no problems
+        $this->assert_count_and_close_recordset(0, prog_find_orphaned_exceptions(0, 0, 'certification'));
+        list($fulllist, $aggregatelist, $totalcount) = prog_get_all_completions_with_errors();
+        $this->assertCount(0, $fulllist);
+        list($fulllist, $aggregatelist, $totalcount) = certif_get_all_completions_with_errors();
+        $this->assertCount(0, $fulllist);
+
+        // Break all the records, progs and certs.
+        $DB->set_field('prog_user_assignment', 'exceptionstatus', PROGRAM_EXCEPTION_RAISED);
+
+        // Check that all of the records are broken, progs and certs.
+        $this->assert_count_and_close_recordset($this->numtestusers * $this->numtestcerts, prog_find_orphaned_exceptions(0, 0, 'certification'));
+        list($fulllist, $aggregatelist, $totalcount) = prog_get_all_completions_with_errors();
+        $this->assertCount($this->numtestusers * $this->numtestprogs, $fulllist);
+        list($fulllist, $aggregatelist, $totalcount) = certif_get_all_completions_with_errors();
+        $this->assertCount($this->numtestusers * $this->numtestcerts, $fulllist);
+
+        // Apply the fix to just one user, all progs.
+        prog_fix_orphaned_exceptions_assign(0, $this->users[2]->id, 'certification');
+
+        // Apply the fix to just one prog, all users (overlapping).
+        prog_fix_orphaned_exceptions_assign($this->certifications[6]->id, 0, 'certification');
+
+        // Test the function is returning the correct records when no user or program is specified.
+        $expectedfixedcount = $this->numtestusers * $this->numtestcerts - $this->numtestcerts - $this->numtestusers + 1;
+        $this->assert_count_and_close_recordset($expectedfixedcount, prog_find_orphaned_exceptions(0, 0, 'certification'));
+
+        // Test the function is returning the correct records when just the program is specified.
+        $this->assert_count_and_close_recordset($this->numtestusers - 1, prog_find_orphaned_exceptions($this->certifications[4]->id, 0, 'certification'));
+        $this->assert_count_and_close_recordset(0, prog_find_orphaned_exceptions($this->certifications[6]->id, 0, 'certification')); // All were fixed.
+
+        // Test the function is returning the correct records when just the user is specified.
+        $this->assert_count_and_close_recordset($this->numtestcerts - 1, prog_find_orphaned_exceptions(0, $this->users[7]->id, 'certification'));
+        $this->assert_count_and_close_recordset(0, prog_find_orphaned_exceptions(0, $this->users[2]->id, 'certification')); // All were fixed.
+
+        // Test the function is returning the correct records when program and user are specified.
+        $this->assert_count_and_close_recordset(1, prog_find_orphaned_exceptions($this->certifications[4]->id, $this->users[6]->id, 'certification'));
+        $this->assert_count_and_close_recordset(0, prog_find_orphaned_exceptions($this->certifications[6]->id, $this->users[3]->id, 'certification'));
+        $this->assert_count_and_close_recordset(0, prog_find_orphaned_exceptions($this->certifications[5]->id, $this->users[2]->id, 'certification'));
+        $this->assert_count_and_close_recordset(0, prog_find_orphaned_exceptions($this->certifications[6]->id, $this->users[2]->id, 'certification'));
     }
 }

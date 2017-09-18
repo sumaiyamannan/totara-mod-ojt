@@ -361,6 +361,8 @@ $string['error:findingprogram'] = 'Error finding program {$a}';
 $string['error:impossibledatasubmitted'] = 'The data submitted is not valid and cannot be processed';
 $string['error:inaccessible'] = 'You cannot currently access this program';
 $string['error:info_fixmissingprogcompletion'] = 'The user is assigned, but program completion record is missing. This fix will create a program completion record.';
+$string['error:info_fixorphanedexceptionassign'] = 'When this occurs, the user will not show in the \'Exception Report\' tab, but they will not be able to complete the certification. There are two ways to resolve this problem.<br/>The first is to assign the user, disregarding any exceptions. This is the equivalent of selecting \'Assign\' when resolving exceptions:';
+$string['error:info_fixorphanedexceptionrecalculate'] = 'The second is to have the exception recalculated. If the exception is no longer applicable then the user will become assigned. Otherwise a new exception will be generated, but it can be resolved in the \'Exception Report\' tab:';
 $string['error:info_fixunassignedincompletecompletionrecord'] = 'The user has a program completion record, which is in the incomplete state, and they are not assigned. This fix will remove the program completion record.';
 $string['error:invalidcoursesetgroupoperator'] = 'Invalid course set group operator found';
 $string['error:invaliddate'] = 'Date is not valid';
@@ -382,6 +384,7 @@ $string['error:notextensionallowed'] = 'Program extension request is not enable 
 $string['error:notmanagerornopermissions'] = 'You are not a manager of this user or do not have permissions to perform this action.';
 $string['error:notrequiredlearning'] = 'This program is not required learning';
 $string['error:notusersmanager'] = 'You are not the manager of the user who requested this extension';
+$string['error:orphanedexception'] = 'Program user assignment has exception but no matching program exception record exists';
 $string['error:processingextrequest'] = 'An error occured when processing extension request';
 $string['error:prognotmoved'] = 'Error, program not moved!';
 $string['error:programdoesnotbelongtocategory'] = 'The program doesn\'t belong to this category';
@@ -801,6 +804,7 @@ $string['problemcategory_help'] = 'Problems can belong to one of these categorie
 * History: There is a problem with completion history, e.g. if a history record is marked "unassigned" but the user is currently assigned.
 ';
 $string['problemcategoryconsistency'] = 'Consistency';
+$string['problemcategoryexceptions'] = 'Exceptions';
 $string['problemcategoryfiles'] = 'Files';
 $string['problemcategoryhistory'] = 'History';
 $string['proceed'] = 'Proceed with this action';
