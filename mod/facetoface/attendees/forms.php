@@ -130,8 +130,7 @@ class removeconfirm_form extends moodleform {
                     SELECT u.id, $usernamefields, u.email, u.idnumber, u.username, count(fsid.id) as cntcfdata
                       FROM {user} u
                  LEFT JOIN {facetoface_signups} fs ON (fs.userid = u.id AND fs.sessionid = :sessionid)
-                 LEFT JOIN {facetoface_signups_status} fss ON (fss.signupid = fs.id)
-                 LEFT JOIN {facetoface_signup_info_data} fsid ON (fsid.facetofacesignupid = fss.id)
+                 LEFT JOIN {facetoface_signup_info_data} fsid ON (fsid.facetofacesignupid = fs.id)
                      WHERE u.id {$idsql}
                   GROUP BY u.id, $usernamefields, u.email, u.idnumber, u.username", $params, $offset*$limit, $limit);
 
