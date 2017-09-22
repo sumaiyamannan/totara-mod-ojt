@@ -3,6 +3,133 @@
 
 Totara LMS Changelog
 
+Release 9.11 (22nd September 2017):
+===================================
+
+
+Security issues:
+
+    TL-12944       Updated Web Service tokens to use cryptographically secure generators
+
+                   Previously, Web Service tokens were generated via a method which would
+                   generate a random and hard-to-guess token that was not considered
+                   cryptographically secure. New tokens will now be generated using
+                   cryptographically secure methods, providing they are available in the
+                   server's current version of PHP.
+
+    TL-14325       Fixed an issue when users authenticating through external authentication systems experience password expiry
+    TL-16116       Added a check for group permissions when viewing course user reports
+    TL-16117       Events belonging to activity modules can no longer be manually deleted from the calendar
+    TL-16118       Fixed the logic in checking whether users can view course profiles
+    TL-16119       Fixed incomplete escaping on the Feedback activity contact form
+    TL-16120       Added warning to admins when a development libs directory exists.
+
+New features:
+
+    TL-4156        Added the course completion editor
+
+                   The course completion editor is accessible in Course administration >
+                   Course completion, to all users who have the
+                   'totara/completioneditor:editcoursecompletion' capability in the course
+                   context (default is administrators only). The editor allows you to edit
+                   course completion, criteria completion, activity completion and history
+                   data, allowing you to put this data into any valid state. It includes
+                   transaction logs, which record all changes that are made to these records
+                   (both from within the editor and in other areas of Totara, e.g. completion
+                   of an activity, or when cron reaggregates completion). It also includes a
+                   checker, which can be used to find records which have data in an invalid
+                   state.
+
+Improvements:
+
+    TL-14244       Updated default branding to Totara Learn
+
+                   Changed language strings and logos to use the new product name "Totara
+                   Learn" instead of "Totara LMS".
+
+    TL-14275       Users can now cause self completion from within a course activity
+
+                   This ability has been added to all core modules excluding Lesson and Quiz
+                   (where a user should at least attempt the activity). Non-core modules will
+                   need to be modified to support this functionality
+
+    TL-15056       Added warning notice to the top of delete category page
+    TL-15834       Improved Datepicker in Totara forms
+    TL-15996       Improved test environment init when switching PHP versions
+    TL-16148       Improved performance of category management page
+
+Bug fixes:
+
+    TL-11012       Fixed formatting of grade percentage shown in quiz review
+
+                   The configured 'decimal places in grades' value of a quiz is now also used
+                   when formatting the grade percentage on the quiz review page. In earlier
+                   releases the percentage has always been formatted with 0 decimal points
+                   which resulted in confusing results.
+
+                   Administrators and trainers are still responsible for ensuring that the
+                   configured 'decimal places in grades' value will not result in confusion
+                   for students due to the rounding up of the displayed values.
+
+                   It is advised to use at least 2 decimal places if a student can score a
+                   fraction of a point in any question in the quiz.
+
+    TL-14676       Fixed error when deleting a closed 360 Feedback
+    TL-14753       Fixed the display of grades within the course completion report sources
+    TL-14996       Disabled multiple selection during manager selection in signup form
+    TL-15038       Fixed error when trying to save a search with availability filter in Rooms and Assets reports
+    TL-15785       Fixed the display of manager and appraiser filters while creating a saved search
+    TL-15843       Updated job assignments sync to allow email to be omitted.
+
+                   Previously, it was not possible to use HR Import to add / update User
+                   source job assignment data without encountering a problem if this email
+                   field was omitted. This has been corrected.
+
+    TL-15852       Fixed Restrict initial display when counting a last filter
+    TL-15879       Fixed missing icon from Progress column in Record of Learning in some cases
+    TL-15884       Fixed an Job assignment error when taking attendance for a Seminar activity
+    TL-15891       Added checks and fixes for orphaned program user assignment exceptions
+
+                   Under certain exceptional circumstances, it is possible for a user assigned
+                   to a program or certification to have an exception, but that exception does
+                   not show up in the 'Exception Report' tab. In this state, the user is
+                   unable to continue working on the program, and the exception cannot be
+                   resolved. With this patch, the completion checker has been extended to
+                   detect this problem, and two triggerable fixes have been provided.
+
+                   To resolve the problem, run the program and certification completion
+                   checkers to find all records affected, or edit a completion record, then
+                   choose to either assign the users or have the exceptions recalculated. If
+                   the 'recalculate exceptions' option is chosen and an exception still
+                   applies to a user, then after fixing the problem you can resolve the
+                   exceptions as normal in the 'Exception Report' tab.
+
+    TL-15892       Ensured course deletion does not effect awarded course badges
+    TL-15897       Fixed some typos in Certification language strings
+    TL-15899       Corrected inconsistent validation of Seminar sender address setting
+    TL-15900       Fixed manager's manager not updating in dynamic appraisals
+
+                   After upgrade, the next time the "Update learner assignments to appraisals"
+                   scheduled task is run, it will update any managers' managers that have
+                   changed, where the update is appropriate.
+
+    TL-15919       Fixed missing delete assignment button for active appraisals
+    TL-15921       Fixed multiple display of seminar attendees that have been approved more than once
+    TL-15936       Fixed detection of non-lowercase authentication plugin names in HR Sync on OSX and Windows
+    TL-15937       Added missing appraisal data generator reset
+    TL-15977       Fixed SCORM cmi.interaction bug
+    TL-16010       Added reset method to hierarchy generator
+    TL-16121       Fixed View Details link not working when user is viewing appraisal answers only
+    TL-16126       Fixed how choice activity data is reset by certification windows
+
+Miscellaneous Moodle fixes:
+
+    TL-16033       MDL-57649: Fixed removing of attached files in question pages of lesson module
+
+                   Fixed bug in lesson activity which did not automatically remove files
+                   attached to question pages when those pages were deleted.
+
+
 Release 9.10 (23rd August 2017):
 ================================
 

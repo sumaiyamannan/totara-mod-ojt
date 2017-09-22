@@ -462,8 +462,6 @@ final class signup extends \moodleform {
 
         if ($selectionallowed) {
             $args = array(
-                'multiple' => false,
-                'noselectionstring' => get_string('nomanagerselected', 'auth_approved'),
                 'showsuggestions' => True,
                 'placeholder' => get_string('searchformanager', 'auth_approved'),
                 'tags' => false,

@@ -489,13 +489,11 @@ class core_renderer extends renderer_base {
      * @return string HTML fragment.
      */
     public function powered_by_totara($withlink = true) {
-        $poweredby = get_string('poweredby', 'totara_core');
-        if (!$withlink) {
-            return $poweredby;
-        }
-        // NOTE: 'Totara LMS' should not be translated in lang packs!
-
-        return str_replace('Totara LMS', '<a href="http://www.totaralms.com/" target="_blank">Totara LMS</a>', $poweredby);
+        $a = new stdClass();
+        $a->url = 'https://www.totaralearning.com/';
+        $a->totaralearn = get_string('totaralearn', 'totara_core');
+        $str = $withlink ? 'poweredbyxhtml' : 'poweredbyx';
+        return get_string($str, 'totara_core', $a);
     }
 
     /**

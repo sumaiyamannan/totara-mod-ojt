@@ -153,6 +153,7 @@ class question_compfromplan extends reviewrating {
                 if (!isset($item->fullname) || !isset($item->planname)) {
                     $item->fullname = html_writer::tag('em',
                             get_string('reviewcompfromplanassignmissing', 'totara_question'));
+                    $item->ismissing = true;
                 }
             }
             return $items;
@@ -193,6 +194,12 @@ class question_compfromplan extends reviewrating {
      * @return bool
      */
     public function can_view_more_info($itemgroup){
+        // The $itemgroup will relate to one item, e.g. one competency.
+        $anyitemset = reset($itemgroup);
+        $anyitem = reset($anyitemset);
+        if (!empty($anyitem->ismissing)) {
+            return false;
+        }
         return dp_can_view_users_plans($this->subjectid);
     }
 
@@ -205,12 +212,14 @@ class question_compfromplan extends reviewrating {
     public function get_more_info_url($itemgroup){
         global $DB;
 
-        $currentuseritem = reset($itemgroup[$this->answerid]);
-        $planid = $DB->get_field('dp_plan_competency_assign', 'planid', array('id'=>$currentuseritem->itemid));
+        // The $itemgroup will relate to one item, e.g. one competency.
+        $anyitemset = reset($itemgroup);
+        $anyitem = reset($anyitemset);
+        $planid = $DB->get_field('dp_plan_competency_assign', 'planid', array('id'=>$anyitem->itemid));
 
         return new moodle_url('/totara/plan/components/competency/view.php',
             array(
-                'itemid' => $currentuseritem->itemid,
+                'itemid' => $anyitem->itemid,
                 'id' => $planid
             )
         );

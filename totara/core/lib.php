@@ -600,7 +600,7 @@ function totara_get_categoryid_with_capability($capability) {
  * @param completion_info $completion
  */
 function totara_core_update_module_completion_data($cm, $moduleinfo, $course, $completion) {
-    global $DB;
+    global $DB, $USER;
 
     if ($completion->is_enabled()) {
         if (!empty($moduleinfo->completionunlocked) && empty($moduleinfo->completionunlockednoreset)) {
@@ -615,14 +615,38 @@ function totara_core_update_module_completion_data($cm, $moduleinfo, $course, $c
             \totara_core\event\module_completion_reset::create_from_module($moduleinfo)->trigger();
         }
 
+        $transaction = $DB->start_delegated_transaction();
+
         // TL-6981 Fix reaggregation of course completion after activity completion unlock.
         // Mark all users for reaggregation (regardless of what happens just above, in case something was missed).
+        $now = time();
         $sql = "UPDATE {course_completions}
                    SET reaggregate = :now
                  WHERE course = :courseid
                    AND status < :statuscomplete";
-        $params = array('now' => time(), 'courseid' => $course->id, 'statuscomplete' => COMPLETION_STATUS_COMPLETE);
+        $params = array('now' => $now, 'courseid' => $course->id, 'statuscomplete' => COMPLETION_STATUS_COMPLETE);
         $DB->execute($sql, $params);
+
+        $nowstring = \core_completion\helper::format_log_date($now);
+        $logdescription = $DB->sql_concat(
+            "'Updated current completion in totara_core_update_module_completion_data<br><ul>'",
+            "'<li>Reaggregate: {$nowstring}</li>'",
+            "'</ul>'"
+        );
+        $sql = "INSERT INTO {course_completion_log} (courseid, userid, changeuserid, description, timemodified)
+                SELECT course, userid, :changeuserid, {$logdescription}, :timemodified
+                  FROM {course_completions}
+                 WHERE course = :courseid AND status < :statuscomplete";
+        $params = array(
+            'changeuserid' => $USER->id,
+            'timemodified' => $now,
+            'cmid' => $cm->id,
+            'courseid' => $cm->course,
+            'statuscomplete' => COMPLETION_STATUS_COMPLETE
+        );
+        $DB->execute($sql, $params);
+
+        $transaction->allow_commit();
 
         // Trigger module_completion_criteria_updated event here.
         \totara_core\event\module_completion_criteria_updated::create_from_module($moduleinfo)->trigger();
@@ -638,7 +662,7 @@ function totara_core_update_module_completion_data($cm, $moduleinfo, $course, $c
  * avoid potential Moodle merge conflicts.
  */
 function totara_core_reaggregate_course_modules_completion() {
-    global $DB;
+    global $DB, $USER;
 
     $now = time();
 
@@ -684,6 +708,31 @@ function totara_core_reaggregate_course_modules_completion() {
     // IMPORTANT: This does not update the timemodified field of the course_modules_completion record
     // on purpose. This is because timemodified is currently used to get the completion time in various
     // cases in Totara and Moodle code.
+
+    // Note that this transaction doesn't need to include update_state above - the log records the resetting of the reaggregate flag only.
+    $transaction = $DB->start_delegated_transaction();
+
+    $logdescription = $DB->sql_concat(
+        "'Updated module completion in totara_core_reaggregate_course_modules_completion<br><ul>'",
+        "'<li>CMCID: '",
+        sql_cast2char("cmc.id"),
+        "'</li>'",
+        "'<li>Reaggregate: Not set (0)</li>'",
+        "'</ul>'"
+    );
+    $sql = "INSERT INTO {course_completion_log} (courseid, userid, changeuserid, description, timemodified)
+                SELECT cm.course, cmc.userid, :changeuserid, {$logdescription}, :timemodified
+                  FROM {course_modules_completion} cmc
+                  JOIN {course_modules} cm ON cm.id = cmc.coursemoduleid
+                 WHERE cmc.reaggregate > 0
+                   AND cmc.reaggregate < :now";
+    $params = array(
+        'changeuserid' => $USER->id,
+        'timemodified' => $now,
+        'now' => $now
+    );
+    $DB->execute($sql, $params);
+
     $resetsql = '
         UPDATE {course_modules_completion}
            SET reaggregate = 0
@@ -691,6 +740,8 @@ function totara_core_reaggregate_course_modules_completion() {
            AND reaggregate < :now';
     $resetparams = array('now' => $now);
     $DB->execute($resetsql, $resetparams);
+
+    $transaction->allow_commit();
 
     if (debugging() && !PHPUNIT_TEST && !defined('BEHAT_TEST')) {
         mtrace('Finished aggregating activity completions.');
@@ -715,11 +766,13 @@ function totara_core_reaggregate_course_modules_completion() {
  *  anything else when unit testing.
  */
 function totara_core_uncomplete_course_modules_completion($cm, $completion, $now = null) {
-    global $DB, $SESSION;
+    global $DB, $SESSION, $USER;
 
     if (!isset($now)) {
         $now = time();
     }
+
+    $transaction = $DB->start_delegated_transaction();
 
     // The completion state is set to incomplete. Timecompleted is also set to null at this point.
     // The timemodified field is also updated. This is consistent with other places where the state changes from complete to incomplete.
@@ -731,6 +784,34 @@ function totara_core_uncomplete_course_modules_completion($cm, $completion, $now
                              WHERE coursemoduleid = :cmid";
     $modulecompletionparams = array('reaggregate' => $now, 'incomplete' => COMPLETION_INCOMPLETE, 'timemodified' => $now, 'cmid' => $cm->id);
     $DB->execute($modulecompletionsql, $modulecompletionparams);
+
+    // Log the changes.
+    $nowstring = \core_completion\helper::format_log_date($now);
+    $logdescription = $DB->sql_concat(
+        "'Updated module completion in totara_core_uncomplete_course_modules_completion<br><ul>'",
+        "'<li>CMCID: '",
+        sql_cast2char("cmc.id"),
+        "'</li>'",
+        "'<li>Completion state: Not complete (" . COMPLETION_INCOMPLETE . ")</li>'",
+        "'<li>Viewed: '",
+        "COALESCE(" . sql_cast2char("cmc.viewed") . ", '')",
+        "'</li>'",
+        "'<li>Time modified: {$nowstring}</li>'",
+        "'<li>Time completed: Not set (null)</li>'",
+        "'<li>Reaggregate: {$nowstring}</li>'",
+        "'</ul>'"
+    );
+    $sql = "INSERT INTO {course_completion_log} (courseid, userid, changeuserid, description, timemodified)
+            SELECT :courseid, cmc.userid, :changeuserid, {$logdescription}, :timemodified
+              FROM {course_modules_completion} cmc
+             WHERE cmc.coursemoduleid = :cmid";
+    $params = array(
+        'courseid' => $cm->course,
+        'changeuserid' => $USER->id,
+        'timemodified' => $now,
+        'cmid' => $cm->id
+    );
+    $DB->execute($sql, $params);
 
     // The rest of this function is copied from delete_all_state in lib/completionlib.php.
 
@@ -753,11 +834,46 @@ function totara_core_uncomplete_course_modules_completion($cm, $completion, $now
     }
 
     if ($acriteria) {
-        // Delete all criteria completions relating to this activity, but skip any RPL records.
+        // Log and delete all criteria completions relating to this activity, but skip any RPL records.
+        $logdescription = $DB->sql_concat(
+            "'Deleted crit compl in totara_core_uncomplete_course_modules_completion<br><ul><li>CCCCID: '",
+            sql_cast2char("id"),
+            "'</li></ul>'"
+        );
+        $sql = "INSERT INTO {course_completion_log} (courseid, userid, changeuserid, description, timemodified)
+                SELECT course, userid, :changeuserid, {$logdescription}, :timemodified
+                  FROM {course_completion_crit_compl}
+                 WHERE course = :courseid AND criteriaid = :criteriaid AND (rpl = '' OR rpl IS NULL)";
+        $params = array(
+            'changeuserid' => $USER->id,
+            'timemodified' => $now,
+            'cmid' => $cm->id,
+            'courseid' => $cm->course,
+            'criteriaid' => $acriteria->id
+        );
+        $DB->execute($sql, $params);
+
         $where = "course = ? AND criteriaid = ? AND (rpl = '' OR rpl IS NULL)";
         $DB->delete_records_select('course_completion_crit_compl', $where, array($cm->course, $acriteria->id));
+
+        // Log and delete all course completions relating to this activity, but skip any RPL records.
+        $sql = "INSERT INTO {course_completion_log} (courseid, userid, changeuserid, description, timemodified)
+                SELECT course, userid, :changeuserid, :logdescription, :timemodified
+                  FROM {course_completions}
+                 WHERE course = :courseid AND (rpl = '' OR rpl IS NULL)";
+        $params = array(
+            'changeuserid' => $USER->id,
+            'logdescription' => 'Deleted current completion in totara_core_uncomplete_course_modules_completion',
+            'timemodified' => $now,
+            'cmid' => $cm->id,
+            'courseid' => $cm->course
+        );
+        $DB->execute($sql, $params);
+
         $DB->delete_records_select('course_completions', "course = ? AND (rpl = '' OR rpl IS NULL)", array($cm->course));
     }
+
+    $transaction->allow_commit();
 }
 
 /**

@@ -2305,7 +2305,7 @@ class global_navigation extends navigation_node {
                 $reports = core_component::get_plugin_list('gradereport');
                 arsort($reports); // User is last, we want to test it first.
 
-                $userscourses = enrol_get_users_courses($user->id);
+                $userscourses = enrol_get_users_courses($user->id, false, '*');
                 $userscoursesnode = $usernode->add(get_string('courses'));
 
                 $count = 0;
@@ -3800,6 +3800,12 @@ class settings_navigation extends navigation_node {
                 // TOTARA CHANGE - manual archive course completions link.
                 $url = new moodle_url('/course/archivecompletions.php', array('id' => $course->id));
                 $coursenode->add(get_string('archivecompletions', 'completion'), $url, self::TYPE_SETTING, null, null, new pix_icon('i/settings', ''));
+
+                // TOTARA CHANGE - course completion editor.
+                if (has_capability('totara/completioneditor:editcoursecompletion', $coursecontext)) {
+                    $url = new moodle_url('/totara/completioneditor/course_completion.php', array('courseid' => $course->id));
+                    $coursenode->add(get_string('coursecompletioneditor', 'totara_completioneditor'), $url, self::TYPE_SETTING, null, null, new pix_icon('i/settings', ''));
+                }
             }
 
             if (totara_feature_visible('competencies')) {

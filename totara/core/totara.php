@@ -70,20 +70,25 @@ define('COHORT_VISIBLE_NOUSERS', 3);
 /**
  * Returns true or false depending on whether or not this course is visible to a user.
  *
- * @param int $courseid
+ * @param int|stdClass $courseorid
+ *    Since 9.11 - can be stdClass containing course record data to prevent loading record again.
  * @param int $userid
  * @return bool
  */
-function totara_course_is_viewable($courseid, $userid = null) {
-    global $USER, $CFG, $DB;
+function totara_course_is_viewable($courseorid, $userid = null) {
+    global $USER, $CFG;
 
     if ($userid === null) {
         $userid = $USER->id;
     }
 
-    $coursecontext = context_course::instance($courseid);
+    if (is_object($courseorid)) {
+        $course = $courseorid;
+    } else {
+        $course = get_course($courseorid);
+    }
+    $coursecontext = context_course::instance($course->id);
 
-    $course = $DB->get_record('course', array('id' => $courseid), '*', MUST_EXIST);
     if (empty($CFG->audiencevisibility)) {
         // This check is moved from require_login().
         if (!$course->visible && !has_capability('moodle/course:viewhiddencourses', $coursecontext, $userid)) {

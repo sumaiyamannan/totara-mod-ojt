@@ -104,37 +104,38 @@ function choice_user_complete($course, $user, $mod, $choice) {
 }
 
 /**
- * Archives user's assignments for a course
+ * Reset a users completion status in a choice so they can retake the activity
+ * mainly used for certification recerts
  *
  * @param int $userid
  * @param int $courseid
+ * @param int $windowopens  - Unused, the timestamp for when a recertification window opens
  */
 function choice_archive_completion($userid, $courseid, $windowopens = NULL) {
     global $DB;
 
     $sql = "SELECT ca.id AS answerid,
                     c.id AS choiceid
-            FROM {choice_answers} ca
-            JOIN {choice} c ON c.id = ca.choiceid AND c.course = :courseid
-            WHERE ca.userid = :userid";
+              FROM {choice_answers} ca
+              JOIN {choice} c ON c.id = ca.choiceid
+               AND c.course = :courseid
+             WHERE ca.userid = :userid";
     $params = array('userid' => $userid, 'courseid' => $courseid);
 
     if ($submissions = $DB->get_records_sql($sql, $params)) {
         $course = $DB->get_record('course', array('id' => $courseid), '*', MUST_EXIST);
-        // Answers to be deleted.
-        $deleteanswers = array();
         // Create the course completion info.
         $completion = new completion_info($course);
 
         foreach ($submissions as $submission) {
             $cm = get_coursemodule_from_instance('choice', $submission->choiceid, $course->id);
-            $deleteanswers[] = $submission->answerid;
+            // Delete the answers immediately so they aren't considered when we recheck completion in update state.
+            $DB->delete_records('choice_answers', array('id' => $submission->answerid));
             // Reset viewed.
             $completion->set_module_viewed_reset($cm, $userid);
             // And reset completion, in case viewed is not a required condition.
             $completion->update_state($cm, COMPLETION_INCOMPLETE, $userid);
         }
-        $DB->delete_records_list('choice_answers', 'id', $deleteanswers);
         $completion->invalidatecache($courseid, $userid, true);
     }
 

@@ -1,4 +1,4 @@
-@totara @auth_approved
+@totara @auth @auth_approved
 Feature: Test basic functionality of self-registration with approval
   In order to use self registraton with approval
   I need to be able to enable to sign up, confirm and approve or reject

@@ -257,6 +257,7 @@ function url_print_workaround($url, $cm, $course) {
 
     url_print_header($url, $cm, $course);
     url_print_heading($url, $cm, $course, true);
+    echo self_completion_form($cm);
     url_print_intro($url, $cm, $course, true);
 
     $fullurl = url_get_full_url($url, $cm, $course);
@@ -326,6 +327,7 @@ function url_display_embed($url, $cm, $course) {
     url_print_header($url, $cm, $course);
     url_print_heading($url, $cm, $course);
 
+    echo self_completion_form($cm);
     echo $code;
 
     url_print_intro($url, $cm, $course);

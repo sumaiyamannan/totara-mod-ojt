@@ -164,10 +164,17 @@ class rb_source_facetoface_sessions extends rb_facetoface_base_source {
                 'approver',
                 'LEFT',
                 // Subquery as table - statuscode 50 = approved.
+                // Only want the last approval record
                 "(SELECT status.signupid, status.createdby as approverid, status.timecreated as approvaltime
                     FROM {facetoface_signups_status} status
-                   WHERE status.statuscode = 50
-                 )",
+                    JOIN (SELECT signupid, max(timecreated) as approvaltime
+                            FROM {facetoface_signups_status}
+                           WHERE statuscode = " . MDL_F2F_STATUS_APPROVED . "
+                        GROUP BY signupid) lastapproval
+                      ON status.signupid = lastapproval.signupid
+                     AND status.timecreated = lastapproval.approvaltime
+                  WHERE status.statuscode = " . MDL_F2F_STATUS_APPROVED .
+                 ")",
                 'base.id = approver.signupid',
                 REPORT_BUILDER_RELATION_ONE_TO_ONE
             ),

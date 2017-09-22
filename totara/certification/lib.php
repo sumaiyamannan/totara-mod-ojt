@@ -2522,6 +2522,16 @@ function certif_get_completion_error_solution($problemkey, $programid = 0, $user
             $html = get_string('error:info_fixunassignedcertifcompletionrecord', 'totara_certification') . '<br>' .
                 html_writer::link($url, get_string('clicktofixcompletions', 'totara_program'));
             break;
+        case 'error:orphanedexception':
+            $url1 = clone($baseurl);
+            $url1->param('fixkey', 'fixorphanedexceptionassign');
+            $html = get_string('error:info_fixorphanedexceptionassign', 'totara_program') . '<br>' .
+                html_writer::link($url1, get_string('clicktofixcompletions', 'totara_program'));
+            $url2 = clone($baseurl);
+            $url2->param('fixkey', 'fixorphanedexceptionrecalculate');
+            $html .= '<br>' . get_string('error:info_fixorphanedexceptionrecalculate', 'totara_program') . '<br>' .
+                html_writer::link($url2, get_string('clicktofixcompletions', 'totara_program'));
+            break;
         default:
             $html = get_string('error:info_unknowncombination', 'totara_program');
             break;
@@ -2549,6 +2559,16 @@ function certif_fix_completions($fixkey, $programid = 0, $userid = 0) {
     // Deleting unassigned certif completion records is handled in a separate function, just to keep things tidy.
     if ($fixkey == 'fixunassignedcertifcompletionrecords') {
         certif_fix_unassigned_certif_completions($programid, $userid);
+        return;
+    }
+
+    // Resolving orphaned exceptions is handled in a separate function, just to keep things tidy.
+    if ($fixkey == 'fixorphanedexceptionassign') {
+        prog_fix_orphaned_exceptions_assign($programid, $userid, 'certification');
+        return;
+    }
+    if ($fixkey == 'fixorphanedexceptionrecalculate') {
+        prog_fix_orphaned_exceptions_recalculate($programid, $userid, 'certification');
         return;
     }
 
@@ -3529,6 +3549,40 @@ function certif_get_all_completions_with_errors($programid = 0, $userid = 0) {
     }
 
     $unassignedcertifcompletionsrs->close();
+
+    // Check for orphaned exceptions.
+    $orphanedexceptionrs = prog_find_orphaned_exceptions($programid, $userid, 'certification');
+
+    $problemkey = 'error:orphanedexception';
+    foreach ($orphanedexceptionrs as $orphanedexception) {
+        // If the problem key doesn't exist in the aggregate list already then create it.
+        if (!isset($aggregatelist[$problemkey])) {
+            $newaggregate = new stdClass();
+            $newaggregate->count = 0;
+
+            $newaggregate->problem = get_string($problemkey, 'totara_program');
+
+            $newaggregate->category = get_string('problemcategoryexceptions', 'totara_program');
+
+            // Solution is designed to fix all records affected by this problem with the given filters.
+            $newaggregate->solution = certif_get_completion_error_solution($problemkey, $programid, $userid);
+
+            $aggregatelist[$problemkey] = $newaggregate;
+        }
+        $aggregatelist[$problemkey]->count++;
+
+        $affected = new stdClass();
+        $affected->problem = $aggregatelist[$problemkey]->problem;
+        $affected->userfullname = fullname($DB->get_record('user', array('id' => $orphanedexception->userid)));
+        $affected->programname = format_string($orphanedexception->fullname);
+        $affected->editcompletionurl = new moodle_url('/totara/certification/edit_completion.php',
+            array('id' => $orphanedexception->programid, 'userid' => $orphanedexception->userid));
+        $affectedkey = $orphanedexception->programid . '-' . $orphanedexception->userid;
+
+        $fulllist[$affectedkey] = $affected;
+    }
+
+    $orphanedexceptionrs->close();
 
     return array($fulllist, $aggregatelist, $totalcount);
 }

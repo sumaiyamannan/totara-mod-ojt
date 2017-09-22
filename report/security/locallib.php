@@ -41,6 +41,8 @@ function report_security_get_issue_list() {
     return array(
         'report_security_check_unsecuredataroot',
         'report_security_check_displayerrors',
+        'report_security_check_vendordir',
+        'report_security_check_nodemodules',
         'report_security_check_noauth',
         'report_security_check_embed',
         'report_security_check_mediafilterswf',
@@ -974,27 +976,57 @@ function report_security_check_guest($detailed = false) {
  */
 function report_security_check_repositoryurl($detailed = false) {
     global $CFG;
-    require_once($CFG->dirroot .'/repository/lib.php');
+    require_once($CFG->dirroot . '/repository/lib.php');
 
     $result = new stdClass();
-    $result->issue   = 'report_security_check_repositoryurl';
-    $result->name    = get_string('check_repositoryurl_name', 'report_security');
+    $result->issue = 'report_security_check_repositoryurl';
+    $result->name = get_string('check_repositoryurl_name', 'report_security');
     $result->details = null;
-    $result->link    = '';
-
+    $result->link = '';
 
     $repositorytype = repository::get_type_by_typename('url');
 
     if ($repositorytype) {
         $result->status = REPORT_SECURITY_WARNING;
-        $result->info   = get_string('check_repositoryurl_warning', 'report_security');
+        $result->info = get_string('check_repositoryurl_warning', 'report_security');
     } else {
         $result->status = REPORT_SECURITY_OK;
-        $result->info   = get_string('check_repositoryurl_ok', 'report_security');
+        $result->info = get_string('check_repositoryurl_ok', 'report_security');
     }
 
     if ($detailed) {
         $result->details = get_string('check_repositoryurl_details', 'report_security');
+    }
+
+    return $result;
+}
+
+/**
+ * Check the presence of the vendor directory.
+ *
+ * @param bool $detailed Return detailed info.
+ * @return object Result data.
+ */
+function report_security_check_vendordir($detailed = false) {
+    global $CFG;
+
+    $result = (object)[
+        'issue' => 'report_security_check_vendordir',
+        'name' => get_string('check_vendordir_name', 'report_security'),
+        'info' => get_string('check_vendordir_info', 'report_security'),
+        'details' => null,
+        'status' => null,
+        'link' => null,
+    ];
+
+    if (is_dir($CFG->dirroot.'/vendor')) {
+        $result->status = REPORT_SECURITY_WARNING;
+    } else {
+        $result->status = REPORT_SECURITY_OK;
+    }
+
+    if ($detailed) {
+        $result->details = get_string('check_vendordir_details', 'report_security', ['path' => $CFG->dirroot.'/vendor']);
     }
 
     return $result;
@@ -1042,8 +1074,8 @@ function report_security_check_xxe_risk($detailed = false) {
     require_once($CFG->dirroot . '/totara/core/environmentlib.php');
 
     $result = new stdClass();
-    $result->issue   = 'report_security_check_xxe_risk';
-    $result->name    = get_string('check_xxe_risk_name', 'report_security');
+    $result->issue = 'report_security_check_xxe_risk';
+    $result->name = get_string('check_xxe_risk_name', 'report_security');
     $result->details = null;
     $result->link = null;
 
@@ -1060,6 +1092,37 @@ function report_security_check_xxe_risk($detailed = false) {
 
     if ($detailed) {
         $result->details = get_string('check_xxe_risk_details', 'report_security');
+    }
+
+    return $result;
+}
+
+/**
+ * Check the presence of the node_modules directory.
+ *
+ * @param bool $detailed Return detailed info.
+ * @return object Result data.
+ */
+function report_security_check_nodemodules($detailed = false) {
+    global $CFG;
+
+    $result = (object)[
+        'issue' => 'report_security_check_nodemodules',
+        'name' => get_string('check_nodemodules_name', 'report_security'),
+        'info' => get_string('check_nodemodules_info', 'report_security'),
+        'details' => null,
+        'status' => null,
+        'link' => null,
+    ];
+
+    if (is_dir($CFG->dirroot.'/node_modules')) {
+        $result->status = REPORT_SECURITY_WARNING;
+    } else {
+        $result->status = REPORT_SECURITY_OK;
+    }
+
+    if ($detailed) {
+        $result->details = get_string('check_nodemodules_details', 'report_security', ['path' => $CFG->dirroot.'/node_modules']);
     }
 
     return $result;

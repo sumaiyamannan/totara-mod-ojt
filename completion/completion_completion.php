@@ -48,6 +48,7 @@ require_once("{$CFG->dirroot}/completion/data_object.php");
 require_once("{$CFG->libdir}/completionlib.php");
 require_once("{$CFG->dirroot}/blocks/totara_stats/locallib.php");
 require_once("{$CFG->dirroot}/totara/plan/lib.php");
+require_once("{$CFG->dirroot}/totara/core/totara.php");
 
 /**
  * Course completion status for a particular user/course
@@ -330,6 +331,8 @@ class completion_completion extends data_object {
      * @return  bool
      */
     private function _save() {
+        global $DB;
+
         // Make sure timeenrolled is not null
         if (!$this->timeenrolled) {
             $this->timeenrolled = 0;
@@ -339,14 +342,22 @@ class completion_completion extends data_object {
         $status = completion_completion::get_status($this);
         if ($status) {
             $status = constant('COMPLETION_STATUS_'.strtoupper($status));
+        } else {
+            $status = COMPLETION_STATUS_NOTYETSTARTED;
         }
 
         $this->status = $status;
 
         // Save record
         if ($this->id) {
-            // Update
-            return $this->update();
+            $transaction = $DB->start_delegated_transaction();
+            $result = $this->update();
+            if ($result) {
+                \core_completion\helper::log_course_completion($this->course, $this->userid, "Updated current completion in completion_completion->_save");
+            } else {
+                \core_completion\helper::log_course_completion($this->course, $this->userid, "Current completion update failed in completion_completion->_save");
+            }
+            $transaction->allow_commit();
         } else {
             // Create new
             if (!$this->timeenrolled) {
@@ -405,9 +416,19 @@ class completion_completion extends data_object {
                 $this->timestarted = 0;
             }
 
-            return $this->insert();
+            $transaction = $DB->start_delegated_transaction();
+            $result = $this->insert();
+            if ($result) {
+                \core_completion\helper::log_course_completion($this->course, $this->userid, "Created current completion in completion_completion->_save");
+            } else {
+                \core_completion\helper::log_course_completion($this->course, $this->userid, "Current completion creation failed in completion_completion->_save");
+            }
+            $transaction->allow_commit();
         }
+
+        return $result;
     }
+
     /**
      * Aggregate completion
      *
@@ -559,10 +580,9 @@ function completion_status_aggregate($method, $data, &$state) {
  * This function bulk creates course completion records.
  *
  * @param   integer     $courseid       Course ID default 0 indicates update all courses
- * @return  bool
  */
 function completion_start_user_bulk($courseid = 0) {
-    global $CFG, $DB;
+    global $CFG, $DB, $USER;
 
     if (empty($CFG->enablecompletion)) {
         // Never create completion records if site completion is disabled.
@@ -574,6 +594,9 @@ function completion_start_user_bulk($courseid = 0) {
     } else {
         $coursesql = "";
     }
+
+    $now = time();
+    $nowstring = \core_completion\helper::format_log_date($now);
 
     /*
      * A quick explaination of this horrible looking query
@@ -587,7 +610,7 @@ function completion_start_user_bulk($courseid = 0) {
      * enrolment plugins active in a course, hence the fun
      * case statement.
      */
-    $sql = "
+    $insertsql = "
         INSERT INTO
             {course_completions}
             (course, userid, timeenrolled, timestarted, reaggregate, status)
@@ -602,6 +625,49 @@ function completion_start_user_bulk($courseid = 0) {
             0,
             :reaggregate,
             :completionstatus
+    ";
+    $logdescriptiontimestart = $DB->sql_concat(
+        "'Created current completion in completion_start_user_bulk<br><ul>'",
+        "'<li>Status: Not yet started (" . COMPLETION_STATUS_NOTYETSTARTED . ")</li>'",
+        "'<li>Time enrolled (from user enrolment timestart): '",
+        sql_cast2char("MIN(ue.timestart)"),
+        "'</li>'",
+        "'<li>Time started: Not set (0)</li>'",
+        "'<li>Time completed: Not set (null)</li>'",
+        "'<li>RPL: Empty(null)</li>'",
+        "'<li>RPL grade: Empty (non-numeric)</li>'",
+        "'<li>Reaggreagte: {$nowstring}</li>'",
+        "'</ul>'"
+    );
+    $logdescriptiontimecreated = $DB->sql_concat(
+        "'Created current completion in completion_start_user_bulk<br><ul>'",
+        "'<li>Status: Not yet started (" . COMPLETION_STATUS_NOTYETSTARTED . ")</li>'",
+        "'<li>Time enrolled (from user enrolment timecreated): '",
+        sql_cast2char("MIN(ue.timecreated)"),
+        "'</li>'",
+        "'<li>Time started: Not set (0)</li>'",
+        "'<li>Time completed: Not set (null)</li>'",
+        "'<li>RPL: Empty(null)</li>'",
+        "'<li>RPL grade: Empty (non-numeric)</li>'",
+        "'<li>Reaggreagte: {$nowstring}</li>'",
+        "'</ul>'"
+    );
+    $logsql = "
+        INSERT INTO
+            {course_completion_log}
+            (courseid, userid, changeuserid, description, timemodified)
+        SELECT
+            c.id AS courseid,
+            ue.userid AS userid,
+            :changeuserid,
+            CASE
+                WHEN MIN(ue.timestart) <> 0
+                THEN {$logdescriptiontimestart}
+                ELSE {$logdescriptiontimecreated}
+            END,
+            :reaggregate
+    ";
+    $basesql = "
         FROM
             {user_enrolments} ue
         INNER JOIN
@@ -626,8 +692,8 @@ function completion_start_user_bulk($courseid = 0) {
             ue.userid
     ";
 
-    $now = time();
     $params = array(
+        'changeuserid' => !empty($USER->id) ? $USER->id : 0,
         'reaggregate' => $now,
         'completionstatus' => COMPLETION_STATUS_NOTYETSTARTED,
         'userenrolstatus' => ENROL_USER_ACTIVE,
@@ -637,5 +703,9 @@ function completion_start_user_bulk($courseid = 0) {
     if ($courseid) {
         $params['courseid'] = $courseid;
     }
-    $DB->execute($sql, $params, true);
+
+    $transaction = $DB->start_delegated_transaction();
+    $DB->execute($logsql . $basesql, $params);
+    $DB->execute($insertsql . $basesql, $params);
+    $transaction->allow_commit();
 }

@@ -406,6 +406,9 @@ define('FEATURE_COMPLETION_TRACKS_VIEWS', 'completion_tracks_views');
 /** True if module has custom completion rules */
 define('FEATURE_COMPLETION_HAS_RULES', 'completion_has_rules');
 
+/** TOTARA: True if module records the completion time in timecompleted, otherwise timemodified */
+define('FEATURE_COMPLETION_TIME_IN_TIMECOMPLETED', 'completion_time_in_timecompleted');
+
 /** True if module has no 'view' page (like label) */
 define('FEATURE_NO_VIEW_LINK', 'viewlink');
 /** True (which is default) if the module wants support for setting the ID number for grade calculation purposes. */

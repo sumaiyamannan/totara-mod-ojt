@@ -28,6 +28,7 @@ defined('MOODLE_INTERNAL') || die();
  */
 class totara_core_webservice_testcase extends advanced_testcase {
     public function test_webservice_function_called() {
+        $this->resetAfterTest();
         $function = 'abc';
 
         $params = array(
@@ -65,7 +66,7 @@ class totara_core_webservice_testcase extends advanced_testcase {
         ];
 
         $data1 = $event->get_data();
-        $data2 = $event->get_data();
+        $data2 = $event2->get_data();
         foreach ($fields as $field) {
             $this->assertSame($data1[$field], $data2[$field]);
         }

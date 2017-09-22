@@ -194,6 +194,7 @@ class feedback360 {
         if ($this->status == self::STATUS_ACTIVE) {
             throw new feedback360_exception('Cannot delete active feedback');
         }
+
         // Delete question data table.
         sql_drop_table_if_exists('{feedback360_quest_data_' . $this->id . '}');
 
@@ -205,6 +206,7 @@ class feedback360 {
 
         // Delete grps, and all user/resp/email assignments.
         $assign = new totara_assign_feedback360('feedback360', $this);
+        $assign->lockoverride = false;
         $assign->delete();
 
         // Delete files.
@@ -310,6 +312,21 @@ class feedback360 {
             $answers = $question->get_element()->set_as_form($formdata)->get_as_db($answers);
         }
         return $answers;
+    }
+
+    /**
+     * Counts the number of completed responder assignments this feedback360 has
+     *
+     * @return int
+     */
+    public function count_completed_answers() {
+        global $DB;
+        $completed_responses = $DB->count_records_sql('SELECT COUNT(f.id)
+                FROM {feedback360} f
+                JOIN {feedback360_user_assignment} fua ON (f.id = fua.feedback360id)
+                JOIN {feedback360_resp_assignment} fra ON (fua.id = fra.feedback360userassignmentid AND fra.timecompleted != 0)
+                WHERE f.id = :feedback360id', array('feedback360id' => $this->id));
+        return $completed_responses;
     }
 
     /*

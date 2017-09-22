@@ -137,8 +137,10 @@ abstract class page_wiki {
         $this->setup_tabs();
 
         echo $OUTPUT->header();
+
         $wiki = $PAGE->activityrecord;
         echo $OUTPUT->heading(format_string($wiki->name));
+        echo self_completion_form($this->cm);
 
         echo $this->wikioutput->wiki_info();
 

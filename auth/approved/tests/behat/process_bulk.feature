@@ -1,4 +1,4 @@
-@auth @auth_approved @javascript
+@totara @auth @auth_approved @javascript
 Feature: auth_approved: bulk signup ops
   As an approver
   I can do bulk operations on signups
@@ -119,9 +119,10 @@ Feature: auth_approved: bulk signup ops
     Then I should see "Invalid login, please try again"
 
     When I log in as "admin"
-    And I navigate to "Live logs" node in "Site administration > Reports"
-    Then "jb007 (bond@example.gov) rejected for system access" row "Event name" column of "reportloglive" table should contain "Account request was rejected"
-    And "eve (mp@example.gov) rejected for system access" row "Event name" column of "reportloglive" table should contain "Account request was rejected"
+    And I navigate to "Logs" node in "Site administration > Reports"
+    And I press "Get these logs"
+    Then "jb007 (bond@example.gov) rejected for system access" row "Event name" column of "reportlog" table should contain "Account request was rejected"
+    And "eve (mp@example.gov) rejected for system access" row "Event name" column of "reportlog" table should contain "Account request was rejected"
 
 
   # -------------------------------
@@ -168,9 +169,10 @@ Feature: auth_approved: bulk signup ops
 
     When I log out
     And I log in as "admin"
-    And I navigate to "Live logs" node in "Site administration > Reports"
-    Then "jb007 (bond@example.gov) approved for system access" row "Event name" column of "reportloglive" table should contain "Account request was approved"
-    And "eve (mp@example.gov) approved for system access" row "Event name" column of "reportloglive" table should contain "Account request was approved"
+    And I navigate to "Logs" node in "Site administration > Reports"
+    And I press "Get these logs"
+    Then "jb007 (bond@example.gov) approved for system access" row "Event name" column of "reportlog" table should contain "Account request was approved"
+    And "eve (mp@example.gov) approved for system access" row "Event name" column of "reportlog" table should contain "Account request was approved"
 
     When I navigate to "Browse list of users" node in "Site administration > Users > Accounts"
     And I follow "James Bond"
@@ -232,8 +234,9 @@ Feature: auth_approved: bulk signup ops
 
     When I log out
     And I log in as "admin"
-    And I navigate to "Live logs" node in "Site administration > Reports"
-    Then "jb007 (bond@example.gov) approved for system access" row "Event name" column of "reportloglive" table should contain "Account request was approved"
+    And I navigate to "Logs" node in "Site administration > Reports"
+    And I press "Get these logs"
+    Then "jb007 (bond@example.gov) approved for system access" row "Event name" column of "reportlog" table should contain "Account request was approved"
     And I should not see "mp@example.gov"
 
     When I navigate to "Browse list of users" node in "Site administration > Users > Accounts"
@@ -291,9 +294,10 @@ Feature: auth_approved: bulk signup ops
 
     When I log out
     And I log in as "admin"
-    And I navigate to "Live logs" node in "Site administration > Reports"
-    Then "jb007 (bond@example.gov) approved for system access" row "Event name" column of "reportloglive" table should contain "Account request was approved"
-    And "eve (mp@example.gov) approved for system access" row "Event name" column of "reportloglive" table should contain "Account request was approved"
+    And I navigate to "Logs" node in "Site administration > Reports"
+    And I press "Get these logs"
+    Then "jb007 (bond@example.gov) approved for system access" row "Event name" column of "reportlog" table should contain "Account request was approved"
+    And "eve (mp@example.gov) approved for system access" row "Event name" column of "reportlog" table should contain "Account request was approved"
 
     When I navigate to "Browse list of users" node in "Site administration > Users > Accounts"
     And I follow "James Bond"

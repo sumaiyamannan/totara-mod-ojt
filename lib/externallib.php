@@ -593,13 +593,9 @@ class external_function_parameters extends external_single_structure {
 function external_generate_token($tokentype, $serviceorid, $userid, $contextorid, $validuntil=0, $iprestriction=''){
     global $DB, $USER;
     // make sure the token doesn't exist (even if it should be almost impossible with the random generation)
-    $numtries = 0;
     do {
-        $numtries ++;
-        $generatedtoken = md5(uniqid(rand(),1));
-        if ($numtries > 5){
-            throw new moodle_exception('tokengenerationfailed');
-        }
+        // TOTARA: use a cryptographically secure method of generating the token.
+        $generatedtoken = random_string(32);
     } while ($DB->record_exists('external_tokens', array('token'=>$generatedtoken)));
     $newtoken = new stdClass();
     $newtoken->token = $generatedtoken;

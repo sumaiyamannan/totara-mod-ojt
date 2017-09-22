@@ -30,12 +30,18 @@ class totara_assign_feedback360 extends totara_assign_core {
 
     protected static $module = 'feedback360';
 
+    /** @var bool $lockoverride overrides the is_locked return value*/
+    public $lockoverride = null;
+
     /**
      * Determine if the feedback360 can have assignments added or removed.
      *
      * @return bool
      */
     public function is_locked() {
+        if (isset($this->lockoverride)) {
+            return $this->lockoverride;
+        }
         return $this->assignments_are_stored();
     }
 

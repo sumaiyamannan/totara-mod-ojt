@@ -195,7 +195,7 @@ echo $OUTPUT->notification($program->display_completion_record_reason($user), 'n
 $missingcompletionrs = prog_find_missing_completions($program->id, $userid);
 if ($missingcompletionrs->valid()) {
     $solution = prog_get_completion_error_solution('error:missingprogcompletion', $program->id, $userid, true);
-    echo html_writer::div(html_writer::span($solution), 'notifyproblem problemsolution');
+    echo $OUTPUT->notification(html_writer::span($solution, 'problemsolution'), 'notifyproblem');
 }
 $missingcompletionrs->close();
 
@@ -203,9 +203,20 @@ $missingcompletionrs->close();
 $unassignedincompletecompletionrs = prog_find_unassigned_incomplete_completions($program->id, $userid);
 if ($unassignedincompletecompletionrs->valid()) {
     $solution = prog_get_completion_error_solution('error:unassignedincompleteprogcompletion', $program->id, $userid, true);
-    echo html_writer::div(html_writer::span($solution), 'notifyproblem problemsolution');
+    echo $OUTPUT->notification(html_writer::span($solution, 'problemsolution'), 'notifyproblem');
 }
 $unassignedincompletecompletionrs->close();
+
+// If the certification completion record exists when it shouldn't then provide a link to fix it.
+$orphanedexceptionsrs = prog_find_orphaned_exceptions($program->id, $userid, 'program');
+if ($orphanedexceptionsrs->valid()) {
+    $problemkey = 'error:orphanedexception';
+    $solution = get_string($problemkey, 'totara_program') .
+        html_writer::empty_tag('br') .
+        prog_get_completion_error_solution($problemkey, $program->id, $userid, true);
+    echo $OUTPUT->notification(html_writer::span($solution, 'problemsolution'), 'notifyproblem');
+}
+$orphanedexceptionsrs->close();
 
 // Display the edit completion record form.
 if (isset($editform)) {

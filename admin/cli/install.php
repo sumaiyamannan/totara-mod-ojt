@@ -750,7 +750,8 @@ if ($interactive) {
     if (!$options['agree-license']) {
         cli_separator();
         cli_heading(get_string('copyrightnotice'));
-        echo "Totara LMS - Totara Learning Management System\n\n";
+        $totaralearn = get_string('totaralearn', 'totara_core');
+        echo "{$totaralearn}\n\n";
         echo get_string('gpl3')."\n\n";
         echo get_string('doyouagree')."\n";
         $prompt = get_string('cliyesnoprompt', 'admin');

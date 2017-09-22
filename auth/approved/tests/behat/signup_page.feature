@@ -1,4 +1,4 @@
-@auth @auth_approved @javascript
+@totara @auth @auth_approved @javascript
 Feature: auth_approved: signup page fields
   In order to access courses in a Totara website
   As an external user
@@ -264,6 +264,46 @@ Feature: auth_approved: signup page fields
       | Country       | United Kingdom   |
     And I press "Request account"
     Then I should see "Pending request with the same email address already exists"
+
+    When I press "Cancel"
+    Then I should see "Is this your first time here?"
+
+
+  # -------------------------------
+  Scenario: auth_approval_signup_page_1g: single manager autocomplete selection
+    When I set these auth approval plugin settings:
+      | active       | true                                    |
+      | instructions | Nothing; everything is self explanatory |
+      | mgr org fw   | OFW002                                  |
+      | mgr pos fw   | PFW003                                  |
+    And I follow "Log in"
+    Then I should see "Is this your first time here?"
+
+    When I click on "Create new account" "button"
+    And I set the following fields to these values:
+      | Username      | jb006            |
+      | Password      | spectre          |
+      | Email address | bond@example.gov |
+      | First name    | James            |
+      | Surname       | Bond             |
+      | City          | London           |
+      | Country       | United Kingdom   |
+
+    Given I should see "No selection"
+    When I set the field "Select a manager" to "Manager Sales salesmgr ja"
+    And I click on "Manager Sales - salesmgr ja" "list_item" in the ".form-autocomplete-suggestions" "css_element"
+    Then I should see "Manager Sales - salesmgr ja"
+
+    When I set the field "Select a manager" to "Engr Sales salesengr ja"
+    And I click on "Engr Sales - salesengr ja" "list_item" in the ".form-autocomplete-suggestions" "css_element"
+    Then I should see "Engr Sales - salesengr ja"
+    And I should not see "Manager Sales - salesmgr ja"
+
+    When I set the field "Select a manager" to "Vice President vp ja"
+    And I click on "Vice President - vp ja" "list_item" in the ".form-autocomplete-suggestions" "css_element"
+    Then I should see "Vice President - vp ja"
+    And I should not see "Manager Sales - salesmgr ja"
+    And I should not see "Engr Sales - salesengr ja"
 
     When I press "Cancel"
     Then I should see "Is this your first time here?"

@@ -416,20 +416,11 @@ class totara_feedback360_renderer extends plugin_renderer_base {
      * @return string
      */
     public function confirm_delete_feedback360 (feedback360 $feedback360) {
-        $msg = get_string('deletefeedback360s', 'totara_feedback360', $feedback360->name);
-
+        $html = '';
         if ($feedback360->status != feedback360::STATUS_DRAFT) {
-            $questions = $feedback360->fetch_questions();
-            if (count($questions) > 0) {
-                $msg .= html_writer::empty_tag('br');
-                $msg .= get_string('deletefeedback360questions', 'totara_feedback360');
-            }
-            $assign = new totara_assign_feedback360('feedback360', $feedback360);
-            $assignments = $assign->get_current_users_count();
-            if ($assignments > 0) {
-                $msg .= html_writer::empty_tag('br');
-                $msg .= get_string('deletefeedback360assignments', 'totara_feedback360');
-            }
+            $completed_responses = $feedback360->count_completed_answers();
+            $html .= html_writer::div(get_string('deletefeedback360responses', 'totara_feedback360', $completed_responses));
+            $html .= html_writer::empty_tag('br');
         }
 
         $params = array('action' => 'delete',
@@ -438,10 +429,10 @@ class totara_feedback360_renderer extends plugin_renderer_base {
                         'sesskey' => sesskey(),
                   );
 
-        $continue = new moodle_url('/totara/feedback360/manage.php', $params);
-        $cancel = new moodle_url('/totara/feedback360/manage.php');
-
-        return $this->output->confirm($msg, $continue, $cancel);
+        $cancel = $this->output->single_button(new moodle_url('/totara/feedback360/manage.php'), get_string('cancel'), 'get');
+        $continue = $this->output->single_button(new moodle_url('/totara/feedback360/manage.php', $params), get_string('continue'), 'post');
+        $html .= html_writer::tag('div', $continue . $cancel, array('class' => 'buttons', 'id' => 'notice'));
+        return $html;
     }
 
     /**

@@ -778,7 +778,7 @@ function create_evidence_item($item, $evidencetype, $csvdateformat, $tablename, 
  * @return array
  */
 function import_course($importname, $importtime) {
-    global $DB, $CFG;
+    global $DB, $CFG, $USER;
 
     require_once($CFG->libdir . '/enrollib.php'); // Used for enroling users on courses.
 
@@ -792,6 +792,7 @@ function import_course($importname, $importtime) {
     $completion_history = array();
     $historicalduplicate = array();
     $historicalrecordindb = array();
+    $coursecompletionlogs = array();
 
     $pluginname = 'totara_completionimport_' . $importname;
     $overridecurrentcompletion = get_default_config($pluginname, 'overrideactive' . $importname, false);
@@ -891,6 +892,11 @@ function import_course($importname, $importtime) {
                     $historicalrecordindb = array();
                 }
 
+                if (!empty($coursecompletionlogs)) {
+                    $DB->insert_records_via_batch('course_completion_log', $coursecompletionlogs);
+                    $coursecompletionlogs = array();
+                }
+
                 // Reset enrol instance after enroling the users.
                 $enrolid = $course->enrolid;
                 $instance = $DB->get_record('enrol', array('id' => $enrolid));
@@ -960,13 +966,23 @@ function import_course($importname, $importtime) {
                 if (empty($course->coursecompletionid)) {
                     $completions[$priorkey] = $completion; // Completion should be the first record
                     $stats[$priorkey] = $stat;
+                    $coursecompletionlogs[] = \core_completion\helper::make_log_record($completion->course, $completion->userid,
+                        \core_completion\helper::get_course_completion_log_description($completion,
+                            "Current completion created during import due to no existing record"), $USER->id);
                 } else if ($completion->timecompleted >= $course->currenttimecompleted && $overridecurrentcompletion) {
                     $deletedcompletions[] = $course->coursecompletionid;
                     $completions[$priorkey] = $completion;
                     $stats[$priorkey] = $stat;
+                    $coursecompletionlogs[] = \core_completion\helper::make_log_record($completion->course, $completion->userid,
+                        \core_completion\helper::get_course_completion_log_description($completion,
+                            "Current completion deleted and created during import due to newer or same time completed and override setting enabled"), $USER->id);
                 } else if ($completion->timecompleted != $course->currenttimecompleted) {
                     // As long as the timecompleted doesn't match the currenttimecompleted put it in history.
                     $historyrecord = $completion;
+                } else {
+                    $coursecompletionlogs[] = \core_completion\helper::make_log_record($completion->course, $completion->userid,
+                        \core_completion\helper::get_course_completion_log_description($completion,
+                            "Record not processed during import due to existing current completion with the same time completed"), $USER->id);
                 }
             } else {
                 $historyrecord = $completion;
@@ -988,11 +1004,22 @@ function import_course($importname, $importtime) {
                     );
                     if (!$DB->record_exists('course_completion_history', $params)) {
                         $completion_history[$priorhistorykey] = $history;
+                        $coursecompletionlogs[] = \core_completion\helper::make_log_record($completion->course, $completion->userid,
+                            \core_completion\helper::get_course_completion_history_log_description($history,
+                                "History created during import due to no existing matching record"), $USER->id);
                     } else {
                         $historicalrecordindb[] = $course->importid;
+                        $history->id = 'None';
+                        $coursecompletionlogs[] = \core_completion\helper::make_log_record($completion->course, $completion->userid,
+                            \core_completion\helper::get_course_completion_history_log_description($history,
+                                "History not created during import due to existing history with the same time completed"), $USER->id);
                     }
                 } else {
                     $historicalduplicate[] =  $course->importid;
+                    $history->id = 'None';
+                    $coursecompletionlogs[] = \core_completion\helper::make_log_record($completion->course, $completion->userid,
+                        \core_completion\helper::get_course_completion_history_log_description($history,
+                            "History not created during import due to another import record with the same time completed"), $USER->id);
                 }
             }
 
@@ -1054,6 +1081,11 @@ function import_course($importname, $importtime) {
         // Update records as already in db.
         update_errors_import($historicalrecordindb, 'completiondatesame;', $tablename);
         $historicalrecordindb = array();
+    }
+
+    if (!empty($coursecompletionlogs)) {
+        $DB->insert_records_via_batch('course_completion_log', $coursecompletionlogs);
+        $coursecompletionlogs = array();
     }
 
     return $errors;

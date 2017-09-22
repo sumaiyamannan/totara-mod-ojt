@@ -99,7 +99,7 @@ function totara_dashboard_migrate_my_learning_on_upgrade() {
 
     $transaction->allow_commit();
 
-    // Record that this has run sucessfully.
+    // Record that this has run successfully.
     set_config('totaramylearningmigrated', 1);
 }
 
@@ -206,7 +206,7 @@ function totara_dashboard_add_my_learning_dashboard_on_upgrade() {
 
     $transaction->allow_commit();
 
-    // Record that this has run sucessfully.
+    // Record that this has run successfully.
     set_config('totaramylearningdashboardconfigured', 1);
 }
 

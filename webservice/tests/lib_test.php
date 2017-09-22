@@ -219,4 +219,71 @@ class webservice_test extends advanced_testcase {
         $this->assertEquals('Wrong username or password (Login has exceeded lockout limit)', $message);
         $this->assertEmpty($USER->id);
     }
+
+    /**
+     * Tests webservice::generate_user_ws_tokens for a non-admin user with permission to create
+     * a token. An external service exists.
+     */
+    public function test_webservice_generate_user_ws_tokens_service_exists() {
+        global $DB;
+
+        // The mobile web service is already in the external_services table, but
+        // we want to be sure about what we're testing here, so remove this.
+        $DB->delete_records('external_services');
+
+        $user = $this->getDataGenerator()->create_user();
+
+        // Give the user the ability to create a token.
+        $userrole = $DB->get_record('role', array('shortname' => 'user'));
+        assign_capability('moodle/webservice:createtoken', CAP_ALLOW, $userrole->id, context_system::instance()->id);
+
+        $externalservice = new stdClass();
+        $externalservice->name = 'Test web service';
+        $externalservice->enabled = true;
+        $externalservice->restrictedusers = false;
+        $externalservice->component = 'component1';
+        $externalservice->timecreated = time();
+        $externalservice->downloadfiles = true;
+        $externalservice->uploadfiles = true;
+        $externalserviceid = $DB->insert_record('external_services', $externalservice);
+
+        $webservice = new webservice();
+        $webservice->generate_user_ws_tokens($user->id);
+
+        $this->assertEquals(1, $DB->count_records('external_tokens'));
+
+        $tokenrecord = $DB->get_record('external_tokens', array());
+        // The token should 32 characters long and be alphanumeric.
+        $this->assertEquals(32, strlen($tokenrecord->token));
+        $this->assertRegExp('/^[A-Za-z0-9]+$/', $tokenrecord->token);
+        $this->assertEquals(EXTERNAL_TOKEN_PERMANENT, $tokenrecord->tokentype);
+        $this->assertEquals($user->id, $tokenrecord->userid);
+
+        $this->assertEquals($externalserviceid, $tokenrecord->externalserviceid);
+    }
+
+    /**
+     * Tests webservice::generate_user_ws_tokens for a non-admin user with permission to create
+     * a token. No external service exists therefore no token should be generated.
+     */
+    public function test_webservice_generate_user_ws_tokens_service_doesnt_exist() {
+        global $DB;
+
+        // The mobile web service is already in the external_services table, but
+        // we want to be sure about what we're testing here, so remove this.
+        $DB->delete_records('external_services');
+
+        $user = $this->getDataGenerator()->create_user();
+
+        // Give the user the ability to create a token.
+        $userrole = $DB->get_record('role', array('shortname' => 'user'));
+        assign_capability('moodle/webservice:createtoken', CAP_ALLOW, $userrole->id, context_system::instance()->id);
+
+        $this->assertEquals(0, $DB->count_records('external_services'));
+
+        $webservice = new webservice();
+        $webservice->generate_user_ws_tokens($user->id);
+
+        $this->assertEquals(0, $DB->count_records('external_tokens'));
+    }
 }

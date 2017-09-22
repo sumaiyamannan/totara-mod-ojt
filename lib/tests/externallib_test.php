@@ -359,6 +359,43 @@ class core_externallib_testcase extends advanced_testcase {
             $this->assertInstanceOf('external_description', $desc->returns_desc);
         }
     }
+
+    /**
+     * Test external_generate_token() with a permanent token.
+     */
+    public function test_external_generate_token_permanent() {
+        $this->resetAfterTest();
+        global $DB;
+
+        $user = $this->getDataGenerator()->create_user();
+
+        $externalservice = new stdClass();
+        $externalservice->name = 'Test web service';
+        $externalservice->enabled = true;
+        $externalservice->restrictedusers = false;
+        $externalservice->component = 'component1';
+        $externalservice->timecreated = time();
+        $externalservice->downloadfiles = true;
+        $externalservice->uploadfiles = true;
+        $externalserviceid = $DB->insert_record('external_services', $externalservice);
+
+        $token = external_generate_token(
+            EXTERNAL_TOKEN_PERMANENT,
+            $externalserviceid,
+            $user->id,
+            context_system::instance());
+
+        $this->assertEquals(1, $DB->count_records('external_tokens'));
+
+        $tokenrecord = $DB->get_record('external_tokens', array());
+        // The token should 32 characters long and be alphanumeric.
+        $this->assertEquals(32, strlen($tokenrecord->token));
+        $this->assertRegExp('/^[A-Za-z0-9]+$/', $tokenrecord->token);
+        $this->assertEquals(EXTERNAL_TOKEN_PERMANENT, $tokenrecord->tokentype);
+        $this->assertEquals($user->id, $tokenrecord->userid);
+
+        $this->assertEquals($token, $tokenrecord->token);
+    }
 }
 
 /*

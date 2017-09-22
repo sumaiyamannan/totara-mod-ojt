@@ -121,6 +121,9 @@
     echo $OUTPUT->header();
 
     echo $OUTPUT->heading(format_string($forum->name), 2);
+
+    echo self_completion_form($cm);
+
     if (!empty($forum->intro) && $forum->type != 'single' && $forum->type != 'teacher') {
         echo $OUTPUT->box(format_module_intro('forum', $forum, $cm->id), 'generalbox', 'intro');
     }

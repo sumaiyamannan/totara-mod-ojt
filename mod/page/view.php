@@ -72,6 +72,8 @@ if (!isset($options['printheading']) || !empty($options['printheading'])) {
     echo $OUTPUT->heading(format_string($page->name), 2);
 }
 
+echo self_completion_form($cm);
+
 if (!empty($options['printintro'])) {
     if (trim(strip_tags($page->intro))) {
         echo $OUTPUT->box_start('mod_introbox', 'pageintro');

@@ -456,7 +456,8 @@ $string['position_typeicon'] = 'Position type icon';
 $string['positiona'] = 'Position {$a}';
 $string['positionatcompletion'] = 'Position at completion';
 $string['positionsarrow'] = 'Positions > ';
-$string['poweredby'] = 'Powered by Totara LMS';
+$string['poweredbyx'] = 'Powered by {$a->totaralearn}';
+$string['poweredbyxhtml'] = 'Powered by <a href="{$a->url}">{$a->totaralearn}</a>';
 $string['execpathnotallowed'] = 'This setting is currently disabled. To enable, add<br />$CFG->preventexecpath = 0;<br /> to config.php';
 $string['proficiency'] = 'Proficiency';
 $string['progdoesntbelongcat'] = 'The program doesn\'t belong to this category';
@@ -538,17 +539,17 @@ $string['toggletotarasyncerror:noidnumber'] = 'The ID Number field is empty and 
 $string['tooltotarasynctask'] = 'Import HR elements from external sources';
 $string['totarabuild'] = 'Totara build number';
 $string['totaracopyright'] = '<p>Copyright &copy; 2010 onwards, Totara Learning Solutions Limited.</p>
-<p><a href="http://www.totaralms.com">Totara LMS</a> is a fully supported Open Source learning platform specifically designed for the requirements of corporate, industry and vocational training.</p>
+<p><a href="https://www.totaralearning.com">{$a}</a> is a fully supported Open Source learning platform specifically designed for the requirements of corporate, industry and vocational training.</p>
 <p><a href="http://www.gnu.org/licenses/gpl-3.0.en.html">GNU General Public License</a></p>';
-$string['totaracopyrightacknowledge'] = '<p>Totara LMS utilises the following copyrighted material:</p>';
+$string['totaracopyrightacknowledge'] = '<p>{$a} utilises the following copyrighted material:</p>';
 $string['totaracore'] = 'Totara core';
 $string['totarafeatures'] = 'Totara features';
 $string['totaralogo'] = 'Totara Logo';
 $string['totaramenu'] = 'Totara Menu';
 $string['totaranavigation'] = 'Main menu';
 $string['totararegistration'] = 'Totara Registration';
-$string['totararegistrationinfo'] = '<p>This page configures registration updates which are sent to totaralms.com.
-These updates allow Totara to know what versions of Totaralms and support software you are running.
+$string['totararegistrationinfo'] = '<p>This page configures registration updates which are sent to totaralearning.com.
+These updates allow Totara to know what versions of {$a} and support software you are running.
 This information will allow Totara to better examine and resolve any support issues you face in the future.</p>
 <p>This information will be securely transmitted and held in confidence.</p>';
 $string['totararelease'] = 'Totara release identifier';
@@ -643,4 +644,8 @@ $string['tempmanagers'] = 'Temporary managers';
 $string['tempmanagerselectionallusers'] = 'All users';
 $string['tempmanagerselectiononlymanagers'] = 'Only staff managers';
 $string['tempmanagersupporttext'] = ' Note, only current team managers can be selected.';
+$string['totaralearn'] = 'Totara Learn';
+$string['totaralearnlink'] = '<a href="{$a->url}">{$a->totaralearn}</a>';
 $string['updatetemporarymanagerstask'] = 'Update temporary managers';
+// Deprecated in 10
+$string['poweredby'] = 'Powered by Totara LMS';

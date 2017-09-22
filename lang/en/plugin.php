@@ -105,9 +105,9 @@ $string['status_upgrade'] = 'To be upgraded';
 $string['status_uptodate'] = 'Installed';
 $string['supportedmoodleversions'] = 'Supported Totara versions';
 $string['systemname'] = 'Identifier';
-$string['totaraaddonnotice'] = 'Totara LMS does not include an add-on installer, all additional plugins must be installed manually by server administrators.
+$string['totaraaddonnotice'] = 'Totara Learn does not include an add-on installer, all additional plugins must be installed manually by server administrators.
 
-Before installing any additional plugins please make sure the code was tested with Totara LMS, is secure, is maintained by authors and contains phpunit and behat tests.
+Before installing any additional plugins please make sure the code was tested with Totara Learn, is secure, is maintained by authors and contains phpunit and behat tests.
 
 Totara Learning Solutions support does not cover plugins that are not included in the standard distribution.';
 $string['type_auth'] = 'Authentication method';

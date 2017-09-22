@@ -2578,6 +2578,16 @@ function prog_get_completion_error_solution($problemkey, $programid = 0, $userid
             $html = get_string('error:info_fixunassignedincompletecompletionrecord', 'totara_program') . '<br>' .
                 html_writer::link($url, get_string('clicktofixcompletions', 'totara_program'));
             break;
+        case 'error:orphanedexception':
+            $url1 = clone($baseurl);
+            $url1->param('fixkey', 'fixorphanedexceptionassign');
+            $html = get_string('error:info_fixorphanedexceptionassign', 'totara_program') . '<br>' .
+                html_writer::link($url1, get_string('clicktofixcompletions', 'totara_program'));
+            $url2 = clone($baseurl);
+            $url2->param('fixkey', 'fixorphanedexceptionrecalculate');
+            $html .= '<br>' . get_string('error:info_fixorphanedexceptionrecalculate', 'totara_program') . '<br>' .
+                html_writer::link($url2, get_string('clicktofixcompletions', 'totara_program'));
+            break;
         default:
             $html = get_string('error:info_unknowncombination', 'totara_program');
             break;
@@ -2605,6 +2615,16 @@ function prog_fix_completions($fixkey, $programid = 0, $userid = 0) {
     // Deleting unassigned incomplete program completion records is handled in a separate function, just to keep things tidy.
     if ($fixkey == 'fixunassignedincompletecompletionrecords') {
         prog_fix_unassigned_incomplete_completions($programid, $userid);
+        return;
+    }
+
+    // Fixing orphaned exceptions is handled in a separate function, just to keep things tidy.
+    if ($fixkey == 'fixorphanedexceptionassign') {
+        prog_fix_orphaned_exceptions_assign($programid, $userid, 'program');
+        return;
+    }
+    if ($fixkey == 'fixorphanedexceptionrecalculate') {
+        prog_fix_orphaned_exceptions_recalculate($programid, $userid, 'program');
         return;
     }
 
@@ -2708,6 +2728,115 @@ function prog_fix_unassigned_incomplete_completions($programid = 0, $userid = 0)
     }
 
     $affectedcompletionsrs->close();
+}
+
+/**
+ * Fixes orphaned exceptions by resolving them, assigning the user.
+ *
+ * @param int $programid if provided (non-0), only fix problems for this program
+ * @param int $userid if provided (non-0), only fix problems for this user
+ * @param string $progorcert either 'program' or 'certification'
+ */
+function prog_fix_orphaned_exceptions_assign($programid = 0, $userid = 0, $progorcert = 'program') {
+    global $DB;
+
+    $orphanedexceptionsrs = prog_find_orphaned_exceptions($programid, $userid, $progorcert);
+
+    $message = 'Automated fix \'prog_fix_orphaned_exceptions_assign\' was applied';
+
+    foreach ($orphanedexceptionsrs as $orphanedexception) {
+        // We don't know what type of exception this is, so can't "handle" it through the prog_exception class. Just clear it.
+        $DB->set_field('prog_user_assignment', 'exceptionstatus', PROGRAM_EXCEPTION_RESOLVED,
+            array('programid' => $orphanedexception->programid, 'userid' => $orphanedexception->userid));
+
+        prog_log_completion($orphanedexception->programid, $orphanedexception->userid, $message);
+
+        // Trigger an event. This happens when resolving exceptions normally, so we'll do it here as well.
+        $event = \totara_program\event\program_assigned::create(
+            array(
+                'objectid' => $orphanedexception->programid,
+                'context' => context_program::instance($orphanedexception->programid),
+                'userid' => $orphanedexception->userid,
+            )
+        );
+        $event->trigger();
+    }
+
+    $orphanedexceptionsrs->close();
+}
+
+/**
+ * Fixes orphaned exceptions by recalculating them, assigning the user.
+ *
+ * @param int $programid if provided (non-0), only fix problems for this program
+ * @param int $userid if provided (non-0), only fix problems for this user
+ * @param string $progorcert either 'program' or 'certification'
+ */
+function prog_fix_orphaned_exceptions_recalculate($programid = 0, $userid = 0, $progorcert = 'program') {
+    global $DB;
+
+    $orphanedexceptionsrs = prog_find_orphaned_exceptions($programid, $userid, $progorcert);
+
+    $message = 'Automated fix \'prog_fix_orphaned_exceptions_recalculate\' was applied';
+
+    foreach ($orphanedexceptionsrs as $orphanedexception) {
+        // We don't know what type of exception this is, so can't "handle" it through the prog_exception class. Just clear it.
+        $userassignments = $DB->get_records('prog_user_assignment',
+            array('programid' => $orphanedexception->programid, 'userid' => $orphanedexception->userid), '', 'id, assignmentid');
+        foreach ($userassignments as $userassignment) {
+            $program = new program($orphanedexception->programid);
+            if ($progorcert == 'program') {
+                $progcompletion = prog_load_completion($orphanedexception->programid, $orphanedexception->userid);
+            } else {
+                list($certcompletion, $progcompletion) = certif_load_completion($orphanedexception->programid, $orphanedexception->userid);
+            }
+
+            if (empty($progcompletion)) {
+                $timedue = COMPLETION_TIME_NOT_SET;
+            } else {
+
+                // Skip completed programs (includes certifications which are certified and window is not yet open).
+                if ($progcompletion->status == STATUS_PROGRAM_COMPLETE) {
+                    $userassignment->exceptionstatus = PROGRAM_EXCEPTION_NONE;
+                    $DB->update_record('prog_user_assignment', $userassignment);
+                    continue;
+                }
+
+                // Skip certifications which are on the recert path or are expired.
+                if ($progorcert == 'certification') {
+                    if ($certcompletion->certifpath == CERTIFPATH_RECERT ||
+                        $certcompletion->status == CERTIFSTATUS_EXPIRED) {
+                        $userassignment->exceptionstatus = PROGRAM_EXCEPTION_NONE;
+                        $DB->update_record('prog_user_assignment', $userassignment);
+                        continue;
+                    }
+                }
+                $timedue = $progcompletion->timedue;
+            }
+            $progassignment = new stdClass();
+            $progassignment->id = $userassignment->assignmentid;
+            if ($program->update_exceptions($orphanedexception->userid, $progassignment, $timedue)) {
+                $userassignment->exceptionstatus = PROGRAM_EXCEPTION_RAISED;
+            } else {
+                $userassignment->exceptionstatus = PROGRAM_EXCEPTION_NONE;
+            }
+            $DB->update_record('prog_user_assignment', $userassignment);
+        }
+
+        prog_log_completion($orphanedexception->programid, $orphanedexception->userid, $message);
+
+        // Trigger an event. This happens when resolving exceptions normally, so we'll do it here as well.
+        $event = \totara_program\event\program_assigned::create(
+            array(
+                'objectid' => $orphanedexception->programid,
+                'context' => context_program::instance($orphanedexception->programid),
+                'userid' => $orphanedexception->userid,
+            )
+        );
+        $event->trigger();
+    }
+
+    $orphanedexceptionsrs->close();
 }
 
 /**
@@ -3229,6 +3358,40 @@ function prog_get_all_completions_with_errors($programid = 0, $userid = 0) {
 
     $unassignedincompletecompletionsrs->close();
 
+    // Check for orphaned exceptions.
+    $orphanedexceptionrs = prog_find_orphaned_exceptions($programid, $userid, 'program');
+
+    $problemkey = 'error:orphanedexception';
+    foreach ($orphanedexceptionrs as $orphanedexception) {
+        // If the problem key doesn't exist in the aggregate list already then create it.
+        if (!isset($aggregatelist[$problemkey])) {
+            $newaggregate = new stdClass();
+            $newaggregate->count = 0;
+
+            $newaggregate->problem = get_string($problemkey, 'totara_program');
+
+            $newaggregate->category = get_string('problemcategoryexceptions', 'totara_program');
+
+            // Solution is designed to fix all records affected by this problem with the given filters.
+            $newaggregate->solution = prog_get_completion_error_solution($problemkey, $programid, $userid);
+
+            $aggregatelist[$problemkey] = $newaggregate;
+        }
+        $aggregatelist[$problemkey]->count++;
+
+        $affected = new stdClass();
+        $affected->problem = $aggregatelist[$problemkey]->problem;
+        $affected->userfullname = fullname($DB->get_record('user', array('id' => $orphanedexception->userid)));
+        $affected->programname = format_string($orphanedexception->fullname);
+        $affected->editcompletionurl = new moodle_url('/totara/program/edit_completion.php',
+            array('id' => $orphanedexception->programid, 'userid' => $orphanedexception->userid));
+        $affectedkey = $orphanedexception->programid . '-' . $orphanedexception->userid;
+
+        $fulllist[$affectedkey] = $affected;
+    }
+
+    $orphanedexceptionrs->close();
+
     return array($fulllist, $aggregatelist, $totalcount);
 }
 
@@ -3312,6 +3475,51 @@ function prog_find_unassigned_incomplete_completions($programid = 0, $userid = 0
 
     return $DB->get_recordset_sql($sql, $params);
 }
+
+/**
+ * Returns a recordset containing all users who have orphaned exceptions.
+ *
+ * These are prog_user_assignments which have an exception, but there is no matching prog_exception, not even
+ * belonging to another prog_assignment for the same user and program.
+ *
+ * @param int $programid if provided (non-0), only find problems for this program/certification
+ * @param int $userid if provided (non-0), only find problems for this user
+ * @param string $progorcert either 'program' or 'certification'
+ * @return moodle_recordset containing programid, userid and program's fullname
+ */
+function prog_find_orphaned_exceptions($programid = 0, $userid = 0, $progorcert = 'program') {
+    global $DB;
+
+    $params = array('exceptionstatusraised' => PROGRAM_EXCEPTION_RAISED);
+    $where = "";
+
+    if (!empty($userid)) {
+        $where .= " AND pua.userid = :userid";
+        $params['userid'] = $userid;
+    }
+
+    if (!empty($programid)) {
+        $where .= " AND pua.programid = :programid";
+        $params['programid'] = $programid;
+    }
+
+    if ($progorcert == 'program') {
+        $progorcertsql = 'AND p.certifid IS NULL';
+    } else {
+        $progorcertsql = 'AND p.certifid IS NOT NULL';
+    }
+
+    $sql = "SELECT DISTINCT pua.programid, pua.userid, p.fullname
+              FROM {prog_user_assignment} pua
+              JOIN {prog} p ON p.id = pua.programid {$progorcertsql}
+         LEFT JOIN {prog_exception} pe ON pe.programid = pua.programid AND pe.userid = pua.userid
+             WHERE pua.exceptionstatus = :exceptionstatusraised
+               AND pe.id IS NULL
+                   {$where}";
+
+    return $DB->get_recordset_sql($sql, $params);
+}
+
 
 /**
  * Create a program completion record for the user in the program.

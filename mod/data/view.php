@@ -353,6 +353,8 @@
 
     echo $OUTPUT->heading(format_string($data->name), 2);
 
+    echo self_completion_form($cm);
+
     // Do we need to show a link to the RSS feed for the records?
     //this links has been Settings (database activity administration) block
     /*if (!empty($CFG->enablerssfeeds) && !empty($CFG->data_enablerssfeeds) && $data->rssarticles > 0) {

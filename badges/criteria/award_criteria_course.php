@@ -48,10 +48,14 @@ class award_criteria_course extends award_criteria {
         global $DB;
         parent::__construct($record);
 
-        $this->course = $DB->get_record_sql('SELECT c.id, c.enablecompletion, c.cacherev, c.startdate
+        $course = $DB->get_record_sql('SELECT c.id, c.enablecompletion, c.cacherev, c.startdate
                         FROM {badge} b INNER JOIN {course} c ON b.courseid = c.id
-                        WHERE b.id = :badgeid ', array('badgeid' => $this->badgeid), MUST_EXIST);
-        $this->courseid = $this->course->id;
+                        WHERE b.id = :badgeid ', array('badgeid' => $this->badgeid));
+
+        if (!empty($course)) {
+            $this->course = $course;
+            $this->courseid = $this->course->id;
+        }
     }
 
     /**

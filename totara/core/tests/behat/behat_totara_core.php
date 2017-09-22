@@ -79,7 +79,7 @@ class behat_totara_core extends behat_base {
         $DB->set_field('role', 'name', 'Trainer',array('shortname' => 'teacher'));
         $DB->set_field('role', 'name', 'Learner', array('shortname' => 'student'));
         $DB->set_field('modules', 'visible', 0, array('name'=>'workshop'));
-        $DB->set_field('modules', 'visible', 0, array('name'=>'feedback'));
+        $DB->set_field('modules', 'visible', 1, array('name'=>'feedback'));
     }
 
     /**

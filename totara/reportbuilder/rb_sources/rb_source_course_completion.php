@@ -305,6 +305,7 @@ class rb_source_course_completion extends rb_base_source {
                     'joins' => 'grade_grades',
                     'extrafields' => array(
                         'maxgrade' => 'grade_grades.rawgrademax',
+                        'mingrade' => 'grade_grades.rawgrademin',
                         'rplgrade' => 'base.rplgrade',
                         'status' => 'base.status'
                     ),
@@ -315,9 +316,9 @@ class rb_source_course_completion extends rb_base_source {
                 'course_completion',
                 'passgrade',
                 get_string('passgrade', 'rb_source_course_completion'),
-                'criteria.gradepass',
+                '(((criteria.gradepass - grade_items.grademin) / (grade_items.grademax - grade_items.grademin)) * 100)',
                 array(
-                    'joins' => 'criteria',
+                    'joins' => ['criteria', 'grade_items'],
                     'displayfunc' => 'percent',
                 )
             ),
@@ -332,6 +333,8 @@ class rb_source_course_completion extends rb_base_source {
                     'displayfunc' => 'grade_string',
                     'extrafields' => array(
                         'gradepass' => 'criteria.gradepass',
+                        'grademax' => 'grade_items.grademax',
+                        'grademin' => 'grade_items.grademin',
                     ),
                     'defaultheading' => get_string('grade', 'rb_source_course_completion'),
                 )

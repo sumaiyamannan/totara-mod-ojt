@@ -319,7 +319,7 @@ M.totara_reportbuilderfilters = M.totara_reportbuilderfilters || {
 
                         addbutton.remove();
                         optionsbox.prepend(deletebutton);
-                        module.config.rb_search_columns++;
+                        module.config.rb_filters++;
 
                         // Set row atts.
                         $('#id_newsearchcolumn').removeClass('new_search_column_selector');
@@ -455,7 +455,7 @@ M.totara_reportbuilderfilters = M.totara_reportbuilderfilters || {
             e.preventDefault();
             var clickedbtn = $(this);
 
-            if (module.config.rb_initial_display == 1 && module.config.rb_search_columns <= 1) {
+            if (module.config.rb_initial_display == 1 && module.config.rb_filters <= 1) {
                 alert(M.util.get_string('initialdisplay_error', 'totara_reportbuilder'));
                 return;
             }
@@ -465,7 +465,7 @@ M.totara_reportbuilderfilters = M.totara_reportbuilderfilters || {
             if (!confirmed) {
                 return;
             }
-            module.config.rb_search_columns--;
+            module.config.rb_filters--;
 
             var searchcolumnrow = $(this).closest('tr');
             $.ajax({

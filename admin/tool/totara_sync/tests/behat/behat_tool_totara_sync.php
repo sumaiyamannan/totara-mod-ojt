@@ -146,6 +146,7 @@ class behat_tool_totara_sync extends behat_base {
                 $table->add_field('jobassignmentfullname', XMLDB_TYPE_CHAR, '100');
                 $table->add_field('jobassignmentstartdate', XMLDB_TYPE_CHAR, '100');
                 $table->add_field('jobassignmentenddate', XMLDB_TYPE_CHAR, '100');
+                $table->add_field('managerjobassignmentidnumber', XMLDB_TYPE_CHAR, '100');
                 $table->add_field('orgidnumber', XMLDB_TYPE_CHAR, '100');
                 $table->add_field('posidnumber', XMLDB_TYPE_CHAR, '100');
 

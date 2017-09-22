@@ -190,7 +190,7 @@ abstract class completion_criteria extends data_object {
     /**
      * Update the criteria information stored in the database
      *
-     * @param array $data Form data
+     * @param object $data Form data
      * @return  boolean
      */
     public function update_config($data) {

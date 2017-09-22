@@ -982,7 +982,7 @@
       <VENDOR name="mariadb" version="10.2.6" />
       <VENDOR name="mysql" version="5.7.11" />
       <VENDOR name="postgres" version="9.2" />
-      <VENDOR name="mssql" version="11.0" />
+      <VENDOR name="mssql" version="12.0" />
       <VENDOR name="oracle" version="10.2" />
     </DATABASE>
     <PHP version="5.6.5" level="required">

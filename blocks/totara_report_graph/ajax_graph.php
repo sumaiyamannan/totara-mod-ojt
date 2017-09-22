@@ -36,6 +36,9 @@ $type = required_param('type', PARAM_ALPHA);
 $blockcontext = context_block::instance($blockid, MUST_EXIST);
 list($context, $course, $cm) = get_context_info_array($blockcontext->id);
 
+$PAGE->set_context($blockcontext);
+$PAGE->set_url('/blocks/totara_report_graph/ajax_graph.php', array('blockid' => $blockid, 'type' => $type));
+
 if ($CFG->forcelogin) {
     require_login($course, false, $cm, false, true);
 } else {

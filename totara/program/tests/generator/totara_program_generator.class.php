@@ -340,10 +340,10 @@ class totara_program_generator extends component_generator_base {
      * Add courseset to program
      *
      * @param program $program
-     * @param int $coursesetnum  number of courseset
-     * @param stdClass[] $coursesetarray Array of courses to add to this course set.
+     * @param stdClass[] $coursesetarray Array of course sets containing courses
+     * @param int $certifpath
      */
-    public function add_courses_and_courseset_to_program(program $program, array $coursesetarray = array(), $certifpath = CERTIFPATH_CERT) {
+    public function add_courses_and_courseset_to_program(program $program, $coursesetarray = array(), $certifpath = CERTIFPATH_STD) {
         global $CFG;
         require_once($CFG->dirroot . '/totara/program/lib.php');
         require_once($CFG->dirroot . '/totara/certification/lib.php');

@@ -80,7 +80,7 @@ if (!empty($customfields)) {
 $output .= '<hr />';
 $output .= $renderer->single_button(
     new moodle_url('/mod/facetoface/editattendeesnote.php', array('userid' => $userid, 's' => $sessionid, 'sesskey' => sesskey())),
-    get_string('edit', 'mod_facetoface'),
+    get_string('edit'),
     'get'
 );
 

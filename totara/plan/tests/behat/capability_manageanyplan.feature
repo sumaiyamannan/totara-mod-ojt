@@ -168,7 +168,7 @@ Feature: Verify capability manageanyplan.
     Then I should see "Recognition of Prior Learning updated"
 
     # Delete the second course to make sure we can.
-    When I click on "Delete" "link" in the "2" "table_row"
+    When I click on "Delete" "link" in the "Course 2" "table_row"
     And I should see "Are you sure you want to remove this item?"
     And I press "Continue"
     Then I should see "The item was successfully removed"
@@ -304,7 +304,7 @@ Feature: Verify capability manageanyplan.
     # No need to add objectives to the plan as this has been done.
     # by the data generator, but delete the third objective.
     When I click on "Objectives" "link" in the "#dp-plan-content" "css_element"
-    And I click on "Delete" "link" in the "3" "table_row"
+    And I click on "Delete" "link" in the "Objective 3" "table_row"
     Then I should see "Delete objective"
     And I should see "Are you sure you want to delete this objective?"
     # Confirm the deletion.
@@ -370,7 +370,7 @@ Feature: Verify capability manageanyplan.
     And I should see "Program 3" in the "#dp-component-update-table" "css_element"
 
     # Delete the third program.
-    When I click on "Delete" "link" in the "3" "table_row"
+    When I click on "Delete" "link" in the "Program 3" "table_row"
     And I should see "Are you sure you want to remove this item?"
     And I press "Continue"
     Then I should see "The item was successfully removed"

@@ -47,4 +47,30 @@ class rb_filter_f2f_roomavailable extends rb_filter_f2f_available {
 
         return array($sql, $params);
     }
+
+    /**
+     * Returns a human friendly description of the filter used as label.
+     * @param array $data filter settings
+     * @return string active filter label
+     */
+    function get_label($data) {
+        $end = $data['end'];
+        $start = $data['start'];
+        $enable = $data['enable'];
+
+        // Default vale for Asset Availability filter is Any time. Enable equal to zero.
+        $value = get_string('anytime', 'facetoface');
+        if ($enable) {
+            $a = new stdClass();
+            $a->start  = userdate($start);
+            $a->end = userdate($end);
+            $value = get_string('freebetweendates', 'facetoface', $a);
+        }
+
+        $a = new stdClass();
+        $a->label = $this->label;
+        $a->value = $value;
+
+        return get_string('selectlabelnoop', 'filters', $a);
+    }
 }

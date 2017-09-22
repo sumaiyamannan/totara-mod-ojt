@@ -107,7 +107,7 @@ if ($ADMIN->fulltree) { // Improve performance.
 
     $settings->add(new admin_setting_configtext('facetoface_fromaddress', new lang_string('setting:fromaddress_caption', 'facetoface'),
         new lang_string('setting:fromaddress', 'facetoface'), new lang_string('setting:fromaddressdefault', 'facetoface'),
-        "/^((?:[\w\.\-])+\@(?:(?:[a-zA-Z\d\-])+\.)+(?:[a-zA-Z\d]{2,4}))$/", 30));
+        PARAM_EMAIL, 30));
 
     $settings->add(new admin_setting_pickroles('facetoface_session_rolesnotify', new lang_string('setting:sessionrolesnotify_caption', 'facetoface'),
         new lang_string('setting:sessionrolesnotify', 'facetoface'), array('editingteacher')));

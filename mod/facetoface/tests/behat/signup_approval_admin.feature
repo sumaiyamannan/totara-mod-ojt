@@ -199,6 +199,7 @@ Feature: Seminar Signup Admin Approval
     And I click on "View all tasks" "link"
     And I should see "Sammy Sam" in the "td.user_namelink" "css_element"
     And I click on "Attendees" "link"
+
   Scenario: Administrator approve and deny before manager
     # Add admin approver
     Given I log in as "admin"
@@ -263,3 +264,81 @@ Feature: Seminar Signup Admin Approval
     Then I should see "Requested"
     And I should see "Cancel booking"
     And I log out
+
+  Scenario: Multiple seminar event approvals and denials for the same user
+    Given I log in as "admin"
+
+    # Add approver column to the embedded report
+    And I navigate to "Manage reports" node in "Site administration > Reports > Report builder"
+    Then I should see "Seminars: Event attendees"
+
+    When I follow "Seminars: Event attendees"
+    And I follow "Columns"
+    And I set the field "newcolumns" to "Approver name"
+    And I press "Add"
+    Then I should see "Approver name"
+
+    # Add user to the event
+    And I click on "Find Learning" in the totara menu
+    And I follow "Classroom Connect Course"
+    And I follow "Classroom Connect Activity"
+    And I click on "Attendees" "link"
+    And I click on "Add users" "option" in the "#menuf2f-actions" "css_element"
+    And I click on "Sammy Sam, sammy@example.com" "option"
+    And I press "Add"
+    And I press "Continue"
+    And I press "Confirm"
+    Then I should not see "Sammy Sam"
+    And I log out
+
+    # Check alert
+    And I log in as "actapprover"
+    And I click on "Dashboard" in the totara menu
+    And I click on "View all alerts" "link"
+    And I should see "This is to advise that Sammy Sam has requested to be booked into the following course"
+
+    And I click on "Attendees" "link"
+    Then I should see "None" in the "Sammy Sam" "table_row"
+
+    # Approve
+    When I click on ".c7 input" "css_element" in the "Sammy Sam" "table_row"
+    And I press "Update requests"
+    Then I should see "Attendance requests updated"
+    And I should not see "Sammy Sam"
+    And I log out
+
+    When I log in as "admin"
+    And I click on "Find Learning" in the totara menu
+    And I follow "Classroom Connect Course"
+    And I follow "Classroom Connect Activity"
+    And I click on "Attendees" "link"
+    Then the following should exist in the "facetoface_sessions" table:
+        | Name      | Status | Approver name |
+        | Sammy Sam | Booked | Larry Lar     |
+
+    # Now remove this user and re-approve
+    # Only 1 row should be shown for this user
+    When I click on "Remove users" "option" in the "#menuf2f-actions" "css_element"
+    And I click on "Sammy Sam, sammy@example.com" "option"
+    And I press "Remove"
+    And I press "Continue"
+    And I press "Confirm"
+    Then I should not see "Sammy Sam"
+
+    When I click on "Add users" "option" in the "#menuf2f-actions" "css_element"
+    And I click on "Sammy Sam, sammy@example.com" "option"
+    And I press "Add"
+    And I press "Continue"
+    And I press "Confirm"
+    And I follow "Approval required"
+    And I click on ".c8 input" "css_element" in the "Sammy Sam" "table_row"
+    And I press "Update requests"
+    Then I should see "Attendance requests updated"
+
+    When I follow "Attendees"
+    Then the following should exist in the "facetoface_sessions" table:
+        | Name      | Status | Approver name |
+        | Sammy Sam | Booked | Admin User    |
+    Then the following should not exist in the "facetoface_sessions" table:
+        | Name      | Approver name |
+        | Sammy Sam | Larry Lar     |

@@ -980,8 +980,12 @@ if ($show_table) {
             $data[] = userdate($attendee->timesignedup, get_string('strftimedatetime'));
 
             if ($showjobassignments) {
-                $jobassignment = \totara_job\job_assignment::get_with_id($attendee->jobassignmentid);
-                $label = position::job_position_label($jobassignment);
+                if (!empty($attendee->jobassignmentid)) {
+                    $jobassignment = \totara_job\job_assignment::get_with_id($attendee->jobassignmentid);
+                    $label = position::job_position_label($jobassignment);
+                } else {
+                    $label = '';
+                }
 
                 $url = new moodle_url('/mod/facetoface/attendee_job_assignment.php', array('s' => $session->id, 'id' => $attendee->id));
                 $icon = $OUTPUT->action_icon($url, $pix, null, array('class' => 'action-icon attendee-edit-job-assignment pull-right'));

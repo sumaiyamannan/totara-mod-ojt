@@ -850,8 +850,15 @@ abstract class rb_base_source {
             // If RPL then print the RPL grade.
             return sprintf('%.1f%%', $row->rplgrade);
         } else if (!empty($row->maxgrade) && !empty($item)) {
+
+            $maxgrade = (float)$row->maxgrade;
+            $mingrade = 0.0;
+            if (!empty($row->mingrade)) {
+                $mingrade = (float)$row->mingrade;
+            }
+
             // Create a percentage using the max grade.
-            $percent = ($item / $row->maxgrade) * 100;
+            $percent = ((($item - $mingrade) / ($maxgrade - $mingrade)) * 100);
 
             return sprintf('%.1f%%', $percent);
         } else if ($item !== null && $item !== '') {
@@ -1920,7 +1927,18 @@ abstract class rb_base_source {
     // Display grade along with passing grade if it is known.
     function rb_display_grade_string($item, $row) {
         $passgrade = isset($row->gradepass) ? sprintf('%d', $row->gradepass) : null;
-        $usergrade = sprintf('%d', $item);
+
+        $usergrade = (int)$item;
+        $grademin = 0;
+        $grademax = 100;
+        if (isset($row->grademin)) {
+            $grademin = $row->grademin;
+        }
+        if (isset($row->grademax)) {
+            $grademax = $row->grademax;
+        }
+
+        $usergrade = sprintf('%.1f', ((($usergrade - $grademin) / ($grademax - $grademin)) * 100));
 
         if ($item === null or $item === '') {
             return '';
@@ -1929,7 +1947,7 @@ abstract class rb_base_source {
         } else {
             $a = new stdClass();
             $a->grade = $usergrade;
-            $a->pass = $passgrade;
+            $a->pass = sprintf('%.1f', ((($passgrade - $grademin) / ($grademax - $grademin)) * 100));
             return get_string('gradeandgradetocomplete', 'totara_reportbuilder', $a);
         }
     }

@@ -964,7 +964,8 @@ class coursecat implements renderable, cacheable_object, IteratorAggregate {
                 if (isset($list[$course->id]->hassummary)) {
                     $list[$course->id]->hassummary = strlen($list[$course->id]->hassummary) > 0;
                 }
-                if (!totara_course_is_viewable($course->id)) {
+                context_helper::preload_from_record($course);
+                if (!totara_course_is_viewable($course)) {
                     unset($list[$course->id]);
                 }
             }

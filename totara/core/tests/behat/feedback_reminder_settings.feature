@@ -10,8 +10,6 @@ Feature: Settings for feedback reminders are displayed as expected
       | fullname   | shortname | enablecompletion |
       | Course One | course1   | 1                |
     And I log in as "admin"
-    And I navigate to "Manage activities" node in "Site administration > Plugins > Activity modules"
-    And I click on "Show" "link" in the "Feedback" "table_row"
     And I click on "Courses" in the totara menu
     And I follow "Course One"
     And I turn editing mode on

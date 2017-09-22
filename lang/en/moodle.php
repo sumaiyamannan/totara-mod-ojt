@@ -472,6 +472,7 @@ $string['deletecategoryunavail'] = 'This category can not be deleted';
 $string['deletecategoryempty'] = 'This category is empty.';
 $string['deletecategorycheck'] = 'Are you absolutely sure you want to completely delete this category <b>\'{$a}\'</b>?<br />This will move all courses into the parent category if there is one, or into Miscellaneous.';
 $string['deletecategorycheck2'] = 'If you delete this category, you need to choose what to do with the courses and subcategories it contains.';
+$string['deletecategorywarning'] = '<strong>You are about to delete \'{$a}\' category</strong><br />If you do not choose to move it, all content within the category and all subcategories will be permanently lost.';
 $string['deletecomment'] = 'Delete this comment';
 $string['deletecompletely'] = 'Delete completely';
 $string['deletecourse'] = 'Delete a course';
@@ -853,7 +854,7 @@ $string['general'] = 'General';
 $string['geolocation'] = 'latitude - longitude';
 $string['gettheselogs'] = 'Get these logs';
 $string['go'] = 'Go';
-$string['gpl'] = 'Copyright (C) 2010 onwards Totara Learning Solutions Limited (http://www.totaralms.com/)
+$string['gpl'] = 'Copyright (C) 2010 onwards Totara Learning Solutions Limited (https://www.totaralearning.com/)
 Copyright (C) 1999 onwards  Martin Dougiamas (http://moodle.com) and other contributors (https://moodle.org/dev/)
 
 This program is free software; you can redistribute it and/or modify
@@ -867,7 +868,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 See http://www.gnu.org/licenses/gpl-3.0.html for full details.';
 $string['gpllicense'] = 'GPL license';
-$string['gpl3'] = 'Copyright (C) 2010 onwards Totara Learning Solutions Limited (http://www.totaralms.com/)
+$string['gpl3'] = 'Copyright (C) 2010 onwards Totara Learning Solutions Limited (https://www.totaralearning.com/)
 Copyright (C) 1999 onwards Martin Dougiamas (http://moodle.com) and other contributors (https://moodle.org/dev/)
 
 This program is free software: you can redistribute it and/or modify

@@ -109,6 +109,8 @@ if (empty($cm->visible) and !has_capability('mod/facetoface:viewemptyactivities'
 echo $OUTPUT->box_start();
 echo $OUTPUT->heading(get_string('allsessionsin', 'facetoface', $facetoface->name), 2);
 
+echo self_completion_form($cm);
+
 if (!empty($facetoface->intro)) {
     echo $OUTPUT->box(format_module_intro('facetoface', $facetoface, $cm->id), 'generalbox', 'intro');
 }

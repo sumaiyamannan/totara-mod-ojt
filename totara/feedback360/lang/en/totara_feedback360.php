@@ -83,6 +83,8 @@ $string['deletedfeedback360'] = 'Successfully Deleted Feedback';
 $string['deletefeedback360s'] = 'Delete Feedback - {$a}';
 $string['deletefeedback360questions'] = 'And all related questions';
 $string['deletefeedback360assignments'] = 'And all related assignments';
+$string['deletefeedback360conformation'] = 'Are you sure you want to delete {$a}?';
+$string['deletefeedback360responses'] = 'All content will be permanently deleted including {$a} completed responses.';
 $string['description'] = 'Description';
 $string['description_help'] = 'When a feedback description is created the information displays after feedback name';
 $string['draft'] = 'Draft';
@@ -279,4 +281,3 @@ $string['viewinguserxfeedback360'] = 'You are viewing {$a}\'s Feedback';
 $string['viewrequest'] = 'View Request';
 $string['viewresponse'] = 'View Response';
 $string['viewuserxresponses'] = 'View {$a}\'s responses';
-
