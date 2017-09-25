@@ -940,7 +940,8 @@ class coursecat implements renderable, cacheable_object, IteratorAggregate {
      * @return array array of stdClass objects
      */
     public static function get_course_records($whereclause, $params, $options, $checkvisibility = false) {
-        global $DB;
+        global $DB, $CFG, $USER;
+
         $ctxselect = context_helper::get_preload_record_columns_sql('ctx');
         $fields = array('c.id', 'c.category', 'c.sortorder',
                         'c.shortname', 'c.fullname', 'c.idnumber',
@@ -951,10 +952,27 @@ class coursecat implements renderable, cacheable_object, IteratorAggregate {
         } else {
             $fields[] = $DB->sql_substr('c.summary', 1, 1). ' as hassummary';
         }
+
+        if ($checkvisibility and !empty($CFG->audiencevisibility)) {
+            // A hack to improve performance if audience visibility is in use. Not an ideal solution but
+            // avoids less than optimal caches or changes to multiple function signatures.
+            $fields[] = 'visibilityjoin.isvisibletouser AS totara_isvisibletouser';
+            list($visibilityjoinsql, $visibilityjoinparams) = totara_visibility_join($USER->id, 'course', 'c');
+        }
+
         $sql = "SELECT ". join(',', $fields). ", $ctxselect
                 FROM {course} c
                 JOIN {context} ctx ON c.id = ctx.instanceid AND ctx.contextlevel = :contextcourse
-                WHERE ". $whereclause." ORDER BY c.sortorder";
+                ";
+
+        if ($checkvisibility and !empty($CFG->audiencevisibility)) {
+            $sql .= $visibilityjoinsql . "
+            ";
+            $params = array_merge($params, $visibilityjoinparams);
+        }
+
+        $sql .= "WHERE " . $whereclause . " ORDER BY c.sortorder";
+
         $list = $DB->get_records_sql($sql,
                 array('contextcourse' => CONTEXT_COURSE) + $params);
 
