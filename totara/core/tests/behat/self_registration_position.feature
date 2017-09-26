@@ -59,9 +59,7 @@ Feature: Test the ability to set your own
     And I click on "John Smith - requires job assignment entry" "link" in the "manager" "totaradialogue"
     Then I should not see "Selected:"
     When I click on "Search" "link" in the "Choose manager" "totaradialogue"
-    And I set the following fields to these values:
-      | Search | John |
-    And I press "Search"
+    And I search for "John" in the "Choose manager" totara dialogue
     And I click on "John Smith - requires job assignment entry" "link" in the "#search-tab" "css_element"
     Then I should not see "Selected:"
     When I click on "Browse" "link" in the "Choose manager" "totaradialogue"

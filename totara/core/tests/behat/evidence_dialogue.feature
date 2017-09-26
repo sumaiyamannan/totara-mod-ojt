@@ -42,18 +42,15 @@ Feature: Test evidence dialogue search
     And I press "Add linked evidence"
     And I click on "Search" "link" in the "Add linked evidence" "totaradialogue"
     # Search for both.
-    When I set the field "id_query" to "id"
-    And I click on "Search" "button" in the "Add linked evidence" "totaradialogue"
+    And I search for "id" in the "Add linked evidence" totara dialogue
     Then I should see "Test Evidence itemid1" in the "Add linked evidence" "totaradialogue"
     And I should see "Test Evidence itemid2" in the "Add linked evidence" "totaradialogue"
     # Search for evidence item #1 using name.
-    When I set the field "id_query" to "itemid1"
-    And I click on "Search" "button" in the "Add linked evidence" "totaradialogue"
+    And I search for "itemid1" in the "Add linked evidence" totara dialogue
     Then I should see "Test Evidence itemid1" in the "Add linked evidence" "totaradialogue"
     And I should not see "Test Evidence itemid2" in the "Add linked evidence" "totaradialogue"
     # Search for evidence item #2 using description.
-    When I set the field "id_query" to "descid2"
-    And I click on "Search" "button" in the "Add linked evidence" "totaradialogue"
+    When I search for "descid2" in the "Add linked evidence" totara dialogue
     Then I should not see "Test Evidence itemid1" in the "Add linked evidence" "totaradialogue"
     And I should see "Test Evidence itemid2" in the "Add linked evidence" "totaradialogue"
     # Remove the evidence description custom field.
@@ -70,12 +67,10 @@ Feature: Test evidence dialogue search
     And I press "Add linked evidence"
     And I click on "Search" "link" in the "Add linked evidence" "totaradialogue"
     # Search for evidence item #1 using name.
-    When I set the field "id_query" to "itemid1"
-    And I click on "Search" "button" in the "Add linked evidence" "totaradialogue"
+    When I search for "itemid1" in the "Add linked evidence" totara dialogue
     Then I should see "Test Evidence itemid1" in the "Add linked evidence" "totaradialogue"
     And I should not see "Test Evidence itemid2" in the "Add linked evidence" "totaradialogue"
     # Search for any evidence using description.
-    When I set the field "id_query" to "desc"
-    And I click on "Search" "button" in the "Add linked evidence" "totaradialogue"
+    When I search for "desc" in the "Add linked evidence" totara dialogue
     Then I should not see "Test Evidence itemid1" in the "Add linked evidence" "totaradialogue"
     And I should not see "Test Evidence itemid2" in the "Add linked evidence" "totaradialogue"

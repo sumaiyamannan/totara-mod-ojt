@@ -45,18 +45,15 @@ Feature: Search pre-defined rooms in seminar
     And I click on "Select room" "link"
     And I click on "Search" "link" in the "Choose a room" "totaradialogue"
 
-    And I set the field "id_query" to "Room 1"
-    When I click on "Search" "button" in the "Choose a room" "totaradialogue"
+    And I search for "Room 1" in the "Choose a room" totara dialogue
     Then I should see "Room 1 (Capacity: 5)"
     And I should not see "Room 2 (Capacity: 6)"
 
-    And I set the field "id_query" to "Room 2"
-    When I click on "Search" "button" in the "Choose a room" "totaradialogue"
+    And I search for "Room 2" in the "Choose a room" totara dialogue
     Then I should see "Room 2 (Capacity: 6)"
     And I should not see "Room 1 (Capacity: 5)"
 
-    And I set the field "id_query" to "Room"
-    When I click on "Search" "button" in the "Choose a room" "totaradialogue"
+    And I search for "Room" in the "Choose a room" totara dialogue
     Then I should see "Room 1 (Capacity: 5)"
     And I should see "Room 2 (Capacity: 6)"
 

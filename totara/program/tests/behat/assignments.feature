@@ -424,9 +424,7 @@ Feature: Users assignments to a program
     Then I should see "fn_001 ln_001 (user001@example.com)" in the "add-assignment-dialog-5" "totaradialogue"
     And I should see "fn_002 ln_002 (user002@example.com)" in the "add-assignment-dialog-5" "totaradialogue"
     When I click on "Search" "link" in the "add-assignment-dialog-5" "totaradialogue"
-    And I set the following fields to these values:
-      | Search | fn_00 |
-    And I press "Search"
+    And I search for "fn_00" in the "add-assignment-dialog-5" totara dialogue
     Then I should see "fn_001 ln_001 (user001@example.com)" in the "#search-tab" "css_element"
     And I should see "fn_002 ln_002 (user002@example.com)" in the "#search-tab" "css_element"
     And I click on "Ok" "button" in the "add-assignment-dialog-5" "totaradialogue"
