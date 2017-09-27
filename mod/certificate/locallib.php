@@ -492,7 +492,7 @@ function certificate_print_attempts($course, $certificate, $attempts) {
 
     echo $OUTPUT->heading(get_string('summaryofattempts', 'certificate'));
 
-    list($course, $cm) = get_course_and_cm_from_cmid($certificate->id);
+    $cm = get_coursemodule_from_instance('certificate', $certificate->id);
     echo self_completion_form($cm);
 
     // Prepare table header
