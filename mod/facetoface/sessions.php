@@ -327,7 +327,7 @@ if ($fromform = $mform->get_data()) { // Form submitted
     } else {
         if ($session) {
             $todb->allowcancellations = $session->allowcancellations;
-            $todb->cancellationcutoff = $session->cancellationcutofs;
+            $todb->cancellationcutoff = $session->cancellationcutoff;
         } else {
             $todb->allowcancellations = $facetoface->allowcancellationsdefault;
             $todb->cancellationcutoff = $facetoface->cancellationscutoffdefault;
