@@ -1279,6 +1279,18 @@ class mod_facetoface_upgradelib_testcase extends advanced_testcase {
         $toskip->title = 'Should be skipped';
         $DB->update_record('facetoface_notification_tpl', $toskip);
 
+        // Duplicate.
+        // Find "trainerunassign" and rename it to old name (so it will be upgraded)
+        $toduplicateupg = $DB->get_record('facetoface_notification_tpl', ['reference' => 'trainerunassign']);
+        $toduplicateupg->title = 'Face-to-face session trainer unassigned';
+        $DB->update_record('facetoface_notification_tpl', $toduplicateupg);
+
+        // Find "trainercancel" and rename it to new name of "trainerunassign" to provoke non-unique title during upgrade,
+        $toduplicate = $DB->get_record('facetoface_notification_tpl', ['reference' => 'trainercancel']);
+        // This title will conflict with "trainerunassign" during upgrade
+        $toduplicate->title = 'Seminar event trainer unassigned';
+        $DB->update_record('facetoface_notification_tpl', $toduplicate);
+
         // Create course and f2f activity.
         $facetoface_generator = $this->getDataGenerator()->get_plugin_generator('mod_facetoface');
         $course = $this->getDataGenerator()->create_course();
@@ -1303,6 +1315,13 @@ class mod_facetoface_upgradelib_testcase extends advanced_testcase {
         foreach ($isskippedactivity as $notification) {
             $this->assertEquals('Should be skipped', $notification->title);
         }
+
+        // Confirm duplicates are not messed.
+        $isduplicateupg = $DB->get_record('facetoface_notification_tpl', ['reference' => 'trainerunassign']);
+        $this->assertEquals('Face-to-face session trainer unassigned', $isduplicateupg->title);
+
+        $isduplicate = $DB->get_record('facetoface_notification_tpl', ['reference' => 'trainercancel']);
+        $this->assertEquals('Seminar event trainer unassigned', $isduplicate->title);
     }
 
     /**

@@ -276,8 +276,16 @@ function mod_facetoface_upgrade_notification_titles() {
         if (isset($template->title) && isset($template->reference) && isset($oldtemplatedefaults[$template->reference])
                 && (strcmp($template->title, $oldtemplatedefaults[$template->reference]) === 0)) {
             $template->title = $newtemplatedefaults[$template->reference];
-            $templateswithdefaults[$template->id] = $template->reference;
-            $DB->update_record('facetoface_notification_tpl', $template);
+            // Check that we will not get duplication.
+            if (!$DB->record_exists_select('facetoface_notification_tpl', 'id <> :id AND title = :title',
+                array('id' => $template->id, 'title' => $template->title))) {
+                try {
+                    $DB->update_record('facetoface_notification_tpl', $template);
+                    $templateswithdefaults[$template->id] = $template->reference;
+                } catch (Exception $e) {
+                    // We could not upgrade template title, this is not reason to fail upgrade.
+                }
+            }
         }
     }
 
@@ -291,7 +299,11 @@ function mod_facetoface_upgrade_notification_titles() {
                 // This notification also matched the same default lang string. So we'll update it
                 // to the new default.
                 $f2f_notification->title = $newtemplatedefaults[$reference];
-                $DB->update_record('facetoface_notification', $f2f_notification);
+                try {
+                    $DB->update_record('facetoface_notification', $f2f_notification);
+                } catch (Exception $e) {
+                    // We could not upgrade notification title, this is not reason to fail upgrade.
+                }
             }
         }
     }
