@@ -85,6 +85,7 @@ $string['coursecompletiontimestarted'] = 'Time started';
 $string['coursecompletionviewed'] = 'Viewed';
 $string['coursemembership'] = 'Course membership';
 $string['cronautomatic'] = 'Cron / Automatic';
+$string['edit'] = 'Edit';
 $string['error:impossibledatasubmitted'] = 'The data submitted is not valid and cannot be processed';
 $string['error:info_unknowncombination'] = 'There is no specific information relating to this error or particular combination of errors. It may be that it is a combination of other explainable errors. The records can be fixed manually, but care should be taken to ensure that the correct solution is chosen. It should be reported to Totara support if there are many instances or if it occurs frequently.';
 $string['fixconfirmone'] = '<p>Are you sure you want to apply the selected fix to this completion record?</p><p>The action will be logged, but cannot be automatically undone.</p>';
