@@ -1,6 +1,10 @@
 This files describes API changes in Totara Completion Import,
 information provided here is intended especially for developers.
 
+=== 9.13 ===
+
+* create_evidence_item() added eighth argument $evidencefields
+
 === 9.3 ===
 
 * The index totacompimpocour_evi_ix on the table totara_compl_import_course was changed to allow
