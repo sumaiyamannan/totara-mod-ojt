@@ -103,6 +103,30 @@ function totara_course_is_viewable($courseorid, $userid = null) {
 }
 
 /**
+ * Check visibility of the object passed and return if the element is hidden based on normal visibility setting or
+ * audience visibility if enabled.
+ *
+ * @param $item The object as it comes from the database. It could be a course, a program or a certification.
+ * Visibility properties should be present.
+ * @return bool True if the item is hidden, false otherwise.
+ * @throws coding_exception
+ */
+function totara_is_item_visibility_hidden($item) {
+    global $CFG;
+
+    if (!is_object($item) ||
+        !property_exists($item, 'visible') ||
+        !property_exists($item, 'audiencevisible')) {
+        throw new coding_exception("Item passed is not an object or does not have visibility properties.");
+    }
+
+
+    $ishidden = (empty($CFG->audiencevisibility)) ? !$item->visible : $item->audiencevisible == COHORT_VISIBLE_NOUSERS;
+
+    return $ishidden;
+}
+
+/**
  * This function loads the program settings that are available for the user
  *
  * @param navigation_node $navinode The navigation_node to add the settings to

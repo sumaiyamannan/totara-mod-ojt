@@ -153,7 +153,7 @@ abstract class backup_cron_automated_helper {
 
                 // If config backup_auto_skip_hidden is set to true, skip courses that are not visible.
                 if ($shouldrunnow && $config->backup_auto_skip_hidden) {
-                    $skipped = ($config->backup_auto_skip_hidden && !$course->visible);
+                    $skipped = totara_is_item_visibility_hidden($course);
                     $skippedmessage = 'Not visible';
                 }
 
