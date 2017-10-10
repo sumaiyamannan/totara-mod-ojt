@@ -702,7 +702,11 @@ function copy_certif_completion_to_hist($certificationid, $userid, $unassigned =
     $certificationcompletion->timemodified = time();
     $certificationcompletion->unassigned = $unassigned;
     $completionhistory = $DB->get_record('certif_completion_history',
-            array('certifid' => $certificationid, 'userid' => $userid, 'timeexpires' => $certificationcompletion->timeexpires));
+            array(
+                'certifid'      => $certificationid,
+                'userid'        => $userid,
+                'timeexpires'   => $certificationcompletion->timeexpires,
+                'timecompleted' => $certificationcompletion->timecompleted));
 
     if ($completionhistory) {
         $certificationcompletion->id = $completionhistory->id;
@@ -2874,13 +2878,13 @@ function certif_write_completion_history($certcomplhistory, $message = '') {
 
     // Ensure the history record matches the database records.
     if ($isinsert) {
-        $sql = "SELECT cch.id
-                  FROM {certif_completion_history} cch
-                 WHERE cch.certifid = :certifid AND cch.userid = :userid AND cch.timeexpires = :timeexpires";
-        $params = array('certifid' => $certcomplhistory->certifid, 'userid' => $certcomplhistory->userid,
-            'timeexpires' => $certcomplhistory->timeexpires);
-        $history = $DB->get_record_sql($sql, $params);
-        if (!empty($history)) {
+        $historyexists = $DB->record_exists('certif_completion_history', array(
+            'certifid' => $certcomplhistory->certifid,
+            'userid' => $certcomplhistory->userid,
+            'timeexpires' => $certcomplhistory->timeexpires,
+            'timecompleted' => $certcomplhistory->timecompleted
+        ));
+        if ($historyexists) {
             print_error(get_string('error:updatinginvalidcompletionrecords', 'totara_certification'));
         };
         if (empty($message)) {
