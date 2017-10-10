@@ -64,18 +64,6 @@ require_login($course, false, $cm);
 $context = context_course::instance($course->id);
 $contextmodule = context_module::instance($cm->id);
 
-$shouldshowinfopage = has_capability('mod/scorm:savetrack', $contextmodule);
-$shouldshowreportspage = has_capability('mod/scorm:viewreport', $contextmodule);
-if (!$shouldshowinfopage && $shouldshowreportspage) {
-    $reportsurl = new moodle_url('/mod/scorm/report.php', array('id' => $cm->id));
-    redirect($reportsurl);
-}
-else if (!$shouldshowinfopage && !$shouldshowreportspage) {
-    // Should never get here - means user has not right to do the SCORM lesson or
-    // see reports!
-    print_error('nopermissiontoshow');
-}
-
 $launch = false; // Does this automatically trigger a launch based on skipview.
 if ($scorm->popup == 1) {
     $orgidentifier = '';

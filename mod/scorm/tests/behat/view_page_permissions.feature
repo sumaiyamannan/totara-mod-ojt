@@ -47,7 +47,7 @@ Feature: mod_scorm: check view SCORM page permissions
       | Description | SCORM viewing page permission test |
     And I upload "mod/scorm/tests/packages/overview_test.zip" file to "Package file" filemanager
     And I click on "Save and display" "button"
-    And I should see "SCORM viewing page permission test"
+    Then I should see "SCORM viewing page permission test"
 
 
   # -------------------------------
@@ -57,7 +57,14 @@ Feature: mod_scorm: check view SCORM page permissions
     And I click on "Find Learning" in the totara menu
     And I follow "Course 1"
     And I follow "SCORM viewing page permission test"
-    Then I should not see "Info"
+    # All users who can access the SCORM see the info tab. We also never redirect to reports by default.
+    Then I should see "Info"
+    And I should see "Grading method: Highest attempt"
+    And I should see "Reports"
+    And I should not see "Interactions report"
+
+    When I follow "Reports"
+    Then I should see "Info"
     And I should see "Reports"
     And I should see "Interactions report"
 
@@ -81,3 +88,25 @@ Feature: mod_scorm: check view SCORM page permissions
 
     When I switch to "Reports" tab
     And I should see "Interactions report"
+
+
+  # -------------------------------
+  Scenario: Guest users should be able to see SCORM but not reports
+    Given I navigate to "Enrolment methods" node in "Course administration > Users"
+    And I click on "Edit" "link" in the "Guest access" "table_row"
+    And I set the following fields to these values:
+      | Allow guest access | Yes |
+    And I press "Save changes"
+
+    Given I set the following administration settings values:
+      | guestloginbutton | Show |
+    And I press "Save changes"
+
+    When I log out
+    And I log in as "guest"
+    And I click on "Find Learning" in the totara menu
+    And I follow "Course 1"
+    And I follow "SCORM viewing page permission test"
+    Then I should see "Info"
+    And I should see "Grading method: Highest attempt"
+    And I should not see "Reports"
