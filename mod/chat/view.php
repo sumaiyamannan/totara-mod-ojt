@@ -105,7 +105,7 @@ if ($currentgroup) {
 
 echo $OUTPUT->heading(format_string($chat->name), 2);
 
-echo self_completion_form($cm);
+echo self_completion_form($cm, $course);
 
 if ($chat->intro) {
     echo $OUTPUT->box(format_module_intro('chat', $chat, $cm->id), 'generalbox', 'intro');

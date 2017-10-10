@@ -353,7 +353,7 @@
 
     echo $OUTPUT->heading(format_string($data->name), 2);
 
-    echo self_completion_form($cm);
+    echo self_completion_form($cm, $course);
 
     // Do we need to show a link to the RSS feed for the records?
     //this links has been Settings (database activity administration) block

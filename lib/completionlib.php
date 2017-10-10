@@ -292,25 +292,50 @@ function completion_module_rpl_enabled($module) {
 /**
  * Returns the self completion form for an activity
  *
- * @param object $cm The course module object
+ * @param cm_info|stdClass|int $cmorid The course module object or the cmid.
+ * @param stdClass|null $course The course object if we already have it.
  * @return string HTML of the self completion form
  */
-function self_completion_form($cm) {
+function self_completion_form($cmorid, $course = null) {
     global $OUTPUT;
-    if ($cm->completion == COMPLETION_TRACKING_MANUAL) {
-        $mod_info = get_course_and_cm_from_cmid($cm->id);
-        $compinfo = new \completion_info($mod_info[0]);
-        $completiondata = $compinfo->get_data($mod_info[1]);
-        $completion = new \core_completion\forms\activity_completion(['activity_id' => $cm->id, 'completed' => $completiondata->completionstate]);
 
-        // Use notification template as notification class sanitises the form output
-        $notificationdata = new stdClass();
-
-        $notificationdata->message = $completion->render();
-        return $OUTPUT->render_from_template('core/notification_message', $notificationdata);
-    } else {
+    if (!isloggedin() || isguestuser()) {
+        // You must be logged in, and you cannot be the guest user.
         return '';
     }
+
+    list($course, $cm) = get_course_and_cm_from_cmid($cmorid, '', $course);
+
+    // Check the module supports manual completion.
+    // We do this before we check if completion is enabled as this is cheap.
+    if ($cm->completion != COMPLETION_TRACKING_MANUAL) {
+        return '';
+    }
+
+    if (!$cm->uservisible) {
+        // The user cannot yet see this module.
+        // We do this before we check if completion is enabled as this is cheap.
+        return '';
+    }
+
+    // Check completion is enabled.
+    $completion = new \completion_info($course);
+    if (!$completion->is_enabled()) {
+        // Completion is not enabled. No point in going further.
+        return '';
+    }
+
+    $cmdata = $completion->get_data($cm);
+
+    $form = new \core_completion\forms\activity_completion([
+        'activity_id' => $cm->id,
+        'completed' => $cmdata->completionstate
+    ]);
+
+    // Use notification template as notification class sanitises the form output
+    $notificationdata = new stdClass();
+    $notificationdata->message = $form->render();
+    return $OUTPUT->render_from_template('core/notification_message', $notificationdata);
 }
 
 

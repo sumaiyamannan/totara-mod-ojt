@@ -76,7 +76,7 @@ echo $output->header();
 
 echo $output->heading(format_string($folder->name), 2);
 
-echo self_completion_form($cm);
+echo self_completion_form($cm, $course);
 
 echo $output->display_folder($folder);
 

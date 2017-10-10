@@ -140,7 +140,7 @@ abstract class page_wiki {
 
         $wiki = $PAGE->activityrecord;
         echo $OUTPUT->heading(format_string($wiki->name));
-        echo self_completion_form($this->cm);
+        echo self_completion_form($this->cm, $PAGE->course);
 
         echo $this->wikioutput->wiki_info();
 
