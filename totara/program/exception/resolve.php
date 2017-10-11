@@ -31,6 +31,9 @@ $programid = required_param('id', PARAM_INT);
 $action = required_param('action', PARAM_INT);
 $searchterm = optional_param('search', '', PARAM_TEXT);
 
+$certifid = $DB->get_field('prog', 'certifid', array('id' => $programid));
+$progorcert = empty($certifid) ? 'program' : 'certification';
+
 $selectiontype = isset($_SESSION['exceptions_selectiontype']) ? $_SESSION['exceptions_selectiontype'] : SELECTIONTYPE_NONE;
 $manually_added_exceptions = isset($_SESSION['exceptions_added']) ? $_SESSION['exceptions_added'] : array();
 $manually_removed_exceptions = isset($_SESSION['exceptions_removed']) ? $_SESSION['exceptions_removed'] : array();
@@ -72,6 +75,10 @@ if (!empty($selected_exceptions)) {
         if (!$success) {
             // report this to the user
             $failed_ids[] = $exception->id;
+        } else {
+            // To prevent orphaned exceptions, recalculate exceptions on any remaining unresolved program user assignments.
+            // This function does nothing if it doesn't find any unresolved program user assignments, so is safe to run every time.
+            prog_fix_orphaned_exceptions_recalculate($exception_ob->programid, $exception_ob->userid, $progorcert);
         }
     }
 }
