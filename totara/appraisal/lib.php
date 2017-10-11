@@ -480,8 +480,22 @@ class appraisal {
         }
 
         // Find old user assignments that need to be reactivated.
-        list($assignjoinsql, $assignparams, $assignalias) = $assign->get_users_from_assignments_sql('u', 'id');
         list($groupjoinsql, $groupparams, $groupalias) = $assign->get_users_from_groups_sql('u', 'id');
+
+        // If old user previously completed the appraisal, timecompleted will be not null.
+        // Restore these to status COMPLETED.
+        $sql = "UPDATE {appraisal_user_assignment}
+                   SET status = ?
+                 WHERE status = ?
+                   AND appraisalid = ?
+                   AND timecompleted IS NOT NULL
+                   AND userid IN (
+                       SELECT u.id
+                         FROM {user} u
+                       " . $groupjoinsql . "
+                   )";
+        $params = array_merge(array(self::STATUS_COMPLETED, self::STATUS_CLOSED, $this->id), $groupparams);
+        $DB->execute($sql, $params);
 
         $sql = "UPDATE {appraisal_user_assignment}
                    SET status = ?
