@@ -2188,9 +2188,9 @@ function xmldb_facetoface_upgrade($oldversion=0) {
         // Facetoface savepoint reached.
         upgrade_mod_savepoint(true, 2014091700, 'facetoface');
     }
-    
+
     // Totara 2.6.x upgrade line - bump all version numbers below after merge from t2-release-26 if necessary.
-    
+
     // Add new selfapproval and selfapprovaltandc fields.
     if ($oldversion < 2014092300) {
 
@@ -4514,6 +4514,13 @@ function xmldb_facetoface_upgrade($oldversion=0) {
 
         // Facetoface savepoint reached.
         upgrade_mod_savepoint(true, 2016092803, 'facetoface');
+    }
+
+    if ($oldversion < 2016092804) {
+        facetoface_upgradelib_calendar_events_for_sessiondates();
+
+        // Facetoface savepoint reached.
+        upgrade_mod_savepoint(true, 2016092804, 'facetoface');
     }
 
     return $result;

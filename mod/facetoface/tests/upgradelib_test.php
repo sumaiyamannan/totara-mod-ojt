@@ -960,7 +960,7 @@ class mod_facetoface_upgradelib_testcase extends advanced_testcase {
     public function test_mod_facetoface_delete_orphaned_customfield_data_signup() {
         global $CFG, $DB;
         require_once($CFG->dirroot.'/lib/upgradelib.php');
-      
+
         $this->resetAfterTest();
         $this->preventResetByRollback();
 
@@ -1427,5 +1427,96 @@ Room:   [session:room]<br />
         $request = $DB->get_field('facetoface_notification', 'managerprefix', array('title' => 'Test title 3'));
         $requestexp = text_to_html(get_string('setting:defaultrequestinstrmngrdefault_v92', 'facetoface'));
         $this->assertEquals($requestexp, $request);
+    }
+
+    private function verifySessionDate($event, $timestart, $timeduration, $visible) {
+        $this->assertEquals($timestart, $event->timestart);
+        $this->assertEquals($timeduration, $event->timeduration);
+        $this->assertEquals($visible, $event->visible);
+    }
+
+    public function test_facetoface_upgradelib_calendar_events_for_sessiondates() {
+        global $CFG, $DB;
+        require_once($CFG->dirroot.'/lib/upgradelib.php');
+        require_once($CFG->dirroot.'/mod/facetoface/db/upgradelib.php');
+
+        $this->resetAfterTest();
+
+        // Setup the data
+        $facetofacegenerator = $this->getDataGenerator()->get_plugin_generator('mod_facetoface');
+        $course = $this->getDataGenerator()->create_course();
+        $facetoface = $this->getDataGenerator()->create_module('facetoface', array('course' => $course->id));
+        $context = context_module::instance($facetoface->cmid);
+
+        $this->setAdminUser();
+
+        $now = time();
+        $sessiondates = array();
+        for ($i = 0; $i < 3; $i++) {
+            $sessiondates[$i] = new stdClass();
+            $sessiondates[$i]->timestart = $now + $i * WEEKSECS;
+            $sessiondates[$i]->timefinish = $sessiondates[$i]->timestart + 3 * HOURSECS;
+            $sessiondates[$i]->sessiontimezone = '99';
+            $sessiondates[$i]->assetids = array();
+        }
+        $sid = $facetofacegenerator->add_session(array('facetoface' => $facetoface->id, 'sessiondates' => $sessiondates));
+
+        // We still need to add the calendar entries.
+        $session = facetoface_get_session($sid);
+        facetoface_update_calendar_entries($session);
+
+        $events = $DB->get_records('event', array('modulename' => 'facetoface', 'eventtype' => 'facetofacesession', 'courseid' => $course->id),
+            'timestart');
+
+        $this->assertEquals(3, count($events));
+        for ($i = 0; $i < 3; $i++) {
+            $event = array_shift($events);
+            $this->verifySessionDate($event, $sessiondates[$i]->timestart, 3 * HOURSECS, 1);
+        }
+
+        // The database is now in the correct state that
+        // First test that facetoface_upgradelib_calendar_events_for_sessiondates
+        // doesn't braeak this
+
+        facetoface_upgradelib_calendar_events_for_sessiondates();
+
+        $events = $DB->get_records('event', array('modulename' => 'facetoface', 'eventtype' => 'facetofacesession', 'courseid' => $course->id),
+            'timestart');
+
+        $ids = array();
+        $this->assertEquals(3, count($events));
+        for ($i = 0; $i < 3; $i++) {
+            $event = array_shift($events);
+            $this->verifySessionDate($event, $sessiondates[$i]->timestart, 3 * HOURSECS, 1);
+
+            if ($i < 2) {
+                $ids[] = $event->id;
+            }
+        }
+
+        // Now remove all but one of the events to simulate the state prior to this patch
+        $sql = 'DELETE FROM {event} WHERE id in (' . implode(',', $ids) . ')';
+        $DB->execute($sql);
+
+        // Verify
+        $events = $DB->get_records('event', array('modulename' => 'facetoface', 'eventtype' => 'facetofacesession', 'courseid' => $course->id),
+            'timestart');
+
+        $this->assertEquals(1, count($events));
+        $event = array_shift($events);
+        $this->verifySessionDate($event, $sessiondates[2]->timestart, 3 * HOURSECS, 1);
+
+        // Now verify that facetoface_upgradelib_calendar_events_for_sessiondates restores the events
+
+        facetoface_upgradelib_calendar_events_for_sessiondates();
+
+        $events = $DB->get_records('event', array('modulename' => 'facetoface', 'eventtype' => 'facetofacesession', 'courseid' => $course->id),
+            'timestart');
+
+        $this->assertEquals(3, count($events));
+        for ($i = 0; $i < 3; $i++) {
+            $event = array_shift($events);
+            $this->verifySessionDate($event, $sessiondates[$i]->timestart, 3 * HOURSECS, 1);
+        }
     }
 }

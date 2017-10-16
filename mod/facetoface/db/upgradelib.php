@@ -437,3 +437,78 @@ function facetoface_upgradelib_managerprefix_clarification() {
         }
     }
 }
+
+/**
+ * Ensure all Calendar events exist for seminar sessions with multiple dates
+ * Events are only created for missing sessiondates if there are at least one existing event
+ * Non-date values are copied from the existing event(s)
+ */
+function facetoface_upgradelib_calendar_events_for_sessiondates() {
+    global $DB;
+
+    // Due to the type inconsistencies between {event}.uuid and {facetoface_sessions_dates}.id,
+    // we can't use a join between events and facetoface_sessions_dates. We therefore need to
+    // use muliple statements to allow $DB to handle type conversions.
+
+    // Get all the facetoface_sessions that have events with multiple dates
+    $sql = 'SELECT sessionid
+            FROM {facetoface_sessions_dates}
+        GROUP BY sessionid
+          HAVING count(id) > 1';
+
+    if ($sessionidrows = $DB->get_records_sql($sql)) {
+        // As other settings may have prevented calendar events being created for these sessions,
+        // we only create missing events if there is at least one existing event for this each session
+
+        foreach ($sessionidrows as $sessionidrow) {
+            $sql = 'SELECT DISTINCT e.name, e.description, e.format, e.courseid, e.groupid, e.userid,
+                                    e.uuid, e.instance, e.modulename, e.eventtype, e.visible
+                  FROM {event} e
+                 WHERE e.uuid = :uuid
+                   AND e.modulename = :modulename
+                   AND e.eventtype = :eventtype';
+            $params =  array('uuid' => $sessionidrow->sessionid,
+                             'modulename' => 'facetoface',
+                             'eventtype' => 'facetofacesession');
+
+            if ($eventrows = $DB->get_recordset_sql($sql, $params)) {
+                foreach ($eventrows as $eventrow) {
+                    $sql = 'INSERT INTO {event}
+                                        (name, description, format, courseid, groupid, userid, uuid, instance, modulename, eventtype,
+                                         timestart, timeduration, visible)
+                                 SELECT :name, :description, :format, :courseid, :groupid, :userid, :uuid, :instance, :modulename, :eventtype,
+                                        d.timestart, d.timefinish - d.timestart, :visible
+                                   FROM {facetoface_sessions_dates} d
+                                  WHERE d.sessionid = :sessionid
+                                    AND d.timestart not in (
+                                        SELECT timestart
+                                        FROM {event} e
+                                        WHERE e.uuid = :seluuid
+                                          AND e.courseid = :selcourseid
+                                          AND e.groupid = :selgroupid
+                                          AND e.userid = :seluserid)';
+
+                    $params = array('name' => $eventrow->name,
+                                    'description' => $eventrow->description,
+                                    'format' => $eventrow->format,
+                                    'courseid' => $eventrow->courseid,
+                                    'groupid' => $eventrow->groupid,
+                                    'userid' => $eventrow->userid,
+                                    'uuid' => $eventrow->uuid,
+                                    'instance' => $eventrow->instance,
+                                    'modulename' => $eventrow->modulename,
+                                    'eventtype' => $eventrow->eventtype,
+                                    'visible' => $eventrow->visible,
+                                    'sessionid' => $sessionidrow->sessionid,
+                                    'seluuid' => $eventrow->uuid,
+                                    'selcourseid' => $eventrow->courseid,
+                                    'selgroupid' => $eventrow->groupid,
+                                    'seluserid' => $eventrow->userid,
+                                );
+
+                    $DB->execute($sql, $params);
+                }
+            }
+        }
+    }
+}
