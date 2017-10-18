@@ -76,7 +76,10 @@ class process_scheduled_task extends \core\task\scheduled_task {
             if ($schedule->is_time()) {
                 $user = $DB->get_record('user', array('id' => $report->userid), '*', MUST_EXIST);
                 $tz = \core_date::get_user_timezone($user);
+
+                $oldexecutiontime = $schedule->get_scheduled_time();
                 $schedule->next(time(), true, $tz);
+                $newexecutiontime = $schedule->get_scheduled_time();
 
                 // Hack $USER - includes current language change, $PAGE init, etc.
                 cron_setup_user($user);
@@ -92,8 +95,17 @@ class process_scheduled_task extends \core\task\scheduled_task {
                 // Reset $USER and $SESSION.
                 cron_setup_user('reset');
 
-                // Store the next time to run this scheduled report.
-                $DB->update_record('report_builder_schedule', $schedule->to_object());
+                // Store the next time to run this scheduled report. The new time
+                // is only updated if the record's execution time matches the old
+                // execution time. This is because the scheduler settings may have
+                // changed in the interim and a new execution time computed. That
+                // should not be overwritten.
+                $conditions = [
+                    'id' => $report->id,
+                    'reportid' => $report->reportid,
+                    'nextreport' => $oldexecutiontime
+                ];
+                $DB->set_field('report_builder_schedule', 'nextreport', $newexecutiontime, $conditions);
 
                 // Release memory if possible.
                 gc_collect_cycles();
