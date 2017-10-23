@@ -48,7 +48,8 @@ if ($hassiteconfig or has_any_capability($capabilities, $systemcontext)) {
     );
     $ADMIN->add('courses',
         new admin_externalpage('restorecourse', new lang_string('restorecourse', 'admin'),
-            new moodle_url('/backup/restorefile.php', array('contextid' => context_system::instance()->id)),
+            // Changing to course SITEID to get all backups including Automated backups.
+            new moodle_url('/backup/restorefile.php', array('contextid' => context_course::instance(SITEID)->id)),
             array('moodle/restore:restorecourse')
         )
     );

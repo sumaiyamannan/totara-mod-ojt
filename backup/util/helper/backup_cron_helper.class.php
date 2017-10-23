@@ -376,14 +376,14 @@ abstract class backup_cron_automated_helper {
         try {
 
             // Set the default filename.
-            $format = $bc->get_format();
-            $type = $bc->get_type();
-            $id = $bc->get_id();
-            $users = $bc->get_plan()->get_setting('users')->get_value();
+            $format     = $bc->get_format();
+            $type       = $bc->get_type();
+            $users      = $bc->get_plan()->get_setting('users')->get_value();
             $anonymised = $bc->get_plan()->get_setting('anonymize')->get_value();
-            $bc->get_plan()->get_setting('filename')->set_value(backup_plan_dbops::get_default_backup_filename($format, $type,
-                    $id, $users, $anonymised));
+            $filename   = backup_plan_dbops::get_default_backup_filename($format, $type, $course->id, $users,
+                $anonymised, !$config->backup_shortname);
 
+            $bc->get_plan()->set_setting('filename', $filename);
             $bc->set_status(backup::STATUS_AWAITING);
 
             $bc->execute_plan();
@@ -402,19 +402,9 @@ abstract class backup_cron_automated_helper {
 
             // Copy file only if there was no error.
             if ($file && !empty($dir) && $storage !== 0 && $outcome != self::BACKUP_STATUS_ERROR) {
-                $filename = backup_plan_dbops::get_default_backup_filename($format, $type, $course->id, $users, $anonymised,
-                        !$config->backup_shortname);
                 if (!$file->copy_content_to($dir.'/'.$filename)) {
-                    $bc->log('Attempt to copy backup file to the specified directory failed - ',
-                            backup::LOG_ERROR, $dir);
+                    $bc->log('Attempt to copy backup file to the specified directory failed - ', backup::LOG_ERROR, $dir);
                     $outcome = self::BACKUP_STATUS_ERROR;
-                }
-                if ($outcome != self::BACKUP_STATUS_ERROR && $storage === 1) {
-                    if (!$file->delete()) {
-                        $outcome = self::BACKUP_STATUS_WARNING;
-                        $bc->log('Attempt to delete the backup file from course automated backup area failed - ',
-                                backup::LOG_WARNING, $file->get_filename());
-                    }
                 }
             }
 

@@ -239,7 +239,9 @@ abstract class backup_helper {
         // Quick hack. If for any reason, filename is blank, fix it here.
         // TODO: This hack will be out once MDL-22142 - P26 gets fixed
         if (empty($filename)) {
-            $filename = backup_plan_dbops::get_default_backup_filename('moodle2', $backuptype, $id, $hasusers, $isannon);
+            $config = get_config('backup');
+            $filename = backup_plan_dbops::get_default_backup_filename($format, $backuptype, $id, $hasusers,
+                $isannon, !$config->backup_shortname);
         }
 
         // Backups of type IMPORT aren't stored ever
@@ -287,23 +289,18 @@ abstract class backup_helper {
             // this saves copying from filepool to here later and filling trashdir.
             $config = get_config('backup');
             $dir = $config->backup_auto_destination;
-            if ($config->backup_auto_storage == 1 and $dir and is_dir($dir) and is_writable($dir)) {
-                $filedest = $dir.'/'.backup_plan_dbops::get_default_backup_filename($format, $backuptype, $courseid, $hasusers, $isannon, !$config->backup_shortname);
-                // first try to move the file, if it is not possible copy and delete instead
-                if (@rename($filepath, $filedest)) {
-                    return null;
-                }
+            if ($config->backup_auto_storage != 0 and is_dir($dir) and is_writable($dir)) {
+                $filedest = $dir.'/'.$filename;
+                // first try to copy the file, if it is not possible copy and delete instead
                 umask($CFG->umaskpermissions);
-                if (copy($filepath, $filedest)) {
-                    @chmod($filedest, $CFG->filepermissions); // may fail because the permissions may not make sense outside of dataroot
-                    unlink($filepath);
-                    return null;
-                } else {
+                if (!@copy($filepath, $filedest)) {
                     $bc = backup_controller::load_controller($backupid);
-                    $bc->log('Attempt to copy backup file to the specified directory using filesystem failed - ',
-                            backup::LOG_WARNING, $dir);
+                    $bc->log('Attempt to copy backup file to the specified directory using filesystem failed - ', backup::LOG_WARNING, $dir);
+                    $bc->destroy();
+                    return null;
                 }
-                // bad luck, try to deal with the file the old way - keep backup in file area if we can not copy to ext system
+                @chmod($filedest, $CFG->filepermissions); // may fail because the permissions may not make sense outside of dataroot
+
             }
         }
 
