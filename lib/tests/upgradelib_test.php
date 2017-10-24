@@ -1071,4 +1071,93 @@ class core_upgradelib_testcase extends advanced_testcase {
             $this->assertNull(check_libcurl_version($result));
         }
     }
+
+    /**
+     * Test that upgrade of stored data for "Dropdown menu" customfield is done correctly
+     *
+     * @dataProvider customfield_menu_provider
+     */
+    public function test_upgrade_menu_customfield_info_data($table, $foreignid, $nonformatted, $formatted) {
+        global $DB, $CFG;
+        $this->resetAfterTest();
+
+        require_once($CFG->libdir . '/db/upgradelib.php');
+
+        $user1 = $this->getDataGenerator()->create_user();
+
+        // Create customfield.
+        $menufield = new stdClass();
+        $menufield->shortname = "menu";
+        $menufield->fullname = "The menu";
+        $menufield->hidden = "0";
+        $menufield->locked = "0";
+        $menufield->required = "0";
+        $menufield->forceunique = "0";
+        $menufield->name = "Menu";
+        $menufield->datatype = "menu";
+        $menufield->descriptionformat = "1";
+        $menufield->categoryid = "1";
+        $menufield->sortorder = "1";
+        $menufield->visible = "2";
+        $menufield->param1 = $nonformatted;
+
+        $menufield->typeid = "0"; //Needed by hierachy plugin.
+
+        $menuid = $DB->insert_record($table . '_info_field', $menufield);
+
+        // Create data
+        $data = new stdClass();
+        $data->userid =$user1->id;
+        $data->fieldid = $menuid;
+        $data->data = $formatted;
+        $data->dataformat = 0;
+
+        if (!empty($foreignid)) {
+            $data->$foreignid = "0";
+        }
+
+        $dataid = $DB->insert_record($table . '_info_data', $data);
+
+        upgrade_menu_customfield_info_data($table);
+
+        $newdata = $DB->get_field($table . '_info_data', 'data', ['id' => $dataid]);
+        $this->assertEquals($nonformatted, $newdata);
+    }
+
+    /**
+     * Data provider for test_upgrade_menu_user_info_data
+     * @return array
+     */
+    public function customfield_menu_provider() {
+        $tables = [
+            ['user', ''],
+            ['prog', 'programid'],
+            ['pos_type', 'positionid'],
+            ['org_type', 'organisationid'],
+            ['goal_user', 'goal_userid'],
+            ['goal_type', 'goalid'],
+            ['facetoface_signup', 'facetofacesignupid'],
+            ['facetoface_session', 'facetofacesessionid'],
+            ['facetoface_cancellation', 'facetofacecancellationid'],
+            ['course', 'courseid'],
+            ['comp_type', 'competencyid']
+        ];
+        $items = [
+            ["A&B", "A&amp;B"],
+            ["C & D", "C &amp; D"],
+            ["text < term", "text &lt; term"],
+            ["text &lt; term", "text &lt; term"],
+            ["test < data >", "test &lt; data &gt;"],
+            ["\"Quotes\"", "\"Quotes\""],
+            ["‡ ¥ £¢", "‡ ¥ £¢"],
+            ["%Percent% %", "%Percent% %"]
+        ];
+        $result = [];
+        foreach ($tables as $table) {
+            foreach ($items as $item) {
+                $result[] = array_merge($table, $item);
+            }
+        }
+        return $result;
+    }
 }

@@ -4689,5 +4689,13 @@ function xmldb_main_upgrade($oldversion) {
         upgrade_main_savepoint(true, 2015111606.02);
     }
 
+    if ($oldversion < 2015111610.01) {
+
+        upgrade_menu_customfield_info_data('user');
+
+        // Main savepoint reached.
+        upgrade_main_savepoint(true, 2015111610.01);
+    }
+
     return true;
 }

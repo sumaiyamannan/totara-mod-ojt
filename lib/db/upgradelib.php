@@ -853,3 +853,34 @@ function upgrade_standardise_score($rawgrade, $sourcemin, $sourcemax, $targetmin
     $standardisedvalue = $factor * $diff + $targetmin;
     return $standardisedvalue;
 }
+
+/**
+ * User profile fields with type "menu" stored incorrect formatted values in database instead of raw values which makes
+ * them non-searchable.
+ * This function will fix some simple cases of formatted values. However, fields formatted by filters (e.g. multilang)
+ * will not be fixed.
+ * @param string $tablebase custom field table base name (without _info_data)
+ */
+function upgrade_menu_customfield_info_data($tablebase) {
+    global $DB;
+    $dbman = $DB->get_manager();
+    if (!$dbman->table_exists($tablebase . '_info_field') || !$dbman->table_exists($tablebase . '_info_data')) {
+        return;
+    }
+    // We cannot use format_string during upgrade, so reimplement core functionality of it here.
+    $menufields = $DB->get_records($tablebase . '_info_field', array('datatype' => 'menu'));
+    foreach ($menufields as $menufield) {
+        // Get formatted options.
+        $options = explode("\n", $menufield->param1);
+        foreach ($options as $option) {
+            $ampersands = preg_replace("/\&(?![a-zA-Z0-9#]{1,8};)/", "&amp;", $option);
+            $formatted = str_replace(array('<', '>'), array('&lt;', '&gt;'), strip_tags($ampersands));
+
+            if ($formatted != $option) {
+                // Update them with non-formatted options
+                $sql = 'UPDATE {' . $tablebase . '_info_data} SET data = :raw WHERE data = :formatted AND fieldid = :fieldid';
+                $DB->execute($sql, array('raw' => $option, 'formatted' => $formatted, 'fieldid' => $menufield->id));
+            }
+        }
+    }
+}
