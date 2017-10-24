@@ -272,7 +272,8 @@ function totara_site_version_tracking() {
 
     //Params for JS
     $totara_version = $TOTARA->version;
-    $major_version = substr($TOTARA->version, 0, 3);
+    preg_match('/^\d+/', $TOTARA->version, $matches);
+    $major_version = $matches[0];
     $siteurl = parse_url($CFG->wwwroot);
     if (!empty($siteurl['scheme'])) {
         $protocol = $siteurl['scheme'];
