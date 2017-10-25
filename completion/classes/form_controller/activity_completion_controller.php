@@ -21,13 +21,13 @@
  * @package core_completion
  */
 
-namespace core_completion\form_controllers;
+namespace core_completion\form_controller;
 
 use totara_form\form_controller;
-use core_completion\forms\activity_completion;
+use core_completion\form\activity_completion;
 
 /**
- * Base class for form controllers.
+ * Base class for form controller.
  *
  * @package   core_completion
  * @copyright 2017 Totara Learning Solutions Ltd {@link http://www.totaralms.com/}

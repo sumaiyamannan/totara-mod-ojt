@@ -327,7 +327,7 @@ function self_completion_form($cmorid, $course = null) {
 
     $cmdata = $completion->get_data($cm);
 
-    $form = new \core_completion\forms\activity_completion([
+    $form = new \core_completion\form\activity_completion([
         'activity_id' => $cm->id,
         'completed' => $cmdata->completionstate
     ]);
