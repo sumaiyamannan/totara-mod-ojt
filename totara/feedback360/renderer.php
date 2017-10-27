@@ -351,7 +351,7 @@ class totara_feedback360_renderer extends plugin_renderer_base {
             $viewstr = html_writer::tag('strong', get_string('viewinguserxfeedback360', 'totara_feedback360', $link));
 
             $header = html_writer::tag('div', $picture . ' ' . $viewstr,
-                array('class' => "plan_box notifymessage", 'id' => 'feedbackhead'));
+                array('class' => "plan_box notifymessage totara-feedback360-head-relative", 'id' => 'feedbackhead'));
         }
 
         return $header;
