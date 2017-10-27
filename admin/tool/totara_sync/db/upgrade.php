@@ -235,5 +235,51 @@ function xmldb_tool_totara_sync_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2016092001, 'tool', 'totara_sync');
     }
 
+
+    if ($oldversion < 2016092002) {
+
+        // Get all current user profile fields to check against.
+        $profilefields = $DB->get_records_menu('user_info_field', array(), '', 'id, shortname');
+
+        // Common like SQL.
+        $namelikesql = $DB->sql_like('name', ':name');
+        $pluginlikesql = $DB->sql_like('plugin', ':plugin');
+
+        // Get all import_customfield_* entries in the config plugins table.
+        $sql = "SELECT * FROM {config_plugins} WHERE $pluginlikesql AND $namelikesql";
+        $params = array('plugin' => 'totara_sync_source_user_%', 'name' => 'import_customfield_%');
+        $import_records = $DB->get_records_sql($sql, $params);
+
+        $invalid = array();
+        foreach ($import_records as $record) {
+            $shortname = substr($record->name, 19); // Trim import_customfield_
+            if (!in_array($shortname, $profilefields)) {
+                $invalid[] = $record;
+            }
+        }
+
+        // We also have to deal with mapping fields.
+        // fieldmapping_customfield_*
+        $sql = "SELECT * FROM {config_plugins} WHERE $pluginlikesql AND $namelikesql";
+        $params = array('plugin' => 'totara_sync_source_user_%', 'name' => 'fieldmapping_customfield_%');
+
+        // Get records
+        $fieldmapping_records = $DB->get_records_sql($sql, $params);
+        foreach ($fieldmapping_records as $record) {
+            $shortname = substr($record->name, 25); // Trim fieldmapping_customfield_
+            if (!in_array($shortname, $profilefields)) {
+                $invalid[] = $record;
+            }
+        }
+
+        // Remove invalid records and we can't do any updating reliably,
+        // these records are orphaned settings and might cause issues.
+        foreach ($invalid as $setting) {
+            unset_config($setting->name, $setting->plugin);
+        }
+
+        upgrade_plugin_savepoint(true, 2016092002, 'tool', 'totara_sync');
+    }
+
     return true;
 }
