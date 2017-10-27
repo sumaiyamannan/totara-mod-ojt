@@ -288,13 +288,6 @@ if ($canapproveanyrequest || !empty($staff)) {
     }
 }
 
-// If no allowed actions so far, check if this was manager who has just approved staff requests (approved == 1).
-// If so, we will be loading the 'approval required' page with a success message.
-if (empty($allowed_actions) && ($approved == 1) && !empty($staff)) {
-    $allowed_actions[] = 'approvalrequired';
-    $available_actions[] = 'approvalrequired';
-}
-
 // Check if we are NOT already showing attendees and the user has staff.
 // If this is true then we need to show attendees but limit it to just those attendees that are also staff.
 if (!in_array('attendees', $allowed_actions) && !empty($staff)) {
@@ -335,9 +328,16 @@ if (!in_array('cancellations', $allowed_actions) && !empty($staff)) {
 
 $can_view_session = !empty($allowed_actions);
 if (!$can_view_session) {
-    $return = new moodle_url('/mod/facetoface/view.php', array('f' => $facetoface->id));
-    redirect($return);
-    die();
+    // If no allowed actions so far, check if this was user/manager who has just approved staff requests (approved == 1).
+    if ($action == 'approvalrequired' && $approved == '1') {
+        // If so, do not redirect, just display notify message.
+        // Hide "Go back" link for case user does not have any capabilities to see facetoface/course.
+        $backtoallsessions = false;
+    } else {
+        $return = new moodle_url('/mod/facetoface/view.php', array('f' => $facetoface->id));
+        redirect($return);
+        die();
+    }
 }
 
 /***************************************************************************
@@ -1341,10 +1341,8 @@ if ($action == 'approvalrequired') {
 // Go back.
 if ($backtoallsessions) {
     $url = new moodle_url('/mod/facetoface/view.php', array('f' => $facetoface->id));
-} else {
-    $url = new moodle_url('/course/view.php', array('id' => $course->id));
+    echo html_writer::link($url, get_string('goback', 'facetoface')) . html_writer::end_tag('p');
 }
-echo html_writer::link($url, get_string('goback', 'facetoface')) . html_writer::end_tag('p');
 
 /**
  * Print page footer
