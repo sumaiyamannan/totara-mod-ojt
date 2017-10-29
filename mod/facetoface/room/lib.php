@@ -164,6 +164,8 @@ function facetoface_process_room_form($room, $facetoface, $session, callable $su
             } else {
                 $todb->custom = 1;
             }
+        } else {
+            $todb->custom = $room->custom;
         }
         // NOTE: usually the time created and updated are set to the same value when adding new items,
         //       do the same here and later compare timestamps to find out if it was not updated yet.
