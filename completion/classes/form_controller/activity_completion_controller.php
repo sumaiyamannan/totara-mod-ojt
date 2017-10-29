@@ -21,13 +21,13 @@
  * @package core_completion
  */
 
-namespace core_completion\form_controllers;
+namespace core_completion\form_controller;
 
 use totara_form\form_controller;
-use core_completion\forms\activity_completion;
+use core_completion\form\activity_completion;
 
 /**
- * Base class for form controllers.
+ * Base class for form controller.
  *
  * @package   core_completion
  * @copyright 2017 Totara Learning Solutions Ltd {@link http://www.totaralms.com/}
@@ -35,7 +35,6 @@ use core_completion\forms\activity_completion;
  * @author    Brian Barnes <brian.barnes@totaralearning.com>
  */
 class activity_completion_controller extends form_controller {
-
 
     /** @var activity_completion $form */
     protected $form;
@@ -70,20 +69,48 @@ class activity_completion_controller extends form_controller {
     /**
      * Process the submitted form.
      *
+     * @throws \moodle_exception for all error, generic error as it should not happen. Actual error info in debuginfo.
      * @return array processed data
      */
     public function process_ajax_data() {
-        global $USER, $DB;
-        $result = array();
-        $result['data'] = (array)$this->form->get_data();
 
-        //do something with $USER->id & $result['data']['activityid']
-        $cm = get_coursemodule_from_id(null, $result['data']['activity_id'], null, true, MUST_EXIST);
-        $course = $DB->get_record('course', array('id' => $cm->course), '*', MUST_EXIST);
+        require_login();
+        require_sesskey(); // This is done in the receiving class, but to be extremely clear!
+        if (isguestuser()) {
+            throw new \moodle_exception('error', 'error', '', null, 'Guest users cannot mark completion.');
+        }
 
+        $data = (array)$this->form->get_data();
+
+        list($course, $cm) = get_course_and_cm_from_cmid($data['activity_id']);
+
+        // Check completion is enabled.
         $completion = new \completion_info($course);
-        $completion->update_state($cm, $result['data']['completed'], $USER->id);
+        if (!$completion->is_enabled()) {
+            // Completion is not enabled. No point in going further.
+            throw new \moodle_exception('error', 'error', '', null, 'Completion is not enabled in this course.');
+        }
 
+        // Check the module supports manual completion.
+        if ($cm->completion != COMPLETION_TRACKING_MANUAL) {
+            throw new \moodle_exception('error', 'error', '', null, 'This activity is not using manual completion.');
+        }
+
+        // Check the user can see the module.
+        if (!$cm->uservisible) {
+            throw new \moodle_exception('error', 'error', '', null, 'This activity is not visible to the user.');
+        }
+
+        $newstate = $data['completed'];
+        if (!in_array($newstate, [COMPLETION_COMPLETE, COMPLETION_COMPLETE_PASS, COMPLETION_COMPLETE_FAIL, COMPLETION_INCOMPLETE])) {
+            throw new \moodle_exception('error', 'error', '', null, 'Invalid completion state selected.');
+        }
+
+        // Finally update the state.
+        $completion->update_state($cm, $newstate);
+
+        $result = array();
+        $result['data'] = $data;
         return $result;
     }
 }

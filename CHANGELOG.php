@@ -3,6 +3,131 @@
 
 Totara LMS Changelog
 
+Release 9.12 (27th October 2017):
+=================================
+
+
+Important:
+
+    TL-16313       Release packages are now provided through https://subscriptions.totara.community/
+
+                   Release packages are no longer being provided through FetchApp, and can now
+                   be accessed through our new Subscription system at
+                   https://subscriptions.totara.community/.
+
+                   If you experience any problems accessing packages through this system
+                   please open a support request and let us know.
+
+                   Please note that SHA1 checksums for previous Evergreen releases will be
+                   different from those provided in the changelog notes at the time of
+                   release.
+                   The reason for this is that we changed the name of the root directory
+                   within the package archives to ensure it is consistent across all products.
+
+Security issues:
+
+    TL-12466       Corrected access restrictions on 360° Feedback files
+
+                   Previously, users may have been able to access 360° Feedback files when
+                   they did not have access to the corresponding 360° Feedback itself. This
+                   will have included users who were not logged in. To do this, the user would
+                   have needed to correctly guess the URL for the file. The access
+                   restrictions on these files have now been fixed.
+
+Performance improvement:
+
+    TL-16161       Reduced load times for the course and category management page when using audience visibility
+
+Improvements:
+
+    TL-11296       Added accessible text when creating/editing profile fields and categories
+    TL-15835       Made some minor improvements to program and certification completion editors
+
+                   Changes included:
+                    * Improved formatting of date strings in the transaction interface and
+                   logs.
+                    * Fixed some inaccurate error messages when faults might occur.
+                    * The program completion editor will now correctly default to the
+                   "invalid" state when there is a problem with the record.
+
+    TL-16381       The new release notification was updated to use new end point
+
+Bug fixes:
+
+    TL-15846       Removed an incorrectly displayed sidebar report filters dropdown from the Basis theme
+    TL-15885       Fixed Navigation block problems with course visibility
+    TL-15923       Fixed duplicate calendar records for Seminar wait-list user calendar
+    TL-15932       Fixed problem of SCORM window size cutting off content
+    TL-15988       Prevented autofill of non-login passwords in Chrome
+    TL-15997       Fixed saving of new/changed Seminar direct enrolment custom fields
+    TL-16124       Fixed Seminar booking confirmation sent to manager when no approval required
+    TL-16163       Your progress text no longer is displayed on top of the user menu
+    TL-16212       Fixed issue where self completion from within a certificate activity may complete a different activity
+    TL-16215       Role assignments granted through the enrol_cohort plugin are now deleted if the plugin is disabled
+
+                   Previously when the cohort enrolment plugin instance was disabled, the
+                   roles for the affected users were not deleted from the {{role_assignments
+                   table}} even though the log messages seemed to indicate this was the case.
+                   This has been corrected with this patch.
+
+                   Note the deletion behavior has always been correct in the original code
+                   when the cohort enrolment plugin itself was disabled, However, it needs the
+                   cohort enrolment task to be run first (every hour by default) to physically
+                   delete the records from the table.
+
+    TL-16223       Fixed a typo in the "cancellationcutoff" session variable
+    TL-16224       Prevented orphaned program exceptions from occurring
+
+                   It was possible for program and certification exceptions to become orphaned
+                   - no exception showed in the "Exception report" tab, but users were
+                   treated as having an exception and were being prevented from progressing.
+                   The cause of this problem has now been fixed. After upgrade, use the
+                   program and certification completion checkers to identify any records in
+                   this state and fix them using one of the two available automated fixes
+                   (which were added in TL-15891, in the previous release of Totara).
+
+    TL-16237       Fixed upgrade issue when different Seminar notifications have same title
+    TL-16242       Scorm loading placeholders are now displayed correctly in RTL languages
+    TL-16254       Fixed automated course backup not taking audience-based visibility into account
+    TL-16258       Fixed uniqueness checks for certification completion history
+
+                   Certification completion history records should always be a unique
+                   combination of user, certification, expiry date and completion date.
+
+                   Completion import adhered to this rule, however the process of copying a
+                   certification completion to history when the certification window opened
+                   did not take the completion date into account. This led to overwriting of
+                   the completion date if a history record had a matching expiry date but
+                   different completion date. This could also lead to errors during the Update
+                   certifications scheduled task.
+
+                   The correct uniqueness rule has been applied consistently to prevent the
+                   above behaviour.
+
+    TL-16267       Fixed permissions error when accessing SCORM activities as a guest
+    TL-16274       Fixed an issue when updating user Forum preferences when user's username contains uppercase characters
+    TL-16279       Added additional checks when displaying and validating self completion from within an activity
+    TL-16286       Fixed incorrect appraisal status on reassigned users
+    TL-16288       Checkbox and radio options lists no longer have bold input labels
+    TL-16289       Fixed course completion editor link requiring incorrect capability
+
+                   The link no longer requires the 'moodle/course:update' capability. It now
+                   only requires the 'totara/completioneditor:editcoursecompletion'
+                   capability.
+
+    TL-16292       Fixed saving of seminar custom fields for all users
+    TL-16301       Fixed calendar filtering on seminar room fields
+    TL-16392       Fixed namespace of activity completion form
+
+Miscellaneous Moodle fixes:
+
+    TL-16037       MDL-59527: Fixed race condition when using autocomplete forms
+
+Contributions:
+
+    * Nicholas Hoobin at Catalyst AU - TL-16212
+
+
 Release 9.11 (22nd September 2017):
 ===================================
 

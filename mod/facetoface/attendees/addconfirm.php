@@ -118,7 +118,7 @@ if ($fromform = $mform->get_data()) {
         // If we selected ignore approval then change the status.
         $params['approvalreqd'] = $approvalrequired;
         // If approval is required then we need to send a request to their manager.
-        if ($approvalrequired) {
+        if ($approvalreqd) {
             $params['ccmanager'] = 1;
         } else {
             $params['ccmanager'] = $fromform->notifymanager;

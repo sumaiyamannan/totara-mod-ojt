@@ -88,6 +88,12 @@ class block_last_course_accessed extends block_base {
                 LEFT JOIN {course_completions} cc ON c.id = cc.course AND cc.userid = :userid
                 WHERE c.id = :courseid";
         $params = array('courseid' => $courseid, 'userid' => $USER->id, 'contextlevel' => CONTEXT_COURSE);
+
+        // Get visibility sql for the courses the user can view.
+        list($visibilitysql, $visibilityparams) = totara_visibility_where($USER->id, 'c.id', 'c.visible', 'c.audiencevisible');
+        $sql .= " AND {$visibilitysql} ";
+        $params = array_merge($params, $visibilityparams);
+
         $course = $DB->get_record_sql($sql, $params);
 
         if (!$course) {

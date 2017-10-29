@@ -53,7 +53,7 @@ if ($progid) {
     $program = new program($progid);
     $programcontext = $program->get_context();
     if (!has_capability('totara/program:editcompletion', $programcontext)) {
-        get_string('error:impossibledatasubmitted', 'totara_program');
+        print_error('error:impossibledatasubmitted', 'totara_program');
     }
     if ($progorcert == 'certification' && empty($program->certifid) || $progorcert == 'program' && !empty($program->certifid)) {
         print_error('error:impossibledatasubmitted', 'totara_program');

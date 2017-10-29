@@ -3800,14 +3800,18 @@ class settings_navigation extends navigation_node {
                 // TOTARA CHANGE - manual archive course completions link.
                 $url = new moodle_url('/course/archivecompletions.php', array('id' => $course->id));
                 $coursenode->add(get_string('archivecompletions', 'completion'), $url, self::TYPE_SETTING, null, null, new pix_icon('i/settings', ''));
-
-                // TOTARA CHANGE - course completion editor.
-                if (has_capability('totara/completioneditor:editcoursecompletion', $coursecontext)) {
-                    $url = new moodle_url('/totara/completioneditor/course_completion.php', array('courseid' => $course->id));
-                    $coursenode->add(get_string('coursecompletioneditor', 'totara_completioneditor'), $url, self::TYPE_SETTING, null, null, new pix_icon('i/settings', ''));
-                }
             }
+        }
 
+        // TOTARA CHANGE - course completion editor.
+        if ($CFG->enablecompletion && $course->enablecompletion) {
+            if (has_capability('totara/completioneditor:editcoursecompletion', $coursecontext)) {
+                $url = new moodle_url('/totara/completioneditor/course_completion.php', array('courseid' => $course->id));
+                $coursenode->add(get_string('coursecompletioneditor', 'totara_completioneditor'), $url, self::TYPE_SETTING, null, null, new pix_icon('i/settings', ''));
+            }
+        }
+
+        if (has_capability('moodle/course:update', $coursecontext)) {
             if (totara_feature_visible('competencies')) {
                 // Add the course competencies link.
                 $url = new moodle_url('/course/competency.php', array('id' => $course->id));

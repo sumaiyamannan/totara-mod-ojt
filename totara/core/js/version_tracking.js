@@ -58,7 +58,7 @@ M.totara_version_tracking = M.totara_version_tracking || {
         }
 
         $.ajax({
-            url: 'https://totara.community/admin/current_release.php',
+            url: 'https://login.totara.community/local/login/current_release.php',
             dataType: 'jsonp',
             data: {'version': this.config.totara_version},
             jsonp: 'jsonp_callback',

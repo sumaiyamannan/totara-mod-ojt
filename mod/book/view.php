@@ -202,7 +202,7 @@ book_view($book, $chapter, $islastchapter, $course, $cm, $context);
 echo $OUTPUT->header();
 echo $OUTPUT->heading(format_string($book->name));
 
-echo self_completion_form($cm);
+echo self_completion_form($cm, $course);
 
 $navclasses = book_get_nav_classes();
 

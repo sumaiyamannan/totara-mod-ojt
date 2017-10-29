@@ -260,7 +260,8 @@ $string['error:statewindowopen-timewindowopensempty'] = 'Window open date should
 $string['error:statewindowopen-timewindowopenstimecompletednotordered'] = 'Window open date must be after Completion date when user is certified and recertification window is open.';
 $string['error:timeexpiresbeforetimecompleted'] = 'Expiry date must be after completion date';
 $string['error:unassignedcertifcompletion'] = 'Completion exists for unassigned user';
-$string['error:updatinginvalidcompletionrecords'] = 'Call to certif_update_completion with completion records that do not match each other or the existing records';
+$string['error:updatinginvalidcompletionrecords'] = 'Call to certif_write_completion with completion records that do not match each other or the existing records';
+$string['error:updatinginvalidcompletionhistoryrecord'] = 'Call to certif_write_completion_history with completion record that does not match the existing record';
 $string['error:useralreadyassigned'] = 'user already assigned for certifid={$a->certifid} userid={$a->userid}';
 $string['error:validationfailureassign'] = 'user assignment validation failure(s) while attemping to assign userid={$a->userid} to certifid={$a->certifid}';
 $string['eventcompletionhistoryadded'] = 'Certification completion history added';

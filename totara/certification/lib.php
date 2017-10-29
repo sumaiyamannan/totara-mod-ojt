@@ -564,6 +564,8 @@ function certification_fix_missing_certif_completions() {
         prog_update_completion($missingcertif->userid, $programs[$missingcertif->progid]);
     }
 
+    $missingcertifs->close();
+
     return $missingcount;
 }
 
@@ -702,7 +704,11 @@ function copy_certif_completion_to_hist($certificationid, $userid, $unassigned =
     $certificationcompletion->timemodified = time();
     $certificationcompletion->unassigned = $unassigned;
     $completionhistory = $DB->get_record('certif_completion_history',
-            array('certifid' => $certificationid, 'userid' => $userid, 'timeexpires' => $certificationcompletion->timeexpires));
+            array(
+                'certifid'      => $certificationid,
+                'userid'        => $userid,
+                'timeexpires'   => $certificationcompletion->timeexpires,
+                'timecompleted' => $certificationcompletion->timecompleted));
 
     if ($completionhistory) {
         $certificationcompletion->id = $completionhistory->id;
@@ -1971,7 +1977,7 @@ function certif_process_submitted_edit_completion_history($submitted) {
  * @param int $originalstate CERTIFCOMPLETIONSTATE_XXXX
  * @param int $newstate CERTIFCOMPLETIONSTATE_XXX
  * @param object $newcertcompletion like a record in certif_completion (not all fields are required)
- * @return array
+ * @return array(array $userresults, array $cronresults)
  */
 function certif_get_completion_change_consequences($originalstate, $newstate, $newcertcompletion) {
     $userresults = array();
@@ -2874,14 +2880,14 @@ function certif_write_completion_history($certcomplhistory, $message = '') {
 
     // Ensure the history record matches the database records.
     if ($isinsert) {
-        $sql = "SELECT cch.id
-                  FROM {certif_completion_history} cch
-                 WHERE cch.certifid = :certifid AND cch.userid = :userid AND cch.timeexpires = :timeexpires";
-        $params = array('certifid' => $certcomplhistory->certifid, 'userid' => $certcomplhistory->userid,
-            'timeexpires' => $certcomplhistory->timeexpires);
-        $history = $DB->get_record_sql($sql, $params);
-        if (!empty($history)) {
-            print_error(get_string('error:updatinginvalidcompletionrecords', 'totara_certification'));
+        $historyexists = $DB->record_exists('certif_completion_history', array(
+            'certifid' => $certcomplhistory->certifid,
+            'userid' => $certcomplhistory->userid,
+            'timeexpires' => $certcomplhistory->timeexpires,
+            'timecompleted' => $certcomplhistory->timecompleted
+        ));
+        if ($historyexists) {
+            print_error(get_string('error:updatinginvalidcompletionhistoryrecord', 'totara_certification'));
         };
         if (empty($message)) {
             $message = "Completion history created";
@@ -2893,7 +2899,7 @@ function certif_write_completion_history($certcomplhistory, $message = '') {
         $params = array('ccid' => $certcomplhistory->id, 'userid' => $certcomplhistory->userid,
             'certifid' => $certcomplhistory->certifid);
         if (!$DB->record_exists_sql($sql, $params)) {
-            print_error(get_string('error:updatinginvalidcompletionrecords', 'totara_certification'));
+            print_error(get_string('error:updatinginvalidcompletionhistoryrecord', 'totara_certification'));
         };
     }
 
@@ -3251,7 +3257,7 @@ function certif_write_completion_log($programid, $userid, $message = '', $change
 }
 
 /**
- * Calculate the description string for a certification completion history log message.
+ * Calculate the description string for a certification completion log message.
  *
  * @param stdClass $certcompletion
  * @param stdClass $progcompletion

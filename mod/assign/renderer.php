@@ -230,8 +230,8 @@ class mod_assign_renderer extends plugin_renderer_base {
         $heading = format_string($header->assign->name, false, array('context' => $header->context));
         $o .= $this->output->heading($heading);
 
-        list($course, $cm) = get_course_and_cm_from_cmid($header->coursemoduleid, 'assign');
-        $o .= self_completion_form($cm);
+        list($course, $cm) = get_course_and_cm_from_cmid($header->coursemoduleid);
+        $o .= self_completion_form($header->coursemoduleid, $course);
 
         if ($header->preface) {
             $o .= $header->preface;

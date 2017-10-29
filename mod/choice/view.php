@@ -93,7 +93,7 @@ choice_view($choice, $course, $cm, $context);
 echo $OUTPUT->header();
 echo $OUTPUT->heading(format_string($choice->name), 2, null);
 
-echo self_completion_form($cm);
+echo self_completion_form($cm, $course);
 
 if ($notify and confirm_sesskey()) {
     if ($notify === 'choicesaved') {

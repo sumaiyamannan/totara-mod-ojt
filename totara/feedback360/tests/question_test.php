@@ -167,9 +167,9 @@ class feedback360_question_test extends feedback360_testcase {
         $this->assertTrue($question->user_can_view($response->id, $assigneduser->id));
         // Check user responder can view.
         $this->assertTrue($question->user_can_view($response->id, $respuser->id));
-        // Check email responder can view.
+        // Make sure that it ignores email assignments as a token is needed to authenticate.
         $guest = guest_user();
-        $this->assertTrue($question->user_can_view($emailresponse->id, $guest->id));
+        $this->assertFalse($question->user_can_view($emailresponse->id, $guest->id));
         // Check other user cannot view.
         $this->assertFalse($question->user_can_view($response->id, $otheruser->id));
         $this->assertFalse($question->user_can_view($response->id, $otheruser2->id));

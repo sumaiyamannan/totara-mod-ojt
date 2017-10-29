@@ -49,6 +49,8 @@ if (!$isexternaluser) {
 // Get response assignment object, and check who is viewing the page.
 $viewasown = false;
 if ($isexternaluser) {
+    // This is a hack to get around authenticating anonymous users when viewing files in feeback360.
+    $SESSION->totara_feedback360_usertoken = $token;
     // Get the user's email address from the token.
     $email = $DB->get_field('feedback360_email_assignment', 'email', array('token' => $token));
     $respassignment = feedback360_responder::by_email($email, $token);

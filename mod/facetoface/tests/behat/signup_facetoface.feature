@@ -8,10 +8,11 @@ Feature: Sign up to a seminar
   Background:
     Given I am on a totara site
     And the following "users" exist:
-      | username | firstname | lastname | email               |
-      | teacher1 | Terry1    | Teacher1 | teacher1@moodle.com |
-      | student1 | Sam1      | Student1 | student1@moodle.com |
-      | student2 | Sam2      | Student2 | student2@moodle.com |
+      | username | firstname | lastname | email                |
+      | teacher1 | Terry1    | Teacher1 | teacher1@example.com |
+      | student1 | Sam1      | Student1 | student1@example.com |
+      | student2 | Sam2      | Student2 | student2@example.com |
+      | student3 | Sam3      | Student3 | student3@example.com |
     And the following "courses" exist:
       | fullname | shortname | category |
       | Course 1 | C1        | 0        |
@@ -422,3 +423,99 @@ Feature: Sign up to a seminar
     And I should see "Monkey" in the "//div[@aria-hidden='false' and @class='moodle-dialogue-base']" "xpath_element"
     And I should see "http://totaralms.com" in the "//div[@aria-hidden='false' and @class='moodle-dialogue-base']" "xpath_element"
     And I should see the "Green leaves on customfield text area" image in the "//div[@aria-hidden='false' and @class='moodle-dialogue-base']" "xpath_element"
+
+  Scenario: bulk adding and removing attendees saves custom field data for all users
+    When I log in as "admin"
+    And I navigate to "Custom fields" node in "Site administration > Seminars"
+
+    # Add a signup custom field.
+    And I click on "Sign-up" "link"
+    When I set the field "datatype" to "Menu of choices"
+    And I set the following fields to these values:
+      | fullname           | Signup input |
+      | shortname          | signupinput  |
+      | defaultdata        | Bananas      |
+    And I set the field "Menu options (one per line)" to multiline:
+      """
+      Apples
+      Bananas
+      Carrots
+      Dates
+      """
+    And I press "Save changes"
+    Then I should see "Signup input"
+
+    # Add a cancellation custom fields.
+    When I click on "User cancellation" "link"
+    When I set the field "datatype" to "Menu of choices"
+    And I set the following fields to these values:
+      | fullname    | User cancellation input |
+      | shortname   | cancellationmenu        |
+      | defaultdata | Two                     |
+    And I set the field "Menu options (one per line)" to multiline:
+      """
+      One
+      Two
+      Three
+      Four
+      """
+    And I press "Save changes"
+    Then I should see "User cancellation input"
+
+    When I log out
+    And I log in as "teacher1"
+    And I click on "Find Learning" in the totara menu
+    And I follow "Course 1"
+    And I follow "Test seminar name"
+    And I follow "Attendees"
+    And I set the field "menuf2f-actions" to "Add users"
+    And I wait "1" seconds
+    And I click on "Sam1 Student1, student1@example.com" "option"
+    And I click on "Sam2 Student2, student2@example.com" "option"
+    And I click on "Sam3 Student3, student3@example.com" "option"
+    And I press "Add"
+    And I wait "1" seconds
+    And I press "Continue"
+    And I set the following fields to these values:
+      | Signup input | Apples |
+    And I press "Confirm"
+    Then I should see "Sam1 Student1" in the "#facetoface_sessions" "css_element"
+    And I should see "Sam2 Student2" in the "#facetoface_sessions" "css_element"
+    And I should see "Sam3 Student3" in the "#facetoface_sessions" "css_element"
+
+    When I set the field "menuf2f-actions" to "Remove users"
+    And I wait "1" seconds
+    And I click on "Sam1 Student1, student1@example.com" "option"
+    And I click on "Sam2 Student2, student2@example.com" "option"
+    And I click on "Sam3 Student3, student3@example.com" "option"
+    And I press "Remove"
+    And I wait "1" seconds
+    And I press "Continue"
+    And I set the following fields to these values:
+      | User cancellation input | Three |
+    And I press "Confirm"
+    Then "#facetoface_sessions" "css_element" should not exist
+    And I should not see "Sam1 Student1"
+    And I should not see "Sam2 Student2"
+    And I should not see "Sam3 Student3"
+
+    When I log out
+    And I log in as "admin"
+    And I navigate to "Manage reports" node in "Site administration > Reports > Report builder"
+    And I set the following fields to these values:
+      | Report Name | Seminar signup report |
+      | Source      | Seminar Sign-ups      |
+    And I press "Create report"
+    And I switch to "Columns" tab
+    And I change the "Session Start" column to "Signup input" in the report
+    And I set the field "newcolumns" to "User cancellation input"
+    And I press "Add"
+    And I press "Save changes"
+    Then I should see "Columns updated"
+
+    When I follow "View This Report"
+    Then the following should exist in the "reportbuilder-table" table:
+      | User's Fullname | Course Name | Signup input | User cancellation input |
+      | Sam1 Student1   | Course 1    | Apples       | Three                   |
+      | Sam2 Student2   | Course 1    | Apples       | Three                   |
+      | Sam3 Student3   | Course 1    | Apples       | Three                   |

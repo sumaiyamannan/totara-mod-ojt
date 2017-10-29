@@ -79,6 +79,22 @@ class behat_totara_reportbuilder extends behat_base {
     }
 
     /**
+     * Changes a report builder column from one to another.
+     *
+     * @When /^I change the "([^"]*)" column to "([^"]*)" in the report$/
+     */
+    public function i_change_the_column_to_in_the_report($original_column, $new_column) {
+        $column_xpath = behat_context_helper::escape($original_column);
+        $xpath = '//select[@class="column_selector"]//option[contains(.,' . $column_xpath . ') and @selected]/ancestor::select';
+        $node = $this->find(
+            'xpath',
+            $xpath,
+            new ExpectationException('The column ' . $original_column .  ' could not be found within the report builder report. ' . $xpath, $this->getSession())
+        );
+        $node->selectOption($new_column);
+    }
+
+    /**
      * Confirms the the given value exists in the report for the given row+column.
      *
      * @Then /^I should see "([^"]*)" in the "([^"]*)" report column for "([^"]*)"$/

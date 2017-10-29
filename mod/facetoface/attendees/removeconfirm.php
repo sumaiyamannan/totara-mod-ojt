@@ -95,6 +95,7 @@ if ($fromform = $mform->get_data()) {
     $users = $mform->get_user_list($userlist);
     $attendeestoremove = array_intersect_key($original, $users);
     if (!empty($attendeestoremove)) {
+        $clonefromform = serialize($fromform);
         foreach ($attendeestoremove as $attendee) {
             $result = array();
             $result['id'] = $attendee->id;
@@ -114,6 +115,8 @@ if ($fromform = $mform->get_data()) {
                 $customdata = $list->has_user_data() ? (object)$list->get_user_data($attendee->id) : $fromform;
                 $customdata->id = $signupstatus->submissionid;
                 customfield_save_data($customdata, 'facetofacecancellation', 'facetoface_cancellation');
+                // Values of multi-select are changing after edit_save_data func.
+                $fromform = unserialize($clonefromform);
 
                 $result['result'] = get_string('removedsuccessfully', 'facetoface');
                 $removed[] = $result;

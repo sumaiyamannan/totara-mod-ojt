@@ -2471,7 +2471,7 @@ class admin_setting_configpasswordunmask extends admin_setting_configtext {
 //<![CDATA[
 var is_ie = (navigator.userAgent.toLowerCase().indexOf("msie") != -1);
 
-document.getElementById("'.$id.'").setAttribute("autocomplete", "off");
+document.getElementById("'.$id.'").setAttribute("autocomplete", "none");
 
 var unmaskdiv = document.getElementById("'.$id.'unmaskdiv");
 

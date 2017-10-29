@@ -3892,4 +3892,270 @@ class totara_certification_lib_testcase extends reportcache_advanced_testcase {
 
         $this->assertEquals($this->numtestusers * $this->numtestcerts, $totalcount); // Excludes progs.
     }
+
+    /**
+     * Creates a certif_completion record for the user and certification we are testing on,
+     * as well as for a different user and another again for a different certification.
+     *
+     * Checks we only copy the certif_completion record that we specified the user and certification for.
+     *
+     * @return stdClass containing the data in the original certif_completion record that we
+     *    are copying to history.
+     */
+    public function test_copy_certif_completion_to_hist_selects_correct_user_cert() {
+        global $DB;
+        $this->resetAfterTest(false);
+
+        /* @var totara_program_generator $programgenerator */
+        $programgenerator = $this->getDataGenerator()->get_plugin_generator('totara_program');
+        $certification1 = new program($programgenerator->create_certification());
+        $certification2 = new program($programgenerator->create_certification());
+
+        // We'll clone this object and vary it to get a variation of history records.
+        $originalcompletion = new stdClass();
+        $originalcompletion->certifid = $certification1->certifid;
+        $originalcompletion->userid = $this->getDataGenerator()->create_user()->id;
+        $originalcompletion->certifpath = CERTIFPATH_RECERT;
+        $originalcompletion->status = CERTIFSTATUS_COMPLETED;
+        $originalcompletion->renewalstatus = CERTIFRENEWALSTATUS_NOTDUE;
+        $originalcompletion->timewindowopens = 1000;
+        $originalcompletion->timeexpires = 1500;
+        $originalcompletion->timecompleted = 500;
+        $originalcompletion->timemodified = time();
+        $DB->insert_record('certif_completion', $originalcompletion);
+
+        $cert2_user1 = clone $originalcompletion;
+        $cert2_user1->certifid = $certification2->certifid;
+        $DB->insert_record('certif_completion', $cert2_user1);
+
+        $cert1_user2 = clone $originalcompletion;
+        $cert1_user2->userid = $this->getDataGenerator()->create_user()->id;
+        $DB->insert_record('certif_completion', $cert1_user2);
+
+        copy_certif_completion_to_hist($originalcompletion->certifid, $originalcompletion->userid);
+
+        $this->assertEquals(1, $DB->count_records('certif_completion_history'));
+        $this->assertTrue($DB->record_exists('certif_completion_history',
+            array('certifid' => $originalcompletion->certifid, 'userid' => $originalcompletion->userid)));
+
+        // The certif_completion record that gets copied is not deleted by copy_certif_completion_to_hist().
+        $this->assertTrue($DB->record_exists('certif_completion',
+            array('certifid' => $originalcompletion->certifid, 'userid' => $originalcompletion->userid)));
+
+        return $originalcompletion;
+    }
+
+    /**
+     * Try copying the same certif_completion record to history as we did in the last test.
+     *
+     * The history record should NOT be duplicated.
+     *
+     * @depends test_copy_certif_completion_to_hist_selects_correct_user_cert
+     */
+    public function test_copy_certif_completion_to_hist_no_change_with_duplicate($originalcompletion) {
+        global $DB;
+        $this->resetAfterTest(false);
+
+        copy_certif_completion_to_hist($originalcompletion->certifid, $originalcompletion->userid);
+        $this->assertEquals(1, $DB->count_records('certif_completion_history'));
+    }
+
+    /**
+     * Change the timewindowopens value in the certif_completion record.
+     *
+     * This should not create a new record but simply update the existing history record.
+     *
+     * @depends test_copy_certif_completion_to_hist_selects_correct_user_cert
+     */
+    public function test_copy_certif_completion_to_hist_only_windowopen_is_different($originalcompletion) {
+        global $DB;
+        $this->resetAfterTest(false);
+
+        $differentwindowopen = $originalcompletion->timewindowopens + 100;
+
+        $DB->set_field('certif_completion', 'timewindowopens', $differentwindowopen,
+            array('certifid' => $originalcompletion->certifid, 'userid' => $originalcompletion->userid));
+
+        copy_certif_completion_to_hist($originalcompletion->certifid, $originalcompletion->userid);
+
+        // There should still be 1 record which was updated with the new timewindowopens.
+        $this->assertEquals(1, $DB->count_records('certif_completion_history'));
+        $this->assertTrue($DB->record_exists('certif_completion_history',
+            array('timewindowopens' => $differentwindowopen)));
+    }
+
+    /**
+     * Change the timecompleted value in the certif_completion record.
+     *
+     * Copying this creates a new history record and leaves the other as is.
+     *
+     * @depends test_copy_certif_completion_to_hist_selects_correct_user_cert
+     * @return int The new timecompleted value
+     */
+    public function test_copy_certif_completion_to_hist_only_timecompleted_is_different($originalcompletion) {
+        global $DB;
+        $this->resetAfterTest(false);
+
+        $differenttimecompleted = $originalcompletion->timecompleted + 100;
+
+        $DB->set_field('certif_completion', 'timecompleted', $differenttimecompleted,
+            array('certifid' => $originalcompletion->certifid, 'userid' => $originalcompletion->userid));
+
+        copy_certif_completion_to_hist($originalcompletion->certifid, $originalcompletion->userid);
+
+        // There should be a new record which contains the new timecompleted. The old record should still have it's
+        // original timecompleted.
+        $this->assertEquals(2, $DB->count_records('certif_completion_history'));
+        $this->assertTrue($DB->record_exists('certif_completion_history',
+            array('timecompleted' => $originalcompletion->timecompleted)));
+        $this->assertTrue($DB->record_exists('certif_completion_history',
+            array('timecompleted' => $differenttimecompleted)));
+
+        return $differenttimecompleted;
+    }
+
+    /**
+     * Now change the timeexpires as well.
+     *
+     * The 2 existing history records should remain unchanged. A third is created to contain the different expiry date.
+     *
+     * @depends test_copy_certif_completion_to_hist_selects_correct_user_cert
+     * @depends test_copy_certif_completion_to_hist_only_timecompleted_is_different
+     */
+    public function test_copy_certif_completion_to_hist_only_timeexpires_is_different($originalcompletion, $differenttimecompleted) {
+        global $DB;
+        $this->resetAfterTest(true);
+
+        $differenttimeexpires = $originalcompletion->timeexpires + 100;
+
+        $DB->set_field('certif_completion', 'timeexpires', $differenttimeexpires,
+            array('certifid' => $originalcompletion->certifid, 'userid' => $originalcompletion->userid));
+
+        copy_certif_completion_to_hist($originalcompletion->certifid, $originalcompletion->userid);
+
+        // There should be a new record which contains the new timeexpires.
+        // The first 2 records should contain their original values.
+        $this->assertEquals(3, $DB->count_records('certif_completion_history'));
+        $this->assertTrue($DB->record_exists('certif_completion_history',
+            array('timecompleted' => $originalcompletion->timecompleted, 'timeexpires' => $originalcompletion->timeexpires)));
+        $this->assertTrue($DB->record_exists('certif_completion_history',
+            array('timecompleted' => $differenttimecompleted, 'timeexpires' => $originalcompletion->timeexpires)));
+        $this->assertTrue($DB->record_exists('certif_completion_history',
+            array('timecompleted' => $differenttimecompleted, 'timeexpires' => $differenttimeexpires)));
+    }
+
+    /**
+     * With no existing completion data, write a valid history record.
+     *
+     * @return stdClass with data of original history record that is written to the db.
+     *   The id is excluded as we're interested in the effects of using the matching data not the record itself.
+     */
+    public function test_certif_write_completion_history_creates_history_record() {
+        global $DB;
+        $this->resetAfterTest(false);
+
+        /* @var totara_program_generator $programgenerator */
+        $programgenerator = $this->getDataGenerator()->get_plugin_generator('totara_program');
+        $certification1 = new program($programgenerator->create_certification());
+
+        $originalhistory = new stdClass();
+        $originalhistory->certifid = $certification1->certifid;
+        $originalhistory->userid = $this->getDataGenerator()->create_user()->id;
+        $originalhistory->certifpath = CERTIFPATH_RECERT;
+        $originalhistory->status = CERTIFSTATUS_COMPLETED;
+        $originalhistory->renewalstatus = CERTIFRENEWALSTATUS_NOTDUE;
+        $originalhistory->timewindowopens = 1000;
+        $originalhistory->timeexpires = 1500;
+        $originalhistory->timecompleted = 500;
+        $originalhistory->timemodified = time();
+        $originalhistory->unassigned = 0;
+
+        $this->assertTrue(certif_write_completion_history($originalhistory));
+        $this->assertEquals(0, $DB->count_records('certif_completion'));
+        $this->assertEquals(1, $DB->count_records('certif_completion_history'));
+        $this->assertTrue($DB->record_exists('certif_completion_history', (array) $originalhistory));
+
+        return $originalhistory;
+    }
+
+    /**
+     * Try to repeat writing the same history data from the last test. This is considered a duplicate
+     * and is not allowed.
+     *
+     * @depends test_certif_write_completion_history_creates_history_record
+     */
+    public function test_certif_write_completion_history_duplicate($originalhistory) {
+        global $DB;
+        $this->resetAfterTest(false);
+
+        try {
+            certif_write_completion_history($originalhistory);
+            $this->fail('Expected exception was not thrown.');
+        } catch (\moodle_exception $e) {
+            $this->assertContains('Call to certif_write_completion_history with completion record that does not match the existing record', $e->getMessage());
+        }
+        $this->assertEquals(1, $DB->count_records('certif_completion_history'));
+    }
+
+    /**
+     * The only change made in from the original data is the timewindowopens. This is still considered a duplicate
+     * and is not allowed.
+     *
+     * @depends test_certif_write_completion_history_creates_history_record
+     */
+    public function test_certif_write_completion_history_different_timewindowopens($originalhistory) {
+        global $DB;
+        $this->resetAfterTest(false);
+
+        $timewindowopenshistory = clone $originalhistory;
+        $timewindowopenshistory->timewindowopens = $originalhistory->timewindowopens + 100;
+        try {
+            certif_write_completion_history($timewindowopenshistory);
+            $this->fail('Expected exception was not thrown.');
+        } catch (\moodle_exception $e) {
+            $this->assertContains('Call to certif_write_completion_history with completion record that does not match the existing record', $e->getMessage());
+        }
+        $this->assertEquals(1, $DB->count_records('certif_completion_history'));
+        $this->assertTrue($DB->record_exists('certif_completion_history', (array) $originalhistory));
+    }
+
+    /**
+     * Change only the timecompleted value from the original data. This is now considered a unique record
+     * and is inserted alongside the original record.
+     *
+     * @depends test_certif_write_completion_history_creates_history_record
+     */
+    public function test_certif_write_completion_history_different_timecompleted($originalhistory) {
+        global $DB;
+        $this->resetAfterTest(false);
+
+        $timecompletedhistory = clone $originalhistory;
+        $timecompletedhistory->timecompleted = $originalhistory->timecompleted + 100;
+        certif_write_completion_history($timecompletedhistory);
+        $this->assertEquals(2, $DB->count_records('certif_completion_history'));
+        $this->assertTrue($DB->record_exists('certif_completion_history', (array) $originalhistory));
+        $this->assertTrue($DB->record_exists('certif_completion_history', (array) $timecompletedhistory));
+
+        return $timecompletedhistory;
+    }
+
+    /**
+     * Change the timeexpires from the original data. This is considered unique and is inserted alongside
+     * the two records that already exist.
+     *
+     * @depends test_certif_write_completion_history_creates_history_record
+     * @depends test_certif_write_completion_history_different_timecompleted
+     */
+    public function test_certif_write_completion_history_different_timeexpires($originalhistory, $timecompletedhistory) {
+        global $DB;
+        $this->resetAfterTest(true);
+
+        $timeexpireshistory = clone $originalhistory;
+        $timeexpireshistory->timeexpires = $originalhistory->timeexpires + 100;
+        certif_write_completion_history($timeexpireshistory);
+        $this->assertEquals(3, $DB->count_records('certif_completion_history'));
+        $this->assertTrue($DB->record_exists('certif_completion_history', (array) $originalhistory));
+        $this->assertTrue($DB->record_exists('certif_completion_history', (array) $timecompletedhistory));
+        $this->assertTrue($DB->record_exists('certif_completion_history', (array) $timeexpireshistory));
+    }
 }

@@ -2553,7 +2553,7 @@ function xmldb_facetoface_upgrade($oldversion=0) {
         // Adding keys to table facetoface_signup_info_data.
         $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
         $table->add_key('signupinfodata_fielid_fk', XMLDB_KEY_FOREIGN, array('fieldid'), 'facetoface_signup_info_field', array('id'));
-        $table->add_key('signupinfodata_signupid_fk', XMLDB_KEY_FOREIGN, array('facetofacesignupid'), 'facetoface_signups_status', array('id'));
+        $table->add_key('signupinfodata_signupid_fk', XMLDB_KEY_FOREIGN, array('facetofacesignupid'), 'facetoface_signups', array('id'));
 
         // Conditionally launch create table for facetoface_signup_info_data.
         if (!$dbman->table_exists($table)) {

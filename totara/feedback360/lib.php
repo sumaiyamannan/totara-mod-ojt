@@ -1129,18 +1129,21 @@ class feedback360_question extends question_storage {
     }
 
     /**
-     * Check if user can view answer by assignment
+     * Check if user can view answer by assignment.
+     * Ignores email assignments as a token is required for this
      *
      * @param int $assignmentid Responder assignment id
      * @param int $userid
      * @return bool
      */
     public function user_can_view($assignmentid, $userid) {
-        $resp = new feedback360_responder($assignmentid);
-        if (in_array($userid , array((int)$resp->userid, $resp->subjectid))) {
-            return true;
+        // If there is no assignment.
+        if (empty($assignmentid)) {
+            return false;
         }
-        if (isguestuser($userid) && $resp->type == feedback360_responder::TYPE_EMAIL) {
+        $resp = new feedback360_responder($assignmentid);
+        // Check that the user is the subject or the responder.
+        if (in_array($userid , array((int)$resp->userid, $resp->subjectid))) {
             return true;
         }
         return false;
@@ -2019,11 +2022,10 @@ class feedback360_event_handler {
 /**
  * Serves the folder files.
  *
- * @package  mod_folder
  * @category files
  * @param stdClass $course course object
  * @param stdClass $cm course module
- * @param stdClass $context context object
+ * @param context $context context object
  * @param string $filearea file area
  * @param array $args extra arguments
  * @param bool $forcedownload whether or not force download
@@ -2031,34 +2033,123 @@ class feedback360_event_handler {
  * @return bool false if file not found, does not return if found - just send the file
  */
 function totara_feedback360_pluginfile($course, $cm, $context, $filearea, $args, $forcedownload, array $options=array()) {
-    global $USER;
-    // Itemid used as assignmentid.
-    $assignmentid = (int)array_shift($args);
-    $filename = array_shift($args);
+    global $USER, $DB, $SESSION;
 
     if (strpos($filearea, 'quest_') === 0) {
+        // This is 0 if the image was not uploaded by the responder ie static image.
+        $responderassignmentid = (int)$args[0];
         $questionid = (int)str_replace('quest_', '', $filearea);
-        if (!$question = new feedback360_question($questionid)) {
+
+        $question = new feedback360_question($questionid);
+
+        if (!($question)) {
             send_file_not_found();
         }
 
-        $systemcontext = context_system::instance();
-        if (!has_capability('totara/feedback360:managefeedback360', $systemcontext)) {
-            if ($assignmentid != 0 && !$question->user_can_view($assignmentid, $USER->id)) {
+        /** @var array $visibleforusers list of user ids that can see file in the feedback that are subordinates to the current user */
+        $visibleforusers = array();
+        if (!has_capability('totara/feedback360:managefeedback360', context_system::instance())) {
+            $users = \totara_job\job_assignment::get_direct_staff_userids($USER->id);
+            foreach ($users as $user) {
+                $usercontext = context_user::instance($user);
+                if ((has_capability('totara/feedback360:viewmanagestafffeedback', $usercontext)
+                        || has_capability('totara/feedback360:viewstaffreceivedfeedback360', $usercontext)
+                        || has_capability('totara/feedback360:viewstaffrequestedfeedback360', $usercontext))
+                    && ($responderassignmentid == 0 || $question->user_can_view($responderassignmentid, $user))
+                ) {
+                    $visibleforusers[] = $user;
+                }
+
+            }
+            if (count($visibleforusers) == 0 && !($responderassignmentid == 0 || $question->user_can_view($responderassignmentid, $USER))) {
                 send_file_not_found();
             }
+        }
+
+        $visibleforusers[] = $USER->id;
+
+        // List SQL for users that the feedback has a user assignment for a user that the current user can view their feedback.
+        list($uamatchsql, $uaparams) = $DB->get_in_or_equal($visibleforusers, SQL_PARAMS_NAMED);
+
+        // List SQL for users that the feedback has a responder assignment for a user that the current user can view their feedback.
+        list($ramatchsql, $raparams) = $DB->get_in_or_equal($visibleforusers, SQL_PARAMS_NAMED);
+
+        /*
+         * Check if the feedback has a user assignment responder assignment for the current user or one of their subordinates
+         * that they can see the feedbacks of.
+         */
+        $sql = "SELECT 1
+                  FROM {feedback360_quest_field} qf
+            INNER JOIN {feedback360_user_assignment} ua ON ua.feedback360id = qf.feedback360id
+             LEFT JOIN {feedback360_resp_assignment} ra ON ra.feedback360userassignmentid = ua.id
+                 WHERE qf.id = :questionid AND ((ra.userid {$ramatchsql} AND ra.userid <> :guestid) OR ua.userid {$uamatchsql}) ";
+        $params = array_merge($raparams, $uaparams, array('questionid' => $questionid, 'guestid' => guest_user()->id));
+
+        $user_can_view = is_siteadmin($USER) || $DB->record_exists_sql($sql, $params);
+
+        // Checks if the user has being assigned by email to the feedback
+        // This is a hack to get around authenticating anonymous users when viewing files in feeback360.
+        if (!empty($SESSION->totara_feedback360_usertoken)) {
+            // Make sure the token is valid.
+            if ($DB->record_exists_sql("
+                SELECT 1
+                  FROM {feedback360_email_assignment} fea
+            INNER JOIN {feedback360_resp_assignment} fra ON fea.id = fra.feedback360emailassignmentid
+            INNER JOIN {feedback360_user_assignment} fua ON fua.id = fra.feedback360userassignmentid
+            INNER JOIN {feedback360} f ON fua.feedback360id = f.id
+            INNER JOIN {feedback360_quest_field} qf ON qf.feedback360id = f.id
+                 WHERE fea.token = :token AND qf.id = :questionid", ['token' => $SESSION->totara_feedback360_usertoken, 'questionid' => $questionid])) {
+                $user_can_view = true;
+            }
+        }
+
+        // If the user can neither view the feedback through being assigned, subordinate being assigned or email assignment.
+        if (!$user_can_view) {
+            send_file_not_found();
+        }
+    } else {
+        // Assumes that the file is in the description for the feedback.
+        $feedback360id = (int)$args[0];
+        if (!isloggedin()) {
+            send_file_not_found();
+        }
+
+        $canview = false;
+        // If the have the capability to manage their feedbacks and are assigned to the feedback.
+        if (has_capability('totara/feedback360:manageownfeedback360', $context)
+            && $DB->record_exists('feedback360_user_assignment', array('userid' => $USER->id, 'feedback360id' => $feedback360id))) {
+            $canview = true;
+        }
+
+        // They should be able to see the files if they can request feedback from someone.
+        $users = \totara_job\job_assignment::get_direct_staff_userids($USER->id);
+        foreach ($users as $user) {
+            $usercontext = context_user::instance($user);
+            if (has_capability('totara/feedback360:managestafffeedback', $usercontext)
+                && $DB->record_exists('feedback360_user_assignment', array('userid' => $user, 'feedback360id' => $feedback360id))) {
+                $canview = true;
+                break;
+            }
+        }
+
+        // If they can manage any feedback.
+        if (has_capability('totara/feedback360:managefeedback360', $context)) {
+            $canview = true;
+        }
+
+        if (!$canview) {
+            send_file_not_found();
         }
     }
 
     $fs = get_file_storage();
-    if (!$file = $fs->get_file($context->id, 'totara_feedback360', $filearea, $assignmentid, '/', $filename)) {
+    if (!$file = $fs->get_file($context->id, 'totara_feedback360', $filearea, $args[0], '/', $args[1])) {
         send_file_not_found();
     }
 
     \core\session\manager::write_close();
     send_stored_file($file, 60*60, 0, true, $options);
 }
-
 
 require_once($CFG->dirroot . '/user/selector/lib.php');
 

@@ -3551,12 +3551,8 @@ function facetoface_add_session_to_calendar($session, $facetoface, $calendartype
         $newevent->visible = 1;
         $newevent->timemodified = time();
 
-        if ($calendartype == 'user' && $eventtype == 'booking') {
-            //Check for and Delete the 'created' calendar event to reduce multiple entries for the same event
-            $DB->delete_records('event', array('userid' => $userid, 'instance' => $session->facetoface,
-                                               'eventtype' => 'facetofacesession'));
-        }
-
+        // Remove all calendar events related to current session and user before adding new event to avoid duplication.
+        $result = $result && facetoface_remove_session_from_calendar($session, $courseid, $userid);
         $result = $result && $DB->insert_record('event', $newevent);
     }
 
@@ -4191,18 +4187,35 @@ function facetoface_get_customfielddata($sessionid) {
         'room' => array('prefix' => 'facetofaceroom', 'tableprefix' => 'facetoface_room'),
     );
     foreach($types as $type => $def) {
-        $fields  = $DB->get_records($def['tableprefix'] . '_info_field', array(), 'sortorder ASC');
-        foreach ($fields as $field) {
-            require_once($CFG->dirroot.'/totara/customfield/field/'.$field->datatype.'/field.class.php');
-            $newfield = 'customfield_'.$field->datatype;
-            $formfield = new $newfield($field->id, $session, $def['prefix'], $def['tableprefix']);
+        if ($type == 'room') {
+            // A session can have more than one room if there are more than one date in the session and different
+            // rooms are used on different dates
+            $rooms = facetoface_get_session_rooms($sessionid);
+            $out['room'] = array();
+            foreach ($rooms as $room) {
+                $out['room'] = array_merge_recursive($out['room'], customfield_get_data($room, 'facetoface_room', 'facetofaceroom', false));
+            }
 
-            if (!$formfield->is_hidden() && !$formfield->is_empty()) {
-                $extradata = array('prefix' => $formfield->prefix, 'itemid' => $formfield->dataid);
-                if ($field->datatype == 'multiselect') {
-                    $extradata['display'] = 'list-text';
+            // We want rooms values to be in 1 comma separated string
+            foreach ($out['room'] as $key => $vals) {
+                if (is_array($vals)) {
+                    $out['room'][$key] = implode(', ', $vals);
                 }
-                $out[$type][$formfield->field->shortname] = $formfield::display_item_data($formfield->data, $extradata);
+            }
+        } else {
+            $fields  = $DB->get_records($def['tableprefix'] . '_info_field', array(), 'sortorder ASC');
+            foreach ($fields as $field) {
+                require_once($CFG->dirroot.'/totara/customfield/field/'.$field->datatype.'/field.class.php');
+                $newfield = 'customfield_'.$field->datatype;
+                $formfield = new $newfield($field->id, $session, $def['prefix'], $def['tableprefix']);
+
+                if (!$formfield->is_hidden() && !$formfield->is_empty()) {
+                    $extradata = array('prefix' => $formfield->prefix, 'itemid' => $formfield->dataid);
+                    if ($field->datatype == 'multiselect') {
+                        $extradata['display'] = 'list-text';
+                    }
+                    $out[$type][$formfield->field->shortname] = $formfield::display_item_data($formfield->data, $extradata);
+                }
             }
         }
     }

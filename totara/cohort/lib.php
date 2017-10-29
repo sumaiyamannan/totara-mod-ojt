@@ -1950,26 +1950,33 @@ function check_access_audience_visibility($type, $instance, $userid = null) {
         return false;
     }
 
-    // Add audience visibility setting.
-    list($visibilityjoinsql, $visibilityjoinparams) = totara_visibility_join($userid, $type, $alias);
-    $params = array_merge(array('itemcontext' => $itemcontext, 'instanceid' => $object->id), $visibilityjoinparams);
+    if (isset($object->totara_isvisibletouser)) {
+        // If we see this then the data has already been loaded and no need to go to the database.
+        // Don't rely on this too much - it's a hack to improve performance without getting too messy.
+        $totarajoinisvisible = $object->totara_isvisibletouser;
+    } else {
+        list($visibilityjoinsql, $visibilityjoinparams) = totara_visibility_join($userid, $type, $alias);
+        $params = array_merge(array('itemcontext' => $itemcontext, 'instanceid' => $object->id), $visibilityjoinparams);
 
-    // Get context data for preload.
-    $ctxfields = context_helper::get_preload_record_columns_sql('ctx');
-    $ctxjoin = "LEFT JOIN {context} ctx ON (ctx.instanceid = {$alias}.id AND ctx.contextlevel = :itemcontext)";
+        // Get context data for preload.
+        $ctxfields = context_helper::get_preload_record_columns_sql('ctx');
+        $ctxjoin = "LEFT JOIN {context} ctx ON (ctx.instanceid = {$alias}.id AND ctx.contextlevel = :itemcontext)";
 
-    $sql = "SELECT {$alias}.id, {$ctxfields}, visibilityjoin.isvisibletouser
+        $sql = "SELECT {$alias}.id, {$ctxfields}, visibilityjoin.isvisibletouser
             FROM {{$table}} {$alias}
                  {$visibilityjoinsql}
                  {$ctxjoin}
             WHERE {$alias}.id = :instanceid";
-    $record = $DB->get_record_sql($sql, $params);
+        $record = $DB->get_record_sql($sql, $params);
+        context_helper::preload_from_record($record);
 
-    if (!empty($record->isvisibletouser)) {
+        $totarajoinisvisible = $record->isvisibletouser;
+    }
+
+    if (!empty($totarajoinisvisible)) {
         return true;
     }
 
-    context_helper::preload_from_record($record);
     if ($itemcontext == CONTEXT_COURSE) {
         $context = context_course::instance($object->id);
         if (has_capability('moodle/course:viewhiddencourses', $context, $userid)) {

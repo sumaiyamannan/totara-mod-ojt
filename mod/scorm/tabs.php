@@ -39,9 +39,10 @@ $row = array();
 $inactive = array();
 $activated = array();
 
-if (has_capability('mod/scorm:savetrack', $contextmodule)) {
-    $row[] = new tabobject('info', "$CFG->wwwroot/mod/scorm/view.php?id=$cm->id", get_string('info', 'scorm'));
-}
+// TOTARA: all users who can access the activity can enter the SCORM.
+// We can't check a write capability here as the guest can't hold write capabilities. SCORM still works for the guest.
+$row[] = new tabobject('info', "$CFG->wwwroot/mod/scorm/view.php?id=$cm->id", get_string('info', 'scorm'));
+
 if (has_capability('mod/scorm:viewreport', $contextmodule)) {
     $row[] = new tabobject('reports', "$CFG->wwwroot/mod/scorm/report.php?id=$cm->id", get_string('reports', 'scorm'));
 }

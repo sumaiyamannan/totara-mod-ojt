@@ -2746,8 +2746,12 @@ function prog_fix_orphaned_exceptions_assign($programid = 0, $userid = 0, $progo
 
     foreach ($orphanedexceptionsrs as $orphanedexception) {
         // We don't know what type of exception this is, so can't "handle" it through the prog_exception class. Just clear it.
-        $DB->set_field('prog_user_assignment', 'exceptionstatus', PROGRAM_EXCEPTION_RESOLVED,
-            array('programid' => $orphanedexception->programid, 'userid' => $orphanedexception->userid));
+        $params = array(
+            'programid' => $orphanedexception->programid,
+            'userid' => $orphanedexception->userid,
+            'exceptionstatus' => PROGRAM_EXCEPTION_RAISED
+        );
+        $DB->set_field('prog_user_assignment', 'exceptionstatus', PROGRAM_EXCEPTION_RESOLVED, $params);
 
         prog_log_completion($orphanedexception->programid, $orphanedexception->userid, $message);
 
@@ -2780,9 +2784,12 @@ function prog_fix_orphaned_exceptions_recalculate($programid = 0, $userid = 0, $
     $message = 'Automated fix \'prog_fix_orphaned_exceptions_recalculate\' was applied';
 
     foreach ($orphanedexceptionsrs as $orphanedexception) {
-        // We don't know what type of exception this is, so can't "handle" it through the prog_exception class. Just clear it.
-        $userassignments = $DB->get_records('prog_user_assignment',
-            array('programid' => $orphanedexception->programid, 'userid' => $orphanedexception->userid), '', 'id, assignmentid');
+        $params = array(
+            'programid' => $orphanedexception->programid,
+            'userid' => $orphanedexception->userid,
+            'exceptionstatus' => PROGRAM_EXCEPTION_RAISED
+        );
+        $userassignments = $DB->get_records('prog_user_assignment', $params, '', 'id, assignmentid');
         foreach ($userassignments as $userassignment) {
             $program = new program($orphanedexception->programid);
             if ($progorcert == 'program') {

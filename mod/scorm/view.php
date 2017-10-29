@@ -67,18 +67,6 @@ $contextmodule = context_module::instance($cm->id);
 // Trigger module viewed event.
 scorm_view($scorm, $course, $cm, $contextmodule);
 
-$shouldshowinfopage = has_capability('mod/scorm:savetrack', $contextmodule);
-$shouldshowreportspage = has_capability('mod/scorm:viewreport', $contextmodule);
-if (!$shouldshowinfopage && $shouldshowreportspage) {
-    $reportsurl = new moodle_url('/mod/scorm/report.php', array('id' => $cm->id));
-    redirect($reportsurl);
-}
-else if (!$shouldshowinfopage && !$shouldshowreportspage) {
-    // Should never get here - means user has not right to do the SCORM lesson or
-    // see reports!
-    print_error('nopermissiontoshow');
-}
-
 $launch = false; // Does this automatically trigger a launch based on skipview.
 if ($scorm->popup == 1) {
     $orgidentifier = '';
@@ -146,7 +134,7 @@ $PAGE->set_heading($course->fullname);
 echo $OUTPUT->header();
 echo $OUTPUT->heading(format_string($scorm->name));
 
-echo self_completion_form($cm);
+echo self_completion_form($cm, $course);
 
 if (!empty($action) && confirm_sesskey() && has_capability('mod/scorm:deleteownresponses', $contextmodule)) {
     if ($action == 'delete') {

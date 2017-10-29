@@ -33,6 +33,5 @@ Feature: Verify a learner cannot access a course they don't have access to via t
     # Login in as the learner and check the course can't be accessed.
     When I log in as "learner1"
     And I click on "Dashboard" in the totara menu
-    And I click on "Course 1" "link" in the "Last Course Accessed" "block"
-    Then I should see "This course is currently unavailable to students"
+    Then "Last Course Accessed" "block" should not exist
 

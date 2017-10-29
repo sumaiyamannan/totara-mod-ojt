@@ -64,7 +64,7 @@ $PAGE->set_heading($course->fullname);
 $PAGE->set_activity_record($imscp);
 echo $OUTPUT->header();
 echo $OUTPUT->heading(format_string($imscp->name));
-echo self_completion_form($cm);
+echo self_completion_form($cm, $course);
 
 // Verify imsmanifest was parsed properly.
 if (!$imscp->structure) {

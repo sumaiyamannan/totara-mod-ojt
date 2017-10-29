@@ -21,13 +21,13 @@
  * @package core_completion
  */
 
-namespace core_completion\forms;
+namespace core_completion\form;
 
 use totara_form\form\element\checkbox;
 use totara_form\form\element\hidden;
 use totara_form\form;
 use totara_form\form\clientaction\onchange_ajaxsubmit;
-use core_completion\form_controllers\activity_completion_controller;
+use core_completion\form_controller\activity_completion_controller;
 
 
 /**
