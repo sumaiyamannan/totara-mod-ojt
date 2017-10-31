@@ -2042,7 +2042,7 @@ function facetoface_write_activity_attendance(&$worksheet, $coursecontext, $star
         $locationsql = $DB->sql_like('rid.data', ':location', false);
         $locationparams['location'] = $location;
         $locationjoin = "
-            INNER JOIB {facetoface_room} r ON (r.id = d.roomid)
+            INNER JOIN {facetoface_room} r ON (r.id = d.roomid)
             INNER JOIN {facetoface_room_info_data} rid ON (rid.facetofaceroomid = r.id)
             INNER JOIN {facetoface_room_info_field} rif ON (rid.fieldid = rif.id AND rif.shortname = 'location')
             ";
