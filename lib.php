@@ -361,7 +361,9 @@ function ojt_cron () {
         AND b.id IN (SELECT id FROM {ojt} WHERE managersignoff = 1)";
     $tcompletions = $DB->get_records_sql($sql, array(OJT_CTYPE_TOPIC, OJT_COMPLETE, $lastcron));
     foreach ($tcompletions as $completion) {
-        if ($manager = totara_get_manager($completion->userid)) {
+        $managerids = \totara_job\job_assignment::get_all_manager_userids($completion->userid);
+        foreach ($managerids as $managerid) {
+            $manager = core_user::get_user($managerid);
             $eventdata = new stdClass();
             $eventdata->userto = $manager;
             $eventdata->userfrom = $completion;
