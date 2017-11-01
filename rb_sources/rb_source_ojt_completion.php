@@ -486,10 +486,12 @@ class rb_source_ojt_completion extends rb_base_source {
      * @param totara_reportbuilder_column_testcase $testcase
      */
     public function phpunit_column_test_add_data(totara_reportbuilder_column_testcase $testcase) {
+       global $DB;
+
        if (!PHPUNIT_TEST) {
            throw new coding_exception('phpunit_prepare_test_data() cannot be used outside of unit tests');
        }
-       $testcase->loadDataSet($testcase->createArrayDataset(array(
+       $data = array(
             'ojt' => array(
                 array('id' => 1, 'course' => 1, 'name' => 'test ojt', 'intro' => '', 'timecreated' => 1)
             ),
@@ -500,14 +502,20 @@ class rb_source_ojt_completion extends rb_base_source {
                 array('id' => 1, 'ojtid' => 1, 'topicid' => 1, 'name' => 'test ojt topic item')
             ),
             'ojt_completion' => array(
-                array('id' => 1, 'userid' => 2, 'type' => 0, 'ojtid' => 1, 'status' => 1, 'modifiedby' => 1),
-                array('id' => 2, 'userid' => 2, 'type' => 1, 'ojtid' => 1, 'topicid' => 1, 'status' => 1, 'modifiedby' => 1),
+                array('id' => 1, 'userid' => 2, 'type' => 0, 'ojtid' => 1, 'topicid' => 0, 'topicitemid' => 0, 'status' => 1, 'modifiedby' => 1),
+                array('id' => 2, 'userid' => 2, 'type' => 1, 'ojtid' => 1, 'topicid' => 1, 'topicitemid' => 0, 'status' => 1, 'modifiedby' => 1),
                 array('id' => 3, 'userid' => 2, 'type' => 2, 'ojtid' => 1, 'topicid' => 1, 'topicitemid' => 1, 'status' => 1, 'modifiedby' => 1),
             ),
             'user_enrolments' => array(
                 array('id' => 1, 'status' => 0, 'enrolid' => 1, 'userid' => 2)
             ),
-        )));
+        );
+        foreach ($data as $table => $data) {
+            foreach($data as $datarow) {
+                $DB->import_record($table, $datarow);
+            }
+            $DB->get_manager()->reset_sequence(new xmldb_table($table));
+       }
     }
 
     /**
@@ -521,6 +529,7 @@ class rb_source_ojt_completion extends rb_base_source {
         }
         return 2;
     }
+
 } // end of rb_source_course_completion class
 
 
