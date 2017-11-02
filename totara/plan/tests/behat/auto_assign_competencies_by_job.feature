@@ -143,10 +143,20 @@ Feature: Verify competencies are automatically added to plan according to job as
     And I switch to "Learning Plan" tab
     And I press "Save and create plans"
     Then I should see "This will create new learning plans for 1 user(s)" in the "Confirm creation of plans" "totaradialogue"
+    And I should see "Any learning plans will be created for audience members by an adhoc task on the next cron run"
 
     When I click on "Save" "button" in the "Confirm creation of plans" "totaradialogue"
     Then I should see "Settings saved"
-    And I should see "Successfully created new learning plans for 1 audience members"
+    And I should see "Any learning plans will be created for audience members by an adhoc task on the next cron run"
+
+    When I trigger cron
+    And I am on homepage
+    And I navigate to "Audiences" node in "Site administration > Users > Accounts"
+    And I follow "Audience 1"
+    And I switch to "Learning Plan" tab
+    Then the following should exist in the "cohortplancreatehistory" table:
+      | Template      | User       | Plan status | Number of affected users |
+      | Learning Plan |	Admin User | Draft       | 1                        |
 
     # Check that learner3 has a single competency assigned in their learning plan.
     When I navigate to "Browse list of users" node in "Site administration > Users > Accounts"

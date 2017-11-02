@@ -533,9 +533,9 @@ $string['startswith'] = 'starts with';
 $string['status'] = 'Status';
 $string['successfullyaddedcohort'] = 'Successfully added audience';
 $string['successfullycloned'] = 'Successfully cloned audience';
-$string['successfullycreatedplans'] = 'Successfully created new learning plans for {$a} audience members';
 $string['successfullydeleted'] = 'Successfully deleted audience';
 $string['successfullyupdated'] = 'Successfully updated audience';
+$string['taskplanswillbecreated'] = 'Any learning plans will be created for audience members by an adhoc task on the next cron run. When the process completes, you will see the result in the history table.';
 $string['text'] = 'Text';
 $string['thiscohortwillhave'] = 'This audience will have {$a} members at this point in time';
 $string['toomanyusersmatchsearch'] = 'Too many users match the search ({$a->count})';
@@ -612,3 +612,8 @@ $string['rulename-pos-startdate'] = 'Position assigned date';
 $string['rulename-pos-timevalidfrom'] = 'Position start date';
 $string['rulename-pos-timevalidto'] = 'Position end date';
 $string['rulehelp-pos-postitle'] = 'Matches against the text of the user\'s primary position title';
+
+/*
+ * @deprecated Since Totara 9.16.
+ */
+$string['successfullycreatedplans'] = 'Successfully created new learning plans for {$a} audience members';

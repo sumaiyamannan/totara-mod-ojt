@@ -24,3 +24,4 @@ rulename-pos-startdate,totara_cohort
 rulename-pos-timevalidfrom,totara_cohort
 rulename-pos-timevalidto,totara_cohort
 rulehelp-pos-postitle,totara_cohort
+successfullycreatedplans,totara_cohort
