@@ -423,7 +423,7 @@ switch ($searchtype) {
     case 'assign_manager':
         list($sql, $params) = $this->get_managers_joinsql_and_params(true);
 
-        $fields = get_all_user_name_fields(false, 'u');
+        $fields = get_all_user_name_fields(false, 'u', null, null, true);
 
         if ($canviewemail) {
             $allfields = array_merge ($fields, array('email' => 'u.email'));
