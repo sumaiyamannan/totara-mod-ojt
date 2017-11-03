@@ -31,3 +31,13 @@ Moodle commit history
 =====================
 
 MDL-43743
+
+
+Other test packages
+=====================
+* badscorm.zip - contains a fake imsmanifest.xml inside a directory, used for validation check.
+* invalid.zip - zip file with an single html file, no SCORM config files, used for validation check.
+* validscorm.zip - non functional package with an imsmanifest.xml, used for validation check.
+* validaicc.zip - non functional package with AICC config files, used for validation check.
+* multisco_w_status_no_raw_score.zip - Multi-SCO packaging example. SCORM 1.2.
+* multisco_w_status_w_raw_score.zip - Multi-SCO packaging example. SCORM 1.2.
