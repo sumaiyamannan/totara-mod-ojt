@@ -592,20 +592,23 @@ class totara_dashboard {
 
         $pageid = $this->get_user_pageid($userid);
         if ($pageid) {
-            $context = context_user::instance($userid);
-            if ($blocks = $DB->get_records('block_instances', array('parentcontextid' => $context->id,
-                    'pagetypepattern' => 'my-totara-dashboard-' . $this->id))) {
-                foreach ($blocks as $block) {
-                    if (is_null($block->subpagepattern) || $block->subpagepattern == $pageid) {
-                        blocks_delete_instance($block);
+            $context = context_user::instance($userid, IGNORE_MISSING);
+            if ($context) {
+                if ($blocks = $DB->get_records('block_instances', array('parentcontextid' => $context->id,
+                        'pagetypepattern' => 'my-totara-dashboard-' . $this->id))) {
+                    foreach ($blocks as $block) {
+                        if (is_null($block->subpagepattern) || $block->subpagepattern == $pageid) {
+                            blocks_delete_instance($block);
+                        }
                     }
                 }
+                $DB->delete_records('block_positions', array(
+                    'contextid' => $context->id,
+                    'pagetype' => 'my-totara-dashboard-' . $this->id,
+                    'subpage' => $pageid
+                ));
             }
-            $DB->delete_records('block_positions', array(
-                'contextid' => $context->id,
-                'pagetype' => 'my-totara-dashboard-' . $this->id,
-                'subpage' => $pageid
-            ));
+
             $DB->delete_records('totara_dashboard_user', array('id' => $pageid));
         }
     }
