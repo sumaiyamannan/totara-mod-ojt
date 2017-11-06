@@ -367,5 +367,14 @@ function xmldb_totara_appraisal_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2016092002, 'totara', 'appraisal');
     }
 
+    // TL-16443 Make all multichoice questions use int for param1.
+    if ($oldversion < 2016092003) {
+
+        totara_appraisal_upgrade_fix_inconsistent_multichoice_param1();
+
+        // Main savepoint reached.
+        upgrade_plugin_savepoint(true, 2016092003, 'totara', 'appraisal');
+    }
+
     return true;
 }

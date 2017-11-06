@@ -730,7 +730,7 @@ class rb_source_appraisal_detail extends rb_source_appraisal {
     private function populate_multichoice_name_cache() {
         global $DB;
 
-        $sql = "SELECT asv.id, asv.name
+        $sql = "SELECT DISTINCT asv.id, asv.name
                   FROM {appraisal_scale_value} asv
                   JOIN {appraisal_quest_field} aqf
                     ON " . $DB->sql_cast_char2int('aqf.param1') . " = asv.appraisalscaleid

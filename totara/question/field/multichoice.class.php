@@ -200,8 +200,8 @@ abstract class multichoice extends question_base {
                 $DB->delete_records($this->prefix . '_scale', array('id' => $this->param1));
             }
 
-            // Set the selected scale.
-            $this->param1 = $fromform->selectchoices;
+            // Set the selected scale - param1 for multichoice is an int.
+            $this->param1 = (int)$fromform->selectchoices;
             $param3 = array();
             if (isset($fromform->choice)) {
                 foreach ($fromform->choice as $key => $choice) {
@@ -241,6 +241,7 @@ abstract class multichoice extends question_base {
                 $DB->update_record($this->prefix.'_scale', $scale);
             } else {
                 $scaleid = $DB->insert_record($this->prefix.'_scale', $scale);
+                // Set the new scale - param1 for multichoice is an int.
                 $this->param1 = $scaleid;
             }
 
