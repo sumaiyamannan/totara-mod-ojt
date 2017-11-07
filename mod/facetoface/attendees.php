@@ -326,13 +326,14 @@ if (!in_array('cancellations', $allowed_actions) && !empty($staff)) {
     }
 }
 
+$goback = true;
 $can_view_session = !empty($allowed_actions);
 if (!$can_view_session) {
     // If no allowed actions so far, check if this was user/manager who has just approved staff requests (approved == 1).
     if ($action == 'approvalrequired' && $approved == '1') {
         // If so, do not redirect, just display notify message.
         // Hide "Go back" link for case user does not have any capabilities to see facetoface/course.
-        $backtoallsessions = false;
+        $goback = false;
     } else {
         $return = new moodle_url('/mod/facetoface/view.php', array('f' => $facetoface->id));
         redirect($return);
@@ -1338,9 +1339,14 @@ if ($action == 'approvalrequired') {
     echo html_writer::end_tag('form');
 }
 
-// Go back.
-if ($backtoallsessions) {
-    $url = new moodle_url('/mod/facetoface/view.php', array('f' => $facetoface->id));
+// Hide "Go back" link for case user does not have any capabilities to see facetoface/course.
+if ($goback) {
+    // Go back.
+    if ($backtoallsessions) {
+        $url = new moodle_url('/mod/facetoface/view.php', array('f' => $facetoface->id));
+    } else {
+        $url = new moodle_url('/course/view.php', array('id' => $course->id));
+    }
     echo html_writer::link($url, get_string('goback', 'facetoface')) . html_writer::end_tag('p');
 }
 
