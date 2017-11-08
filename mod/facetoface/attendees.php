@@ -340,6 +340,8 @@ if (!$can_view_session) {
         die();
     }
 }
+// $allowed_actions is already set, so we can now know if the current action is allowed.
+$actionallowed = in_array($action, $allowed_actions);
 
 /***************************************************************************
  * Handle actions
@@ -351,7 +353,7 @@ $cols = array();
 $actions = array();
 $exports = array();
 
-if ($action == 'attendees') {
+if ($action == 'attendees' && $actionallowed) {
     $heading = get_string('attendees', 'facetoface');
 
     // Check if any dates are set
@@ -393,7 +395,7 @@ if ($action == 'attendees') {
     $show_table = true;
 }
 
-if ($action == 'waitlist') {
+if ($action == 'waitlist' && $actionallowed) {
     $heading = get_string('wait-list', 'facetoface');
 
     $params['status'] = MDL_F2F_STATUS_WAITLISTED;
@@ -413,7 +415,7 @@ if ($action == 'waitlist') {
     $show_table = true;
 }
 
-if ($action == 'cancellations') {
+if ($action == 'cancellations' && $actionallowed) {
     $heading = get_string('cancellations', 'facetoface');
 
     // Get list of actions
@@ -435,7 +437,7 @@ if ($action == 'cancellations') {
     $show_table = true;
 }
 
-if ($action == 'takeattendance') {
+if ($action == 'takeattendance' && $actionallowed) {
     $heading = get_string('takeattendance', 'facetoface');
 
     // Get list of actions
@@ -471,7 +473,7 @@ if ($form = data_submitted()) {
     }
 
     // Approve requests
-    if ($action == 'approvalrequired' && !empty($form->requests)) {
+    if ($action == 'approvalrequired' && !empty($form->requests) && $actionallowed) {
         $return->params(array('action' => 'approvalrequired'));
         // Site admin is allowing to approve user request.
         if (!$canapproveanyrequest) {
@@ -493,7 +495,7 @@ if ($form = data_submitted()) {
     }
 
     // Take attendance.
-    if ($action == 'takeattendance' && $takeattendance) {
+    if ($action == 'takeattendance' && $actionallowed && $takeattendance) {
         if (facetoface_take_attendance($form)) {
             // Trigger take attendance update event.
             \mod_facetoface\event\attendance_updated::create_from_session($session, $context)->trigger();
@@ -504,7 +506,7 @@ if ($form = data_submitted()) {
     }
 
     // Send messages
-    if ($action == 'messageusers') {
+    if ($action == 'messageusers' && $actionallowed) {
         $formurl = clone($baseurl);
         $formurl->param('action', 'messageusers');
 
@@ -815,7 +817,7 @@ if ($show_table) {
             echo $OUTPUT->notification(get_string('nosignedupusers', 'facetoface'));
         }
     } else {
-        if (($action == 'takeattendance') && !$download) {
+        if (($action == 'takeattendance') && $actionallowed && !$download) {
 
             $attendees_url = new moodle_url('attendees.php', array('s' => $s, 'takeattendance' => '1', 'action' => 'takeattendance'));
             echo html_writer::start_tag('form', array('action' => $attendees_url, 'method' => 'post', 'id' => 'attendanceform'));
@@ -860,7 +862,7 @@ if ($show_table) {
             $columns[] = 'jobassignment';
         }
 
-        if ($action == 'takeattendance' && !$download) {
+        if ($action == 'takeattendance' && $actionallowed && !$download) {
             $chooseoption = get_string('select','facetoface');
             $selectlist = html_writer::select($F2F_SELECT_OPTIONS, 'bulk_select', '', false);
             array_unshift($headers, $chooseoption . $selectlist);
@@ -922,7 +924,7 @@ if ($show_table) {
             $table->define_columns($columns);
             $table->define_headers($headers);
             $table->setup();
-            if ($action == 'takeattendance') {
+            if ($action == 'takeattendance' && $actionallowed) {
                 $table->add_toolbar_content(display_bulk_actions_picker(), 'left' , 'top', 1);
             }
         }
@@ -999,7 +1001,7 @@ if ($show_table) {
                 }
             }
 
-            if ($action == 'takeattendance') {
+            if ($action == 'takeattendance' && $actionallowed) {
                 $optionid = 'submissionid_' . $attendee->submissionid;
                 $checkoptionid = 'check_submissionid_' . $attendee->submissionid;
 
@@ -1164,7 +1166,7 @@ if ($show_table) {
     }
 
     if (has_any_capability(array('mod/facetoface:addattendees', 'mod/facetoface:removeattendees', 'mod/facetoface:takeattendance'), $context)) {
-        if ($action == 'takeattendance') {
+        if ($action == 'takeattendance' && $actionallowed) {
             // Changes checker
             $PAGE->requires->yui_module('moodle-core-formchangechecker',
                 'M.core_formchangechecker.init',
@@ -1191,7 +1193,7 @@ if ($show_table) {
     }
 }
 
-if ($action == 'messageusers') {
+if ($action == 'messageusers' && $actionallowed) {
     $OUTPUT->heading(get_string('messageusers', 'facetoface'));
 
     $formurl = clone($baseurl);
@@ -1204,7 +1206,7 @@ if ($action == 'messageusers') {
 /**
  * Print unapproved requests (if user able to view)
  */
-if ($action == 'approvalrequired') {
+if ($action == 'approvalrequired' && $actionallowed) {
 
     if ($approved == 1) {
         echo $OUTPUT->notification(get_string('attendancerequestsupdated', 'facetoface'), 'notifysuccess');
