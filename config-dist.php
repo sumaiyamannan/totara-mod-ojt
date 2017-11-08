@@ -913,6 +913,18 @@ $CFG->admin = 'admin';
 // 14. ADD-ON COMPATIBILITY SETTINGS
 //=========================================================================
 //
+//
+//=========================================================================
+// TOTARA REGISTRATION
+//=========================================================================
+// During installation and upgrade admins are asked to register their sites,
+// you can provide the necessary information here instead.
+// Please note that the registration code is unique for each site and cannot be shared,
+// it can be obtained from your Totara Partner.
+//
+// $CFG->sitetype = 'production'; // Options are 'production', 'qa', 'demo' or 'development'.
+// $CFG->registrationcode = 'xxxxxxxxxxxxxxxx'; // Unique alphanumeric code, 16 characters.
+//
 
 //=========================================================================
 // ALL DONE!  To continue installation, visit your main page with a browser
