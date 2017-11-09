@@ -62,7 +62,6 @@ if ($id) {
 
 $params = array('id' => $id);
 $PAGE->set_url('/totara/dashboard/index.php', $params);
-$PAGE->set_totara_menu_selected('dashboard');
 
 if (!$id) {
     $header = $SITE->shortname. ': ' . get_string('dashboard', 'totara_dashboard');
