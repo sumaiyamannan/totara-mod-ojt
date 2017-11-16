@@ -367,6 +367,9 @@ if ($fromform = $mform->get_data()) { // Form submitted
         facetoface_update_attendees($session);
     }
 
+    // Set session dates.
+    $session->sessiondates = $sessiondates;
+
     // Get details.
     // This should be done before sending any notification as it could be a required field in their template.
     $data = file_postupdate_standard_editor($fromform, 'details', $editoroptions, $context, 'mod_facetoface', 'session', $session->id);
@@ -379,7 +382,6 @@ if ($fromform = $mform->get_data()) { // Form submitted
     }
 
     // Save any calendar entries.
-    $session->sessiondates = $sessiondates;
     facetoface_update_calendar_entries($session, $facetoface);
 
     if ($update) {
@@ -388,6 +390,12 @@ if ($fromform = $mform->get_data()) { // Form submitted
             $attendees = facetoface_get_attendees($session->id);
             foreach ($attendees as $user) {
                 facetoface_send_datetime_change_notice($facetoface, $session, $user->id, $olddates);
+            }
+            $sessiontrainers = facetoface_get_trainers($session->id);
+            foreach ($sessiontrainers as $roleid => $trainers) {
+                foreach ($trainers as $trainer) {
+                    facetoface_send_datetime_change_notice($facetoface, $session, $trainer->id, $olddates);
+                }
             }
         }
 
