@@ -64,6 +64,16 @@ if ($backtoallsessions) {
     $returnurl = new moodle_url('/course/view.php', array('id' => $course->id));
 }
 
+// If the restricted access is enabled and the activity is not available we should not let people to sign up.
+if($CFG->enableavailability) {
+    if (!get_fast_modinfo($cm->course)->get_cm($cm->id)->available) {
+        // Ignoring back to all sessions flag as if the activity is not available for the user
+        // redirecting to activities list will result in an error and a redirect to a main page.
+        redirect(new moodle_url('/course/view.php', array('id' => $course->id)));
+        die;
+    }
+}
+
 $pagetitle = format_string($facetoface->name);
 
 $PAGE->set_cm($cm);

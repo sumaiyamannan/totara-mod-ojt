@@ -445,7 +445,7 @@ class enrol_totara_facetoface_plugin extends enrol_plugin {
      * @return string html text, usually a form in a text box
      */
     public function enrol_page_hook(stdClass $instance) {
-        global $OUTPUT, $CFG, $DB, $PAGE;
+        global $OUTPUT, $CFG, $DB;
 
         require_once($CFG->dirroot . '/enrol/totara_facetoface/signup_form.php');
 
@@ -468,49 +468,9 @@ class enrol_totara_facetoface_plugin extends enrol_plugin {
 
                 ob_start();
                 $form->display();
-                $output = ob_get_clean();
-                return $OUTPUT->box($output);
+                $output = $OUTPUT->box(ob_get_clean());
             } else {
-                /** @var mod_facetoface_renderer $f2frenderer */
-                $f2frenderer = $PAGE->get_renderer('mod_facetoface');
-
-                $viewattendees = false;
-
-                $sessions = $this->get_enrolable_sessions($instance->courseid);
-
-                // Sort sessions into face-to-face activities.
-                $f2fsessionarrays = array();
-                foreach ($sessions as $session) {
-                    if (!isset($f2fsessionarrays[$session->facetoface])) {
-                        $f2fsessionarrays[$session->facetoface] = array();
-                    }
-                    $f2fsessionarrays[$session->facetoface][] = $session;
-                }
-
-                $output = '';
-
-                foreach ($f2fsessionarrays as $id => $f2fsessionarray) {
-                    if (!empty($f2fsessionarray)) {
-                        $f2f = $DB->get_record('facetoface', array('id' => $id));
-
-                        $cm = get_coursemodule_from_instance("facetoface", $f2f->id, $f2f->course);
-                        $contextmodule = context_module::instance($cm->id);
-                        $viewattendees = has_capability('mod/facetoface:viewattendees', $contextmodule);
-                        $editevents = has_capability('mod/facetoface:editevents', $contextmodule);
-                        $displaytimezones = get_config(null, 'facetoface_displaysessiontimezones');
-                        $reserveinfo = array();
-                        if (!empty($f2f->managerreserve)) {
-                            // Include information about reservations when drawing the list of sessions.
-                            $reserveinfo = facetoface_can_reserve_or_allocate($f2f, $f2fsessionarray, $contextmodule);
-                        }
-
-                        $f2fsessionarray = array_slice($f2fsessionarray, 0, $f2f->display, true);
-                        $output .= html_writer::tag('h4', format_string($f2f->name));
-                        $f2frenderer->setcontext($contextmodule);
-                        $output .= $f2frenderer->print_session_list_table($f2fsessionarray, $viewattendees, $editevents,
-                            $displaytimezones, $reserveinfo, null, true);
-                    }
-                }
+                $output = $this->render_facetoface_sessions($instance);
             }
 
             return $output;
@@ -534,6 +494,63 @@ class enrol_totara_facetoface_plugin extends enrol_plugin {
 
             return $output;
         }
+    }
+
+    /**
+     * Renders enrollable facetoface sessions.
+     *
+     * @param stdClass $instance
+     * @return string table with rendered enrollable facetoface sessions
+     */
+    protected function render_facetoface_sessions(stdClass $instance) {
+        global $CFG, $PAGE, $DB;
+
+        /** @var mod_facetoface_renderer $f2frenderer */
+        $f2frenderer = $PAGE->get_renderer('mod_facetoface');
+
+        $sessions = $this->get_enrolable_sessions($instance->courseid);
+
+        // Sort sessions into face-to-face activities.
+        $f2fsessionarrays = array();
+        foreach ($sessions as $session) {
+            if (!isset($f2fsessionarrays[$session->facetoface])) {
+                $f2fsessionarrays[$session->facetoface] = array();
+            }
+            $f2fsessionarrays[$session->facetoface][] = $session;
+        }
+
+        $output = '';
+
+        foreach ($f2fsessionarrays as $id => $f2fsessionarray) {
+            if (!empty($f2fsessionarray)) {
+                $f2f = $DB->get_record('facetoface', array('id' => $id));
+
+                $cm = get_coursemodule_from_instance("facetoface", $f2f->id, $f2f->course);
+
+                // If the restricted access is enabled and the activity is not available we just skipping it.
+                if ($CFG->enableavailability && !get_fast_modinfo($cm->course)->get_cm($cm->id)->available) {
+                    continue;
+                }
+
+                $contextmodule = context_module::instance($cm->id);
+                $viewattendees = has_capability('mod/facetoface:viewattendees', $contextmodule);
+                $editevents = has_capability('mod/facetoface:editevents', $contextmodule);
+                $displaytimezones = get_config(null, 'facetoface_displaysessiontimezones');
+                $reserveinfo = array();
+                if (!empty($f2f->managerreserve)) {
+                    // Include information about reservations when drawing the list of sessions.
+                    $reserveinfo = facetoface_can_reserve_or_allocate($f2f, $f2fsessionarray, $contextmodule);
+                }
+
+                $f2fsessionarray = array_slice($f2fsessionarray, 0, $f2f->display, true);
+                $output .= html_writer::tag('h4', format_string($f2f->name));
+                $f2frenderer->setcontext($contextmodule);
+                $output .= $f2frenderer->print_session_list_table($f2fsessionarray, $viewattendees, $editevents,
+                    $displaytimezones, $reserveinfo, null, true);
+            }
+        }
+
+        return $output;
     }
 
     /**
@@ -564,7 +581,7 @@ class enrol_totara_facetoface_plugin extends enrol_plugin {
      * @return moodleform Instance of the enrolment form if successful, else false.
      */
     public function course_expand_get_form_hook($instance) {
-        global $CFG, $PAGE, $DB;
+        global $CFG;
 
         require_once("$CFG->dirroot/enrol/totara_facetoface/signup_form.php");
 
@@ -586,46 +603,7 @@ class enrol_totara_facetoface_plugin extends enrol_plugin {
 
                 return $enrolstatus;
             } else {
-                /** @var mod_facetoface_renderer $f2frenderer */
-                $f2frenderer = $PAGE->get_renderer('mod_facetoface');
-
-                $sessions = $this->get_enrolable_sessions($instance->courseid);
-
-                // Sort sessions into face-to-face activities.
-                $f2fsessionarrays = array();
-                foreach ($sessions as $session) {
-                    if (!isset($f2fsessionarrays[$session->facetoface])) {
-                        $f2fsessionarrays[$session->facetoface] = array();
-                    }
-                    $f2fsessionarrays[$session->facetoface][] = $session;
-                }
-
-                $output = '';
-
-                foreach ($f2fsessionarrays as $id => $f2fsessionarray) {
-                    if (!empty($f2fsessionarray)) {
-                        $f2f = $DB->get_record('facetoface', array('id' => $id));
-
-                        $cm = get_coursemodule_from_instance("facetoface", $f2f->id, $f2f->course);
-                        $contextmodule = context_module::instance($cm->id);
-                        $viewattendees = has_capability('mod/facetoface:viewattendees', $contextmodule);
-                        $editevents = has_capability('mod/facetoface:editevents', $contextmodule);
-                        $displaytimezones = get_config(null, 'facetoface_displaysessiontimezones');
-                        $reserveinfo = array();
-                        if (!empty($f2f->managerreserve)) {
-                            // Include information about reservations when drawing the list of sessions.
-                            $reserveinfo = facetoface_can_reserve_or_allocate($f2f, $f2fsessionarray, $contextmodule);
-                        }
-
-                        $f2fsessionarray = array_slice($f2fsessionarray, 0, $f2f->display, true);
-                        $output .= html_writer::tag('h4', format_string($f2f->name));
-                        $f2frenderer->setcontext($contextmodule);
-                        $output .= $f2frenderer->print_session_list_table($f2fsessionarray, $viewattendees, $editevents,
-                            $displaytimezones, $reserveinfo, null, true);
-                    }
-                }
-
-                return $output;
+                return $this->render_facetoface_sessions($instance);
             }
         }
 
