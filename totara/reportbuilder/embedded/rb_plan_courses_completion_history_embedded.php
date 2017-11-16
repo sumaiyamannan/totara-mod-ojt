@@ -65,11 +65,6 @@ class rb_plan_courses_completion_history_embedded extends rb_base_embedded {
 
         $this->filters = array(
             array(
-                'type' => 'course',
-                'value' => 'courselink',
-                'advanced' => 0,
-            ),
-            array(
                 'type' => 'base',
                 'value' => 'timecompleted',
                 'advanced' => 0,

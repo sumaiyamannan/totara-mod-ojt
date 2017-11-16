@@ -87,11 +87,6 @@ class rb_facetoface_summary_embedded extends rb_base_embedded {
                 'advanced' => 0,
             ),
             array(
-                'type' => 'date',
-                'value' => 'sessiondate',
-                'advanced' => 0,
-            ),
-            array(
                 'type' => 'session',
                 'value' => 'bookingstatus',
                 'advanced' => 0,
