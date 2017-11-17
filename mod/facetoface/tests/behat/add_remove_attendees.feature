@@ -36,7 +36,7 @@ Feature: Add - Remove seminar attendees
     And I follow "Course 1"
     And I follow "Test seminar name"
     And I follow "Add a new event"
-    And I click on "Edit date" "link"
+    And I click on "Edit session" "link"
     And I set the following fields to these values:
       | timestart[day]     | 1    |
       | timestart[month]   | 1    |
@@ -152,7 +152,7 @@ Feature: Add - Remove seminar attendees
     And I follow "Course 1"
     And I follow "Test seminar name"
     And I follow "Add a new event"
-    And I click on "Edit date" "link"
+    And I click on "Edit session" "link"
     And I fill seminar session with relative date in form data:
       | sessiontimezone    | Pacific/Auckland |
       | timestart[day]     | +1               |
@@ -194,7 +194,7 @@ Feature: Add - Remove seminar attendees
     And I follow "Course 1"
     And I follow "Test seminar name"
     And I follow "Add a new event"
-    And I click on "Edit date" "link"
+    And I click on "Edit session" "link"
     And I set the following fields to these values:
       | timestart[day]     | 1    |
       | timestart[month]   | 1    |
@@ -227,7 +227,7 @@ Feature: Add - Remove seminar attendees
       | Description | Test seminar description |
     And I follow "Test seminar name two"
     And I follow "Add a new event"
-    And I click on "Edit date" "link"
+    And I click on "Edit session" "link"
     And I set the following fields to these values:
       | timestart[day]     | 1    |
       | timestart[month]   | 1    |
@@ -273,7 +273,7 @@ Feature: Add - Remove seminar attendees
     And I follow "Course 1"
     And I follow "Test seminar name"
     And I follow "Add a new event"
-    And I click on "Edit date" "link"
+    And I click on "Edit session" "link"
     And I fill seminar session with relative date in form data:
       | sessiontimezone    | Pacific/Auckland |
       | timestart[day]     | +1               |
@@ -372,7 +372,7 @@ Feature: Add - Remove seminar attendees
     And I follow "Course 1"
     And I follow "Test seminar name"
     And I follow "Add a new event"
-    And I click on "Edit date" "link"
+    And I click on "Edit session" "link"
     And I set the following fields to these values:
       | timestart[day]     | 1    |
       | timestart[month]   | 1    |
@@ -438,7 +438,7 @@ Feature: Add - Remove seminar attendees
     And I follow "Course 1"
     And I follow "Test seminar name"
     And I follow "Add a new event"
-    And I click on "Edit date" "link"
+    And I click on "Edit session" "link"
     And I set the following fields to these values:
       | timestart[day]     | 1    |
       | timestart[month]   | 1    |

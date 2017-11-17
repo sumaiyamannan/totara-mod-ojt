@@ -44,7 +44,7 @@ Feature: Check attendees actions are performed by users with the right permissio
     And I press "Save changes"
     And I follow "View all events"
     And I follow "Add a new event"
-    And I click on "Edit date" "link"
+    And I click on "Edit session" "link"
     And I fill seminar session with relative date in form data:
       | sessiontimezone    | Pacific/Auckland |
       | timestart[day]     | -1               |
@@ -177,7 +177,7 @@ Feature: Check attendees actions are performed by users with the right permissio
     And I press "Save changes"
     And I follow "Test seminar2 name"
     And I follow "Add a new event"
-    And I click on "Edit date" "link"
+    And I click on "Edit session" "link"
     And I fill seminar session with relative date in form data:
       | sessiontimezone    | Pacific/Auckland |
       | timestart[day]     | +8               |

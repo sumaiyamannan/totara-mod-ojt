@@ -195,7 +195,7 @@ Feature: Seminar event cancellation notifications
     And I click on "Find Learning" in the totara menu
     And I follow "Course 1"
     And I click on "Edit event" "link" in the "10 February 2025" "table_row"
-    And I press "Add a new date"
+    And I press "Add a new session"
     And I follow "show-selectdate1-dialog"
     And I set the following fields to these values:
       | sessiontimezone     | Pacific/Auckland |

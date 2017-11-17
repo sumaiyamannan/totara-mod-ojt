@@ -38,7 +38,7 @@ Feature: Cancellation for session
     And I follow "Course 1"
     And I follow "View all events"
     And I follow "Add a new event"
-    And I click on "Edit date" "link"
+    And I click on "Edit session" "link"
     And I fill seminar session with relative date in form data:
       | sessiontimezone    | Pacific/Auckland |
       | timestart[day]     | +1               |
@@ -100,7 +100,7 @@ Feature: Cancellation for session
     And I follow "Course 1"
     And I follow "View all events"
     And I follow "Add a new event"
-    And I click on "Edit date" "link"
+    And I click on "Edit session" "link"
     And I fill seminar session with relative date in form data:
       | sessiontimezone    | Pacific/Auckland |
       | timestart[day]     | +2               |
@@ -137,7 +137,7 @@ Feature: Cancellation for session
     And I follow "Course 1"
     And I follow "View all events"
     And I follow "Add a new event"
-    And I click on "Edit date" "link"
+    And I click on "Edit session" "link"
     And I fill seminar session with relative date in form data:
       | sessiontimezone    | Pacific/Auckland |
       | timestart[day]     | +3               |
@@ -172,7 +172,7 @@ Feature: Cancellation for session
     And I follow "Course 1"
     And I follow "View all events"
     And I click on "Edit event" "link"
-    And I click on "Edit date" "link"
+    And I click on "Edit session" "link"
     And I fill seminar session with relative date in form data:
       | sessiontimezone    | Pacific/Auckland |
       | timestart[day]     | +1               |
@@ -206,7 +206,7 @@ Feature: Cancellation for session
     And I follow "Course 1"
     And I follow "View all events"
     And I follow "Add a new event"
-    And I click on "Edit date" "link"
+    And I click on "Edit session" "link"
     And I fill seminar session with relative date in form data:
       | sessiontimezone    | Pacific/Auckland |
       | timestart[day]     | +1               |

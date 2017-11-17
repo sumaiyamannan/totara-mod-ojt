@@ -39,7 +39,7 @@ Feature: Take attendance for a seminar with multiple sessions
     # Add sessions to f2f.
     And I follow "View all events"
     And I follow "Add a new event"
-    And I click on "Edit date" "link"
+    And I click on "Edit session" "link"
     And I fill seminar session with relative date in form data:
       | sessiontimezone      | Europe/London |
       | timestart[timezone]  | Europe/London |
@@ -74,7 +74,7 @@ Feature: Take attendance for a seminar with multiple sessions
 
     And I press "Save changes"
     And I follow "Add a new event"
-    And I click on "Edit date" "link"
+    And I click on "Edit session" "link"
     And I fill seminar session with relative date in form data:
       | sessiontimezone      | Europe/London |
       | timestart[timezone]  | Europe/London |

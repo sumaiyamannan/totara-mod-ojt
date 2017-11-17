@@ -35,7 +35,7 @@ Feature: Test steps in behat_facetoface.php
       | timefinish[timezone]| Pacific/Auckland |
     And I press "OK"
 
-    Given I press "Add a new date"
+    Given I press "Add a new session"
     And I follow "show-selectdate1-dialog"
     And I set the following fields to these values:
       | sessiontimezone     | Pacific/Auckland |

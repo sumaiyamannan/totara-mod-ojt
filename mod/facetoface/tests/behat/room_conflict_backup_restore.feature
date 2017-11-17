@@ -46,7 +46,7 @@ Feature: Test room conflicts through backup/restore
     And I follow "Facetoface TL12734"
 
     And I follow "Add a new event"
-    And I click on "Edit date" "link"
+    And I click on "Edit session" "link"
     And I set the following fields to these values:
       | timestart[day]     | 1    |
       | timestart[month]   | 1    |
@@ -65,7 +65,7 @@ Feature: Test room conflicts through backup/restore
     And I press "Save changes"
 
     And I follow "Add a new event"
-    And I click on "Edit date" "link"
+    And I click on "Edit session" "link"
     And I set the following fields to these values:
       | timestart[day]     | 2    |
       | timestart[month]   | 1    |

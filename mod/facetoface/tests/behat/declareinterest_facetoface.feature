@@ -46,7 +46,7 @@ Feature: Manager approval and declare of interest
       | Users can declare interest | Always                          |
     And I click on "View all events" "link" in the "declareinterestfullybooked" activity
     And I follow "Add a new event"
-    And I click on "Edit date" "link"
+    And I click on "Edit session" "link"
     And I set the following fields to these values:
       | timestart[day]     | 1    |
       | timestart[month]   | 1    |
@@ -85,7 +85,7 @@ Feature: Manager approval and declare of interest
       | Users can declare interest  | When no upcoming events are available for booking |
     And I click on "View all events" "link" in the "declareinterestfullybooked" activity
     And I follow "Add a new event"
-    And I click on "Edit date" "link"
+    And I click on "Edit session" "link"
     And I set the following fields to these values:
       | timestart[day]     | 1    |
       | timestart[month]   | 1    |
@@ -126,7 +126,7 @@ Feature: Manager approval and declare of interest
       | Users can declare interest | When no upcoming events are available for booking |
     And I click on "View all events" "link" in the "declareinterestfullybooked" activity
     And I follow "Add a new event"
-    And I click on "Edit date" "link"
+    And I click on "Edit session" "link"
     And I set the following fields to these values:
       | timestart[day]     | 1    |
       | timestart[month]   | 1    |
@@ -168,7 +168,7 @@ Feature: Manager approval and declare of interest
       | Users can declare interest | Always                          |
     And I click on "View all events" "link" in the "Test f2f 1" activity
     And I follow "Add a new event"
-    And I click on "Edit date" "link"
+    And I click on "Edit session" "link"
     And I set the following fields to these values:
       | timestart[day]     | 1    |
       | timestart[month]   | 1    |
@@ -189,7 +189,7 @@ Feature: Manager approval and declare of interest
       | Users can declare interest | Always                          |
     And I click on "View all events" "link" in the "Test f2f 2" activity
     And I follow "Add a new event"
-    And I click on "Edit date" "link"
+    And I click on "Edit session" "link"
     And I set the following fields to these values:
       | timestart[day]     | 1    |
       | timestart[month]   | 1    |
@@ -251,7 +251,7 @@ Feature: Manager approval and declare of interest
       | Users can declare interest | When no upcoming events are available for booking |
     And I click on "View all events" "link" in the "declareinterestnotfullybookedpast" activity
     And I follow "Add a new event"
-    And I click on "Edit date" "link"
+    And I click on "Edit session" "link"
     And I fill seminar session with relative date in form data:
       | sessiontimezone    | Pacific/Auckland |
       | timestart[day]     | -1               |

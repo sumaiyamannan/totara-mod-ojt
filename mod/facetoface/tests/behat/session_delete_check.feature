@@ -18,7 +18,7 @@ Feature: Confirm overlapping sessions can be removed
       | Description | Test seminar description |
     And I follow "View all events"
     And I follow "Add a new event"
-    And I click on "Edit date" "link"
+    And I click on "Edit session" "link"
     And I set the following fields to these values:
       | timestart[day]       | 15               |
       | timestart[month]     | 7                |
@@ -33,8 +33,8 @@ Feature: Confirm overlapping sessions can be removed
       | timefinish[minute]   | 0                |
       | timefinish[timezone] | Pacific/Auckland |
     And I click on "OK" "button" in the "Select date" "totaradialogue"
-    And I press "Add a new date"
-    And I click on "Edit date" "link" in the ".f2fmanagedates .lastrow" "css_element"
+    And I press "Add a new session"
+    And I click on "Edit session" "link" in the ".f2fmanagedates .lastrow" "css_element"
     And I set the following fields to these values:
       | timestart[day]       | 15             |
       | timestart[month]     | 7              |

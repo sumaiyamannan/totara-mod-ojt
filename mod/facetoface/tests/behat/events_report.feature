@@ -23,7 +23,7 @@ Feature: Check the seminar events and sessions reports display correctly
       | Description | Test seminar description |
     And I follow "View all events"
     And I follow "Add a new event"
-    And I click on "Edit date" "link"
+    And I click on "Edit session" "link"
     And I set the following fields to these values:
       | timestart[day]     | 1    |
       | timestart[month]   | 1    |
@@ -57,7 +57,7 @@ Feature: Check the seminar events and sessions reports display correctly
     And I follow "Course 1"
     And I follow "View all events"
     And I click on "Edit event" "link"
-    And I click on "Add a new date" "button"
+    And I click on "Add a new session" "button"
     And I click to edit the seminar event date at position 2
     And I set the following fields to these values:
       | timestart[day]     | 2    |

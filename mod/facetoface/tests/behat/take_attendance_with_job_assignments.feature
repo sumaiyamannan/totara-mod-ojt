@@ -90,7 +90,7 @@ Feature: Take seminar attendance with job assignment on signup
     And I follow "Course 1"
     And I follow "View all events"
     And I click on "Edit event" "link" in the "10 February 2025" "table_row"
-    And I click on "Edit date" "link"
+    And I click on "Edit session" "link"
     And I set the following fields to these values:
       | timestart[year]    | 2016 |
       | timefinish[year]   | 2016 |
@@ -150,7 +150,7 @@ Feature: Take seminar attendance with job assignment on signup
     And I follow "Course 1"
     And I follow "View all events"
     And I click on "Edit event" "link" in the "10 February 2025" "table_row"
-    And I click on "Edit date" "link"
+    And I click on "Edit session" "link"
     And I set the following fields to these values:
       | timestart[year]    | 2016 |
       | timefinish[year]   | 2016 |
@@ -220,7 +220,7 @@ Feature: Take seminar attendance with job assignment on signup
     And I follow "Course 1"
     And I follow "View all events"
     And I click on "Edit event" "link" in the "10 February 2025" "table_row"
-    And I click on "Edit date" "link"
+    And I click on "Edit session" "link"
     And I set the following fields to these values:
       | timestart[year]    | 2016 |
       | timefinish[year]   | 2016 |

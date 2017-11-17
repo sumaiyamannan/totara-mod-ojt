@@ -36,7 +36,7 @@ Feature: Users can enrol on courses that have position signup enabled and get si
       | Prevent signup if no job assignment is selected or can be found | 0                          |
     And I follow "Test seminar name 1"
     And I follow "Add a new event"
-    And I click on "Edit date" "link"
+    And I click on "Edit session" "link"
     And I set the following fields to these values:
       | timestart[day]     | 1    |
       | timestart[month]   | 1    |
@@ -61,7 +61,7 @@ Feature: Users can enrol on courses that have position signup enabled and get si
       | Prevent signup if no job assignment is selected or can be found | 1                          |
     And I follow "Test seminar name 1"
     And I follow "Add a new event"
-    And I click on "Edit date" "link"
+    And I click on "Edit session" "link"
     And I set the following fields to these values:
       | timestart[day]     | 1    |
       | timestart[month]   | 1    |

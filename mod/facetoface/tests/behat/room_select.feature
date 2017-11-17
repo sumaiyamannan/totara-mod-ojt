@@ -54,7 +54,7 @@ Feature: Display the rooms in select room dialog when room is booked and hidden
     And I follow "Seminar TL-9152"
 
     And I follow "Add a new event"
-    And I click on "Edit date" "link"
+    And I click on "Edit session" "link"
     And I set the following fields to these values:
       | timestart[day]     | 1    |
       | timestart[month]   | 1    |
@@ -78,7 +78,7 @@ Feature: Display the rooms in select room dialog when room is booked and hidden
     And I press "Save changes"
 
     And I follow "Add a new event"
-    And I click on "Edit date" "link"
+    And I click on "Edit session" "link"
     And I set the following fields to these values:
       | timestart[day]     | 2    |
       | timestart[month]   | 1    |

@@ -28,7 +28,7 @@ Feature: Check My bookings displays the right information for future and past ev
       | Users can sign-up to multiple events    | 1                          |
     And I follow "View all events"
     And I follow "Add a new event"
-    And I click on "Edit date" "link" in the "Select room" "table_row"
+    And I click on "Edit session" "link" in the "Select room" "table_row"
 
     # Future event.
     And I fill seminar session with relative date in form data:
@@ -49,7 +49,7 @@ Feature: Check My bookings displays the right information for future and past ev
 
     # In progress event.
     And I follow "Add a new event"
-    And I click on "Edit date" "link" in the "Select room" "table_row"
+    And I click on "Edit session" "link" in the "Select room" "table_row"
     And I fill seminar session with relative date in form data:
       | timestart[day]       | -1 |
       | timestart[month]     | 0  |
@@ -85,7 +85,7 @@ Feature: Check My bookings displays the right information for future and past ev
 
     # Past event.
     And I follow "Add a new event"
-    And I click on "Edit date" "link" in the "Select room" "table_row"
+    And I click on "Edit session" "link" in the "Select room" "table_row"
     And I fill seminar session with relative date in form data:
       | timestart[day]       | -3 |
       | timestart[month]     | 0  |
@@ -111,7 +111,7 @@ Feature: Check My bookings displays the right information for future and past ev
      # Future event.
     And I click on "seminar2" "link"
     And I follow "Add a new event"
-    And I click on "Edit date" "link" in the "Select room" "table_row"
+    And I click on "Edit session" "link" in the "Select room" "table_row"
     And I fill seminar session with relative date in form data:
       | timestart[day]       | +4 |
       | timestart[month]     | 0  |

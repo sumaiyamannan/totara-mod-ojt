@@ -62,7 +62,7 @@ Feature: Users can auto-enrol themself in courses where self enrolment is allowe
       | No Approval | 1                          |
     And I follow "Test seminar name 2"
     And I follow "Add a new event"
-    And I click on "Edit date" "link"
+    And I click on "Edit session" "link"
     And I set the following fields to these values:
       | timestart[day]     | 1    |
       | timestart[month]   | 1    |
