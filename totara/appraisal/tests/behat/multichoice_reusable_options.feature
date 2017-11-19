@@ -81,7 +81,7 @@
     And I press "Start"
     And I click on "//legend/a[text()='Multi-choice question one']/ancestor::fieldset//select/option[text()='Two']" "xpath_element"
     And I click on "//legend/a[text()='Multi-choice question two']/ancestor::fieldset//select/option[text()='Three']" "xpath_element"
-    And I click on "Complete stage" "button" in the "#fitem_id_submitbutton" "css_element"
+    And I click on "Complete Stage" "button" in the "#fitem_id_submitbutton" "css_element"
 
     # View the details report
     When I log out
