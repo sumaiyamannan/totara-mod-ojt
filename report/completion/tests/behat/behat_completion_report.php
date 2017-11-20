@@ -46,17 +46,18 @@ class behat_completion_report extends behat_base {
             throw new DriverException('Complete course via RPL step is not available with Javascript disabled');
         }
 
-        $xpath = "//tr[contains(descendant::*, '" . $users_name . "')]";
-        $tr = $this->find('xpath', $xpath);
-
-        $xpath = "//td[@class='completion-progresscell rpl-course']";
-        $td = $tr->find('xpath', $xpath);
+        $xpath = "//tr[contains(descendant::*, '" . $users_name . "')]//td[@class='completion-progresscell rpl-course']";
+        $td = $this->find('xpath', $xpath);
 
         $xpath = "//a";
         $tick = $td->find('xpath', $xpath);
         $tick->click();
+        $this->wait_for_pending_js();
 
         $input = $td->find('css', '.rplinput');
+        if (!method_exists($input, 'setValue')) {
+            throw new \Behat\Mink\Exception\ExpectationException('Cannot set RPL record for ' . $users_name, $this->getSession());
+        }
         $input->setValue($rpltext);
         $tick->click();
     }
@@ -82,6 +83,7 @@ class behat_completion_report extends behat_base {
         $xpath = "//a";
         $tick = $td->find('xpath', $xpath);
         $tick->click();
+        $this->wait_for_pending_js();
 
         $xpath = "//a[@title='Delete this RPL']";
         $delete = $td->find('xpath', $xpath);
