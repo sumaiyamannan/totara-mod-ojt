@@ -17,14 +17,33 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- * @author Ciaran Irvine <ciaran.irvine@totaralms.com>
- * @author Valerii Kuznetsov <valerii.kuznetsov@totaralms.com>
- * @package totara
- * @subpackage totara_appraisal
+ * @author David Curry <david.curry@totaralearning.com>
+ * @package totara_appraisal
  */
+namespace totara_appraisal\task;
 
-defined('MOODLE_INTERNAL') || die();
+/**
+ * Update learner assignments for active appraisals.
+ */
+class scheduled_messages extends \core\task\scheduled_task {
 
-$plugin->version  = 2016092004;       // The current module version (Date: YYYYMMDDXX).
-$plugin->requires = 2015111606;       // Requires this Moodle version.
-$plugin->component = 'totara_appraisal';   // To check on upgrade, that module sits in correct place.
+    /**
+     * Get a descriptive name for this task (shown to admins).
+     *
+     * @return string
+     */
+    public function get_name() {
+        return get_string('sendscheduledmessagestask', 'totara_appraisal');
+    }
+
+    /**
+     * Do the job.
+     * Throw exceptions on errors (the job will be retried).
+     */
+    public function execute() {
+        global $CFG;
+        require_once($CFG->dirroot.'/totara/appraisal/lib.php');
+
+        \appraisal::send_scheduled(); // Abstracted out for ease of testing.
+    }
+}

@@ -27,6 +27,15 @@ defined('MOODLE_INTERNAL') || die();
 
 $tasks = array(
     array(
+        'classname' => 'totara_appraisal\task\scheduled_messages',
+        'blocking' => 0,
+        'minute' => '*',
+        'hour' => '*',
+        'day' => '*',
+        'dayofweek' => '*',
+        'month' => '*'
+    ),
+    array(
         'classname' => 'totara_appraisal\task\update_learner_assignments_task',
         'blocking' => 0,
         'minute' => '0',
