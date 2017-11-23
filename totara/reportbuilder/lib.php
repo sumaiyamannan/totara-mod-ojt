@@ -5589,7 +5589,7 @@ function reportbuilder_generate_cache($reportid) {
     global $DB;
 
     $success = false;
-    $dbman = $DB->get_manager();
+    $oldtable = '';
 
     $rawreport = $DB->get_record('report_builder', array('id' => $reportid), '*', MUST_EXIST);
 
@@ -5601,24 +5601,15 @@ function reportbuilder_generate_cache($reportid) {
         $cache->frequency = 0;
         $cache->schedule = 0;
         $cache->changed = 0;
+        $cache->cachetable = null;
         $cache->genstart = 0;
+        $cache->queryhash = null;
         $cache->id = $DB->insert_record('report_builder_cache', $cache);
         $rbcache = $DB->get_record('report_builder_cache', array('reportid' => $reportid), '*', MUST_EXIST);
+    } else {
+        $oldtable = $rbcache->cachetable;
     }
-
-    $date = date("YmdHis");
-    $newtable = "{report_builder_cache_{$reportid}_{$date}}";
-
-    // Purge old data and mark as started.
-    $oldtable = $rbcache->cachetable;
-    $rbcache->cachetable = $newtable;
-    $rbcache->genstart = time();
-    $rbcache->queryhash = null;
-    $DB->update_record('report_builder_cache', $rbcache);
-
-    if ($oldtable) {
-        sql_drop_table_if_exists($oldtable);
-    }
+    $DB->set_field('report_builder_cache', 'genstart', time(), ['id' => $rbcache->id]);
 
     try {
         // Instantiate.
@@ -5632,15 +5623,21 @@ function reportbuilder_generate_cache($reportid) {
         list($query, $params) = $report->build_create_cache_query();
         $queryhash = sha1($query.serialize($params));
 
+        $uniqid = uniqid();
+        $newtable = "{report_builder_cache_{$reportid}_{$uniqid}}";
         $result = sql_table_from_select($newtable, $query, $params);
 
         if ($result) {
+            $rbcache->cachetable = $newtable;
             $rbcache->lastreport = time();
             $rbcache->queryhash = $queryhash;
             $rbcache->changed = 0;
             $rbcache->genstart = 0;
             $DB->update_record('report_builder_cache', $rbcache);
             $success = true;
+            if ($oldtable) {
+                sql_drop_table_if_exists($oldtable);
+            }
         }
     } catch (dml_exception $e) {
         debugging('Problem creating cache table '.$e->getMessage());

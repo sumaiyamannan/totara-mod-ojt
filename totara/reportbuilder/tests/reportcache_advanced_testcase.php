@@ -63,7 +63,7 @@ abstract class reportcache_advanced_testcase extends advanced_testcase {
         list($sql, $params, $cache) = $report->build_query(false, true);
         if ($ensurecache) {
             $this->assertArrayHasKey('cachetable', $cache);
-            $this->assertStringMatchesFormat('{report_builder_cache_%d_%d}', $cache['cachetable']);
+            $this->assertStringMatchesFormat('{report_builder_cache_%d_%s}', $cache['cachetable']);
         }
         $result = $DB->get_records_sql($sql, $params);
         return $result;
