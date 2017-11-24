@@ -279,7 +279,7 @@ class rb_source_totaramessages extends rb_base_source {
         $contentoptions = array();
 
         // Add the manager/position/organisation content options.
-        $this->add_basic_user_content_options($contentoptions, 'user');
+        $this->add_basic_user_content_options($contentoptions, 'userto');
 
         // Add the time created content option.
         $contentoptions[] = new rb_content_option(

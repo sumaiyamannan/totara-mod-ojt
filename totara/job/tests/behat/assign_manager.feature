@@ -1,5 +1,5 @@
 @totara @totara_job @javascript
-Feature: Assign a manager to a user via the job assignment page
+Feature: Assigning a manager to a user via the job assignment page
   In order to assign a manager to a user
   As a user with correct permissions
   I must be able to select a manager and the manager's job assignment
@@ -182,17 +182,13 @@ Feature: Assign a manager to a user via the job assignment page
       | ID Number | 1         |
     And I press "Choose manager"
     And I click on "Search" "link" in the "Choose manager" "totaradialogue"
-    And I set the following fields to these values:
-      | Search | User |
-    And I press "Search"
+    And I search for "User" in the "Choose manager" totara dialogue
 
     # User cannot create a job without the necessary capability.
     Then I should see "User Two - requires job assignment entry" in the "#search-tab" "css_element"
 
     # Options can't be expandable in search, so all available are shown on their own line in format {manager name} - {manager job assignment}.
-    When I set the following fields to these values:
-      | Search | Manager |
-    And I press "Search"
+    When I search for "Manager" in the "Choose manager" totara dialogue
     Then I should see "Manager One - Development Manager" in the "#search-tab" "css_element"
     And I should see "Manager Two - Design Manager" in the "#search-tab" "css_element"
     And I should see "Manager Two - Brand Manager" in the "#search-tab" "css_element"
@@ -249,9 +245,7 @@ Feature: Assign a manager to a user via the job assignment page
       | ID Number | 1      |
     And I press "Choose manager"
     And I click on "Search" "link" in the "Choose manager" "totaradialogue"
-    And I set the following fields to these values:
-      | Search | Manager |
-    And I press "Search"
+    And I search for "Manager" in the "Choose manager" totara dialogue
     Then I should see "Manager One - Development Manager" in the "#search-tab" "css_element"
     And I should see "Manager One - create empty job assignment" in the "#search-tab" "css_element"
     And I should see "Manager Two - create empty job assignment" in the "#search-tab" "css_element"

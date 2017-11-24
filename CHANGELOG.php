@@ -1,7 +1,96 @@
 <?php
 /*
 
-Totara LMS Changelog
+Totara Learn Changelog
+
+Release 9.13 (22nd November 2017):
+==================================
+
+
+Security issues:
+
+    TL-16270       360° Feedback now correctly disposes of the user's access token when no longer needed
+
+                   Previously if a user accessed a 360° Feedback instance using a token, that
+                   token would be stored in the user's session and would allow them to access
+                   the 360° Feedback as a user (not with a token).
+                   The token used to access the first 360° Feedback instance is now disposed
+                   of correctly.
+
+Improvements:
+
+    TL-15907       Improved how evidence custom field data is saved when importing completion history
+
+Bug fixes:
+
+    TL-9360        Managers approving Seminar booking requests are now notified of the updates success
+
+                   Previously, when a manager approved staff requests for bookings into a
+                   Seminar event, they would then be redirected to a page saying 'You can not
+                   enrol yourself in this course' (assuming they were not enrolled or did not
+                   have other permissions to view the attendees page). Following any approvals
+                   (by a manager or any other user), the page will now refresh onto the
+                   approval required page, with a message confirming the update was
+                   successful.
+
+    TL-10880       Fixed language string fault in deprecated menu functionality.
+    TL-13934       Fixed 'user' join not in join list for content in the message report
+    TL-15029       Fixed brief positioning issue when scrolling a 360° Feedback page
+    TL-15956       Set the RPL fields on the course completion report to read only when appropriate
+
+                   Previously, the RPL fields were allowing data to be entered/edited when
+                   users were already complete. The form will now set them to read only in
+                   this situation. There is also now a column with a link to the course
+                   completion editor, which should be used if changes are required.
+
+    TL-16253       HTML pasted into Atto is now sanitised to remove markup known to cause display issues
+
+                   When copying HTML into an Atto editor instance, script, iframe and head
+                   HTML tags are now removed. These tags can be added manually when editing
+                   the text in source mode.
+
+    TL-16287       Fixed renaming of user profile fields breaking HR Import user source settings
+
+                   If the HR Import user source (CSV or Database) was configured to import a
+                   custom profile field and the field short name was changed then HR Import
+                   would no longer import data to it. In some situations it would then be
+                   impossible to re-add the field. This has now been fixed.
+
+    TL-16296       Fixed a bug leading to schedule changes for reports being forgotten
+    TL-16312       Fixed formatting of text area fields in the Database course activity when exporting
+
+                   When exporting text area field data from the Database activity the field
+                   content included HTML tags. It now converts the HTML to standard text.
+
+    TL-16318       Fixed calendar events for single Seminar sessions with multiple dates
+    TL-16376       Fixed LDAP sync for user profile custom menu field
+
+                   TL-14170 fixed a problem where custom user profile fields were not being
+                   synced with an LDAP backend. The fix worked for all user profile custom
+                   fields except for menu dropdowns which required an extra processing step
+                   during the LDAP syncing. This has now been fixed.
+
+    TL-16386       Fixed dashboard reset error with deleted users
+    TL-16396       Fixed an SQL error occurring due to a missing default
+
+                   This may have affected sites that have upgraded through Totara 2.5, and
+                   which were using Seminar room functionality.
+                   A missing upgrade step may have lead to an incorrect null default value
+                   existing in the facetoface_room table.
+                   The fix for this issue has added the missing upgrade step which correctly
+                   removes the null values and replaces them with the expected "0".
+
+    TL-16422       Fixed and removed forgotten deprecated location code in Seminar
+    TL-16429       Fixed session details missing from Trainer confirmation email
+    TL-16430       Fixed alphabetical order user list when selecting a manager
+    TL-16435       Fixed missing "Notification does not exist" string
+    TL-16443       Fixed an SQL error in the Appraisal details report due to multi-select questions
+
+Contributions:
+
+    * Grace Cooper at Kineo UK - TL-16396
+    * Richard Eastbury at Think Associates - TL-16376
+ 
 
 Release 9.12 (27th October 2017):
 =================================

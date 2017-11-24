@@ -3963,9 +3963,10 @@ function update_user_record($username) {
  * Will update a local user record from an external source (MNET users can not be updated using this method!).
  *
  * @param int $id user id
+ * @param boolean $sync whether this is being called from sync and needs pre-preprocessing.
  * @return stdClass A complete user object
  */
-function update_user_record_by_id($id) {
+function update_user_record_by_id($id, $sync=false) {
     global $DB, $CFG;
     require_once($CFG->dirroot."/user/profile/lib.php");
     require_once($CFG->dirroot.'/user/lib.php');
@@ -4016,7 +4017,7 @@ function update_user_record_by_id($id) {
             user_update_user((object) $newuser, false, false);
 
             // Save user profile data.
-            profile_save_data((object) $newuser);
+            profile_save_data((object) $newuser, $sync);
 
             // Trigger event.
             \core\event\user_updated::create_from_userid($newuser['id'])->trigger();
@@ -4426,7 +4427,7 @@ function authenticate_user_login($username, $password, $ignorelockout=false, &$f
 
             if ($authplugin->is_synchronised_with_external()) {
                 // Update user record from external DB.
-                $user = update_user_record_by_id($user->id);
+                $user = update_user_record_by_id($user->id, true);
             }
         } else {
             // The user is authenticated but user creation may be disabled.

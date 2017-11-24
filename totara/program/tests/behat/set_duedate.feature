@@ -207,8 +207,7 @@ Feature: Set due date for program assignments
     Then I should see "Program search result x" in the "Choose item" "totaradialogue"
     And I should see "Program search result y" in the "Choose item" "totaradialogue"
     And I click on "Search" "link" in the "Choose item" "totaradialogue"
-    And I set the field "id_query" to "x"
-    And I click on "Search" "button" in the "Choose item" "totaradialogue"
+    And I search for "x" in the "Choose item" totara dialogue
     Then I should see "Program search result x" in the "Choose item" "totaradialogue"
     And I should not see "Program search result y" in the "Choose item" "totaradialogue"
     And I click on "Program search result x" "link" in the "#search-tab" "css_element"
@@ -223,8 +222,7 @@ Feature: Set due date for program assignments
     Then I should see "Position search result x" in the "Choose item" "totaradialogue"
     And I should see "Position search result y" in the "Choose item" "totaradialogue"
     And I click on "Search" "link" in the "Choose item" "totaradialogue"
-    And I set the field "id_query" to "x"
-    And I click on "Search" "button" in the "Choose item" "totaradialogue"
+    And I search for "x" in the "Choose item" totara dialogue
     Then I should see "Position search result x" in the "Choose item" "totaradialogue"
     And I should not see "Position search result y" in the "Choose item" "totaradialogue"
     And I click on "Position search result x" "link" in the "#search-tab" "css_element"
@@ -239,8 +237,7 @@ Feature: Set due date for program assignments
     Then I should see "Position search result x" in the "Choose item" "totaradialogue"
     And I should see "Position search result y" in the "Choose item" "totaradialogue"
     And I click on "Search" "link" in the "Choose item" "totaradialogue"
-    And I set the field "id_query" to "x"
-    And I click on "Search" "button" in the "Choose item" "totaradialogue"
+    And I search for "x" in the "Choose item" totara dialogue
     Then I should see "Position search result x" in the "Choose item" "totaradialogue"
     And I should not see "Position search result y" in the "Choose item" "totaradialogue"
     And I click on "Position search result x" "link" in the "#search-tab" "css_element"
@@ -257,8 +254,7 @@ Feature: Set due date for program assignments
     Then I should see "Course search result x" in the "Choose item" "totaradialogue"
     And I should see "Course search result y" in the "Choose item" "totaradialogue"
     And I click on "Search" "link" in the "Choose item" "totaradialogue"
-    And I set the field "id_query" to "x"
-    And I click on "Search" "button" in the "Choose item" "totaradialogue"
+    And I search for "x" in the "Choose item" totara dialogue
     Then I should see "Course search result x" in the "Choose item" "totaradialogue"
     And I should not see "Course search result y" in the "Choose item" "totaradialogue"
     And I click on "Course search result x" "link" in the "#search-tab" "css_element"

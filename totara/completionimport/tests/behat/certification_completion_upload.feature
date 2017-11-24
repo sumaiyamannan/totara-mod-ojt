@@ -31,7 +31,8 @@ Feature: Verify certification completion data can be successfully uploaded.
 
     When I follow "Other Evidence"
     And I follow "Completed certification : thisisevidence"
-    Then I should see "Certification Short name : thisisevidence"
+    Then I should see "Description :"
+    And I should see "Certification Short name : thisisevidence"
     And I should see "Certification ID number : notacertification"
     And I should see "Date completed : 1 January 2015"
 

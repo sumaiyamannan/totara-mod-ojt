@@ -155,6 +155,7 @@ $string['error:invaliddatetoolate'] = 'The \'{$a->field}\' date/time custom fiel
 $string['error:updatecustomfield'] = 'Error updating custom field!';
 $string['error:novalue'] = 'Invalid CSV file format - "{$a}" custom field does not exist';
 $string['eventdeleted'] = 'Customfield deleted';
+$string['eventupdated'] = 'Customfield updated';
 $string['fieldcolumns'] = 'Columns';
 $string['fieldispassword'] = 'Is this a password field?';
 $string['fieldmaxlength'] = 'Maximum length';

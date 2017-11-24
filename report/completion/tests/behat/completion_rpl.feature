@@ -32,21 +32,7 @@ Feature: Completion report rpl
     # Set course completion via RPL
     When I navigate to "Course completion" node in "Course administration > Reports"
     Then I complete the course via rpl for "Student 1" with text "Test 1"
-    And I log out
-
-    # Check student completion status
-    When I log in as "student1"
-    And I click on "Record of Learning" in the totara menu
-    And I follow "Complete via rpl"
-    Then I should see "Complete via rpl"
-    And I log out
-
-    # Delete RPL
-    When I log in as "admin"
-    And I click on "Find Learning" in the totara menu
-    And I follow "Course 1"
-    And I navigate to "Course completion" node in "Course administration > Reports"
-    Then I delete the course rpl for "Student 1"
+    And I delete the course rpl for "Student 1"
     And I log out
 
     # Check student completion status
@@ -74,21 +60,7 @@ Feature: Completion report rpl
     And I follow "Course 1"
     And I navigate to "Course completion" node in "Course administration > Reports"
     Then I complete the course via rpl for "Student 1" with text "Test 1"
-    And I log out
-
-    # Check student completion status
-    When I log in as "student1"
-    And I click on "Record of Learning" in the totara menu
-    And I follow "Complete via rpl"
-    Then I should see "Complete via rpl"
-    And I log out
-
-    # Delete RPL
-    When I log in as "admin"
-    And I click on "Find Learning" in the totara menu
-    And I follow "Course 1"
-    And I navigate to "Course completion" node in "Course administration > Reports"
-    Then I delete the course rpl for "Student 1"
+    And I delete the course rpl for "Student 1"
     And I log out
 
     # Check student completion status

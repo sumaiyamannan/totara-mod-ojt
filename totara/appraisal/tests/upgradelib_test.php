@@ -147,4 +147,72 @@ class totara_appraisal_upgradelib_test extends appraisal_testcase {
         $this->assertEquals(5, $DB->count_records('appraisal_user_assignment'));
         $this->assertEquals(0, $DB->count_records('appraisal_user_assignment', array('jobassignmentlastmodified' => 0)));
     }
+
+    public function test_totara_appraisal_upgrade_fix_inconsistent_multichoice_param1() {
+        $this->resetAfterTest();
+
+        global $DB;
+
+        // Insert some fake data.
+        $question = new stdClass();
+        $question->appraisalstagepageid = 123;
+        $question->name = '1 fix me 1';
+        $question->sortorder = 234;
+        $question->datatype = 'multichoicemulti';
+        $question->requried = 0;
+        $question->param1 = '"345"';
+        $question->param2 = '"456"';
+        $question->param3 = '"567"';
+        $question->param4 = '"678"';
+        $question->param5 = '"789"';
+        $DB->insert_record('appraisal_quest_field', $question);
+
+        $question->name = '2 fix me 2';
+        $question->datatype = 'multichoicesingle';
+        $question->param1 = '"346"';
+        $question->param2 = '456';
+        $question->param3 = '{"1":"2","3":"4"}';
+        $question->param4 = '[]';
+        $question->param5 = null;
+        $DB->insert_record('appraisal_quest_field', $question);
+
+        $question->name = '3 leave me type';
+        $question->datatype = 'someothertype';
+        $question->param1 = '"347"';
+        $DB->insert_record('appraisal_quest_field', $question);
+
+        $question->name = '4 leave me int';
+        $question->datatype = 'multichoicesingle';
+        $question->param1 = '348';
+        $DB->insert_record('appraisal_quest_field', $question);
+
+        $question->name = '5 leave me null';
+        $question->datatype = 'multichoicemulti';
+        $question->param1 = null;
+        $DB->insert_record('appraisal_quest_field', $question);
+
+        $question->name = '6 leave me empty array';
+        $question->datatype = 'multichoicemulti';
+        $question->param1 = '[]';
+        $DB->insert_record('appraisal_quest_field', $question);
+
+        $question->name = '7 leave me array';
+        $question->datatype = 'multichoicemulti';
+        $question->param1 = '{"1":"2","3":"4"}';
+        $DB->insert_record('appraisal_quest_field', $question);
+
+        // Construct the expected results.
+        $expectedresults = $DB->get_records('appraisal_quest_field', array(), 'name');
+        $expectedfixme1 = reset($expectedresults);
+        $expectedfixme1->param1 = '345';
+        $expectedfixme2 = next($expectedresults);
+        $expectedfixme2->param1 = '346';
+
+        // Run the function.
+        totara_appraisal_upgrade_fix_inconsistent_multichoice_param1();
+
+        // Check the results.
+        $actualresults = $DB->get_records('appraisal_quest_field', array(), 'name');
+        $this->assertEquals($expectedresults, $actualresults);
+    }
 }

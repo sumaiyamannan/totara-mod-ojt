@@ -456,11 +456,13 @@ class behat_totara_core extends behat_base {
         if (!$dialog) {
             throw new ExpectationException('Unable to find the "'.$dialog.'" Totara dialog', $this->getSession());
         }
-        $node = $dialog->find('xpath', '//div[@id="search-tab"]//input[@name="query" and @type="text"]');
-        if (!$node) {
-            throw new ExpectationException('Unable to find the query input for searching within the "'.$dialog.'" Totara dialog', $this->getSession());
-        }
-        $node->setValue($term);
+
+        // Set the Search value via javascript to prevent the problems with Selenium when the input has focus
+        $xpath = $dialog->getXPath() . "//input[@id='id_query']";
+        $js  = 'var e;';
+        $js .= 'e = document.evaluate(' . json_encode($xpath) . ', document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;';
+        $js .= 'e.value = ' . json_encode($term) .';';
+        $this->getSession()->executeScript($js);
 
         $node = $dialog->find('xpath', '//input[@type="submit" and @value="Search"]');
         if (!$node) {

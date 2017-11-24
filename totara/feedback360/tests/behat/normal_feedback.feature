@@ -142,9 +142,7 @@ Feature: Normal feedback
     And I click on "Edit" "link" in the "Normal feedback" "table_row"
     And I press "Add user(s)"
     And I click on "Search" "link" in the "Add user(s)" "totaradialogue"
-    And I set the following fields to these values:
-      | Search | User |
-    And I press "Search"
+    And I search for "User" in the "Add user(s)" totara dialogue
     And I click on "User Seven" "link" in the "#search-tab" "css_element"
     And I click on "Save" "button" in the "Add user(s)" "totaradialogue"
     And I wait "1" seconds

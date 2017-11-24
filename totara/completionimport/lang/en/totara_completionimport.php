@@ -94,6 +94,18 @@ $string['evidence_shortname_certification'] = 'Completed certification : {$a}';
 $string['evidence_shortname_course'] = 'Completed course : {$a}';
 $string['evidence_idnumber_certification'] = 'Completed certification ID : {$a}';
 $string['evidence_idnumber_course'] = 'Completed course ID : {$a}';
+$string['evidencedescriptionfield'] = 'Evidence field for the description';
+$string['evidencedescriptionfield_help'] = 'Any courses or certificates that can\'t be found will be added as evidence in the record of learning.
+
+Please choose a text evidence custom field to store a description of the created evidence.
+
+If the CVS file has a column specifying the custom field directly, this value will be used instead.';
+$string['evidencedatefield'] = 'Evidence field for completion date';
+$string['evidencedatefield_help'] = 'Any courses or certificates that can\'t be found will be added as evidence in the record of learning.
+
+Please choose a date/time evidence custom field to store the completiondate value.
+
+If the CVS file has a column specifying the custom field directly, this value will be used instead.';
 $string['evidencetype'] = 'Default evidence type';
 $string['evidencetype_help'] = 'Any courses or certificates that can\'t be found will be added as evidence in the record of learning.
 
@@ -169,6 +181,9 @@ $string['resetcertification'] = 'Reset certification report data?';
 $string['resetabove'] = 'Reset selected';
 $string['rpl'] = 'Completion history import - imported grade = {$a}';
 $string['runimport'] = 'Run the import';
+$string['selectanevidencedatefield'] = 'Select an evidence completion date field';
+$string['selectanevidencedescriptionfield'] = 'Select an evidence description field';
+$string['settings'] = 'Settings';
 $string['sourcefile_beginwith'] = 'The source file name must include the full path to the file and begin with {$a}';
 $string['sourcefile_noconfig'] = 'Additional configuration settings are required to specify a file location on the server. Please contact your system administrator.';
 $string['sourcefile_validation'] = 'Source file name does not begin with the required path';

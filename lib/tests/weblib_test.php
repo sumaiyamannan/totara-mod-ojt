@@ -730,5 +730,41 @@ EXPECTED;
         $this->assertFalse(validate_email('"@example.com')); // Only a pair is valid.
         $this->assertFalse(validate_email('"""@example.com')); // Only a pair is valid.
         $this->assertFalse(validate_email('"\"@example.com'));
+        $this->assertFalse(validate_email('address@-example.com')); // Leading dash in front of domain is invalid
+        $this->assertFalse(validate_email('address@example-.com')); // Training dash on domain is invalid
+        $this->assertFalse(validate_email('address@example..com')); // Training dot on domain is invalid
+        $this->assertFalse(validate_email('address@example.com.'));
+        $this->assertFalse(validate_email('address@example.com#'));
+        $this->assertFalse(validate_email('address@example.com"'));
+        $this->assertFalse(validate_email('address@example.com?'));
+        $this->assertFalse(validate_email('address@example.com/'));
+        $this->assertFalse(validate_email('address@example.com~'));
+        $this->assertFalse(validate_email('address@example.com='));
+        $this->assertFalse(validate_email('address@example.com+'));
+        $this->assertFalse(validate_email('address@example.com_'));
+        $this->assertFalse(validate_email('address@example.com-'));
+        $this->assertFalse(validate_email('address@example.com*'));
+        $this->assertFalse(validate_email('address@example.com&'));
+        $this->assertFalse(validate_email('address@example.com^'));
+        $this->assertFalse(validate_email('address@example.com%'));
+        $this->assertFalse(validate_email('address@example.com$'));
+        $this->assertFalse(validate_email('address@example.com!'));
+        $this->assertFalse(validate_email('address@example.com.'));
+        $this->assertFalse(validate_email('address@exam#ple.com'));
+        $this->assertFalse(validate_email('address@exam"ple.com'));
+        $this->assertFalse(validate_email('address@exam?ple.com'));
+        $this->assertFalse(validate_email('address@exam/ple.com'));
+        $this->assertFalse(validate_email('address@exam~ple.com'));
+        $this->assertFalse(validate_email('address@exam=ple.com'));
+        $this->assertFalse(validate_email('address@exam+ple.com'));
+        $this->assertFalse(validate_email('address@exam_ple.com'));
+        $this->assertFalse(validate_email('address@exam*ple.com'));
+        $this->assertFalse(validate_email('address@exam&ple.com'));
+        $this->assertFalse(validate_email('address@exam^ple.com'));
+        $this->assertFalse(validate_email('address@exam%ple.com'));
+        $this->assertFalse(validate_email('address@exam$ple.com'));
+        $this->assertFalse(validate_email('address@exam!ple.com'));
+        $this->assertFalse(validate_email('address@-example.com'));
+        $this->assertFalse(validate_email('address@example-.com'));
     }
 }

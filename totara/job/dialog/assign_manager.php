@@ -224,25 +224,22 @@ class totara_job_dialog_assign_manager extends totara_dialog_content {
         }
 
         // Determine the fields to select.
-        $usernamefields = get_all_user_name_fields(true, 'u');
+        $usernamefields = get_all_user_name_fields(true, 'u', null, null, true);
         $sql = "SELECT DISTINCT u.id, {$email} {$usernamefields}";
 
         list($joinsql, $params) = $this->get_managers_joinsql_and_params();
         $sql .= $joinsql;
 
-        if (empty($managerid)) {
-            // We'll get all potential managers. Put them in some kind of order.
-            $usernamefields = get_all_user_name_fields(true, 'u');
-            $sql .= "
-                ORDER BY {$usernamefields}
-            ";
-        } else {
+        if (!empty($managerid)) {
             // Get the specified manager.
             $sql .= "
                 AND u.id = :managerid
             ";
             $params['managerid'] = $managerid;
         }
+        $sql .= "
+            ORDER BY {$usernamefields}
+        ";
 
         if (empty($managerid)) {
             // Limit results to 1 more than the maximum number that might be displayed

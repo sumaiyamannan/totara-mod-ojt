@@ -111,3 +111,29 @@ function totara_appraisal_upgrade_update_team_leaders() {
                            teamleadra.userid = 0))";
     $DB->execute($sql, array('teamleaderrole' => appraisal::ROLE_TEAM_LEAD));
 }
+
+/**
+ * TL-16443 Make all multichoice questions use int for param1.
+ *
+ * Whenever someone created a new scale for their question, it would store it as an integer in the param1 text field.
+ * However, when using an existing scale, it would record the scale id with quotes around it. This caused a failure
+ * in some sql. To make everything consistent and easier to process, we're changing them all to integers in text
+ * fields, without quotes.
+ */
+function totara_appraisal_upgrade_fix_inconsistent_multichoice_param1() {
+    global $DB;
+
+    list($sql, $params) = $DB->sql_text_replace('param1', '"', '', SQL_PARAMS_NAMED);
+
+    $sql = "UPDATE {appraisal_quest_field}
+               SET {$sql}
+             WHERE datatype IN ('multichoicemulti', 'multichoicesingle')
+               AND " . $DB->sql_like('param1', ':colon', true, true, true) . "
+               AND " . $DB->sql_like('param1', ':bracket', true, true, true) . "
+               AND " . $DB->sql_like('param1', ':braces', true, true, true);
+    $params['colon'] = '%:%';
+    $params['bracket'] = '%[%';
+    $params['braces'] = '%{%';
+
+    $DB->execute($sql, $params);
+}

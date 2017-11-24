@@ -895,7 +895,7 @@ class auth_plugin_ldap extends auth_plugin_base {
 
                 foreach ($users as $user) {
                     echo "\t"; print_string('auth_dbupdatinguser', 'auth_db', array('name'=>$user->username, 'id'=>$user->id));
-                    if (!$this->update_user_record($user->username, $updatekeys, true)) {
+                    if (!$this->update_user_record($user->username, $updatekeys, true, true)) {
                         echo ' - '.get_string('skipped');
                     }
                     echo "\n";
@@ -962,7 +962,7 @@ class auth_plugin_ldap extends auth_plugin_base {
 
                 // Save user profile custom fields.
                 $user->id = $id;
-                profile_save_data($user);
+                profile_save_data($user, true);
 
                 if (!empty($this->config->forcechangepassword)) {
                     set_user_preference('auth_forcepasswordchange', 1, $id);
@@ -998,9 +998,10 @@ class auth_plugin_ldap extends auth_plugin_base {
      * @param boolean $updatekeys true to update the local record with the external LDAP values.
      * @param bool $triggerevent set false if user_updated event should not be triggered.
      *             This will not affect user_password_updated event triggering.
+     * @param boolean $sync whether this is being called from sync and needs pre-preprocessing.
      * @return stdClass|bool updated user record or false if there is no new info to update.
      */
-    function update_user_record($username, $updatekeys = false, $triggerevent = false) {
+    function update_user_record($username, $updatekeys = false, $triggerevent = false, $sync = false) {
         global $CFG, $DB;
 
         // Just in case check text case
@@ -1047,7 +1048,7 @@ class auth_plugin_ldap extends auth_plugin_base {
                 user_update_user($newuser, false, $triggerevent);
 
                 // Save user profile custom fields.
-                profile_save_data($newuser);
+                profile_save_data($newuser, $sync);
             }
         } else {
             return false;

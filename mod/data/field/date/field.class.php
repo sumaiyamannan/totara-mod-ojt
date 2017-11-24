@@ -167,5 +167,13 @@ class data_field_date extends data_field_base {
         return $DB->sql_cast_char2int($fieldname, true);
     }
 
-
+    /**
+     * Custom export for date that converts timestamp to date
+     *
+     * @param object $record
+     * @return String human readible date
+     */
+    public function export_text_value($record) {
+        return userdate($record->content, get_string('strftimedatefulllong', 'langconfig'), 0);
+    }
 }

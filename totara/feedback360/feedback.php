@@ -48,6 +48,7 @@ if (!$isexternaluser) {
 
 // Get response assignment object, and check who is viewing the page.
 $viewasown = false;
+unset($SESSION->totara_feedback360_usertoken);
 if ($isexternaluser) {
     // This is a hack to get around authenticating anonymous users when viewing files in feeback360.
     $SESSION->totara_feedback360_usertoken = $token;

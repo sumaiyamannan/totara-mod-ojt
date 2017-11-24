@@ -70,9 +70,16 @@ $silast  = optional_param('silast', 'all', PARAM_NOTAGS);
 $extrafields = get_extra_user_fields($context);
 $leftcols = 1 + count($extrafields);
 
-///
-/// Display RPL stuff
-///
+/**
+ * This function displays the rpl completion editor, used to add rpl to a criteria or course completion.
+ *
+ * @param integer $type
+ * @param object  $user - A user database object
+ * @param string  $rpl
+ * @param string  $describe
+ * @param string  $fulldescribe
+ * @param integer $cmid
+ */
 function show_rpl($type, $user, $rpl, $describe, $fulldescribe, $cmid = null) {
     global $OUTPUT, $edituser, $course, $sort, $page;
 
@@ -104,6 +111,20 @@ function show_rpl($type, $user, $rpl, $describe, $fulldescribe, $cmid = null) {
     }
 }
 
+/**
+ * This function displays any existing rpl as a read only string.
+ *
+ * @param string $rpl
+ * @param string $describe
+ */
+function show_rpl_readonly($rpl, $describe) {
+    global $OUTPUT;
+
+    if (!empty($rpl)) {
+        print $OUTPUT->flex_icon('completion-rpl-y', ['classes' => 'ft-size-300', 'alt' => $describe]);
+        print '<span class="rplvalue">' . format_string($rpl) . '</span>';
+    }
+}
 
 // Check permissions
 require_login($course);
@@ -115,6 +136,8 @@ $group = groups_get_course_group($course, true); // Supposed to verify group
 if ($group === 0 && $course->groupmode == SEPARATEGROUPS) {
     require_capability('moodle/site:accessallgroups',$context);
 }
+
+$showeditorlink = has_capability('totara/completioneditor:editcoursecompletion', $context);
 
 /**
  * Load data
@@ -397,6 +420,11 @@ if (!$csv) {
     // Overall course completion status
     print '<th style="text-align: center;">'.get_string('course').'</th>';
 
+    // Editor column header.
+    if ($showeditorlink) {
+        print '<th scope="col" class="completion-editorlink"></th>';
+    }
+
     print '</tr>';
 
     // Print aggregation methods
@@ -463,6 +491,11 @@ if (!$csv) {
     }
     print '</th>';
 
+    // Editor column header.
+    if ($showeditorlink) {
+        print '<th scope="col" class="completion-editorlink"></th>';
+    }
+
     print '</tr>';
 
     // Print criteria titles
@@ -492,7 +525,14 @@ if (!$csv) {
             print '<span class="completion-rplheader completion-criterianame ie-color-completion">'.get_string('recognitionofpriorlearning', 'completion').'</span>';
         }
 
-        print '</div></th></tr>';
+        print '</div></th>';
+
+        // Editor column header.
+        if ($showeditorlink) {
+            print '<th scope="col" class="completion-editorlink"></th>';
+        }
+
+        print '</tr>';
     }
 
     // Print user heading and icons
@@ -593,6 +633,11 @@ if (!$csv) {
     }
 
     print '</th>';
+
+    // Editor column header.
+    if ($showeditorlink) {
+        print '<th scope="col" class="completion-editorlink">' . get_string('edit', 'totara_completioneditor') . '</th>';
+    }
 
     print '</tr></thead>';
 
@@ -713,7 +758,11 @@ foreach ($progress as $user) {
 
                 // Decide if we need to display an RPL
                 if (in_array($criterion->id, $criteria_with_rpl)) {
-                    show_rpl($criterion->id, $user, $criteria_completion->rpl, $describe, $fulldescribe, $criterion->moduleinstance);
+                    if ($is_complete) {
+                        show_rpl_readonly($criteria_completion->rpl, $describe);
+                    } else {
+                        show_rpl($criterion->id, $user, $criteria_completion->rpl, $describe, $fulldescribe, $criterion->moduleinstance);
+                    }
                 }
 
                 print '</td>';
@@ -811,9 +860,21 @@ foreach ($progress as $user) {
         print $OUTPUT->flex_icon('completion-auto-' . $completiontype, ['alt' => s($describe), 'classes' => 'ft-size-300']);
 
         if ($CFG->enablecourserpl) {
-            show_rpl('course', $user, $ccompletion->rpl, $describe, $fulldescribe);
+            if ($ccompletion->is_complete()) {
+                show_rpl_readonly($ccompletion->rpl, $describe);
+            } else {
+                show_rpl('course', $user, $ccompletion->rpl, $describe, $fulldescribe);
+            }
         }
 
+        print '</td>';
+    }
+
+    // Add a link to the completion editor for the user.
+    if ($showeditorlink) {
+        $completionurl = new moodle_url('/totara/completioneditor/edit_course_completion.php', array('courseid' => $course->id, 'userid' => $user->id));
+        print '<td class="completion-editorlink">';
+        print $OUTPUT->action_icon($completionurl, new pix_icon('t/edit', get_string('edit')));
         print '</td>';
     }
 

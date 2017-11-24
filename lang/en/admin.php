@@ -170,7 +170,7 @@ $string['configcronremotepassword'] = 'This means that the cron.php script canno
     http://site.example.com/admin/cron.php?password=opensesame
 </pre>If this is left empty, no password is required.';
 $string['configcurlcache'] = 'Time-to-live for cURL cache, in seconds.';
-$string['configcustommenuitems'] = 'This is deprecated functionality and will not display in core themes (will be deleted in Totara 10.0). Please customise the main menu instead (Site adminsitration > Appearance > Main menu).<br/>
+$string['configcustommenuitems'] = 'This is deprecated functionality and will not display in core themes (will be deleted in Totara 11.0). Please customise the main menu instead (Site administration > Appearance > Main menu).<br/>
 You can configure a custom menu here to be shown by themes. Each line consists of some menu text, a link URL (optional), a tooltip title (optional) and a language code or comma-separated list of codes (optional, for displaying the line to users of the specified language only), separated by pipe characters. You can specify a structure using hyphens, and dividers can be used by adding a line of one or more # characters where desired. For example:
 <pre>
 Totara community|https://totara.community

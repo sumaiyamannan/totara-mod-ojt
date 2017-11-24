@@ -44,7 +44,7 @@ M.totara_feedback360_feedback = M.totara_feedback360_feedback || {
     $('#saveprogress').on('submit', function(e){
       window.onbeforeunload = null; // Prevent leaving page warning.
       e.preventDefault();
-      $('input[name=action]', $(formid)).attr('value', 'saveprogress')
+      $('input[name=action]', $(formid)).attr('value', 'saveprogress');
       $(formid).submit();
     });
 
@@ -55,28 +55,17 @@ M.totara_feedback360_feedback = M.totara_feedback360_feedback || {
             var ot = sa.offset().top;
             var s = $("#feedbackhead");
             if(st > ot) {
-                s.css({
-                    position: "fixed",
-                    top: "0px",
-                    left: $("#feedbackhead-anchor").offset().left,
-                    width: $("#feedbackhead-anchor").width() - parseInt(s.css("padding-left")) - parseInt(s.css("padding-right")),
-                    "z-index": "2"
-                });
-                sa.height(s.outerHeight());
+                sa.height(s.outerHeight(true));
+                s.removeClass('totara-feedback360-head-relative');
+                s.addClass('totara-feedback360-head-fixed');
             } else {
-                if(st <= ot) {
-                    s.css({
-                        position: "relative",
-                        top: "",
-                        left: "",
-                        width:""
-                    });
-                }
                 sa.height(0);
+                s.removeClass('totara-feedback360-head-fixed');
+                s.addClass('totara-feedback360-head-relative');
             }
         };
         $(window).scroll(move);
         move();
     }
   }
-}
+};

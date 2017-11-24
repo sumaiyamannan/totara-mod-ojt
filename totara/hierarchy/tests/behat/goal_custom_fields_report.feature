@@ -48,9 +48,7 @@ Scenario: Status and target date fields are shown in the Goal Custom Fields repo
   And I press "Add company goal"
   And I follow "Company Goal 1"
   And I click on "Search" "link" in the "Assign goals" "totaradialogue"
-  And I set the following fields to these values:
-    | Search | Goal |
-  And I press "Search"
+  And I search for "Goal" in the "Assign goals" totara dialogue
   And I follow "Company Goal 2 (CG2)"
   And I press "Save"
   And I wait "1" seconds

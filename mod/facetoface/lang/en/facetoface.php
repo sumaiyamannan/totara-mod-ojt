@@ -582,6 +582,7 @@ $string['error:nopredefinedassets'] = 'No pre-defined assets';
 $string['error:nopredefinedrooms'] = 'No pre-defined rooms';
 $string['error:norecipientsselected'] = 'You must choose which learners will receive this notification';
 $string['error:noticeidincorrect'] = 'Notice ID is incorrect: {$a}';
+$string['error:notificationdoesnotexist'] = 'Notification does not exist';
 $string['error:notificationnonduplicate'] = 'Can not delete non-duplicate auto notification';
 $string['error:notificationtitletoolong'] = 'The title you have used is too long. The title is typically used as an email subject and should be no more than 78 characters long. Longer titles may be truncated by the users email client.';
 $string['error:notificationtemplatemissing'] = 'The following notification templates are missing (notifications could not be created for them):';

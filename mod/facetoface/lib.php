@@ -2042,7 +2042,7 @@ function facetoface_write_activity_attendance(&$worksheet, $coursecontext, $star
         $locationsql = $DB->sql_like('rid.data', ':location', false);
         $locationparams['location'] = $location;
         $locationjoin = "
-            INNER JOIB {facetoface_room} r ON (r.id = d.roomid)
+            INNER JOIN {facetoface_room} r ON (r.id = d.roomid)
             INNER JOIN {facetoface_room_info_data} rid ON (rid.facetofaceroomid = r.id)
             INNER JOIN {facetoface_room_info_field} rif ON (rid.fieldid = rif.id AND rif.shortname = 'location')
             ";
@@ -3533,6 +3533,9 @@ function facetoface_add_session_to_calendar($session, $facetoface, $calendartype
         $shortname = shorten_text($facetoface->name, CALENDAR_MAX_NAME_LENGTH);
     }
 
+    // Remove all calendar events related to current session and user before adding new event to avoid duplication.
+    facetoface_remove_session_from_calendar($session, $courseid, $userid);
+
     $result = true;
     foreach ($session->sessiondates as $date) {
         $newevent = new stdClass();
@@ -3551,8 +3554,6 @@ function facetoface_add_session_to_calendar($session, $facetoface, $calendartype
         $newevent->visible = 1;
         $newevent->timemodified = time();
 
-        // Remove all calendar events related to current session and user before adding new event to avoid duplication.
-        $result = $result && facetoface_remove_session_from_calendar($session, $courseid, $userid);
         $result = $result && $DB->insert_record('event', $newevent);
     }
 

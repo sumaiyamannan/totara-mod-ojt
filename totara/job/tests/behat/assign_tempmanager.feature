@@ -109,9 +109,7 @@ Feature: Assign a temporary manager to a user via the job assignment page
       | tempmanagerexpirydate[year]    | 2030   |
     And I press "Choose temporary manager"
     When I click on "Search" "link" in the "Choose temporary manager" "totaradialogue"
-    And I set the following fields to these values:
-      | Search | Manager |
-    And I press "Search"
+    And I search for "Manager" in the "Choose temporary manager" totara dialogue
     Then I should see "Manager One - Development Manager" in the "#search-tab" "css_element"
     And I should see "Manager One - create empty job assignment" in the "#search-tab" "css_element"
     And I should see "Manager Two - Design Manager" in the "#search-tab" "css_element"
@@ -149,9 +147,7 @@ Feature: Assign a temporary manager to a user via the job assignment page
     When I click on "Manager One" "link" in the "Choose temporary manager" "totaradialogue"
     Then I should see "Development Manager" in the "Choose temporary manager" "totaradialogue"
     When I click on "Search" "link" in the "Choose temporary manager" "totaradialogue"
-    And I set the following fields to these values:
-      | Search | Manager |
-    And I press "Search"
+    And I search for "Manager" in the "Choose temporary manager" totara dialogue
     Then I should see "Manager One - Development Manager" in the "#search-tab" "css_element"
     And I should see "Manager One - create empty job assignment" in the "#search-tab" "css_element"
     And I should not see "Manager Two - Design Manager" in the "#search-tab" "css_element"
@@ -195,9 +191,7 @@ Feature: Assign a temporary manager to a user via the job assignment page
     And I should see "Manager One - Development Manager" in the "Choose temporary manager" "totaradialogue"
     And I should not see "Manager Two" in the "Choose temporary manager" "totaradialogue"
     When I click on "Search" "link" in the "Choose temporary manager" "totaradialogue"
-    And I set the following fields to these values:
-      | Search | Manager |
-    And I press "Search"
+    And I search for "Manager" in the "Choose temporary manager" totara dialogue
     Then I should see "Manager One - Development Manager" in the "#search-tab" "css_element"
     And I should not see "Manager One - create empty job assignment" in the "#search-tab" "css_element"
     And I should not see "Manager One - requires job assignment entry" in the "#search-tab" "css_element"
@@ -269,13 +263,9 @@ Feature: Assign a temporary manager to a user via the job assignment page
     And I should see "Brand Manager"
     And I should see "Create empty job assignment"
     When I click on "Search" "link" in the "Choose temporary manager" "totaradialogue"
-    And I set the following fields to these values:
-      | Search | User |
-    And I press "Search"
+    And I search for "User" in the "Choose temporary manager" totara dialogue
     Then I should see "No results found for \"User\"."
-    And I set the following fields to these values:
-      | Search | Manager |
-    And I press "Search"
+    And I search for "Manager" in the "Choose temporary manager" totara dialogue
     Then I should see "Manager One - Development Manager" in the "#search-tab" "css_element"
     And I should see "Manager One - create empty job assignment" in the "#search-tab" "css_element"
     And I should see "Manager Two - Design Manager" in the "#search-tab" "css_element"
