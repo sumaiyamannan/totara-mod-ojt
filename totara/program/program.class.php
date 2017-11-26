@@ -1438,6 +1438,60 @@ class program {
     }
 
     /**
+     * Checks if the user has a pending extension request for this program
+     *
+     * @global object $DB
+     * @param int $userid If specified then it indicates the user is assigned to the program.
+     * @return bool
+     */
+    private function has_pending_extension_request($userid) {
+        global $DB;
+
+        if ($DB->get_record('prog_extension', array('userid' => $userid, 'programid' => $this->id, 'status' => 0))) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Checks if the user is allowed to request an extension
+     *
+     * @global object $DB
+     * @global object $CFG
+     * @param int $userid If specified then it indicates the user is assigned to the program.
+     * @return bool
+     */
+    public function can_request_extension($userid) {
+        global $CFG, $USER;
+
+        // Only if program extension request is enabled in site level and for this program instance.
+        if (empty($CFG->enableprogramextensionrequests) || !$this->allowextensionrequests) {
+            return false;
+        }
+
+        // User can request extension only for himself
+        if ($userid != $USER->id) {
+            return false;
+        }
+
+        $prog_completion = prog_load_completion($this->id, $userid, false);
+        if (!$prog_completion) {
+            return false;
+        }
+
+        // Only show the extension link if the user is assigned via required learning, and it
+        // has a due date and they haven't completed it yet.
+        if ($this->assigned_to_users_required_learning($userid)
+                && $prog_completion->timedue != COMPLETION_TIME_NOT_SET
+                && $prog_completion->timecompleted == 0
+                && \totara_job\job_assignment::has_manager($userid)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
      * Return the HTML markup for displaying the view of the program. This can
      * vary depending on whether or not the viewer is enrolled on the program
      * and if the viewer is viewing someone else's program.
@@ -1533,20 +1587,15 @@ class program {
 
             // Setup the request extension link.
             $request = '';
-            $extrequestavailable = !empty($CFG->enableprogramextensionrequests) && $this->allowextensionrequests;
-            if ($this->assigned_to_users_required_learning($userid) && $prog_completion->timedue != COMPLETION_TIME_NOT_SET
-                && $prog_completion->timecompleted == 0 && $extrequestavailable) {
-                // Only show the extension link if the user is assigned via required learning, and it has a due date and they haven't completed it yet.
-                // And program extension request is enabled in site level and for this program instance.
-                if (!$extension = $DB->get_record('prog_extension', array('userid' => $userid, 'programid' => $this->id, 'status' => 0))) {
-                    if (!$viewinganothersprogram && \totara_job\job_assignment::has_manager($userid)) {
-                        // Show extension request link if it is their assignment and they have a manager to request it from.
-                        $url = new moodle_url('/totara/program/view.php', array('id' => $this->id, 'extrequest' => '1'));
-                        $request = ' ' . html_writer::link($url, get_string('requestextension', 'totara_program'), array('id' => 'extrequestlink'));
-                    }
-                } else {
+
+            if ($this->can_request_extension($userid)) {
+                if ($this->has_pending_extension_request($userid)) {
                     // Show pending text if they have already requested an extension.
                     $request = ' ' . get_string('pendingextension', 'totara_program');
+                } else {
+                    // Show extension request link if it is their assignment and they have a manager to request it from.
+                    $url = new moodle_url('/totara/program/view.php', array('id' => $this->id, 'extrequest' => '1'));
+                    $request = ' ' . html_writer::link($url, get_string('requestextension', 'totara_program'), array('id' => 'extrequestlink'));
                 }
             }
 

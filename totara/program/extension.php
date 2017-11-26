@@ -44,26 +44,15 @@ $OUTPUT->header();
 
 $result = array();
 
-if ($USER->id != $userid) {
-    $result['success'] = false;
-    $result['message'] = get_string('error:cannotrequestextnotuser', 'totara_program');
-    echo json_encode($result);
-    return;
-}
-
 $program = new program($programid);
 
-if (!$extensionrequest || !$extensiondate || !$extensionreason) {
+// Validate if user can request extension.
+if (!$program->can_request_extension($userid)
+        || !$extensionrequest
+        || !$extensiondate
+        || !$extensionreason) {
     $result['success'] = false;
     $result['message'] = get_string('error:processingextrequest', 'totara_program');
-    echo json_encode($result);
-    return;
-}
-
-$managers = \totara_job\job_assignment::get_all_manager_userids($userid);
-if (empty($managers)) {
-    $result['success'] = false;
-    $result['message'] = get_string('extensionrequestfailed:nomanager', 'totara_program');
     echo json_encode($result);
     return;
 }
@@ -81,8 +70,11 @@ $extension->userid = $userid;
 $extension->extensiondate = $extensiondate_timestamp;
 
 // Validated extension date to make sure it is after
-// current due date and not in the past
-if ($prog_completion = $DB->get_record('prog_completion', array('programid' => $program->id, 'userid' => $userid, 'coursesetid' => 0))) {
+// current due date and not in the past.
+// Existing prog_completion record already validated by previous $program->can_request_extension() call.
+if ($prog_completion = $DB->get_record('prog_completion', array(
+        'programid' => $program->id,
+        'userid' => $userid, 'coursesetid' => 0))) {
     $duedate = empty($prog_completion->timedue) ? 0 : $prog_completion->timedue;
 
     if ($extensiondate_timestamp < $duedate) {
@@ -91,11 +83,6 @@ if ($prog_completion = $DB->get_record('prog_completion', array('programid' => $
         echo json_encode($result);
         return;
     }
-} else {
-    $result['success'] = false;
-    $result['message'] = get_string('error:noprogramcompletionfound', 'totara_program');
-    echo json_encode($result);
-    return;
 }
 
 $now = time();
@@ -123,6 +110,9 @@ if ($extensionid = $DB->insert_record('prog_extension', $extension)) {
 
     // Send to all the users managers.
     $messagesent = false;
+
+    $managers = \totara_job\job_assignment::get_all_manager_userids($userid);
+
     foreach ($managers as $managerid) {
         $manager = core_user::get_user($managerid, '*', MUST_EXIST);
 
