@@ -25,16 +25,25 @@ try {
     $hoursago26 = time() - 93600;
     $syncstrings = array('usersync', 'orgsync', 'possync');
     foreach ($syncstrings as $syncstring) {
-        $check = $DB->get_record_sql(
+       $check_sync_started = $DB->get_record_sql(
             "SELECT * FROM  {totara_sync_log}
                  WHERE time >  ?  AND
                  logtype = ? AND
                  action = ? AND
-                 info = ?", array($hoursago26, 'info', $syncstring, 'HR Import finished'));
-        if (empty($check)) {
-            print_error("HR sync failed - " . $syncstring . " did not complete in the last 26 hours");
-            exit(2);
-        }
+                 info = ?", array($hoursago26, 'info', $syncstring, 'HR Import started'));
+
+        if(!empty($check_sync_started)) {
+            $check = $DB->get_record_sql(
+                "SELECT * FROM  {totara_sync_log}
+                     WHERE time >  ?  AND
+                     logtype = ? AND
+                     action = ? AND
+                     info = ?", array($hoursago26, 'info', $syncstring, 'HR Import finished'));
+            if (empty($check)) {
+                print_error("HR sync failed - " . $syncstring . " did not complete in the last 26 hours");
+                exit(2);
+            }
+        } else continue;
     }
 } catch (dml_exception $e) {
     print_error("COULDN'T INITIALISE - HR check fail");
