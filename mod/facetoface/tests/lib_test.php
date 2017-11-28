@@ -3683,4 +3683,262 @@ class mod_facetoface_lib_testcase extends advanced_testcase {
         $this->assertDebuggingCalled();
         $this->assertFalse(facetoface_can_user_signup($session7, $user72->id, $now));
     }
+
+    public function test_facetoface_session_dates_check() {
+        // Original dates.
+        $orignaldates = array(
+            (object) array(
+                'timestart' => 1512610200,
+                'timefinish' => 1512610200,
+                'sessiontimezone' => 'Europe/London',
+                'roomid' => 5,
+            ),
+            (object) array(
+                'timestart' => 1512123200,
+                'timefinish' => 1512124200,
+                'sessiontimezone' => 'Europe/London',
+                'roomid' => 7,
+            ),
+            (object) array(
+                'timestart' => 1513123200,
+                'timefinish' => 1513124200,
+                'sessiontimezone' => 'Europe/London',
+                'roomid' => 9,
+            ),
+        );
+
+        array_map(function($test) {
+            // Setting assertion method.
+            $method = 'assert' . ($test->returns ? 'True' : 'False');
+
+            // Running our defined tests and displaying appropriate failure message in case if it failed.
+            $this->$method(facetoface_session_dates_check($test->olddates, $test->newdates), $test->message);
+        }, array(
+            // No changes.
+            (object) array(
+                'olddates' => $orignaldates,
+                'newdates' => array(
+                    (object) array(
+                        'timestart' => 1512610200,
+                        'timefinish' => 1512610200,
+                        'sessiontimezone' => 'Europe/London',
+                        'roomid' => 5,
+                    ),
+                    (object) array(
+                        'timestart' => 1512123200,
+                        'timefinish' => 1512124200,
+                        'sessiontimezone' => 'Europe/London',
+                        'roomid' => 7,
+                    ),
+                    (object) array(
+                        'timestart' => 1513123200,
+                        'timefinish' => 1513124200,
+                        'sessiontimezone' => 'Europe/London',
+                        'roomid' => 9,
+                    ),
+                ),
+                'returns' => false,
+                'message' => 'Dates not changed, but the check indicates that they have.',
+            ),
+
+            // New date added.
+            (object) array(
+                'olddates' => $orignaldates,
+                'newdates' => array(
+                    (object) array(
+                        'timestart' => 1512610200,
+                        'timefinish' => 1512610200,
+                        'sessiontimezone' => 'Europe/London',
+                        'roomid' => 5,
+                    ),
+                    (object) array(
+                        'timestart' => 1512123200,
+                        'timefinish' => 1512124200,
+                        'sessiontimezone' => 'Europe/London',
+                        'roomid' => 7,
+                    ),
+                    (object) array(
+                        'timestart' => 1513123200,
+                        'timefinish' => 1513124200,
+                        'sessiontimezone' => 'Europe/London',
+                        'roomid' => 9,
+                    ),
+                    (object) array(
+                        'timestart' => 1512153200,
+                        'timefinish' => 1512164200,
+                        'sessiontimezone' => 'Europe/London',
+                        'roomid' => 5,
+                    ),
+                ),
+                'returns' => true,
+                'message' => 'Date added, but the check indicates no changes.',
+            ),
+
+            // Date removed.
+            (object) array(
+                'olddates' => $orignaldates,
+                'newdates' => array(
+                    (object) array(
+                        'timestart' => 1512610200,
+                        'timefinish' => 1512610200,
+                        'sessiontimezone' => 'Europe/London',
+                        'roomid' => 5,
+                    ),
+                    (object) array(
+                        'timestart' => 1513123200,
+                        'timefinish' => 1513124200,
+                        'sessiontimezone' => 'Europe/London',
+                        'roomid' => 9,
+                    ),
+                ),
+                'returns' => true,
+                'message' => 'Date removed, but the check indicates no changes.',
+            ),
+
+            // Same dates in a different order.
+            (object) array(
+                'olddates' => $orignaldates,
+                'newdates' => array(
+                    (object) array(
+                        'timestart' => 1512123200,
+                        'timefinish' => 1512124200,
+                        'sessiontimezone' => 'Europe/London',
+                        'roomid' => 7,
+                    ),
+                    (object) array(
+                        'timestart' => 1513123200,
+                        'timefinish' => 1513124200,
+                        'sessiontimezone' => 'Europe/London',
+                        'roomid' => 9,
+                    ),
+                    (object) array(
+                        'timestart' => 1512610200,
+                        'timefinish' => 1512610200,
+                        'sessiontimezone' => 'Europe/London',
+                        'roomid' => 5,
+                    ),
+                ),
+                'returns' => false,
+                'message' => 'Dates not changed, but the check indicates that they have.',
+            ),
+
+            // Timezone changed.
+            (object) array(
+                'olddates' => $orignaldates,
+                'newdates' => array(
+                    (object) array(
+                        'timestart' => 1512610200,
+                        'timefinish' => 1512610200,
+                        'sessiontimezone' => 'Europe/London',
+                        'roomid' => 5,
+                    ),
+                    (object) array(
+                        'timestart' => 1512123200,
+                        'timefinish' => 1512124200,
+                        'sessiontimezone' => 'Europe/Bratislava',
+                        'roomid' => 7,
+                    ),
+                    (object) array(
+                        'timestart' => 1513123200,
+                        'timefinish' => 1513124200,
+                        'sessiontimezone' => 'Europe/London',
+                        'roomid' => 9,
+                    ),
+                ),
+                'returns' => true,
+                'message' => 'Session timezone changed, but the check indicates no changes.',
+            ),
+
+            // Start time of the session has changed.
+            (object) array(
+                'olddates' => $orignaldates,
+                'newdates' => array(
+                    (object) array(
+                        'timestart' => 1512610100,
+                        'timefinish' => 1512610200,
+                        'sessiontimezone' => 'Europe/London',
+                        'roomid' => 5,
+                    ),
+                    (object) array(
+                        'timestart' => 1512123200,
+                        'timefinish' => 1512124200,
+                        'sessiontimezone' => 'Europe/London',
+                        'roomid' => 7,
+                    ),
+                    (object) array(
+                        'timestart' => 1513123200,
+                        'timefinish' => 1513124200,
+                        'sessiontimezone' => 'Europe/London',
+                        'roomid' => 9,
+                    ),
+                ),
+                'returns' => true,
+                'message' => 'Session start time changed, but the check indicates no changes.',
+            ),
+
+            // End time of the session has changed.
+            (object) array(
+                'olddates' => $orignaldates,
+                'newdates' => array(
+                    (object) array(
+                        'timestart' => 1512610100,
+                        'timefinish' => 1512610200,
+                        'sessiontimezone' => 'Europe/London',
+                        'roomid' => 5,
+                    ),
+                    (object) array(
+                        'timestart' => 1512123200,
+                        'timefinish' => 1512124200,
+                        'sessiontimezone' => 'Europe/London',
+                        'roomid' => 7,
+                    ),
+                    (object) array(
+                        'timestart' => 1513123200,
+                        'timefinish' => 1513124900,
+                        'sessiontimezone' => 'Europe/London',
+                        'roomid' => 9,
+                    ),
+                ),
+                'returns' => true,
+                'message' => 'Session end time changed, but the check indicates no changes.',
+            ),
+
+            // The room for the session has changed.
+            (object) array(
+                'olddates' => $orignaldates,
+                'newdates' => array(
+                    (object) array(
+                        'timestart' => 1512610100,
+                        'timefinish' => 1512610200,
+                        'sessiontimezone' => 'Europe/London',
+                        'roomid' => 5,
+                    ),
+                    (object) array(
+                        'timestart' => 1512123200,
+                        'timefinish' => 1512124200,
+                        'sessiontimezone' => 'Europe/London',
+                        'roomid' => 9,
+                    ),
+                    (object) array(
+                        'timestart' => 1513123200,
+                        'timefinish' => 1513124900,
+                        'sessiontimezone' => 'Europe/London',
+                        'roomid' => 7,
+                    ),
+                ),
+                'returns' => true,
+                'message' => 'Room has changed, but the check indicates no changes.',
+            ),
+
+            // Works correctly if no dates supplied.
+            (object) array(
+                'olddates' => array(),
+                'newdates' => array(),
+                'returns' => false,
+                'message' => 'Dates not changed, but the check indicates that they have.',
+            ),
+        ));
+
+        $this->resetAfterTest(true);
+    }
 }
