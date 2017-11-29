@@ -893,7 +893,7 @@ class util {
             redirect(get_login_url());
         }
 
-        \core\session\manager::login_user($user);
+        complete_user_login($user);
 
         $ssosession = new \stdClass();
         $ssosession->sid          = session_id();
