@@ -392,9 +392,11 @@ if ($fromform = $mform->get_data()) { // Form submitted
                 facetoface_send_datetime_change_notice($facetoface, $session, $user->id, $olddates);
             }
             $sessiontrainers = facetoface_get_trainers($session->id);
-            foreach ($sessiontrainers as $roleid => $trainers) {
-                foreach ($trainers as $trainer) {
-                    facetoface_send_datetime_change_notice($facetoface, $session, $trainer->id, $olddates);
+            if (!empty($sessiontrainers)) {
+                foreach ($sessiontrainers as $roleid => $trainers) {
+                    foreach ($trainers as $trainer) {
+                        facetoface_send_datetime_change_notice($facetoface, $session, $trainer->id, $olddates);
+                    }
                 }
             }
         }
