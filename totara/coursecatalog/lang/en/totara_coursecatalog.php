@@ -89,7 +89,7 @@ Please action this within three days.
 
 Should this still be outstanding in [days count down] days time we will escalate this to your Team Leader.';
 $string['invitationperiod'] = 'Period';
-$string['invitationperiod_help'] = 'The period before the invitation is sent in days.
+$string['invitationperiod_help'] = 'The period before the invitation is sent in weekdays.
 ';
 $string['invitationsubject'] = 'Invitiation Reminder Subject';
 $string['invitationsubject_help'] = 'This is the subject of the invitation email that is sent.
@@ -150,7 +150,7 @@ Please visit the course page link below to access the evaluation:
 
 Should this remain outstanding we will escalate that this to your team leader.';
 $string['reminderperiod'] = 'Period';
-$string['reminderperiod_help'] = 'The period before the reminder is sent in days.
+$string['reminderperiod_help'] = 'The period before the reminder is sent in weekdays.
 ';
 $string['remindersmenuitem'] = 'Reminders';
 $string['remindersubject'] = 'Subject';
