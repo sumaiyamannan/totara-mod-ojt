@@ -1206,7 +1206,7 @@ if ($action == 'messageusers' && $actionallowed) {
 /**
  * Print unapproved requests (if user able to view)
  */
-if ($action == 'approvalrequired' && $actionallowed) {
+if ($action == 'approvalrequired') {
 
     if ($approved == 1) {
         echo $OUTPUT->notification(get_string('attendancerequestsupdated', 'facetoface'), 'notifysuccess');
