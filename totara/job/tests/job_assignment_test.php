@@ -601,8 +601,133 @@ class totara_job_job_assignment_testcase extends advanced_testcase {
         $this->assertEquals(3, $DB->count_records('job_assignment'));
         $this->assertEmpty($DB->get_records('job_assignment', array('userid' => $this->users[3]->id, 'idnumber' => '1')));
         $this->assertEquals(2, $DB->count_records('job_assignment', array('idnumber' => '1')));
+    }
 
-        // TODO Check that role assignments have been updated.
+    /**
+     * A user has staff associated with one job assignment. When we delete that job assignment, they should
+     * no longer have a staff manager role for those staff.
+     */
+    public function test_delete_updates_role_assignments_when_has_staff() {
+        global $CFG;
+
+        // We'll use user 2 as the user to assign a staff manager to.
+        $u2context = context_user::instance($this->users[2]->id);
+        $this->assertEmpty(get_role_users($CFG->managerroleid, $u2context));
+
+        $u1managerja = \totara_job\job_assignment::create_default($this->users[1]->id);
+        $u2staffja = \totara_job\job_assignment::create_default($this->users[2]->id);
+        $u2staffja->update(['managerjaid' => $u1managerja->id]);
+
+        $this->assertCount(1, get_role_users($CFG->managerroleid, $u2context));
+
+        // Testing when we delete the manager's job assignment.
+        \totara_job\job_assignment::delete($u1managerja);
+
+        $this->assertEmpty(get_role_users($CFG->managerroleid, $u2context));
+    }
+
+    /**
+     * A user has a manager associated with one job assignment. When we delete that job assignment, their manager
+     * should no longer have a staff manager role in the user's context.
+     */
+    public function test_delete_updates_role_assignments_when_has_manager() {
+        global $CFG;
+
+        // We'll use user 2 as the user to assign a staff manager to.
+        $u2context = context_user::instance($this->users[2]->id);
+        $this->assertEmpty(get_role_users($CFG->managerroleid, $u2context));
+
+        $u1managerja = \totara_job\job_assignment::create_default($this->users[1]->id);
+        $u2staffja = \totara_job\job_assignment::create_default($this->users[2]->id);
+        $u2staffja->update(['managerjaid' => $u1managerja->id]);
+
+        $this->assertCount(1, get_role_users($CFG->managerroleid, $u2context));
+
+        // Testing when we delete the staff's job assignment.
+        \totara_job\job_assignment::delete($u2staffja);
+
+        $this->assertEmpty(get_role_users($CFG->managerroleid, $u2context));
+    }
+
+    /**
+     * A user has temporary staff associated with one job assignment (ie they are a temporary manager).
+     * When we delete that job assignment, they should no longer have a staff manager role for those staff.
+     */
+    public function test_delete_updates_role_assignments_when_has_tempstaff() {
+        global $CFG;
+
+        // We'll use user 2 as the user to assign a staff manager to.
+        $u2context = context_user::instance($this->users[2]->id);
+        $this->assertEmpty(get_role_users($CFG->managerroleid, $u2context));
+
+        $u1managerja = \totara_job\job_assignment::create_default($this->users[1]->id);
+        $u2staffja = \totara_job\job_assignment::create_default($this->users[2]->id);
+        $u2staffja->update(['tempmanagerjaid' => $u1managerja->id, 'tempmanagerexpirydate' => time() + DAYSECS]);
+
+        $this->assertCount(1, get_role_users($CFG->managerroleid, $u2context));
+
+        // Delete the temp manager's job assignment.
+        \totara_job\job_assignment::delete($u1managerja);
+
+        $this->assertEmpty(get_role_users($CFG->managerroleid, $u2context));
+    }
+
+    /**
+     * A user has a temporary manager associated with one job assignment.
+     * When we delete that job assignment, their manager should no longer have
+     * a staff manager role in the user's context.
+     */
+    public function test_delete_updates_role_assignments_when_has_tempmanager() {
+        global $CFG;
+
+        // We'll use user 2 as the user to assign a staff manager to.
+        $u2context = context_user::instance($this->users[2]->id);
+        $this->assertEmpty(get_role_users($CFG->managerroleid, $u2context));
+
+        $u1managerja = \totara_job\job_assignment::create_default($this->users[1]->id);
+        $u2staffja = \totara_job\job_assignment::create_default($this->users[2]->id);
+        $u2staffja->update(['tempmanagerjaid' => $u1managerja->id, 'tempmanagerexpirydate' => time() + DAYSECS]);
+
+        $this->assertCount(1, get_role_users($CFG->managerroleid, $u2context));
+
+        // Delete the temp staffs job assignment.
+        \totara_job\job_assignment::delete($u2staffja);
+
+        $this->assertEmpty(get_role_users($CFG->managerroleid, $u2context));
+    }
+
+    /**
+     * A user has a manager and staff associated with a single job assignment.
+     * When we delete that job assignment, there should be no remaining role assignments reflecting those
+     * relationships.
+     */
+    public function test_delete_updates_role_assignments_when_manager_and_staff() {
+        global $CFG;
+
+        // We'll use user 2 as the user to assign a staff manager to.
+        $u2context = context_user::instance($this->users[2]->id);
+        $this->assertEmpty(get_role_users($CFG->managerroleid, $u2context));
+
+        // User 1 will be the middle manager.
+        $u1context = context_user::instance($this->users[1]->id);
+        $this->assertEmpty(get_role_users($CFG->managerroleid, $u1context));
+
+        $u1managerja = \totara_job\job_assignment::create_default($this->users[1]->id);
+        $u2staffja = \totara_job\job_assignment::create_default($this->users[2]->id);
+        $u2staffja->update(['managerjaid' => $u1managerja->id]);
+
+        // User 3 is the highest level manager.
+        $u3boss = \totara_job\job_assignment::create_default($this->users[3]->id);
+        $u1managerja->update(['managerjaid' => $u3boss->id]);
+
+        $this->assertCount(1, get_role_users($CFG->managerroleid, $u2context));
+        $this->assertCount(1, get_role_users($CFG->managerroleid, $u1context));
+
+        // Testing when we delete the middle manager's job assignment.
+        \totara_job\job_assignment::delete($u1managerja);
+
+        $this->assertEmpty(get_role_users($CFG->managerroleid, $u2context));
+        $this->assertEmpty(get_role_users($CFG->managerroleid, $u1context));
     }
 
     /**

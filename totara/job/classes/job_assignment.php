@@ -792,7 +792,11 @@ class job_assignment {
             return;
         }
 
-        $context = \context_user::instance($this->userid);
+        $context = \context_user::instance($this->userid, IGNORE_MISSING);
+        if (!$context) {
+            // Without a context we can't unassign. This could have happend during deletion of the user.
+            return;
+        }
         $roleid = $CFG->managerroleid;
 
         // Delete role assignment if there was an old manager, because it was removed.
@@ -981,11 +985,18 @@ class job_assignment {
                 }
             }
 
-            // We don't need to remove this job assignment's manager and temp manager because the role assignment
-            // records should already have been deleted by delete_user() calling context_helper::delete_instance().
-
             // Delete the record.
             $DB->delete_records('job_assignment', array('id' => $jobassignment->id));
+
+            if ($jobassignment->managerjaid) {
+                // Now that job record is deleted, we can accurately update the role assignments for this user's staff.
+                $jobassignment->update_manager_role_assignments($jobassignment->managerjaid, null);
+            }
+
+            if ($jobassignment->tempmanagerjaid) {
+                // Now that job record is deleted, we can accurately update the role assignments for this user's temporary staff.
+                $jobassignment->update_manager_role_assignments($jobassignment->tempmanagerjaid, null);
+            }
 
             // Fix the sort order of the other job assignments.
             $followers = $DB->get_records_select(
