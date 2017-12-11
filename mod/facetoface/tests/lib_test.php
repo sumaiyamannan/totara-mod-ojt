@@ -3941,4 +3941,123 @@ class mod_facetoface_lib_testcase extends advanced_testcase {
 
         $this->resetAfterTest(true);
     }
+
+    public function test_facetoface_get_sessions_within() {
+        /*
+         * What are we testing:
+         *  1. Returns false when no dates supplied.
+         *  2. Gets session(s) within given dates correctly.
+         *  3. Ignores session(s) if they had been cancelled.
+         *  4. Works correctly when user id is supplied.
+         *  5. Works correctly with custom sql supplied.
+         */
+
+        $this->init_sample_data();
+
+        $facetofacegenerator = $this->getDataGenerator()->get_plugin_generator('mod_facetoface');
+        $user = $this->getDataGenerator()->create_user();
+
+        // A function to quickly create a new session.
+        $whip_up_session = function($start = null, $duration = null, $users = array()) use ($facetofacegenerator) {
+            // Normalizing input.
+            $start = $start ?: time() + (YEARSECS * 69);
+            $duration = $duration ?: 3600;
+            $finish = $start + $duration;
+
+            $facetoface = $facetofacegenerator->create_instance(array('course' => $this->course1->id));
+
+            $sessiondate = (object) array(
+                'timestart' => $start,
+                'timefinish' => $finish,
+                'sessiontimezone' => 'Pacific/Auckland',
+            );
+            $sessiondata = array(
+                'facetoface' => $facetoface->id,
+                'capacity' => 10,
+                'allowoverbook' => 0,
+                'sessiondates' => array($sessiondate),
+            );
+
+            $session = facetoface_get_session($facetofacegenerator->add_session($sessiondata));
+
+            // We have some users to sign up for the session.
+            if ($users) {
+                array_map(function($user) use ($facetoface, $session) {
+                    facetoface_user_signup(
+                        $session,
+                        $facetoface,
+                        $this->course1,
+                        '',
+                        MDL_F2F_INVITE,
+                        MDL_F2F_STATUS_BOOKED,
+                        $user->id
+                    );
+                }, $users);
+            }
+
+            return $session;
+        };
+
+        $dates = array();
+
+        // 1. Returns false when no dates supplied.
+        $this->assertEmpty(facetoface_get_sessions_within(array()));
+
+        // 2. Gets session(s) within given dates correctly.
+        $dates[] = (object) array(
+            'timestart' => time() + (YEARSECS * 69),
+            'timefinish' => time() + (YEARSECS * 69 + 3600),
+        );
+        $date = end($dates);
+        $session = $whip_up_session($date->timestart, 3600);
+        $result = facetoface_get_sessions_within(array($date));
+        $this->assertAttributeEquals($session->sessiondates[0]->id, 'id', $result);
+
+        // Sanity check - nothing gets returned if there is no sessions for given dates.
+        $this->assertEmpty(facetoface_get_sessions_within(array(
+                (object) array(
+                    'timestart' => $date->timestart + YEARSECS,
+                    'timefinish' => $date->timefinish + YEARSECS,
+                ))
+        ));
+
+        // 3. Ignores cancelled session.
+        $dates[] = (object) array(
+            'timestart' => time() + (YEARSECS * 71),
+            'timefinish' => time() + (YEARSECS * 71 + 3600),
+        );
+        $date = end($dates);
+        $session = $whip_up_session($date->timestart, 3600);
+        facetoface_cancel_session($session, false);
+        $result = facetoface_get_sessions_within(array($date));
+        $this->assertEmpty($result);
+
+        // 4. Works correctly when user id is supplied.
+        $dates[] = (object) array(
+            'timestart' => time() + (YEARSECS * 73),
+            'timefinish' => time() + (YEARSECS * 73 + 3600),
+        );
+        $date = end($dates);
+        $nodate = reset($dates);
+        $session = $whip_up_session($date->timestart, 3600, array($user));
+        $firstsid = $session->id;
+
+        $emptyresult =  facetoface_get_sessions_within(array($nodate), $user->id);
+        $result = facetoface_get_sessions_within(array($date), $user->id);
+
+        $this->assertAttributeEquals($session->sessiondates[0]->id, 'id', $result);
+        $this->assertEmpty($emptyresult);
+
+        // 5. Works correctly when custom SQL is supplied.
+        // Reusing previously created session to change details.
+        $session = $whip_up_session($date->timestart, 3600);
+
+        $firstresult = facetoface_get_sessions_within(array($date), false, ' and s.id = ?', array($firstsid));
+        $result = facetoface_get_sessions_within(array($date), false, ' and s.id = ?', array($session->id));
+
+        $this->assertAttributeEquals($firstsid, 'sessionid', $firstresult);
+        $this->assertAttributeEquals($session->id, 'sessionid', $result);
+
+        $this->resetAfterTest();
+    }
 }

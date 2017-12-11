@@ -4773,17 +4773,17 @@ function facetoface_task_check_capacity($data) {
 }
 
 /**
- * Get sessions the occur at least partly during time periods
+ * Get first session that occurs at least partly during time periods
  *
  * @access  public
  * @param   array   $times          Array of dates defining time periods
  * @param   integer $userid         Limit sessions to those affecting a user (optional)
  * @param   string  $extrawhere     Custom WHERE additions (optional)
- * @return  array
- * // TODO: Cover this function by unit tests.
+ * @return  array|stdClass
+ *
  */
 function facetoface_get_sessions_within($times, $userid = null, $extrawhere = '', $extraparams = array()) {
-    global $CFG, $DB;
+    global $DB;
 
     $params = array();
     $select = "
@@ -4835,6 +4835,10 @@ function facetoface_get_sessions_within($times, $userid = null, $extrawhere = ''
         $where .= ' AND ((ss.id IS NOT NULL AND ss.statuscode >= ?) OR sr.id IS NOT NULL)';
         $params[]  = MDL_F2F_STATUS_WAITLISTED;
     }
+
+    // Ignoring cancelled sessions.
+    $where .= ' AND s.cancelledstatus = ?';
+    $params[]  = 0;
 
     $params = array_merge($params, $extraparams);
     $sessions = $DB->get_record_sql($select.$source.$where.$extrawhere, $params, IGNORE_MULTIPLE);
