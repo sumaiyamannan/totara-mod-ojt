@@ -143,3 +143,75 @@ function totara_certification_upgrade_non_zero_prog_completions() {
                                   WHERE certifid IS NOT NULL)";
     $DB->execute($sql);
 }
+
+// TL-16521 Reset cert messages which were not reset when TL-10979 was added.
+function totara_certification_upgrade_reset_messages() {
+    global $DB;
+
+    // 1) Reset all message types where the window is open, and the messages were sent before window open.
+    $messagetypes = array(
+        MESSAGETYPE_PROGRAM_COMPLETED,
+        MESSAGETYPE_PROGRAM_DUE,
+        MESSAGETYPE_PROGRAM_OVERDUE,
+        MESSAGETYPE_COURSESET_DUE,
+        MESSAGETYPE_COURSESET_OVERDUE,
+        MESSAGETYPE_COURSESET_COMPLETED,
+        MESSAGETYPE_RECERT_WINDOWOPEN,
+        MESSAGETYPE_RECERT_WINDOWDUECLOSE,
+        MESSAGETYPE_RECERT_FAILRECERT,
+        MESSAGETYPE_LEARNER_FOLLOWUP,
+    );
+    list($messagetypesql, $params) = $DB->get_in_or_equal($messagetypes, SQL_PARAMS_NAMED);
+
+    $sql = "DELETE pml
+              FROM {prog_messagelog} pml
+              JOIN {prog_message} pm
+                ON pm.id = pml.messageid AND pm.messagetype {$messagetypesql}
+              JOIN {prog} p ON pm.programid = p.id
+              JOIN {certif_completion} cc ON cc.certifid = p.certifid AND cc.userid = pml.userid
+             WHERE pml.timeissued < cc.timewindowopens
+               AND cc.renewalstatus = :due";
+    $params['due'] = CERTIFRENEWALSTATUS_DUE;
+    $DB->execute($sql, $params);
+
+    // 2) Reset messages where the user is expired and the message type couldn't have been sent since window opened.
+    $messagetypes = array(
+        MESSAGETYPE_PROGRAM_COMPLETED,
+        MESSAGETYPE_PROGRAM_OVERDUE,
+        MESSAGETYPE_RECERT_WINDOWOPEN,
+        MESSAGETYPE_RECERT_FAILRECERT,
+        MESSAGETYPE_LEARNER_FOLLOWUP,
+    );
+    list($messagetypesql, $params) = $DB->get_in_or_equal($messagetypes, SQL_PARAMS_NAMED);
+
+    $sql = "DELETE pml
+              FROM {prog_messagelog} pml
+              JOIN {prog_message} pm
+                ON pm.id = pml.messageid AND pm.messagetype {$messagetypesql}
+              JOIN {prog} p ON pm.programid = p.id
+              JOIN {certif_completion} cc ON cc.certifid = p.certifid AND cc.userid = pml.userid
+              JOIN {prog_completion} pc ON pc.programid = p.id AND pc.userid = pml.userid AND pc.coursesetid = 0
+             WHERE pml.timeissued < pc.timedue
+               AND cc.renewalstatus = :expired";
+    $params['expired'] = CERTIFRENEWALSTATUS_EXPIRED;
+    $DB->execute($sql, $params);
+
+    // 3) Reset messages where the user is certified and the message type couldn't have been sent since window opened.
+    $messagetypes = array(
+        MESSAGETYPE_PROGRAM_COMPLETED,
+        MESSAGETYPE_RECERT_WINDOWOPEN,
+        MESSAGETYPE_LEARNER_FOLLOWUP,
+    );
+    list($messagetypesql, $params) = $DB->get_in_or_equal($messagetypes, SQL_PARAMS_NAMED);
+
+    $sql = "DELETE pml
+              FROM {prog_messagelog} pml
+              JOIN {prog_message} pm
+                ON pm.id = pml.messageid AND pm.messagetype {$messagetypesql}
+              JOIN {prog} p ON pm.programid = p.id
+              JOIN {certif_completion} cc ON cc.certifid = p.certifid AND cc.userid = pml.userid
+             WHERE pml.timeissued < cc.timecompleted
+               AND cc.renewalstatus = :notdue";
+    $params['notdue'] = CERTIFRENEWALSTATUS_NOTDUE;
+    $DB->execute($sql, $params);
+}
