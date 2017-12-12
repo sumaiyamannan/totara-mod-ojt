@@ -438,21 +438,21 @@ Scenario: Verify personal goal data can be added to an appraisal.
 
   # Add some date to the custom fields and fill in the review answer.
   When I set the following fields to these values:
-    | Checkbox 1                       | 1                         |
-    | customfield_datetime1_1[enabled] | 1                         |
-    | customfield_datetime1_1[month]   | December                  |
-    | customfield_datetime1_1[day]     | 31                        |
-    | customfield_datetime1_1[year]    | 2035                      |
-    | customfield_menuofchoices1_1     | Choice 1                  |
-    | Select 1                         | 1                         |
-    | Select 2                         | 1                         |
-    | Select 3                         | 1                         |
-    | Text area 1                      | Text area 1               |
-    | Text input 1                     | Text input 1              |
-    | customfield_url1_1[url]          | https://www.totaralms.com |
-    | customfield_url1_1[text]         | Totara LMS                |
-    | customfield_url1_1[target]       | 1                         |
-    | Your answer                      | How did I do?             |
+    | Checkbox 1                         | 1                         |
+    | customfield_datetime1_1_1[enabled] | 1                         |
+    | customfield_datetime1_1_1[month]   | December                  |
+    | customfield_datetime1_1_1[day]     | 31                        |
+    | customfield_datetime1_1_1[year]    | 2035                      |
+    | customfield_menuofchoices1_1_1     | Choice 1                  |
+    | Select 1                           | 1                         |
+    | Select 2                           | 1                         |
+    | Select 3                           | 1                         |
+    | Text area 1                        | Text area 1               |
+    | Text input 1                       | Text input 1              |
+    | customfield_url1_1_1[url]          | https://www.totaralms.com |
+    | customfield_url1_1_1[text]         | Totara LMS                |
+    | customfield_url1_1_1[target]       | 1                         |
+    | Your answer                        | How did I do?             |
 
   And I press "Complete Stage"
   Then I should see "You have completed this stage"
@@ -465,37 +465,37 @@ Scenario: Verify personal goal data can be added to an appraisal.
   And I press "Start"
   Then I should see "Personal Goal 1"
   And the field "Checkbox 1" matches value "1"
-  And the field "customfield_datetime1_1[enabled]" matches value "1"
-  And the "customfield_datetime1_1[day]" select box should contain "31"
-  And the "customfield_datetime1_1[month]" select box should contain "December"
-  And the "customfield_datetime1_1[year]" select box should contain "2035"
-  And the "customfield_menuofchoices1_1" select box should contain "Choice 1"
+  And the field "customfield_datetime1_1_2[enabled]" matches value "1"
+  And the "customfield_datetime1_1_2[day]" select box should contain "31"
+  And the "customfield_datetime1_1_2[month]" select box should contain "December"
+  And the "customfield_datetime1_1_2[year]" select box should contain "2035"
+  And the "customfield_menuofchoices1_1_2" select box should contain "Choice 1"
   And the field "Select 1" matches value "1"
   And the field "Select 2" matches value "1"
   And the field "Select 3" matches value "1"
   And the field "Text area 1" matches value "Text area 1"
   And the field "Text input 1" matches value "Text input 1"
-  And the field "customfield_url1_1[url]" matches value "https://www.totaralms.com"
-  And the field "customfield_url1_1[text]" matches value "Totara LMS"
-  And the field "customfield_url1_1[target]" matches value "1"
+  And the field "customfield_url1_1_2[url]" matches value "https://www.totaralms.com"
+  And the field "customfield_url1_1_2[text]" matches value "Totara LMS"
+  And the field "customfield_url1_1_2[target]" matches value "1"
 
   # Update the custom fields and fill in the review answer.
   When I set the following fields to these values:
-    | Checkbox 1                       | 0                              |
-    | customfield_datetime1_1[enabled] | 1                              |
-    | customfield_datetime1_1[day]     | 5                              |
-    | customfield_datetime1_1[month]   | November                       |
-    | customfield_datetime1_1[year]    | 2035                           |
-    | customfield_menuofchoices1_1     | Choice 2                       |
-    | Select 1                         | 1                              |
-    | Select 2                         | 0                              |
-    | Select 3                         | 0                              |
-    | Text area 1                      | Text area 1 updated            |
-    | Text input 1                     | Text input 1 updated           |
-    | customfield_url1_1[url]          | https://www.totaralearning.com |
-    | customfield_url1_1[text]         | Totara Learning                |
-    | customfield_url1_1[target]       | 1                              |
-    | Your answer                      | Not bad.                       |
+    | Checkbox 1                         | 0                              |
+    | customfield_datetime1_1_2[enabled] | 1                              |
+    | customfield_datetime1_1_2[day]     | 5                              |
+    | customfield_datetime1_1_2[month]   | November                       |
+    | customfield_datetime1_1_2[year]    | 2035                           |
+    | customfield_menuofchoices1_1_2     | Choice 2                       |
+    | Select 1                           | 1                              |
+    | Select 2                           | 0                              |
+    | Select 3                           | 0                              |
+    | Text area 1                        | Text area 1 updated            |
+    | Text input 1                       | Text input 1 updated           |
+    | customfield_url1_1_2[url]          | https://www.totaralearning.com |
+    | customfield_url1_1_2[text]         | Totara Learning                |
+    | customfield_url1_1_2[target]       | 1                              |
+    | Your answer                        | Not bad.                       |
 
   And I upload "/totara/hierarchy/tests/behat/fixtures/logo.png" file to "File 1" filemanager
   And I press "Complete Stage"
@@ -503,20 +503,20 @@ Scenario: Verify personal goal data can be added to an appraisal.
 
   When I press "View"
   # Verify that the fields are locked
-  Then the "id_customfield_checkbox1_1" "field" should be disabled
-  And "customfield_datetime1_1[day]" "field" should not exist
-  And the "id_customfield_multiselect1_1_0" "field" should be disabled
-  And the "id_customfield_multiselect1_1_1" "field" should be disabled
-  And the "id_customfield_multiselect1_1_2" "field" should be disabled
-  And the "customfield_textinput1_1" "field" should be readonly
-  And the "customfield_url1_1[url]" "field" should be readonly
-  And the "customfield_url1_1[text]" "field" should be readonly
-  And the "id_customfield_url1_1_target" "field" should be disabled
+  Then the "id_customfield_checkbox1_1_2" "field" should be disabled
+  And "customfield_datetime1_1_2[day]" "field" should not exist
+  And the "id_customfield_multiselect1_1_2_0" "field" should be disabled
+  And the "id_customfield_multiselect1_1_2_1" "field" should be disabled
+  And the "id_customfield_multiselect1_1_2_2" "field" should be disabled
+  And the "customfield_textinput1_1_2" "field" should be readonly
+  And the "customfield_url1_1_2[url]" "field" should be readonly
+  And the "customfield_url1_1_2[text]" "field" should be readonly
+  And the "id_customfield_url1_1_2_target" "field" should be disabled
 
   # Verify the fields are stored.
   And the field "Checkbox 1" matches value "0"
   And the field "Text input 1" matches value "Text input 1 updated"
-  And the field "customfield_url1_1[url]" matches value "https://www.totaralearning.com"
-  And the field "customfield_url1_1[text]" matches value "Totara Learning"
+  And the field "customfield_url1_1_2[url]" matches value "https://www.totaralearning.com"
+  And the field "customfield_url1_1_2[text]" matches value "Totara Learning"
   And the field "Open in new window" matches value "1"
   And I should see "Not bad."

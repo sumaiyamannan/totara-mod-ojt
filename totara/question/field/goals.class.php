@@ -601,9 +601,10 @@ class question_goals extends reviewrating {
                 'goal_user',
                 $disableheader,
                 true,
-                !$this->cananswer || $this->viewonly || !$canedit);
+                !$this->cananswer || $this->viewonly || !$canedit,
+                $item->id);
 
-            customfield_load_data($goalitem, 'goal_user', 'goal_user', true);
+            customfield_load_data($goalitem, 'goal_user', 'goal_user', true, $item->id);
 
             foreach ($goalitem as $name => $value) {
                 if (substr_count($name, 'customfield_') > 0) {

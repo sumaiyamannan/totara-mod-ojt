@@ -39,10 +39,10 @@ class customfield_multiselect extends customfield_base {
      * Pulls out the options for the menu from the database and sets the
      * the corresponding key for the data if it exists
      */
-    public function __construct($fieldid=0, $itemid=0, $prefix, $tableprefix, $addsuffix = false) {
+    public function __construct($fieldid=0, $itemid=0, $prefix, $tableprefix, $addsuffix = false, $suffix = '') {
         global $DB;
         // First call parent constructor.
-        parent::__construct($fieldid, $itemid, $prefix, $tableprefix, $addsuffix);
+        parent::__construct($fieldid, $itemid, $prefix, $tableprefix, $addsuffix, $suffix);
         $this->tableprefix = $tableprefix;
 
         // Param 1 for menu type is the options.

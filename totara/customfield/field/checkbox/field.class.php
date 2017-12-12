@@ -29,11 +29,11 @@ class customfield_checkbox extends customfield_base {
      * Pulls out the options for the checkbox from the database and sets the
      * the corresponding key for the data if it exists
      */
-    public function __construct($fieldid=0, $item, $prefix, $tableprefix, $addsuffix = false) {
+    public function __construct($fieldid=0, $item, $prefix, $tableprefix, $addsuffix = false, $suffix = '') {
         global $DB;
 
         // First call parent constructor.
-        parent::__construct($fieldid, $item, $prefix, $tableprefix, $addsuffix);
+        parent::__construct($fieldid, $item, $prefix, $tableprefix, $addsuffix, $suffix);
 
         if (!empty($this->field)) {
             $datafield = $DB->get_field($tableprefix.'_info_data', 'data', array($prefix.'id' => $item->id, 'fieldid' => $this->fieldid));
