@@ -1103,10 +1103,8 @@ define(['jquery', 'core/config', 'core/templates', 'core/notification'], functio
                 success: function(data) {
                     this.ajaxSubmitHandler(deferred, data);
                 },
-                complete : function(jqXHR, status) {
-                    if (status !== 'success') {
-                        deferred.resolve(status, {}, jqXHR);
-                    }
+                error: function(jqXHR, status, error) {
+                    deferred.reject(jqXHR, status, error);
                 },
                 dataType: 'json'
             });
@@ -1630,10 +1628,8 @@ define(['jquery', 'core/config', 'core/templates', 'core/notification'], functio
                         deferred.reject();
                     }
                 },
-                complete : function(jqXHR, status) {
-                    if (status !== 'success') {
-                        deferred.resolve(status);
-                    }
+                error: function(jqXHR, status, error) {
+                    deferred.reject(jqXHR, status, error);
                 },
                 dataType: 'json'
             });
