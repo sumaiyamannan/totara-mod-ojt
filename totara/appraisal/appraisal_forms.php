@@ -145,6 +145,20 @@ class appraisal_answer_form extends moodleform {
         $showformfields = !$pageislocked && $stage->can_be_answered($roleassignment->appraisalrole);
         $showsubmitbutton = $showformfields && !$preview;
         $isactivepage = ($roleassignment->activepageid == $page->id) && !$stageiscomplete;
+        $pagecanbeanswered = $page->can_be_answered($roleassignment->appraisalrole);
+
+        $button = null;
+        if ($showsubmitbutton) {
+            if ($isactivepage) {
+                if ($islastpage) {
+                    $button = 'completestage';
+                } else {
+                    $button = 'next';
+                }
+            } else if ($pagecanbeanswered) {
+                $button = 'savechanges';
+            }
+        }
 
         $mform->addElement('hidden', 'pageid')->setValue($page->id);
         $mform->addElement('hidden', 'role')->setValue($roleassignment->appraisalrole);
@@ -198,11 +212,11 @@ class appraisal_answer_form extends moodleform {
                 }
             }
 
-            if ((($rights & appraisal::ACCESS_CANANSWER) != appraisal::ACCESS_CANANSWER) && !$isviewonlyquestion) {
+            if ($rights & appraisal::ACCESS_CANANSWER != appraisal::ACCESS_CANANSWER && !$isviewonlyquestion) {
                 $elem->cananswer = false;
             }
 
-            if ($isviewonlyquestion) {
+            if ($isviewonlyquestion || $button == null) {
                 $elem->set_viewonly(true);
             } else if ($spaces) {
                 $spaceelem = $mform->addElement('static', '', ' ', ' ');
@@ -210,28 +224,18 @@ class appraisal_answer_form extends moodleform {
                 $spaceelem->_elementTemplateType = 'default';
             }
 
+            if (!$showsubmitbutton || (!$isactivepage && !$pagecanbeanswered)) {
+                $elem->set_viewonly(true);
+            }
+
             $elem->set_preview($preview);
 
             $elem->add_field_form_elements($mform);
         }
 
-        $button = null;
-        if ($showsubmitbutton) {
-            if ($isactivepage) {
-                if ($islastpage) {
-                    $mform->addElement('hidden', 'submitaction')->setValue('completestage');
-                    $button = 'completestage';
-                } else {
-                    $mform->addElement('hidden', 'submitaction')->setValue('next');
-                    $button = 'next';
-                }
-            } else if ($page->can_be_answered($roleassignment->appraisalrole)) {
-                $mform->addElement('hidden', 'submitaction')->setValue('savechanges');
-                $button = 'savechanges';
-            }
-        }
         if ($button) {
             $this->add_action_buttons(false, get_string($button, 'totara_appraisal'));
+            $mform->addElement('hidden', 'submitaction')->setValue($button);
         }
     }
 

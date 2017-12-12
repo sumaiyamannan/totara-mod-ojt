@@ -501,20 +501,22 @@ Scenario: Verify personal goal data can be added to an appraisal.
   And I press "Complete Stage"
   Then I should see "You have completed this stage"
 
-  # Verify the fields are stored.
   When I press "View"
+  # Verify that the fields are locked
+  Then the "id_customfield_checkbox1_1" "field" should be disabled
+  And "customfield_datetime1_1[day]" "field" should not exist
+  And the "id_customfield_multiselect1_1_0" "field" should be disabled
+  And the "id_customfield_multiselect1_1_1" "field" should be disabled
+  And the "id_customfield_multiselect1_1_2" "field" should be disabled
+  And the "customfield_textinput1_1" "field" should be readonly
+  And the "customfield_url1_1[url]" "field" should be readonly
+  And the "customfield_url1_1[text]" "field" should be readonly
+  And the "id_customfield_url1_1_target" "field" should be disabled
+
+  # Verify the fields are stored.
   And the field "Checkbox 1" matches value "0"
-  And the field "customfield_datetime1_1[enabled]" matches value "1"
-  And the "customfield_datetime1_1[day]" select box should contain "5"
-  And the "customfield_datetime1_1[month]" select box should contain "November"
-  And the "customfield_datetime1_1[year]" select box should contain "2035"
-  And the "customfield_menuofchoices1_1" select box should contain "Choice 2"
-  And the field "Select 1" matches value "1"
-  And the field "Select 2" matches value "0"
-  And the field "Select 3" matches value "0"
-  And the field "Text area 1" matches value "Text area 1 updated"
   And the field "Text input 1" matches value "Text input 1 updated"
   And the field "customfield_url1_1[url]" matches value "https://www.totaralearning.com"
   And the field "customfield_url1_1[text]" matches value "Totara Learning"
-  And the field "customfield_url1_1[target]" matches value "1"
+  And the field "Open in new window" matches value "1"
   And I should see "Not bad."
