@@ -11,7 +11,6 @@ Feature: Verify course reminder periods.
       | Course 1 | C1        | topics | 1                |
     And I log in as "admin"
     And I navigate to "Manage activities" node in "Site administration > Plugins > Activity modules"
-    And I click on "Show Feedback" "link"
     And I click on "Find Learning" in the totara menu
     And I follow "Course 1"
     And I turn editing mode on
