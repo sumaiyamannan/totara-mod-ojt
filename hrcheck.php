@@ -21,6 +21,7 @@ require_once($CFG->dirroot . '/lib/datalib.php');
 require_once($CFG->dirroot . '/lib/dmllib.php');
 require_once($CFG->dirroot . '/lib/moodlelib.php');
 require_once($CFG->dirroot . '/lib/weblib.php');
+$hrcheckstarted = false;
 try {
     $hoursago26 = time() - 93600;
     $syncstrings = array('usersync', 'orgsync', 'possync');
@@ -33,6 +34,7 @@ try {
                  info = ?", array($hoursago26, 'info', $syncstring, 'HR Import started'));
 
         if(!empty($check_sync_started)) {
+            $hrcheckstarted = true;
             $check = $DB->get_record_sql(
                 "SELECT * FROM  {totara_sync_log}
                      WHERE time >  ?  AND
@@ -47,6 +49,10 @@ try {
     }
 } catch (dml_exception $e) {
     print_error("COULDN'T INITIALISE - HR check fail");
+    exit(2);
+}
+if (!$hrcheckstarted) {
+    echo "HR sync was not run in the last 26 hours";
     exit(2);
 }
 echo "HR sync succeeded\n";
