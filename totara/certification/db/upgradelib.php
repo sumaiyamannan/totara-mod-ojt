@@ -174,8 +174,8 @@ function totara_certification_upgrade_reset_messages() {
     $params['due'] = CERTIFRENEWALSTATUS_DUE;
 
     $pmlrs = $DB->get_recordset_sql($sql, $params);
-    foreach ($pmlrs as $pmlid) {
-        $DB->delete_records('prog_messagelog', array('id' => $pmlid));
+    foreach ($pmlrs as $pml) {
+        $DB->delete_records('prog_messagelog', array('id' => $pml->id));
     }
     $pmlrs->close();
 
@@ -201,8 +201,8 @@ function totara_certification_upgrade_reset_messages() {
     $params['expired'] = CERTIFRENEWALSTATUS_EXPIRED;
 
     $pmlrs = $DB->get_recordset_sql($sql, $params);
-    foreach ($pmlrs as $pmlid) {
-        $DB->delete_records('prog_messagelog', array('id' => $pmlid));
+    foreach ($pmlrs as $pml) {
+        $DB->delete_records('prog_messagelog', array('id' => $pml->id));
     }
     $pmlrs->close();
 
@@ -225,8 +225,8 @@ function totara_certification_upgrade_reset_messages() {
     $params['notdue'] = CERTIFRENEWALSTATUS_NOTDUE;
 
     $pmlrs = $DB->get_recordset_sql($sql, $params);
-    foreach ($pmlrs as $pmlid) {
-        $DB->delete_records('prog_messagelog', array('id' => $pmlid));
+    foreach ($pmlrs as $pml) {
+        $DB->delete_records('prog_messagelog', array('id' => $pml->id));
     }
     $pmlrs->close();
 }
