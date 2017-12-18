@@ -565,11 +565,6 @@ $errorrecords = $DB->get_records_sql("SELECT id, timeoccured FROM {errorlog} ORD
 
 $latesterror = array_shift($errorrecords);
 
-require_once("$CFG->dirroot/$CFG->admin/registerlib.php");
-if (is_registration_required()) {
-    redirect("$CFG->wwwroot/$CFG->admin/register.php?return=admin");
-}
-
 require_once($CFG->dirroot . '/totara/core/lib.php');
 totara_site_version_tracking();
 

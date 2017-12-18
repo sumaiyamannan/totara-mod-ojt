@@ -467,9 +467,6 @@ $string['recordnotcreated'] = 'Record could not be created';
 $string['recordnotupdated'] = 'Record could not be updated';
 $string['recordoflearning'] = 'Record of Learning';
 $string['recordoflearningforname'] = 'Record of Learning for {$a}';
-$string['registrationcode'] = 'Registration code';
-$string['registrationcode_help'] = 'Production sites require a unique registration code, it can be obtained from your Totara Partner.';
-$string['registrationcodeinvalid'] = 'Invalid registration code format';
 $string['remotetotaralangnotavailable'] = 'Because Totara can not connect to download.totaralms.com, we are unable to do language pack installation automatically. Please download the appropriate zip file(s) from https://download.totaralms.com/lang/T{$a->totaraversion}/, copy them to your {$a->langdir} directory and unzip them manually.';
 $string['replaceareyousure'] = 'Are you sure you want to replace \'{$a->search}\' with \'{$a->replace}\'? (y/n)';
 $string['replacedevdebuggingrequired'] = 'Error, you must have developer debugging enabled to run this script.';
@@ -514,12 +511,6 @@ $string['settings'] = 'Settings';
 $string['showfeature'] = 'Show';
 $string['sitemanager'] = 'Site Manager';
 $string['siteregistrationemailbody'] = 'Site {$a} was not able to register itself automatically. Access to push data to our registrations site is probably blocked by a firewall.';
-$string['sitetype'] = 'Type of site';
-$string['sitetype_help'] = 'Select the type of site that matches its use.';
-$string['sitetypedemo'] = 'Demo';
-$string['sitetypedevelopment'] = 'Development';
-$string['sitetypeproduction'] = 'Production';
-$string['sitetypeqa'] = 'QA / Staging';
 $string['staffmanager'] = 'Staff Manager';
 $string['startdate'] = 'Start Date';
 $string['started'] = 'Started';
@@ -556,22 +547,11 @@ $string['totarafeatures'] = 'Totara features';
 $string['totaralogo'] = 'Totara Logo';
 $string['totaramenu'] = 'Totara Menu';
 $string['totaranavigation'] = 'Main menu';
-$string['totararegistration'] = 'Totara registration';
-$string['totararegistration_desc'] = '<p>To register Totara software you must include your registration code.</p>
-<p>Registering your software is not an End User Licensing Agreement. Registration establishes the subscriber\'s right to receive Totara’s software update service,
-technical support of your product and access to associated customer services such as access
-to the <a href="https://totara.academy/" target="_blank">Totara Academy</a> and <a href="https://totara.community/" target="_blank">Community</a>.
-Registration also enables a limited set of diagnostics such as software version and operating system
-to assist when examining and resolving support queries.</p>
-<p>If you do not have your registration code or are experiencing problems,
-your Totara Partner will be able to help, or please contact <a href="mailto:subscriptions@totaralearning.com">subscriptions@totaralearning.com</a>.</p>
-<p><a href="https://www.totaralearning.com/privacy-policy" target="_blank">Totara Learning Privacy Policy</a></p>';
+$string['totararegistration'] = 'Totara Registration';
 $string['totararegistrationinfo'] = '<p>This page configures registration updates which are sent to totaralearning.com.
 These updates allow Totara to know what versions of {$a} and support software you are running.
 This information will allow Totara to better examine and resolve any support issues you face in the future.</p>
 <p>This information will be securely transmitted and held in confidence.</p>';
-$string['totararegistrationlastsent'] = 'Data last sent to Totara';
-$string['totararegistrationsaved'] = 'Totara registration was updated';
 $string['totararelease'] = 'Totara release identifier';
 $string['totarareleaselink'] = 'See the <a href="https://totara.community/mod/forum/view.php?id=1834" target=\"_blank\">release notes</a> for more details.';
 $string['totararequiredupgradeversion'] = 'Totara 2.2.13';

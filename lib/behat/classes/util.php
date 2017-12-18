@@ -144,11 +144,6 @@ class behat_util extends testing_util {
         $userrole = $DB->get_record('role', array('shortname' => 'user'));
         assign_capability('repository/filesystem:view', CAP_ALLOW, $userrole->id, SYSCONTEXTID, true);
 
-        // Disable Totara registrations.
-        set_config('registrationenabled', 0);
-        set_config('sitetype', 'development');
-        set_config('registrationcode', '');
-
         // Keeps the current version of database and dataroot.
         self::store_versions_hash();
 

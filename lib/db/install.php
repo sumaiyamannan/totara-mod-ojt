@@ -123,7 +123,6 @@ function xmldb_main_install() {
         'theme'                 => theme_config::DEFAULT_THEME,
         'filter_multilang_converted' => 1,
         'siteidentifier'        => random_string(32).get_host_from_url($CFG->wwwroot),
-        'registrationenabled'   => 1,
         'backup_version'        => 2008111700,
         'backup_release'        => '2.0 dev',
         'mnet_dispatcher_mode'  => 'off',

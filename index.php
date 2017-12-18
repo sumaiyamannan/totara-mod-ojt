@@ -79,12 +79,6 @@ if ($hassiteconfig && moodle_needs_upgrading()) {
     redirect($CFG->wwwroot .'/'. $CFG->admin .'/index.php');
 }
 
-// Totara: Ask for registration if necessary.
-require_once("$CFG->dirroot/$CFG->admin/registerlib.php");
-if (is_registration_required()) {
-    redirect("$CFG->wwwroot/$CFG->admin/register.php?return=site");
-}
-
 if (get_home_page() == HOMEPAGE_TOTARA_DASHBOARD) {
     // Totara: the only other option is HOMEPAGE_SITE
     //         and only real logged in users may have dashboards.

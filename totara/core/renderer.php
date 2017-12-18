@@ -694,24 +694,24 @@ class totara_core_renderer extends plugin_renderer_base {
     public function is_registered() {
         global $CFG;
 
-        // NOTE: do not change any config settings here, it is the job of admin/register.php page!!!
-
+        if (!isset($CFG->registrationenabled)) {
+            // Default is true
+            set_config('registrationenabled', '1');
+        }
         if (empty($CFG->registrationenabled)) {
             $message = get_string('registrationisdisabled', 'admin', $CFG->wwwroot . '/admin/register.php');
-            $level = 'notifyproblem';
-        } else if (empty($CFG->sitetype) or empty($CFG->registered)) {
-            // This is displayed to non-admins only, admins get a register redirect on admin/index.php page now.
+        } else if (empty($CFG->registered)) {
             $message = get_string('sitehasntregistered', 'admin', $CFG->wwwroot . '/admin/cron.php');
-            $level = 'notifyproblem';
+            $message = $message . '&nbsp;' . $this->help_icon('cron', 'admin');
         } else if ($CFG->registered < time() - 60 * 60 * 24 * 31) {
             $message = get_string('registrationoutofdate', 'admin');
-            $level = 'notifywarning';
         } else {
             $message = get_string('registrationisenabled', 'admin');
-            $level = 'notifysuccess';
         }
 
-        return $this->notification($message, $level);
+        $data = new stdClass();
+        $data->content = $message;
+        return $this->render_from_template('totara_core/is_registered', $data);
     }
 
     /**

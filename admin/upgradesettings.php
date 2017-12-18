@@ -41,11 +41,6 @@ unset($newsettings);
 $focus = '';
 
 if (empty($adminroot->errors) and $newsettingshtml === '') {
-    // Totara: Ask for registration if necessary.
-    require_once("$CFG->dirroot/$CFG->admin/registerlib.php");
-    if (is_registration_required()) {
-        redirect("$CFG->wwwroot/$CFG->admin/register.php?return=site");
-    }
     // there must be either redirect without message or continue button or else upgrade would be sometimes broken
     if ($return == 'site') {
         redirect("$CFG->wwwroot/");
