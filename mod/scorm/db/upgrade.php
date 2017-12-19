@@ -395,6 +395,9 @@ function xmldb_scorm_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2015091400, 'scorm');
     }
 
+    // Moodle v3.0.0 release upgrade line.
+    // Put any upgrade step following this.
+
     // MDL-44712 improve multi-sco activity completion.
     if ($oldversion < 2015111601.02) {
         $table = new xmldb_table('scorm');
@@ -404,7 +407,7 @@ function xmldb_scorm_upgrade($oldversion) {
             $dbman->add_field($table, $field);
         }
 
-        upgrade_mod_savepoint(true, 2016080900, 'scorm');
+        upgrade_mod_savepoint(true, 2015111601.02, 'scorm');
     }
 
     return true;
