@@ -304,7 +304,7 @@ class totara_appraisal_renderer extends plugin_renderer_base {
      */
     public function display_timing($delta, $period) {
         if ($delta == 0) {
-            return get_string('immediate', 'totara_appraisal');
+            return get_string('immediatecron', 'totara_appraisal');
         }
         $str = new stdClass();
         $str->delta = abs($delta);

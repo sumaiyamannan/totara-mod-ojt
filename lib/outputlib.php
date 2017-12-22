@@ -461,6 +461,8 @@ class theme_config {
             throw new coding_exception('Default theme '.theme_config::DEFAULT_THEME.' not available or broken!');
 
         } else if ($config = theme_config::find_theme_config($CFG->theme, $settings)) {
+            debugging('This page should be using theme ' . $themename .
+                    ' which cannot be initialised. Falling back to the site theme ' . $CFG->theme, DEBUG_NORMAL);
             return new theme_config($config);
 
         } else {

@@ -96,7 +96,7 @@ function theme_basis_process_css($css, $theme) {
  */
 function theme_basis_pluginfile($course, $cm, $context, $filearea, $args, $forcedownload, array $options = array()) {
     if ($context->contextlevel == CONTEXT_SYSTEM && ($filearea === 'logo' || $filearea === 'favicon' || $filearea === 'backgroundimage')) {
-        $theme = theme_config::load('theme_basis');
+        $theme = theme_config::load('basis');
         return $theme->setting_file_serve($filearea, $args, $forcedownload, $options);
     }
 

@@ -2061,7 +2061,7 @@ function totara_feedback360_pluginfile($course, $cm, $context, $filearea, $args,
                 }
 
             }
-            if (count($visibleforusers) == 0 && !($responderassignmentid == 0 || $question->user_can_view($responderassignmentid, $USER))) {
+            if (count($visibleforusers) == 0 && !($responderassignmentid == 0 || $question->user_can_view($responderassignmentid, $USER->id))) {
                 send_file_not_found();
             }
         }

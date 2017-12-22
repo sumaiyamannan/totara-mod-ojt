@@ -1122,6 +1122,7 @@ class auth_connect_util_testcase extends advanced_testcase {
         $this->assertSame($USER->id, $session->userid);
         $this->assertTimeCurrent($session->timecreated);
         $expected = new stdClass();
+        $expected->justloggedin = true;
         $this->assertEquals($expected, $SESSION);
 
         // Verify guest user may log in too.
@@ -1142,6 +1143,7 @@ class auth_connect_util_testcase extends advanced_testcase {
         }
         $session = $DB->get_record('auth_connect_sso_sessions', array('ssotoken' => $ssotoken), '*', MUST_EXIST);
         $expected = new stdClass();
+        $expected->justloggedin = true;
         $this->assertEquals($expected, $SESSION);
 
         // Set session flag on failure.

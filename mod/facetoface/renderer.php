@@ -319,6 +319,8 @@ class mod_facetoface_renderer extends plugin_renderer_base {
      * @throws coding_exception
      */
     private function session_status_table_cell($session, $signupcount, $datescount = 0) {
+        global $CFG;
+
         $isbookedsession = (!empty($session->bookedsession) && ($session->id == $session->bookedsession->sessionid));
         $timenow = time();
 
@@ -342,6 +344,14 @@ class mod_facetoface_renderer extends plugin_renderer_base {
         }
         if (!empty($session->registrationtimefinish) && $timenow > $session->registrationtimefinish) {
             $status = get_string('registrationclosed', 'facetoface');
+        }
+
+        if ($CFG->enableavailability) {
+            $cm = get_coursemodule_from_instance('facetoface', $session->facetoface);
+
+            if (!get_fast_modinfo($cm->course)->get_cm($cm->id)->available) {
+                $status = get_string('bookingrestricted', 'facetoface');
+            }
         }
 
         $sessioncell = new html_table_cell($status);
@@ -407,6 +417,8 @@ class mod_facetoface_renderer extends plugin_renderer_base {
      */
     private function session_options_table_cell($session, $viewattendees, $editevents, $reservelink, $signuplink, $datescount = 0) {
 
+        global $CFG;
+
         $options = '';
         $timenow = time();
 
@@ -440,13 +452,23 @@ class mod_facetoface_renderer extends plugin_renderer_base {
         }
 
         $showsignuplink = true;
-        // If Seminar enrolment plugin is not enabled check visibility of the activity.
-        if (!enrol_is_enabled('totara_facetoface')) {
-            // Check visibility of activity (includes visible flag, conditional availability, etc) before adding Sign up link.
+
+        if (!enrol_is_enabled('totara_facetoface') || $CFG->enableavailability) {
             $cm = get_coursemodule_from_instance('facetoface', $session->facetoface);
             $modinfo = get_fast_modinfo($cm->course);
             $cm = $modinfo->get_cm($cm->id);
-            $showsignuplink = $cm->uservisible;
+
+            // If Seminar enrolment plugin is not enabled check visibility of the activity.
+            if (!enrol_is_enabled('totara_facetoface')) {
+                // Check visibility of activity (includes visible flag, conditional availability, etc) before adding Sign up link.
+                $showsignuplink = $cm->uservisible;
+            }
+
+            if ($CFG->enableavailability) {
+                // Check whether this activity is available for the user. However if it's available, but not visible
+                // for some reason we're still not displaying a link.
+                $showsignuplink &= $cm->available;
+            }
         }
 
         if (!empty($signuplink) && $showsignuplink) {

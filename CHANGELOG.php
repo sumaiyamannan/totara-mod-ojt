@@ -3,6 +3,142 @@
 
 Totara Learn Changelog
 
+Release 9.14 (21st December 2017):
+==================================
+
+
+Security issues:
+
+    TL-16451       Fixed permissions not being checked when performing actions on the Seminar attendees page
+    TL-16550       Deletion of a job assignment now removes the staff manager role from the manager in the job assignment
+
+Improvements:
+
+    TL-9277        Added additional options when selecting the maximum Feedback activity reminder time
+    TL-16241       Fixed breadcrumb trail when viewing a user's completion report
+    TL-16256       Allowed appraisal messages to be set to "0 days" before or after event
+
+                   Some immediate appraisals messages were causing performance issues when
+                   sending to a lot of users.
+                   This improvement allows you to set almost immediate messages that will send
+                   on the next cron run after the action was triggered to avoid any
+                   performance hits. The appraisal closure messages have also been changed to
+                   work this way since they don't have any scheduling options.
+
+    TL-16494       Improved embedded reports test coverage
+
+Bug fixes:
+
+    TL-8062        Fixed Seminar notifications not being sent when the room has been changed
+    TL-9885        Fixed validation for sending an extension request for a program
+
+                   When a learner opened the page to request an extension, and in the
+                   meanwhile an admin deactivated the possibility to send a request, the
+                   learner could still send the request. The validation was fixed and made
+                   consistent to prevent these cases. The same goes for direct calls to the
+                   sending url.
+
+    TL-10897       Fixed incomplete validation message for recertification window period
+    TL-15804       Feedback Reminder periods help text has been clarified to explain it counts weekdays and not weekends
+
+                   The Feedback Reminder period is calculated only using weekdays. All
+                   weekends will be skipped and added to the period. To make this existing
+                   behaviour clearer we modified the help text accordingly.
+
+    TL-16015       Goal Custom fields are disabled in appraisals where applicable
+
+                   If a user cannot answer the appraisal or does not have the necessary
+                   permissions to edit a goal's custom fields then they will not be able to
+                   edit the form fields for the custom field in the appraisal.
+
+    TL-16218       Fixed a typo in the certification completion checker
+    TL-16220       Fixed multisco SCORM completion with learning objects grading method (based on MDL-44712)
+
+                   MDL-44712 introduced the "Require all scos to return 'completed'" setting.
+                   This had been originally introduced into v10 and 11. Now it has been
+                   backported to v9 and v2.9.
+
+                   However note the following:
+                   * A multisco SCORM might send back "cmi.core.lesson_status" (or equivalent)
+                     values for every SCO. However, if there is a status condition completion
+                     setting, then Totara (and Moodle) marks the whole SCORM activity as long as
+                     any SCO has a "cmi.core.lesson_status" value of "completed".
+                   * Things get especially confusing when a minimum score _condition_ is used
+                     with a _grading_ method of "Learning Objects" (ie multisco).
+                     * The minimum score condition uses the "cmi.score.raw" (or equivalent) to
+                       compute whether the activity is complete.
+                     * If the SCORM does not send back a "cmi.score.raw" attribute and the
+                       minimum score completion value is set, then the activity *never completes,
+                       even if the student goes through the entire SCORM*.
+                     * In other words, _the minimum score completion setting has got nothing to
+                       do with the "learning objects" grading method_. It is very
+                       counter-intuitive but all along, there has been no code in SCORM module to
+                       check the total no of "completed" learning objects against an expected
+                       count. It is to address this problem that the new "Require all scos to
+                       return "completed" status" setting is there.
+                   * The TL patch also fixes a problem with MDL-4471 patch in which multiple,
+                     simultaneous completion conditions were not evaluated properly. In this
+                     case, if a multisco SCORM returned both "cmi.core.lesson_status" and
+                     "cmi.score.raw" and the completion settings were for _both_ status and
+                     minimum score, the activity would be marked as complete if the student
+                     clicked through the entire SCORM but got less than the minimum score.
+
+    TL-16300       Fixed automated backup when using specified directory for automated backups setting
+    TL-16458       Fixed Totara Connect SSO login process to update login dates and trigger login event
+    TL-16462       Fixed display of custom dashboard menu item in the Totara menu
+    TL-16472       Fixed Seminar direct enrolment not honouring restricted access
+    TL-16473       Fixed Seminar trainers not receiving booking time/date changed notifications
+    TL-16476       Fixed custom favicon in Basis theme
+    TL-16492       Allow less privileged reviewers and respondents to a 360° Feedback to access the files added to a response
+    TL-16521       Fixed certification messages that were not reset before upgrading to TL-10979
+
+                   When patch TL-10979 was included in Totara 2.9.13 and 9.1, it did not
+                   include an upgrade to reset messages which were not reset when the
+                   recertification window opened before the upgrade. This patch resets those
+                   messages, where possible, allowing the messages to be sent again. Users
+                   whose recertification windows have reopened since upgrading to the above
+                   mentioned versions will not be affected because they should already be in
+                   the correct state.
+
+    TL-16530       Fixed report builder cache generator
+
+                   Previously the Report Builder source cache was removing the old cache table
+                   before creating a new one, which was creating a problem whereby the user
+                   couldn't use the old cache table and the new one wasn't ready.
+                   The fix was to keep the old table until the new table was ready, at which
+                   point the old table is removed.
+
+    TL-16553       Fixed lock timeout value for memcached 3.x being too long
+    TL-16554       Added language menu when creating new user via form
+
+                   When a user is created a language menu is now displayed in the form to
+                   allow the creator to set the user's language.
+                   This ensures that any notifications the user is sent during or immediately
+                   after the creation of their account are sent in their language.
+
+    TL-16584       Site administration and Navigation blocks can be set to show on all pages after removal
+    TL-16603       Ported MDL-55469 to allow learners to completely finish a final SCORM attempt
+
+                   Important consideration: This fix relies on correct data submitted by the
+                   SCORM package. If the SCORM reported that "cmi.core.lesson_status" is
+                   either "completed", "failed", or "passed", then the attempt will be counted
+                   as final even if user exited the activity without submitting/finalising the
+                   attempt.
+
+    TL-16605       Fixed report title alignment for right-to-left languages when exporting to PDF in Report Builder
+    TL-16614       Fixed event roles from a cancelled event preventing users being assigned to a new event with the same date and time
+    TL-16629       Fixed the incorrect resolution of promises when loading forms via AJAX fails
+
+Miscellaneous Moodle fixes:
+
+    TL-16076       MDL-59504: Updated the Mahara logo
+
+Contributions:
+
+    * Barry Oosthuizen at Learning Pool - TL-9277
+    * Jo Jones at Kineo UK - TL-16530
+
+
 Release 9.13 (22nd November 2017):
 ==================================
 

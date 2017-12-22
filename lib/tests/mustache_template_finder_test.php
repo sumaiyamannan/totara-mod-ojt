@@ -72,6 +72,7 @@ class core_mustache_template_finder_testcase extends advanced_testcase {
         $dirs = mustache_template_finder::get_template_directories_for_component('mod_assign', 'xxsdsds');
         $defaulttheme = $CFG->theme;
         $themeconfig = theme_config::load($defaulttheme);
+        $this->assertDebuggingCalled('This page should be using theme xxsdsds which cannot be initialised. Falling back to the site theme basis');
         $theme_parents = $themeconfig->parents;
         $correct = array();
 

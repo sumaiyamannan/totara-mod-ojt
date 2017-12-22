@@ -348,6 +348,12 @@ function useredit_shared_definition(&$mform, $editoroptions, $filemanageroptions
         $mform->addElement('select', 'timezone', get_string('timezone'), $choices);
     }
 
+    if ($user->id == -1) {
+        $mform->addElement('select', 'lang', get_string('language', 'admin'), get_string_manager()->get_list_of_translations());
+        $mform->setDefault('lang', $CFG->lang);
+        $mform->addHelpButton('lang', 'language', 'admin');
+    }
+
     // Multi-Calendar Support - see MDL-18375.
     $calendartypes = \core_calendar\type_factory::get_list_of_calendar_types();
     // We do not want to show this option unless there is more than one calendar type to display.

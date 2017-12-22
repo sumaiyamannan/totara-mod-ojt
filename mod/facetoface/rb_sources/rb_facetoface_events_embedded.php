@@ -81,11 +81,6 @@ class rb_facetoface_events_embedded extends rb_base_embedded {
                 'value' => 'bookingstatus',
                 'advanced' => 0,
             ),
-            array(
-                'type' => 'session',
-                'value' => 'overallstatus',
-                'advanced' => 0,
-            ),
         );
 
         // No restrictions.

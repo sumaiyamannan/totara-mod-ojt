@@ -75,11 +75,6 @@ class rb_plan_programs_completion_history_embedded extends rb_base_embedded {
                 'advanced' => 1,
             ),
             array(
-                'type' => 'base',
-                'value' => 'programid',
-                'advanced' => 1,
-            ),
-            array(
                 'type' => 'program_completion_history',
                 'value' => 'timedue',
                 'advanced' => 0,

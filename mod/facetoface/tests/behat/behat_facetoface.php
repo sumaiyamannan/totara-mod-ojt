@@ -312,4 +312,16 @@ class behat_facetoface extends behat_base {
         $node = reset($nodes);
         $node->click();
     }
+
+    /**
+     * @When /^I visit the attendees page for session "([^"]*)" with action "([^"]*)"$/
+     * @param int $sessionid Face to face session ID
+     * @param string $action The action to perform
+     */
+    public function i_visit_the_attendees_page_for_session_with_action($sessionid, $action){
+        $path = "/mod/facetoface/attendees.php?s={$sessionid}&action={$action}";
+        $this->getSession()->visit($this->locate_path($path));
+        $this->wait_for_pending_js();
+    }
+
 }

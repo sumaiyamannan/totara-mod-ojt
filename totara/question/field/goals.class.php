@@ -582,16 +582,26 @@ class question_goals extends reviewrating {
      * @param object $item The goal item to add the fields to.
      */
     protected function add_personal_info_fields(MoodleQuickForm $form, $item) {
-        global $DB;
-
         if ($item->scope == 1) {
             $disableheader = true;
-            $prefix = 'goal';
-            $fields = 'typeid';
 
             $goalitem = goal::get_goal_item(array('id' => $item->itemid), $item->scope);
 
-            customfield_definition($form, $goalitem, 'goal_user', $goalitem->typeid, 'goal_user', $disableheader, true);
+            $permissions = (new goal())->get_permissions(null, $goalitem->userid);
+            if (!$permissions) {
+                $canedit = false;
+            } else {
+                $canedit = $permissions['can_edit'][$goalitem->assigntype];
+            }
+
+            customfield_definition($form,
+                $goalitem,
+                'goal_user',
+                $goalitem->typeid,
+                'goal_user',
+                $disableheader,
+                true,
+                !$this->cananswer || $this->viewonly || !$canedit);
 
             customfield_load_data($goalitem, 'goal_user', 'goal_user', true);
 

@@ -68,7 +68,7 @@ switch ($action) {
             if ($formdata) {
                 $appraisal->close($formdata);
                 if (isset($formdata->sendalert) && $formdata->sendalert) {
-                    totara_set_notification(get_string('appraisalclosedalertssent', 'totara_appraisal', format_string($appraisal->name)),
+                    totara_set_notification(get_string('appraisalclosedalertoncron', 'totara_appraisal', format_string($appraisal->name)),
                                  new moodle_url('/totara/appraisal/manage.php'), array('class' => 'notifysuccess'));
                 } else {
                     totara_set_notification(get_string('appraisalclosed', 'totara_appraisal', format_string($appraisal->name)),

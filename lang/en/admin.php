@@ -629,6 +629,8 @@ IP address location is displayed on simple map or using Google Maps. Please note
 $string['iplookupmaxmindnote'] = 'This product includes GeoLite data created by MaxMind, available from <a href="http://www.maxmind.com/">http://www.maxmind.com/</a>.';
 $string['keeptagnamecase'] = 'Keep tag name casing';
 $string['lang'] = 'Default language';
+$string['language'] = 'Language';
+$string['language_help'] = 'Set the language of the new user. Selecting this when creating a user ensures the login page or an email greets the user in the given language.';
 $string['langcache'] = 'Cache language menu';
 $string['langcache_desc'] = 'Cache the language menu. If enabled, the list of available translations is cached. The cache is automatically refreshed when you install or delete a language pack via the in-built language packs management tool. If you install a new language pack manually, you have to use Purge all caches feature to refresh the cached list.';
 $string['langlist'] = 'Languages on language menu';

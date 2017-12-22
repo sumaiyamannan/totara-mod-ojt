@@ -271,6 +271,20 @@ class appraisal {
         $stages = appraisal_stage::get_stages($this->id);
         $DB->set_field('appraisal_user_assignment', 'activestageid', reset($stages)->id, array('appraisalid' => $this->id));
 
+        // Set the schedules for all relevant messages.
+        $sql = "SELECT id FROM {appraisal_event} WHERE triggered = 0 AND event IN (:act, :due) AND appraisalid = :aid";
+        $params = array(
+            'act' => appraisal_message::EVENT_APPRAISAL_ACTIVATION,
+            'due' => appraisal_message::EVENT_STAGE_DUE,
+            'aid' => $this->id
+        );
+        $events = $DB->get_records_sql($sql, $params);
+        foreach ($events as $id => $eventdata) {
+            $eventmessage = new appraisal_message($id);
+            $eventmessage->schedule($eventmessage->get_schedule_from($time));
+            $eventmessage->save();
+        }
+
         $this->set_status(self::STATUS_ACTIVE);
         $event = \totara_appraisal\event\appraisal_activation::create(
             array(
@@ -625,91 +639,15 @@ class appraisal {
         global $DB;
 
         if (isset($formdata->sendalert) && $formdata->sendalert) {
-            $alert = new stdClass();
-            $alert->userfrom = core_user::get_support_user();
-            $alert->fullmessageformat = FORMAT_HTML;
-            $formdata->alertbody = $formdata->alertbody_editor['text'];
-
-            // Send message to learners.
-            $alert->subject = $formdata->alerttitle;
-            $alert->fullmessage = $formdata->alertbody;
-            $alert->fullmessagehtml = $alert->fullmessage;
-
-            $learnersql = "SELECT u.*
-                            FROM {appraisal_user_assignment} aua
-                       LEFT JOIN {user} u
-                              ON aua.userid = u.id
-                           WHERE aua.appraisalid = :appraisalid
-                             AND aua.timecompleted IS NULL
-                             AND aua.status = :status";
-            $learnerparams = array('appraisalid' => $formdata->id, 'status' => self::STATUS_ACTIVE);
-            $learners = $DB->get_records_sql($learnersql, $learnerparams);
-
-            foreach ($learners as $learner) {
-                $alert->userto = $learner;
-                tm_alert_send($alert);
-            }
-
-            // Send message to role users (other than learners, and only one message per user).
-            $alert->subject = get_string('closealerttitledefault', 'totara_appraisal', $this);
-
-            // Find all users in roles that are not learner, who have a learner who is not finished.
-            $rolesql = 'SELECT ara.userid AS id,
-                           ' . sql_group_concat(sql_cast2char('usr.id'),',') . ' AS staff
-                      FROM {appraisal_user_assignment} aua
-                      JOIN {appraisal_role_assignment} ara
-                        ON aua.id = ara.appraisaluserassignmentid
-                      JOIN {user} usr
-                        ON aua.userid = usr.id
-                     WHERE aua.timecompleted IS NULL
-                       AND aua.appraisalid = :appraisalid
-                       AND aua.status = :status
-                       AND ara.appraisalrole != :roletype
-                       AND ara.userid <> 0
-                  GROUP BY ara.userid';
-            $roleparams = array('appraisalid' => $formdata->id, 'status' => self::STATUS_ACTIVE, 'roletype' => self::ROLE_LEARNER);
-            $roleusers = $DB->get_records_sql($rolesql, $roleparams);
-
-            // Collect all distinct staff ids.
-            $staffids = array();
-            foreach ($roleusers as $roleuser) {
-                $ids = explode(',', $roleuser->staff);
-                $staffids = array_merge($staffids, $ids);
-            }
-
-            if ($staffids) {
-                // Get data from DB for staff names.
-                $userfieldssql = get_all_user_name_fields(true);
-                list($staffsql, $staffparams) = $DB->get_in_or_equal($staffids);
-                $staff = $DB->get_records_sql("SELECT id, {$userfieldssql} FROM {user} WHERE id {$staffsql}", $staffparams);
-            } else {
-                $staff = array();
-            }
-
-            unset($staffids);
-
-            // Create array of staff names keyed by id.
-            $staffnames = array();
-            foreach ($staff as $staffmember) {
-                $staffnames[$staffmember->id] = fullname($staffmember);
-            }
-
-            foreach ($roleusers as $roleuser) {
-                $staff = explode(',', $roleuser->staff);
-
-                $affectedstaff = array();
-                foreach ($staff as $staffmember) {
-                    $affectedstaff[] = $staffnames[$staffmember];
-                }
-
-                $formdata->staff = implode(', ', $affectedstaff);
-                $alert->fullmessage = get_string('closealertadminbody', 'totara_appraisal', $formdata);
-
-                $alert->fullmessagehtml = $alert->fullmessage;
-                // Get full user record for message.
-                $alert->userto = core_user::get_user($roleuser->id);
-                tm_alert_send($alert);
-            }
+            // Set up a closure message to send on the next cron run.
+            // Note: There is a custom send function for closure messages, which doesn't use a lot of this data.
+            $msg = new appraisal_message();
+            $msg->event_appraisal($formdata->id, appraisal_message::EVENT_APPRAISAL_CLOSURE);
+            $msg->set_delta(0, 1); // O days.
+            $msg->set_roles(array(1, 2, 4, 8), appraisal_message::MESSAGE_SEND_ONLY_INCOMPLETE);
+            $msg->set_message(0, $formdata->alerttitle, $formdata->alertbody_editor['text']);
+            $msg->schedule($msg->get_schedule_from(time()));
+            $msg->save();
         }
 
         // Mark the status as closed for the appraisal.
@@ -718,7 +656,6 @@ class appraisal {
         // Mark the status as closed for all user assignments.
         $sql = "UPDATE {appraisal_user_assignment} SET status = ? WHERE status = ? AND appraisalid = ?";
         $DB->execute($sql, array(self::STATUS_CLOSED, self::STATUS_ACTIVE, $this->id));
-
     }
 
 
@@ -2078,6 +2015,69 @@ class appraisal {
         }
     }
 
+    /**
+     * This is the code used by the totara appraisal scheduled_messages task.
+     * It loops through all the appraisal messages that are scheduled
+     * and attempts to send them.
+     *
+     * @param $time timestamp - this should really only be set in tests
+     */
+    public static function send_scheduled($time = 0) {
+        global $DB, $CFG;
+
+        if (empty($time)) {
+            $time = time();
+        }
+
+        // Execute the cron if Appraisals are not disabled or static.
+        if (totara_feature_disabled('appraisals')) {
+            return;
+        }
+
+        $active = \appraisal::STATUS_ACTIVE;
+        $closed = \appraisal::STATUS_CLOSED;
+
+        $asql = "SELECT ae.*, a.status as appstat
+                  FROM {appraisal_event} ae
+                  JOIN {appraisal} a
+                    ON ae.appraisalid = a.id
+                 WHERE ae.triggered = :trig
+                   AND ae.timescheduled > 0
+                   AND ae.timescheduled <= :now
+               ";
+        $aparams = array('trig' => 0, 'now' => $time);
+        $aevents = $DB->get_records_sql($asql, $aparams);
+        foreach ($aevents as $aevent) {
+            if ($aevent->appstat == $active) {
+                // Handle regular messages.
+                $event = new \appraisal_message($aevent->id);
+                $event->send_appraisal_wide_message();
+            } else if ($aevent->appstat == $closed && $aevent->event == \appraisal_message::EVENT_APPRAISAL_CLOSURE) {
+                // Handle closure messages.
+                $event = new \appraisal_message($aevent->id);
+                $event->send_appraisal_wide_closure_message();
+            }
+        }
+
+        // Then do scheduled messages that go to specific users.
+        // Timescheduled in aue must always be set and triggered in ae is not relevant to these events.
+        $usql = "SELECT ae.id, aue.userid, aue.timescheduled
+                  FROM {appraisal_event} ae
+            INNER JOIN {appraisal} a
+                    ON ae.appraisalid = a.id
+                  JOIN {appraisal_user_event} aue
+                    ON aue.eventid = ae.id
+                 WHERE a.status = :stat";
+        $uparams = array('stat' => $active);
+        $uevents = $DB->get_records_sql($usql, $uparams);
+        foreach ($uevents as $uevent) {
+            $event = new \appraisal_message($uevent->id);
+            $event->schedule($uevent->timescheduled); // Use user-specific timescheduled for is_time calculation.
+            if ($event->is_time($time)) {
+                $event->send_user_specific_message($uevent->userid);
+            }
+        }
+    }
 }
 
 
@@ -4297,6 +4297,7 @@ class appraisal_message {
     const EVENT_APPRAISAL_ACTIVATION = 'appraisal_activation';
     const EVENT_STAGE_COMPLETE = 'appraisal_stage_completion';
     const EVENT_STAGE_DUE = 'stage_due';
+    const EVENT_APPRAISAL_CLOSURE = 'appraisal_closure';
 
     /**
      * Only send messages if they are in the appropriate state.
@@ -4412,10 +4413,10 @@ class appraisal_message {
      *
      * @param type $appraisalid
      */
-    public function event_appraisal($appraisalid) {
+    public function event_appraisal($appraisalid, $type = self::EVENT_APPRAISAL_ACTIVATION) {
         $this->appraisalid = $appraisalid;
         $this->stageid = 0;
-        $this->type = self::EVENT_APPRAISAL_ACTIVATION;
+        $this->type = $type;
     }
 
 
@@ -4449,7 +4450,7 @@ class appraisal_message {
             }
         }
         $this->delta = $delta;
-        $this->deltaperiod = $period;
+        $this->deltaperiod = ($delta == 0) ? 0 : $period;
     }
 
 
@@ -4645,7 +4646,7 @@ class appraisal_message {
      * @return bool
      */
     public function is_immediate() {
-        return $this->delta == 0;
+        return $this->delta == 0 && $this->deltaperiod == 0;
     }
 
 
@@ -4679,6 +4680,112 @@ class appraisal_message {
             $this->triggered = 1;
             $this->save();
         }
+    }
+
+
+    /**
+     * Function to send closure messages on the cron.
+     */
+    public function send_appraisal_wide_closure_message() {
+        global $DB;
+
+        // Don't send this message if it has already been sent.
+        if ($this->triggered) {
+            return;
+        }
+
+        // Get the message content, which may be different depending on the role.
+        $appraisal = new appraisal($this->appraisalid);
+        $message = $this->get_message(appraisal::ROLE_LEARNER);
+
+        $alert = new stdClass();
+        $alert->userfrom = core_user::get_support_user();
+        $alert->fullmessageformat = FORMAT_HTML;
+
+        // Send message to learners.
+        $alert->subject = $message->name;
+        $alert->fullmessage = $message->content;
+        $alert->fullmessagehtml = $message->content;
+
+        $learnersql = "SELECT u.*
+                        FROM {appraisal_user_assignment} aua
+                   LEFT JOIN {user} u
+                          ON aua.userid = u.id
+                       WHERE aua.appraisalid = :appraisalid
+                         AND aua.timecompleted IS NULL
+                         AND aua.status = :status";
+        $learnerparams = array('appraisalid' => $this->appraisalid, 'status' => appraisal::STATUS_CLOSED);
+        $learners = $DB->get_records_sql($learnersql, $learnerparams);
+
+        foreach ($learners as $learner) {
+            $alert->userto = $learner;
+            tm_alert_send($alert);
+        }
+
+        // Send message to role users (other than learners, and only one message per user).
+        $a = new stdClass();
+        $a->name = $appraisal->name;
+        $a->alerttitle = $message->name;
+        $a->alertbody = $message->content;
+        $alert->subject = get_string('closealerttitledefault', 'totara_appraisal', $a);
+
+        // Find all users in roles that are not learner, who have a learner who is not finished.
+        $staffuid = $DB->sql_group_concat(sql_cast2char('usr.id'), ',');
+        $rolesql = "SELECT ara.userid AS id, {$staffuid} AS staff
+                      FROM {appraisal_user_assignment} aua
+                      JOIN {appraisal_role_assignment} ara ON aua.id = ara.appraisaluserassignmentid
+                      JOIN {user} usr ON aua.userid = usr.id
+                     WHERE aua.timecompleted IS NULL
+                       AND aua.appraisalid = :appraisalid
+                       AND aua.status = :status
+                       AND ara.appraisalrole != :roletype
+                       AND ara.userid <> 0
+                  GROUP BY ara.userid";
+        $roleparams = array('appraisalid' => $this->appraisalid, 'status' => appraisal::STATUS_CLOSED, 'roletype' => appraisal::ROLE_LEARNER);
+        $roleusers = $DB->get_records_sql($rolesql, $roleparams);
+
+        // Collect all distinct staff ids.
+        $staffids = array();
+        foreach ($roleusers as $roleuser) {
+            $ids = explode(',', $roleuser->staff);
+            $staffids = array_merge($staffids, $ids);
+        }
+
+        if ($staffids) {
+            // Get data from DB for staff names.
+            $userfieldssql = get_all_user_name_fields(true);
+            list($staffsql, $staffparams) = $DB->get_in_or_equal($staffids);
+            $staff = $DB->get_records_sql("SELECT id, {$userfieldssql} FROM {user} WHERE id {$staffsql}", $staffparams);
+        } else {
+            $staff = array();
+        }
+
+        unset($staffids);
+
+        // Create array of staff names keyed by id.
+        $staffnames = array();
+        foreach ($staff as $staffmember) {
+            $staffnames[$staffmember->id] = fullname($staffmember);
+        }
+
+        foreach ($roleusers as $roleuser) {
+            $staff = explode(',', $roleuser->staff);
+
+            $affectedstaff = array();
+            foreach ($staff as $staffmember) {
+                $affectedstaff[] = $staffnames[$staffmember];
+            }
+
+            $a->staff = implode(', ', $affectedstaff);
+            $alert->fullmessage = get_string('closealertadminbody', 'totara_appraisal', $a);
+            $alert->fullmessagehtml = $alert->fullmessage;
+            // Get full user record for message.
+            $alert->userto = core_user::get_user($roleuser->id);
+            tm_alert_send($alert);
+        }
+
+        $this->triggered = 1;
+        $this->save();
     }
 
 
@@ -4817,6 +4924,11 @@ class appraisal_message {
         $evtrs = $DB->get_records('appraisal_event', array('appraisalid' => $appraisalid), 'id');
         $events = array();
         foreach ($evtrs as $evtdata) {
+            // Don't list closure messages here, to avoid duplicate messages.
+            if ($evtdata->event == 'appraisal_closure') {
+                continue;
+            }
+
             $events[$evtdata->id] = new appraisal_message($evtdata->id);
         }
         return $events;
@@ -4896,8 +5008,14 @@ class appraisal_message {
      */
     public static function duplicate_appraisal($srcappraisalid, $appraisalid) {
         global $DB;
-        $sql = "SELECT id FROM {appraisal_event} WHERE appraisalid = ? AND (appraisalstageid = 0 OR appraisalstageid IS NULL)";
-        $events = $DB->get_records_sql($sql, array($srcappraisalid));
+
+        // Do not duplicate closure messages, to avoid duplicate messages.
+        $sql = "SELECT id
+                  FROM {appraisal_event}
+                 WHERE appraisalid = :aid
+                   AND event != :closure
+                   AND (appraisalstageid = 0 OR appraisalstageid IS NULL)";
+        $events = $DB->get_records_sql($sql, array('aid' => $srcappraisalid, 'closure' => self::EVENT_APPRAISAL_CLOSURE));
         foreach ($events as $eventdata) {
             $event = new appraisal_message($eventdata->id);
             $event->id = 0;

@@ -127,7 +127,7 @@ Feature: Test we can manually archive course completion.
     And I should see "30.00" in the "//table[@id='user-grades']//th/a[contains(text(), 'Learner Four')]/ancestor::tr/td[contains(@class, 'course')]/span[contains(@class, 'gradevalue')]" "xpath_element"
     And I should see "15.00" in the "//table[@id='user-grades']//th[contains(text(), 'Overall average')]/ancestor::tr/td[contains(@class, 'lastcol')]" "xpath_element"
 
-    When I trigger cron
+    When I run the scheduled task "core\task\completion_regular_task"
     And I am on homepage
     And I follow "Course 1"
     And I navigate to "Course completion" node in "Course administration > Reports"
@@ -204,7 +204,7 @@ Feature: Test we can manually archive course completion.
     And I should see "30.00" in the "//table[@id='user-grades']//th/a[contains(text(), 'Learner Four')]/ancestor::tr/td[contains(@class, 'course')]/span[contains(@class, 'gradevalue')]" "xpath_element"
     And I should see "15.00" in the "//table[@id='user-grades']//th[contains(text(), 'Overall average')]/ancestor::tr/td[contains(@class, 'lastcol')]" "xpath_element"
 
-    When I trigger cron
+    When I run the scheduled task "core\task\completion_regular_task"
     And I am on homepage
     And I follow "Reports"
     And I follow "Test course completion report"

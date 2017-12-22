@@ -1283,6 +1283,57 @@ function scorm_get_attempt_status($user, $scorm, $cm='') {
 }
 
 /**
+ * Get the count of completed attempts of a user
+ *
+ * @param int $userid ID of User
+ * @param stdClass $scorm Scorm object
+ * @return int - Count of the user's completed attempts.
+ */
+function scorm_get_completed_attempt_count ($userid, $scorm) {
+    global $DB;
+
+    // get total attempts
+    $sql = "SELECT COUNT(DISTINCT attempt)
+              FROM {scorm_scoes_track}
+             WHERE userid = :userid
+               AND scormid = :scormid
+               AND element = :element";
+
+    $params = array(
+        'userid' => $userid,
+        'scormid' => $scorm->id,
+        'element' => 'cmi.core.lesson_status'
+    );
+
+    $total = $DB->count_records_sql($sql, $params);
+
+    if (empty($total)) {
+        // user never attempted scorm
+        return 0;
+    }
+
+    $values = array('completed', 'passed', 'failed');
+
+    list($vsql, $valueparams) = $DB->get_in_or_equal($values, SQL_PARAMS_NAMED);
+
+    // check status of last attempt
+    $sql = "SELECT id
+              FROM {scorm_scoes_track}
+             WHERE userid = :userid
+               AND scormid = :scormid
+               AND element = :element
+               AND attempt = :attempt
+               AND value $vsql";
+
+    $params['attempt'] = $total;
+    $params = array_merge($params, $valueparams);
+
+    $completed_last = $DB->record_exists_sql($sql, $params);
+
+    return !empty($completed_last) ? $total : $total-1;
+}
+
+/**
  * Get SCORM attempt count
  *
  * @param object $user Current context user
@@ -1682,7 +1733,7 @@ function scorm_format_toc_for_treeview($user, $scorm, $scoes, $usertracks, $cmid
     $result->toc = '';
 
     if (!$children) {
-        $attemptsmade = scorm_get_attempt_count($user->id, $scorm);
+        $attemptsmade = scorm_get_completed_attempt_count($user->id, $scorm);
         $result->attemptleft = $scorm->maxattempt == 0 ? 1 : $scorm->maxattempt - $attemptsmade;
     }
 

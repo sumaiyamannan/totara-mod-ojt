@@ -55,7 +55,7 @@ $string['appraisalactivated'] = 'Appraisal {$a} activated';
 $string['appraisalactivenochangesallowed'] = 'This appraisal is active, no changes can be made to learner assignments';
 $string['appraisalcloned'] = 'Appraisal Cloned';
 $string['appraisalclosed'] = 'Appraisal \'{$a}\' closed';
-$string['appraisalclosedalertssent'] = 'Appraisal \'{$a}\' closed and alert have been sent';
+$string['appraisalclosedalertoncron'] = 'Appraisal \'{$a}\' closed and alert has been set to send on the next cron run';
 $string['appraisalclosedforuser'] = 'This appraisal has been closed because {$a} is no longer assigned.';
 $string['appraisalclosednochangesallowed'] = 'This appraisal is closed, no changes can be made to learner assignments';
 $string['appraisalcontent'] = 'Appraisal content';
@@ -261,8 +261,13 @@ $string['eventstagecomplete'] = 'Upon completion';
 $string['eventstagedue'] = 'Complete by date';
 $string['eventtimeafter'] = 'Send after';
 $string['eventtimebefore'] = 'Send before';
-$string['eventtimenow'] = 'Send immediately when event happens';
+$string['eventtimenowcron'] = 'Send immediately';
 $string['eventtiming'] = 'Timing';
+$string['eventtiming_help'] = '<p>This setting determines when the message will be sent out. There are three options:</p>
+
+* **Send Immedately** - Primarily for a user activated event like appraisal activation or stage completion, the message will be triggered on the next cron after the event occurs.
+* **Send Before** - Only for scheduled events like stage due dates, this will cause the message to be sent via the cron X days/weeks/months before the event is scheduled to happen. Other events can not use this timing since the system doesn\'t know when the event is going to happen.
+* **Send After** - For all events scheduled or user activated, this will cause the message to be sent via the cron X days/weeks/months after the event occurs. This can be set to 0 days to send on the first cron run after the event occurs.';
 $string['eventupdatedappraisal'] = 'Updated Appraisal';
 $string['eventupdatedpage'] = 'Updated Appraisal Page';
 $string['eventupdatedquestion'] = 'Updated Appraisal Question';
@@ -272,7 +277,7 @@ $string['hasredisplayitems'] = 'There are one or more redisplay items linked to 
 $string['inactiveappraisals'] = 'Inactive appraisals';
 $string['incomplete'] = 'Incomplete';
 $string['inprogress'] = 'In progress';
-$string['immediate'] = 'Immediate';
+$string['immediatecron'] = 'Immediate (via cron)';
 $string['itemstoadd'] = 'Items to add';
 $string['jobassignment'] = 'Job assignment linked to this appraisal';
 $string['jobassignmentempty'] = 'Job assignment currently empty';
@@ -390,6 +395,7 @@ $string['sameaspreceding'] = 'Same as preceding question';
 $string['selectappraisal'] = 'Select an appraisal';
 $string['selectquestiontype'] = 'Select type of content...';
 $string['selectquestiontype_notselected'] = 'You must select the question type you want to add.';
+$string['sendscheduledmessagestask'] = 'Send scheduled appraisal messages';
 $string['settings'] = 'Settings';
 $string['appraisal_stage_completion'] = 'Stage completion';
 $string['sectioninclude'] = 'Choose which sections to include';
@@ -431,5 +437,8 @@ $string['youareviewingxsappraisal'] = '<strong>You are viewing <a href="{$a->sit
 
 
 // DEPRECATED OR UNUSED STRINGS
+$string['appraisalclosedalertssent'] = 'Appraisal \'{$a}\' closed and alert have been sent';
+$string['eventtimenow'] = 'Send immediately when event happens';
+$string['immediate'] = 'Immediate';
 $string['rolehaschanged'] = 'This role is due to change';
 $string['myteamappraisals'] = 'My Team\'s Appraisals';

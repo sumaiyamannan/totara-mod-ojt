@@ -586,4 +586,245 @@ class totara_certification_upgradelib_testcase extends reportcache_advanced_test
         $this->assertEquals(0, $DB->count_records_select('prog_completion', $where . " AND timedue = 0", $params));
         $this->assertEquals(1, $DB->count_records_select('prog_completion', $where . " AND timecompleted = 0", $params));
     }
+
+    public function test_totara_certification_upgrade_reset_messages() {
+        global $DB;
+
+        $this->resetAfterTest(true);
+
+        $certs = array();
+        $users = array();
+
+        $certs[1] = $this->getDataGenerator()->create_certification(); // Logs after the dates, messages were sent after the events.
+        $certs[2] = $this->getDataGenerator()->create_certification(); // Logs before the dates, messages might be from earlier events.
+
+        $users[1] = $this->getDataGenerator()->create_user(); // Newly assigned.
+        $users[2] = $this->getDataGenerator()->create_user(); // Certified.
+        $users[3] = $this->getDataGenerator()->create_user(); // Window open.
+        $users[4] = $this->getDataGenerator()->create_user(); // Expired.
+
+        $this->getDataGenerator()->assign_to_program($certs[1]->id, ASSIGNTYPE_INDIVIDUAL, $users[1]->id);
+        $this->getDataGenerator()->assign_to_program($certs[1]->id, ASSIGNTYPE_INDIVIDUAL, $users[2]->id);
+        $this->getDataGenerator()->assign_to_program($certs[1]->id, ASSIGNTYPE_INDIVIDUAL, $users[3]->id);
+        $this->getDataGenerator()->assign_to_program($certs[1]->id, ASSIGNTYPE_INDIVIDUAL, $users[4]->id);
+
+        $this->getDataGenerator()->assign_to_program($certs[2]->id, ASSIGNTYPE_INDIVIDUAL, $users[1]->id);
+        $this->getDataGenerator()->assign_to_program($certs[2]->id, ASSIGNTYPE_INDIVIDUAL, $users[2]->id);
+        $this->getDataGenerator()->assign_to_program($certs[2]->id, ASSIGNTYPE_INDIVIDUAL, $users[3]->id);
+        $this->getDataGenerator()->assign_to_program($certs[2]->id, ASSIGNTYPE_INDIVIDUAL, $users[4]->id);
+
+        // User 2.
+        list($certcompletion, $progcompletion) = certif_load_completion($certs[1]->id, $users[2]->id);
+        $certcompletion->status = CERTIFSTATUS_COMPLETED;
+        $certcompletion->renewalstatus = CERTIFRENEWALSTATUS_NOTDUE;
+        $certcompletion->certifpath = CERTIFPATH_RECERT;
+        $certcompletion->timecompleted = 1100;
+        $certcompletion->timewindowopens = 1200;
+        $certcompletion->timeexpires = 1300;
+        $progcompletion->timedue = 1300;
+        $progcompletion->timecompleted = 1100;
+        $progcompletion->status = STATUS_PROGRAM_COMPLETE;
+        $this->assertEquals(array(), certif_get_completion_errors($certcompletion, $progcompletion));
+        $this->assertTrue(certif_write_completion($certcompletion, $progcompletion));
+
+        // User 3.
+        list($certcompletion, $progcompletion) = certif_load_completion($certs[1]->id, $users[3]->id);
+        $certcompletion->status = CERTIFSTATUS_COMPLETED;
+        $certcompletion->renewalstatus = CERTIFRENEWALSTATUS_DUE;
+        $certcompletion->certifpath = CERTIFPATH_RECERT;
+        $certcompletion->timecompleted = 1100;
+        $certcompletion->timewindowopens = 1200;
+        $certcompletion->timeexpires = 1300;
+        $progcompletion->timedue = 1300;
+        $progcompletion->timecompleted = 0;
+        $progcompletion->status = STATUS_PROGRAM_INCOMPLETE;
+        $this->assertEquals(array(), certif_get_completion_errors($certcompletion, $progcompletion));
+        $this->assertTrue(certif_write_completion($certcompletion, $progcompletion));
+
+        // User 4.
+        list($certcompletion, $progcompletion) = certif_load_completion($certs[1]->id, $users[4]->id);
+        $certcompletion->status = CERTIFSTATUS_EXPIRED;
+        $certcompletion->renewalstatus = CERTIFRENEWALSTATUS_EXPIRED;
+        $certcompletion->certifpath = CERTIFPATH_CERT;
+        $certcompletion->timecompleted = 0;
+        $certcompletion->timewindowopens = 0;
+        $certcompletion->timeexpires = 0;
+        $progcompletion->timedue = 1300;
+        $progcompletion->timecompleted = 0;
+        $progcompletion->status = STATUS_PROGRAM_INCOMPLETE;
+        $this->assertEquals(array(), certif_get_completion_errors($certcompletion, $progcompletion));
+        $this->assertTrue(certif_write_completion($certcompletion, $progcompletion));
+
+        // User 2.
+        list($certcompletion, $progcompletion) = certif_load_completion($certs[2]->id, $users[2]->id);
+        $certcompletion->status = CERTIFSTATUS_COMPLETED;
+        $certcompletion->renewalstatus = CERTIFRENEWALSTATUS_NOTDUE;
+        $certcompletion->certifpath = CERTIFPATH_RECERT;
+        $certcompletion->timecompleted = 9100;
+        $certcompletion->timewindowopens = 9200;
+        $certcompletion->timeexpires = 9300;
+        $progcompletion->timedue = 9300;
+        $progcompletion->timecompleted = 9100;
+        $progcompletion->status = STATUS_PROGRAM_COMPLETE;
+        $this->assertEquals(array(), certif_get_completion_errors($certcompletion, $progcompletion));
+        $this->assertTrue(certif_write_completion($certcompletion, $progcompletion));
+
+        // User 3.
+        list($certcompletion, $progcompletion) = certif_load_completion($certs[2]->id, $users[3]->id);
+        $certcompletion->status = CERTIFSTATUS_COMPLETED;
+        $certcompletion->renewalstatus = CERTIFRENEWALSTATUS_DUE;
+        $certcompletion->certifpath = CERTIFPATH_RECERT;
+        $certcompletion->timecompleted = 9100;
+        $certcompletion->timewindowopens = 9200;
+        $certcompletion->timeexpires = 9300;
+        $progcompletion->timedue = 9300;
+        $progcompletion->timecompleted = 0;
+        $progcompletion->status = STATUS_PROGRAM_INCOMPLETE;
+        $this->assertEquals(array(), certif_get_completion_errors($certcompletion, $progcompletion));
+        $this->assertTrue(certif_write_completion($certcompletion, $progcompletion));
+
+        // User 4.
+        list($certcompletion, $progcompletion) = certif_load_completion($certs[2]->id, $users[4]->id);
+        $certcompletion->status = CERTIFSTATUS_EXPIRED;
+        $certcompletion->renewalstatus = CERTIFRENEWALSTATUS_EXPIRED;
+        $certcompletion->certifpath = CERTIFPATH_CERT;
+        $certcompletion->timecompleted = 0;
+        $certcompletion->timewindowopens = 0;
+        $certcompletion->timeexpires = 0;
+        $progcompletion->timedue = 9300;
+        $progcompletion->timecompleted = 0;
+        $progcompletion->status = STATUS_PROGRAM_INCOMPLETE;
+        $this->assertEquals(array(), certif_get_completion_errors($certcompletion, $progcompletion));
+        $this->assertTrue(certif_write_completion($certcompletion, $progcompletion));
+
+        // Set up the messages.
+        $allmessagetypes = array(
+            MESSAGETYPE_ENROLMENT,
+            MESSAGETYPE_UNENROLMENT,
+            MESSAGETYPE_PROGRAM_COMPLETED,
+            MESSAGETYPE_PROGRAM_DUE,
+            MESSAGETYPE_PROGRAM_OVERDUE,
+            MESSAGETYPE_COURSESET_DUE,
+            MESSAGETYPE_COURSESET_OVERDUE,
+            MESSAGETYPE_COURSESET_COMPLETED,
+            MESSAGETYPE_RECERT_WINDOWOPEN,
+            MESSAGETYPE_RECERT_WINDOWDUECLOSE,
+            MESSAGETYPE_RECERT_FAILRECERT,
+            MESSAGETYPE_LEARNER_FOLLOWUP,
+            MESSAGETYPE_EXCEPTION_REPORT,
+        );
+
+        $messagemanager1 = $certs[1]->get_messagesmanager();
+        $messagemanager2 = $certs[2]->get_messagesmanager();
+        $messagemanager1->delete();
+        $messagemanager2->delete();
+        foreach ($allmessagetypes as $messagetype) {
+            $messagemanager1->add_message($messagetype);
+            $messagemanager2->add_message($messagetype);
+        }
+        $messagemanager1->save_messages();
+        $messagemanager2->save_messages();
+
+        // Add message logs for each user.
+        $messagelogs = array();
+        foreach ($certs as $cert) {
+            foreach ($users as $user) {
+                foreach ($allmessagetypes as $messagetype) {
+                    $message = $DB->get_record('prog_message', array('programid' => $cert->id, 'messagetype' => $messagetype));
+                    $messagelog = array(
+                        'messageid' => $message->id,
+                        'userid' => $user->id,
+                        'coursesetid' => 0,
+                        'timeissued' => 5000, // All logs are right in the middle.
+                    );
+                    $messagelogs[] = (object)$messagelog;
+                }
+            }
+        }
+        $DB->insert_records_via_batch('prog_messagelog', $messagelogs);
+
+        $totalcount = count($certs) * count($users) * count($allmessagetypes);
+        $this->assertEquals($totalcount, $DB->count_records('prog_messagelog'));
+
+        // Execute the upgrade.
+        totara_certification_upgrade_reset_messages();
+
+        $finalcount = $totalcount - 10 - 5 - 3;
+        $this->assertEquals($finalcount, $DB->count_records('prog_messagelog'));
+
+        // Check that the correct messages were reset, and no more.
+        foreach ($certs as $cert) {
+            foreach ($users as $user) {
+                foreach ($allmessagetypes as $messagetype) {
+                    $stillexists = true;
+                    if ($cert->id == $certs[1]->id) {
+                        // Cert 1 dates are all earlier than the logs, so all kept.
+                    } else {
+                        switch ($user->id) {
+                            case $users[1]->id:
+                                // User 1 is newly assigned, so nothing should be reset.
+                                break;
+                            case $users[2]->id:
+                                // User 2 is certified.
+                                $messagetypes = array(
+                                    MESSAGETYPE_PROGRAM_COMPLETED,
+                                    MESSAGETYPE_RECERT_WINDOWOPEN,
+                                    MESSAGETYPE_LEARNER_FOLLOWUP,
+                                );
+                                if (in_array($messagetype, $messagetypes)) {
+                                    $stillexists = false;
+                                }
+                                break;
+                            case $users[3]->id:
+                                // User 3 is window open.
+                                $messagetypes = array(
+                                    MESSAGETYPE_PROGRAM_COMPLETED,
+                                    MESSAGETYPE_PROGRAM_DUE,
+                                    MESSAGETYPE_PROGRAM_OVERDUE,
+                                    MESSAGETYPE_COURSESET_DUE,
+                                    MESSAGETYPE_COURSESET_OVERDUE,
+                                    MESSAGETYPE_COURSESET_COMPLETED,
+                                    MESSAGETYPE_RECERT_WINDOWOPEN,
+                                    MESSAGETYPE_RECERT_WINDOWDUECLOSE,
+                                    MESSAGETYPE_RECERT_FAILRECERT,
+                                    MESSAGETYPE_LEARNER_FOLLOWUP,
+                                );
+                                if (in_array($messagetype, $messagetypes)) {
+                                    $stillexists = false;
+                                }
+                                break;
+                            case $users[4]->id:
+                                // User 4 is expired.
+                                $messagetypes = array(
+                                    MESSAGETYPE_PROGRAM_COMPLETED,
+                                    MESSAGETYPE_PROGRAM_OVERDUE,
+                                    MESSAGETYPE_RECERT_WINDOWOPEN,
+                                    MESSAGETYPE_RECERT_FAILRECERT,
+                                    MESSAGETYPE_LEARNER_FOLLOWUP,
+                                );
+                                if (in_array($messagetype, $messagetypes)) {
+                                    $stillexists = false;
+                                }
+                                break;
+                        }
+                    }
+
+                    $message = $DB->get_record('prog_message', array('programid' => $cert->id, 'messagetype' => $messagetype));
+                    $params = array(
+                        'messageid' => $message->id,
+                        'userid' => $user->id,
+                        'coursesetid' => 0,
+                        'timeissued' => 5000,
+                    );
+                    $record = $DB->get_record('prog_messagelog', $params);
+
+                    if ($stillexists) {
+                        $this->assertNotFalse($record);
+                    } else {
+                        $this->assertFalse($record);
+                    }
+                }
+            }
+        }
+    }
 }

@@ -628,7 +628,7 @@ function facetoface_save_dates($sessionid, array $sessiondates = null) {
 }
 
 /**
- * A function to check if the dates in a session have been changed at all.
+ * A function to check if the dates in a session have been changed.
  *
  * @param array $olddates   The dates the session used to be set to
  * @param array $newdates   The dates the session is now set to
@@ -641,28 +641,37 @@ function facetoface_session_dates_check($olddates, $newdates) {
         return true;
     }
 
-    // Dates have changed if the time zone has changed.
-    if (current($olddates)->sessiontimezone != current($newdates)->sessiontimezone) {
-        return true;
-    }
-
-    // Try to match them up, keeping in mind they might not be in the same order.
-    foreach ($olddates as $oldkey => $olddate) {
-        foreach ($newdates as $newkey => $newdate) {
-            if ($olddate->timestart == $newdate->timestart && $olddate->timefinish == $newdate->timefinish) {
-                unset($olddates[$oldkey]);
-                unset($newdates[$newkey]);
+    // Anonymous function used to compare dates to be sorted in an identical way.
+    $cmpfunction = function($date1, $date2) {
+        // Order by session start time.
+        if(($order = strcmp($date1->timestart, $date2->timestart)) === 0) {
+            // If start time is the same, ordering by finishtime.
+            if (($order = strcmp($date1->timefinish, $date2->timefinish)) === 0) {
+                // Just to be on a safe side, if the start and finish dates are the same let's also order by timezone.
+                $order = strcmp($date1->sessiontimezone, $date2->sessiontimezone);
             }
+        }
+
+        return $order;
+    };
+
+    // Sort the old and new dates in a similar way.
+    usort($olddates, $cmpfunction);
+    usort($newdates, $cmpfunction);
+
+    $dateschanged = false;
+
+    for($i = 0; $i < count($olddates); $i++) {
+        if ($olddates[$i]->timestart != $newdates[$i]->timestart ||
+            $olddates[$i]->timefinish != $newdates[$i]->timefinish ||
+            $olddates[$i]->sessiontimezone != $newdates[$i]->sessiontimezone ||
+            $olddates[$i]->roomid != $newdates[$i]->roomid && $newdates[$i]->roomid != 0) {
+            $dateschanged = true;
+            break;
         }
     }
 
-    if (!empty($olddates) || !empty($newdates)) {
-        // They didn't all match up, something changed.
-        return true;
-    } else {
-        // They match, nothing to worry about.
-        return false;
-    }
+    return $dateschanged;
 }
 
 function facetoface_update_calendar_entries($session, $facetoface = null){
@@ -4764,17 +4773,17 @@ function facetoface_task_check_capacity($data) {
 }
 
 /**
- * Get sessions the occur at least partly during time periods
+ * Get first session that occurs at least partly during time periods
  *
  * @access  public
  * @param   array   $times          Array of dates defining time periods
  * @param   integer $userid         Limit sessions to those affecting a user (optional)
  * @param   string  $extrawhere     Custom WHERE additions (optional)
- * @return  array
- * // TODO: Cover this function by unit tests.
+ * @return  array|stdClass
+ *
  */
 function facetoface_get_sessions_within($times, $userid = null, $extrawhere = '', $extraparams = array()) {
-    global $CFG, $DB;
+    global $DB;
 
     $params = array();
     $select = "
@@ -4826,6 +4835,10 @@ function facetoface_get_sessions_within($times, $userid = null, $extrawhere = ''
         $where .= ' AND ((ss.id IS NOT NULL AND ss.statuscode >= ?) OR sr.id IS NOT NULL)';
         $params[]  = MDL_F2F_STATUS_WAITLISTED;
     }
+
+    // Ignoring cancelled sessions.
+    $where .= ' AND s.cancelledstatus = ?';
+    $params[]  = 0;
 
     $params = array_merge($params, $extraparams);
     $sessions = $DB->get_record_sql($select.$source.$where.$extrawhere, $params, IGNORE_MULTIPLE);

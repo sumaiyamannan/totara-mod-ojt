@@ -48,6 +48,12 @@ $timeallowance = new stdClass();
 $timeallowance->seconds = $program->content->get_total_time_allowance(CERTIFPATH_RECERT);
 $timeallowance->timestring = prog_format_seconds($timeallowance->seconds, true);
 
+// Minimum recertification window period is 1 day.
+if (empty($timeallowance->timestring)) {
+    $timeallowance->seconds = DAYSECS;
+    $timeallowance->timestring = prog_format_seconds($timeallowance->seconds, true);
+}
+
 $certification = $DB->get_record('certif', array('id' => $program->certifid));
 
 if (!$certification) {

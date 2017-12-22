@@ -484,9 +484,17 @@ function customfield_load_data(&$item, $prefix, $tableprefix, $addsuffix = false
  * @param string $tableprefix The database table name prefix.
  * @param boolean|false $disableheader If a header for the custom fields should be displayed.
  * @param boolean|false $addsuffix If an item id suffix should be added to the custom field.
+ * @param boolean|false $lock if the field should be readonly
  * @throws coding_exception
  */
-function customfield_definition(&$mform, $item, $prefix, $typeid=0, $tableprefix, $disableheader = false, $addsuffix = false) {
+function customfield_definition(&$mform,
+                                $item,
+                                $prefix,
+                                $typeid=0,
+                                $tableprefix,
+                                $disableheader = false,
+                                $addsuffix = false,
+                                $lock = false) {
     global $DB, $CFG;
 
     $typestr = '';
@@ -517,6 +525,10 @@ function customfield_definition(&$mform, $item, $prefix, $typeid=0, $tableprefix
             $newfield = 'customfield_'.$field->datatype;
             $formfield = new $newfield($field->id, $item, $prefix, $tableprefix, $addsuffix);
             $formfield->edit_field($mform);
+            if ($lock) {
+                $formfield->field->locked = true;
+                $formfield->edit_field_set_locked($mform);
+            }
         }
     }
 }
