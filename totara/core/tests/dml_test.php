@@ -27,6 +27,24 @@ defined('MOODLE_INTERNAL') || die();
  * Tests for Totara functionality added to DML database drivers.
  */
 class totara_core_dml_testcase extends database_driver_testcase {
+    public function test_get_in_or_equal() {
+        $DB = $this->tdb;
+
+        $items = range(1, 100, 1);
+        list($usql, $params) = $DB->get_in_or_equal($items, SQL_PARAMS_QM, 'param', true);
+        $this->assertSame('IN (' . implode(',', $items) . ')', $usql);
+        $this->assertSame(array(), $params);
+
+        list($usql, $params) = $DB->get_in_or_equal($items, SQL_PARAMS_QM, 'param', false);
+        $this->assertSame('NOT IN (' . implode(',', $items) . ')', $usql);
+        $this->assertSame(array(), $params);
+
+        $items[] = 'x';
+        list($usql, $params) = $DB->get_in_or_equal($items);
+        $this->assertStringStartsWith('IN (', $usql);
+        $this->assertSame(array_values($items), $params);
+    }
+
     public function test_sql_group_concat() {
         $DB = $this->tdb;
         $dbman = $DB->get_manager();
