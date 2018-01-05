@@ -725,5 +725,23 @@ function xmldb_totara_program_upgrade($oldversion) {
         totara_upgrade_mod_savepoint(true, 2016092002, 'totara_program');
     }
 
+    // Does part of the fix from TL-6372 again as on certain execution paths it could be missed.
+    if ($oldversion < 2016092003) {
+        // Get IDs of empty coursesets so we can delete them.
+        $emptycoursesets = $DB->get_fieldset_sql('SELECT cs.id 
+                                                      FROM {prog_courseset} cs 
+                                                      LEFT JOIN {prog_courseset_course} csc 
+                                                        ON cs.id = csc.coursesetid 
+                                                      WHERE csc.coursesetid IS NULL GROUP BY cs.id');
+
+        if (!empty($emptycoursesets)) {
+            list($insql, $inparams) = $DB->get_in_or_equal($emptycoursesets);
+            $DB->delete_records_select('prog_courseset', "id {$insql}", $inparams);
+        }
+
+        // Main savepoint reached.
+        totara_upgrade_mod_savepoint(true, 2016092003, 'totara_program');
+    }
+
     return true;
 }
