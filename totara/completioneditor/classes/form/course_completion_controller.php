@@ -114,16 +114,17 @@ class course_completion_controller extends form_controller {
 
         /////////////////////////////////////////////////////////////////
         /// Current completion record.
+        $coursecompletion = helper::load_course_completion($courseid, $userid, false);
+        if (empty($coursecompletion)) {
+            // Let the user know that there is no record, so it can't be edited.
+            $params['hascoursecompletion'] = false;
+
+        } else {
+            $params['hascoursecompletion'] = true;
+        }
+
         if ($section == 'overview' || $section == 'current') {
-            $coursecompletion = helper::load_course_completion($courseid, $userid, false);
-
-            if (empty($coursecompletion)) {
-                // Let the user know that there is no record, so it can't be edited.
-                $params['hascoursecompletion'] = false;
-
-            } else {
-                $params['hascoursecompletion'] = true;
-
+            if ($params['hascoursecompletion']) {
                 if (array_key_exists($coursecompletion->status, $COMPLETION_STATUS)) {
                     $currentdata['status'] = $coursecompletion->status;
                 } else {

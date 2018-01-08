@@ -86,7 +86,9 @@ class rb_source_course_membership extends rb_base_source {
                           UNION
                          SELECT cc.userid AS userid, cc.course AS courseid
                            FROM {course_completions} cc
-                          WHERE cc.status > " . COMPLETION_STATUS_NOTYETSTARTED . "
+                          UNION
+                         SELECT cch.userid AS userid, cch.courseid AS courseid
+                           FROM {course_completion_history} cch
                           UNION
                          SELECT p1.userid AS userid, pca1.courseid AS courseid
                            FROM {dp_plan_course_assign} pca1
@@ -230,5 +232,20 @@ class rb_source_course_membership extends rb_base_source {
         $url = new moodle_url('/totara/completioneditor/edit_course_completion.php',
             array('courseid' => $row->courseid, 'userid' => $row->userid));
         return html_writer::link($url, get_string('coursecompletionedit', 'totara_completioneditor'));
+    }
+
+    /**
+     * Returns expected result for column_test.
+     * @param rb_column_option $columnoption
+     * @return int
+     */
+    public function phpunit_column_test_expected_count($columnoption) {
+        if (!PHPUNIT_TEST) {
+            throw new coding_exception('phpunit_column_test_expected_count() cannot be used outside of unit tests');
+        }
+        if (get_class($this) === 'rb_source_course_membership') {
+            return 2; // One record is in course_completion, one in course_completion_history, with different userids.
+        }
+        return parent::phpunit_column_test_expected_count($columnoption);
     }
 }

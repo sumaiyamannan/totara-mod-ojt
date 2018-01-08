@@ -30,6 +30,7 @@ $courseid = required_param('courseid', PARAM_INT);
 $userid = required_param('userid', PARAM_INT);
 $deletehistory = optional_param('deletehistory', false, PARAM_BOOL);
 $deleteorphanedcritcomplid = optional_param('deleteorphanedcritcomplid', 0, PARAM_INT);
+$deletecoursecompletion = optional_param('deletecoursecompletion', 0, PARAM_INT);
 $chid = optional_param('chid', 0, PARAM_INT);
 $criteriaid = optional_param('criteriaid', 0, PARAM_INT);
 $cmid = optional_param('cmid', 0, PARAM_INT);
@@ -64,6 +65,21 @@ navigation_node::override_active_url(new moodle_url('/totara/completioneditor/co
     array('courseid' => $courseid)));
 
 $now = time();
+
+if (!empty($deletecoursecompletion)) {
+    require_sesskey();
+
+    // Delete course completion and then reload the page.
+
+    // Validate that the user is not assigned.
+    if (is_enrolled($coursecontext, $user)) {
+        redirect($url, get_string('error:impossibledatasubmitted', 'totara_completioneditor'),
+            null, \core\output\notification::NOTIFY_ERROR);
+    }
+    \core_completion\helper::delete_course_completion($courseid, $userid, 'Course completion manually deleted');
+    redirect($url, get_string('coursecompletiondeleted', 'totara_completioneditor'),
+        null, \core\output\notification::NOTIFY_SUCCESS);
+}
 
 if (!empty($deletehistory)) {
     require_sesskey();
@@ -209,7 +225,10 @@ if ($form->is_cancelled()) {
 }
 
 // Load js.
-$PAGE->requires->strings_for_js(array('coursecompletionhistorydelete', 'coursecompletionorphanedcritcompldelete'), 'totara_completioneditor');
+$PAGE->requires->strings_for_js(
+    array('coursecompletiondelete', 'coursecompletionhistorydelete', 'coursecompletionorphanedcritcompldelete'),
+    'totara_completioneditor'
+);
 $PAGE->requires->js_call_amd('totara_completioneditor/edit_course_completion', 'init');
 
 // Display.
@@ -217,6 +236,9 @@ $heading = get_string('completionsforuserin', 'totara_completioneditor',
     array('user' => fullname($user), 'object' => format_string($course->fullname)));
 echo $output->header();
 echo $output->heading($heading);
+if (!is_enrolled($coursecontext, $user)) {
+    echo $output->not_enrolled($params['hascoursecompletion'], $courseid, $userid);
+}
 echo $output->editor_tabs($section, $courseid, $userid);
 echo $form->render();
 echo $output->footer();
