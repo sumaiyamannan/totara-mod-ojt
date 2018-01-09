@@ -49,14 +49,4 @@ class behat_totara_appraisal extends behat_base {
             $datagenerator->create_complex_question($page->id, $data);
         }
     }
-
-
-    /**
-     * @Given /^I go to the missing roles page for the "([^"]*)" appraisal$/
-     */
-    public function iGoToTheMissingRolesPageForTheAppraisal($appraisalname) {
-        global $DB;
-        $appraisalid = $DB->get_record('appraisal', array('name' => $appraisalname));
-        $this->getSession()->visit($this->locate_path('/totara/appraisal/missing.php?appraisalid=' . $appraisalid->id));
-    }
 }

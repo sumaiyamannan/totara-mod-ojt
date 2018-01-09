@@ -44,14 +44,18 @@ Feature: Admin page that lists missing roles for one appraisal
       | appraisal  | type     | id     |
       | Appraisal1 | audience | AppAud |
 
-    Given I log in as "admin"
+    When I log in as "admin"
     And I navigate to "Manage appraisals" node in "Site administration > Appraisals"
     And I click on "Activate" "link" in the "Appraisal1" "table_row"
     And I press "Activate"
     And the following "appraisal_job_assignments" exist in "totara_appraisal" plugin:
       | appraisal  | jobassignment |
       | Appraisal1 | l2j1          |
-    And I go to the missing roles page for the "Appraisal1" appraisal
+    And I follow "Appraisal1"
+    And I switch to "Assignments" tab
+    Then I should see "Some assigned users are missing important role assignments or have not yet selected a job assignment for this appraisal."
+
+    When I follow "View full list of missing roles"
     Then I should see "Learner Learner One has not selected a job assignment yet."
-    Then I should see "Learner Learner Two is missing their Manager."
-    Then I should see "Learner Learner Three has not selected a job assignment yet."
+    And I should see "Learner Learner Two is missing their Manager."
+    And I should see "Learner Learner Three has not selected a job assignment yet."
