@@ -123,4 +123,4 @@ if ($certificate->printteacher) {
     }
 }
 
-certificate_print_text($pdf, $custx, $custy, 'L', null, null, null, format_string($certificate->customtext));
+certificate_print_text($pdf, $custx, $custy, 'L', null, null, null, format_text($certificate->customtext));
