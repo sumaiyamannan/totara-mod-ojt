@@ -237,7 +237,7 @@ $heading = get_string('completionsforuserin', 'totara_completioneditor',
 echo $output->header();
 echo $output->heading($heading);
 if (!is_enrolled($coursecontext, $user)) {
-    echo $output->not_enrolled($params['hascoursecompletion'], $courseid, $userid);
+    echo $output->not_enrolled_notification($params['hascoursecompletion'], $courseid, $userid);
 }
 echo $output->editor_tabs($section, $courseid, $userid);
 echo $form->render();
