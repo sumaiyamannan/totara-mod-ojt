@@ -3,6 +3,55 @@
 
 Totara Learn Changelog
 
+Release 9.15 (18th January 2018):
+=================================
+
+
+Important:
+
+    TL-9352        New site registration form
+
+                   In this release we have added a site registration page under Site
+                   administration > Totara registration. Users with the 'site:config'
+                   capability will be redirected to the page after upgrade until registration
+                   has been completed.
+
+                   Please ensure you have the registration code available for each site before
+                   you upgrade. Partners can obtain the registration code for their customers'
+                   sites via the Subscription Portal. Direct subscribers will receive their
+                   registration code directly from Totara Learning.
+
+                   For more information see the help documentation:
+
+                   https://help.totaralearning.com/display/TLE/Totara+registration
+
+Improvements:
+
+    TL-7553        Improved Report Builder support of Microsoft Excel CSV import with Id columns
+    TL-16479       Fixed inconsistent use of terminology in Seminar
+    TL-16627       A user's current course completion record can now be deleted
+
+                   Using the course completion editor, it is now possible to delete a user's
+                   current course completion record. This is only possible if the user is no
+                   longer assigned to the course.
+
+    TL-16653       Reportbuilder now shows an empty graph instead of an error message when zero values are returned
+
+Bug fixes:
+
+    TL-11097       Removed duplicated seminar attendees overbooking notification
+    TL-16016       Changed message on Appraisal missing roles page when a job assignment has not yet been selected
+    TL-16536       Added missing string on the Feature overview page
+    TL-16630       Fixed error caused by adding a role column as the first column to Seminar sessions report
+    TL-16631       Fixed SCORM package display in simple popup window when package does not provide player API
+    TL-16700       Added workaround in DML for fatal errors when get_in_or_equal() used with large number of items
+    TL-16707       Fixed multi-lang support for dashboard names
+
+Contributions:
+
+    * Dustin Brisebois at Lambda Solutions - TL-16707
+
+
 Release 9.14 (21st December 2017):
 ==================================
 
