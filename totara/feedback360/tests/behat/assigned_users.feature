@@ -71,7 +71,7 @@ Feature: Feedback360 assigned users
     And I press "Add"
     And I press "Back to audiences"
     Then the following should exist in the "cohort_admin" table:
-      | Audience Name    | ID   | No. of Members | Type     |
+      | Audience Name    | Id   | No. of Members | Type     |
       | Cohort 1         | CH1  | 4              | Set      |
 
     When I am on homepage
@@ -122,7 +122,7 @@ Feature: Feedback360 assigned users
     And I press "Add"
     And I press "Back to audiences"
     Then the following should exist in the "cohort_admin" table:
-      | Audience Name    | ID   | No. of Members | Type     |
+      | Audience Name    | Id   | No. of Members | Type     |
       | Cohort 1         | CH1  | 4              | Set      |
 
     When I am on homepage
@@ -173,7 +173,7 @@ Feature: Feedback360 assigned users
     And I press "Add"
     And I press "Back to audiences"
     Then the following should exist in the "cohort_admin" table:
-      | Audience Name    | ID   | No. of Members | Type     |
+      | Audience Name    | Id   | No. of Members | Type     |
       | Cohort 1         | CH1  | 4              | Set      |
 
     When I am on homepage
