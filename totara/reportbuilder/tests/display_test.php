@@ -361,4 +361,40 @@ class totara_reportbuilder_display_testcase extends advanced_testcase {
         $this->assertSame('a', $processed[0]);
         $this->assertSame('0.50', $processed[1]);
     }
+
+    function test_yes_or_no() {
+        $this->resetAfterTest();
+        $this->setAdminUser();
+
+        // Create report.
+        $rid = $this->create_report('facetoface_events', 'Test f2f events');
+        $report = new reportbuilder($rid, null, false, null, null, true);
+
+        // Mock objects to use it in the display function.
+        $column = $this->getMockBuilder('\rb_column')
+            ->setConstructorArgs(array('session', 'overbookingallowed', 'overbooking', 'overbook'))
+            ->getMock();
+        $format = "html";
+        $row = new stdClass();
+
+        // Testing display function with NULL as value.
+        $message = \totara_reportbuilder\rb\display\yes_or_no::display(NULL, $format, $row, $column, $report);
+        $this->assertEquals('', $message, 'Failing that NUll value matches empty string in yes_or_no display function');
+
+        // Testing display function with 1 as value.
+        $message = \totara_reportbuilder\rb\display\yes_or_no::display(1, $format, $row, $column, $report);
+        $this->assertEquals('Yes', $message, 'Failing that 1 value matches "Yes" in yes_or_no display function');
+
+        // Testing display function with 0 as value.
+        $message = \totara_reportbuilder\rb\display\yes_or_no::display(0, $format, $row, $column, $report);
+        $this->assertEquals('No', $message, 'Failing that 0 value matches "No" in yes_or_no display function');
+
+        // Testing display function with "1" string as value.
+        $message = \totara_reportbuilder\rb\display\yes_or_no::display("1", $format, $row, $column, $report);
+        $this->assertEquals('Yes', $message, 'Failing that "1" value matches "Yes" in yes_or_no display function');
+
+        // Testing display function with "0" string as value.
+        $message = \totara_reportbuilder\rb\display\yes_or_no::display("0", $format, $row, $column, $report);
+        $this->assertEquals('No', $message, 'Failing that "0" value matches "No" in yes_or_no display function');
+    }
 }
