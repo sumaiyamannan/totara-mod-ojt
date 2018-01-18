@@ -4050,11 +4050,6 @@ class appraisal_question extends question_storage {
                 $isviewonlyquestion = false;
                 // Show role user icon.
                 $subjectid = $otherassignments[$eachrole]->userid;
-                if ($subjectid == 0) {
-                    continue;
-                }
-
-                $subject = $DB->get_record('user', array('id' => $subjectid));
 
                 // Add information about other roles to element.
                 $questioninfo = new question_manager($subjectid, $otherassignments[$eachrole]->id);
