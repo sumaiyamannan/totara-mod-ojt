@@ -509,6 +509,7 @@ $string['error:cannotsendconfirmationuser'] = 'There was a problem sending the c
 $string['error:cannotsendrequestuser'] = 'There was a problem sending the signup request message to your email account.';
 $string['error:cannotsendrequestmanager'] = 'There was a problem sending the signup request message to your manager\'s email account.';
 $string['error:cannotsendconfirmationusermanager'] = 'A confirmation message could not be sent to your email address and to your manager\'s email address.';
+$string['error:cannotsignupforacancelledevent'] = 'This event has been cancelled. It is no longer possible to sign up for it.';
 $string['error:canttakeattendanceforunstartedsession'] = 'Can not take attendance for a event that has yet to start.';
 $string['error:capabilityaddattendees'] = 'You do not have the necessary permissions to add attendees';
 $string['error:capabilityremoveattendees'] = 'You do not have the necessary permissions to remove attendees';
