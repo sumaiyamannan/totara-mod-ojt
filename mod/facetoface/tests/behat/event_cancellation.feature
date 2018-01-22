@@ -137,7 +137,7 @@ Feature: Seminar event cancellation basic
       | timefinish[timezone]| Pacific/Auckland |
     And I press "OK"
 
-    Given I press "Add a new date"
+    Given I press "Add a new session"
     And I follow "show-selectdate1-dialog"
     And I set the following fields to these values:
       | sessiontimezone     | Pacific/Auckland |
@@ -209,7 +209,7 @@ Feature: Seminar event cancellation basic
       | timefinish[timezone]| Pacific/Auckland |
     And I press "OK"
 
-    Given I press "Add a new date"
+    Given I press "Add a new session"
     And I follow "show-selectdate1-dialog"
     And I fill seminar session with relative date in form data:
       | sessiontimezone     | Pacific/Auckland |
@@ -296,7 +296,7 @@ Feature: Seminar event cancellation basic
       | timefinish[timezone]| Pacific/Auckland |
     And I press "OK"
 
-    Given I press "Add a new date"
+    Given I press "Add a new session"
     And I follow "show-selectdate1-dialog"
     And I fill seminar session with relative date in form data:
       | sessiontimezone     | Pacific/Auckland |
@@ -476,7 +476,7 @@ Feature: Seminar event cancellation basic
   Scenario: mod_facetoface_cancel_107: cancel and delete the whole seminar event
     Given I follow "Add a new event"
     And I set the field "Maximum bookings" to "20"
-    And I click on "Edit date" "link"
+    And I click on "Edit session" "link"
     And I fill seminar session with relative date in form data:
       | timestart[day]     | +1               |
       | timestart[month]   | 0                |
@@ -492,7 +492,7 @@ Feature: Seminar event cancellation basic
     And I press "Save changes"
     And I follow "Add a new event"
     And I set the field "Maximum bookings" to "30"
-    And I click on "Edit date" "link"
+    And I click on "Edit session" "link"
     And I fill seminar session with relative date in form data:
       | timestart[day]     | +2               |
       | timestart[month]   | 0                |
@@ -527,7 +527,7 @@ Feature: Seminar event cancellation basic
   Scenario: mod_facetoface_cancel_108: cancel and clone cancelled event
     Given I follow "Add a new event"
     And I set the field "Maximum bookings" to "20"
-    And I click on "Edit date" "link"
+    And I click on "Edit session" "link"
     And I fill seminar session with relative date in form data:
       | timestart[day]     | +1               |
       | timestart[month]   | 0                |
@@ -543,7 +543,7 @@ Feature: Seminar event cancellation basic
     And I press "Save changes"
     And I follow "Add a new event"
     And I set the field "Maximum bookings" to "30"
-    And I click on "Edit date" "link"
+    And I click on "Edit session" "link"
     And I fill seminar session with relative date in form data:
       | timestart[day]     | +2               |
       | timestart[month]   | 0                |

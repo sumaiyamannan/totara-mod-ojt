@@ -476,6 +476,12 @@ class appraisal_test extends appraisal_testcase {
         $this->assertEquals(0, $count);
 
         $appraisal->activate();
+
+        // Check for missing job assignment warning.
+        $warnings = $appraisal->validate_roles();
+        $this->assertEquals(1, count($warnings));
+        $this->assertContains('has not selected a job assignment yet', reset($warnings));
+
         $this->update_job_assignments($appraisal);
 
         $this->assertEquals(appraisal::STATUS_ACTIVE, $appraisal->status);
@@ -485,6 +491,7 @@ class appraisal_test extends appraisal_testcase {
         // Now we check for missing role warnings!
         $warnings = $appraisal->validate_roles();
         $this->assertEquals(1, count($warnings));
+        $this->assertContains('is missing their', reset($warnings));
     }
 
     /**

@@ -49,6 +49,4 @@ class behat_totara_appraisal extends behat_base {
             $datagenerator->create_complex_question($page->id, $data);
         }
     }
-
-
 }

@@ -61,7 +61,7 @@ Feature: Certification completion date is based on course completion time
     And I press "Save changes"
     And I follow "View all events"
     And I follow "Add a new event"
-    And I click on "Edit date" "link"
+    And I click on "Edit session" "link"
     And I fill seminar session with relative date in form data:
       | sessiontimezone    | Pacific/Auckland |
       | timestart[day]     | -2               |
@@ -89,7 +89,7 @@ Feature: Certification completion date is based on course completion time
     Then I should see "Successfully updated attendance"
     When I follow "Go back"
     And I click on "Edit" "link" in the ".lastrow" "css_element"
-    And I click on "Edit date" "link"
+    And I click on "Edit session" "link"
     And I fill seminar session with relative date in form data:
       | sessiontimezone    | Pacific/Auckland |
       | timestart[day]     | -1               |

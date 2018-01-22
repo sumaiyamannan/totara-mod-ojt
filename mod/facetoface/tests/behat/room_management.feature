@@ -82,7 +82,7 @@ Feature: Manage pre-defined rooms
       | Description | Test seminar description |
     And I follow "View all events"
     And I follow "Add a new event"
-    And I click on "Edit date" "link"
+    And I click on "Edit session" "link"
     And I set the following fields to these values:
       | timestart[day]     | 1    |
       | timestart[month]   | 1    |
@@ -145,7 +145,7 @@ Feature: Manage pre-defined rooms
       | Description | Test seminar description |
     And I follow "View all events"
     And I follow "Add a new event"
-    And I click on "Edit date" "link"
+    And I click on "Edit session" "link"
     And I set the following fields to these values:
       | timestart[day]     | 1    |
       | timestart[month]   | 1    |
@@ -168,7 +168,7 @@ Feature: Manage pre-defined rooms
     And I press "Save changes"
 
     And I follow "Add a new event"
-    And I click on "Edit date" "link"
+    And I click on "Edit session" "link"
     And I set the following fields to these values:
       | timestart[day]     | 1    |
       | timestart[month]   | 1    |
@@ -186,7 +186,7 @@ Feature: Manage pre-defined rooms
     Then I should see "(Room unavailable)" in the "Choose a room" "totaradialogue"
     And I click on "Cancel" "button" in the "Choose a room" "totaradialogue"
     And I wait "1" seconds
-    And I click on "Edit date" "link"
+    And I click on "Edit session" "link"
     And I set the following fields to these values:
       | timestart[day]     | 1    |
       | timestart[month]   | 1    |
@@ -203,7 +203,7 @@ Feature: Manage pre-defined rooms
     And I click on "Room 1, That house, 123 here street (Capacity: 5)" "text" in the "Choose a room" "totaradialogue"
     And I click on "OK" "button" in the "Choose a room" "totaradialogue"
     And I wait "1" seconds
-    And I click on "Edit date" "link"
+    And I click on "Edit session" "link"
     And I set the following fields to these values:
       | timestart[day]     | 1    |
       | timestart[month]   | 1    |
@@ -230,7 +230,7 @@ Feature: Manage pre-defined rooms
       | Description | Test seminar description |
     And I follow "View all events"
     And I follow "Add a new event"
-    And I click on "Edit date" "link"
+    And I click on "Edit session" "link"
     And I set the following fields to these values:
       | timestart[day]       | 1                |
       | timestart[month]     | 1                |
@@ -255,7 +255,7 @@ Feature: Manage pre-defined rooms
     And I press "Save changes"
 
     And I follow "Add a new event"
-    And I click on "Edit date" "link"
+    And I click on "Edit session" "link"
     And I set the following fields to these values:
       | timestart[day]       | 1             |
       | timestart[month]     | 1             |
@@ -276,7 +276,7 @@ Feature: Manage pre-defined rooms
     And I wait "1" seconds
     Then I should see "(Room unavailable)" in the "Choose a room" "totaradialogue"
     And I click on "Cancel" "button" in the "Choose a room" "totaradialogue"
-    And I click on "Edit date" "link"
+    And I click on "Edit session" "link"
     And I set the following fields to these values:
       | timestart[day]       | 1             |
       | timestart[month]     | 1             |
@@ -296,7 +296,7 @@ Feature: Manage pre-defined rooms
     And I click on "Room 1, That house, 123 here street (Capacity: 5)" "text" in the "Choose a room" "totaradialogue"
     And I click on "OK" "button" in the "Choose a room" "totaradialogue"
     And I wait "1" seconds
-    And I click on "Edit date" "link"
+    And I click on "Edit session" "link"
     And I set the following fields to these values:
       | timestart[day]       | 1             |
       | timestart[month]     | 1             |

@@ -121,4 +121,94 @@ class totara_reportbuilder_graph_testcase extends advanced_testcase {
         $column = $report->columns['user-namewithlinks'];
         $this->assertFalse($column->is_graphable($report));
     }
+
+    protected function init_graph($rid) {
+        global $DB;
+        $report = new reportbuilder($rid, null, false, null, null, true);
+
+        $graphrecord = $DB->get_record('report_builder_graph', array('reportid' => $report->_id));
+        $this->assertFalse(empty($graphrecord->type));
+
+        $graph = new \totara_reportbuilder\local\graph($graphrecord, $report, false);
+        list($sql, $params, $cache) = $report->build_query(false, true);
+        $order = $report->get_report_sort(false);
+
+        $reportdb = $report->get_report_db();
+        if ($records = $reportdb->get_recordset_sql($sql.$order, $params, 0, $graph->get_max_records())) {
+            foreach ($records as $record) {
+                $graph->add_record($record);
+            }
+        }
+
+        return $graph;
+    }
+
+    public function test_graph_zero_data() {
+        global $DB;
+        $this->resetAfterTest();
+
+        $user1 = $this->getDataGenerator()->create_user();
+        $user2 = $this->getDataGenerator()->create_user();
+
+        $rid = $this->create_report('user', 'Test user report 1');
+
+        $report = new reportbuilder($rid, null, false, null, null, true);
+        $this->add_column($report, 'user', 'id', null, null, null, 0);
+        $this->add_column($report, 'user', 'username', null, null, null, 0);
+        $this->add_column($report, 'statistics', 'coursescompleted', null, null, null, 0);
+
+        $graphrecords = $this->add_graph($rid, 'column', 0, 500, 'user-username', '', array('statistics-coursescompleted'), '');
+        $graphrecord = reset($graphrecords);
+
+        $graph = $this->init_graph($rid);
+        $data = $graph->fetch_svg();
+        $this->assertNotContains('Zero length axis', $data);
+        $this->assertContains($user1->username, $data);
+        $this->assertContains($user2->username, $data);
+
+        $graph = $this->init_graph($rid);
+        $data = $graph->fetch_block_svg();
+        $this->assertNotContains('Zero length axis', $data);
+        $this->assertContains($user1->username, $data);
+        $this->assertContains($user2->username, $data);
+
+        $graph = $this->init_graph($rid);
+        $data = $graph->fetch_export_svg(1000, 1000);
+        $this->assertNotContains('Zero length axis', $data);
+        $this->assertContains($user1->username, $data);
+        $this->assertContains($user2->username, $data);
+
+        $DB->set_field('report_builder_graph', 'type', 'bar', array('id' => $graphrecord->id));
+        $graph = $this->init_graph($rid);
+        $data = $graph->fetch_svg();
+        $this->assertNotContains('Zero length axis', $data);
+        $this->assertContains($user1->username, $data);
+        $this->assertContains($user2->username, $data);
+
+        $DB->set_field('report_builder_graph', 'type', 'line', array('id' => $graphrecord->id));
+        $graph = $this->init_graph($rid);
+        $data = $graph->fetch_svg();
+        $this->assertNotContains('Zero length axis', $data);
+        $this->assertContains($user1->username, $data);
+        $this->assertContains($user2->username, $data);
+
+        $DB->set_field('report_builder_graph', 'type', 'scatter', array('id' => $graphrecord->id));
+        $graph = $this->init_graph($rid);
+        $data = $graph->fetch_svg();
+        $this->assertNotContains('Zero length axis', $data);
+        $this->assertContains($user1->username, $data);
+        $this->assertContains($user2->username, $data);
+
+        $DB->set_field('report_builder_graph', 'type', 'area', array('id' => $graphrecord->id));
+        $graph = $this->init_graph($rid);
+        $data = $graph->fetch_svg();
+        $this->assertNotContains('Zero length axis', $data);
+        $this->assertContains($user1->username, $data);
+        $this->assertContains($user2->username, $data);
+
+        $DB->set_field('report_builder_graph', 'type', 'pie', array('id' => $graphrecord->id));
+        $graph = $this->init_graph($rid);
+        $data = $graph->fetch_svg();
+        $this->assertContains('Empty pie chart', $data);
+    }
 }

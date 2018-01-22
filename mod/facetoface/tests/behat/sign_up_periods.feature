@@ -79,7 +79,7 @@ Feature: Seminar sign-up periods
       | registrationtimefinish[hour]     | <periodendhour>    |
       | registrationtimefinish[minute]   | 00                 |
       | registrationtimefinish[timezone] | <periodendzone>    |
-    And I click on "Edit date" "link"
+    And I click on "Edit session" "link"
     And I set the following fields to these values:
       | timestart[month]     | July               |
       | timestart[day]       | <sessionstartday>  |

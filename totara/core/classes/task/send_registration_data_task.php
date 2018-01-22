@@ -44,6 +44,18 @@ class send_registration_data_task extends \core\task\scheduled_task {
         global $CFG;
         require_once($CFG->dirroot.'/admin/registerlib.php');
 
+        if (empty($CFG->registrationenabled)) {
+            mtrace("Registration updates are disabled");
+            return;
+        }
+
+        if (isset($CFG->registered) and $CFG->registered <= time()) {
+            if (time() - $CFG->registered < 60*60*24*3) {
+                mtrace("Registration was already updated less than 3 days ago");
+                return;
+            }
+        }
+
         mtrace("Performing registration update:");
         $registerdata = get_registration_data();
         send_registration_data($registerdata);

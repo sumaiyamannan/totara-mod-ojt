@@ -39,7 +39,7 @@ Feature: Test expand course details in Reportbuilder
       | Description                             | Test seminar 2 description |
     And I follow "View all events"
     And I follow "Add a new event"
-    And I click on "Edit date" "link"
+    And I click on "Edit session" "link"
     And I fill seminar session with relative date in form data:
       | sessiontimezone    | Pacific/Auckland |
       | timestart[month]   | 0                |

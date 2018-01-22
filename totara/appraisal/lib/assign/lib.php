@@ -34,6 +34,8 @@ use totara_job\job_assignment;
 class totara_assign_appraisal extends totara_assign_core {
     protected static $module = 'appraisal';
 
+    private $job_assignment_id_cache = [];
+
     public function store_user_assignments($newusers = null, $processor = null) {
         // Define a processor function to format the data for appraisals.
         $processor = function($record, $modulekey, $moduleinstanceid) {
@@ -362,6 +364,7 @@ class totara_assign_appraisal extends totara_assign_core {
         $allmissing = new \stdClass();
         $allmissing->appraiseecount = count($appraiseeids);
         $allmissing->roles = [];
+        $allmissing->nojobselected = [];
 
         if (empty($appraiseeids)) {
             return $allmissing;
@@ -377,6 +380,10 @@ class totara_assign_appraisal extends totara_assign_core {
 
                 if (!empty($roles)) {
                     $missing->roles[$appraisee] = $roles;
+
+                    if (!$this->get_job_assignment_id($appraisee)) {
+                        $missing->nojobselected[] = $appraisee;
+                    }
                 }
 
                 return $missing;
@@ -400,11 +407,7 @@ class totara_assign_appraisal extends totara_assign_core {
         $appraisal = $this->moduleinstance;
         $requiredroles = $appraisal->get_roles_involved();
 
-        $assignment = appraisal_user_assignment::get_user(
-            $appraisal->id, $appraiseeid
-        );
-
-        $jobassignmentid = $assignment->jobassignmentid;
+        $jobassignmentid = $this->get_job_assignment_id($appraiseeid);
         $job = empty($jobassignmentid)
                ? null
                : job_assignment::get_with_id($jobassignmentid, false);
@@ -424,6 +427,21 @@ class totara_assign_appraisal extends totara_assign_core {
         return appraisal_assignments::missing_appraisal_roles_from_job(
             $requiredroles, $job
         );
+    }
+
+    /**
+     * @param int $appraiseeid
+     * @return int|null
+     */
+    private function get_job_assignment_id($appraiseeid) {
+        if (!isset($this->job_assignment_id_cache[$appraiseeid])) {
+            $appraisal = $this->moduleinstance;
+            $assignment = appraisal_user_assignment::get_user(
+                $appraisal->id, $appraiseeid
+            );
+            $this->job_assignment_id_cache[$appraiseeid] = $assignment->jobassignmentid;
+        }
+        return $this->job_assignment_id_cache[$appraiseeid];
     }
 
     /**

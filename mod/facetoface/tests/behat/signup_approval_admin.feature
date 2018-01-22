@@ -60,7 +60,7 @@ Feature: Seminar Signup Admin Approval
     And I click on "Save" "button" in the "Select activity level approvers" "totaradialogue"
     And I press "Save and display"
     And I follow "Add a new event"
-    And I click on "Edit date" "link"
+    And I click on "Edit session" "link"
     And I set the following fields to these values:
       | timestart[day]     | 1    |
       | timestart[month]   | 1    |

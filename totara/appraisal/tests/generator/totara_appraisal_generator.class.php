@@ -881,4 +881,32 @@ class totara_appraisal_generator extends component_generator_base {
         $appraisal->activate();
     }
 
+    /**
+     * Assign an appraisal to a job assignment.
+     *
+     * @param  array $data
+     * @return void
+     */
+    public function create_appraisal_job_assignments_for_behat($data = array()) {
+        global $DB;
+
+        // Get the appraisal object.
+        if (isset($data['appraisal'])) {
+            $appraisalid = $DB->get_field('appraisal', 'id', array('name' => $data['appraisal']), MUST_EXIST);
+            $appraisal = new appraisal($appraisalid);
+        } else {
+            return false;
+        }
+
+        // Get the job assignment.
+        if (isset($data['jobassignment'])) {
+            $jobassignment = $DB->get_record('job_assignment', array('idnumber' => $data['jobassignment']));
+        } else {
+            return false;
+        }
+
+        $appraisal_user_assignment = appraisal_user_assignment::get_user($appraisalid, $jobassignment->userid);
+        $appraisal_user_assignment->with_job_assignment($jobassignment->id);
+    }
+
 }

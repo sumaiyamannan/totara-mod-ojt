@@ -42,7 +42,7 @@ Feature: Clone pre-defined rooms in seminar
       | Description | Test seminar description |
     And I follow "View all events"
     And I follow "Add a new event"
-    And I click on "Edit date" "link"
+    And I click on "Edit session" "link"
     And I wait "2" seconds
     And I set the following fields to these values:
       | timestart[day]     | 1    |
@@ -65,7 +65,7 @@ Feature: Clone pre-defined rooms in seminar
     When I click on "Select room" "link"
     Then I should see "Room 1, That house, 123 here street (Capacity: 5) (Room unavailable)" in the "Choose a room" "totaradialogue"
     And I click on "Cancel" "button" in the "Choose a room" "totaradialogue"
-    And I click on "Edit date" "link"
+    And I click on "Edit session" "link"
     And I set the following fields to these values:
       | timestart[day]     | 1    |
       | timestart[month]   | 1    |
@@ -81,7 +81,7 @@ Feature: Clone pre-defined rooms in seminar
     And I click on "Select room" "link"
     And I click on "Room 1, That house, 123 here street (Capacity: 5)" "text" in the "Choose a room" "totaradialogue"
     And I click on "OK" "button" in the "Choose a room" "totaradialogue"
-    And I click on "Edit date" "link"
+    And I click on "Edit session" "link"
     And I set the following fields to these values:
       | timestart[day]     | 1    |
       | timestart[month]   | 1    |
@@ -96,7 +96,7 @@ Feature: Clone pre-defined rooms in seminar
     And I press "OK"
     And I press "Save changes"
     And I should see "The new dates you have selected are unavailable due to a scheduling conflict"
-    And I click on "Edit date" "link"
+    And I click on "Edit session" "link"
     And I set the following fields to these values:
       | timestart[day]     | 1    |
       | timestart[month]   | 1    |

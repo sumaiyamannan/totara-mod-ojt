@@ -31,7 +31,7 @@ Feature: Only Alerts Report table block on dashboard
     And I follow "Course 1"
     And I follow "Test seminar name"
     And I follow "Add a new event"
-    And I click on "Edit date" "link"
+    And I click on "Edit session" "link"
     And I set the following fields to these values:
       | timestart[day]     | 1    |
       | timestart[month]   | 1    |

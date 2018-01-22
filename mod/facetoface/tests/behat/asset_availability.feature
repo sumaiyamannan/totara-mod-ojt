@@ -52,7 +52,7 @@ Feature: Seminar asset availability
     And I follow "Course 1"
     And I follow "Test Seminar 1"
     And I follow "Add a new event"
-    And I click on "Edit date" "link"
+    And I click on "Edit session" "link"
     And I set the following fields to these values:
       | timestart[day]     | 1    |
       | timestart[month]   | 1    |
@@ -77,11 +77,11 @@ Feature: Seminar asset availability
     And I should see "Asset 2"
     And I should not see "Asset 3"
     And I click on "OK" "button" in the "Choose assets" "totaradialogue"
-    And I press "Add a new date"
+    And I press "Add a new session"
     # The UI is not usable much here, we just save this and go back and the last added session will be listed first.
     And I press "Save changes"
     And I click on "Edit event" "link" in the "0 / 10" "table_row"
-    And I click on "Edit date" "link"
+    And I click on "Edit session" "link"
     And I set the following fields to these values:
       | timestart[day]     | 1    |
       | timestart[month]   | 1    |
@@ -100,11 +100,11 @@ Feature: Seminar asset availability
     And I should not see "Asset 3"
     And I click on "Asset 2" "text" in the "Choose assets" "totaradialogue"
     And I click on "OK" "button" in the "Choose assets" "totaradialogue"
-    And I press "Add a new date"
+    And I press "Add a new session"
     # The UI is not usable much here, we just save this and go back and the last added session will be listed first.
     And I press "Save changes"
     And I click on "Edit event" "link" in the "0 / 10" "table_row"
-    And I click on "Edit date" "link"
+    And I click on "Edit session" "link"
     And I set the following fields to these values:
       | timestart[day]     | 1    |
       | timestart[month]   | 1    |
@@ -136,7 +136,7 @@ Feature: Seminar asset availability
     When I follow "Add a new event"
     And I set the following fields to these values:
       | Maximum bookings | 20 |
-    And I click on "Edit date" "link"
+    And I click on "Edit session" "link"
     And I set the following fields to these values:
       | timestart[day]     | 1    |
       | timestart[month]   | 1    |
@@ -164,7 +164,7 @@ Feature: Seminar asset availability
     When I follow "Add a new event"
     And I set the following fields to these values:
       | Maximum bookings | 30 |
-    And I click on "Edit date" "link"
+    And I click on "Edit session" "link"
     And I set the following fields to these values:
       | timestart[day]     | 1    |
       | timestart[month]   | 1    |
@@ -193,7 +193,7 @@ Feature: Seminar asset availability
     When I follow "Add a new event"
     And I set the following fields to these values:
       | Maximum bookings | 40 |
-    And I click on "Edit date" "link"
+    And I click on "Edit session" "link"
     And I set the following fields to these values:
       | timestart[day]     | 1    |
       | timestart[month]   | 1    |
@@ -221,7 +221,7 @@ Feature: Seminar asset availability
     When I follow "Add a new event"
     And I set the following fields to these values:
       | Maximum bookings | 50 |
-    And I click on "Edit date" "link"
+    And I click on "Edit session" "link"
     And I set the following fields to these values:
       | timestart[day]     | 1    |
       | timestart[month]   | 1    |
@@ -241,7 +241,7 @@ Feature: Seminar asset availability
     And I press "Cancel"
 
     And I click on "Edit event" "link" in the "0 / 20" "table_row"
-    And I click on "Edit date" "link"
+    And I click on "Edit session" "link"
     And I set the following fields to these values:
       | timestart[day]     | 1    |
       | timestart[month]   | 1    |
@@ -266,7 +266,7 @@ Feature: Seminar asset availability
     And I follow "Add a new event"
     And I set the following fields to these values:
       | Maximum bookings | 20 |
-    And I click on "Edit date" "link"
+    And I click on "Edit session" "link"
     And I set the following fields to these values:
       | timestart[day]     | 1    |
       | timestart[month]   | 1    |
@@ -302,7 +302,7 @@ Feature: Seminar asset availability
     And I follow "Test Seminar 1"
 
     When I follow "Add a new event"
-    And I click on "Edit date" "link"
+    And I click on "Edit session" "link"
     And I set the following fields to these values:
       | timestart[day]     | 1    |
       | timestart[month]   | 1    |
@@ -328,11 +328,11 @@ Feature: Seminar asset availability
     And I should see "Asset 2"
     And I should not see "Asset 3"
     And I click on "Cancel" "button" in the "Choose assets" "totaradialogue"
-    And I press "Add a new date"
+    And I press "Add a new session"
     # The UI is not usable much here, we just save this and go back and the last added session will be listed first.
     And I press "Save changes"
     And I click on "Edit event" "link" in the "0 / 20" "table_row"
-    And I click on "Edit date" "link"
+    And I click on "Edit session" "link"
     And I set the following fields to these values:
       | timestart[day]     | 1    |
       | timestart[month]   | 1    |
@@ -362,7 +362,7 @@ Feature: Seminar asset availability
     And I follow "Add a new event"
     And I set the following fields to these values:
       | Maximum bookings | 30 |
-    And I click on "Edit date" "link"
+    And I click on "Edit session" "link"
     And I set the following fields to these values:
       | timestart[day]     | 1    |
       | timestart[month]   | 1    |
@@ -382,11 +382,11 @@ Feature: Seminar asset availability
       | Allow asset booking conflicts | 0       |
     And I click on "OK" "button" in the "Create new asset" "totaradialogue"
 
-    When  I press "Add a new date"
+    When  I press "Add a new session"
     # The UI is not usable much here, we just save this and go back and the last added session will be listed first.
     And I press "Save changes"
     And I click on "Edit event" "link" in the "0 / 30" "table_row"
-    And I click on "Edit date" "link"
+    And I click on "Edit session" "link"
     And I set the following fields to these values:
       | timestart[day]     | 1    |
       | timestart[month]   | 1    |
@@ -412,7 +412,7 @@ Feature: Seminar asset availability
     When I follow "Add a new event"
     And I set the following fields to these values:
       | Maximum bookings | 40 |
-    And I click on "Edit date" "link"
+    And I click on "Edit session" "link"
     And I set the following fields to these values:
       | timestart[day]     | 1    |
       | timestart[month]   | 1    |
@@ -498,7 +498,7 @@ Feature: Seminar asset availability
     And I follow "Add a new event"
     And I set the following fields to these values:
       | Maximum bookings | 20 |
-    And I click on "Edit date" "link"
+    And I click on "Edit session" "link"
     And I set the following fields to these values:
       | timestart[day]     | 1    |
       | timestart[month]   | 1    |
@@ -518,7 +518,7 @@ Feature: Seminar asset availability
     And I follow "Add a new event"
     And I set the following fields to these values:
       | Maximum bookings | 30 |
-    And I click on "Edit date" "link"
+    And I click on "Edit session" "link"
     And I set the following fields to these values:
       | timestart[day]     | 1    |
       | timestart[month]   | 1    |
@@ -548,7 +548,7 @@ Feature: Seminar asset availability
     And I follow "Course 1"
     And I follow "Test Seminar 1"
     And I click on "Edit event" "link" in the "0 / 30" "table_row"
-    And I click on "Edit date" "link"
+    And I click on "Edit session" "link"
     And I set the following fields to these values:
       | timestart[day]     | 1    |
       | timestart[month]   | 1    |
@@ -577,7 +577,7 @@ Feature: Seminar asset availability
     And I follow "Add a new event"
     And I set the following fields to these values:
       | Maximum bookings | 40 |
-    And I click on "Edit date" "link"
+    And I click on "Edit session" "link"
     And I set the following fields to these values:
       | timestart[day]     | 1    |
       | timestart[month]   | 1    |
@@ -600,7 +600,7 @@ Feature: Seminar asset availability
     And I follow "Add a new event"
     And I set the following fields to these values:
       | Maximum bookings | 50 |
-    And I click on "Edit date" "link"
+    And I click on "Edit session" "link"
     And I set the following fields to these values:
       | timestart[day]     | 1    |
       | timestart[month]   | 1    |
@@ -625,7 +625,7 @@ Feature: Seminar asset availability
     And I click on "OK" "button" in the "Edit asset" "totaradialogue"
     Then I should see "Asset has conflicting usage" in the "Edit asset" "totaradialogue"
     And I click on "Cancel" "button" in the "Edit asset" "totaradialogue"
-    And I click on "Edit date" "link"
+    And I click on "Edit session" "link"
     And I set the following fields to these values:
       | timestart[day]     | 1    |
       | timestart[month]   | 1    |
@@ -655,7 +655,7 @@ Feature: Seminar asset availability
     And I follow "Add a new event"
     And I set the following fields to these values:
       | Maximum bookings | 20 |
-    And I click on "Edit date" "link"
+    And I click on "Edit session" "link"
     And I set the following fields to these values:
       | timestart[day]     | 1    |
       | timestart[month]   | 1    |
@@ -675,7 +675,7 @@ Feature: Seminar asset availability
     And I follow "Add a new event"
     And I set the following fields to these values:
       | Maximum bookings | 30 |
-    And I click on "Edit date" "link"
+    And I click on "Edit session" "link"
     And I set the following fields to these values:
       | timestart[day]     | 1    |
       | timestart[month]   | 1    |
@@ -695,7 +695,7 @@ Feature: Seminar asset availability
     And I follow "Add a new event"
     And I set the following fields to these values:
       | Maximum bookings | 30 |
-    And I click on "Edit date" "link"
+    And I click on "Edit session" "link"
     And I set the following fields to these values:
       | timestart[day]     | 1    |
       | timestart[month]   | 1    |

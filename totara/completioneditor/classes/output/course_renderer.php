@@ -736,4 +736,37 @@ class course_renderer extends \plugin_renderer_base {
         return \html_writer::tag('ul', \html_writer::tag('li', \html_writer::link($checkallurl,
             get_string('checkcoursecompletions', 'totara_completioneditor'))));
     }
+
+    /**
+     * Return HTML to show a notification stating that the user is not enrolled, and include a link to delete the
+     * current course completion record if it exists.
+     *
+     * @param bool $hascoursecompletion true if the user has a current course completion record
+     * @param int $courseid
+     * @param int $userid
+     * @return string HTML
+     */
+    public function not_enrolled_notification($hascoursecompletion, $courseid, $userid) {
+        $out = get_string('notenrolled', 'totara_completioneditor');
+
+        if ($hascoursecompletion) {
+            $deletecoursecompltionurl = new \moodle_url(
+                '/totara/completioneditor/edit_course_completion.php',
+                array(
+                    'deletecoursecompletion' => 1,
+                    'courseid' => $courseid,
+                    'userid' => $userid,
+                    'sesskey' => sesskey()
+                ));
+
+            $out .= \html_writer::empty_tag('br');
+            $out .= \html_writer::link(
+                $deletecoursecompltionurl,
+                get_string('deletecoursecompletion', 'totara_completioneditor'),
+                array('class' => 'deletecompletionlink')
+            );
+        }
+
+        return $this->output->notification($out, 'notifymessage');
+    }
 }

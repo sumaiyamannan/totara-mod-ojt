@@ -25,7 +25,7 @@ Feature: My Future Bookings seminar sessions report overview
     And I follow "Seminar TL-9395"
 
     And I follow "Add a new event"
-    And I click on "Edit date" "link"
+    And I click on "Edit session" "link"
     And I set the following fields to these values:
       | sessiontimezone      | Europe/Prague   |
       | timestart[day]       | 2               |
@@ -44,7 +44,7 @@ Feature: My Future Bookings seminar sessions report overview
     And I press "Save changes"
 
     And I follow "Add a new event"
-    And I click on "Edit date" "link"
+    And I click on "Edit session" "link"
     And I set the following fields to these values:
       | timestart[day]       | 2               |
       | timestart[month]     | 4               |

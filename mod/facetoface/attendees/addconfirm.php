@@ -162,12 +162,6 @@ if ($fromform = $mform->get_data()) {
     $_SESSION['f2f-bulk-results'][$session->id] = array($added, $errors);
 
     facetoface_set_bulk_result_notification(array($added, $errors));
-    $numattendees = facetoface_get_num_attendees($session->id);
-    $overbooked = ($numattendees > $session->capacity);
-    if ($overbooked) {
-        $overbookedmessage = get_string('capacityoverbookedlong', 'facetoface', array('current' => $numattendees, 'maximum' => $session->capacity));
-        totara_set_notification($overbookedmessage, null, array('class' => 'notifynotice'));
-    }
 
     $list->clean();
     redirect(new moodle_url('/mod/facetoface/attendees.php', array('s' => $s, 'backtoallsessions' => 1)));

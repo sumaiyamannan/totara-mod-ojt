@@ -47,7 +47,7 @@ Feature: Minimum Seminar bookings
     Then the field "Minimum bookings" matches value "5"
 
     When I set the field "Minimum bookings" to "2"
-    And I click on "Edit date" "link" in the "Select room" "table_row"
+    And I click on "Edit session" "link" in the "Select room" "table_row"
     And I set the following fields to these values:
       | timestart[day]     | 29       |
       | timestart[month]   | December |
@@ -77,7 +77,7 @@ Feature: Minimum Seminar bookings
       | name | test activity |
     And I follow "View all events"
     And I follow "Add a new event"
-    And I click on "Edit date" "link" in the "Select room" "table_row"
+    And I click on "Edit session" "link" in the "Select room" "table_row"
     And I fill seminar session with relative date in form data:
       | timestart[day]       | +1 |
       | timestart[month]     | 0  |

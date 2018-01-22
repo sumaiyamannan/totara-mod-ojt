@@ -66,7 +66,7 @@ Background:
     And I follow "Test seminar name"
 
     And I follow "Add a new event"
-    And I click on "Edit date" "link"
+    And I click on "Edit session" "link"
     And I set the following fields to these values:
       | timestart[day]     | 1    |
       | timestart[month]   | 1    |
@@ -85,7 +85,7 @@ Background:
     And I press "Save changes"
 
     And I follow "Add a new event"
-    And I click on "Edit date" "link"
+    And I click on "Edit session" "link"
     And I set the following fields to these values:
       | timestart[day]     | 2    |
       | timestart[month]   | 1    |
@@ -104,7 +104,7 @@ Background:
     And I press "Save changes"
 
     And I follow "Add a new event"
-    And I click on "Edit date" "link"
+    And I click on "Edit session" "link"
     And I set the following fields to these values:
       | timestart[day]     | 3    |
       | timestart[month]   | 1    |
@@ -123,7 +123,7 @@ Background:
     And I press "Save changes"
 
     And I follow "Add a new event"
-    And I click on "Edit date" "link"
+    And I click on "Edit session" "link"
     And I set the following fields to these values:
       | timestart[day]     | 4    |
       | timestart[month]   | 1    |

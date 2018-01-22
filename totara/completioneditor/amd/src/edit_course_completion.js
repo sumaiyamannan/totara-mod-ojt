@@ -71,6 +71,29 @@ define(['jquery', 'core/str', 'core/notification'], function($, mdlstrings, Noti
                     );
                 });
             });
+
+            $('.deletecompletionlink').on('click', function (e) {
+                e.preventDefault();
+
+                var url = $(this).attr('href');
+
+                var requiredstrings = [];
+                requiredstrings.push({key: 'areyousure', component: 'moodle'});
+                requiredstrings.push({key: 'coursecompletiondelete', component: 'totara_completioneditor'});
+                requiredstrings.push({key: 'yes', component: 'moodle'});
+                requiredstrings.push({key: 'no', component: 'moodle'});
+                mdlstrings.get_strings(requiredstrings).done(function(strings) {
+                    Notification.confirm(
+                        strings[0],
+                        strings[1],
+                        strings[2],
+                        strings[3],
+                        function() {
+                            window.location.href = url;
+                        }
+                    );
+                });
+            });
         }
     };
 

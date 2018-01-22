@@ -232,6 +232,10 @@ class behat_totara_data_generators extends behat_base {
                 'datagenerator' => 'message_for_behat',
                 'required' => array('appraisal', 'recipients'),
             ),
+            'appraisal_job_assignments' => array(
+                'datagenerator' => 'appraisal_job_assignments_for_behat',
+                'required' => array('appraisal', 'jobassignment'),
+            ),
         ),
         'totara_reportbuilder' => array(
             'report_restrictions' => array(

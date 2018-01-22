@@ -440,8 +440,13 @@ class appraisal {
             $param = new stdClass();
             $param->user = $fullnames[$appraiseeid];
             $param->role = $csv;
+            if (in_array($appraiseeid, $missing->nojobselected)) {
+                $translationkey = 'appraisalinvalid:missingjob';
+            } else {
+                $translationkey = 'appraisalinvalid:missingrole';
+            }
             $error = get_string(
-                'appraisalinvalid:missingrole', 'totara_appraisal', $param
+                $translationkey, 'totara_appraisal', $param
             );
 
             $count = count($war);

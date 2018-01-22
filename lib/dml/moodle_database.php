@@ -719,16 +719,38 @@ abstract class moodle_database {
             }
         }
 
+        // Totara: counting arrays is expensive, do it only once.
+        $itemscount = is_array($items) ? count($items) : 1;
+
+        if ($itemscount > 10) {
+            // Totara: large number of parameters may cause performance problems or fatal errors.
+            $integersonly = true;
+            foreach ($items as $item) {
+                if ((string)$item !== (string)(int)$item) {
+                    $integersonly = false;
+                    break;
+                }
+            }
+            if ($integersonly) {
+                if ($equal) {
+                    $sql = 'IN (' . implode(',', $items) . ')';
+                } else {
+                    $sql = 'NOT IN (' . implode(',', $items) . ')';
+                }
+                return array($sql, array());
+            }
+        }
+
         if ($type == SQL_PARAMS_QM) {
-            if (!is_array($items) or count($items) == 1) {
+            if ($itemscount === 1) {
                 $sql = $equal ? '= ?' : '<> ?';
                 $items = (array)$items;
                 $params = array_values($items);
             } else {
                 if ($equal) {
-                    $sql = 'IN ('.implode(',', array_fill(0, count($items), '?')).')';
+                    $sql = 'IN ('.implode(',', array_fill(0, $itemscount, '?')).')';
                 } else {
-                    $sql = 'NOT IN ('.implode(',', array_fill(0, count($items), '?')).')';
+                    $sql = 'NOT IN ('.implode(',', array_fill(0, $itemscount, '?')).')';
                 }
                 $params = array_values($items);
             }
@@ -742,7 +764,7 @@ abstract class moodle_database {
                 $param = $this->get_unique_param($prefix);
                 $sql = $equal ? "= :$param" : "<> :$param";
                 $params = array($param=>$items);
-            } else if (count($items) == 1) {
+            } else if ($itemscount === 1) {
                 $param = $this->get_unique_param($prefix);
                 $sql = $equal ? "= :$param" : "<> :$param";
                 $item = reset($items);

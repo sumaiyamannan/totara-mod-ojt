@@ -27,7 +27,7 @@ Feature: Check previous and upcomings sections are right populated
       | Users can sign-up to multiple events | 1                        |
     And I follow "View all events"
     And I follow "Add a new event"
-    And I click on "Edit date" "link"
+    And I click on "Edit session" "link"
     And I fill seminar session with relative date in form data:
       | sessiontimezone    | Pacific/Auckland |
       | timestart[day]     | -2               |
@@ -42,7 +42,7 @@ Feature: Check previous and upcomings sections are right populated
       | timefinish[minute] | 0                |
     And I press "OK"
 
-    And I press "Add a new date"
+    And I press "Add a new session"
     And I follow "show-selectdate1-dialog"
     And I fill seminar session with relative date in form data:
       | sessiontimezone    | Pacific/Auckland |
@@ -58,7 +58,7 @@ Feature: Check previous and upcomings sections are right populated
       | timefinish[minute] | 0                |
     And I click on "OK" "button" in the "Select date" "totaradialogue"
 
-    And I press "Add a new date"
+    And I press "Add a new session"
     And I follow "show-selectdate2-dialog"
     And I fill seminar session with relative date in form data:
       | sessiontimezone    | Pacific/Auckland |
@@ -76,7 +76,7 @@ Feature: Check previous and upcomings sections are right populated
     And I press "Save changes"
 
     And I follow "Add a new event"
-    And I click on "Edit date" "link"
+    And I click on "Edit session" "link"
     And I set the following fields to these values:
       | timestart[day]     | 1    |
       | timestart[month]   | 1    |
@@ -92,7 +92,7 @@ Feature: Check previous and upcomings sections are right populated
     And I press "Save changes"
 
     And I follow "Add a new event"
-    And I click on "Edit date" "link"
+    And I click on "Edit session" "link"
     And I set the following fields to these values:
       | timestart[day]     | 1    |
       | timestart[month]   | 1    |

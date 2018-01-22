@@ -33,7 +33,7 @@ Feature: Download a seminar signin sheet
       | Description       | Test seminar description |
     And I follow "Test seminar name"
     And I follow "Add a new event"
-    And I click on "Edit date" "link"
+    And I click on "Edit session" "link"
     And I set the following fields to these values:
       | timestart[day]     | 10   |
       | timestart[month]   | 2    |
@@ -74,7 +74,7 @@ Feature: Download a seminar signin sheet
       | Description       | Test seminar description |
     And I follow "Test seminar name"
     And I follow "Add a new event"
-    And I click on "Edit date" "link"
+    And I click on "Edit session" "link"
     And I set the following fields to these values:
       | timestart[day]     | 10   |
       | timestart[month]   | 2    |
@@ -87,10 +87,10 @@ Feature: Download a seminar signin sheet
       | timefinish[hour]   | 12   |
       | timefinish[minute] | 0    |
     And I press "OK"
-    And I press "Add a new date"
+    And I press "Add a new session"
     And I press "Save changes"
     And I click on "Edit event" "link" in the "0 / 10" "table_row"
-    And I click on "Edit date" "link"
+    And I click on "Edit session" "link"
     And I set the following fields to these values:
       | timestart[day]     | 9    |
       | timestart[month]   | 2    |
@@ -132,7 +132,7 @@ Feature: Download a seminar signin sheet
       | Description       | Test seminar description |
     And I follow "Test seminar name"
     And I follow "Add a new event"
-    And I click on "Edit date" "link"
+    And I click on "Edit session" "link"
     And I set the following fields to these values:
       | timestart[day]     | 10   |
       | timestart[month]   | 2    |
@@ -145,10 +145,10 @@ Feature: Download a seminar signin sheet
       | timefinish[hour]   | 12   |
       | timefinish[minute] | 0    |
     And I press "OK"
-    And I press "Add a new date"
+    And I press "Add a new session"
     And I press "Save changes"
     And I click on "Edit event" "link" in the "0 / 10" "table_row"
-    And I click on "Edit date" "link"
+    And I click on "Edit session" "link"
     And I set the following fields to these values:
       | timestart[day]     | 9    |
       | timestart[month]   | 2    |

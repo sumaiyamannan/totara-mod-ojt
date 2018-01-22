@@ -30,6 +30,7 @@ $exceptions = array(
         'configenablemobilewebservice', // Broken mobile app.
         'requiredentrieschanged', // Upgrade notes.
         'unsupporteddbtablerowformat', // Link to docs
+        'moodlerelease', // Reference to real Moodle version in registration data
     ),
     'core_cohort' => array('visible_help'), // Caps.
     'core_completion' => array('err_noroles', 'manualcompletionbynote', 'err_noroles'), // Caps.
