@@ -1050,7 +1050,7 @@ function certificate_print_text($pdf, $x, $y, $align, $font='freeserif', $style,
         $pdf->setRTL(true);
     }
 
-    if (in_array($language, array('zh_cn', 'ja'))) {
+    if (in_array($language, array('zh_cn', 'zh_tw', 'ja'))) {
         $pdf->setFont('droidsansfallback', $style, $size);
     } else if ($language == 'th') {
         $pdf->setFont('cordiaupc', $style, $size);
