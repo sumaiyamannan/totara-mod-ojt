@@ -102,8 +102,17 @@ define(['jquery', 'core/str', 'core/config'], function($, mdlstrings, mdlcfg) {
             });
 
             $('#assignform').submit(function() {
-               // Select all users to send them with form.
-                $('#removeselect option').prop('selected', true);
+                $('#removeselect option').each(function() {
+                    /* Edge(16) browser quirk, an option with disabled & selected
+                     * will prevent further selected options being included in the form data.
+                     */
+                    if ($(this).prop('disabled')) {
+                        $(this).prop('selected', false);
+                    } else {
+                        // Select all users to send them with form.
+                        $(this).prop('selected', true);
+                    }
+                });
             });
 
             $('#searchtoremovetext').on('keyup keypress blur change', function() {
