@@ -5302,8 +5302,9 @@ function sql_table_from_select($table, $select, array $params) {
                 }
                 $collationsql .= " DEFAULT COLLATE = {$collation}";
             }
-
+            $trans = $DB->start_delegated_transaction();
             $sql = "CREATE TABLE `{$table}` $enginesql $collationsql $select";
+            $trans->allow_commit();
             $result = $DB->execute($sql, $params);
             break;
         case 'mssql':
