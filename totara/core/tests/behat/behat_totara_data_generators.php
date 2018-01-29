@@ -53,6 +53,12 @@ class behat_totara_data_generators extends behat_base {
      */
     protected static $componentelements = array(
         // NOTE: this could be dynamic, but it is not a problem for Totara.
+        'mod_facetoface' => array (
+            'global rooms' => array(
+                'datagenerator' => 'global_room_for_behat',
+                'required' => array('name'),
+            )
+        ),
         'totara_core' => array(
             'custom profile fields' => array(
                 'datagenerator' => 'custom_profile_field',
