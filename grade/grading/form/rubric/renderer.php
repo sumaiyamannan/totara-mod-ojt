@@ -162,7 +162,7 @@ class gradingform_rubric_renderer extends plugin_renderer_base {
         }
 
         // Template for one level within one criterion
-        $tdattributes = array('id' => '{NAME}-criteria-{CRITERION-id}-levels-{LEVEL-id}', 'class' => 'level'. $level['class']);
+        $tdattributes = array('id' => '{NAME}-criteria-{CRITERION-id}-levels-{LEVEL-id}', 'class' => 'level'. $level['class'], 'tabindex' => 0);
         if (isset($level['tdwidth'])) {
             $tdattributes['width'] = round($level['tdwidth']).'%';
         }
