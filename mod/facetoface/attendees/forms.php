@@ -46,9 +46,13 @@ class addconfirm_form extends moodleform {
         $mform->addElement('advcheckbox', 'notifymanager', '', get_string('notifynewusermanager', 'facetoface'));
         $mform->setDefault('notifymanager', 1);
 
-        if ($this->_customdata['approvalreqd']) {
+        if ($this->_customdata['isapprovalrequired']) {
             $mform->addElement('header', 'bookingoptions', get_string('bookingoptions', 'facetoface'));
             $mform->addElement('advcheckbox', 'ignoreapproval', '', get_string('ignoreapprovalwhenaddingattendees', 'facetoface'));
+
+            // Disabling suppress notification if approval required and not ignored.
+            $mform->disabledIf('notifyuser', 'ignoreapproval', 'notchecked', 1);
+            $mform->disabledIf('notifymanager', 'ignoreapproval', 'notchecked', 1);
         }
 
         // Custom fields.
