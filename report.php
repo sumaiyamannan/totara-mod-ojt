@@ -79,9 +79,6 @@ echo $OUTPUT->heading($headingstr);
 // Standard report stuff.
 echo $OUTPUT->container_start('', 'ojt_evaluation');
 
-$countfiltered = $report->get_filtered_count();
-$countall = $report->get_full_count();
-
 if ($debug) {
     $report->debug($debug);
 }
@@ -93,7 +90,7 @@ $report->display_sidebar_search();
 $report->display_table();
 
 // Export button.
-$renderer->export_select($report->_id, $sid);
+$renderer->export_select($report, $sid);
 
 echo $OUTPUT->container_end();
 
