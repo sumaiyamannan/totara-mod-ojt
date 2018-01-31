@@ -584,47 +584,128 @@ function facetoface_update_session($session, $sessiondates) {
     $session = cleanup_session_data($session);
 
     $DB->update_record('facetoface_sessions', $session);
-    facetoface_save_dates($session->id, $sessiondates);
+    facetoface_save_dates($session, $sessiondates);
 
     return $session->id;
 }
 
 /**
- * Save session dates to database
+ * Update seminar session dates in the database without overwriting them
  *
- * @param int $sessionid
- * @param array $sessiondates of stdClass
+ * @param \stdClass|int $session Facetoface session object or id
+ * @param array|null $dates Array of new session dates or null
  */
-function facetoface_save_dates($sessionid, array $sessiondates = null) {
+function facetoface_save_dates($session, array $dates = null) {
     global $DB;
 
-    // Clean assets first.
-    $ids = $DB->get_fieldset_select('facetoface_sessions_dates', 'id', 'sessionid = :sessionid', array('sessionid' => $sessionid));
-    if (!empty($ids)) {
-        list($idsql, $idparams) = $DB->get_in_or_equal($ids);
-        $DB->delete_records_select('facetoface_asset_dates', "sessionsdateid $idsql", $idparams);
+    if (is_null($dates)) {
+        $dates = [];
     }
 
-    $DB->delete_records('facetoface_sessions_dates', array('sessionid' => $sessionid));
-
-    if (!empty($sessiondates)) {
-        foreach ($sessiondates as $date) {
-            $date->sessionid = $sessionid;
-            $date->id = $DB->insert_record('facetoface_sessions_dates', $date);
-
-            // Add assets.
-            if (!empty($date->assetids) && is_array($date->assetids)) {
-                // Make sure there are not duplicates coming from JS code.
-                $assetids = array_unique($date->assetids);
-                foreach ($assetids as $assetid) {
-                    $asset = new stdClass();
-                    $asset->sessionsdateid = $date->id;
-                    $asset->assetid = $assetid;
-                    $DB->insert_record('facetoface_asset_dates', $asset);
-                }
-            }
+    if (is_object($session)) {
+        if (!isset($session->id)) {
+            throw new coding_exception('Seminar session object supposed to have an id');
         }
+
+        $session = $session->id;
     }
+
+    $olddates = $DB->get_records('facetoface_sessions_dates', ['sessionid' => $session]);
+
+    // "Key by" date id.
+    $get_id = function($item) {
+        return $item->id;
+    };
+
+    $olddates = array_combine(array_map($get_id, $olddates), $olddates);
+
+    // Cloning dates to prevent messing with original data. $dates = unserialize(serialize($dates)) will also work.
+    $dates = array_map(function ($date) { return clone $date; }, $dates);
+
+    // Filtering dates: throwing out dates that haven't changed and
+    // throwing out old dates which present in the new dates array therefore
+    // leaving a list of dates to safely remove from the database.
+    // Also it is important to note that we have to unset all the dates
+    // from a new dates array with the ID which is not in the old dates array
+    // and != 0 (not a new date) to prevent users from messing with the input
+    // and other seminar dates since we rely on the date id came from a form.
+    $dates = array_filter($dates, function($date) use (&$olddates) {
+        // Comparing dates yoo-hoo.
+        // Some backwards compatibility.
+        $date->id = isset($date->id) ? $date->id : 0;
+
+        if (isset($olddates[$date->id])) {
+            $old = $olddates[$date->id];
+            unset($olddates[$date->id]);
+            $room = isset($date->roomid) ? $date->roomid : 0;
+            if ($old->sessiontimezone == $date->sessiontimezone &&
+                $old->timestart == $date->timestart &&
+                $old->timefinish == $date->timefinish &&
+                $old->roomid == $room) {
+                    $date->assetids = (isset($date->assetids) && is_array($date->assetids)) ? $date->assetids : [];
+                    facetoface_sync_assets($date->id, array_unique($date->assetids));
+                    return false;
+            }
+        } elseif ($date->id != 0) {
+            return false;
+        }
+
+        return true;
+    });
+
+    // 1. Remove old dates + assets.
+    foreach ($olddatesids = array_keys($olddates) as $id) {
+        facetoface_sync_assets($id, []);
+    }
+    $DB->delete_records_list('facetoface_sessions_dates', 'id', $olddatesids);
+
+    // 2. Update or create.
+    foreach ($dates as $date) {
+        $assets = isset($date->assetids) ? $date->assetids : [];
+        unset($date->assetids);
+
+        if ($date->id > 0) {
+            $DB->update_record('facetoface_sessions_dates', $date);
+        } else {
+            $date->sessionid = $session;
+            $date->id = $DB->insert_record('facetoface_sessions_dates', $date);
+        }
+
+        facetoface_sync_assets($date->id, array_unique($assets));
+    }
+}
+
+/**
+ * Sync the list of assets for a given seminar event date
+ *
+ * @param integer $date Seminar date Id
+ * @param array $assets List of asset Ids
+ * @return bool
+ */
+function facetoface_sync_assets($date, array $assets = []) {
+    global $DB;
+
+    if (empty($assets)) {
+        return $DB->delete_records('facetoface_asset_dates', ['sessionsdateid' => $date]);
+    }
+
+    $oldassets = $DB->get_fieldset_select('facetoface_asset_dates', 'assetid', 'sessionsdateid = :date_id', ['date_id' => $date]);
+
+    // WIPE THEM AND RECREATE if certain conditions have been met.
+    if ((count($assets) == count($oldassets)) && empty(array_diff($assets, $oldassets))) {
+        return true;
+    }
+
+    $res = $DB->delete_records('facetoface_asset_dates', ['sessionsdateid' => $date]);
+
+    foreach ($assets as $asset) {
+        $res &= $DB->insert_record('facetoface_asset_dates', (object) [
+            'sessionsdateid' => $date,
+            'assetid' => intval($asset)
+        ],false);
+    }
+
+    return !!$res;
 }
 
 /**

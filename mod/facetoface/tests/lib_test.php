@@ -4060,4 +4060,146 @@ class mod_facetoface_lib_testcase extends advanced_testcase {
 
         $this->resetAfterTest();
     }
+
+    public function test_save_session_dates() {
+        global $DB;
+
+        // First we need a session.
+        $now = time();
+        $room = $this->facetoface_generator->add_site_wide_room([
+            'name' => 'Storage room',
+            'allowconflicts' => 1
+        ]);
+
+        $f2f = $this->facetoface_generator->create_instance([
+            'course' => $this->getDataGenerator()->create_course()->id
+        ]);
+
+        $session = facetoface_get_session($this->facetoface_generator->add_session([
+            'facetoface' => $f2f->id,
+            'sessiondates' => [
+                (object) [
+                    'timestart' => $now,
+                    'timefinish' => $now + WEEKSECS,
+                    'sessiontimezone' => 'Europe/London',
+                    'roomid' => $room->id,
+                ],
+                (object) [
+                    'timestart' => $now + DAYSECS * 10,
+                    'timefinish' => $now + DAYSECS * 10 + HOURSECS,
+                    'sessiontimezone' => 'Europe/London',
+                    'roomid' => $room->id,
+                ],
+                (object) [
+                    'timestart' => $now + YEARSECS,
+                    'timefinish' => $now + YEARSECS + HOURSECS * 2,
+                    'sessiontimezone' => 'Europe/London',
+                    'roomid' => $room->id,
+                ],
+            ],
+        ]));
+
+        // Gimme some dates, we pretend that we get those from a user supplied form.
+        $dates = [
+            (object) [
+                'timestart' => $now,
+                'timefinish' => $now + WEEKSECS,
+                'sessiontimezone' => '1Europe/London',
+                'roomid' => $room->id,
+                'id' => $session->sessiondates[0]->id
+            ],
+            (object) [
+                'timestart' => $now + WEEKSECS * 3,
+                'timefinish' => $now + WEEKSECS * 3 + HOURSECS,
+                'sessiontimezone' => '2Europe/London',
+                'roomid' => $room->id,
+            ],
+            (object) [
+                'timestart' => $now + YEARSECS,
+                'timefinish' => $now + YEARSECS + HOURSECS * 2,
+                'sessiontimezone' => '3Europe/London',
+                'roomid' => $room->id,
+                'id' => $session->sessiondates[2]->id
+            ],
+            // User may try to sneak in the date from another event.
+            (object) [
+                'timestart' => $now + YEARSECS + 696,
+                'timefinish' => $now + YEARSECS + HOURSECS * 2,
+                'sessiontimezone' => '4Europe/London',
+                'roomid' => $room->id,
+                'id' => 123456
+            ],
+        ];
+
+        facetoface_save_dates($session, $dates);
+
+        $updated = $DB->get_records('facetoface_sessions_dates', [
+            'sessionid' => $session->id,
+        ]);
+
+        // Removing our sneaky date from the dates array to make sure that it has been filtered out while saving.
+        array_pop($dates);
+
+        // Compare dates all the updated should match the dates, except the ids, however if it had the id
+        // it should remain the same.
+        $updated = array_filter($updated, function($date) use (&$dates) {
+            foreach ($dates as $key => $item) {
+                if ($item->sessiontimezone == $date->sessiontimezone &&
+                    $item->timestart == $date->timestart &&
+                    $item->timefinish == $date->timefinish &&
+                    $item->roomid == $date->roomid) {
+                    unset($dates[$key]);
+                    if (isset($item->id)) {
+                        return $item->id != $date->id;
+                    } else {
+                        return false;
+                    }
+                }
+            }
+
+            return true;
+        });
+
+        // Assert all the dates match and the dates array is empty.
+        $this->assertEmpty($updated);
+
+        $this->resetAfterTest();
+    }
+
+    public function test_sync_assets() {
+        global $DB;
+        $f2f = $this->facetoface_generator->create_instance([
+            'course' => $this->getDataGenerator()->create_course()->id
+        ]);
+
+        $now = time();
+
+        $session = facetoface_get_session($this->facetoface_generator->add_session([
+            'facetoface' => $f2f->id,
+            'sessiondates' => [
+                (object) [
+                    'timestart' => $now,
+                    'timefinish' => $now + WEEKSECS,
+                    'sessiontimezone' => 'Europe/London',
+                    'roomid' => 0,
+                    'assetids' => [1,2,3,4,5,6,7,8,9,10]
+                ],
+            ],
+        ]));
+
+        $did = $session->sessiondates[0]->id;
+
+        $testset = [3,7,11,15,19];
+
+        // Assets synced successfully
+        $this->assertTrue(facetoface_sync_assets($did, $testset), 'Assets sync failed');
+
+        $assets = $DB->get_fieldset_select('facetoface_asset_dates',
+            'assetid',
+            'sessionsdateid = :dateid',
+            ['dateid' => $did]);
+
+        $this->assertEquals($testset, $assets, 'Asset sets do not match');
+
+    }
 }

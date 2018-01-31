@@ -46,6 +46,177 @@ class mod_facetoface_notifications_testcase extends advanced_testcase {
         $this->resetAfterTest();
     }
 
+    /**
+     * Create user
+     *
+     * @param null|array|\stdClass $record
+     * @param null|array|\stdClass $options
+     * @return stdClass
+     */
+    private function createUser($record = null, $options = null) {
+        return $this->getDataGenerator()->create_user($record, $options);
+    }
+
+    /**
+     * Create new course
+     *
+     * @param null|array|\stdClass $record
+     * @param null|array|\stdClass $options
+     * @return \stdClass
+     */
+    private function createCourse($record = null, $options = null)
+    {
+        return $this->getDataGenerator()->create_course($record, $options);
+    }
+
+    /**
+     * New seminar date object
+     *
+     * @param null|int $start Timestamp start
+     * @param null $finish Timestamp finish
+     * @param int $room Int seminar room id
+     * @param string $timezone timezone
+     * @return \stdClass
+     */
+    private function createSeminarDate($start = null, $finish = null, $room = 0, $timezone = 'Pacific/Auckland') {
+        $start = $start ?: time();
+        $finish = $finish ?: $start + 3600;
+
+        return (object) [
+            'sessiontimezone' => $timezone,
+            'timestart' => $start,
+            'timefinish' => $finish,
+            'roomid' => $room,
+        ];
+    }
+
+    /**
+     * Enrol user to a course
+     *
+     * @param int|\stdClass $user User to enrol
+     * @param int|\stdClass $course Course to enrol
+     * @param string $role Role to enrol
+     * @param null|boolean $success The success of the operation
+     * @return $this
+     */
+    private function enrolUser($user, $course, $role = 'student', &$success = null) {
+        $generator = $this->getDataGenerator();
+
+        if (is_object($user)) {
+            $user = $user->id;
+        }
+
+        if (is_object($course)) {
+            $course = $course->id;
+        }
+
+        $success = $generator->enrol_user($user, $course, $role);
+
+        return $this;
+    }
+
+    /**
+     * Returns facetoface plugin generator.
+     *
+     * @return mod_facetoface_generator
+     * @throws coding_exception
+     */
+    private function getSeminarGenerator() {
+        return $this->getDataGenerator()->get_plugin_generator('mod_facetoface');
+    }
+
+    /**
+     * Create a new seminar
+     *
+     * @param null|\stdClass|int $course Course object or id (null to create a new course
+     * @param string|array $record Record array or seminar name
+     * @param null|array $options Options
+     * @return \stdClass Seminar object
+     * @throws coding_exception
+     */
+    private function createSeminar($course = null, $record = 'facetoface', $options = null) {
+        if (is_null($course)) {
+            $course = $this->createCourse();
+        }
+
+        if (is_object($course)) {
+            $course = $course->id;
+        }
+
+        if (is_string($record)) {
+            $record = [
+                'name' => $record
+            ];
+        }
+
+        $record = array_merge([
+            'course' => $course,
+        ], $record);
+
+        return $this->getSeminarGenerator()->create_instance($record, $options);
+    }
+
+    /**
+     * Add a new seminar room
+     *
+     * @param \stdClass|int $seminar Seminar object or id
+     * @param \stdClass|null $dates Seminar dates
+     * @param array $params Parameters ($record) for the created seminar, doesn't require default values
+     * @param null|array $options
+     * @return mixed
+     * @throws coding_exception
+     */
+    private function addSeminarSession($seminar, $dates = null, array $params = [], $options = null) {
+        if (is_object($seminar)) {
+            $seminar = $seminar->id;
+        }
+
+        $params = array_merge([
+            'facetoface' => $seminar,
+            'capacity' => 3,
+            'allowoverbook' => 1,
+            'sessiondates' => $dates ?: [$this->createSeminarDate()],
+            'datetimeknown' => '1',
+            'mincapacity' => '1',
+            'cutoff' => DAYSECS - 60
+        ], $params);
+
+        return facetoface_get_session($this->getSeminarGenerator()->add_session($params, $options));
+    }
+
+    /**
+     * Create site wide seminar room
+     *
+     * @param string|array $record Record array or a string name
+     * @param array $customfields Customfields key value pair array, w\o customfield_ prefix
+     * @return stdClass Seminar room
+     * @throws coding_exception
+     */
+    private function createSeminarRoom($record = null, $customfields = []) {
+        if (is_null($record)) {
+            $record = 'New room ' . rand(1,100000);
+        }
+
+        if (is_string($record)) {
+            $record = [
+                'name' => $record,
+            ];
+        }
+
+        $room = $this->getSeminarGenerator()
+            ->add_site_wide_room($record);
+
+        if (!empty($customfields)) {
+            foreach ($customfields as $key => $value) {
+                $name = "customfield_$key";
+                $room->$name = $value;
+            }
+        }
+
+        customfield_save_data($room, 'facetofaceroom', 'facetoface_room');
+        return $room;
+    }
+
     public function test_cancellation_send_delete_session() {
 
         $session = $this->f2f_generate_data();
@@ -76,7 +247,7 @@ class mod_facetoface_notifications_testcase extends advanced_testcase {
      * Create course, users, face-to-face, session
      *
      * @param bool $future, time status: future or past, to test cancellation notifications
-     * @return object $session
+     * @return \stdClass $session
      */
     private function f2f_generate_data($future = true) {
         global $DB;
@@ -176,250 +347,319 @@ class mod_facetoface_notifications_testcase extends advanced_testcase {
     }
 
     /**
-     * Ensure that ical attachment is updated properly when session dates or sign up status changes
+     * Test iCal generation.
      */
     public function test_ical_generation() {
-        global $DB;
-        $this->resetAfterTest(true);
 
-        $student1 = $this->getDataGenerator()->create_user();
-        $student2 = $this->getDataGenerator()->create_user();
+        // Reusable human error messages.
+        $errors = [
+            'dates_dont_match' => 'Session dates don\'t match to the iCal generated dates.',
+            'uids_dont_match' => 'iCal UID doesn\'t match to an earlier generated iCal for this date',
+            'uids_match' => 'Two different dates have matching UIDs',
+            'location_doesnt_match' => 'iCal location doesn\'t match predefined seminar room location',
+            'cancelled_count_dont_match' => 'The number of cancelled dates doesn\'t match',
+        ];
 
-        $course = $this->getDataGenerator()->create_course();
-        $studentrole = $DB->get_record('role', array('shortname' => 'student'));
-        $this->getDataGenerator()->enrol_user($student1->id, $course->id, $studentrole->id);
-        $this->getDataGenerator()->enrol_user($student2->id, $course->id, $studentrole->id);
+        $icals = [];
 
-        /** @var mod_facetoface_generator $facetofacegenerator */
-        $facetofacegenerator = $this->getDataGenerator()->get_plugin_generator('mod_facetoface');
+        $students = [
+            $this->createUser(),
+            $this->createUser(),
+        ];
 
-        $facetofacedata = array(
-            'name' => 'facetoface',
-            'course' => $course->id
-        );
-        $facetoface = $facetofacegenerator->create_instance($facetofacedata);
+        $course = $this->createCourse();
 
-        $room = $facetofacegenerator->add_site_wide_room(array('name' => 'Site x 1'));
-        $room->customfield_locationaddress = "Address\nTest\nTest2";
-        customfield_save_data($room, 'facetofaceroom', 'facetoface_room');
+        foreach ($students as $student) {
+            $this->enrolUser($student, $course);
+        }
 
-        $date1 = new stdClass();
-        $date1->sessiontimezone = 'Pacific/Auckland';
-        $date1->timestart = time() + WEEKSECS;
-        $date1->timefinish = time() + WEEKSECS + 3600;
-        $date1->roomid = $room->id;
+        $seminar = $this->createSeminar($course, 'f2f');
 
-        $date2 = new stdClass();
-        $date2->sessiontimezone = 'Pacific/Auckland';
-        $date2->timestart = time() + WEEKSECS + DAYSECS;
-        $date2->timefinish = time() + WEEKSECS + DAYSECS + 3600;
+        $room = $this->createSeminarRoom('Site x 1', [
+            'locationaddress' => "Address\nTest\nTest2",
+        ]);
 
-        $sessiondates = array($date1, $date2);
+        $dates = [
+            $this->createSeminarDate(WEEKSECS, null, $room->id),
+            $this->createSeminarDate(WEEKSECS + DAYSECS * 2),
+            $this->createSeminarDate(WEEKSECS + DAYSECS * 5),
+        ];
 
-        $sessiondata = array(
-            'facetoface' => $facetoface->id,
-            'capacity' => 3,
-            'allowoverbook' => 1,
-            'sessiondates' => $sessiondates,
-            'datetimeknown' => '1',
-            'mincapacity' => '1',
-            'cutoff' => DAYSECS - 60
-        );
+        $session = $this->addSeminarSession($seminar, $dates);
 
-        $session = facetoface_get_session($facetofacegenerator->add_session($sessiondata));
+        $icals['original'] = [
+            $this->dissect_ical(facetoface_generate_ical($seminar,
+                $session,
+                MDL_F2F_INVITE,
+                $students[0])->content, ['location', 'uid', 'sequence', 'dtstart', 'dtend']),
+            $this->dissect_ical(facetoface_generate_ical($seminar,
+                $session,
+                MDL_F2F_INVITE,
+                $students[1])->content, ['location', 'uid', 'sequence', 'dtstart', 'dtend']),
+        ];
 
-        $init = facetoface_get_ical_attachment(MDL_F2F_INVITE, $facetoface, $session, $student1);
-        $initlocation = $this->get_ical_values($init->content, 'LOCATION');
-        $inituids = $this->get_ical_values($init->content, 'UID');
-        $initseqs = $this->get_ical_values($init->content, 'SEQUENCE');
-        $this->assertEquals('Site x 1\, Address, Test, Test2', $initlocation[0]);
-        $this->assertNotEquals($inituids[0], $inituids[1]);
+        // Checking that dates match for both events.
+        $this->assertTrue($this->ical_date_match($icals['original'][0], $session->sessiondates),
+            $errors['dates_dont_match']);
 
-        $initother = facetoface_get_ical_attachment(MDL_F2F_INVITE, $facetoface, $session, $student2);
-        $otheruids = $this->get_ical_values($initother->content, 'UID');
-        $otherseqs = $this->get_ical_values($initother->content, 'SEQUENCE');
-        $this->assertNotEquals($inituids[0], $otheruids[0]);
-        $this->assertNotEquals($inituids[0], $otheruids[1]);
-        $this->assertNotEquals($inituids[1], $otheruids[0]);
-        $this->assertNotEquals($inituids[1], $otheruids[1]);
+        $this->assertTrue($this->ical_date_match($icals['original'][1], $session->sessiondates),
+            $errors['dates_dont_match']);
 
-        $this->mock_status_change($student2->id, $session->id);
-        $cancelother = facetoface_get_ical_attachment(MDL_F2F_CANCEL, $facetoface, $session, $student2);
-        $cancelotheruids = $this->get_ical_values($cancelother->content, 'UID');
-        $cancelotherseqs = $this->get_ical_values($cancelother->content, 'SEQUENCE');
-        $cancelstatus = $this->get_ical_values($cancelother->content, "STATUS");
-        $this->assertEquals($cancelotheruids[0], $otheruids[0]);
-        $this->assertEquals($cancelotheruids[1], $otheruids[1]);
-        $this->assertEquals('CANCELLED', $cancelstatus[0]);
-        $this->assertEquals('CANCELLED', $cancelstatus[1]);
-        $this->assertGreaterThan($otherseqs[0], $cancelotherseqs[0]);
-        $this->assertGreaterThan($otherseqs[1], $cancelotherseqs[1]);
+        // UIDs are different.
+        $this->assertNotEquals($icals['original'][0]->uid[0], $icals['original'][0]->uid[1],
+            $errors['uids_match']);
 
-        $session->sessiondates[1]->id++;
-        $updatedate = facetoface_get_ical_attachment(MDL_F2F_INVITE, $facetoface, $session, $student1);
-        $updatedateuids = $this->get_ical_values($updatedate->content, 'UID');
-        $updatedateseqs = $this->get_ical_values($updatedate->content, 'SEQUENCE');
-        $this->assertEquals($updatedateuids[0], $inituids[0]);
-        $this->assertEquals($updatedateuids[1], $inituids[1]);
-        $this->assertGreaterThanOrEqual($initseqs[0], $updatedateseqs[0]); // This date was not changed.
-        $this->assertGreaterThan($initseqs[1], $updatedateseqs[1]);
+        $this->assertNotEquals($icals['original'][0]->uid[1], $icals['original'][0]->uid[2],
+            $errors['uids_match']);
 
-        $this->mock_status_change($student1->id, $session->id);
-        $updatestatus = facetoface_get_ical_attachment(MDL_F2F_INVITE, $facetoface, $session, $student1);
-        $updatestatusuids = $this->get_ical_values($updatestatus->content, 'UID');
-        $updatestatusseqs = $this->get_ical_values($updatestatus->content, 'SEQUENCE');
-        $this->assertEquals($updatestatusuids[0], $inituids[0]);
-        $this->assertEquals($updatestatusuids[1], $inituids[1]);
-        $this->assertGreaterThan($updatedateseqs[0], $updatestatusseqs[0]);
-        $this->assertGreaterThan($updatedateseqs[1], $updatestatusseqs[1]);
+        $this->assertNotEquals($icals['original'][0]->uid[0], $icals['original'][0]->uid[2],
+            $errors['uids_match']);
 
-        $olddates = $session->sessiondates;
+        // Location matches the generated room location.
+        $this->assertEquals('Site x 1\, Address, Test, Test2', $icals['original'][0]->location[0],
+            $errors['location_doesnt_match']);
+
+        // Need to cancel seminar date, in the middle!
+        facetoface_save_dates($session, [$session->sessiondates[0], $session->sessiondates[2]]);
+        $old = $session->sessiondates;
+        $session = facetoface_get_session($session->id);
+
+        $icals['session_date_removed'] = [
+            $this->dissect_ical(facetoface_generate_ical($seminar,
+                $session,
+                MDL_F2F_INVITE,
+                $students[0],
+                null,
+                $old)->content, ['location', 'uid', 'sequence', 'dtstart', 'dtend', 'status']),
+            $this->dissect_ical(facetoface_generate_ical($seminar,
+                $session,
+                MDL_F2F_INVITE,
+                $students[1],
+                null,
+                $old)->content, ['location', 'uid', 'sequence', 'dtstart', 'dtend', 'status']),
+        ];
+
+        // Will match old dates as it will include notification for a cancelled date.
+        $this->assertTrue($this->ical_date_match($icals['session_date_removed'][0], $old),
+            $errors['dates_dont_match']);
+
+        $this->assertTrue($this->ical_date_match($icals['session_date_removed'][1], $old),
+            $errors['dates_dont_match']);
+
+        // Must include ONE cancelled date.
+        $this->assertCount(1, $icals['session_date_removed'][0]->status,
+            $errors['cancelled_count_dont_match']);
+
+        // Match that uids are the same, however order is different as it first includes dates to create or
+        // update and then cancelled dates.
+        $this->assertEquals($icals['session_date_removed'][0]->uid[0], $icals['original'][0]->uid[0],
+            $errors['uids_dont_match']);
+        $this->assertEquals($icals['session_date_removed'][0]->uid[1], $icals['original'][0]->uid[2],
+            $errors['uids_dont_match']);
+        $this->assertEquals($icals['session_date_removed'][0]->uid[2], $icals['original'][0]->uid[1],
+            $errors['uids_dont_match']);
+
+        // Adding a date and removing a date and modifying a date.
+        $old = $session->sessiondates;
         array_shift($session->sessiondates);
-        $removedate = facetoface_get_ical_attachment(MDL_F2F_INVITE, $facetoface, $session, $student1, $olddates);
-        $removedateuids = $this->get_ical_values($removedate->content, 'UID');
-        $removedateseqs = $this->get_ical_values($removedate->content, 'SEQUENCE');
-        $removedatestatus = $this->get_ical_values($removedate->content, 'STATUS');
-        $this->assertEquals($removedateuids[0], $inituids[0]);
-        $this->assertEquals($removedateuids[1], $inituids[1]);
-        $this->assertEquals('CANCELLED', $removedatestatus[0]);
-        $this->assertArrayNotHasKey(1, $removedatestatus);
-        $this->assertGreaterThan($updatestatusseqs[0], $removedateseqs[0]);
-        $this->assertGreaterThanOrEqual($updatestatusseqs[1], $removedateseqs[1]);
+        facetoface_save_dates($session, array_merge($session->sessiondates, [
+            $added = $this->createSeminarDate(time() + YEARSECS, null, $room->id)
+        ]));
+        $session = facetoface_get_session($session->id);
 
-        $session->sessiondates[0]->id++;
-        $updateafter = facetoface_get_ical_attachment(MDL_F2F_INVITE, $facetoface, $session, $student1);
-        $updateafteruids = $this->get_ical_values($updateafter->content, 'UID');
-        $updateafterseqs = $this->get_ical_values($updateafter->content, 'SEQUENCE');
-        $this->assertEquals($updateafteruids[0], $inituids[0]);
-        $this->assertArrayNotHasKey(1, $updateafteruids);
-        $this->assertGreaterThan($removedateseqs[0], $updateafterseqs[0]);
-        $this->assertArrayNotHasKey(1, $updateafterseqs);
+        $icals['session_date_removed_and_added'] = [
+            $this->dissect_ical(facetoface_generate_ical($seminar,
+                $session,
+                MDL_F2F_INVITE,
+                $students[0],
+                null,
+                $old)->content, ['location', 'uid', 'sequence', 'dtstart', 'dtend', 'status']),
+            $this->dissect_ical(facetoface_generate_ical($seminar,
+                $session,
+                MDL_F2F_INVITE,
+                $students[1],
+                null,
+                $old)->content, ['location', 'uid', 'sequence', 'dtstart', 'dtend', 'status']),
+        ];
+
+        // Will match old dates and a new date as it will include notification for a cancelled and added dates.
+        $this->assertTrue($this->ical_date_match($icals['session_date_removed_and_added'][0],
+            array_merge($old, [$added])), $errors['dates_dont_match']);
+
+        $this->assertTrue($this->ical_date_match($icals['session_date_removed_and_added'][1],
+            array_merge($old, [$added])), $errors['dates_dont_match']);
+
+        // Must include ONE cancelled date.
+        $this->assertCount(1, $icals['session_date_removed_and_added'][0]->status,
+            $errors['cancelled_count_dont_match']);
+
+        // Match that uids are the same, however order is different as it first includes dates to create or
+        // update and then cancelled dates. UID[1] should be unique and not match anything before.
+        $this->assertEquals($icals['session_date_removed_and_added'][0]->uid[0],
+            $icals['session_date_removed'][0]->uid[1], $errors['uids_dont_match']);
+
+        $this->assertEquals($icals['session_date_removed_and_added'][0]->uid[2],
+            $icals['session_date_removed'][0]->uid[0], $errors['uids_dont_match']);
+
+        // Location matches the generated room location.
+        $this->assertEquals('Site x 1\, Address, Test, Test2',
+            $icals['session_date_removed_and_added'][0]->location[2], $errors['location_doesnt_match']);
+
+        // User 1 cancelled.
+        $this->mock_status_change($students[0]->id, $session->id);
+
+        $icals['first_user_status_changed'] = [
+            $this->dissect_ical(facetoface_generate_ical($seminar,
+                $session,
+                MDL_F2F_CANCEL,
+                $students[0])->content, ['location', 'uid', 'sequence', 'dtstart', 'dtend', 'status']),
+            $this->dissect_ical(facetoface_generate_ical($seminar,
+                $session,
+                MDL_F2F_INVITE,
+                $students[1])->content, ['location', 'uid', 'sequence', 'dtstart', 'dtend']),
+        ];
+
+        // Will match session dates as the dates shouldn't have changed.
+        $this->assertTrue($this->ical_date_match($icals['first_user_status_changed'][0],
+            $session->sessiondates), $errors['dates_dont_match']);
+
+        $this->assertTrue($this->ical_date_match($icals['first_user_status_changed'][1],
+            $session->sessiondates), $errors['dates_dont_match']);
+
+        // Uids shoud stay the same.
+        $this->assertEquals($icals['first_user_status_changed'][0]->uid[0],
+            $icals['session_date_removed_and_added'][0]->uid[0], $errors['uids_dont_match']);
+
+        $this->assertEquals($icals['first_user_status_changed'][0]->uid[1],
+            $icals['session_date_removed_and_added'][0]->uid[1], $errors['uids_dont_match']);
+
+        // Both dates must be cancelled.
+        $this->assertCount(2, $icals['first_user_status_changed'][0]->status,
+            $errors['cancelled_count_dont_match']);
+
+        $this->resetAfterTest();
     }
 
     /**
      * Test sending notifications when "facetoface_oneemailperday" is enabled
      */
     public function test_oneperday_ical_generation() {
-        global $DB;
-        $this->resetAfterTest(true);
-        $this->setAdminUser();
+        // Reusable human error messages.
+        $errors = [
+            'dates_dont_match' => 'Session dates don\'t match to the iCal generated dates.',
+            'uids_dont_match' => 'iCal UID doesn\'t match to an earlier generated iCal for this date',
+            'uids_match' => 'Two different dates have matching UIDs',
+            'cancelled_count_dont_match' => 'The number of cancelled dates doesn\'t match',
+        ];
 
+        $this->setAdminUser();
         set_config('facetoface_oneemailperday', true);
 
-        $student1 = $this->getDataGenerator()->create_user();
+        $this->enrolUser($student = $this->createUser(),
+                         $course = $this->createCourse());
 
-        $course = $this->getDataGenerator()->create_course();
-        $studentrole = $DB->get_record('role', array('shortname' => 'student'));
-        $this->getDataGenerator()->enrol_user($student1->id, $course->id, $studentrole->id);
+        $seminar = $this->createSeminar($course);
 
-        /** @var mod_facetoface_generator $facetofacegenerator */
-        $facetofacegenerator = $this->getDataGenerator()->get_plugin_generator('mod_facetoface');
-
-        $facetofacedata = array(
-            'name' => 'facetoface',
-            'course' => $course->id
-        );
-        $facetoface = $facetofacegenerator->create_instance($facetofacedata);
-
-        $date1 = new stdClass();
-        $date1->sessiontimezone = 'Pacific/Auckland';
-        $date1->timestart = time() + WEEKSECS;
-        $date1->timefinish = time() + WEEKSECS + 3600;
-
-        $date2 = new stdClass();
-        $date2->sessiontimezone = 'Pacific/Auckland';
-        $date2->timestart = time() + WEEKSECS + DAYSECS;
-        $date2->timefinish = time() + WEEKSECS + DAYSECS + 3600;
-
-        $sessiondates = array($date1, $date2);
-
-        $sessiondata = array(
-            'facetoface' => $facetoface->id,
-            'capacity' => 3,
-            'allowoverbook' => 1,
-            'sessiondates' => $sessiondates,
-            'datetimeknown' => '1',
-            'mincapacity' => '1',
-            'cutoff' => DAYSECS - 60
-        );
-
-        $session = facetoface_get_session($facetofacegenerator->add_session($sessiondata));
-        $sessionolddates = facetoface_get_session_dates($session->id);
+        $session = $this->addSeminarSession($seminar, $dates = [
+            $this->createSeminarDate(time() + WEEKSECS),
+            $this->createSeminarDate(time() + WEEKSECS + DAYSECS),
+        ]);
 
         $emailsink = $this->redirectMessages();
-        facetoface_user_import($course, $facetoface, $session, $student1->id);
+        facetoface_user_import($course, $seminar, $session, $student->id);
         $emailsink->close();
 
         $preemails = $emailsink->get_messages();
+
         foreach($preemails as $preemail) {
             $this->assertContains("This is to confirm that you are now booked", $preemail->fullmessagehtml);
         }
 
-        // Get ical specifics.
-        $before0 = facetoface_get_ical_attachment(MDL_F2F_INVITE, $facetoface, $session, $student1, array(), 0);
-        $before1 = facetoface_get_ical_attachment(MDL_F2F_INVITE, $facetoface, $session, $student1, array(), 1);
+        $icals = [
+            'original' => [
+                $this->dissect_ical(facetoface_generate_ical($seminar, $session, MDL_F2F_INVITE,
+                    $student, $session->sessiondates[0])->content,
+                    ['location', 'uid', 'sequence', 'dtstart', 'dtend']),
+                $this->dissect_ical(facetoface_generate_ical($seminar, $session, MDL_F2F_INVITE,
+                    $student, $session->sessiondates[1])->content,
+                    ['location', 'uid', 'sequence', 'dtstart', 'dtend']),
+            ]
+        ];
 
-        $date1edit = new stdClass();
-        $date1edit->sessiontimezone = 'Pacific/Auckland';
-        $date1edit->timestart = time() + 2 * WEEKSECS;
-        $date1edit->timefinish = time() + 2 * WEEKSECS + 3600;
+        // Dates match to seminar dates.
+        $this->assertTrue($this->ical_date_match($icals['original'][0], $session->sessiondates[0]),
+            $errors['dates_dont_match']);
+        $this->assertTrue($this->ical_date_match($icals['original'][1], $session->sessiondates[1]),
+            $errors['dates_dont_match']);
 
+        // Uids do not match.
+        $this->assertNotEquals($icals['original'][0]->uid[0], $icals['original'][1]->uid[0], $errors['uids_match']);
+
+        // Editing one date and cancelling the second one.
+        $dates = $session->sessiondates;
+        $new = [$this->createSeminarDate(time() + 2 * WEEKSECS)];
+
+        // Preserving the id of the edited date, otherwise it will be treated as a new date.
+        $new[0]->id = $dates[0]->id;
+        
         $emailsink = $this->redirectMessages();
-        // Change one date and cancel second.
-        facetoface_update_session($session, array($date1edit));
-        // Refresh session data.
+        facetoface_update_session($session, $new);
         $session = facetoface_get_session($session->id);
 
         // Send message.
-        facetoface_send_datetime_change_notice($facetoface, $session, $student1->id, $sessionolddates);
+        facetoface_send_datetime_change_notice($seminar, $session, $student->id, $dates);
         $emailsink->close();
-        $after0 = facetoface_get_ical_attachment(MDL_F2F_INVITE, $facetoface, $session, $student1, $sessionolddates, 0);
-        $after1 = facetoface_get_ical_attachment(MDL_F2F_INVITE, $facetoface, $session, $student1, $sessionolddates, 1);
+
+        $icals['date_edited_and_cancelled'] = [
+            $this->dissect_ical(facetoface_generate_ical($seminar, $session, MDL_F2F_INVITE,
+                $student, $new[0])->content,
+                ['location', 'uid', 'sequence', 'dtstart', 'dtend']),
+            $this->dissect_ical(facetoface_generate_ical($seminar, $session, MDL_F2F_CANCEL,
+                $student, $dates[1])->content,
+                ['location', 'uid', 'sequence', 'dtstart', 'dtend', 'status']),
+        ];
+
+        // Dates match to seminar dates.
+        $this->assertTrue($this->ical_date_match($icals['date_edited_and_cancelled'][0], $new[0]),
+            $errors['dates_dont_match']);
+        $this->assertTrue($this->ical_date_match($icals['date_edited_and_cancelled'][1], $dates[1]),
+            $errors['dates_dont_match']);
+
+        // Checking that UIDs haven't changed.
+        $this->assertEquals($icals['original'][0]->uid[0],$icals['date_edited_and_cancelled'][0]->uid[0],
+            $errors['uids_dont_match']);
+        $this->assertEquals($icals['original'][1]->uid[0],$icals['date_edited_and_cancelled'][1]->uid[0],
+            $errors['uids_dont_match']);
+
+        // Second date actually has been cancelled.
+        $this->assertCount(1, $icals['date_edited_and_cancelled'][1]->status,
+            $errors['cancelled_count_dont_match']);
 
         $emails = $emailsink->get_messages();
         $emailsink->close();
         $this->assertContains("The session you are booked on (or on the waitlist) has changed:", $emails[0]->fullmessagehtml);
         $this->assertContains("BOOKING CANCELLED", $emails[1]->fullmessagehtml);
 
-        // Check ical specifics.
-        $before0ids = $this->get_ical_values($before0->content, 'UID');
-        $before0seqs = $this->get_ical_values($before0->content, 'SEQUENCE');
-        $before1ids = $this->get_ical_values($before1->content, 'UID');
-        $before1seqs = $this->get_ical_values($before1->content, 'SEQUENCE');
-        $after0ids = $this->get_ical_values($after0->content, 'UID');
-        $after0seqs = $this->get_ical_values($after0->content, 'SEQUENCE');
-        $after1ids = $this->get_ical_values($after1->content, 'UID');
-        $after1seqs = $this->get_ical_values($after1->content, 'SEQUENCE');
-
-        $this->assertCount(1, $before0ids);
-        $this->assertCount(1, $after0ids);
-        $this->assertCount(1, $before0seqs);
-        $this->assertCount(1, $after0seqs);
-        $this->assertCount(1, $before1ids);
-        $this->assertCount(1, $after1ids);
-        $this->assertCount(1, $before1seqs);
-        $this->assertCount(1, $after1seqs);
-        $this->assertEquals($before0ids[0], $after0ids[0]);
-        $this->assertEquals($before1ids[0], $after1ids[0]);
-        $this->assertGreaterThanOrEqual($before0seqs[0], $after0seqs[0]);
-        $this->assertGreaterThanOrEqual($before0seqs[0], $after1seqs[0]);
-
         // Now test cancelling the session.
         $emailsink = $this->redirectMessages();
-        $result = facetoface_cancel_session(facetoface_get_session($session->id), null);
+        $result = facetoface_cancel_session($session = facetoface_get_session($session->id), null);
         $this->assertTrue($result);
 
-        $messages = $emailsink->get_messages();
-        $this->assertCount(1, $messages);
-        $message = reset($messages);
+        // One email has been sent and it contains all the required data.
+        $this->assertCount(1, $messages = $emailsink->get_messages());
+        $message = $messages[0];
+
         $this->assertContains('Seminar event cancellation', $message->subject);
-        $this->assertContains('This is to advise that the following session has been cancelled', $message->fullmessagehtml);
+        $this->assertContains('This is to advise that the following session has been cancelled',
+            $message->fullmessagehtml);
         $this->assertContains('Course:   Test course 1', $message->fullmessagehtml);
         $this->assertContains('Seminar:   facetoface', $message->fullmessagehtml);
         $this->assertContains('Date(s) and location(s):', $message->fullmessagehtml);
 
         $session = facetoface_get_session($session->id);
         $this->assertEquals(1, $session->cancelledstatus);
+
+        $this->resetAfterTest(true);
     }
 
     /**
@@ -437,6 +677,102 @@ class mod_facetoface_notifications_testcase extends advanced_testcase {
             }
         }
         return $result;
+    }
+
+    /**
+     * Search for a matching date from an ical file in the array of seminar event dates.
+     *
+     * @param \stdClass $needle dissected ical \stdClass
+     * @param array|\stdClass $haystack seminar event date(s)
+     * @return bool
+     */
+    private function ical_date_match($needle, $haystack) {
+
+        // Normalizing needle(s).
+        if (!isset($needle->dtstart) || !isset($needle->dtend)
+            || count($needle->dtstart) != count($needle->dtend)) {
+            return false;
+        }
+
+        $dates = [];
+
+        for ($i = 0; $i < count($needle->dtstart); $i++) {
+            $dates[] = (object) [
+                'dtstart' => $needle->dtstart[$i],
+                'dtend' => $needle->dtend[$i],
+            ];
+        }
+
+        // Normalizing haystack.
+        $haystack = array_map(function($item) {
+            // We are expecting a seminar date to be passed here, so keys will be different.
+            return (object) [
+                'dtstart' => facetoface_ical_generate_timestamp($item->timestart),
+                'dtend' => facetoface_ical_generate_timestamp($item->timefinish),
+            ];
+        }, !is_array($haystack) ? [$haystack] : $haystack);
+
+        // Looking that all dates present in the haystack.
+        $dates = array_filter($dates, function ($date) use (&$haystack) {
+            foreach ($haystack as $key => $piece) {
+                if ($date->dtstart == $piece->dtstart &&
+                    $date->dtend == $piece->dtend) {
+                    unset($haystack[$key]);
+                    return false;
+                }
+            }
+
+            return true;
+        });
+
+        // Return true only if we matched all needles to the haystack and there is no more needles (dates) left there.
+        return !!(empty($dates) & empty($haystack));
+    }
+
+    /**
+     * Convert iCal file to a nice readable object of arrays.
+     *
+     * @param string $ical iCal file content
+     * @param array $filter filter returned iCal items
+     * @param bool $asobj return as object with lower-cased properties or as array of arrays
+     * @return array|\stdClass
+     */
+    private function dissect_ical($ical, $filter = [], $asobj = true) {
+        $keys = [
+            'BEGIN',
+            'METHOD',
+            'PRODID',
+            'VERSION',
+            'UID',
+            'SEQUENCE',
+            'LOCATION',
+            'STATUS',
+            'SUMMARY',
+            'DESCRIPTION',
+            'CLASS',
+            'LAST-MODIFIED',
+            'DTSTAMP',
+            'DTSTART',
+            'DTEND',
+            'CATEGORIES',
+            'END',
+        ];
+
+        if (!empty($filter)) {
+            $filter = array_map('strtoupper', $filter);
+            $keys = array_filter($keys, function($item) use ($filter) {
+                return in_array($item, $filter);
+            });
+        }
+
+        // Converting the keys array to the format [$key[0]=>$key[0], ...]
+        $keys = array_combine($asobj ? array_map('strtolower', $keys) : $keys, $keys);
+
+        $keys = array_map(function($item) use ($ical) {
+            return $this->get_ical_values($ical, $item);
+        }, $keys);
+
+        return $asobj ? (object) $keys : $keys;
     }
 
     /**

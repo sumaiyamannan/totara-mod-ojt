@@ -228,7 +228,12 @@ if (!isset($session)) {
                 $date->sessiontimezone = core_date::normalise_timezone($date->sessiontimezone);
             }
 
-            $sessiondata->$idfield = $date->id;
+            // If cloning session dates do not assign old IDS from the database, otherwise they will be filtered out
+            // during saving to the database.
+            if (!$c) {
+                $sessiondata->$idfield = $date->id;
+            }
+            
             $sessiondata->$timestartfield = $date->timestart;
             $sessiondata->$timefinishfield = $date->timefinish;
             $sessiondata->$timezonefield = $date->sessiontimezone;
@@ -282,6 +287,7 @@ if ($fromform = $mform->get_data()) { // Form submitted
         }
         if (!empty($fromform->timestart[$i]) && !empty($fromform->timefinish[$i])) {
             $date = new stdClass();
+            $date->id = isset($fromform->sessiondateid[$i]) ? $fromform->sessiondateid[$i] : null;
             $date->sessiontimezone = $fromform->sessiontimezone[$i];
             $date->timestart = $fromform->timestart[$i];
             $date->timefinish = $fromform->timefinish[$i];
@@ -386,7 +392,7 @@ if ($fromform = $mform->get_data()) { // Form submitted
 
     if ($update) {
         // Send any necessary datetime change notifications but only if date/time is known.
-        if (!empty($sessiondates) && facetoface_session_dates_check($olddates, $sessiondates)) {
+        if ((!empty($sessiondates) || !empty($olddates)) && facetoface_session_dates_check($olddates, $sessiondates)) {
             $attendees = facetoface_get_attendees($session->id);
             foreach ($attendees as $user) {
                 // Checking sign-up status here to determine whether to include iCal attachment or not.
