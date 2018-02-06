@@ -811,6 +811,15 @@ if (AJAX_SCRIPT) {
     @header('Content-type: text/html; charset=utf-8');
 }
 
+// Totara: Block or restrict referrers if needed.
+if (!CLI_SCRIPT) {
+    $referrerpolicy = get_referrer_policy();
+    if ($referrerpolicy !== null) {
+        @header('Referrer-Policy: ' . $referrerpolicy);
+    }
+    unset($referrerpolicy);
+}
+
 // Totara: force https-only-access if requested, note you cannot easily disable this setting later!
 if (!empty($CFG->stricttransportsecurity)) {
     if (strpos($CFG->wwwroot, 'https:') === 0) {

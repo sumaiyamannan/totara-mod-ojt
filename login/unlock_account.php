@@ -22,6 +22,8 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+define('NO_HTTP_REFERER', true);
+
 require('../config.php');
 require_once($CFG->libdir.'/authlib.php');
 

@@ -234,6 +234,38 @@ function get_local_referer($stripquery = true) {
 }
 
 /**
+ * Returns referrer policy for the current script.
+ *
+ * NOTE: Unfortunately there are still some areas in Totara that rely on
+ *       local referrers, which means we cannot disable referrers everywhere
+ *       without minor loss of usability.
+ *
+ * @return string|null null means do not send policy to client
+ */
+function get_referrer_policy() {
+    global $CFG;
+
+    // Some browsers such Safari on iOS support referrer meta tag,
+    // but do not support the standard https://www.w3.org/TR/referrer-policy/ yet.
+    // Ideally they should at least fallback to no referrer when they do not understand the value,
+    // but that is not always the case such as MS Edge.
+
+    if (isset($_GET['sesskey']) or (defined('NO_HTTP_REFERER') and NO_HTTP_REFERER)) {
+        if (core_useragent::is_ie()) {
+            // MS will not fix IE.
+            return 'never';
+        }
+        return 'no-referrer';
+    }
+
+    if (!empty($CFG->securereferrers)) {
+        return 'strict-origin-when-cross-origin';
+    }
+
+    return null;
+}
+
+/**
  * Class for creating and manipulating urls.
  *
  * It can be used in moodle pages where config.php has been included without any further includes.
