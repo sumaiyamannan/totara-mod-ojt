@@ -432,7 +432,8 @@ final class request {
         // It is safe to decode without checks here because the data is encoded via encode_signup_form_data() only.
         $profilefields = json_decode($record->profilefields);
         foreach ((array)$profilefields as $k => $v) {
-            $data->$k = $v;
+            // Convert object to array to support textarea user profile fields.
+            $data->$k = is_object($v) ? (array)$v : $v;
         }
 
         return $data;
