@@ -23,21 +23,8 @@
  */
 
 class customfield_menu extends customfield_base {
-
-    /**
-     * Options as they defined in database
-     * @var string[] $options
-     */
-    public $options;
-
-    /**
-     * Options to be used in form select element (formatted)
-     * @var string[] $formoptions
-     */
-    public $formoptions;
-
-    /** @var int $datakey */
-    public $datakey;
+    var $options;
+    var $datakey;
 
     /**
      * Get the choose option for the menu of choices.
@@ -57,18 +44,13 @@ class customfield_menu extends customfield_base {
         // First call parent constructor.
         parent::__construct($fieldid, $itemid, $prefix, $tableprefix, $addsuffix);
 
-        // Param 1 for menu type is the options.
-        if (isset($this->field->param1)) {
-            $this->options = explode("\n", $this->field->param1);
-        } else {
-            $this->options = array();
-        }
-
+        /// Param 1 for menu type is the options.
+        $options = explode("\n", $this->field->param1);
+        $this->options = array();
         // Include the choose option at the beginning.
-        $this->formoptions[''] = $this->get_choose_option();
-        foreach($this->options as $key => $option) {
-            $this->formoptions[$key] = format_string($option, true, ['context' => context_system::instance()]);// Multilang formatting.
-            $this->options[$key] = $option;
+        $this->options[''] = $this->get_choose_option();
+        foreach($options as $key => $option) {
+            $this->options[$key] = format_string($option);// Multilang formatting.
         }
 
         // Set the data key.
@@ -86,7 +68,7 @@ class customfield_menu extends customfield_base {
      * @param   object   moodleform instance
      */
     function edit_field_add(&$mform) {
-        $mform->addElement('select', $this->inputname, format_string($this->field->fullname), $this->formoptions);
+        $mform->addElement('select', $this->inputname, format_string($this->field->fullname), $this->options);
     }
 
     /**
@@ -186,7 +168,7 @@ class customfield_menu extends customfield_base {
 
         $value = core_text::strtolower($value);
         $options = explode("\n", core_text::strtolower($this->field->param1));
-        foreach ($options as $key => $option) {
+        foreach($options as $key => $option) {
             if ($option == $value) {
                 $value = (string)$key;
                 break;
@@ -195,14 +177,5 @@ class customfield_menu extends customfield_base {
         $syncitem->{$this->inputname} = $value;
 
         return $syncitem;
-    }
-    /**
-     * Display the data for this field
-     * @param $data
-     * @param array $extradata
-     * @return string
-     */
-    public static function display_item_data($data, $extradata = array()) {
-        return format_string($data, true, ['context' => context_system::instance()]);
     }
 }

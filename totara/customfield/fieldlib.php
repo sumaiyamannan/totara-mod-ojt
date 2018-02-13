@@ -757,9 +757,7 @@ function customfield_get_data($item, $tableprefix, $prefix, $indexfullname = tru
                 $data = json_decode($data);
                 $data = \customfield_location::display_item_data($data, $extradata);
                 break;
-            case 'menu':
-                require_once($CFG->dirroot.'/totara/customfield/field/menu/field.class.php');
-                $data = \customfield_menu::display_item_data($data);
+
         }
         $index = ($indexfullname) ? 'fullname' : 'shortname';
         $out[s($field->{$index})] = $data;
