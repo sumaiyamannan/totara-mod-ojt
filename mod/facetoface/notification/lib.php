@@ -1164,6 +1164,44 @@ class facetoface_notification extends data_object {
 }
 
 /**
+ * Check whether seminar notification is active
+ *
+ * @param int|\stdClass $notification Notification object or condition type
+ * @param int|\stdClass|null $f2f Required if notification passed as condition type
+ * @param bool $checkglobal A flag to check whether all notifications are disabled
+ * @return bool
+ * @throws coding_exception
+ */
+function facetoface_is_notification_active($notification, $f2f = null, $checkglobal = false) {
+    global $DB, $CFG;
+
+    if ($checkglobal && !empty($CFG->facetoface_notificationdisable)) {
+        return false;
+    }
+
+    if (!($notification instanceof facetoface_notification)) {
+
+        // If only notification type passed to the function, fetching it from the database.
+        // Facetoface object is expected here we can not enforce it.
+        if (is_object($f2f)) {
+            $f2f = $f2f->id;
+        }
+
+        if (!is_int($notification) && !(is_string($notification))) {
+            throw new coding_exception('$notification is expected to be an instance of ' .
+                '"facetoface_notification" or int, "' . gettype($notification) . '" is given.');
+        }
+
+        return !!$DB->get_field('facetoface_notification', 'status', [
+            'facetofaceid' => $f2f,
+            'conditiontype' => intval($notification)
+        ]);
+    }
+
+    return !!$notification->status;
+}
+
+/**
  * Gets the session date for the specified session. THIS FUNCTION IS NOT PUBLIC
  * AND IS MEANT FOR USE WITHIN THIS FILE ONLY.
  *
@@ -2498,6 +2536,7 @@ function facetoface_get_default_notifications($facetofaceid) {
         $registrationclosure->managerprefix = $template->managerprefix;
         $registrationclosure->conditiontype = MDL_F2F_CONDITION_BEFORE_REGISTRATION_ENDS;
         $registrationclosure->ccmanager = 1;
+        $registrationclosure->status = $template->status;
         $registrationclosure->requested = 1;
         $registrationclosure->templateid = $template->id;
         $notifications[MDL_F2F_CONDITION_BEFORE_REGISTRATION_ENDS] = $registrationclosure;

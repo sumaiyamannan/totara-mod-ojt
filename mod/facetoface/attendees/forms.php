@@ -40,11 +40,16 @@ class addconfirm_form extends moodleform {
         $mform->addElement('hidden', 'ignoreconflicts', $this->_customdata['ignoreconflicts']);
         $mform->setType('ignoreconflicts', PARAM_BOOL);
 
-        $mform->addElement('header', 'notifications', get_string('notifications', 'facetoface'));
-        $mform->addElement('advcheckbox', 'notifyuser', '', get_string('notifynewuser', 'facetoface'));
-        $mform->setDefault('notifyuser', 1);
-        $mform->addElement('advcheckbox', 'notifymanager', '', get_string('notifynewusermanager', 'facetoface'));
-        $mform->setDefault('notifymanager', 1);
+        // Only display notification checkboxes if they're active.
+        if ($this->_customdata['is_notification_active']) {
+            $mform->addElement('header', 'notifications', get_string('notifications', 'facetoface'));
+
+            $mform->addElement('advcheckbox', 'notifyuser', '', get_string('notifynewuser', 'facetoface'));
+            $mform->setDefault('notifyuser', 1);
+
+            $mform->addElement('advcheckbox', 'notifymanager', '', get_string('notifynewusermanager', 'facetoface'));
+            $mform->setDefault('notifymanager', 1);
+        }
 
         if ($this->_customdata['isapprovalrequired']) {
             $mform->addElement('header', 'bookingoptions', get_string('bookingoptions', 'facetoface'));
@@ -101,11 +106,16 @@ class removeconfirm_form extends moodleform {
         $mform->addElement('hidden', 'listid', $this->_customdata['listid']);
         $mform->setType('listid', PARAM_ALPHANUM);
 
-        $mform->addElement('header', 'notifications', get_string('notifications', 'facetoface'));
-        $mform->addElement('advcheckbox', 'notifyuser', '', get_string('notifycancelleduser', 'facetoface'));
-        $mform->setDefault('notifyuser', 1);
-        $mform->addElement('advcheckbox', 'notifymanager', '', get_string('notifycancelledusermanager', 'facetoface'));
-        $mform->setDefault('notifymanager', 1);
+        // Only display notification checkboxes if they're active
+        if ($this->_customdata['is_notification_active']) {
+            $mform->addElement('header', 'notifications', get_string('notifications', 'facetoface'));
+
+            $mform->addElement('advcheckbox', 'notifyuser', '', get_string('notifycancelleduser', 'facetoface'));
+            $mform->setDefault('notifyuser', 1);
+
+            $mform->addElement('advcheckbox', 'notifymanager', '', get_string('notifycancelledusermanager', 'facetoface'));
+            $mform->setDefault('notifymanager', 1);
+        }
 
         // Custom fields.
         if ($this->_customdata['enablecustomfields']) {

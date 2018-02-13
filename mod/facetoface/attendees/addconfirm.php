@@ -22,6 +22,7 @@
  */
 require_once(dirname(dirname(dirname(dirname(__FILE__)))) . '/config.php');
 require_once($CFG->dirroot.'/mod/facetoface/lib.php');
+require_once($CFG->dirroot.'/mod/facetoface/notification/lib.php');
 require_once($CFG->dirroot.'/mod/facetoface/attendees/forms.php');
 
 // The number of users that should be shown per page.
@@ -55,11 +56,14 @@ if (empty($userlist)) {
 }
 
 $mform = new addconfirm_form(null, [
-    's' => $s,
-    'listid' => $listid,
-    'isapprovalrequired' => $isapprovalrequired = facetoface_approval_required($facetoface),
-    'enablecustomfields' => !$list->has_user_data(),
-    'ignoreconflicts' => $ignoreconflicts]);
+        's' => $s,
+        'listid' => $listid,
+        'isapprovalrequired' => $isapprovalrequired = facetoface_approval_required($facetoface),
+        'enablecustomfields' => !$list->has_user_data(),
+        'ignoreconflicts' => $ignoreconflicts,
+        'is_notification_active' => facetoface_is_notification_active(MDL_F2F_CONDITION_BOOKING_CONFIRMATION,
+            $facetoface, true)
+]);
 
 $returnurl = new moodle_url('/mod/facetoface/attendees.php', array('s' => $s, 'backtoallsessions' => 1));
 if ($mform->is_cancelled()) {
@@ -195,10 +199,11 @@ echo $f2frenderer->render($paging);
 echo $f2frenderer->print_userlist_table($users, $list, $session->id, $jaselector);
 echo $f2frenderer->render($paging);
 
-echo html_writer::empty_tag('br');
+$link = html_writer::link($list->get_returnurl(), get_string('changeselectedusers', 'facetoface'), [
+    'class'=>'btn btn-default'
+]);
 
-$returnurl = $list->get_returnurl();
-echo html_writer::link($returnurl, get_string('changeselectedusers', 'facetoface'), array('class'=>'btn btn-default'));
+echo html_writer::div($link, 'form-group');
 $mform->display();
 
 echo $OUTPUT->footer();
