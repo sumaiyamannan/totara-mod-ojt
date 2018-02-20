@@ -346,33 +346,34 @@ NS._collapse_expand_all = function(e) {
 NS.expand_all = function(ancestor) {
     var finalexpansions = [];
 
-    var query = {
-        viewType: window.location.search.substr(1)
-    };
+    YUI().use('querystring-parse', function(Y) {
 
-    if (!query.viewType) {
-        query.viewType = 'program';
-    }
+        var query = Y.QueryString.parse(window.location.search.substr(1));
 
-    ancestor.all(SELECTORS.CATEGORYWITHCOLLAPSEDUNLOADEDCHILDREN).each(function(categorynode) {
-        var categoryid = categorynode.getData('categoryid');
-        var depth = categorynode.getData('depth');
-        if (typeof categoryid === "undefined" || typeof depth === "undefined") {
-            return;
+        if (!query.viewtype) {
+            query.viewtype = 'program';
         }
 
-        this._toggle_generic_expansion({
-            parentnode: categorynode,
-            childnode: categorynode.one(SELECTORS.CONTENTNODE),
-            spinnerhandle: SELECTORS.CATEGORYSPINNERLOCATION,
-            data: {
-                id: categoryid,
-                depth: depth,
-                type: TYPE_CATEGORY,
-                categorytype: query.viewType
+        ancestor.all(SELECTORS.CATEGORYWITHCOLLAPSEDUNLOADEDCHILDREN).each(function(categorynode) {
+            var categoryid = categorynode.getData('categoryid');
+            var depth = categorynode.getData('depth');
+            if (typeof categoryid === "undefined" || typeof depth === "undefined") {
+                return;
             }
-        });
-    }, this);
+
+            this._toggle_generic_expansion({
+                parentnode: categorynode,
+                childnode: categorynode.one(SELECTORS.CONTENTNODE),
+                spinnerhandle: SELECTORS.CATEGORYSPINNERLOCATION,
+                data: {
+                    id: categoryid,
+                    depth: depth,
+                    type: TYPE_CATEGORY,
+                    categorytype: query.viewtype
+                }
+            });
+        }, NS);
+    });
 
     ancestor.all(SELECTORS.CATEGORYWITHCOLLAPSEDLOADEDCHILDREN)
         .each(function(c) {
