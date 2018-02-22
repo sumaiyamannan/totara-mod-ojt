@@ -49,14 +49,15 @@ class redissentinel extends redis {
         if (isset($CFG->session_redissentinel_master_group)) {
             $this->master_group = $CFG->session_redissentinel_master_group;
         }
+    }
 
+    public function init () {
         $sentinel = new \sentinel($this->hosts);
-
         $master = $sentinel->get_master_addr($this->master_group);
-
         if (!empty($master)) {
             $this->host = $master->ip;
             $this->port = $master->port;
         }
+        parent::init();
     }
 }
