@@ -2,6 +2,9 @@ Description of dompdf 0.6.1 library import into Moodle.
 If this file doesn't contain all of the changes, the original version is found ong github at:
 https://github.com/dompdf/dompdf/tree/v0.6.1
 
+2018/02/23
+* TL-16956 Prevent access to load_font.php via web requests.
+
 2013/08/22
 REMOVED:
 - www/ folder (configuration utility)

@@ -22,6 +22,8 @@
  * @subpackage build
  */
 
+define('CLI_SCRIPT', true);
+
 require_once(dirname(dirname(__FILE__)).'/config.php');
 
 // Check for missing lang strings by parsing the code for calls to get_string,

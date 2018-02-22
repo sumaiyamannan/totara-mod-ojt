@@ -8,6 +8,11 @@
  * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
  */
 
+// TOTARA: extra execution prevention - we can not just require config.php here.
+if (isset($_SERVER['REMOTE_ADDR'])) {
+    exit(1); // Exit with a failure, web request!
+}
+
 require_once "dompdf_config.inc.php";
 
 /**
