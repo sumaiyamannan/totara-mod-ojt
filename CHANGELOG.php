@@ -3,6 +3,217 @@
 
 Totara Learn Changelog
 
+Release 9.16 (28th February 2018):
+==================================
+
+
+Security issues:
+
+    TL-16789       Added output filtering for event names within the calendar popup
+
+                   Previously event names when displayed within the calendar popup were not
+                   being cleaned accurately.
+                   They are now cleaned consistently and accurately before being output.
+
+    TL-16814       Fixed a typo in Moodle capability definitions that was leading to risks not being correctly registered
+
+                   A typo had been introduced in 8 core capabilities that meant that the risks
+                   that wanted to register were not correctly registered.
+                   These capabilities may have been assigned to roles in the system without
+                   the assigner being aware that there were risks associated with them.
+                   We recommend you review the following capabilities and confirm that you are
+                   happy with the roles that they have been assigned to:
+                   * moodle/user:managesyspages
+                   * moodle/user:manageblocks
+                   * moodle/user:manageownblocks
+                   * moodle/user:manageownfiles
+                   * moodle/user:ignoreuserquota
+                   * moodle/my:configsyspages
+                   * moodle/badges:manageownbadges
+                   * moodle/badges:viewotherbadges
+
+    TL-16841       Removed the ability to preview random group allocations within Courses
+
+                   This functionality relied on setting the seed used by rand functions within
+                   PHP.
+                   A consequence of which was that for short periods of time the seed used by
+                   PHP would not be randomly generated, but preset.
+                   This could be used to make it easier to guess the result of randomised
+                   operations within several PHP functions, including some functions used by
+                   cryptographic routines within PHP and Totara.
+                   The seed is no longer forced, and is now always randomly generated.
+
+    TL-16844       Improved security and privacy of HTTP referrers
+
+                   We have improved the existing "Secure referrers" setting to
+                   be compatible with browsers implementing the latest referrer policy
+                   recommendation from W3C. This setting improves user privacy by preventing
+                   external sites from tracking users via referrers.
+
+    TL-16859       Prevented sending emails to admin before IPN request is verified by Paypal
+
+                   The IPN endpoint for the Paypal enrolment method was sending an email to
+                   the site admin when the basic validation of the request parameters failed.
+                   An attacker could have used this to send potential malicious emails to the
+                   admin. With this patch an email is sent to the admin only after the
+                   successful verification of the IPN request data with Paypal. Additionally
+                   the script now validates if there's an active Paypal enrolment method for
+                   the given course.
+
+                   The check for a connection error of the verification request to Paypal has
+                   been fixed. Now the CURL error of the last request stored in the CURL
+                   object is used instead of the return value of the request method which
+                   always returns either the response or an error.
+
+    TL-16956       Added additional checks to CLI scripts to ensure that they can not be accessed via web requests
+
+                   A small number of scripts designed to be run via CLI were found not to be
+                   adequately checking that the script was truly being executed from the
+                   command line.
+                   All CLI scripts have been reviewed, and those found to be missing the
+                   required checks have been updated.
+
+Performance improvements:
+
+    TL-16189       Moved audience learning plan creation from immediate execution onto adhoc task.
+
+                   Before this change, when learning plans were created via an audience, they
+                   would be created immediately. This change moves the plan creation to an
+                   adhoc task that is executed on the next cron run. This reduces any risk of
+                   database problems and the task failing.
+
+    TL-16314       Wrapped the Report builder create cache query in a transaction to relax locks on tables during cache regeneration in MySQL
+
+                   Report Builder uses CREATE TABLE SELECT query to database in order to
+                   generate cache which might take long time to execute for big data sets.
+
+                   In MySQL this query by default is executed in REPEATABLE READ isolation
+                   level and might lock certain tables included in the query. This leads to
+                   reduced performance, timeouts, and deadlocks of other areas that use same
+                   tables.
+
+                   To improve performance and avoid deadlocks this query is now wrapped into
+                   transaction, which will set READ COMMITTED isolation level and relax locks
+                   during cache generation.
+
+                   This will have no effect in other database engines.
+
+Improvements:
+
+    TL-16764       Course activities and types are now in alphabetical order when using the enhanced catalog
+
+                   This also makes the sort order locale aware (so users using Spanish
+                   language will have a different order to those using English).
+
+                   This is a backport of TL-12741 which was included in the Totara Learn 10.0
+                   release.
+
+Bug fixes:
+
+    TL-10317       Fixed dialog JavaScript within the Element Library
+
+                   There was a JavaScript fault on the dialog page within the Element Library
+                   which stopped the dialogs used for testing purposes from opening.
+                   This has now been fixed.
+
+    TL-16499       Fixed name collision with form fields in Appraisals when there are multiple goal questions
+
+                   Added an extra parameter to the constructor of the customfield_base class
+                   which allows a custom suffix to be added along with the item id when the
+                   $suffix parameter is true. There is a default value for this parameter
+                   of an empty string so child classes will need to add this parameter to
+                   their constructors.
+
+                   The parameter has also been added to functions that make customfield_base
+                   objects. These are customfield_definition, customfield_load_data
+                   and customfield_save_data.
+
+    TL-16540       Fixed yes_or_no display function in Report Builder not handling null value correctly
+
+                   In the legacy version (rb_display_yes_or_no) nulls are handled by
+                   displaying an empty field, but in
+                   totara/reportbuilder/classes/rb/display/yes_or_no.php null values are
+                   displaying "No" as their output when it should be empty. This has been
+                   fixed.
+
+                   Please note that the filter behaves as expected and although null
+                   values were displaying 'No' they would have not matched the 'No' value in
+                   the filter.
+
+    TL-16592       Fixed typos in Seminar event minimum capacity help strings
+
+                   Previously the strings were pointing to an invalid location for the Seminar
+                   general settings.
+
+    TL-16662       Cleaned up orphaned data left after deleting empty course sets from within a Program or Certification
+
+                   The orphaned data happens when there are no orphaned program courses but
+                   there are orphaned program course sets.
+                   This is only known to affect sites running Totara Learn 2.7.3 or earlier.
+                   An upgrade step has been added to remove any orphaned records from the
+                   database.
+
+    TL-16673       Fixed error being thrown in Moodle course catalog when clicking "Expand all" with multiple layers of categories
+    TL-16741       Inputs are no longer shown for questions the user cannot provide answers for within Appraisals
+    TL-16742       Fixed a fatal error within the quiz module statistics report after a multiple answer multichoice question was deleted
+    TL-16748       Prevented users from signing up to a cancelled Seminar sessions by following the emailed direct link
+    TL-16749       Fixed a regression from TL-14803 to allow HTML in mod certificate custom text
+
+                   This patch fixes a regression caused by TL-14803 which affected the display
+                   of the custom text when used with multilang content in all versions back to
+                   2.7.  Data has not been affected with the regression. The change updates
+                   the use of format_string() function to format_text().
+
+    TL-16759       Enabled answers in Appraisals to display for roles that have no user associated with them or the user has been deleted
+
+                   In the populate_roles_element function in the appraisal_question class
+                   empty question roles are no longer excluded from the appraisal question
+                   role info.
+
+    TL-16761       Fixed Seminar notification templates remaining enabled at a the Seminar level after being disabled globally
+
+                   This patch includes a fix for a local Seminar event registration
+                   notification not being disabled after propagating global settings for it.
+
+                   It also includes the fix for a case when notification is disabled, but a
+                   user still sees checkboxes or dropdown prompting whether the notification
+                   should be sent.
+
+    TL-16776       Improved the display of the gradebook report in IE
+
+                   Previously column headers and users names were getting out of sync with
+                   their results in the gradebook with IE11. This is now fixed
+
+    TL-16791       Fixed Certificate generation when using Traditional Chinese (zh_tw)
+    TL-16798       Fixed a pagination error when searching rooms within a Seminar activity
+    TL-16799       Fixed exported ID in the Course Completion report
+
+                   Backported a fix applied to T10 and T11 that fixes an error with exports of
+                   the course completion report (Course administration > Reports > Course
+                   completion) and removes html tags from the output.
+
+    TL-16813       Grading by rubric now works when using the keyboard only
+    TL-16847       Fixed the 'Event cancelled' status not being displayed if the Seminar sign-up period is specified
+
+                   When viewing information related to an event in a Seminar that had sign-up
+                   period specified the column status was not being updated if the event was
+                   cancelled.
+
+                   "Event cancelled" status should have priority over any other event status.
+
+    TL-16955       Added a workaround for sqlsrv driver locking up during restore
+
+                   In rare cases during the restoration of a large course MSSQL, would end up
+                   in a locked state whilst waiting for two conflicting deadlocks.
+                   This occurred due to a table being both read-from and written-to within a
+                   single transaction.
+
+Contributions:
+
+    * Eugene Venter at Catalyst NZ - TL-16799
+    * Learning Pool - TL-16791
+
+
 Release 9.15 (18th January 2018):
 =================================
 
