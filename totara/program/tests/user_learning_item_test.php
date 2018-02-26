@@ -60,6 +60,7 @@ class totara_program_user_learning_item_testcase extends advanced_testcase {
         $this->course5 = $this->generator->create_course();
         $this->course6 = $this->generator->create_course();
         $this->course7 = $this->generator->create_course();
+        $this->course8 = $this->generator->create_course(array('audiencevisible'=>COHORT_VISIBLE_ENROLLED));
 
         // Create some programs.
         $this->program1 = $this->program_generator->create_program(array('fullname' => 'Program 1'));
@@ -619,6 +620,49 @@ class totara_program_user_learning_item_testcase extends advanced_testcase {
         $this->assertCount(2, $info->coursesets[1]->courses);
         $this->assertEquals($this->course2->fullname, $coursesets[1]->courses[0]->fullname);
         $this->assertEquals($this->course3->fullname, $coursesets[1]->courses[1]->fullname);
+    }
+
+    public function test_export_for_template_with_enabled_audience_visibility() {
+        global $CFG;
+        $CFG->audiencevisibility = 1 ;
+
+        $progcontent = new prog_content($this->program1->id);
+        $progcontent->add_set(CONTENTTYPE_MULTICOURSE);
+
+        $coursesets = $progcontent->get_course_sets();
+        $coursedata = new stdClass();
+        $coursedata->{$coursesets[0]->get_set_prefix() . 'courseid'} = $this->course8->id;
+        $progcontent->add_course(1, $coursedata);
+        $progcontent->save_content();
+
+        // Assign user to the program.
+        $this->program_generator->assign_program($this->program1->id, array($this->user1->id));
+        $program_item = \totara_program\user_learning\item::one($this->user1->id, $this->program1->id);
+
+        $info = $program_item->export_for_template();
+        $this->assertEquals($this->program1->id, $info->id);
+        $this->assertEquals($this->program1->fullname, $info->fullname);
+        $this->assertContains('totara/program/required.php', $info->coursesets[0]->courses[0]->url_view);
+    }
+
+    public function test_export_for_template_with_disabled_audience_visibility() {
+        $progcontent = new prog_content($this->program1->id);
+        $progcontent->add_set(CONTENTTYPE_MULTICOURSE);
+
+        $coursesets = $progcontent->get_course_sets();
+        $coursedata = new stdClass();
+        $coursedata->{$coursesets[0]->get_set_prefix() . 'courseid'} = $this->course8->id;
+        $progcontent->add_course(1, $coursedata);
+        $progcontent->save_content();
+
+        // Assign user to the program.
+        $this->program_generator->assign_program($this->program1->id, array($this->user1->id));
+        $program_item = \totara_program\user_learning\item::one($this->user1->id, $this->program1->id);
+
+        $info = $program_item->export_for_template();
+        $this->assertEquals($this->program1->id, $info->id);
+        $this->assertEquals($this->program1->fullname, $info->fullname);
+        $this->assertContains('course/view.php', $info->coursesets[0]->courses[0]->url_view);
     }
 
     function test_process_coursesets_1() {
