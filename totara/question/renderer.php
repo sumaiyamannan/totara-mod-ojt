@@ -128,7 +128,11 @@ class totara_question_renderer extends plugin_renderer_base {
             array('id' => $cssid_reviewitem)));
         $form->addElement('html', html_writer::div(html_writer::tag('h3', $title) . $extralinks, 'totara-question-review-item-title clearfix'));
 
-        $review->add_item_specific_edit_elements($form, $currentuseritems[0]);
+        if ($review->cananswer) {
+            $review->add_item_specific_edit_elements($form, $currentuseritems[0]);
+        } else {
+            $review->add_item_specific_edit_elements($form, $anyitem);
+        }
 
         // Prepare for multifield headers.
         $multifield = $review->param1;
