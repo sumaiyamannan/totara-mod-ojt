@@ -851,6 +851,7 @@ function facetoface_cancel_session($session, $fromform) {
 
     // List of users affected by cancellation.
     $notifyusers = array();
+    $notifytrainers = array();
 
     // Use transactions here, we need to make sure that all DB updates happen together.
     $trans = $DB->start_delegated_transaction();
@@ -879,7 +880,7 @@ function facetoface_cancel_session($session, $fromform) {
     facetoface_remove_all_calendar_entries($session);
 
     // Change all user sign-up statuses, the only exceptions are previously cancelled users and declined users.
-    $sql = "SELECT DISTINCT s.userid, s.id as signupid
+    $sql = "SELECT DISTINCT s.userid, s.id as signupid, ss.statuscode as signupstatus 
               FROM {facetoface_signups} s
               JOIN {facetoface_signups_status} ss ON ss.signupid = s.id
              WHERE s.sessionid = :sessionid AND
@@ -895,7 +896,7 @@ function facetoface_cancel_session($session, $fromform) {
     foreach ($signedupusers as $user) {
         // We record this change as being triggered by the current user.
         facetoface_update_signup_status($user->signupid, MDL_F2F_STATUS_SESSION_CANCELLED, $USER->id);
-        $notifyusers[$user->userid] = $user->userid;
+        $notifyusers[$user->userid] = $user;
     }
     $signedupusers->close();
 
@@ -911,13 +912,20 @@ function facetoface_cancel_session($session, $fromform) {
              WHERE sr.sessionid = :sessionid AND u.deleted = 0";
     $trainers = $DB->get_recordset_sql($sql, array('sessionid' => $session->id));
     foreach ($trainers as $trainer) {
-        $notifyusers[$trainer->userid] = $trainer->userid;
+        $notifytrainers[$trainer->userid] = $trainer;
     }
     $trainers->close();
 
     // Notify affected users.
-    foreach ($notifyusers as $userid) {
-        facetoface_send_cancellation_notice($facetoface, $session, $userid, MDL_F2F_CONDITION_SESSION_CANCELLATION);
+    foreach ($notifyusers as $id => $user) {
+        // Check if the user is waitlisted we should not attach an iCal.
+        $invite = $user->signupstatus != MDL_F2F_STATUS_WAITLISTED;
+        facetoface_send_cancellation_notice($facetoface, $session, $id, MDL_F2F_CONDITION_SESSION_CANCELLATION, $invite);
+    }
+
+    // Notify affected trainers.
+    foreach ($notifytrainers as $id => $trainer) {
+        facetoface_send_cancellation_notice($facetoface, $session, $id, MDL_F2F_CONDITION_SESSION_CANCELLATION);
     }
     // Notify managers who had reservations.
     facetoface_notify_reserved_session_deleted($facetoface, $session);

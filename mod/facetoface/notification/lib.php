@@ -1391,13 +1391,14 @@ function facetoface_send_oneperday_notice($facetoface, $session, $userid, $param
  * Send a confirmation email to the user and manager regarding the
  * cancellation
  *
- * @param class $facetoface record from the facetoface table
- * @param class $session record from the facetoface_sessions table
+ * @param \stdClass $facetoface record from the facetoface table
+ * @param \stdClass $session record from the facetoface_sessions table
  * @param integer $userid ID of the recipient of the email
  * @param integer $conditiontype Optional override of the standard cancellation confirmation
+ * @param bool $invite flag whether to include iCal invitation
  * @returns string Error message (or empty string if successful)
  */
-function facetoface_send_cancellation_notice($facetoface, $session, $userid, $conditiontype = MDL_F2F_CONDITION_CANCELLATION_CONFIRMATION) {
+function facetoface_send_cancellation_notice($facetoface, $session, $userid, $conditiontype = MDL_F2F_CONDITION_CANCELLATION_CONFIRMATION, $invite = true) {
     global $CFG;
 
     $params = array(
@@ -1406,7 +1407,7 @@ function facetoface_send_cancellation_notice($facetoface, $session, $userid, $co
         'conditiontype' => $conditiontype
     );
 
-    $includeical = empty($CFG->facetoface_disableicalcancel);
+    $includeical = empty($CFG->facetoface_disableicalcancel) && $invite;
     return facetoface_send_notice($facetoface, $session, $userid, $params, $includeical ? MDL_F2F_BOTH : MDL_F2F_TEXT, MDL_F2F_CANCEL);
 }
 
@@ -1436,14 +1437,14 @@ function facetoface_send_decline_notice($facetoface, $session, $userid) {
  * Send a email to the user and manager regarding the
  * session date/time change
  *
- * @param class $facetoface record from the facetoface table
- * @param class $session record from the facetoface_sessions table
+ * @param \stdClass $facetoface record from the facetoface table
+ * @param \stdClass $session record from the facetoface_sessions table
  * @param integer $userid ID of the recipient of the email
  * @param array $olddates array of previous dates
+ * @param bool $invite flag whether to include iCal invitation
  * @returns string Error message (or empty string if successful)
  */
-function facetoface_send_datetime_change_notice($facetoface, $session, $userid, $olddates) {
-    global $DB;
+function facetoface_send_datetime_change_notice($facetoface, $session, $userid, $olddates, $invite = true) {
 
     $params = array(
         'facetofaceid'  => $facetoface->id,
@@ -1451,7 +1452,9 @@ function facetoface_send_datetime_change_notice($facetoface, $session, $userid, 
         'conditiontype' => MDL_F2F_CONDITION_SESSION_DATETIME_CHANGE
     );
 
-    return facetoface_send_notice($facetoface, $session, $userid, $params, MDL_F2F_BOTH, MDL_F2F_INVITE, null, $olddates);
+    $invite = $invite ? MDL_F2F_BOTH : MDL_F2F_TEXT;
+
+    return facetoface_send_notice($facetoface, $session, $userid, $params, $invite, MDL_F2F_INVITE, null, $olddates);
 }
 
 

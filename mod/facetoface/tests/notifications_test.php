@@ -378,7 +378,7 @@ class mod_facetoface_notifications_testcase extends advanced_testcase {
 
         $emails = $emailsink->get_messages();
         $emailsink->close();
-        $this->assertContains("Your session has changed", $emails[0]->fullmessagehtml);
+        $this->assertContains("The session you are booked on (or on the waitlist) has changed:", $emails[0]->fullmessagehtml);
         $this->assertContains("BOOKING CANCELLED", $emails[1]->fullmessagehtml);
 
         // Check ical specifics.

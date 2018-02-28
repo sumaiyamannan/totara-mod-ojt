@@ -389,7 +389,10 @@ if ($fromform = $mform->get_data()) { // Form submitted
         if (!empty($sessiondates) && facetoface_session_dates_check($olddates, $sessiondates)) {
             $attendees = facetoface_get_attendees($session->id);
             foreach ($attendees as $user) {
-                facetoface_send_datetime_change_notice($facetoface, $session, $user->id, $olddates);
+                // Checking sign-up status here to determine whether to include iCal attachment or not.
+                $invite = $user->statuscode != MDL_F2F_STATUS_WAITLISTED;
+
+                facetoface_send_datetime_change_notice($facetoface, $session, $user->id, $olddates, $invite);
             }
             $sessiontrainers = facetoface_get_trainers($session->id);
             if (!empty($sessiontrainers)) {
