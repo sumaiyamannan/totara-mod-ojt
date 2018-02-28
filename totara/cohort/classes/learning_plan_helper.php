@@ -34,7 +34,7 @@ class learning_plan_helper {
      * Get count or list of user ids from the audience who require a learning plan to be created
      *
      * @param learning_plan_config $config
-     * @param $countonly - boolean, to return count only of affected users
+     * @param bool $countonly - boolean, to return count only of affected users
      * @return int|array
      */
     public static function get_affected_users(learning_plan_config $config, $countonly = false) {
@@ -104,9 +104,10 @@ class learning_plan_helper {
      * Create learning plans based on conditions of the config
      *
      * @param learning_plan_config $config
+     * @param int $userid Optional, the id of the user who created the plan.
      * @return int the count of plans created
      */
-    public static function create_plans(learning_plan_config $config) {
+    public static function create_plans(learning_plan_config $config, $userid = 0) {
         global $DB, $USER;
 
         $now = time();
@@ -117,7 +118,7 @@ class learning_plan_helper {
 
         if (!$affected_members) {
             // Add to the history log.
-            self::log_learning_plan_changes($config, $now, $createdplancount);
+            self::log_learning_plan_changes($config, $now, $createdplancount, $userid);
             return $createdplancount;
         }
 
@@ -149,7 +150,7 @@ class learning_plan_helper {
             $history->status = $config->planstatus;
             $history->reason = DP_PLAN_REASON_CREATE;
             $history->timemodified = time();
-            $history->usermodified = $USER->id;
+            $history->usermodified = ($userid ? $userid : $USER->id);
 
             $plan_history_records[] = $history;
         }
@@ -184,7 +185,7 @@ class learning_plan_helper {
             $createdplancount++;
         }
 
-        self::log_learning_plan_changes($config, $now, $createdplancount);
+        self::log_learning_plan_changes($config, $now, $createdplancount, $userid);
 
         $transaction->allow_commit();
 
@@ -193,15 +194,21 @@ class learning_plan_helper {
 
     /**
      * Writes a log entry for the current state of affairs.
+     *
+     * @param learning_plan_config $config
+     * @param float $now Timmestamp to indicate when the plans where created.
+     * @param int $affectedcount The number of users affected.
+     * @param int $userid Optional, the id of the user who created the plan.
      */
-    protected static function log_learning_plan_changes(learning_plan_config $config, $now, $affectedcount) {
+    protected static function log_learning_plan_changes(learning_plan_config $config, $now, $affectedcount, $userid = 0) {
         global $DB, $USER;
 
         // Add record to history table.
         $history = new \stdClass();
         $history->cohortid = $config->cohortid;
         $history->templateid = $config->plantemplateid;
-        $history->usercreated = $USER->id;
+
+        $history->usercreated = ($userid ? $userid : $USER->id);
         $history->timecreated = $now;
         $history->planstatus = $config->planstatus;
         $history->affectedusers = $affectedcount;

@@ -45,6 +45,7 @@ $html = '';
 $count = \totara_cohort\learning_plan_helper::get_affected_users($config, true);
 if ($count > 0) {
     $html .= html_writer::tag('p', get_string('confirmcreateplansmessage', 'totara_cohort', $count));
+    $html .= html_writer::tag('p', get_string('taskplanswillbecreated', 'totara_cohort'));
 } else {
     $html .= html_writer::tag('p', get_string('confirmnousers', 'totara_cohort'));
 }

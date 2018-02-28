@@ -52,7 +52,13 @@ if (empty($userlist)) {
             new moodle_url('/mod/facetoface/attendees.php', array('s' => $s, 'backtoallsessions' => 1)));
 }
 
-$mform = new removeconfirm_form(null, array('s' => $s, 'listid' => $listid, 'enablecustomfields' => !$list->has_user_data()));
+$mform = new removeconfirm_form(null, [
+        's' => $s,
+        'listid' => $listid,
+        'enablecustomfields' => !$list->has_user_data(),
+        'is_notification_active' => facetoface_is_notification_active(MDL_F2F_CONDITION_CANCELLATION_CONFIRMATION,
+            $facetoface, true)
+]);
 
 $returnurl = new moodle_url('/mod/facetoface/attendees.php', array('s' => $s, 'backtoallsessions' => 1));
 if ($mform->is_cancelled()) {
@@ -104,9 +110,12 @@ if ($fromform = $mform->get_data()) {
             if (facetoface_user_cancel($session, $attendee->id, true, $cancelerr)) {
                 // Notify the user of the cancellation if the session hasn't started yet
                 $timenow = time();
-                if (($fromform->notifymanager || $fromform->notifyuser) and !facetoface_has_session_started($session, $timenow)) {
-                    $facetoface->ccmanager = $fromform->notifymanager;
-                    $session->notifyuser = $fromform->notifyuser;
+                $notifyuser = !empty($fromform->notifyuser);
+                $notifymanager = !empty($fromform->notifymanager);
+
+                if (($notifyuser || $notifymanager) and !facetoface_has_session_started($session, $timenow)) {
+                    $facetoface->ccmanager = $notifymanager;
+                    $session->notifyuser = $notifyuser;
                     facetoface_send_cancellation_notice($facetoface, $session, $attendee->id);
                 }
 
@@ -157,10 +166,10 @@ echo $f2frenderer->render($paging);
 echo $f2frenderer->print_userlist_table($users);
 echo $f2frenderer->render($paging);
 
-echo html_writer::empty_tag('br');
+$link = html_writer::link($list->get_returnurl(), get_string('changeselectedusers', 'facetoface'), [
+    'class'=>'btn btn-default'
+]);
+echo html_writer::div($link,'form-group');
 
-$returnurl = $list->get_returnurl();
-echo html_writer::link($returnurl, get_string('changeselectedusers', 'facetoface'), array('class'=>'link-as-button btn btn-default'));
 $mform->display();
-
 echo $OUTPUT->footer();

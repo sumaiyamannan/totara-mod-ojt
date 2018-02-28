@@ -1972,18 +1972,21 @@ abstract class rb_base_source {
         $mods = $DB->get_records('modules', array('visible' => 1), 'id', 'id, name');
         foreach ($mods as $mod) {
             if (get_string_manager()->string_exists('pluginname', $mod->name)) {
-                $modname = get_string('pluginname', $mod->name);
-            } else {
-                continue;
+                $mod->localname = get_string('pluginname', $mod->name);
             }
+        }
+
+        core_collator::asort_objects_by_property($mods, 'localname');
+
+        foreach ($mods as $mod) {
             if (file_exists($CFG->dirroot . '/mod/' . $mod->name . '/pix/icon.gif') ||
                 file_exists($CFG->dirroot . '/mod/' . $mod->name . '/pix/icon.png')) {
-                $icon = $OUTPUT->pix_icon('icon', $modname, $mod->name) . '&nbsp;';
+                $icon = $OUTPUT->pix_icon('icon', $mod->localname, $mod->name) . '&nbsp;';
             } else {
                 $icon = '';
             }
 
-            $out[$mod->name] = $icon . $modname;
+            $out[$mod->name] = $icon . $mod->localname;
         }
         return $out;
     }
@@ -2136,6 +2139,7 @@ abstract class rb_base_source {
         foreach ($TOTARA_COURSE_TYPES as $k => $v) {
             $coursetypeoptions[$v] = get_string($k, 'totara_core');
         }
+        asort($coursetypeoptions);
         return $coursetypeoptions;
     }
 

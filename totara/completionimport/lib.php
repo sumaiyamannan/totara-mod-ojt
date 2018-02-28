@@ -782,6 +782,11 @@ function create_evidence_item($item, $evidencetype, $csvdateformat, $tablename, 
  * 2. Bulk enrol users - used enrol_cohort_sync() in /enrol/cohort/locallib.php as a reference
  * 3. Course completion stuff copied from process_course_completion_crit_compl()
  *    and process_course_completions() both in /backup/moodle2/restore_stepslib.php
+ *
+ * Note that the course_completed event is not triggered, because it would cause this function to take even longer to
+ * run (while the user waits), and we assume that some other cron task will pick up on the fact that the records have
+ * changed and do what needs to be done (such as process program completion).
+ *
  * @global object $DB
  * @global object $CFG
  * @param string $importname name of import

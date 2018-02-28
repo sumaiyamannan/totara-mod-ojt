@@ -22,6 +22,11 @@
  * @subpackage build
  */
 
+// Extra execution prevention - we can not just require config.php here.
+if (isset($_SERVER['REMOTE_ADDR'])) {
+    exit(1); // Exit with a failure, web request!
+}
+
 // see checklang for syntax
 $exclude = array(
     // doesn't like help files in subdirectories because of

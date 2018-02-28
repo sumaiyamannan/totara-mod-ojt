@@ -937,6 +937,7 @@ abstract class restore_dbops {
         if ($progress) {
             $progress->progress();
         }
+        $fileupdates = array(); // Totara: do not update temporary table that is being iterated.
         $rs = $DB->get_recordset_sql($sql, $params);
         foreach ($rs as $rec) {
             // Report progress each time around loop.
@@ -1033,10 +1034,10 @@ abstract class restore_dbops {
 
                 // store the the new contextid and the new itemid in case we need to remap
                 // references to this file later
-                $DB->update_record('backup_files_temp', array(
+                $fileupdates[] = array(
                     'id' => $rec->bftid,
                     'newcontextid' => $newcontextid,
-                    'newitemid' => $rec->newitemid), true);
+                    'newitemid' => $rec->newitemid);
 
             } else {
                 // this is an alias - we can't create it yet so we stash it in a temp
@@ -1053,6 +1054,10 @@ abstract class restore_dbops {
             }
         }
         $rs->close();
+        // Totara: do the file updates after closing recordset to prevent locking problems in SQL Server.
+        foreach ($fileupdates as $fileupdate) {
+            $DB->update_record('backup_files_temp', $fileupdate, true);
+        }
         return $results;
     }
 

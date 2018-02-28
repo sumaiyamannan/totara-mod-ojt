@@ -1750,4 +1750,72 @@ class mod_facetoface_notifications_testcase extends advanced_testcase {
             $this->assertContains("This is to advise that you have been added to the waitlist", $preemail->fullmessagehtml);
         }
     }
+
+    /**
+     * Test facetoface_is_notification_active function works correctly with all the available seminar notification.
+     */
+    public function test_facetoface_is_notification_active() {
+        global $DB,$CFG;
+
+        $notifications = [
+            'reminder' => MDL_F2F_CONDITION_BEFORE_SESSION,
+            'confirmation' => MDL_F2F_CONDITION_BOOKING_CONFIRMATION,
+            'cancellation' => MDL_F2F_CONDITION_CANCELLATION_CONFIRMATION,
+            'decline' => MDL_F2F_CONDITION_DECLINE_CONFIRMATION,
+            'waitlist' => MDL_F2F_CONDITION_WAITLISTED_CONFIRMATION,
+            'request' => MDL_F2F_CONDITION_BOOKING_REQUEST_MANAGER,
+            'timechange' => MDL_F2F_CONDITION_SESSION_DATETIME_CHANGE,
+            'trainerconfirm' => MDL_F2F_CONDITION_TRAINER_CONFIRMATION,
+            'trainercancel' => MDL_F2F_CONDITION_TRAINER_SESSION_CANCELLATION,
+            'trainerunassign' => MDL_F2F_CONDITION_TRAINER_SESSION_UNASSIGNMENT,
+            'registrationexpired' => MDL_F2F_CONDITION_REGISTRATION_DATE_EXPIRED,
+            'sessioncancellation' => MDL_F2F_CONDITION_SESSION_CANCELLATION,
+            'reservationcancel' => MDL_F2F_CONDITION_RESERVATION_CANCELLED,
+            'allreservationcancel' => MDL_F2F_CONDITION_RESERVATION_ALL_CANCELLED,
+            'rolerequest' => MDL_F2F_CONDITION_BOOKING_REQUEST_ROLE,
+            'adminrequest' => MDL_F2F_CONDITION_BOOKING_REQUEST_ADMIN,
+            'registrationclosure' => MDL_F2F_CONDITION_BEFORE_REGISTRATION_ENDS,
+        ];
+
+        // Seeding initial data.
+        $f2f = $this->getDataGenerator()
+            ->get_plugin_generator('mod_facetoface')
+            ->create_instance([
+                'name' => 'facetoface',
+                'course' => $this->getDataGenerator()->create_course()->id
+            ]);
+
+        $states = [true, false];
+
+        $get_notification = function ($f2fid, $type) use ($DB) {
+            return facetoface_notification::fetch([
+                'facetofaceid' => $f2fid,
+                'conditiontype' => $type,
+            ]);
+        };
+
+        foreach ($notifications as $notification => $type) {
+
+            $local = $get_notification($f2f->id, $type);
+
+            foreach ($states as $state) {
+                $DB->update_record('facetoface_notification', (object) [
+                    'id' => $local->id,
+                    'status' => (int) $state,
+                ]);
+
+                // Calling twice as it supports 'overload' where either notification type (int) or object can be passed.
+                $this->assertEquals(facetoface_is_notification_active($get_notification($f2f->id, $type)), $state);
+                $this->assertEquals(facetoface_is_notification_active($type, $f2f), $state);
+
+                // Check it works with the global flag.
+                $CFG->facetoface_notificationdisable = 1;
+                $this->assertFalse(facetoface_is_notification_active($type, $f2f, true));
+                $this->assertEquals(facetoface_is_notification_active($type, $f2f), $state);
+                unset($CFG->facetoface_notificationdisable);
+            }
+        }
+
+        $this->resetAfterTest();
+    }
 }

@@ -42,6 +42,11 @@ require_once($CFG->libdir . '/filelib.php');
 // the custom handler just logs exceptions and stops.
 set_exception_handler('enrol_paypal_ipn_exception_handler');
 
+// Make sure the enrollment plugin is enabled sitewide.
+if (!enrol_is_enabled('paypal')) {
+    throw new moodle_exception('enrolmentplugindisabled', 'enrol_paypal');
+}
+
 /// Keep out casual intruders
 if (empty($_POST) or !empty($_GET)) {
     print_error("Sorry, you can not use the script that way.");
@@ -69,29 +74,25 @@ $data->payment_gross    = $data->mc_gross;
 $data->payment_currency = $data->mc_currency;
 $data->timeupdated      = time();
 
+// Custom field is not needed anymore and should not be used anywhere.
+unset($data->custom);
 
-/// get the user and course records
+$user = $DB->get_record("user", array("id" => $data->userid), "*", MUST_EXIST);
+$course = $DB->get_record("course", array("id" => $data->courseid), "*", MUST_EXIST);
+$context = context_course::instance($course->id, MUST_EXIST);
 
-if (! $user = $DB->get_record("user", array("id"=>$data->userid))) {
-    message_paypal_error_to_admin("Not a valid user id", $data);
-    die;
-}
-
-if (! $course = $DB->get_record("course", array("id"=>$data->courseid))) {
-    message_paypal_error_to_admin("Not a valid course id", $data);
-    die;
-}
-
-if (! $context = context_course::instance($course->id, IGNORE_MISSING)) {
-    message_paypal_error_to_admin("Not a valid context id", $data);
-    die;
-}
-
-if (! $plugin_instance = $DB->get_record("enrol", array("id"=>$data->instanceid, "status"=>0))) {
-    message_paypal_error_to_admin("Not a valid instance id", $data);
-    die;
-}
-
+// Make sure paypal enrolment method is activated for this course.
+$plugin_instance = $DB->get_record(
+    "enrol",
+    [
+        "id" => $data->instanceid,
+        "courseid" => $course->id,
+        "enrol" => "paypal",
+        "status" => 0
+    ],
+    "*",
+    MUST_EXIST
+);
 $plugin = enrol_get_plugin('paypal');
 
 /// Open a connection back to PayPal to validate the data
@@ -106,10 +107,9 @@ $options = array(
 $location = "https://$paypaladdr/cgi-bin/webscr";
 $result = $c->post($location, $req, $options);
 
-if (!$result) {  /// Could not connect to PayPal - FAIL
-    echo "<p>Error: could not access paypal.com</p>";
-    message_paypal_error_to_admin("Could not access paypal.com to verify payment", $data);
-    die;
+if (!empty($c->get_errno())) {
+    $debuginfo = sprintf("errocode: %s\n%s", $c->get_errno(), (string)$result);
+    throw new moodle_exception('ipnverificationconnectfailed', 'enrol_paypal', '', null, $debuginfo);
 }
 
 /// Connection is OK, so now we post the data to validate it
@@ -304,7 +304,7 @@ if (strlen($result) > 0) {
 
     } else if (strcmp ($result, "INVALID") == 0) { // ERROR
         $DB->insert_record("enrol_paypal", $data, false);
-        message_paypal_error_to_admin("Received an invalid payment notification!! (Fake payment?)", $data);
+        throw new moodle_exception('ipnverificationfailed', 'enrol_paypal');
     }
 }
 

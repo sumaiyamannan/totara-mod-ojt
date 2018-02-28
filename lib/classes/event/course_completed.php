@@ -29,6 +29,10 @@ defined('MOODLE_INTERNAL') || die();
 /**
  * Course completed event class.
  *
+ * Note that code shouldn't rely on this event being triggered in all situations when a user is marked complete in
+ * a course. Instead, use this event to be notified immediately where possible, and occasionally check the data
+ * directly to see if other changes have occurred (such as in a scheduled task).
+ *
  * @property-read int $relateduserid user who completed the course
  * @property-read array $other {
  *      Extra information about event.

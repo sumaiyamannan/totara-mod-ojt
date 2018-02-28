@@ -212,7 +212,7 @@ class appraisal_answer_form extends moodleform {
                 }
             }
 
-            if ($rights & appraisal::ACCESS_CANANSWER != appraisal::ACCESS_CANANSWER && !$isviewonlyquestion) {
+            if (($rights & appraisal::ACCESS_CANANSWER) != appraisal::ACCESS_CANANSWER && !$isviewonlyquestion) {
                 $elem->cananswer = false;
             }
 

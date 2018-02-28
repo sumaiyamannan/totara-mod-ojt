@@ -116,6 +116,15 @@ $dialog->customdata['selected'] = $selected;
 $dialog->customdata['offset'] = $offset;
 $dialog->string_nothingtodisplay = 'error:nopredefinedrooms';
 
+// Additional url parameters needed for pagination in the search tab.
+$dialog->urlparams = array(
+    'facetofaceid' => $facetofaceid,
+    'sessionid'    => $sessionid,
+    'timestart'    => $timestart,
+    'timefinish'   => $timefinish,
+    'offset'       => $offset
+);
+
 echo $dialog->generate_markup();
 
 // May be it's better to dynamically generate create new room link during dialog every_load.

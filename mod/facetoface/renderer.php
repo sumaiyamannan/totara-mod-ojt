@@ -336,13 +336,9 @@ class mod_facetoface_renderer extends plugin_renderer_base {
             $status = get_string('status_'.$signupstatus, 'facetoface');
         } else if ($signupcount >= $session->capacity) {
             $status = get_string('bookingfull', 'facetoface');
-        }
-
-        // Registration status.
-        if (!empty($session->registrationtimestart) && $session->registrationtimestart > $timenow) {
+        } else if (!empty($session->registrationtimestart) && $session->registrationtimestart > $timenow) {
             $status = get_string('registrationnotopen', 'facetoface');
-        }
-        if (!empty($session->registrationtimefinish) && $timenow > $session->registrationtimefinish) {
+        } else if (!empty($session->registrationtimefinish) && $timenow > $session->registrationtimefinish) {
             $status = get_string('registrationclosed', 'facetoface');
         }
 

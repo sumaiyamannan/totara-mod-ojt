@@ -40,6 +40,12 @@ if (!$course = $DB->get_record('course', array('id' => $facetoface->course))) {
 if (!$cm = get_coursemodule_from_instance("facetoface", $facetoface->id, $course->id)) {
     print_error('error:incorrectcoursemoduleid', 'facetoface');
 }
+
+if (!!$session->cancelledstatus) {
+    redirect(new moodle_url('/course/view.php', ['id' => $course->id]),
+        get_string('error:cannotsignupforacancelledevent', 'facetoface'));
+}
+
 $context = context_module::instance($cm->id);
 $PAGE->set_context($context);
 

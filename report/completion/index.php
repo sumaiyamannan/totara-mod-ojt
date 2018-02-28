@@ -852,6 +852,7 @@ foreach ($progress as $user) {
 
     if ($csv) {
         $row[] = $a->date;
+        $export->add_data($row);
     } else {
 
         print '<td class="completion-progresscell rpl-course">';
@@ -868,19 +869,15 @@ foreach ($progress as $user) {
         }
 
         print '</td>';
-    }
 
-    // Add a link to the completion editor for the user.
-    if ($showeditorlink) {
-        $completionurl = new moodle_url('/totara/completioneditor/edit_course_completion.php', array('courseid' => $course->id, 'userid' => $user->id));
-        print '<td class="completion-editorlink">';
-        print $OUTPUT->action_icon($completionurl, new pix_icon('t/edit', get_string('edit')));
-        print '</td>';
-    }
+        // Add a link to the completion editor for the user.
+        if ($showeditorlink) {
+            $completionurl = new moodle_url('/totara/completioneditor/edit_course_completion.php', array('courseid' => $course->id, 'userid' => $user->id));
+            print '<td class="completion-editorlink">';
+            print $OUTPUT->action_icon($completionurl, new pix_icon('t/edit', get_string('edit')));
+            print '</td>';
+        }
 
-    if ($csv) {
-        $export->add_data($row);
-    } else {
         print '</tr>';
     }
 }
@@ -889,21 +886,21 @@ if ($csv) {
     $export->download_file();
 } else {
     echo '</tbody>';
+
+    print '</table>';
+    print $pagingbar;
+
+    $csvurl = new moodle_url('/report/completion/index.php', array('course' => $course->id, 'format' => 'csv'));
+    $excelurl = new moodle_url('/report/completion/index.php', array('course' => $course->id, 'format' => 'excelcsv'));
+
+    print '<ul class="export-actions">';
+    print '<li><a href="'.$csvurl->out().'">'.get_string('csvdownload','completion').'</a></li>';
+    print '<li><a href="'.$excelurl->out().'">'.get_string('excelcsvdownload','completion').'</a></li>';
+    print '</ul>';
+
+    echo $OUTPUT->footer($course);
+
+    // Trigger a report viewed event.
+    $event = \report_completion\event\report_viewed::create(array('context' => $context));
+    $event->trigger();
 }
-
-print '</table>';
-print $pagingbar;
-
-$csvurl = new moodle_url('/report/completion/index.php', array('course' => $course->id, 'format' => 'csv'));
-$excelurl = new moodle_url('/report/completion/index.php', array('course' => $course->id, 'format' => 'excelcsv'));
-
-print '<ul class="export-actions">';
-print '<li><a href="'.$csvurl->out().'">'.get_string('csvdownload','completion').'</a></li>';
-print '<li><a href="'.$excelurl->out().'">'.get_string('excelcsvdownload','completion').'</a></li>';
-print '</ul>';
-
-echo $OUTPUT->footer($course);
-
-// Trigger a report viewed event.
-$event = \report_completion\event\report_viewed::create(array('context' => $context));
-$event->trigger();

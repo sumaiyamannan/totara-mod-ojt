@@ -207,4 +207,27 @@ class learning_plan_config {
         }
         return false;
     }
+
+    /**
+     * Convert a stdclass object from the plan generator adhoc task to a proper object.
+     *
+     * @param stdclass $config The config object from the adhoc task.
+     * @return learning_plan_config $config
+     */
+    public static function convert(\stdClass $config) {
+
+        $config = new learning_plan_config(
+            $config->id,
+            $config->cohortid,
+            $config->plantemplateid,
+            $config->planstatus,
+            $config->excludecreatedmanual,
+            $config->excludecreatedauto,
+            $config->excludecompleted,
+            $config->autocreatenew
+        );
+
+        return $config;
+    }
+
 }

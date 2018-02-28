@@ -384,7 +384,7 @@ function calendar_get_mini($courses, $groups, $users, $calmonth = false, $calyea
                     $a->source = $event->subscription->name;
                     $name = get_string('namewithsource', 'calendar', $a);
                 }
-                $popupcontent .= html_writer::link($dayhref, $name);
+                $popupcontent .= html_writer::link($dayhref, clean_text($name));
                 $popupcontent .= html_writer::end_tag('div');
             }
 

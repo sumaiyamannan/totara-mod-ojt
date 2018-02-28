@@ -34,7 +34,7 @@ $args = array('args'=>'{"userid":0,'.
         '"dialog_display_organisation":'.$selected_organisation.','.
         '"dialog_display_manager":'.$selected_manager.'}');
 
-$PAGE->requires->js_init_call('M.totara_positionuser.init', $args, false, $jsmodule);
+$PAGE->requires->js_init_call('M.totara_jobassignment.init', $args, false, $jsmodule);
 
 admin_externalpage_setup('elementlibrary');
 echo $OUTPUT->header();

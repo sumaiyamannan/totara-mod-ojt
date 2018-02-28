@@ -22,6 +22,7 @@
  */
 require_once(dirname(dirname(dirname(dirname(__FILE__)))) . '/config.php');
 require_once($CFG->dirroot.'/mod/facetoface/lib.php');
+require_once($CFG->dirroot.'/mod/facetoface/notification/lib.php');
 require_once($CFG->dirroot.'/mod/facetoface/attendees/forms.php');
 
 // The number of users that should be shown per page.
@@ -54,9 +55,15 @@ if (empty($userlist)) {
             new moodle_url('/mod/facetoface/attendees.php', array('s' => $s, 'backtoallsessions' => 1)));
 }
 
-$approvalreqd = facetoface_approval_required($facetoface);
-$mform = new addconfirm_form(null, array('s' => $s, 'listid' => $listid, 'approvalreqd' => $approvalreqd,
-        'enablecustomfields' => !$list->has_user_data(), 'ignoreconflicts' => $ignoreconflicts));
+$mform = new addconfirm_form(null, [
+        's' => $s,
+        'listid' => $listid,
+        'isapprovalrequired' => $isapprovalrequired = facetoface_approval_required($facetoface),
+        'enablecustomfields' => !$list->has_user_data(),
+        'ignoreconflicts' => $ignoreconflicts,
+        'is_notification_active' => facetoface_is_notification_active(MDL_F2F_CONDITION_BOOKING_CONFIRMATION,
+            $facetoface, true)
+]);
 
 $returnurl = new moodle_url('/mod/facetoface/attendees.php', array('s' => $s, 'backtoallsessions' => 1));
 if ($mform->is_cancelled()) {
@@ -87,7 +94,8 @@ if ($fromform = $mform->get_data()) {
             MDL_F2F_STATUS_PARTIALLY_ATTENDED, MDL_F2F_STATUS_FULLY_ATTENDED));
     }
 
-    $approvalrequired = !empty($fromform->ignoreapproval) ? APPROVAL_NONE  : $facetoface->approvaltype;
+    $isapprovalrequired &= empty($fromform->ignoreapproval);
+    $approvaltype = !$isapprovalrequired ? APPROVAL_NONE : $facetoface->approvaltype;
 
     // Add those awaiting approval
     foreach ($waitingapproval as $waiting) {
@@ -114,15 +122,14 @@ if ($fromform = $mform->get_data()) {
     if (!empty($attendeestoadd)) {
         // Prepare params
         $params = array();
-        $params['suppressemail'] = !$fromform->notifyuser;
-        // If we selected ignore approval then change the status.
-        $params['approvalreqd'] = $approvalrequired;
-        // If approval is required then we need to send a request to their manager.
-        if ($approvalreqd) {
-            $params['ccmanager'] = 1;
-        } else {
-            $params['ccmanager'] = $fromform->notifymanager;
-        }
+
+        // If approval is required notifying anyway, otherwise using the form checkbox value.
+        $params['suppressemail'] = !($isapprovalrequired ?: !empty($fromform->notifyuser));
+        // If approval is required cc-ing manager, otherwise using the form checkbox value.
+        $params['ccmanager'] = $isapprovalrequired ?: !empty($fromform->notifymanager);
+        // Confusing naming, it expects not a flag, but approval type status.
+        $params['approvalreqd'] = $approvaltype;
+
         $params['ignoreconflicts'] = $ignoreconflicts;
 
         $clonefromform = serialize($fromform);
@@ -192,10 +199,11 @@ echo $f2frenderer->render($paging);
 echo $f2frenderer->print_userlist_table($users, $list, $session->id, $jaselector);
 echo $f2frenderer->render($paging);
 
-echo html_writer::empty_tag('br');
+$link = html_writer::link($list->get_returnurl(), get_string('changeselectedusers', 'facetoface'), [
+    'class'=>'btn btn-default'
+]);
 
-$returnurl = $list->get_returnurl();
-echo html_writer::link($returnurl, get_string('changeselectedusers', 'facetoface'), array('class'=>'link-as-button btn btn-default'));
+echo html_writer::div($link, 'form-group');
 $mform->display();
 
 echo $OUTPUT->footer();
