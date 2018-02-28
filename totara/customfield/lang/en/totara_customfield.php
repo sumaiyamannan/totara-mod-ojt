@@ -54,7 +54,7 @@ $string['customfielddefaultdatatextarea_help'] = 'Default value is the text that
 
 Leave this field blank if no default text is required.';
 $string['customfieldfieldsizetext'] = 'Display size (Text input)';
-$string['customfieldfieldsizetext_help'] = 'Display size sets that number of characters that will be displayed in the text field.';
+$string['customfieldfieldsizetext_help'] = 'Display size sets the number of characters that will be displayed in the text field.';
 $string['customfieldforceunique'] = 'Custom Field unique';
 $string['customfieldforceunique_help'] = 'When set to Yes the custom field will only accept a unique value. If a duplicate value is used in this field the system will not allow the item to be saved.
 
