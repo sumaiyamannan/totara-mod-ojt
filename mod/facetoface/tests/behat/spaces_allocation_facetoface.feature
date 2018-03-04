@@ -263,3 +263,40 @@ Feature: Allocate spaces for team in seminar
     Then I should not see "Sam1 Student1" in the "This event" "optgroup"
     And I should see "Sam1 Student1 (Self booked)" in the "Other event(s) in this activity" "optgroup"
 
+  Scenario: Cannot allocate learners in already started event.
+    Given I log in as "teacher1"
+    And I click on "Find Learning" in the totara menu
+    And I follow "Course 1"
+    And I follow "View all events"
+    And I follow "Add a new event"
+    And I follow "show-selectdate0-dialog"
+    And I fill seminar session with relative date in form data:
+      | sessiontimezone     | Pacific/Auckland |
+      | timestart[day]      | -1               |
+      | timestart[hour]     | 9                |
+      | timestart[minute]   | 0                |
+      | timestart[timezone] | Pacific/Auckland |
+      | timefinish[day]     | 1                |
+      | timefinish[hour]    | 15               |
+      | timefinish[minute]  | 0                |
+      | timefinish[timezone]| Pacific/Auckland |
+    And I press "OK"
+    And I set the following fields to these values:
+      | capacity | 33 |
+    And I press "Save changes"
+    And I log out
+
+    When I log in as "sitemanager1"
+    And I click on "Find Learning" in the totara menu
+    And I follow "Course 1"
+    And I follow "View all events"
+    Then I should see "Event in progress" in the "0 / 33" "table_row"
+    And I should not see "Allocate spaces for team" in the "0 / 33" "table_row"
+    And I should not see "Reserve spaces for team" in the "0 / 33" "table_row"
+    And I should not see "Manage reservations" in the "0 / 33" "table_row"
+    And I should see "Allocate spaces for team" in the "1 January 2020" "table_row"
+    And I should see "Reserve spaces for team" in the "1 January 2020" "table_row"
+    And I should see "Manage reservations" in the "1 January 2020" "table_row"
+    And I should see "Allocate spaces for team" in the "2 January 2020" "table_row"
+    And I should see "Reserve spaces for team" in the "2 January 2020" "table_row"
+    And I should see "Manage reservations" in the "2 January 2020" "table_row"

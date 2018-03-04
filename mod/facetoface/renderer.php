@@ -536,6 +536,13 @@ class mod_facetoface_renderer extends plugin_renderer_base {
             return $reservelink;
         }
 
+        $currentime = time();
+        if (isset($session->sessiondates)
+            && facetoface_has_session_started($session, $currentime)
+                || facetoface_is_session_over($session, $currentime)) {
+            return $reservelink;
+        }
+
         // Output links to reserve/allocate spaces.
         if (!empty($reserveinfo)) {
             $sessreserveinfo = $reserveinfo;
