@@ -1443,16 +1443,17 @@ define(['jquery', 'jqueryui'], function($){
     $.datepicker._selectDate = function (id, dateStr) {
         var inst = this._getInst($(id)[0]),
             tp_inst = this._get(inst, 'timepicker'),
-            was_inline;
+            was_inline, was_stay_open;
 
         if (tp_inst && inst.settings.showTimepicker) {
             tp_inst._limitMinMaxDateTime(inst, true);
             was_inline = inst.inline;
+            was_stay_open = inst.stay_open;
             inst.inline = inst.stay_open = true;
             //This way the onSelect handler called from calendarpicker get the full dateTime
             this._base_selectDate(id, dateStr);
             inst.inline = was_inline;
-            inst.stay_open = false;
+            inst.stay_open = was_stay_open;
             this._notifyChange(inst);
             this._updateDatepicker(inst);
         } else {
@@ -2327,6 +2328,8 @@ define(['jquery', 'jqueryui'], function($){
             datepoly.inited.done(function() {
                 $('#' + id).datetimepicker(datepoly.language);
             });
+
+            return datepoly.inited;
         }
     };
 
