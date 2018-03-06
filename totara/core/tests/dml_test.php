@@ -265,6 +265,28 @@ class totara_core_dml_testcase extends database_driver_testcase {
         $this->assertCount(1, explode(':', $records[36]->grpconcat));
         $this->assertContains('9', $records[36]->grpconcat);
 
+        // Test new '^|:' uniquedelimiter which is using in rb_base_source and limited by 4 chars in MS SQL GROUP_CONCAT_D.
+        $sql = 'SELECT groupid, ' . $DB->sql_group_concat('valint', '^|:') . ' AS grpconcat FROM {' . $tablename . '} GROUP BY groupid';
+        $records = $DB->get_records_sql($sql);
+        $this->assertCount(3, $records);
+        $this->assertCount(3, explode('^|:', $records[12]->grpconcat));
+        $this->assertContains('3', $records[12]->grpconcat);
+        $this->assertContains('4', $records[12]->grpconcat);
+        $this->assertContains('2', $records[12]->grpconcat);
+        $this->assertCount(3, explode('^|:', $records[24]->grpconcat));
+        $this->assertContains('6', $records[24]->grpconcat);
+        $this->assertContains('7', $records[24]->grpconcat);
+        $this->assertContains('5', $records[24]->grpconcat);
+        $this->assertCount(1, explode('^|:', $records[36]->grpconcat));
+        $this->assertContains('9', $records[36]->grpconcat);
+
+        // Test invalid '\.|./' uniquedelimiter.
+        $sql = 'SELECT groupid, ' . $DB->sql_group_concat('valint', '\.|./') . ' AS grpconcat FROM {' . $tablename . '} GROUP BY groupid';
+        $records = $DB->get_records_sql($sql);
+        $this->assertCount(3, $records);
+        // The explode should return 3 records with valid delimiter.
+        $this->assertNotEquals(3, explode('\.|./', $records[12]->grpconcat));
+
         $dbman->drop_table($table);
     }
 
@@ -412,6 +434,34 @@ class totara_core_dml_testcase extends database_driver_testcase {
         $this->assertContains($text.'8', $records[36]->grpconcat);
         $this->assertEquals($text.'6:'.$text.'7', $records[24]->grpconcat);
         $this->assertEquals($text.'8', $records[36]->grpconcat);
+
+        // Test new '^|:' uniquedelimiter which is using in rb_base_source and limited by 4 chars in MS SQL GROUP_CONCAT_D.
+        $grpconcat = $DB->sql_group_concat_unique('valtext', '^|:');
+        $sql = 'SELECT groupid, ' . $grpconcat . ' AS grpconcat FROM {' . $tablename . '} GROUP BY groupid';
+        $records = $DB->get_records_sql($sql);
+        $this->assertCount(3, $records);
+        $this->assertCount(3, explode('^|:', $records[12]->grpconcat));
+        $this->assertSame(24003, strlen($records[12]->grpconcat));
+        $this->assertContains($text.'3', $records[12]->grpconcat);
+        $this->assertContains($text.'1', $records[12]->grpconcat);
+        $this->assertContains($text.'2', $records[12]->grpconcat);
+        $this->assertCount(2, explode('^|:', $records[24]->grpconcat));
+        $this->assertSame(16001, strlen($records[24]->grpconcat));
+        $this->assertContains($text.'6', $records[24]->grpconcat);
+        $this->assertContains($text.'7', $records[24]->grpconcat);
+        $this->assertCount(1, explode('^|:', $records[36]->grpconcat));
+        $this->assertSame(7999, strlen($records[36]->grpconcat));
+        $this->assertContains($text.'8', $records[36]->grpconcat);
+        $this->assertEquals($text.'6^|:'.$text.'7', $records[24]->grpconcat);
+        $this->assertEquals($text.'8', $records[36]->grpconcat);
+
+        // Test invalid '\.|./' uniquedelimiter.
+        $grpconcat = $DB->sql_group_concat_unique('valtext', '\.|./');
+        $sql = 'SELECT groupid, ' . $grpconcat . ' AS grpconcat FROM {' . $tablename . '} GROUP BY groupid';
+        $records = $DB->get_records_sql($sql);
+        $this->assertCount(3, $records);
+        // The explode should return 3 records with valid delimiter.
+        $this->assertNotEquals(3, explode('\.|./', $records[12]->grpconcat));
 
         $dbman->drop_table($table);
     }

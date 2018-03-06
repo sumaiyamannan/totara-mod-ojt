@@ -58,7 +58,7 @@ abstract class rb_base_source {
      * TODO - it would be nice to make this definable in the config or something.
      * @var string $uniqueseperator - A string unique enough to use as a seperator for textareas
      */
-    protected $uniquedelimiter = '\.|./';
+    protected $uniquedelimiter = '^|:';
 
     /**
      * Class constructor
