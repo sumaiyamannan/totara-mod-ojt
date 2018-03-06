@@ -48,7 +48,7 @@ $string['availabletags_help'] = 'Tags are placeholders in the template, which wi
 
 Fields have the format [[fieldname]]. All other tags have the format ##sometag##.
 
-Only the tags that are in the "Available tags" list may be used for the current template.';
+Only the tags that are in the **Available tags** list may be used for the current template.';
 $string['availabletodate'] = 'Available to';
 $string['availabletodatevalidation'] = 'The available to date cannot be before the available from date.';
 $string['blank'] = 'Blank';
@@ -143,7 +143,7 @@ $string['example'] = 'Database module example';
 $string['excel'] = 'Excel';
 $string['export'] = 'Export';
 $string['exportaszip'] = 'Export as zip';
-$string['exportaszip_help'] = 'The export as zip feature allows you to save the templates and fields as a preset zip for download. The zip may then be imported to another course.';
+$string['exportaszip_help'] = 'The export as ZIP feature allows you to save the templates and fields as a preset ZIP for download. The ZIP may then be imported to another course.';
 $string['exportedtozip'] = 'Exported to temporary zip...';
 $string['exportentries'] = 'Export entries';
 $string['exportownentries'] = 'Export your own entries only? ({$a->mine}/{$a->all})';
@@ -177,7 +177,7 @@ $string['forcelinkname'] = 'Forced name for the link';
 $string['foundnorecords'] = 'No records found (<a href="{$a->reseturl}">Reset filters</a>)';
 $string['foundrecords'] = 'Found records: {$a->num}/{$a->max} (<a href="{$a->reseturl}">Reset filters</a>)';
 $string['fromfile'] = 'Import from zip file';
-$string['fromfile_help'] = 'The import from zip file feature allows you to browse for and upload a preset zip of templates and fields.';
+$string['fromfile_help'] = 'The import from ZIP file feature allows you to browse for and upload a preset ZIP of templates and fields.';
 $string['generateerror'] = 'Not all files generated!';
 $string['header'] = 'Header';
 $string['headeraddtemplate'] = 'Defines the interface when editing entries';
@@ -219,30 +219,30 @@ $string['list'] = 'View list';
 $string['listtemplate'] = 'List template';
 $string['longitude'] = 'Longitude';
 $string['manageapproved'] = 'Allow editing of approved entries';
-$string['manageapproved_help'] = 'If disabled, approved entries are no longer editable or deletable by the user who added them. This setting has no effect unless \'Approval required\' is enabled.';
+$string['manageapproved_help'] = 'If disabled, approved entries are no longer editable or deletable by the user who added them. This setting has no effect unless **Approval required** is enabled.';
 $string['mapexistingfield'] = 'Map to {$a}';
 $string['mapnewfield'] = 'Create a new field';
 $string['mappingwarning'] = 'All old fields not mapped to a new field will be lost and all data in that field will be removed.';
 $string['maxentries'] = 'Maximum number of entries';
-$string['maxentries_help'] = 'The maximum number of entries a student is allowed to submit for this activity.';
+$string['maxentries_help'] = 'The maximum number of entries a learner is allowed to submit for this activity.';
 $string['maxsize'] = 'Maximum size';
 $string['menu'] = 'Menu';
 $string['menuchoose'] = 'Choose...';
 $string['missingdata'] = 'Data id or object must be provided to field class';
 $string['missingfield'] = 'Programmer error: You must specify field and/or data when defining field class.';
 $string['modulename'] = 'Database';
-$string['modulename_help'] = 'The database activity module enables participants to create, maintain and search a collection of entries (i.e. records).  The structure of the entries is defined by the teacher as a number of fields. Field types include checkbox, radio buttons, dropdown menu, text area, URL, picture and uploaded file.
+$string['modulename_help'] = 'The database activity module enables participants to create, maintain and search a collection of entries (i.e. records).  The structure of the entries is defined by the trainer as a number of fields. Field types include checkbox, radio buttons, dropdown menu, text area, URL, picture, and uploaded file.
 
-The visual layout of information when listing, viewing or editing database entries may be controlled by database templates. Database activities may be shared between courses as presets and a teacher may also import and export database entries.
+The visual layout of information when listing, viewing, or editing database entries may be controlled by database templates. Database activities may be shared between courses as presets and a trainer may also import and export database entries.
 
 If the database auto-linking filter is enabled, any entries in a database will be automatically linked where the words or phrases appear within the course.
 
-A teacher can allow comments on entries. Entries can also be rated by teachers or students (peer evaluation). Ratings can be aggregated to form a final grade which is recorded in the gradebook.
+A trainer can allow comments on entries. Entries can also be rated by trainers or learners (peer evaluation). Ratings can be aggregated to form a final grade which is recorded in the gradebook.
 
-Database activities have many uses, such as
+Database activities have many uses, such as:
 
-* A collaborative collection of web links, books, book reviews, journal references etc
-* For displaying student-created photos, posters, websites or poems for peer comment and review';
+* A collaborative collection of web links, books, book reviews, journal references etc.
+* For displaying learner-created photos, posters, or websites for peer comment and review.';
 $string['modulename_link'] = 'mod/data/view';
 $string['modulenameplural'] = 'Databases';
 $string['more'] = 'More';
@@ -308,14 +308,14 @@ $string['recorddisapproved'] = 'Entry unapproved';
 $string['recordsnotsaved'] = 'No entry was saved. Please check the format of the uploaded file.';
 $string['recordssaved'] = 'entries saved';
 $string['requireapproval'] = 'Approval required';
-$string['requireapproval_help'] = 'If enabled, entries require approving by a teacher before they are viewable by everyone.';
+$string['requireapproval_help'] = 'If enabled, entries require approving by a trainer before they are viewable by everyone.';
 $string['required'] = 'Required';
 $string['requiredentries'] = 'Entries required for completion';
-$string['requiredentries_help'] = 'The number of entries a student is required to submit before the activity can be considered complete.';
+$string['requiredentries_help'] = 'The number of entries a learner is required to submit before the activity can be considered complete.';
 $string['requiredentriestoview'] = 'Entries required before viewing';
-$string['requiredentriestoview_help'] = 'The number of entries a student is required to submit before they can view entries from other students.
+$string['requiredentriestoview_help'] = 'The number of entries a learner is required to submit before they can view entries from other learners.
 
-Note: If entries are required before viewing, the database auto-linking filter should be disabled. This is because the database auto-linking filter can\'t determine whether a user has submitted the required number of entries.';
+Note that if entries are required before viewing, the database auto-linking filter should be disabled. This is because the database auto-linking filter can\'t determine whether a user has submitted the required number of entries.';
 $string['requiredfield'] = 'Required field';
 $string['resetsettings'] = 'Reset filters';
 $string['resettemplate'] = 'Reset template';
@@ -357,9 +357,9 @@ $string['uploadfile'] = 'Upload file';
 $string['uploadrecords'] = 'Upload entries from a file';
 $string['uploadrecords_help'] = 'Entries may be uploaded via text file. The format of the file should be as follows:
 
-* Each line of the file contains one record
-* Each record is a series of data separated by commas (or other delimiters)
-* The first record contains a list of fieldnames defining the format of the rest of the file
+* Each line of the file contains one record.
+* Each record is a series of data separated by commas (or other delimiters).
+* The first record contains a list of fieldnames defining the format of the rest of the file.
 
 The field enclosure is a character that surrounds each field in each record. It can normally be left unset.';
 $string['uploadrecords_link'] = 'mod/data/import';

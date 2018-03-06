@@ -28,13 +28,13 @@ $string['additionaldelimiters_help'] = 'MathJax filter parses text for equations
 
 The list of recognised delimiter characters can be added to here (e.g. AsciiMath uses `). Delimiters can contain multiple characters and multiple delimiters can be separated with commas.';
 $string['httpurl'] = 'HTTP MathJax URL';
-$string['httpurl_help'] = 'Full URL to MathJax library. Used when the page is loaded via http.';
+$string['httpurl_help'] = 'Full URL to MathJax library. Used when the page is loaded via HTTP.';
 $string['httpsurl'] = 'HTTPS MathJax URL';
-$string['httpsurl_help'] = 'Full URL to MathJax library. Used when the page is loaded via https (secure). ';
+$string['httpsurl_help'] = 'Full URL to MathJax library. Used when the page is loaded via HTTPS (secure).';
 $string['texfiltercompatibility'] = 'TeX filter compatibility';
 $string['texfiltercompatibility_help'] = 'The MathJax filter can be used as a replacement for the TeX notation filter.
 
-To support all the delimiters supported by the TeX notation filter, MathJax will be configured to display all equations "inline" with the text.';
+To support all the delimiters supported by the TeX notation filter, MathJax will be configured to display all equations inline with the text.';
 $string['localinstall'] = 'Local MathJax installation';
 $string['localinstall_help'] = 'The default MathJax configuration uses the CDN version of MathJax, but MathJax can be installed locally if required.
 

@@ -43,13 +43,13 @@ $string['displayoptions'] = 'Available display options';
 $string['displayselect'] = 'Display';
 $string['displayselect_help'] = 'This setting, together with the file type and whether the browser allows embedding, determines how the file is displayed. Options may include:
 
-* Automatic - The best display option for the file type is selected automatically
-* Embed - The file is displayed within the page below the navigation bar together with the file description and any blocks
-* Force download - The user is prompted to download the file
-* Open - Only the file is displayed in the browser window
-* In pop-up - The file is displayed in a new browser window without menus or an address bar
-* In frame - The file is displayed within a frame below the navigation bar and file description
-* New window - The file is displayed in a new browser window with menus and an address bar';
+* **Automatic**: The best display option for the file type is selected automatically.
+* **Embed**: The file is displayed within the page below the navigation bar together with the file description and any blocks.
+* **Force download**: The user is prompted to download the file.
+* **Open**: Only the file is displayed in the browser window.
+* **In pop-up**: The file is displayed in a new browser window without menus or an address bar.
+* **In frame**: The file is displayed within a frame below the navigation bar and file description.
+* **New window**: The file is displayed in a new browser window with menus and an address bar.';
 $string['displayselect_link'] = 'mod/file/mod';
 $string['displayselectexplain'] = 'Choose display type, unfortunately not all types are suitable for all files.';
 $string['dnduploadresource'] = 'Create file resource';
@@ -65,15 +65,15 @@ $string['legacyfilesactive'] = 'Active';
 $string['legacyfilesdone'] = 'Finished';
 $string['modifieddate'] = 'Modified {$a}';
 $string['modulename'] = 'File';
-$string['modulename_help'] = 'The file module enables a teacher to provide a file as a course resource. Where possible, the file will be displayed within the course interface; otherwise students will be prompted to download it. The file may include supporting files, for example an HTML page may have embedded images or Flash objects.
+$string['modulename_help'] = 'The file module enables a trainer to provide a file as a course resource. Where possible, the file will be displayed within the course interface; otherwise learners will be prompted to download it. The file may include supporting files, for example an HTML page may have embedded images or Flash objects.
 
-Note that students need to have the appropriate software on their computers in order to open the file.
+Note that learners need to have the appropriate software on their computers in order to open the file.
 
-A file may be used
+A file may be used:
 
-* To share presentations given in class
-* To include a mini website as a course resource
-* To provide draft files of certain software programs (eg Photoshop .psd) so students can edit and submit them for assessment';
+* To share presentations given in face-to-face sessions.
+* To include a mini website as a course resource.
+* To provide draft files of certain software programs (eg Photoshop .psd) so learners can edit and submit them for assessment.';
 $string['modulename_link'] = 'mod/resource/view';
 $string['modulenameplural'] = 'Files';
 $string['notmigrated'] = 'This legacy resource type ({$a}) was not yet migrated, sorry.';

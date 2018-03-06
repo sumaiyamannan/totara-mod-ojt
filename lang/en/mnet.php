@@ -89,9 +89,9 @@ $string['hostnamehelp'] = 'The fully-qualified domain name of the remote host, e
 $string['hostnotconfiguredforsso'] = 'This server is not configured for remote login.';
 $string['hostsettings'] = 'Host settings';
 $string['http_self_signed_help'] = 'Permit connections using a self-signed DIY SSL certificate on the remote host.';
-$string['https_self_signed_help'] = 'Permit connections using a self-signed DIY SSL in PHP on the remote host over http.';
+$string['https_self_signed_help'] = 'Permit connections using a self-signed DIY SSL in PHP on the remote host over HTTP.';
 $string['https_verified_help'] = 'Permit connections using a verified SSL certificate on the remote host.';
-$string['http_verified_help'] = 'Permit connections using a verified SSL certificate in PHP on the remote host, but over http (not https).';
+$string['http_verified_help'] = 'Permit connections using a verified SSL certificate in PHP on the remote host, but over HTTP (not HTTPS).';
 $string['id'] = 'ID';
 $string['idhelp'] = 'This value is automatically assigned and cannot be changed';
 $string['importfields'] = 'Fields to import';
@@ -219,9 +219,9 @@ $string['ssl_acl_deny'] = 'SSO ACL: Deny user \'{$a->user}\' from \'{$a->host}\'
 $string['sslverification'] = 'SSL verification';
 $string['sslverification_help'] = 'This option allows you to configure the level of security when connecting to a peer using HTTPS.
 
-* None: no level of security
-* Verify host only: validates the domain of the SSL certificate
-* Verify host and peer (recommended): validates the domain and issuer of the SSL certificate';
+* **None**: No level of security.
+* **Verify host only**: Validates the domain of the SSL certificate.
+* **Verify host and peer (recommended)**: Validates the domain and issuer of the SSL certificate.';
 $string['ssoaccesscontrol'] = 'SSO access control';
 $string['ssoacldescr'] = 'Use this page to grant/deny access to specific users from remote MNet hosts. This is functional when you are offering SSO services to remote users. To control your <em>local</em> users\' ability to roam to other MNet hosts, use the roles system to grant them the <em>mnetlogintoremote</em> capability.';
 $string['ssoaclneeds'] = 'For this functionality to work, you must have Networking on, plus the MNet authentication plugin enabled.';

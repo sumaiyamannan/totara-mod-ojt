@@ -51,14 +51,14 @@ $string['uploadpicture_usernotfound'] = 'User with a \'{$a->userfield}\' value o
 $string['uploadpicture_userskipped'] = 'Skipping user {$a} (already has a picture).';
 $string['uploadpicture_userupdated'] = 'Picture updated for user {$a}.';
 $string['uploadpictures'] = 'Upload user pictures';
-$string['uploadpictures_help'] = 'User pictures can be uploaded as a zip file of image files. The image files should be named chosen-user-attribute.extension, for example user1234.jpg for a user with username user1234.';
+$string['uploadpictures_help'] = 'User pictures can be uploaded as a ZIP file of image files. The image files should be named chosen-user-attribute.extension, for example user1234.jpg for a user with username user1234.';
 $string['uploadusers'] = 'Upload users';
 $string['uploadusers_help'] = 'Users may be uploaded (and optionally enrolled in courses) via text file. The format of the file should be as follows:
 
-* Each line of the file contains one record
-* Each record is a series of data separated by commas (or other delimiters)
-* The first record contains a list of fieldnames defining the format of the rest of the file
-* Required fieldnames are username, password, firstname, lastname, email';
+* Each line of the file contains one record.
+* Each record is a series of data separated by commas (or other delimiters).
+* The first record contains a list of field names defining the format of the rest of the file.
+* Required field names are **username**, **password**, **firstname**, **lastname**, **email**.';
 $string['uploaduserspreview'] = 'Upload users preview';
 $string['uploadusersresult'] = 'Upload users results';
 $string['uploaduser:uploaduserpictures'] = 'Upload user pictures';

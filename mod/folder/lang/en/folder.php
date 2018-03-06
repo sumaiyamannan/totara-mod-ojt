@@ -31,12 +31,12 @@ $string['folder:managefiles'] = 'Manage files in folder module';
 $string['folder:view'] = 'View folder content';
 $string['foldercontent'] = 'Files and subfolders';
 $string['modulename'] = 'Folder';
-$string['modulename_help'] = 'The folder module enables a teacher to display a number of related files inside a single folder, reducing scrolling on the course page. A zipped folder may be uploaded and unzipped for display, or an empty folder created and files uploaded into it.
+$string['modulename_help'] = 'The folder module enables a trainer to display a number of related files inside a single folder, reducing scrolling on the course page. A zipped folder may be uploaded and unzipped for display, or an empty folder created and files uploaded into it.
 
-A folder may be used
+A folder may be used:
 
-* For a series of files on one topic, for example a set of past examination papers in pdf format or a collection of image files for use in student projects
-* To provide a shared uploading space for teachers on the course page (keeping the folder hidden so that only teachers can see it)';
+* For a series of files on one topic.
+* To provide a shared uploading space for trainers on the course page (keeping the folder hidden so that only trainers can see it).';
 $string['modulename_link'] = 'mod/folder/view';
 $string['modulenameplural'] = 'Folders';
 $string['page-mod-folder-x'] = 'Any folder module page';
@@ -44,11 +44,12 @@ $string['page-mod-folder-view'] = 'Folder module main page';
 $string['pluginadministration'] = 'Folder administration';
 $string['pluginname'] = 'Folder';
 $string['display'] = 'Display folder contents';
-$string['display_help'] = 'If you choose to display the folder contents on a course page, there  will be no link to a separate page.
-The description will be displayed only if "Display description on course page" is checked.<br />
+$string['display_help'] = 'If you choose to display the folder contents on a course page, there will be no link to a separate page.
+The description will be displayed only if **Display description on course page** is checked.
+
 Also note that participants view actions can not be logged in this case.';
 $string['displaypage'] = 'On a separate page';
 $string['displayinline'] = 'Inline on a course page';
 $string['noautocompletioninline'] = 'Automatic completion on viewing of activity can not be selected together with "Display inline" option';
 $string['showexpanded'] = 'Show subfolders expanded';
-$string['showexpanded_help'] = 'If set to \'yes\', subfolders are shown expanded by default; otherwise they are shown collapsed.';
+$string['showexpanded_help'] = 'If set to **yes**, subfolders are shown expanded by default; otherwise they are shown collapsed.';

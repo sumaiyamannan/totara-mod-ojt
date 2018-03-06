@@ -55,7 +55,7 @@ $string['assignmentoptions'] = 'Assignment options';
 $string['assignrolenameincontext'] = 'Assign role \'{$a->role}\' in {$a->context}';
 $string['assignrole'] = 'Assign role';
 $string['assignroles'] = 'Assign roles';
-$string['assignroles_help'] = 'By assigning a role to a user in a context, you are granting them the permissions contained in that role, for the current context and all lower contexts. For example, if a user is assigned the role of student in a course, they will also have the role of student for all activities and blocks within the course.';
+$string['assignroles_help'] = 'By assigning a role to a user in a context, you are granting them the permissions contained in that role, for the current context and all lower contexts. For example, if a user is assigned the role of learner in a course, they will also have the role of learner for all activities and blocks within the course.';
 $string['assignroles_link'] = 'admin/roles/assign';
 $string['assignrolesin'] = 'Assign roles in {$a}';
 $string['assignrolesrelativetothisuser'] = 'Assign roles relative to this user';
@@ -279,12 +279,12 @@ $string['overriderolesin'] = 'Override roles in {$a}';
 $string['overrides'] = 'Overrides';
 $string['overridesbycontext'] = 'Overrides (by context)';
 $string['permission'] = 'Permission';
-$string['permission_help'] = 'Permissions are capability settings. There are 4 options:
+$string['permission_help'] = 'Permissions are capability settings. There are four options:
 
-* Not set
-* Allow - Permission is granted for the capability
-* Prevent - Permission is removed for the capability, even if allowed in a higher context
-* Prohibit - Permission is completely denied  and cannot be overridden at any lower (more specific) context';
+* **Not set**.
+* **Allow**: Permission is granted for the capability.
+* **Prevent**: Permission is removed for the capability, even if allowed in a higher context.
+* **Prohibit**: Permission is completely denied  and cannot be overridden at any lower (more specific) context.';
 $string['permissions'] = 'Permissions';
 $string['permissionsforuser'] = 'Permissions for user {$a}';
 $string['permissionsincontext'] = 'Permissions in {$a}';

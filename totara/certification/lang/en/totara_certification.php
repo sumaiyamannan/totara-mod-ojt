@@ -28,11 +28,12 @@ $string['addcertifprogramcontent_help'] = 'By adding sets of courses you can bui
 Once sets are added the relationships between them can be defined. Sets are created from manually adding courses.
 
 Once a number of sets have been created, set dividers are employed to allow the creation of sequences (i.e. dependencies) between each set.
+
 An example program with four course sets defined could have dependencies as follows:
 
-*   From set one the learner must complete one course (courseA or courseB) before proceeding to set two.
-*   From set two the learner must complete all courses (courseC and courseD and courseE) before proceeding to set three or set four.
-*   From set three the learner must complete one course (courseE) or all courses from set four (courseF and courseG).
+* From set one the learner must complete one course (courseA or courseB) before proceeding to set two.
+* From set two the learner must complete all courses (courseC and courseD and courseE) before proceeding to set three or set four.
+* From set three the learner must complete one course (courseE) or all courses from set four (courseF and courseG).
 
 Once the learning path is completed, the learner has finished the certification program.';
 $string['addnewcertification'] = 'Add new certification';
@@ -71,15 +72,15 @@ $string['checkcertificationdelete'] = 'Are you sure you want to delete this cert
 $string['checkcompletions'] = 'Check completions for problems';
 $string['competency'] = 'Competency';
 $string['completionapparentactiveperiod'] = 'Apparent active period';
-$string['completionapparentactiveperiod_help'] = 'If the recertification method was set to \'Use completion date\' when the user certified, then this was the active period at that moment.
+$string['completionapparentactiveperiod_help'] = 'If the recertification method was set to **Use completion date** when the user certified, then this was the active period at that moment.
 
 Otherwise, this is an estimate of the active period at that moment - it could have been greater or less depending on various certification settings and whether the user certified before or after their due date.
 
-When this user recertifies, their new expiry date will be calculated using the Certification active period, as set in the certification settings.';
+When this user recertifies, their new expiry date will be calculated using the **Certification active period**, as set in the certification settings.';
 $string['completionapparentwindowperiod'] = 'Apparent window period';
 $string['completionapparentwindowperiod_help'] = 'This is what the window period was at the time the user certified.
 
-When this user recertifies, their new window open date will be calculated using the Certification window period, as set in the certification settings.';
+When this user recertifies, their new window open date will be calculated using the **Certification window period**, as set in the certification settings.';
 $string['completioncertificationpath'] = 'Certification path';
 $string['completioncertificationactiveperiod'] = 'Certification active period';
 $string['completioncertificationwindowperiod'] = 'Certification window period';
@@ -102,14 +103,14 @@ $string['completionchangeuserpathrecerttocert'] = 'They will change from the rec
 $string['completionfilterbycertification'] = 'Filter by certification: {$a}';
 $string['completionfilterbyuser'] = 'Filter by user: {$a}';
 $string['completionhistorystate'] = 'Completion history state';
-$string['completionhistorystate_help'] = 'Certification completion history records are normally created just before a user\'s recertification window opens, so should normally have the state \'Certified, before window opens\'.';
+$string['completionhistorystate_help'] = 'Certification completion history records are normally created just before a user\'s recertification window opens, so should normally have the state **Certified, before window opens**.';
 $string['completioninprogress'] = 'In progress';
-$string['completioninprogress_help'] = 'Whether or not the learner has completed one or more of the course sets required for their current certification path';
+$string['completioninprogress_help'] = 'Whether or not the learner has completed one or more of the course sets required for their current certification path.';
 $string['completioninprogressnotapplicable'] = 'Not applicable';
 $string['completionpath'] = 'Path';
-$string['completionpath_help'] = 'The certification path that the user is currently on. Users who are waiting for their window to open are considered on the recertification path';
+$string['completionpath_help'] = 'The certification path that the user is currently on. Users who are waiting for their window to open are considered on the recertification path.';
 $string['completionprogstatus'] = 'Program status';
-$string['completionprogstatus_help'] = 'When a user is certified, before the recertification window has opened, the program status should be \'Program complete\', otherwise it should be \'Program incomplete\'.
+$string['completionprogstatus_help'] = 'When a user is certified, before the recertification window has opened, the program status should be **Program complete**, otherwise it should be **Program incomplete**.
 
 This field is only used internally - it is not displayed to the learner or in reports. It is presented here to ensure that it has the correct value.';
 $string['completionprogtimecompleted'] = 'Program completion date';
@@ -125,15 +126,15 @@ $string['completions'] = 'Completions';
 $string['completionstate'] = 'Certification completion state';
 $string['completionstate_help'] = 'Select the state of the user\'s certification. The options below may be changed or limited depending on this choice.';
 $string['completioncertstatus'] = 'Certification status';
-$string['completioncertstatus_help'] = 'This is the status as it appears in the Record of Learning: Certifications report.';
+$string['completioncertstatus_help'] = 'This is the status as it appears in the **Record of Learning: Certifications** report.';
 $string['completionswithproblems'] = 'Certification completion records with problems';
 $string['completiontimeduesameasexpiry'] = 'Automatically set to the Expiry date';
 $string['completiontimeexpires'] = 'Expiry date';
 $string['completiontimewindowopens'] = 'Window open date';
 $string['completionunassigned'] = 'Unassigned';
-$string['completionunassigned_help'] = 'If yes, then the record was created when the user was unassigned from the certification. There should be at most one unassigned certification completion history record. The \'Unassigned\' record is used when re-assigning users to certifications which they were removed from.';
+$string['completionunassigned_help'] = 'If **yes**, then the record was created when the user was unassigned from the certification. There should be at most one unassigned certification completion history record. The **Unassigned** record is used when re-assigning users to certifications which they were removed from.';
 $string['comptype'] = 'Certification type';
-$string['comptype_help'] = 'Select required Learning Component (currently just program)';
+$string['comptype_help'] = 'Select required Learning Component (currently just program).';
 $string['comptypenotimplemented'] = 'Certification type not implemented';
 $string['confirmchanges'] = 'Confirm certification changes';
 $string['course'] = 'Course';
@@ -147,29 +148,29 @@ $string['duedate'] = 'Due date';
 $string['editcertif'] = 'Edit certification details';
 $string['editcertification'] = 'Edit certification';
 $string['editdetailsactive'] = 'Certification is active for';
-$string['editdetailsactive_help'] = 'The period the certification is active for, before it expires';
+$string['editdetailsactive_help'] = 'The period the certification is active for, before it expires.';
 $string['editdetailsactivep'] = 'Active Period';
 $string['editdetailsdesc'] = 'Define the recertification details rules for all learners assigned to the certification';
 $string['editdetailshdr'] = 'Recertification Details';
 $string['editdetailsminimumactive'] = 'Minimum active period';
-$string['editdetailsminimumactive_help'] = 'When "Use fixed expiry date" is set, this option allows you to specify the minimum length of time that the certification will be guaranteed to be active. If a user completes their certification and there is less than this amount of time until it would be due to expire, the expiry date is pushed forward by another whole "active period".
+$string['editdetailsminimumactive_help'] = 'When **Use fixed expiry date** is set, this option allows you to specify the minimum length of time that the certification will be guaranteed to be active. If a user completes their certification and there is less than this amount of time until it would be due to expire, the expiry date is pushed forward by another whole active period.
 
 For example:
 
-* if a user was newly assigned to a certification in July, the active period is 1 year, the window opens 2 months before expiring, the minimum active period is 6 months and they have an assignment due date of 1 December, then when they complete in August, their expiry date will be set to 1 December of the following year (actual active period of about 16 months).
-* if a user in the same certification completes their recertification in November while the window is open, then their certification would be set to expire on 1 December of the following year (actual active period of about 13 months).
-* if a user in the same certification failed to recertify on time and subsequently completed the primary certification in April, then their certification would be set to expire on 1 December of that year (actual active period of about 8 months).';
+* If a user was newly assigned to a certification in July, the active period is 1 year, the window opens 2 months before expiring, the minimum active period is 6 months and they have an assignment due date of 1 December, then when they complete in August, their expiry date will be set to 1 December of the following year (actual active period of about 16 months).
+* If a user in the same certification completes their recertification in November while the window is open, then their certification would be set to expire on 1 December of the following year (actual active period of about 13 months).
+* If a user in the same certification failed to recertify on time and subsequently completed the primary certification in April, then their certification would be set to expire on 1 December of that year (actual active period of about 8 months).';
 $string['editdetailsrccmpl'] = 'Use certification completion date';
 $string['editdetailsrcexp'] = 'Use certification expiry date';
 $string['editdetailsrcfixed'] = 'Use fixed expiry date';
 $string['editdetailsrcopt'] = 'Recertification date';
 $string['editdetailsrcopt_help'] = 'This setting determines how the expiry date is calculated when a user completes primary certification or recertifies.
 
-<b>Use certification completion date:</b> The active period is added to the completion date. Over the span of several recertifications, this option can cause the expiry date to "drift" backwards (when completed early) and forwards (when completed overdue).
+* **Use certification completion date**: The active period is added to the completion date. Over the span of several recertifications, this option can cause the expiry date to drift backwards (when completed early) and forwards (when completed overdue).
+* **Use certification expiry date**: Uses the last expiry date to calculate the next. The first time this is calculated, it adds the active period to the assignment due date if there is one, otherwise it uses the date the certification was completed. If the user is overdue or expired, it adds the **active period** to the date the primary certification was just completed (as if the user was newly assigned), so that certifications are active for a minimum of the active period. Over the span of several recertifications, this option can cause the expiry date to drift forwards (when completed overdue) but not backwards.
+* **Use fixed expiry date**: This option causes the expiry time to be calculated based on the specified assignment due date (if available, otherwise the **first** completion date), and subsequent completion expiry dates will be calculated using that same base date, regardless of whether they are late or early.
 
-<b>Use certification expiry date:</b> Uses the last expiry date to calculate the next. The first time this is calculated, it adds the active period to the assignment due date if there is one, otherwise it uses the date the certification was completed. If the user is overdue or expired, it adds the "active period" to the date the primary certification was just completed (as if the user was newly assigned), so that certifications are active for a minimum of the active period. Over the span of several recertifications, this option can cause the expiry date to "drift" forwards (when completed overdue) but not backwards.
-
-<b>Use fixed expiry date:</b> This option causes the expiry time to be calculated based on the specified assignment due date (if available, otherwise the <b>first</b> completion date), and subsequent completion expiry dates will be calculated using that same base date, regardless of whether they are late or early. The active period is repeatedly added to the base date until the first future date is discovered. The "Minimum active period" is available only with this setting, and must be at least as big as the "Recertification Window" (see the "Minimum active period" help for more information). Over the span of several recertifications, this option will prevent the expiry date from "drifting" forwards or backwards.';
+The active period is repeatedly added to the base date until the first future date is discovered. The **Minimum active period** is available only with this setting, and must be at least as big as the **Recertification Window** (see the **Minimum active period** help for more information). Over the span of several recertifications, this option will prevent the expiry date from drifting forwards or backwards.';
 $string['editdetailsrcwin'] = 'Recertification Window';
 $string['editdetailsvalid'] = 'Define how long the certification should be valid once complete';
 $string['editdetailswindow'] = 'Period window opens before expiration';
@@ -320,7 +321,7 @@ $string['recertwindowopendate'] = ' The recertification window will open on {$a}
 $string['recertwindowopendatelate'] = 'The recertification window was due to open on {$a} but has not yet occurred. Window opening normally occurs automatically within one day of the window open date, so will likely occur soon. You should wait until this problem is resolved before making progress towards recertification. Progress made before the recertification window opens will likely be lost.';
 $string['recertwindowopendateverylate'] = 'ATTENTION! The recertification window was due to open on {$a} but has not yet occurred. Window opening should normally have occurred automatically by now, as more than one day has passed. You should contact your site administrator and inform them of this message. You should wait until this problem is resolved before making progress towards recertification. Progress made before the recertification window opens will likely be lost.';
 $string['recertwindowopenmessage'] = 'Recertification window open message';
-$string['recertwindowopenmessage_help'] = 'This message will be sent when a learner has entered the period when they can recertify';
+$string['recertwindowopenmessage_help'] = 'This message will be sent when a learner has entered the period when they can recertify.';
 $string['renewalstatus_dueforrenewal'] = 'Due for renewal';
 $string['renewalstatus_expired'] = 'Renewal expired';
 $string['renewalstatus_notdue'] = 'Not due for renewal';

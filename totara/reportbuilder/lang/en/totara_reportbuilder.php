@@ -108,8 +108,7 @@ $string['cachedef_rb_source_directories'] = 'Report builder source directory pat
 $string['cachegenfail'] = 'The last attempt to generate cache failed. Please try again later.';
 $string['cachegenstarted'] = 'Cache generation started at {$a}. This process can take several minutes.';
 $string['cachenow'] = 'Generate Now';
-$string['cachenow_help'] = '
-If **Generate now** is checked, then report cache will be generated immediately after form submit.';
+$string['cachenow_help'] = 'If **Generate now** is checked, then report cache will be generated immediately after form submit.';
 $string['cachenow_title'] = 'Report cache';
 $string['cachepending'] = '{$a} There are changes to this report\'s configuration that have not yet been applied. The report will be updated next time the report is generated.';
 $string['cannotviewembedded'] = 'Embedded reports can only be accessed through their embedded url';
@@ -247,7 +246,7 @@ $string['editscheduledreport'] = 'Edit Scheduled Report';
 $string['editthisreport'] = 'Edit this report';
 $string['emailexternaluserisonthelist'] = 'This email is already on the external users email list';
 $string['emailexternalusers'] = 'External users email';
-$string['emailexternalusers_help'] = 'Please enter one email address in the box below';
+$string['emailexternalusers_help'] = 'Please enter one email address in the box below.';
 $string['embedded'] = 'Embedded';
 $string['embeddedaccessnotes'] = '<strong>Warning:</strong> Embedded reports may have their own access restrictions applied to the page they are embedded into. They may ignore the settings below, or they may apply them as well as their own restrictions.';
 $string['embeddedcontentnotes'] = '<strong>Warning:</strong> Embedded reports may have further content restrictions applied via <em>embedded parameters</em>. These can further limit the content that is shown in the report';
@@ -404,7 +403,7 @@ $string['graphlegend'] = 'Legend';
 $string['graphmaxrecords'] = 'Maximum number of used records';
 $string['graphnocategory'] = 'Numbered';
 $string['graphorientation'] = 'Orientation';
-$string['graphorientation_help'] = 'Determines how the report data is interpreted to build the graph. If "Data series in columns" is selected, then report builder will treat report columns as data series. In most cases this is what you want. If "Data series in rows" is selected, report builder treats every item in the column as a separate data series - data rows will be treated as data points. Typically you only want to select "Data series in rows" if you have more columns in your report than rows.';
+$string['graphorientation_help'] = 'Determines how the report data is interpreted to build the graph. If **Data series in columns** is selected, then report builder will treat report columns as data series. In most cases this is what you want. If **Data series in rows** is selected, report builder treats every item in the column as a separate data series - data rows will be treated as data points. Typically you only want to select **Data series in rows** if you have more columns in your report than rows.';
 $string['graphorientationcolumn'] = 'Data series in columns';
 $string['graphorientationrow'] = 'Data series in rows';
 $string['graphseries'] = 'Data sources';
@@ -413,7 +412,7 @@ $string['graphsettings'] = 'Custom settings';
 $string['graphsettings_help'] = 'Advanced SVGGraph settings in PHP ini file format. See <a href="http://www.goat1000.com/svggraph-settings.php" target="_blank">http://www.goat1000.com/svggraph-settings.php</a> for more information.';
 $string['graphstacked'] = 'Stacked';
 $string['graphtype'] = 'Graph type';
-$string['graphtype_help'] = 'Select graph type to display a graph in report, select "None" to remove the graph from report.';
+$string['graphtype_help'] = 'Select graph type to display a graph in report, select **None** to remove the graph from report.';
 $string['graphtypearea'] = 'Area';
 $string['graphtypebar'] = 'Horizontal bar';
 $string['graphtypecolumn'] = 'Column';
@@ -447,11 +446,10 @@ $string['initialdisplay'] = 'Restrict Initial Display';
 $string['initialdisplay_disabled'] = 'This setting is not available when there are no filters enabled';
 $string['initialdisplay_error'] = 'The last filter can not be deleted when initial display is restricted';
 $string['initialdisplay_heading'] = 'Filters Performance Settings';
-$string['initialdisplay_help'] = 'This setting controls how the report is initially displayed and is recommended for larger reports where you will be filtering the results (e.g. sitelogs). It increases the speed of the report by allowing you to apply filters and display only the results instead of initially trying to display *all* the data.
+$string['initialdisplay_help'] = 'This setting controls how the report is initially displayed and is recommended for larger reports where you will be filtering the results (e.g. sitelogs). It increases the speed of the report by allowing you to apply filters and display only the results instead of initially trying to display **all** the data.
 
-**Disabled**: the report will display all results immediately *(default)*
-
-**Enabled**: the report will not generate results until a filter is applied or an empty search is run.';
+* **Disabled**: The report will display all results immediately (default).
+* **Enabled**: The report will not generate results until a filter is applied or an empty search is run.';
 $string['initialdisplay_pending'] = 'Please apply a filter to view the results of this report, or hit search without adding any filters to view all entries';
 $string['is'] = 'is';
 $string['isaftertoday'] = 'days after today';
@@ -591,8 +589,7 @@ $string['report:startdate'] = 'Start date';
 $string['reportbuilder'] = 'Report builder';
 $string['reportbuilder:managereports'] = 'Create, edit and delete report builder reports';
 $string['reportbuilderaccessmode'] = 'Access Mode';
-$string['reportbuilderaccessmode_help'] = '
-Access controls are used to restrict which users can view the report.
+$string['reportbuilderaccessmode_help'] = 'Access controls are used to restrict which users can view the report.
 
 **Restrict access** sets the overall access setting for the report.
 
@@ -600,15 +597,13 @@ When set to **All users can view this report** there are no restrictions applied
 
 When set to **Only certain users can view this report** the report will be restricted to the user groups selected below.
 
-**Note:** access restrictions only control who can view the report, not which records it contains. See the \'Content\' tab for controlling the report contents.';
+Note that access restrictions only control who can view the report, not which records it contains. See the **Content** tab for controlling the report contents.';
 $string['reportbuilderbaseitem'] = 'Report Builder: Base item';
-$string['reportbuilderbaseitem_help'] = '
-By grouping a set of activities you are saying that they have something in common, which will allow reports to be generated for all the activities in a group. The base item defines the properties that are considered when aggregation is performed on each member of the group.';
+$string['reportbuilderbaseitem_help'] = 'By grouping a set of activities you are saying that they have something in common, which will allow reports to be generated for all the activities in a group. The base item defines the properties that are considered when aggregation is performed on each member of the group.';
 $string['reportbuildercache'] = 'Enable report caching';
 $string['reportbuildercache_disabled'] = 'This setting is not available for this report source';
 $string['reportbuildercache_heading'] = 'Caching Performance Settings';
-$string['reportbuildercache_help'] = '
-If **Enable report caching** is checked, then a copy of this report will be generated on a set schedule, and users will see data from the stored report. This will make displaying and filtering of the report faster, but the data displayed will be from the last time the report was generated rather than "live" data. We recommend enabling this setting only if necessary (reports are taking too long to be displayed), and only for specific reports where this is a problem.';
+$string['reportbuildercache_help'] = 'If **Enable report caching** is checked, then a copy of this report will be generated on a set schedule, and users will see data from the stored report. This will make displaying and filtering of the report faster, but the data displayed will be from the last time the report was generated rather than live data. We recommend enabling this setting only if necessary (reports are taking too long to be displayed), and only for specific reports where this is a problem.';
 $string['reportbuildercachescheduler'] = 'Cache Schedule (Server Time)';
 $string['reportbuildercachescheduler_help'] = 'Determines the schedule used to control how often a new version of the report is generated. The report will be generated on the cron that immediately follows the specified time.
 
@@ -616,51 +611,45 @@ For example, if you have set up your cron to run every 20 minutes at 10, 30 and 
 $string['reportbuildercacheservertime'] = 'Current Server Time';
 $string['reportbuildercacheservertime_help'] = 'All reports are being cached based on server time. Cache status shows you current local time which might be different from server time. Make sure to take into account your server time when scheduling cache.';
 $string['reportbuildercolumns'] = 'Columns';
-$string['reportbuildercolumns_help'] = '
-**Report Columns** allows you to customise the columns that appear on your report. The available columns are determined by the data **Source** of the report. Each report source has a set of default columns set up.
+$string['reportbuildercolumns_help'] = '**Report Columns** allows you to customise the columns that appear on your report. The available columns are determined by the data **Source** of the report. Each report source has a set of default columns set up.
 
 Columns can be added, removed, renamed and sorted.
 
-**Adding Columns:** To add a new column to the report choose the required column from the \'Add another column...\' dropdown list and click **Save changes**. The new column will be added to the end of the list.
+**Adding Columns:** To add a new column to the report choose the required column from the **Add another column...** dropdown list and click **Save changes**. The new column will be added to the end of the list.
 
-**Note:** You can only create one column of each type within a single report. You will receive a validation error if you try to include the same column more than once.
+Note that you can only create one column of each type within a single report. You will receive a validation error if you try to include the same column more than once.
 
-**Hiding columns:** By default all columns appear when a user views the report. Use the \'show/hide\' button (the eye icon) to hide columns you do not want users to see by default.
-
-**Note:** A hidden column is still available to a user viewing the report. Delete columns (the cross icon) that you do not want users to see at all.
+**Hiding columns:** By default all columns appear when a user views the report. Use the \'show/hide\' button (the eye icon) to hide columns you do not want users to see by default. Note that a hidden column is still available to a user viewing the report. Delete columns (the cross icon) that you do not want users to see at all.
 
 **Moving columns:** The columns will appear on the report in the order they are listed. Use the up and down arrows to change the order.
 
-**Deleting columns:** Click the \'Delete\' button (the cross icon) to the right of the report column to remove that column from the report.
+**Deleting columns:** Click the **Delete** button (the cross icon) to the right of the report column to remove that column from the report.
 
 **Renaming columns:** You can customise the name of a column by changing the **Heading** name and clicking **Save changes**. The **Heading** is the name that will appear on the report.
 
 **Changing multiple column types:** You can modify multiple column types at the same time by selecting a different column from the dropdown menu and clicking **Save changes**.';
 $string['reportbuildercompletedorg'] = 'Show by Completed Organisation';
-$string['reportbuildercompletedorg_help'] = '
-When **Show records completed in the user\'s organisation** is selected the report displays different completed records depending on the organisation the user has been assigned to. (A user is assigned an organisation in their \'User Profile\' on the \'Positions\' tab).
+$string['reportbuildercompletedorg_help'] = 'When **Show records completed in the user\'s organisation** is selected the report displays different completed records depending on the organisation the user has been assigned to. (A user is assigned an organisation in their **User Profile** on the **Positions** tab).
 
 When **Include records from child organisations** is set to:
 
-*   **Yes** the user viewing the report will be able to view completed records related to their organisation and any child organisations of that organisation
+*   **Yes** the user viewing the report will be able to view completed records related to their organisation and any child organisations of that organisation.
 *   **No** the user can only view completed records related to their organisation.';
 $string['reportbuildercontentmode'] = 'Content Mode';
-$string['reportbuildercontentmode_help'] = '
-Content controls allow you to restrict the records and information that are available when a report is viewed.
+$string['reportbuildercontentmode_help'] = 'Content controls allow you to restrict the records and information that are available when a report is viewed.
 
-**Report content** allows you to select the overall content control settings for this report:
+**Report content** allows you to select the overall content control settings for this report.*
 
 When **Show all records** is selected, every available record for this source will be shown and no restrictions will be placed on the content available.
 
-When **Show records matching any of the checked criteria** is selected the report will display records that match any of the criteria set below.
+* When **Show records matching any of the checked criteria** is selected the report will display records that match any of the criteria set below.
 
-**Note:** If no criteria is set the report will display no records.
+Note that if no criteria is set the report will display no records.
 
-When **Show records matching all of the checked criteria** is selected the report will display records that match all the criteria set below.
-**Note:** If no criteria is set the report will display no records.';
+* When **Show records matching all of the checked criteria** is selected the report will display records that match all the criteria set below.
+Note that if no criteria is set the report will display no records.';
 $string['reportbuildercontext'] = 'Restrict Access by Role';
-$string['reportbuildercontext_help'] = '
-Context is the location or level within the system that the user has access to. For example a Site Administrator would have System level access (context), while a learner may only have Course level access (context).
+$string['reportbuildercontext_help'] = 'Context is the location or level within the system that the user has access to. For example a Site administrator would have System level access (context), while a learner may only have course level access (context).
 
 **Context** allows you to set the context in which a user has been assigned a role to view the report.
 
@@ -670,24 +659,21 @@ When **Users must have role in the system context** is selected the user must be
 
 When **User may have role in any context** is selected a user can view the report when they have been assigned the selected role anywhere in the system.';
 $string['reportbuildercurrentorg'] = 'Show by Current Organisation';
-$string['reportbuildercurrentorg_help'] = '
-When **Show records from staff in the user\'s organisation** is selected the report displays different results depending on the organisation the user has been assigned to. (A user is assigned an organisation in their \'User Profile\' on the \'Positions\' tab).
+$string['reportbuildercurrentorg_help'] = 'When **Show records from staff in the user\'s organisation** is selected the report displays different results depending on the organisation the user has been assigned to. (A user is assigned an organisation in their **User Profile** on the **Positions** tab).
 
 When **Include records from child organisations** is set to:
 
-*   **Yes** the user viewing the report will be able to view records related to their organisation and any child organisations of that organisation
-*   **No** the user can only view records related to their organisation.';
+* **Yes** the user viewing the report will be able to view records related to their organisation and any child organisations of that organisation.
+* **No** the user can only view records related to their organisation.';
 $string['reportbuildercurrentpos'] = 'Show by Current Position';
-$string['reportbuildercurrentpos_help'] = '
-When **Show records from staff in the user\'s position** is selected the report will display different records depending on their assigned position (A user is assigned a position in their \'User Profile\' on the \'Positions\' tab).
+$string['reportbuildercurrentpos_help'] = 'When **Show records from staff in the user\'s position** is selected the report will display different records depending on their assigned position (A user is assigned a position in their **User Profile** on the **Positions** tab).
 
 When **Include records from child positions** is set to:
 
-*   **Yes** the user viewing the report can view records related to their positions and any child positions related to their positions
+*   **Yes** the user viewing the report can view records related to their positions and any child positions related to their positions.
 *   **No** the user viewing the report can only view records related to their position.';
 $string['reportbuilderdate'] = 'Show by date';
-$string['reportbuilderdate_help'] = '
-When **Show records based on the record date** is selected the report only displays records within the selected timeframe.
+$string['reportbuilderdate_help'] = 'When **Show records based on the record date** is selected the report only displays records within the selected timeframe.
 
 The **Include records from** options allow you to set the timeframe for the report:
 
@@ -698,14 +684,13 @@ The **Include records from** options allow you to set the timeframe for the repo
 $string['reportbuilderdescription'] = 'Description';
 $string['reportbuilderdescription_help'] = 'When a report description is created the information displays in a box above the search filters on the report page.';
 $string['reportbuilderdialogfilter'] = 'Report Builder: Dialog filter';
-$string['reportbuilderdialogfilter_help'] = '
-This filter allows you to filter information based on a hierarchy. The filter has the following options:
+$string['reportbuilderdialogfilter_help'] = 'This filter allows you to filter information based on a hierarchy. The filter has the following options:
 
-*   is any value - this option disables the filter (i.e. all information is accepted by this filter)
-*   is equal to - this option allows only information that is equal to the value selected from the list
-*   is not equal to - this option allows only information that is different from the value selected from the list
+* **is any value**: This option disables the filter (i.e. all information is accepted by this filter).
+* **is equal to**: This option allows only information that is equal to the value selected from the list.
+* **is not equal to**: This option allows only information that is different from the value selected from the list.
 
-Once a framework item has been selected you can use the \'Include children?\' checkbox to choose whether to match only that item, or match that item and any sub-items belonging to that item.';
+Once a framework item has been selected you can use the **Include children?** checkbox to choose whether to match only that item, or match that item and any sub-items belonging to that item.';
 $string['reportbuilderexportoptions'] = 'Report Export Settings';
 $string['reportbuilderexportoptions_help'] = 'Report export settings allows a user to specify the export options that are available for users at the bottom of a report page. This setting affects all Report builder reports.
 
@@ -717,16 +702,15 @@ $string['reportbuilderexporttofilesystem_help'] = 'Exporting to file system allo
 
 This can be useful when the report needs to be accessed by an external system automation, and the report directory might have SFTP access enabled.
 
-Reports saved to the filesystem are saved as **\'Export file system root path\'**/username/report.ext where *username* is an internal username of a user who owns the scheduled report, *report* is the name of the scheduled report with non alpha-numeric characters removed, and *ext* is the appropriate export file name extension.';
+Reports saved to the file system are saved as **\'Export file system root path\'**/username/report.ext where **username** is an internal username of a user who owns the scheduled report, *report* is the name of the scheduled report with non alpha-numeric characters removed, and **ext** is the appropriate export file name extension.';
 $string['reportbuilderfilters'] = 'Search Options (Filters)';
-$string['reportbuilderfilters_help'] = '
-**Search Options** allows you to customise the filters that appear on your report. The available filters are determined by the **Source** of the report. Each report source has a set of default filters.
+$string['reportbuilderfilters_help'] = '**Search Options** allows you to customise the filters that appear on your report. The available filters are determined by the **Source** of the report. Each report source has a set of default filters.
 
 Filters can be added, sorted and removed.
 
-**Adding filters:** To add a new filter to the report choose the required filter from the \'Add another filter...\' dropdown menu and click **Save changes**. When **Advanced** is checked the filter will not appear in the \'Search by\' box by default, you can click **Show advanced** when viewing a report to see these filters.
+**Adding filters:** To add a new filter to the report choose the required filter from the **Add another filter...** dropdown menu and click **Save changes**. When **Advanced** is checked the filter will not appear in the **Search by** box by default, you can click **Show advanced** when viewing a report to see these filters.
 
-**Moving filters:** The filters will appear in the \'Search by\' box in the order they are listed. Use the up and down arrows to change the order.
+**Moving filters:** The filters will appear in the **Search by** box in the order they are listed. Use the up and down arrows to change the order.
 
 **Deleting filters:** Click the **Delete** button (the cross icon) to the right of the report filter to remove that filter from the report.
 
@@ -734,86 +718,72 @@ Filters can be added, sorted and removed.
 $string['reportbuilderfinancialyear'] = 'Report Financial Year Settings';
 $string['reportbuilderfinancialyear_help'] = 'This setting allows to set the start date of the financial year which is used in the reports content controls.';
 $string['reportbuilderfullname'] = 'Report Name';
-$string['reportbuilderfullname_help'] = 'This is the name that will appear at the top of your report page and in the \'Report Manager\' block.';
+$string['reportbuilderfullname_help'] = 'This is the name that will appear at the top of your report page and in the **Report Manager** block.';
 $string['reportbuilderglobalsettings'] = 'Report Builder Global Settings';
 $string['reportbuildergroupname'] = 'Report Builder: Group Name';
-$string['reportbuildergroupname_help'] = '
-The name of the group. This will allow you to identify the group when you want to create a new report based on it. Look for the name in the report source pulldown menu.';
+$string['reportbuildergroupname_help'] = 'The name of the group. This will allow you to identify the group when you want to create a new report based on it. Look for the name in the report source pulldown menu.';
 $string['reportbuildergrouptag'] = 'Report Builder: Group Tag';
-$string['reportbuildergrouptag_help'] = '
-When you create a group using a tag, any activities that are tagged with the official tag specified automatically form part of the group. If you add or remove tags from an activity, the group will be updated to include/exclude that activity.';
+$string['reportbuildergrouptag_help'] = 'When you create a group using a tag, any activities that are tagged with the official tag specified automatically form part of the group. If you add or remove tags from an activity, the group will be updated to include/exclude that activity.';
 $string['reportbuilderhidden'] = 'Hide in My Reports';
-$string['reportbuilderhidden_help'] = '
-When **Hide in My Reports** is checked the report will not appear on the \'My Reports\' page for any logged in users.
-
-**Note:** The **Hide in My Reports** option only hides the link to the report. Users with the correct access permissions may still access the report using the URL.';
+$string['reportbuilderhidden_help'] = 'When **Hide in My Reports** is checked the report will not appear on the **My Reports** page for any logged in users.
+Note that the **Hide in My Reports** option only hides the link to the report. Users with the correct access permissions may still access the report using the URL.';
 $string['reportbuilderinitcache'] = 'Cache Status (User Time)';
 $string['reportbuilderjobassignmentfilter'] = 'Job assignment concantenated filter';
-$string['reportbuilderjobassignmentfilter_help'] = '
-This filter allows you to filter information based on all job assignments. The filter has the following options:
+$string['reportbuilderjobassignmentfilter_help'] = 'This filter allows you to filter information based on all job assignments. The filter has the following options:
 
-*   is any value - This option disables the filter (i.e. all information is accepted by this filter)
-*   Any of the selected - This option will show users that have any of the selected items in any of their job assignments
-*   None of the selected - This option will show users that have none of the selected items in any of their job assignments
-*   All of the selected - This option will show users that have all of the selected items in any of their job assignments (Note: They can have more than the selected items)
-*   Not all of the selected - This option will show users that don\' have all of the selected items in their job assignments
+* **is any value**: This option disables the filter (i.e. all information is accepted by this filter).
+* **Any of the selected**: This option will show users that have any of the selected items in any of their job assignments.
+* **None of the selected**: This option will show users that have none of the selected items in any of their job assignments.
+* **All of the selected**: This option will show users that have all of the selected items in any of their job assignments (note that they can have more than the selected items).
+* **Not all of the selected**: This option will show users that don\'t have all of the selected items in their job assignments.
 
-For positions and organisations once items have been selected you can use the \'Include children?\' checkbox to choose whether to match only that item, or match that item and any sub-items belonging to that item.';
+For positions and organisations once items have been selected you can use the **Include children?** checkbox to choose whether to match only that item, or match that item and any sub-items belonging to that item.';
 $string['reportbuilderrecordsperpage'] = 'Number of Records per Page';
-$string['reportbuilderrecordsperpage_help'] = '
-**Number of records per page** allows you define how many records display on a report page.
+$string['reportbuilderrecordsperpage_help'] = '**Number of records per page** allows you define how many records display on a report page.
 
 The maximum number of records that can be displayed on a page is 9999. The more records set to display on a page the longer the report pages take to display.
 
 Recommendation is to **limit the number of records per page to 40**.';
 $string['reportbuilderrolesaccess'] = 'Roles with Access';
-$string['reportbuilderrolesaccess_help'] = '
-When **Restrict access** is set to **Only certain users can view this report** you can specify which roles can view the report using **Roles with permission to view the report**.
+$string['reportbuilderrolesaccess_help'] = 'When **Restrict access** is set to **Only certain users can view this report** you can specify which roles can view the report using **Roles with permission to view the report**.
 
 You can select one or multiple roles from the list.
 
 When **Restrict access** is set to **All users can view this report** these options will be disabled.';
 $string['reportbuildershortname'] = 'Report Builder: Unique name';
-$string['reportbuildershortname_help'] = '
-The shortname is used by Totara to keep track of this report. No two reports can be given the same shortname, even if they are based on the same source. Avoid using special characters in this field (text, numbers and underscores are okay).';
+$string['reportbuildershortname_help'] = 'The shortname is used by Totara to keep track of this report. No two reports can be given the same shortname, even if they are based on the same source. Avoid using special characters in this field (text, numbers and underscores are okay).';
 $string['reportbuildersorting'] = 'Sorting';
-$string['reportbuildersorting_help'] = '
-**Sorting** allows you to set a default column and sort order on a report.
+$string['reportbuildersorting_help'] = '**Sorting** allows you to set a default column and sort order on a report.
 
 A user is still able to manually sort a report while viewing it. The users preferences will be saved during the active session. When they finish the session the report will return to the default sort settings set here.';
 $string['reportbuildersource'] = 'Source';
-$string['reportbuildersource_help'] = '
-The **Source** of a report defines the primary type of data used. Further filtering options are available once you start editing the report.
+$string['reportbuildersource_help'] = 'The **Source** of a report defines the primary type of data used. Further filtering options are available once you start editing the report.
 
 Once saved, the report source cannot be changed.
-
-**Note:** If no options are available in the **Source** field, or the source you require does not appear you will need your Totara installation to be configured to include the source data you require (This cannot be done via the Totara interface).';
+ Note that if no options are available in the **Source** field, or the source you require does not appear you will need your Totara installation to be configured to include the source data you require (This cannot be done via the Totara interface).';
 $string['reportbuildertag'] = 'Report Builder: Show by tag';
-$string['reportbuildertag_help'] = '
-This criteria is enabled by selecting the \'Show records by tag\' checkbox. If selected, the report will show results based on whether the record belongs to an item that is tagged with particular tags.
+$string['reportbuildertag_help'] = 'This criteria is enabled by selecting the **Show records by tag** checkbox. If selected, the report will show results based on whether the record belongs to an item that is tagged with particular tags.
 
-If any tags in the \'Include records tagged with\' section are selected, only records belonging to an item tagged with all the selected tags will be shown. Records belonging to items with no tags will **not** be shown.
+If any tags in the **Include records tagged with** section are selected, only records belonging to an item tagged with all the selected tags will be shown. Records belonging to items with no tags will **not** be shown.
 
-If any tags in the \'Exclude records tagged with\' section are selected, records belonging to a coures tagged with the selected tags will **not** be shown. All records belonging to items without any tags will be shown.
+If any tags in the **Exclude records tagged with** section are selected, records belonging to a coures tagged with the selected tags will **not** be shown. All records belonging to items without any tags will be shown.
 
 It is possible to include and exclude tags at the same time, but a single tag cannot be both included and excluded.';
 $string['reportbuildertrainer'] = 'Report Builder: Show by trainer';
-$string['reportbuildertrainer_help'] = '
-This criteria is enabled by selecting the \'Show records by trainer\' checkbox. If selected, then the report will show different records depending on who the seminar trainer was for the feedback being given.
+$string['reportbuildertrainer_help'] = 'This criteria is enabled by selecting the **Show records by trainer** checkbox. If selected, then the report will show different records depending on who the seminar trainer was for the feedback being given.
 
-If \'Show records where the user is the trainer\' is selected, the report will show feedback for sessions where the user viewing the report was the trainer.
+If **Show records where the user is the trainer** is selected, the report will show feedback for sessions where the user viewing the report was the trainer.
 
-If \'Records where one of the user\'s direct reports is the trainer\' is selected, then the report will show records for sessions trained by staff of the person viewing the report.
+If **Records where one of the user\'s direct reports is the trainer** is selected, then the report will show records for sessions trained by staff of the person viewing the report.
 
-If \'Both\' is selected, then both of the above records will be shown.';
+If **Both** is selected, then both of the above records will be shown.';
 $string['reportbuilderuser'] = 'Show by User';
-$string['reportbuilderuser_help'] = '
-When **Show records by user** is selected the report will show different records depending on the user viewing the report and their relationship to other users.
+$string['reportbuilderuser_help'] = 'When **Show records by user** is selected the report will show different records depending on the user viewing the report and their relationship to other users.
 
 **Include records from a particular user** controls what records a user viewing the report can see:
 
 *   When **A user\'s own records** is checked the user can see their own records.
-*   When **Records for user\'s direct reports** is checked the user can see the records belonging to any user who reports to them (A user is assigned a manager in their user profile on the \'Positions tab\').
+*   When **Records for user\'s direct reports** is checked the user can see the records belonging to any user who reports to them (A user is assigned a manager in their user profile on the **Positions** tab).
 *   When **Records for user\'s indirect reports** is checked the user can see the records belonging to any user who reports any user below them in the management hierarchy, excluding their direct reports.
 
 If multiple options are selected the user sees records that match any of the selected options.';
@@ -927,8 +897,7 @@ $string['showtotalcount'] = 'Display a total count of records';
 $string['showtotalcount_help'] = 'When enabled the report will display a total count of records when not filtered. For performance reasons we recommend you leave this setting off.';
 $string['sidebarfilter'] = 'Sidebar filter options';
 $string['sidebarfilterdesc'] = 'The choices below determine which filters appear to the side of the report and how they are labelled.';
-$string['sidebarfilter_help'] = '
-**Sidebar filter options** allows you to customise the filters that appear to the side of your report. Sidebar filters have
+$string['sidebarfilter_help'] = '**Sidebar filter options** allows you to customise the filters that appear to the side of your report. Sidebar filters have
 instant filtering enabled - each change made to a filter will automatically refresh the report data (if certain system
 requirements are met). The available filters are determined by the **Source** of the report. Only some types of filters can
 be placed in the sidebar, so not all standard filters can be placed there. Each report source has a set of default filters.
@@ -936,8 +905,8 @@ be placed in the sidebar, so not all standard filters can be placed there. Each 
 A filter can appear in either the standard filter area or the sidebar filter area, but not both. Filters can be added, sorted
 and removed.
 
-**Adding filters:** To add a new filter to the report choose the required filter from the \'Add another filter...\' dropdown
-menu and click **Save changes**. When **Advanced** is checked the filter will not appear in the \'Search by\' box by default,
+**Adding filters:** To add a new filter to the report choose the required filter from the **Add another filter...** dropdown
+menu and click **Save changes**. When **Advanced** is checked the filter will not appear in the **Search by** box by default,
 you can click **Show advanced** when viewing a report to see these filters.
 
 **Moving filters:** The filters will appear in the \'Search by\' box in the order they are listed. Use the up and down arrows
@@ -952,18 +921,17 @@ $string['sorting'] = 'Sorting';
 $string['source'] = 'Source';
 $string['standardfilter'] = 'Standard filter options';
 $string['standardfilterdesc'] = 'The choices below determine which filter will appear above the report and how they are labelled.';
-$string['standardfilter_help'] = '
-**Standard filter options** allows you to customise the filters that appear above your report. The available filters are
+$string['standardfilter_help'] = '**Standard filter options** allows you to customise the filters that appear above your report. The available filters are
 determined by the **Source** of the report. Each report source has a set of default filters.
 
 A filter can appear in either the standard filter area or the sidebar filter area, but not both. Filters can be added, sorted
 and removed.
 
-**Adding filters:** To add a new filter to the report choose the required filter from the \'Add another filter...\' dropdown
-menu and click **Save changes**. When **Advanced** is checked the filter will not appear in the \'Search by\' box by default,
+**Adding filters:** To add a new filter to the report choose the required filter from the **Add another filter...** dropdown
+menu and click **Save changes**. When **Advanced** is checked the filter will not appear in the **Search by** box by default,
 you can click **Show advanced** when viewing a report to see these filters.
 
-**Moving filters:** The filters will appear in the \'Search by\' box in the order they are listed. Use the up and down arrows
+**Moving filters:** The filters will appear in the **Search by** box in the order they are listed. Use the up and down arrows
 to change the order.
 
 **Deleting filters:** Click the **Delete** button (the cross icon) to the right of the report filter to remove that filter
@@ -982,8 +950,7 @@ $string['tags'] = 'Tags';
 $string['thefuture'] = 'The future';
 $string['thepast'] = 'The past';
 $string['toolbarsearch'] = 'Toolbar search box';
-$string['toolbarsearch_help'] = '
-**Toolbar search box** allows you to customise the fields that will be searched when using the search box in the report header.
+$string['toolbarsearch_help'] = '**Toolbar search box** allows you to customise the fields that will be searched when using the search box in the report header.
 The available filters are determined by the **Source** of the report. Each report source has a set of default fields. If no
 fields are specified then the search box is not displayed.
 

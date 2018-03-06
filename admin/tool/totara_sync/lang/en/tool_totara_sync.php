@@ -186,7 +186,6 @@ $string['dbport'] = 'Database port';
 $string['dbtable'] = 'Database table';
 $string['dbdateformat'] = 'Date format';
 $string['dbdateformat_help'] = 'Used to specify the date format for the database table columns that contain dates.';
-
 $string['databaseconnectfail'] = 'Failed to connect to database';
 $string['cannotconnectdbsettings'] = 'Cannot connect to database, please check settings';
 $string['dbmissingcolumnx'] = 'Remote database table does not contain field "{$a}"';
@@ -339,11 +338,11 @@ $string['info'] = 'Info';
 ///
 /// HR Import help strings
 ///
-$string['country_help'] = "This should be formatted within the CSV as the 2 character code of the country. For example 'New Zealand' should be 'NZ'<br />
-see <a href=\"http://en.wikipedia.org/wiki/ISO_3166-1_alpha-2\">http://en.wikipedia.org/wiki/ISO_3166-1_alpha-2</a> for details";
-$string['fileaccess_help'] = '**Directory**: This option allows you to specify a directory on the server to be checked for HR Import files automatically
+$string['country_help'] = 'This should be formatted within the CSV as the two character code of the country. For example \'New Zealand\' should be \'NZ\', see <a href="http://en.wikipedia.org/wiki/ISO_3166-1_alpha-2">http://en.wikipedia.org/wiki/ISO_3166-1_alpha-2</a> for details.';
+$string['fileaccess_help'] = 'The options are:
 
-**Upload**: This option requires you to upload files via the \'upload HR Import files\' page under sources in site administration';
+* **Directory**: This option allows you to specify a directory on the server to be checked for HR Import files automatically
+* **Upload**: This option requires you to upload files via the **upload HR Import files** page under sources in site administration.';
 //Delimiter strings
 $string['delimiter'] = 'Delimiter';
 $string['comma'] = 'Comma (,)';
@@ -363,16 +362,16 @@ $string['emptyfieldsbehaviourhierarchy'] = 'Empty string behaviour in CSV';
 $string['emptyfieldsbehaviouruser'] = 'Empty string behaviour in CSV';
 $string['emptyfieldskeepdata'] = 'Empty strings are ignored';
 $string['emptyfieldsremovedata'] = 'Empty strings erase existing data';
-$string['emptyfieldsbehaviourhierarchy_help'] = 'When set to "Empty strings are ignored" empty strings within your CSV file will result in the current value being left.
+$string['emptyfieldsbehaviourhierarchy_help'] = 'When set to **Empty strings are ignored** empty strings within your CSV file will result in the current value being left.
 
-When set to "Empty strings erase existing data" empty strings within your CSV file will lead to the current value being deleted.';
-$string['emptyfieldsbehaviouruser_help'] = 'When set to "Empty strings are ignored" empty strings within your CSV file will result in the current value being left.
+When set to **Empty strings erase existing data** empty strings within your CSV file will lead to the current value being deleted.';
+$string['emptyfieldsbehaviouruser_help'] = 'When set to **Empty strings are ignored** empty strings within your CSV file will result in the current value being left.
 
-When set to "Empty strings erase existing data" empty strings within your CSV file will lead to the current value being deleted.
+When set to **Empty strings erase existing data** empty strings within your CSV file will lead to the current value being deleted.
 
 Please note that some fields are required, and some fields utilise a default value.
-If "Empty strings erase existing data" is selected and you attempt to delete the current value for a required field, the user in the CSV file will be skipped as a value must be provided.
-If "Empty strings erase existing data" is selected and you delete the current value of a field that utilises a default value, the default value will be used as the current value.';
+If **Empty strings erase existing data** is selected and you attempt to delete the current value for a required field, the user in the CSV file will be skipped as a value must be provided.
+If **Empty strings erase existing data** is selected and you delete the current value of a field that utilises a default value, the default value will be used as the current value.';
 $string['enablescheduledsync'] = 'Enable scheduled HR Importing';
 $string['files'] = 'Files';
 $string['filesdir'] = 'Files directory';

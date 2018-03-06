@@ -38,12 +38,12 @@ $string['allowcomments_help'] = 'If enabled, all participants with permission to
 $string['allowduplicatedentries'] = 'Duplicate entries allowed';
 $string['allowduplicatedentries_help'] = 'If enabled, multiple entries can have the same concept name.';
 $string['allowprintview'] = 'Allow print view';
-$string['allowprintview_help'] = 'If enabled, students are provided with a link to a printer-friendly version of the glossary. The link is always available to teachers.';
+$string['allowprintview_help'] = 'If enabled, learners are provided with a link to a printer-friendly version of the glossary. The link is always available to trainers.';
 $string['andmorenewentries'] = 'and {$a} more new entries.';
 $string['answer'] = 'Answer';
 $string['approve'] = 'Approve';
 $string['approvaldisplayformat'] = 'Approval display format';
-$string['approvaldisplayformat_help'] = 'When approving glossary items you may wish to use a different display format';
+$string['approvaldisplayformat_help'] = 'When approving glossary items you may wish to use a different display format.';
 $string['areaattachment'] = 'Attachments';
 $string['areaentry'] = 'Definitions';
 $string['areyousuredelete'] = 'Are you sure you want to delete this entry?';
@@ -98,7 +98,7 @@ $string['currentglossary'] = 'Current glossary';
 $string['date'] = 'date';
 $string['dateview'] = 'Browse by date';
 $string['defaultapproval'] = 'Approved by default';
-$string['defaultapproval_help'] = 'If set to no, entries require approving by a teacher before they are viewable by everyone.';
+$string['defaultapproval_help'] = 'If set to no, entries require approving by a trainer before they are viewable by everyone.';
 $string['defaulthook'] = 'Default hook';
 $string['defaultmode'] = 'Default mode';
 $string['defaultsortkey'] = 'Default sort key';
@@ -114,15 +114,15 @@ $string['destination'] = 'Destination of imported entries';
 $string['destination_help'] = 'Entries can either be imported and added to the current glossary or to a new glossary, in which case a new glossary will be created based on information in the XML file.';
 $string['disapprove'] = 'Undo approval';
 $string['displayformat'] = 'Display format';
-$string['displayformat_help'] = 'There are 7 display formats:
+$string['displayformat_help'] = 'There are seven display formats:
 
-* Simple, dictionary style - No authors are displayed and attachments are shown as links
-* Continuous without author - Entries are displayed one after another without any separation apart from the editing icons
-* Full with author - A forum-like display format showing the author\'s data and with attachments shown as links
-* Full without author - A forum-like display format without authors and with attachments shown as links
-* Encyclopedia - As for "Full with author" but attached images are shown inline
-* Entry list - Concepts are listed as links
-* FAQ - The words QUESTION and ANSWER are appended to the concept and definition respectively';
+* **Simple, dictionary style**: No authors are displayed and attachments are shown as links.
+* **Continuous without author**: Entries are displayed one after another without any separation apart from the editing icons.
+* **Full with author**: A forum-like display format showing the author\'s data and with attachments shown as links.
+* **Full without author**: A forum-like display format without authors and with attachments shown as links.
+* **Encyclopedia**: As for **Full with author** but attached images are shown inline.
+* **Entry list**: Concepts are listed as links.
+* **FAQ**: The words QUESTION and ANSWER are appended to the concept and definition respectively.';
 $string['displayformatcontinuous'] = 'Continuous without author';
 $string['displayformatdefault'] = 'Default to same as display format';
 $string['displayformatdictionary'] = 'Simple, dictionary style';
@@ -136,7 +136,7 @@ $string['displayformatssetup'] = 'Display formats setup';
 $string['duplicatecategory'] = 'Duplicate category';
 $string['duplicateentry'] = 'Duplicate entry';
 $string['editalways'] = 'Always allow editing';
-$string['editalways_help'] = 'This setting specifies whether entries are always editable or whether students can only edit their entries during a configured editing time (usually 30 minutes).';
+$string['editalways_help'] = 'This setting specifies whether entries are always editable or whether learners can only edit their entries during a configured editing time (usually 30 minutes).';
 $string['editcategories'] = 'Edit categories';
 $string['editentry'] = 'Edit entry';
 $string['editingcomment'] = 'Editing comment';
@@ -185,7 +185,7 @@ $string['filetoimport_help'] = 'Browse for and select the XML file on your compu
 $string['fillfields'] = 'Concept and definition are mandatory fields.';
 $string['filtername'] = 'Glossary auto-linking';
 $string['fullmatch'] = 'Match whole words only';
-$string['fullmatch_help'] = 'This setting specifies whether only whole words will be linked, for example, a glossary entry named "construct" will not create a link inside the word "constructivism".';
+$string['fullmatch_help'] = 'This setting specifies whether only whole words will be linked, for example, a glossary entry named \'construct\' will not create a link inside the word \'constructivism\'.';
 $string['glossary:addinstance'] = 'Add a new glossary';
 $string['glossary:approve'] = 'Approve and undo approved entries';
 $string['glossary:comment'] = 'Create comments';
@@ -218,26 +218,26 @@ $string['isglobal'] = 'Is this glossary global?';
 $string['isglobal_help'] = 'A global glossary has entries which are linked to from throughout the site, rather than only in the course that the glossary is in. Only administrators can set a glossary as global.';
 $string['letter'] = 'letter';
 $string['linkcategory'] = 'Automatically link this category';
-$string['linkcategory_help'] = 'If glossary auto-linking has been enabled and this setting is enabled, the category name will be automatically linked wherever it appears throughout the rest of the course. When a participant follows a category name link, they will be taken to the "Browse by category" page of the glossary.';
+$string['linkcategory_help'] = 'If glossary auto-linking has been enabled and this setting is enabled, the category name will be automatically linked wherever it appears throughout the rest of the course. When a participant follows a category name link, they will be taken to the **Browse by category** page of the glossary.';
 $string['linking'] = 'Auto-linking';
 $string['mainglossary'] = 'Main glossary';
 $string['maxtimehaspassed'] = 'Sorry, but the maximum time for editing this comment ({$a}) has passed!';
 $string['modulename'] = 'Glossary';
 $string['modulename_help'] = 'The glossary activity module enables participants to create and maintain a list of definitions, like a dictionary, or to collect and organise resources or information.
 
-A teacher can allow files to be attached to glossary entries. Attached images are displayed in the entry. Entries can be searched or browsed alphabetically or by category, date or author. Entries can be approved by default or require approval by a teacher before they are viewable by everyone.
+A trainer can allow files to be attached to glossary entries. Attached images are displayed in the entry. Entries can be searched or browsed alphabetically or by category, date or author. Entries can be approved by default or require approval by a trainer before they are viewable by everyone.
 
 If the glossary auto-linking filter is enabled, entries will be automatically linked where the concept words and/or phrases appear within the course.
 
-A teacher can allow comments on entries. Entries can also be rated by teachers or students (peer evaluation). Ratings can be aggregated to form a final grade which is recorded in the gradebook.
+A trainer can allow comments on entries. Entries can also be rated by trainers or learners (peer evaluation). Ratings can be aggregated to form a final grade which is recorded in the gradebook.
 
-Glossaries have many uses, such as
+Glossaries have many uses, such as:
 
-* A collaborative bank of key terms
-* A ‘getting to know you’ space where new students add their name and personal details
-* A ‘handy tips’ resource of best practice in a practical subject
-* A sharing area of useful videos, images or sound files
-* A revision resource of facts to remember';
+* A collaborative bank of key terms.
+* A \'getting to know you\' space where new learners add their name and personal details (creating a directory of learner details).
+* A \'handy tips\' resource of best practice on releveant practical skills/techniques.
+* A sharing area of useful videos, images, or sound files.
+* A revision resource of facts to remember.';
 $string['modulename_link'] = 'mod/glossary/view';
 $string['modulenameplural'] = 'Glossaries';
 $string['newentries'] = 'New glossary entries';
@@ -271,7 +271,7 @@ $string['rejectionrpt'] = 'Rejection report';
 $string['resetglossaries'] = 'Delete entries from';
 $string['resetglossariesall'] = 'Delete entries from all glossaries';
 $string['rssarticles'] = 'Number of RSS recent articles';
-$string['rssarticles_help'] = 'This setting specifies the number of glossary entry concepts to include in the RSS feed. Between 5 and 20 generally acceptable.';
+$string['rssarticles_help'] = 'This setting specifies the number of glossary entry concepts to include in the RSS feed. Between 5-20 is generally acceptable.';
 $string['rsssubscriberss'] = 'Display the RSS feed for \'{$a}\' concepts';
 $string['rsstype'] = 'RSS feed for this activity';
 $string['rsstype_help'] = 'To enable the RSS feed for this activity, select either concepts with author or concepts without author to be included in the feed.';
@@ -292,7 +292,7 @@ $string['standardview'] = 'Browse by alphabet';
 $string['studentcanpost'] = 'Students can add entries';
 $string['totalentries'] = 'Total entries';
 $string['usedynalink'] = 'Automatically link glossary entries';
-$string['usedynalink_help'] = 'If site-wide glossary auto-linking has been enabled by an administrator and this setting is enabled, the "Add a new entry" form includes the option to automatically link the entry wherever the concept words and phrases appear throughout the rest of the course.';
+$string['usedynalink_help'] = 'If site-wide glossary auto-linking has been enabled by an administrator and this setting is enabled, the **Add a new entry** form includes the option to automatically link the entry wherever the concept words and phrases appear throughout the rest of the course.';
 $string['visibletabs'] = 'Visible tabs';
 $string['waitingapproval'] = 'Waiting approval';
 $string['warningstudentcapost'] = '(Applies only if the glossary is not the main one)';

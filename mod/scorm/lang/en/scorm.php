@@ -154,14 +154,14 @@ $string['firstaccess'] = 'First access';
 $string['firstattempt'] = 'First attempt';
 $string['floating'] = 'Floating';
 $string['forcecompleted'] = 'Force completed';
-$string['forcecompleted_help'] = 'If enabled, the status of the current attempt is forced to "completed". (Only applicable to SCORM 1.2 packages.)';
+$string['forcecompleted_help'] = 'If enabled, the status of the current attempt is forced to **completed**. (Only applicable to SCORM 1.2 packages.)';
 $string['forcecompleteddesc'] = 'This preference sets the default value for the force completed setting';
 $string['forcenewattempt'] = 'Force new attempt';
-$string['forcenewattempt_help'] = 'If "yes", hides the "Start new attempt" checkbox and prevents review mode.
+$string['forcenewattempt_help'] = 'If **yes**, hides the **Start new attempt** checkbox and prevents review mode.
 
-If "no": SCORM allows a student to return to the same attempt at any point and a new attempt is not possible unless the previous attempt has been set as "completed", "passed" or "failed". If the SCORM package does not do this, the student will always re-enter the same attempt.
+If **no**, SCORM allows a learner to return to the same attempt at any point and a new attempt is not possible unless the previous attempt has been set as **completed**, **passed**, or **failed**. If the SCORM package does not do this, the learner will always re-enter the same attempt.
 
-An attempt is not complete until the "cmi.core.lesson_status" for the attempt is set to either "completed" or "passed". After that, the Start new attempt checkbox is available to the learner.';
+An attempt is not complete until the **cmi.core.lesson_status** for the attempt is set to either **completed** or **passed**. After that, the **Start new attempt** checkbox is available to the learner.';
 $string['forcenewattemptdesc'] = 'This setting hides the "Start new attempt" checkbox and prevents review mode. SCORM allows a student to return to the same attempt at any point and a new attempt is not possible unless the previous attempt has been set as "completed", "passed" or "failed". If the SCORM package does not do this, the student will always re-enter the same attempt. An attempt is not complete until the "cmi.core.lesson_status" for the attempt is set to either "completed" or "passed". After that, the Start new attempt checkbox is available to the learner.';
 $string['forcejavascript'] = 'Force users to enable JavaScript';
 $string['forcejavascript_desc'] = 'If enabled (recommended) this prevents access to SCORM objects when JavaScript is not supported/enabled in a users browser. If disabled the user may view the SCORM but API communication will fail and no grade information will be saved.';
@@ -179,12 +179,12 @@ $string['gradehighest'] = 'Highest grade';
 $string['grademethod'] = 'Grading method';
 $string['grademethod_help'] = 'The grading method defines how the grade for a single attempt of the activity is determined.
 
-There are 4 grading methods:
+There are four grading methods:
 
-* Learning objects - The number of completed/passed learning objects
-* Highest grade - The highest score obtained in all passed learning objects
-* Average grade - The mean of all the scores
-* Sum grade - The sum of all the scores';
+* **Learning objects**: The number of completed/passed learning objects.
+* **Highest grade**: The highest score obtained in all passed learning objects.
+* **Average grade**: The mean of all the scores.
+* **Sum grade**: The sum of all the scores.';
 $string['grademethoddesc'] = 'The grading method defines how the grade for a single attempt of the activity is determined.';
 $string['gradereported'] = 'Grade reported';
 $string['gradesettings'] = 'Grade settings';
@@ -193,12 +193,12 @@ $string['gradesum'] = 'Sum grade';
 $string['height'] = 'Height';
 $string['hidden'] = 'Hidden';
 $string['hidebrowse'] = 'Disable preview mode';
-$string['hidebrowse_help'] = 'Preview mode allows a student to browse an activity before attempting it. If preview mode is disabled, the preview button is hidden.';
+$string['hidebrowse_help'] = 'Preview mode allows a learner to browse an activity before attempting it. If preview mode is disabled, the preview button is hidden.';
 $string['hidebrowsedesc'] = 'Preview mode allows a student to browse an activity before attempting it.';
 $string['hideexit'] = 'Hide exit link';
 $string['hidereview'] = 'Hide review button';
 $string['hidetoc'] = 'Display course structure in player';
-$string['hidetoc_help'] = 'How the table of contents is displayed in the SCORM player';
+$string['hidetoc_help'] = 'How the table of contents is displayed in the SCORM player.';
 $string['hidetocdesc'] = 'This setting specifies how the table of contents is displayed in the SCORM player.';
 $string['highestattempt'] = 'Highest attempt';
 $string['chooseapacket'] = 'Choose or update a package';
@@ -207,33 +207,33 @@ $string['incomplete'] = 'Incomplete';
 $string['info'] = 'Info';
 $string['interactions'] = 'Interactions';
 $string['masteryoverride'] = 'Mastery score overrides status';
-$string['masteryoverride_help'] = 'If enabled and a mastery score is provided, then when LMSFinish is called and if a raw score has been determined, then status will be recalculated using the raw score and mastery score, and any status provided by the SCORM (including "incomplete") will be overridden. (Only applicable to SCORM 1.2 packages.)';
+$string['masteryoverride_help'] = 'If enabled and a mastery score is provided, then when the attempted is finished and if a raw score has been determined, then status will be recalculated using the raw score and mastery score, and any status provided by the SCORM (including **incomplete**) will be overridden. (Only applicable to SCORM 1.2 packages.)';
 $string['masteryoverridedesc'] = 'This preference sets the default value for the mastery score overrides status setting';
 $string['repositorynotsupported'] = 'This repository does not support linking directly to an imsmanifest.xml file.';
 $string['trackid'] = 'Id';
 $string['trackid_help'] = 'This is the identifier set by your SCORM package for this question, the SCORM specification doesn\'t allow the full question text to be provided.';
 $string['trackcorrectcount'] = 'Correct count';
-$string['trackcorrectcount_help'] = 'Number of correct results for the question';
+$string['trackcorrectcount_help'] = 'Number of correct results for the question.';
 $string['trackpattern'] = 'Pattern';
 $string['trackpattern_help'] = 'This is what a correct response to this question would be, it does not show the learners response.';
 $string['tracklatency'] = 'Latency';
 $string['tracklatency_help'] = 'The time elapsed between the time the question was made available to the learner for a response and the time of the first response.';
 $string['trackresponse'] = 'Response';
-$string['trackresponse_help'] = 'This is the response made by the learner for this question';
+$string['trackresponse_help'] = 'This is the response made by the learner for this question.';
 $string['trackresult'] = 'Result';
 $string['trackresult_help'] = 'Shows if the learner entered a correct response.';
 $string['trackscoremin'] = 'Minimum score';
-$string['trackscoremin_help'] = 'Minimum value that can be assigned for the raw score';
+$string['trackscoremin_help'] = 'Minimum value that can be assigned for the raw score.';
 $string['trackscoremax'] = 'Maximum score';
-$string['trackscoremax_help'] = 'Maximum value that can be assigned for the raw score';
+$string['trackscoremax_help'] = 'Maximum value that can be assigned for the raw score.';
 $string['trackscoreraw'] = 'Raw score';
-$string['trackscoreraw_help'] = 'Number that reflects the performance of the learner relative to the range bounded by the values of min and max';
+$string['trackscoreraw_help'] = 'Number that reflects the performance of the learner relative to the range bounded by the values of min and max.';
 $string['tracksuspenddata'] = 'Suspend data';
-$string['tracksuspenddata_help'] = 'Provides space to store and retrieve data between learner sessions';
+$string['tracksuspenddata_help'] = 'Provides space to store and retrieve data between learner sessions.';
 $string['tracktime'] = 'Time';
-$string['tracktime_help'] = 'Time at which the attempt was started';
+$string['tracktime_help'] = 'Time at which the attempt was started.';
 $string['tracktype'] = 'Type';
-$string['tracktype_help'] = 'Type of the question, for example "choice" or "shortanswer".';
+$string['tracktype_help'] = 'Type of the question, for example **choice** or **shortanswer**.';
 $string['trackweight'] = 'Weight';
 $string['trackweight_help'] = 'Weight assigned to the question when calculating score.';
 $string['invalidactivity'] = 'SCORM activity is incorrect';
@@ -246,7 +246,7 @@ $string['last'] = 'Last accessed on';
 $string['lastaccess'] = 'Last access';
 $string['lastattempt'] = 'Last completed attempt';
 $string['lastattemptlock'] = 'Lock after final attempt';
-$string['lastattemptlock_help'] = 'If enabled, a student is prevented from launching the SCORM player after using up all their allocated attempts.';
+$string['lastattemptlock_help'] = 'If enabled, a learner is prevented from launching the SCORM player after using up all their allocated attempts.';
 $string['lastattemptlockdesc'] = 'If enabled, a student is prevented from launching the SCORM player after using up all their allocated attempts.';
 $string['location'] = 'Show the location bar';
 $string['max'] = 'Max score';
@@ -261,24 +261,24 @@ $string['missingparam'] = 'A required parameter is missing or wrong';
 $string['missing_tag'] = 'Missing tag {$a->tag}';
 $string['mode'] = 'Mode';
 $string['modulename'] = 'SCORM package';
-$string['modulename_help'] = 'A SCORM package is a collection of files which are packaged according to an agreed standard for learning objects. The SCORM activity module enables SCORM or AICC packages to be uploaded as a zip file and added to a course.
+$string['modulename_help'] = 'A SCORM package is a collection of files which are packaged according to an agreed standard for learning objects. The SCORM activity module enables SCORM or AICC packages to be uploaded as a ZIP file and added to a course.
 
 Content is usually displayed over several pages, with navigation between the pages. There are various options for displaying content in a pop-up window, with a table of contents, with navigation buttons etc. SCORM activities generally include questions, with grades being recorded in the gradebook.
 
-SCORM activities may be used
+SCORM activities may be used:
 
-* For presenting multimedia content and animations
-* As an assessment tool';
+* For presenting multimedia content and animations.
+* As an assessment tool.';
 $string['modulename_link'] = 'mod/scorm/view';
 $string['modulenameplural'] = 'SCORM packages';
 $string['nav'] = 'Show Navigation';
 $string['nav_help'] = 'This setting specifies whether to show or hide the navigation buttons and their position.
 
-There are 3 options:
+There are three options:
 
-* No - Navigation buttons are not shown
-* Under content - Navigation buttons are shown below the SCORM package content
-* Floating - Navigation buttons are shown floating, with the position from the top and from the left determined by the package.';
+* **No**: Navigation buttons are not shown.
+* **Under content**: Navigation buttons are shown below the SCORM package content.
+* **Floating**: Navigation buttons are shown floating, with the position from the top and from the left determined by the package.';
 $string['navdesc'] = 'This setting specifies whether to show or hide navigation buttons and their position.';
 $string['navpositionleft'] = 'Position of navigation buttons from left in pixels.';
 $string['navpositiontop'] = 'Position of navigation buttons from top in pixels.';
@@ -313,7 +313,7 @@ $string['othersettings'] = 'Additional settings';
 $string['page-mod-scorm-x'] = 'Any SCORM module page';
 $string['pagesize'] = 'Page size';
 $string['package'] = 'Package file';
-$string['package_help'] = 'The package file is a zip (or pif) file containing SCORM/AICC course definition files.';
+$string['package_help'] = 'The package file is a ZIP (or PIF) file containing SCORM/AICC course definition files.';
 $string['packagedir'] = 'Filesystem error: Can\'t create package directory';
 $string['packagefile'] = 'No package file specified';
 $string['packagehdr'] = 'Package';
@@ -365,12 +365,12 @@ $string['scorm:deleteownresponses'] = 'Delete own attempts';
 $string['scorm:savetrack'] = 'Save tracks';
 $string['scorm:skipview'] = 'Skip overview';
 $string['scormtype'] = 'Type';
-$string['scormtype_help'] = 'This setting determines how the package is included in the course. There are up to 4 options:
+$string['scormtype_help'] = 'This setting determines how the package is included in the course. There are up to four options:
 
-* Uploaded package - Enables a SCORM package to be chosen via the file picker
-* External SCORM manifest - Enables an imsmanifest.xml URL to be specified. Note: If the URL has a different domain name than your site, then "Downloaded package" is a better option, since otherwise grades are not saved.
-* Downloaded package - Enables a package URL to be specified. The package will be unzipped and saved locally, and updated when the external SCORM package is updated.
-* External AICC URL - this URL is the launch URL for a single AICC Activity.  A psuedo package will be constructed around this.';
+* **Uploaded package**: Enables a SCORM package to be chosen via the file picker.
+* **External SCORM manifest**: Enables an imsmanifest.xml URL to be specified. Note that if the URL has a different domain name than your site, then **Downloaded package** is a better option, since otherwise grades are not saved.
+* **Downloaded package**: Enables a package URL to be specified. The package will be unzipped and saved locally, and updated when the external SCORM package is updated.
+* **External AICC URL**: This URL is the launch URL for a single AICC Activity. A psuedo package will be constructed around this.';
 $string['scorm:viewreport'] = 'View reports';
 $string['scorm:viewscores'] = 'View scores';
 $string['scrollbars'] = 'Allow the window to be scrolled';
@@ -409,7 +409,7 @@ $string['undercontent'] = 'Under content';
 $string['unziperror'] = 'An error occurs during package unzip';
 $string['updatefreq'] = 'Auto-update frequency';
 $string['updatefreq_error'] = 'Auto-update frequency can only be set when the package file is hosted externally';
-$string['updatefreq_help'] = 'This allows the external package to be automatically downloaded and updated';
+$string['updatefreq_help'] = 'This allows the external package to be automatically downloaded and updated.';
 $string['updatefreqdesc'] = 'This preference sets the default auto-update frequency of an activity';
 $string['validateascorm'] = 'Validate a package';
 $string['validation'] = 'Validation result';
@@ -419,13 +419,13 @@ $string['versionwarning'] = 'The manifest version is older than 1.3, warning at 
 $string['viewallreports'] = 'View reports for {$a} attempts';
 $string['viewalluserreports'] = 'View reports for {$a} users';
 $string['whatgrade'] = 'Attempts grading';
-$string['whatgrade_help'] = 'If multiple attempts are allowed, this setting specifies whether the highest, average (mean), first or last completed attempt is recorded in the gradebook. The last completed attempt option does not include attempts with a \'failed\' status.
+$string['whatgrade_help'] = 'If multiple attempts are allowed, this setting specifies whether the highest, average (mean), first, or last completed attempt is recorded in the gradebook. The last completed attempt option does not include attempts with a **failed** status.
 
 Notes on handling of multiple attempts:
 
-* The option to start a new attempt is provided by a checkbox above the Enter button on the content structure page, so be sure you\'re providing access to that page if you want to allow more than one attempt.
-* Some SCORM packages are intelligent about new attempts, many are not. What this means is that if the learner re-enters an existing attempt, if the SCORM content does not have internal logic to avoid overwriting previous attempts they can be overwritten, even though the attempt was \'completed\' or \'passed\'.
-* The settings "Force completed", "Force new attempt" and "Lock after final attempt" also provide further management of multiple attempts.';
+* The option to start a new attempt is provided by a checkbox above the **Enter** button on the content structure page, so be sure you\'re providing access to that page if you want to allow more than one attempt.
+* Some SCORM packages are intelligent about new attempts, many are not. What this means is that if the learner re-enters an existing attempt, if the SCORM content does not have internal logic to avoid overwriting previous attempts they can be overwritten, even though the attempt was **completed** or **passed**.
+* The settings **Force completed**, **Force new attempt**, and **Lock after final attempt** also provide further management of multiple attempts.';
 $string['whatgradedesc'] = 'Whether the highest, average (mean), first or last completed attempt is recorded in the gradebook if multiple attempts are allowed.';
 $string['width'] = 'Width';
 $string['window'] = 'Window';

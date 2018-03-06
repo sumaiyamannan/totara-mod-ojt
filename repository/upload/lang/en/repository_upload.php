@@ -24,7 +24,7 @@
  */
 
 $string['configplugin'] = 'Configuration for upload plugin';
-$string['pluginname_help'] = 'Upload a file to Totara';
+$string['pluginname_help'] = 'Upload a file to Totara.';
 $string['pluginname'] = 'Upload a file';
 $string['upload:view'] = 'Use uploading in file picker';
 $string['upload_error_ini_size'] = 'The uploaded file exceeds the upload_max_filesize directive in php.ini.';

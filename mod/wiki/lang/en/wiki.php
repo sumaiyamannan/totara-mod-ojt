@@ -41,9 +41,9 @@ $string['creole'] = 'Creole';
 $string['defaultformat'] = 'Default format';
 $string['defaultformat_help'] = 'This setting determines the default format used when editing wiki pages.
 
-* HTML - The HTML editor is available
-* Creole - A common wiki markup language for which a small edit toolbar is available
-* Nwiki - Mediawiki-like markup language used in the contributed Nwiki module';
+* **HTML**: The HTML editor is available.
+* **Creole**: A common wiki markup language for which a small edit toolbar is available.
+* **Nwiki**: Mediawiki-like markup language used in the contributed Nwiki module.';
 $string['deleteallpages'] = 'Delete all wiki pages';
 $string['deletecomment'] = 'Deleting comment';
 $string['deletecommentcheck'] = 'Delete comment';
@@ -83,9 +83,11 @@ $string['firstpagetitle_help'] = 'Title of the first page of the wiki.';
 $string['forceformat'] = 'Force format';
 $string['forceformat_help'] = 'If the format is forced (checkbox ticked), there is no option to choose a format when editing a wiki page.';
 $string['format'] = 'Format';
-$string['format_help'] = '* HTML - The HTML editor is available
-* Creole - A common wiki markup language for which a small edit toolbar is available
-* Nwiki - Mediawiki-like markup language used in the contributed Nwiki module';
+$string['format_help'] = 'The options are:
+
+* **HTML**: The HTML editor is available.
+* **Creole**: A common wiki markup language for which a small edit toolbar is available.
+* **Nwiki**: Mediawiki-like markup language used in the contributed Nwiki module.';
 $string['formathtml'] = 'HTML format';
 $string['formathtml_help'] = 'The HTML editor may be used for formatting content.
 
@@ -109,7 +111,7 @@ $string['incorrectsubwikiid'] = 'Subwiki ID is incorrect.';
 $string['incorrectwikiid'] = 'Wiki ID is incorrect.';
 $string['insertcomment'] = 'Insert comment';
 $string['insertimage'] = 'Insert an image...';
-$string['insertimage_help'] = 'This drop-down list will insert an image to the wiki editor. If you need to add more images to the wiki, please use "Files" tab.';
+$string['insertimage_help'] = 'This dropdown list will insert an image to the wiki editor. If you need to add more images to the wiki, please use the **Files** tab.';
 $string['invalidlock'] = 'This page is already locked by another user.';
 $string['invalidparameters'] = 'Invalid parameters have been given.';
 $string['invalidsection'] = 'Invalid section.';
@@ -132,20 +134,19 @@ $string['modulename_help'] = 'The wiki activity module enables participants to a
 
 A history of previous versions of each page in the wiki is kept, listing the edits made by each participant.
 
-Wikis have many uses, such as
+Wikis have many uses, such as:
 
-* For group lecture notes or study guides
-* For members of a faculty to plan a scheme of work or meeting agenda together
-* For students to collaboratively author an online book, creating content on a topic set by their tutor
-* For collaborative storytelling or poetry creation, where each participant writes a line or verse
-* As a personal journal for examination notes or revision (using an individual wiki)';
+* For group notes.
+* For members of a department to plan a scheme of work or meeting agenda together.
+* For learners to collaboratively author an online book, creating content on a topic set by their trainer.
+* As a personal journal for exam notes or revision (using an individual wiki).';
 $string['modulename_link'] = 'mod/wiki/view';
 $string['modulenameplural'] = 'Wikis';
 $string['navigation'] = 'Navigation';
 $string['navigationfrom'] = 'This page comes from';
-$string['navigationfrom_help'] = 'The wiki pages linking to this page';
+$string['navigationfrom_help'] = 'The wiki pages linking to this page.';
 $string['navigationto'] = 'This page goes to';
-$string['navigationto_help'] = 'Links to other pages';
+$string['navigationto_help'] = 'Links to other pages.';
 $string['newpage'] = 'New';
 $string['newpagehdr'] = 'New page';
 $string['newpagetitle'] = 'New page title';
@@ -185,10 +186,10 @@ $string['page-mod-wiki-history'] = 'Wiki history page';
 $string['page-mod-wiki-map'] = 'Wiki map page';
 $string['pageexists'] = 'This page already exists. Redirecting to it.';
 $string['pageindex'] = 'Page Index';
-$string['pageindex_help'] = 'This wiki\'s page tree';
+$string['pageindex_help'] = 'This wiki\'s page tree.';
 $string['pageislocked'] = 'Someone is editing this page right now. Try to edit it in a few minutes.';
 $string['pagelist'] = 'Page list';
-$string['pagelist_help'] = 'Page list categorized by alphabetical order';
+$string['pagelist_help'] = 'Page list categorised by alphabetical order.';
 $string['pagename'] = 'Page name';
 $string['peerreview'] = 'Peer review';
 $string['pluginadministration'] = 'Wiki administration';
@@ -224,7 +225,7 @@ $string['tagtitle'] = 'See the "{$a}" tag';
 $string['teacherrating'] = 'Teacher rating';
 $string['timesrating']='This page has been rated  {$a->c} times with an average of: {$a->s}';
 $string['updatedpages'] = "Updated pages";
-$string['updatedpages_help'] = "Recently updated wiki pages";
+$string['updatedpages_help'] = 'Recently updated wiki pages.';
 $string['updatedwikipages'] = "Updated wiki pages";
 $string['upload'] = "Upload & Delete";
 $string['uploadname'] = "Filename";
@@ -253,7 +254,7 @@ $string['wikiintro'] = 'Description';
 $string['wikiitalictext'] = 'Italic text';
 $string['wikilockingsettings'] = 'Locking and reparsing timeouts';
 $string['wikimode'] = 'Wiki mode';
-$string['wikimode_help'] = 'The wiki mode determines whether everyone can edit the wiki - a collaborative wiki - or whether everyone has their own wiki which only they can edit - an individual wiki.';
+$string['wikimode_help'] = 'The wiki mode determines whether everyone can edit the wiki (a collaborative wiki) or whether everyone has their own wiki which only they can edit (an individual wiki).';
 $string['wikimodecollaborative'] = 'Collaborative wiki';
 $string['wikimodeindividual'] = 'Individual wiki';
 $string['wikiname'] = 'Wiki name';

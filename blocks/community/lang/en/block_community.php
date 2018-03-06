@@ -32,7 +32,7 @@ $string['additionalcoursedesc'] = '{$a->lang} Creator: {$a->creatorname} - Publi
     - Audience: {$a->audience} - Educational level: {$a->educationallevel} - License: {$a->license}';
 $string['addcourse'] = 'Search';
 $string['audience'] = 'Designed for';
-$string['audience_help'] = 'What kind of course are you looking for?  As well as traditional courses intended for students, you might search for communities of Educators or Totara Administrators';
+$string['audience_help'] = 'What kind of course are you looking for?  As well as traditional courses intended for learners, you might search for communities of Trainers or Totara Administrators.';
 $string['blocks'] = 'Blocks';
 $string['cannotselecttopsubject'] = 'Cannot select a top subject level';
 $string['comments'] = 'Comments ({$a})';
@@ -57,7 +57,7 @@ $string['downloadingcourse'] = 'Downloading course';
 $string['downloadingsize'] = 'Please wait the course file is downloading ({$a->total}Mb)...';
 $string['downloadtemplate'] = 'Create course from template';
 $string['educationallevel'] = 'Educational level';
-$string['educationallevel_help'] = 'What educational level are you searching for?  In the case of communities of educators, this level describes the level they are teaching.';
+$string['educationallevel_help'] = 'What educational level are you searching for?  In the case of communities of trainers, this level describes the level they are training.';
 $string['enroldownload'] = 'Find';
 $string['enroldownload_help'] = 'Some courses listed in the selected hub are being advertised so that people can come and participate in them on the original site.
 
@@ -73,7 +73,7 @@ $string['hubnottrusted'] = 'Not trusted';
 $string['hubtrusted'] = 'This hub is trusted by Totara.org';
 $string['install'] = 'Install';
 $string['keywords'] = 'Keywords';
-$string['keywords_help'] = 'You can search for courses containing specific text in the name, description and other fields of the database.';
+$string['keywords_help'] = 'You can search for courses containing specific text in the name, description, and other fields of the database.';
 $string['langdesc'] = 'Language: {$a} - ';
 $string['language'] = 'Language';
 $string['language_help'] = 'You can search for courses written in a specific language.';

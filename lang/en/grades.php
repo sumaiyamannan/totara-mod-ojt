@@ -44,7 +44,7 @@ $string['aggregatenotonlygraded'] = 'Include empty grades';
 $string['aggregateonlygraded'] = 'Exclude empty grades';
 $string['aggregateonlygraded_help'] = 'An empty grade is a grade which is missing from the gradebook. It may be from an assignment submission which has not yet been graded or from a quiz which has not yet been attempted etc.
 
-This setting determines whether empty grades are not included in the aggregation or are counted as minimal grades, for example 0 for an assignment graded between 0 and 100.';
+This setting determines whether empty grades are not included in the aggregation or are counted as minimal grades, for example 0 for an assignment graded between 0-100.';
 $string['aggregateoutcomes'] = 'Include outcomes in aggregation';
 $string['aggregateoutcomes_help'] = 'If enabled, outcomes are included in the aggregation. This may result in an unexpected category total.';
 $string['aggregatesonly'] = 'Change to aggregates only';
@@ -52,14 +52,14 @@ $string['aggregatesum'] = 'Natural';
 $string['aggregateweightedmean'] = 'Weighted mean of grades';
 $string['aggregateweightedmean2'] = 'Simple weighted mean of grades';
 $string['aggregation'] = 'Aggregation';
-$string['aggregation_help'] = 'The aggregation determines how grades in a category are combined, such as
+$string['aggregation_help'] = 'The aggregation determines how grades in a category are combined, such as:
 
-* Mean of grades - The sum of all grades divided by the total number of grades
-* Median of grades - The middle grade when grades are arranged in order of size
-* Lowest grade
-* Highest grade
-* Mode of grades - The grade that occurs the most frequently
-* Natural - The sum of all grade values scaled by weight';
+* **Mean of grades**: The sum of all grades divided by the total number of grades.
+* **Median of grades**: The middle grade when grades are arranged in order of size.
+* **Lowest grade**.
+* **Highest grade**.
+* **Mode of grades**: The grade that occurs the most frequently.
+* **Natural**: The sum of all grade values scaled by weight.';
 $string['aggregationhintnovalue'] = '( Empty )';
 $string['aggregationhintdropped'] = '( Dropped )';
 $string['aggregationhintexcluded'] = '( Excluded )';
@@ -67,9 +67,9 @@ $string['aggregationhintextra'] = '( Extra credit )';
 $string['aggregation_link'] = 'grade/aggregation';
 $string['aggregationcoef'] = 'Aggregation coefficient';
 $string['aggregationcoefextra'] = 'Extra credit'; // For the header of the table on the 'Gradebook setup' page.
-$string['aggregationcoefextra_help'] = 'If the aggregation is \'Natural\' or \'Simple weighted mean\' and the extra credit checkbox is ticked, the grade item\'s maximum grade is not added to the category\'s maximum grade. This will result in the possibility of achieving the maximum grade in the category without having the maximum grade in all the grade items. If the site administrator has enabled grades over the maximum, there might be grades over the maximum.
+$string['aggregationcoefextra_help'] = 'If the aggregation is **Natural** or **Simple weighted mean** and the extra credit checkbox is ticked, the grade item\'s maximum grade is not added to the category\'s maximum grade. This will result in the possibility of achieving the maximum grade in the category without having the maximum grade in all the grade items. If the site administrator has enabled grades over the maximum, there might be grades over the maximum.
 
-If the aggregation is \'Mean of grades (with extra credits)\' and the extra credit is set to a value greater than zero, the extra credit is the factor by which the grade is multiplied before adding it to the total after the computation of the mean.';
+If the aggregation is **Mean of grades (with extra credits)** and the extra credit is set to a value greater than zero, the extra credit is the factor by which the grade is multiplied before adding it to the total after the computation of the mean.';
 $string['aggregationcoefextra_link'] = 'grade/aggregation';
 $string['aggregationcoefextrasum'] = 'Extra credit'; // for the form with checkboxes: Natural or Simple weighted mean
 $string['aggregationcoefextrasumabbr'] = '+';
@@ -176,7 +176,7 @@ $string['editverbose'] = 'Edit {$a->category} {$a->itemmodule} {$a->itemname}';
 $string['enableajax'] = 'Enable AJAX';
 $string['enableajax_help'] = 'Adds a layer of AJAX functionality to the grader report, simplifying and speeding up common operations. Depends on Javascript being switched on at the user\'s browser level.';
 $string['enableoutcomes'] = 'Enable outcomes';
-$string['enableoutcomes_help'] = 'Support for Outcomes (also known as Competencies, Goals, Standards or Criteria) means that we can grade things using one or more scales that are tied to outcome statements. Enabling outcomes makes such special grading possible throughout the site.';
+$string['enableoutcomes_help'] = 'Support for **Outcomes** (also known as competencies, goals, standards, or criteria) means that you can grade things using one or more scales that are tied to outcome statements. Enabling outcomes makes such special grading possible throughout the site.';
 $string['encoding'] = 'Encoding';
 $string['encoding_help'] = 'Select the character encoding used for the data. (The standard encoding is UTF-8.) If the wrong encoding is selected by mistake, it will be noticeable when previewing the data for import.';
 $string['errorcalculationnoequal'] = 'Formula must start with equal sign (=1+2)';
@@ -206,7 +206,7 @@ $string['exportformatoptions'] = 'Export format options';
 $string['exportplugins'] = 'Export plugins';
 $string['exportsettings'] = 'Export settings';
 $string['exportonlyactive'] = 'Exclude suspended users';
-$string['exportonlyactive_help'] = 'Only include students in the export whose enrolment is active and has not been suspended';
+$string['exportonlyactive_help'] = 'Only include learners in the export whose enrolment is active and has not been suspended';
 $string['exportto'] = 'Export to';
 $string['externalurl'] = 'External URL';
 $string['externalurl_desc'] = 'If an external gradebook is used, the URL should be specified here.';
@@ -223,9 +223,9 @@ $string['feedbackview'] = 'View feedback';
 $string['finalgrade'] = 'Final grade';
 $string['finalgrade_help'] = 'If the overridden checkbox is ticked, a grade may be added or amended.';
 $string['fixedstudents'] = 'Static students column';
-$string['fixedstudents_help'] = 'Allows grades to scroll horizontally without losing sight of the students column, by making it static.';
+$string['fixedstudents_help'] = 'Allows grades to scroll horizontally without losing sight of the learners column, by making it static.';
 $string['forceimport'] = 'Force import';
-$string['forceimport_help'] = 'Force import of grades even if the grades were updated after the import file was exported';
+$string['forceimport_help'] = 'Force import of grades even if the grades were updated after the import file was exported.';
 $string['forceoff'] = 'Force: Off';
 $string['forceon'] = 'Force: On';
 $string['forelementtypes'] = 'for the selected {$a}';
@@ -251,15 +251,15 @@ $string['gradeboundary_help'] = 'This setting determines the minimum percentage 
 $string['gradecategories'] = 'Grade categories';
 $string['gradecategory'] = 'Grade category';
 $string['gradecategoryonmodform'] = 'Grade category';
-$string['gradecategoryonmodform_help'] =  'This setting controls the category in which this activity\'s grades are placed in the gradebook.';
+$string['gradecategoryonmodform_help'] = 'This setting controls the category in which this activity\'s grades are placed in the gradebook.';
 $string['gradecategorysettings'] = 'Grade category settings';
 $string['gradedisplay'] = 'Grade display';
 $string['gradedisplaytype'] = 'Grade display type';
 $string['gradedisplaytype_help'] = 'This setting determines how grades are displayed in the grader and user reports.
 
-* Real - Actual grades
-* Percentage
-* Letter - Letters or words are used to represent a range of grades';
+* **Real**: Actual grades.
+* **Percentage**.
+* **Letter**: Letters or words are used to represent a range of grades.';
 $string['gradedon'] = 'Graded: {$a}';
 $string['gradeexport'] = 'Grade export';
 $string['gradeexportcolumntype'] = '{$a->name} ({$a->extra})';
@@ -293,7 +293,7 @@ $string['gradeitems'] = 'Grade items';
 $string['gradeitemsettings'] = 'Grade item settings';
 $string['gradeitemsinc'] = 'Grade items to be included';
 $string['gradeletter'] = 'Grade letter';
-$string['gradeletter_help'] = 'Grade letters are letters, A, B, C, ..., or words, for example Distinction, Merit, Pass, ..., used to represent a range of grades.';
+$string['gradeletter_help'] = 'Grade letters are letters, A, B, C, etc., or words, for example Distinction, Merit, Pass, etc., used to represent a range of grades.';
 $string['gradeletternote'] = 'To delete a grade letter just empty any of the<br /> three text areas for that letter and click submit.';
 $string['gradeletteroverridden'] = 'The default grade letters are currently overridden.';
 $string['gradeletters'] = 'Grade letters';
@@ -319,7 +319,7 @@ $string['gradepreferences'] = 'Grade preferences';
 $string['gradepreferenceshelp'] = 'Grade preferences Help';
 $string['gradepublishing'] = 'Enable publishing';
 $string['gradepublishinglink'] = 'Download: {$a}';
-$string['gradepublishing_help'] = 'Enable publishing in exports and imports: Exported grades can be accessed by accessing a URL, without having to log on to a Totara site. Grades can be imported by accessing such a URL (which means that a Totara site can import grades published by another site). By default only administrators may use this feature, please educate users before adding required capabilities to other roles (dangers of bookmark sharing and download accelerators, IP restrictions, etc.).';
+$string['gradepublishing_help'] = 'Enabling publishing in exports and imports means that exported grades can be accessed by accessing a URL, without having to log on to a Totara site. Grades can be imported by accessing such a URL (which means that a Totara site can import grades published by another site). By default only administrators may use this feature, please educate users before adding required capabilities to other roles (dangers of bookmark sharing and download accelerators, IP restrictions, etc.).';
 $string['gradereport'] = 'Grade report';
 $string['graderreport'] = 'Grader report';
 $string['grades'] = 'Grades';
@@ -328,12 +328,12 @@ $string['singleview'] = 'Single view for {$a}';
 $string['gradesonly'] = 'Change to grades only';
 $string['gradessettings'] = 'Grade settings';
 $string['gradetype'] = 'Grade type';
-$string['gradetype_help'] = 'There are 4 grade types:
+$string['gradetype_help'] = 'There are four grade types:
 
-* None - No grading possible
-* Value - A numerical value with a maximum and minimum
-* Scale - An item in a list
-* Text - Feedback only
+* **None**: No grading possible.
+* **Value**: A numerical value with a maximum and minimum.
+* **Scale**: An item in a list.
+* **Text**: Feedback only.
 
 Only value and scale grade types may be aggregated. The grade type for an activity-based grade item is set on the activity settings page.';
 $string['gradevaluetoobig'] = 'One of the grade values is larger than the allowed grade maximum of {$a}';
@@ -342,7 +342,7 @@ $string['gradewasmodifiedduringediting'] = 'The grade entered for {$a->itemname}
 $string['gradeweighthelp'] = 'Grade weight help';
 $string['groupavg'] = 'Group average';
 $string['hidden'] = 'Hidden';
-$string['hidden_help'] = 'If ticked, grades are hidden from students. A hidden until date may be set if desired, to release grades after grading is completed.';
+$string['hidden_help'] = 'If ticked, grades are hidden from learners. A hidden until date may be set if desired, to release grades after grading is completed.';
 $string['hiddenasdate'] = 'Show submitted date for hidden grades';
 $string['hiddenasdate_help'] = 'If user can not see hidden grades show date of submission instead of \'-\'.';
 $string['hiddenuntil'] = 'Hidden until';
@@ -361,9 +361,9 @@ $string['hidenooutcomes'] = 'Show outcomes';
 $string['hidequickfeedback'] = 'Hide quick feedback';
 $string['hideranges'] = 'Hide ranges';
 $string['hidetotalifhiddenitems'] = 'Hide totals if they contain hidden items';
-$string['hidetotalifhiddenitems_help'] = 'This setting specifies whether totals which contain hidden grade items are shown to students or replaced with a hyphen (-). If shown, the total may be calculated either excluding or including hidden items.
+$string['hidetotalifhiddenitems_help'] = 'This setting specifies whether totals which contain hidden grade items are shown to learners or replaced with a hyphen (-). If shown, the total may be calculated either excluding or including hidden items.
 
-If hidden items are excluded, the total will be different to the total seen by the teacher in the grader report, since the teacher always sees totals calculated from all items, hidden or unhidden. If hidden items are included, students may be able to calculate the hidden items.';
+If hidden items are excluded, the total will be different to the total seen by the trainer in the grader report, since the trainer always sees totals calculated from all items, hidden or unhidden. If hidden items are included, learners may be able to calculate the hidden items.';
 $string['hidetotalshowexhiddenitems'] = 'Show totals excluding hidden items';
 $string['hidetotalshowinchiddenitems'] = 'Show totals including hidden items';
 $string['hideverbose'] = 'Hide {$a->category} {$a->itemmodule} {$a->itemname}';
@@ -381,10 +381,10 @@ $string['import'] = 'Import';
 $string['importcsv'] = 'Import CSV';
 $string['importcsv_help'] = 'Grades can be imported via a CSV file with format as follows:
 
-* Each line of the file contains one record
-* Each record is a series of data separated by commas or an alternative separator
-* The first record contains a list of fieldnames defining the format of the rest of the file
-* A fieldname containing user identity data is required - either username or ID number or email address
+* Each line of the file contains one record.
+* Each record is a series of data separated by commas or an alternative separator.
+* The first record contains a list of fieldnames defining the format of the rest of the file.
+* A fieldname containing user identity data is required (either username or ID number or email address).
 
 A file of the correct format can be obtained by first exporting some grades. The file can then be edited and saved as a CSV file.';
 $string['importcsv_link'] = 'grade/import/csv/index';
@@ -397,7 +397,7 @@ $string['importfilemissing'] = 'No file was received, go back to the form and ma
 $string['importfrom'] = 'Import from';
 $string['importoutcomenofile'] = 'The uploaded file is empty or corrupted.  Please verify this is a valid file. The problem was detected at line {$a}; this is triggered by the data lines not having as many columns as the first line (the header line) or if the imported file is missing expected headers.  Look at the exported file for an example of a file with valid header.';
 $string['importoutcomes'] = 'Import outcomes';
-$string['importoutcomes_help'] = 'Outcomes can be imported via csv file with format as for the export outcomes csv file.';
+$string['importoutcomes_help'] = 'Outcomes can be imported via CSV file with format as for the export outcomes CSV file.';
 $string['importoutcomes_link'] = 'grade/outcome';
 $string['importoutcomesuccess'] = 'Imported outcome "{$a->name}" with ID #{$a->id}';
 $string['importplugins'] = 'Import plugins';
@@ -435,7 +435,7 @@ $string['letterpercentage'] = 'Letter (percentage)';
 $string['letterreal'] = 'Letter (real)';
 $string['letters'] = 'Letters';
 $string['linkedactivity'] = 'Linked activity';
-$string['linkedactivity_help'] = 'This setting specifies an activity to which this outcome item is linked. This may be used to measure student performance on criteria not assessed by the activity grade.';
+$string['linkedactivity_help'] = 'This setting specifies an activity to which this outcome item is linked. This may be used to measure learner performance on criteria not assessed by the activity grade.';
 $string['linktoactivity'] = 'Link to {$a->name} activity';
 $string['lock'] = 'Lock';
 $string['locked'] = 'Locked';
@@ -451,7 +451,7 @@ $string['mapfrom_help'] = 'Select the column in the spreadsheet containing data 
 $string['mappings'] = 'Grade item mappings';
 $string['mappings_help'] = 'For each column of grades in the spreadsheet, select the corresponding grade item to import the grades into.';
 $string['mapto'] = 'Map to';
-$string['mapto_help'] = 'Select the same identifying data as selected for \'Map from\'.';
+$string['mapto_help'] = 'Select the same identifying data as selected for **Map from**.';
 $string['max'] = 'Highest';
 $string['maxgrade'] = 'Max grade';
 $string['meanall'] = 'All grades';
@@ -475,7 +475,7 @@ $string['mode'] = 'Mode';
 $string['modgradeerrorbadpoint'] = 'Invalid Grade Value. This must be an integer between 1 and {$a}';
 $string['modgradeerrorbadscale'] = 'Invalid scale selected. Please make sure you select a scale from the selections below.';
 $string['modgrade'] = 'Grade';
-$string['modgrade_help'] = 'Select the type of grading used for this activity. If "scale" is chosen, you can then choose the scale from the "scale" dropdown. If using "point" grading, you can then enter the maximum grade available for this activity.';
+$string['modgrade_help'] = 'Select the type of grading used for this activity. If **scale** is chosen, you can then choose the scale from the **scale** dropdown. If using **point** grading, you can then enter the maximum grade available for this activity.';
 $string['modgrademaxgrade'] = 'Maximum points';
 $string['modgradetype'] = 'Type';
 $string['modgradetypenone'] = 'None';
@@ -608,9 +608,9 @@ $string['recovergradesdefault_help'] = 'By default recover old grades when re-en
 $string['refreshpreview'] = 'Refresh preview';
 $string['regradeanyway'] = 'Regrade anyway';
 $string['removeallcoursegrades'] = 'Delete all grades';
-$string['removeallcoursegrades_help'] = 'If ticked, all grade items which were manually added to the gradebook will be deleted, together with grades and data on overridden, excluded, hidden and locked grades. Only grade items associated with activities will remain.';
+$string['removeallcoursegrades_help'] = 'If ticked, all grade items which were manually added to the gradebook will be deleted, together with grades and data on overridden, excluded, hidden, and locked grades. Only grade items associated with activities will remain.';
 $string['removeallcourseitems'] = 'Delete all items and categories';
-$string['removeallcourseitems_help'] = 'If ticked, all categories and grade items which were manually added to the gradebook will be deleted, together with grades and data on overridden, excluded, hidden and locked grades. Only grade items associated with activities will remain.';
+$string['removeallcourseitems_help'] = 'If ticked, all categories and grade items which were manually added to the gradebook will be deleted, together with grades and data on overridden, excluded, hidden, and locked grades. Only grade items associated with activities will remain.';
 $string['report'] = 'Report';
 $string['reportdefault'] = 'Report default ({$a})';
 $string['reportplugins'] = 'Report plugins';
@@ -674,14 +674,14 @@ $string['showaverages_help'] = 'If enabled, the grader report will contain an ad
 $string['showcalculations'] = 'Show calculations';
 $string['showcalculations_help'] = 'If enabled, when editing, a calculator icon is shown for each grade item and category with a visual indicator that a grade item is calculated.';
 $string['showeyecons'] = 'Show show/hide icons';
-$string['showeyecons_help'] = 'If enabled, when editing is turned on, a show/hide icon is shown for each grade for controlling its visibility to the student.';
+$string['showeyecons_help'] = 'If enabled, when editing is turned on, a show/hide icon is shown for each grade for controlling its visibility to the learner.';
 $string['showgroups'] = 'Show groups';
 $string['showhiddenitems'] = 'Show hidden items';
-$string['showhiddenitems_help'] = 'Whether hidden grade items are hidden entirely or if the names of hidden grade items are visible to students.
+$string['showhiddenitems_help'] = 'Whether hidden grade items are hidden entirely or if the names of hidden grade items are visible to learners.
 
-* Show hidden - Hidden grade item names are shown but student grades are hidden
-* Only hidden until - Grade items with a "hide until" date set are hidden completely until the set date, after which the whole item is shown
-* Do not show - Hidden grade items are completely hidden';
+* **Show hidden**: Hidden grade item names are shown but learner grades are hidden.
+* **Only hidden until**: Grade items with a **hide until** date set are hidden completely until the set date, after which the whole item is shown.
+* **Do not show**: Hidden grade items are completely hidden.';
 $string['showhiddenuntilonly'] = 'Only hidden until';
 $string['showlocks'] = 'Show locks';
 $string['showlocks_help'] = 'If enabled, when editing is turned on, a lock/unlock icon is shown for each grade for controlling whether the grade can be automatically updated by the related activity.';
@@ -700,7 +700,7 @@ Note that when feedback is edited in the grader report, an overridden flag is se
 $string['showranges'] = 'Show ranges';
 $string['showranges_help'] = 'If enabled, the grader report will contain an additional row displaying the range for each category and grade item.';
 $string['showrank'] = 'Show rank';
-$string['showrank_help'] = 'Whether to show the position of the student in relation to the rest of the class for each grade item.';
+$string['showrank_help'] = 'Whether to show the position of the learner in relation to the rest of the class for each grade item.';
 $string['showuserimage'] = 'Show user profile images';
 $string['showuserimage_help'] = 'Whether to show the user\'s profile image next to the name in the grader report.';
 $string['showverbose'] = 'Show {$a->category} {$a->itemmodule} {$a->itemname}';
@@ -716,7 +716,7 @@ $string['stats'] = 'Statistics';
 $string['statslink'] = 'Stats';
 $string['student'] = 'Student';
 $string['studentsperpage'] = 'Students per page';
-$string['studentsperpage_help'] = 'This setting determines the number of students displayed per page in the grader report.';
+$string['studentsperpage_help'] = 'This setting determines the number of learners displayed per page in the grader report.';
 $string['studentsperpagereduced'] = 'Reduced maximum students per page from {$a->originalstudentsperpage} to {$a->studentsperpage}. Consider increasing the PHP setting max_input_vars from {$a->maxinputvars}.';
 $string['subcategory'] = 'Normal category';
 $string['submissions'] = 'Submissions';
@@ -757,7 +757,7 @@ $string['usenoscale'] = 'Use no scale';
 $string['usepercent'] = 'Use percent';
 $string['user'] = 'User';
 $string['userfields_show'] = 'Show user fields';
-$string['userfields_show_help'] = 'Show additional user fields like email address on the grader report. The specific fields displayed are controlled by the site setting showuseridentity';
+$string['userfields_show_help'] = 'Show additional user fields like email address on the grader report. The specific fields displayed are controlled by the site setting **Show user identity** (which can be edited under *Site administration > Users > Permissions > User policies*.';
 $string['usergrade'] = 'User {$a->fullname} ({$a->useridnumber}) on item {$a->gradeidnumber}';
 $string['userid'] = 'User ID';
 $string['useridnumberwarning'] = 'Users without an ID number are excluded from the export as they cannot be imported';
@@ -768,7 +768,7 @@ $string['userpreferences'] = 'User preferences';
 $string['userenrolmentsuspended'] = 'User enrolment suspended';
 $string['useweighted'] = 'Use weighted';
 $string['verbosescales'] = 'Verbose scales';
-$string['verbosescales_help'] = 'A verbose scale uses words rather than numbers. Set to \'Yes\' if both numerical and verbose scales are to be imported. Set to \'No\' if only numerical scales are to be imported.';
+$string['verbosescales_help'] = 'A verbose scale uses words rather than numbers. Set to **Yes** if both numerical and verbose scales are to be imported. Set to **No** if only numerical scales are to be imported.';
 $string['viewbygroup'] = 'Group';
 $string['viewgrades'] = 'View grades';
 $string['weight'] = 'weight';

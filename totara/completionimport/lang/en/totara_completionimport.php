@@ -34,17 +34,14 @@ $string['cannotsaveupload'] = 'Cannot save file to {$a}';
 $string['caseinsensitivecourse'] = 'Case insensitive shortnames';
 $string['caseinsensitivecourse_help'] = 'When enabled, course short names will be matched case insensitively.
 
-* If there are 2 or more courses with shortnames that use different case but have matching idnumbers then the name of the existing course will be matched.
-
+* If there are two or more courses with shortnames that use different case but have matching idnumbers then the name of the existing course will be matched.
 * If the inital match fails, the shortname for the duplicate records with matching idnumbers will be used.
 
 This is an advanced setting and will cause performance issues during uploads. We strongly advise any case issues be corrected in the uploaded file.';
-
 $string['caseinsensitivecertification'] = 'Case insensitive shortnames';
 $string['caseinsensitivecertification_help'] = 'When enabled, certification short names will be matched case insensitively.
 
-* If there are 2 or more certifications with shortnames that use different case but have matching idnumbers then the name of the existing certification will be matched.
-
+* If there are two or more certifications with shortnames that use different case but have matching idnumbers then the name of the existing certification will be matched.
 * If the inital match fails, the shortname for the duplicate records with matching idnumbers will be used.
 
 This is an advanced setting and will cause performance issues during uploads. We strongly advise any case issues be corrected in the uploaded file.';
@@ -117,33 +114,23 @@ $string['sourcefile_help'] = 'Please enter the file name and full path name to a
 
 eg: /var/sitedata/csvimport/course.csv
 
-This option allows you to upload a file externally via FTP rather than using a form via HTTP
+This option allows you to upload a file externally via FTP rather than using a form via HTTP.
 
-Please note the original file will be moved and deleted during the import process';
+Please note the original file will be moved and deleted during the import process.';
 $string['sourcefilerequired'] = 'Source file name is required';
 $string['importactioncertification'] = 'Import action';
 $string['importactioncertification_help'] = 'Choose which action should occur with the imported records.
 
-<strong>Save to history</strong>
+* **Save to history**: The imported records will be added to history and the certification status of users will remain unchanged.
+* **Certify uncertified users**: If a user is already certified, the imported record is added to history. If a user is not currently certified, the imported record will be used to mark them certified. If appropriate, the certification window may open and/or expire when cron next runs, causing the completion to be moved to history.
+* **Certify if more recent**: If a user is already certified and the import completion date is more recent than the current completion date, then the current completion will be moved to history and the user will be marked certified on the imported completion date.
+If a user is already certified and the import completion date is further in the past than the current completion date, then the imported record will be added to history.
+If a user is not currently certified, the imported record will be used to mark them certified. If appropriate, the certification window may open and/or expire when cron next runs, causing the completion to be moved to history.
 
-* The imported records will be added to history.
-* The certification status of users will remain unchanged.
-
-<strong>Certify uncertified users</strong>
-
-* If a user is already certified, the imported record is added to history.
-* If a user is not currently certified, the imported record will be used to mark them certified. If appropriate, the certification window may open and/or expire when cron next runs, causing the completion to be moved to history.
-
-<strong>Certify if more recent</strong>
-
-* If a user is already certified and the import completion date is more recent than the current completion date, then the current completion will be moved to history and the user will be marked certified on the imported completion date.
-* If a user is already certified and the import completion date is further in the past than the current completion date, then the imported record will be added to history.
-* If a user is not currently certified, the imported record will be used to mark them certified. If appropriate, the certification window may open and/or expire when cron next runs, causing the completion to be moved to history.
-
-<strong>Notes</strong>
+Note that:
 
 * If a record is imported for a user who is not assigned to the certification, an individual user assignment will be created for them, causing them to be assigned. Assignment (or reassignment as the case may be) occurs first, then the imported record is processed, regardless of the chosen action or outcome.
-* If a user is marked certified during import and the recertification window opening date is in the past, when cron runs it will open the recertification window and reset current course progress. If this is not the desired outcome then "Save to history" should probably be selected.';
+* If a user is marked certified during import and the recertification window opening date is in the past, when cron runs it will open the recertification window and reset current course progress. If this is not the desired outcome then **Save to history** should probably be selected.';
 $string['importactioncertificationcertify'] = 'Certify uncertified users';
 $string['importactioncertificationhistory'] = 'Save to history';
 $string['importactioncertificationnewer'] = 'Certify if more recent';

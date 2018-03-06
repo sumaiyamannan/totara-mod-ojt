@@ -62,7 +62,7 @@ $string['oneunitshown'] = 'Unit 1 is automatically displayed beside the answer b
 $string['pleaseenterananswer'] = 'Please enter an answer.';
 $string['pleaseenteranswerwithoutthousandssep'] = 'Please enter your answer without using the thousand separator ({$a}).';
 $string['pluginname'] = 'Numerical';
-$string['pluginname_help'] = 'From the student perspective, a numerical question looks just like a short-answer question. The difference is that numerical answers are allowed to have an accepted error. This allows a fixed range of answers to be evaluated as one answer. For example, if the answer is 10 with an accepted error of 2, then any number between 8 and 12 will be accepted as correct. ';
+$string['pluginname_help'] = 'From the learner perspective, a numerical question looks just like a short-answer question. The difference is that numerical answers are allowed to have an accepted error. This allows a fixed range of answers to be evaluated as one answer. For example, if the answer is 10 with an accepted error of 2, then any number between 8 and 12 will be accepted as correct.';
 $string['pluginname_link'] = 'question/type/numerical';
 $string['pluginnameadding'] = 'Adding a Numerical question';
 $string['pluginnameediting'] = 'Editing a Numerical question';
@@ -81,37 +81,30 @@ $string['unitgraded'] = 'The unit must be given, and will be graded.';
 $string['unithandling'] = 'Unit handling';
 $string['unitincorrect'] = 'You did not give the correct unit.';
 $string['unitmandatory'] = 'Mandatory';
-$string['unitmandatory_help'] = '
+$string['unitmandatory_help'] = '* The response will be graded using the unit written.
 
-* The response will be graded using the unit written.
-
-* The unit penalty will be applied if the unit field is empty
-
-';
+* The unit penalty will be applied if the unit field is empty.';
 $string['unitnotselected'] = 'You must select a unit.';
 $string['unitonerequired'] = 'You must enter at least one unit';
 $string['unitoptional'] = 'Optional unit';
-$string['unitoptional_help'] = '
-* If the unit field is not empty, the response will be graded using this unit.
+$string['unitoptional_help'] = '* If the unit field is not empty, the response will be graded using this unit.
 
-* If the unit is badly written or unknown, the response will be considered as non valid.
-';
+* If the unit is badly written or unknown, the response will be considered as non valid.';
 $string['unitpenalty'] = 'Unit penalty';
-$string['unitpenalty_help'] = 'The penalty is applied if
+$string['unitpenalty_help'] = 'The penalty is applied if either:
 
-* the wrong unit name is entered into the unit input, or
-* a unit is entered into the value input box';
+* The wrong unit name is entered into the unit input.
+* A unit is entered into the value input box.';
 $string['unitposition'] = 'Units go';
 $string['units'] = 'Units';
 $string['unitselect'] = 'a drop-down menu';
 $string['unitx'] = 'Unit {no} ';
 $string['validnumberformats'] = 'Valid number formats';
-$string['validnumberformats_help'] = '* regular numbers 13500.67, 13 500.67, 13500,67 or 13 500,67
+$string['validnumberformats_help'] = '* Regular numbers 13500.67, 13 500.67, 13500,67 or 13 500,67
 
-* if your language pack settings (langconfig.php file) uses a comma (,) as thousand separator *always* put the decimal point (.) as in 13,500.67 : 13,500.
+* If your language pack settings (langconfig.php file) uses a comma (,) as thousand separator **always** put the decimal point (.) as in 13,500.67 : 13,500.
 
-* for exponent form, say 1.350067 * 10<sup>4</sup>, use 1.350067 E4 : 1.350067 E04';
-
+* For exponent form, say 1.350067 * 10<sup>4</sup>, use 1.350067 E4 : 1.350067 E04';
 $string['validnumbers'] = '13500.67, 13 500.67, 13,500.67, 13500,67, 13 500,67, 1.350067 E4 or 1.350067 E04';
 $string['xmustbenumeric'] = '{$a} must be a number.';
 $string['xmustnotbenumeric'] = '{$a} cannot be a number.';

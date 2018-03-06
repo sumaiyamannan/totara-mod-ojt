@@ -125,11 +125,11 @@ $string['permalink'] = 'Permalink';
 $string['personalblogs'] = 'Users can only see their own blog';
 $string['preferences'] = 'Blog preferences';
 $string['publishto'] = 'Publish to';
-$string['publishto_help'] = 'There are 3 options:
+$string['publishto_help'] = 'There are three options:
 
-* Yourself (draft) - Only you and the administrators can see this entry
-* Anyone on this site - Anyone who is registered on this site can read this entry
-* Anyone in the world - Anyone, including guests, could read this entry';
+* **Yourself (draft)**: Only you and the administrators can see this entry.
+* **Anyone on this site**: Anyone who is registered on this site can read this entry.
+* **Anyone in the world**:  Anyone, including guests, could read this entry.';
 $string['publishtocourse'] = 'Users sharing a course with you';
 $string['publishtocourseassoc'] = 'Members of the associated course';
 $string['publishtocourseassocparam'] = 'Members of {$a}';
