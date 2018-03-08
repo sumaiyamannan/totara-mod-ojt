@@ -1544,6 +1544,10 @@ abstract class rb_base_source {
     public function rb_display_audience_visibility($visibility, $row, $isexport = false) {
         global $COHORT_VISIBILITY;
 
+        if (!isset($COHORT_VISIBILITY[$visibility])) {
+            return $visibility;
+        }
+
         return $COHORT_VISIBILITY[$visibility];
     }
 
