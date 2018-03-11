@@ -3,6 +3,24 @@
 
 Totara Learn Changelog
 
+Release 9.17 (12th March 2018):
+===============================
+
+
+Important:
+
+    TL-17166       Added support for March 1, 2018 PostgreSQL releases
+
+                   PostgreSQL 10.3, 9.6.8, 9.5.12, 9.4.17 and 9.3.22 which were released 1st
+                   March 2018 were found to not be compatible with Totara Learn due to the way
+                   in which indexes were read by the PostgreSQL driver in Learn.
+                   The method for reading indexes has been updated to ensure that Totara Learn
+                   is compatible with PostgreSQL.
+
+                   If you have upgraded PostgreSQL or are planning to you will need to upgrade
+                   Totara Learn at the same time.
+
+
 Release 9.16 (28th February 2018):
 ==================================
 
@@ -486,7 +504,7 @@ Contributions:
 
     * Grace Cooper at Kineo UK - TL-16396
     * Richard Eastbury at Think Associates - TL-16376
- 
+
 
 Release 9.12 (27th October 2017):
 =================================
