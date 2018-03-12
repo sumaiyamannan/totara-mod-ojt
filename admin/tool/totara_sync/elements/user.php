@@ -427,7 +427,7 @@ class totara_sync_element_user extends totara_sync_element {
                 INNER JOIN {user} u ON (sc.idnumber = u.idnumber AND u.idnumber != '')";
             $rscreateassignments = $DB->get_recordset_sql($sql);
             foreach ($rscreateassignments as $suser) {
-                $assign_sync_users[$suser->id] = $suser;
+                $assign_sync_users[$suser->id.'_'.$suser->uid] = $suser;
             }
             $rscreateassignments->close(); // Free memory.
         }
@@ -527,7 +527,7 @@ class totara_sync_element_user extends totara_sync_element {
                 unset($userauth);
 
                 // Store user data for assignment sync later.
-                $assign_sync_users[$suser->id] = $suser;
+                $assign_sync_users[$suser->id.'_'.$suser->uid] = $suser;
                 // Update custom field data.
                 $user = $this->put_custom_field_data($user, $suser, $saveemptyfields);
 

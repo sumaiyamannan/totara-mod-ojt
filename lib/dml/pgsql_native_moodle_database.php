@@ -377,13 +377,13 @@ class pgsql_native_moodle_database extends moodle_database {
 
         if ($result) {
             while ($row = pg_fetch_assoc($result)) {
-                if (!preg_match('/CREATE (|UNIQUE )INDEX ([^\s]+) ON '.$tablename.' USING ([^\s]+) \(([^\)]+)\)/i', $row['indexdef'], $matches)) {
+                if (!preg_match('/CREATE (|UNIQUE )INDEX ([^\s]+) ON ('.$row['schemaname'].'\.)?'.$tablename.' USING ([^\s]+) \(([^\)]+)\)/i', $row['indexdef'], $matches)) {
                     continue;
                 }
-                if ($matches[4] === 'id') {
+                if ($matches[5] === 'id') {
                     continue;
                 }
-                $columns = explode(',', $matches[4]);
+                $columns = explode(',', $matches[5]);
                 foreach ($columns as $k=>$column) {
                     $column = trim($column);
                     if ($pos = strpos($column, ' ')) {

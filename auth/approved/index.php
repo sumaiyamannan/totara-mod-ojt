@@ -51,24 +51,23 @@ $PAGE->set_button($report->edit_button());
 
 echo $output->header();
 
-$countfiltered = $report->get_filtered_count();
+// Generate the report HTML and debug info - this also caches counts in an optimal way.
+list($reporthtml, $debughtml) = $output->report_html($report, $debug);
+echo $debughtml;
+
 $strheading = get_string('reportpending', 'auth_approved');
 $heading = $strheading . ': ' . $output->result_count_info($report);
 echo $output->heading($heading);
-
-if ($debug) {
-    $report->debug($debug);
-}
 
 $report->display_search();
 $report->display_sidebar_search();
 
 echo $report->display_saved_search_options();
 
-$report->display_table();
+echo $reporthtml;
 
-if ($countfiltered and $bulkactions) {
-    $bulkform = new \auth_approved\form\bulk_actions($report->get_current_url(), array('actions' => $bulkactions, 'count' => $countfiltered));
+if ($report->get_filtered_count() and $bulkactions) {
+    $bulkform = new \auth_approved\form\bulk_actions($report->get_current_url(), array('actions' => $bulkactions, 'count' => $report->get_filtered_count()));
     $bulkform->display();
 }
 
