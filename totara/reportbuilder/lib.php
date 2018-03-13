@@ -150,6 +150,7 @@ class reportbuilder {
     protected $uniqueid;
 
     private $_paramoptions, $_embeddedparams, $_fullcount, $_filteredcount, $_isinitiallyhidden;
+    private $_hasdisabledfilter = false;
 
     /**
      * @var bool Does report instance use GROUP BY statement (aggregation)?
@@ -162,6 +163,8 @@ class reportbuilder {
     protected $pregrouped;
 
     public $reportfor, $embedded, $toolbarsearch;
+
+    public $hidetoolbar = false;
 
     /**
      * The the state of global restrictions in this report.
@@ -1279,6 +1282,9 @@ class reportbuilder {
                         list($where_sqls[], $params) = $this->get_toolbar_sql_filter($data);
                         $filterparams = array_merge($filterparams, $params);
                     }
+                    else if (!array_key_exists($fname, $this->filters)) {
+                        $this->_hasdisabledfilter = true;
+                    }
                 } else if (array_key_exists($fname, $this->filters)) {
                     $filter = $this->filters[$fname];
                     if ($filter->grouping != 'none') {
@@ -1287,6 +1293,8 @@ class reportbuilder {
                         list($where_sqls[], $params) = $filter->get_sql_filter($data);
                     }
                     $filterparams = array_merge($filterparams, $params);
+                } else if (!array_key_exists($fname, $this->filters)) {
+                    $this->_hasdisabledfilter = true;
                 }
             }
         }
@@ -1426,6 +1434,9 @@ class reportbuilder {
                         $field->set_data($data);
                     }
                 }
+            }
+            if (isset($adddatastandard->submitgroupstandard['clearstandardfilters']) || $clearfilters) {
+                $SESSION->reportbuilder[$this->get_uniqueid()] = array();
             }
         }
         $mformsidebar = new report_builder_sidebar_search_form(null,
@@ -3982,7 +3993,7 @@ class reportbuilder {
         // Start the table.
         $table = new totara_table($this->get_uniqueid('rb'));
 
-        if ($this->toolbarsearch && $this->has_toolbar_filter()) {
+        if (!$this->hidetoolbar && $this->toolbarsearch && $this->has_toolbar_filter()) {
             $toolbarsearchtext = isset($SESSION->reportbuilder[$this->get_uniqueid()]['toolbarsearchtext']) ?
                     $SESSION->reportbuilder[$this->get_uniqueid()]['toolbarsearchtext'] : '';
             $mform = new report_builder_toolbar_search_form($this->get_current_url(),
@@ -4611,6 +4622,15 @@ class reportbuilder {
         return compact('allstandardfilters', 'unusedstandardfilters',
                        'allsidebarfilters', 'unusedsidebarfilters',
                        'allsearchcolumns', 'unusedsearchcolumns');
+    }
+
+    /**
+     * Returns whether this report is using a disabled filter
+     * @return bool
+     */
+    function has_disabled_filters() {
+        $this->fetch_sql_filters(); //trigger the disabled filter check
+        return $this->_hasdisabledfilter;
     }
 
     /**

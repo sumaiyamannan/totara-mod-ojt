@@ -374,6 +374,7 @@ $string['filter_roomavailable'] = 'Available between';
 $string['filter_roomavailable_help'] = 'This filter allows you to find rooms that are available for a session by specifying the session start and end date.';
 $string['filtercontains'] = 'Any of the selected';
 $string['filtercontainsnot'] = 'None of the selected';
+$string['filterdisabledwarning'] = 'This report has changed due to the removal of one or more filters. Contact your site administrator for more details.';
 $string['filterequals'] = 'All of the selected';
 $string['filterequalsnot'] = 'Not all of the selected';
 $string['financialyear'] = 'Financial year start';

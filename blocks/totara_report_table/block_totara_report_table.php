@@ -123,7 +123,7 @@ class block_totara_report_table extends block_base {
      * @return stdClass
      */
     public function get_content() {
-        global $DB, $SESSION, $CFG;
+        global $DB, $SESSION, $CFG, $PAGE;
 
         // Include report builder here.
         require_once($CFG->dirroot . '/totara/reportbuilder/lib.php');
@@ -201,8 +201,7 @@ class block_totara_report_table extends block_base {
         }
 
         // Ensure that the toolbar search is disabled, as this will not work from the report block.
-        // Only sorting and paging are supported.
-        $report->toolbarsearch = false;
+        $report->hidetoolbar = true;
 
         \totara_reportbuilder\event\report_viewed::create_from_report($report)->trigger();
 
@@ -234,6 +233,12 @@ class block_totara_report_table extends block_base {
                 return $this->content;
             }
         }
+
+        if ($report->has_disabled_filters()) {
+            $renderer = $PAGE->get_renderer('core');
+            $reporthtml = $renderer->notification(get_string('filterdisabledwarning', 'totara_reportbuilder'), 'notifywarning') . $reporthtml;
+        }
+
 
         // The table has already been rendered so just return the class.
         $this->content->text = $reporthtml;
