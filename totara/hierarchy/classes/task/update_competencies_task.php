@@ -352,8 +352,12 @@ class update_competencies_task extends \core\task\scheduled_task {
                             break;
 
                         case $COMP_AGGREGATION['ANY']:
-                            // Check for a proficient flag.
-                            if ($item_value && $item_value->proficient == 1) {
+                            // Proficiency level has already been set - don't update it.
+                            if ($current_value && $current_value->proficient == 1) {
+                                $aggregated_status = null;
+                                $stop_agg = true;
+                            // User is now proficient, so set their proficiency value.
+                            } else if ($item_value && $item_value->proficient == 1) {
                                 $aggregated_status = $min_value->id;
                                 $stop_agg = true;
                             }
