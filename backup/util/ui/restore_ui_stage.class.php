@@ -288,7 +288,7 @@ class restore_ui_stage_confirm extends restore_ui_independent_stage implements f
      * @throws restore_ui_exception
      */
     public function process() {
-        global $CFG;
+        global $CFG, $USER;
         if ($this->filename) {
             $archivepath = $CFG->tempdir . '/backup/' . $this->filename;
             if (!file_exists($archivepath)) {
@@ -304,6 +304,23 @@ class restore_ui_stage_confirm extends restore_ui_independent_stage implements f
             if (!$storedfile || $storedfile->get_contenthash() !== $this->contenthash) {
                 throw new restore_ui_exception('invalidrestorefile');
             }
+            // Totara: we need at least basic access control here!
+            if ($storedfile->get_component() === 'backup') {
+                if ($storedfile->get_contextid() != $this->contextid) {
+                    throw new restore_ui_exception('invalidrestorefile');
+                }
+                if ($storedfile->get_filearea() !== 'course' and $storedfile->get_filearea() !== 'activity') {
+                    throw new restore_ui_exception('invalidrestorefile');
+                }
+            } else if ($storedfile->get_component() === 'user') {
+                $usercontext = context_user::instance($USER->id);
+                if ($storedfile->get_contextid() != $usercontext->id) {
+                    throw new restore_ui_exception('invalidrestorefile');
+                }
+            } else {
+                throw new restore_ui_exception('invalidrestorefile');
+            }
+
             $outcome = $this->extract_file_to_dir($storedfile);
         }
         return $outcome;
@@ -363,6 +380,7 @@ class restore_ui_stage_confirm extends restore_ui_independent_stage implements f
         $prevstageurl = new moodle_url('/backup/restorefile.php', array('contextid' => $this->contextid));
         $nextstageurl = new moodle_url('/backup/restore.php', array(
             'contextid' => $this->contextid,
+            'sesskey'   => sesskey(),
             'filepath'  => $this->filepath,
             'stage'     => restore_ui::STAGE_DESTINATION));
 
@@ -522,6 +540,7 @@ class restore_ui_stage_destination extends restore_ui_independent_stage {
 
         $nextstageurl = new moodle_url('/backup/restore.php', array(
             'contextid' => $this->contextid,
+            'sesskey'   => sesskey(),
             'filepath'  => $this->filepath,
             'stage'     => restore_ui::STAGE_SETTINGS));
         $context = context::instance_by_id($this->contextid);

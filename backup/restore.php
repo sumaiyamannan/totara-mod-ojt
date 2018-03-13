@@ -17,6 +17,7 @@ $PAGE->set_pagelayout('admin');
 
 require_login($course, null, $cm);
 require_capability('moodle/restore:restorecourse', $context);
+require_sesskey();
 
 if (is_null($course)) {
     $coursefullname = $SITE->fullname;
@@ -63,6 +64,9 @@ if ($stage & restore_ui::STAGE_CONFIRM + restore_ui::STAGE_DESTINATION) {
         }
     }
     if ($rc) {
+        if ($rc->get_userid() != $USER->id) {
+            throw new invalid_parameter_exception('Restore id does not belong to this user');
+        }
         // check if the format conversion must happen first
         if ($rc->get_status() == backup::STATUS_REQUIRE_CONV) {
             $rc->convert();
