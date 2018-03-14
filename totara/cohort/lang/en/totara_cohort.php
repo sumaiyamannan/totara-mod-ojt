@@ -129,6 +129,7 @@ When no options are selected, the alert function is disabled.';
 $string['cohortapplyinbackground'] = 'Apply dynamic audience membership changes in background';
 $string['cohortapplyinbackground_help'] = 'Dynamic audience membership needs to be updated after audience rule changes are approved, which can take some time to complete. When checked, updates will be scheduled to occur as a background task. If unchecked, updates will occur immediately which will require the user who is approving the changes to wait for the update to complete.';
 $string['cohortbrokenrule'] = '{$a->type} - {$a->name} => This rule is broken';
+$string['cohortbrokenruleemail'] = '{$a->ruleset} - {$a->type} - {$a->name} => This rule is broken';
 $string['cohortbrokenrulesmessage'] = 'Some broken rules have been found.
 While there are broken rules the audience membership will not be updated.
 
