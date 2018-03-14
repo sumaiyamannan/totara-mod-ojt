@@ -448,6 +448,7 @@ class rb_source_user extends rb_base_source {
     function rb_display_user_with_links($user, $row, $isexport = false) {
         global $CFG, $OUTPUT, $USER;
 
+        require_once($CFG->dirroot . '/user/lib.php');
         require_once($CFG->dirroot . '/totara/feedback360/lib.php');
 
         // Process obsolete calls to this display function.
