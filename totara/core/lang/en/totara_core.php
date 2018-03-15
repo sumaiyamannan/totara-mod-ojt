@@ -504,6 +504,7 @@ $string['securereferrers'] = 'Secure referrers';
 $string['securereferrers_desc'] = 'When enabled browsers are instructed to not send script names and page parameters to external sites which improves security and privacy. This may affect functionality of browsers that do not fully implement referrer policy.';
 $string['selectanassessor'] = 'Select an assessor...';
 $string['selectaproficiency'] = 'Select a proficiency...';
+$string['selectionlimited'] = 'There is a maximum limit of {$a} selected managers';
 $string['sendregistrationdatatask'] = 'Send site registration data';
 $string['sendremindermessagestask'] = 'Send reminder messages';
 $string['settings'] = 'Settings';

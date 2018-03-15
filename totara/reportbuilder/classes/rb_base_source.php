@@ -4508,18 +4508,29 @@ abstract class rb_base_source {
             'text'                                                          // filtertype
         );
 
-        // Manager field filters.
+        // Manager field filters (Limits the number of selected managers in the report-builder JA filter)
+        // We use this limit to prevent generating enormous query when applying the filter.
+        // Each additional selected manager adds AND EXISTS (SELECT ... JOIN ...) and this when getting to
+        // large number of managers get some mysql derivatives confused as well as MS SQL server.
+        $selectionlimit = isset($CFG->totara_reportbuilder_filter_selected_managers_limit) ? intval($CFG->totara_reportbuilder_filter_selected_managers_limit) : 25;
+        $filteroptionoptions = [
+            'jobfield' => 'managerjaid',   // Jobfield, map to the column in the job_assignments table.
+            'jobjoin' => 'user',           // The table that the job join information can be found in.
+            'extfield' => 'userid',        // Extfield, this overrides the jobfield as the select after joining.
+            'extjoin' => 'job_assignment', // Extjoin, whether an additional join is required.
+        ];
+
+        // Setting manager filter selection limit
+        if ($selectionlimit > 0) {
+            $filteroptionoptions['selectionlimit'] = $selectionlimit;
+        }
+
         $filteroptions[] = new rb_filter_option(
             'job_assignment',
             'allmanagers',
             get_string('usersmanagerall', 'totara_reportbuilder'),
             'grpconcat_jobassignment',
-            array(
-                'jobfield' => 'managerjaid',                                // Jobfield, map to the column in the job_assignments table.
-                'jobjoin' => 'user',                                        // The table that the job join information can be found in.
-                'extfield' => 'userid',                                     // Extfield, this overrides the jobfield as the select after joining.
-                'extjoin' => 'job_assignment',                              // Extjoin, whether an additional join is required.
-            ),
+            $filteroptionoptions,
             "{$userjoin}.{$userfield}",                                                  // $field
             $userjoin                                                          // $joins string | array
         );

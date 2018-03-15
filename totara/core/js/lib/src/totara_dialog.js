@@ -147,6 +147,7 @@ function totaraDialog(title, buttonid, config, default_url, handler) {
         $('#'+this.title).on( "dialogclose", function(event) {
             event.preventDefault();
             obj.hide();
+            $('.selectionlimiterror').remove();
         });
 
         // Bind open event to button
@@ -896,6 +897,7 @@ totaraDialog_handler_treeview.prototype._toggle_items = function(elid, type) {
     var selectable_spans = $('.treeview', this._container).find('span#'+elid);
 
     if (type) {
+        $('.selectionlimiterror').remove();
         selectable_spans.removeClass('unclickable');
         selectable_spans.addClass('clickable');
         if (handler._make_selectable != undefined) {
@@ -1028,6 +1030,26 @@ totaraDialog_handler_treeview_multiselect.prototype._make_selectable = function(
     selectable_items.unbind('click');
     selectable_items.bind('click', function() {
 
+        if (typeof handler.selectionlimit !== 'undefined') {
+            var elements = $('.selected > div > span', handler._container);
+            if (handler._get_ids(elements).length >= handler.selectionlimit) {
+                if (!$('.selectionlimiterror').length) {
+                    require(['core/templates', 'core/str'], function(templates, mdlstr) {
+                        mdlstr.get_string('selectionlimited', 'totara_core', handler.selectionlimit).then(function(str) {
+                            var data = {
+                                'message': str
+                            };
+                            templates.render('core/notification_problem', data).then(function(htmlString) {
+                                var alert = $(htmlString).addClass('selectionlimiterror');
+                                handler._container.before(alert);
+                            });
+                        });
+                    });
+                }
+                return;
+            }
+        }
+
         var clicked = $(this);
         handler._append_to_selected(clicked);
 
@@ -1037,6 +1059,16 @@ totaraDialog_handler_treeview_multiselect.prototype._make_selectable = function(
         return false;
     });
 
+}
+
+/**
+ * Selection limit setter
+ *
+ * @param int maxselect
+ * @return void
+ */
+totaraDialog_handler_treeview_multiselect.prototype.set_selection_limit = function(selectionlimit) {
+    this.selectionlimit = selectionlimit;
 }
 
 /**
@@ -1728,6 +1760,11 @@ totaraMultiSelectDialog = function(name, title, find_url, save_url) {
 totaraMultiSelectDialogRbFilter = function(name, title, find_url, save_url) {
 
     var handler = new totaraDialog_handler_treeview_multiselect_rb_filter();
+    var limitfield = 'input[name=' + name + '_selection_limit]';
+
+    if ($(limitfield)) {
+        handler.set_selection_limit($(limitfield).val());
+    }
 
     var buttonObj = {};
     buttonObj[M.util.get_string('save', 'totara_core')] = function() { handler._save(save_url) };
