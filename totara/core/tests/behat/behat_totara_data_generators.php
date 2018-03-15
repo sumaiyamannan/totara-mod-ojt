@@ -254,6 +254,21 @@ class behat_totara_data_generators extends behat_base {
                 'datagenerator' => 'signup',
                 'required' => array()
             )
+        ),
+        'mod_forum' => array(
+            'post' => array(
+                'age_data' => 'age_post'
+            )
+        ),
+        'mod_glossary' => array(
+            'entry' => array(
+                'age_data' => 'age_entry'
+            )
+        ),
+        'mod_lesson' => array(
+            'timer' => array (
+                'age_data' => 'wind_back_timer'
+            )
         )
     );
 
@@ -275,6 +290,10 @@ class behat_totara_data_generators extends behat_base {
 
         if (empty(self::$componentelements[$component][$elementname])) {
             throw new PendingException($elementname . ' data generator is not implemented');
+        }
+
+        if (empty(self::$componentelements[$component][$elementname]['datagenerator'])) {
+            throw new PendingException($elementname . ' datagenerator attribute not specified');
         }
 
         $helper = new totara_core_behat_helper_generator();
@@ -339,6 +358,41 @@ class behat_totara_data_generators extends behat_base {
             } else {
                 throw new PendingException($elementname . ' data generator is not implemented');
             }
+        }
+    }
+
+    /**
+     * Age the specified element's data.
+     *
+     * @Given /^I age the "(?P<element_key>(?:[^"]|\\")*)" "(?P<element_name>(?:[^"]|\\")*)" in the "(?P<component>(?:[^"]|\\")*)" plugin "(?P<seconds_number>\d+)" seconds$/
+     * @throws Exception
+     * @throws PendingException
+     * @param string $element_key The element key to age
+     * @param string $element_name The element name to age
+     * @param string $component The Frankenstyle name of the plugin
+     * @param int $seconds to age data
+     */
+    public function i_age_the_data_x_seconds($elementkey, $elementname, $component, $seconds) {
+
+        // Now that we need them require the data generators.
+        require_once(__DIR__ . '/../../../../lib/testing/generator/lib.php');
+
+        if (empty(self::$componentelements[$component][$elementname])) {
+            throw new PendingException($elementname . ' data generator is not implemented');
+        }
+
+        if (empty(self::$componentelements[$component][$elementname]['age_data'])) {
+            throw new PendingException($component . '.' . $elementname . ' data aging is not implemented');
+        }
+
+        $helper = new totara_core_behat_helper_generator();
+        $componentgenerator = testing_util::get_data_generator()->get_plugin_generator($component);
+
+        $methodname = self::$componentelements[$component][$elementname]['age_data'];
+        if (method_exists($componentgenerator, $methodname)) {
+            $componentgenerator->{$methodname}($elementkey, $seconds);
+        } else {
+            throw new PendingException($component . ' data aging method ' . $methodname . ' is not implemented');
         }
     }
 

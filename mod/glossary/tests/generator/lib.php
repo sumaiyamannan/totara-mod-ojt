@@ -147,4 +147,21 @@ class mod_glossary_generator extends testing_module_generator {
 
         return $DB->get_record('glossary_entries', array('id' => $id), '*', MUST_EXIST);
     }
+
+    /**
+     * Age a glossary entry the specified number of seconds
+     *
+     * @param string $concept Glossary entry concept
+     * @param int $seconds Number of seconds to age
+     */
+    public function age_entry($concept, $seconds) {
+        global $DB;
+
+        $sql = "UPDATE {glossary_entries}
+                   SET timecreated = timecreated - :seconds1
+                 WHERE concept = :concept
+                   AND timecreated > :seconds2";
+        $params = array('concept' => $concept, 'seconds1' => $seconds, 'seconds2' => $seconds);
+        $DB->execute($sql, $params);
+    }
 }

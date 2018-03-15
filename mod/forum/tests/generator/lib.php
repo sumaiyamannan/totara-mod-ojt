@@ -326,4 +326,21 @@ class mod_forum_generator extends testing_module_generator {
         }
         return $post;
     }
+
+    /**
+     * Age a forum post with the specified number of seconds
+     *
+     * @param string $subject Forum post subject to age
+     * @param int $seconds Number of seconds to age
+     */
+    public function age_post($subject, $seconds) {
+        global $DB;
+
+        $sql = "UPDATE {forum_posts}
+                   SET created = created - :seconds1
+                 WHERE subject = :subject
+                   AND created > :seconds2";
+        $params = array('subject' => $subject, 'seconds1' => $seconds, 'seconds2' => $seconds);
+        $DB->execute($sql, $params);
+    }
 }

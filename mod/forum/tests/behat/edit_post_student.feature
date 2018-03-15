@@ -57,9 +57,9 @@ Feature: Students can edit or delete their forum posts within a set time limit
       | Forum type | Standard forum for general use |
       | Description | Test forum description |
     And I log out
-    And I log in as "student1"
+    When I log in as "student1"
     And I follow "Course 1"
-    When I wait "61" seconds
+    And I age the "Forum post subject" "post" in the "mod_forum" plugin "61" seconds
     And I follow "Forum post subject"
     Then I should not see "Edit" in the "region-main" "region"
     And I should not see "Delete" in the "region-main" "region"
