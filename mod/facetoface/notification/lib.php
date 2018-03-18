@@ -164,7 +164,7 @@ class facetoface_notification extends data_object {
 
     private $_facetoface;
 
-    private $_ical_attachment;
+    private $_ical_attachment = null;
 
     /**
      * Finds and returns a data_object instance based on params.
@@ -621,9 +621,63 @@ class facetoface_notification extends data_object {
         }
     }
 
-
+    /**
+     * Set face-to-face iCal attachment object
+     *
+     * @param $ical_attachment
+     */
     public function set_ical_attachment($ical_attachment) {
         $this->_ical_attachment = $ical_attachment;
+    }
+
+    /**
+     * Generate and add face-to-face iCal attachment
+     *
+     * @param \stdClass $user User object
+     * @param \stdClass $session Session object
+     * @param int $method iCal attachment method
+     * @param \stdClass|array|null $dates Array of session dates, single session date or null to get dates from session object
+     * @param \stdClass|array $olddates Array or a single date to cancel
+     */
+    public function add_ical_attachment($user, $session, $method = MDL_F2F_INVITE, $dates = null, $olddates = []) {
+        if (is_null($dates)) {
+            $dates = $session->sessiondates;
+        }
+
+        $this->set_ical_attachment(
+            facetoface_generate_ical($this->_facetoface, $session, $method, $user, $dates, $olddates, $this->_event->fullmessagehtml));
+
+        $this->add_ical_attachment_data();
+    }
+
+    /**
+     * Add iCal attachment if set
+     */
+    private function add_ical_attachment_data() {
+        $ical_uids = null;
+        $ical_method = '';
+
+        if (!empty($this->_ical_attachment) && $this->conditiontype != MDL_F2F_CONDITION_WAITLISTED_CONFIRMATION) {
+            $this->_event->attachment = $this->_ical_attachment->file;
+
+            if ($this->conditiontype == MDL_F2F_CONDITION_CANCELLATION_CONFIRMATION ||
+                $this->conditiontype == MDL_F2F_CONDITION_DECLINE_CONFIRMATION) {
+                $this->_event->attachname = 'cancel.ics';
+            } else {
+                $this->_event->attachname = 'invite.ics';
+            }
+
+            $ical_content = $this->_ical_attachment->content;
+
+            if (!empty($ical_content)) {
+                preg_match_all('/UID:([^\r\n ]+)/si', $ical_content, $matches);
+                $ical_uids = $matches[1];
+                preg_match('/METHOD:([a-z]+)/si', $ical_content, $matches);
+                $ical_method = $matches[1];
+            }
+        }
+        $this->_event->ical_uids  = $ical_uids;
+        $this->_event->ical_method  = $ical_method;
     }
 
     public function set_facetoface($facetoface) {
@@ -819,31 +873,13 @@ class facetoface_notification extends data_object {
         $this->_event->sendemail = TOTARA_MSG_EMAIL_YES;
         $this->_event->msgtype   = TOTARA_MSG_TYPE_FACE2FACE;
         $this->_event->urgency   = TOTARA_MSG_URGENCY_NORMAL;
-        $ical_content = '';
-        $ical_uids = null;
-        $ical_method = '';
 
-        if (!empty($this->_ical_attachment) && $this->conditiontype != MDL_F2F_CONDITION_WAITLISTED_CONFIRMATION) {
-            $this->_event->attachment = $this->_ical_attachment->file;
-
-            if ($this->conditiontype == MDL_F2F_CONDITION_CANCELLATION_CONFIRMATION ||
-                $this->conditiontype == MDL_F2F_CONDITION_DECLINE_CONFIRMATION) {
-                $this->_event->attachname = 'cancel.ics';
-            } else {
-                $this->_event->attachname = 'invite.ics';
-            }
-
-            $ical_content = $this->_ical_attachment->content;
-
-            if (!empty($ical_content)) {
-                preg_match_all('/UID:([^\r\n ]+)/si', $ical_content, $matches);
-                $ical_uids = $matches[1];
-                preg_match('/METHOD:([a-z]+)/si', $ical_content, $matches);
-                $ical_method = $matches[1];
-            }
+        // This is needed here to preserve the original behaviour of this method.
+        $this->_event->ical_uids  = null;
+        $this->_event->ical_method  = '';
+        if (!is_null($this->_ical_attachment)) {
+            $this->add_ical_attachment_data();
         }
-        $this->_event->ical_uids  = $ical_uids;
-        $this->_event->ical_method  = $ical_method;
     }
 
     /**
@@ -1279,11 +1315,10 @@ function facetoface_send_notice($facetoface, $session, $userid, $params, $icalat
         $session->notifyuser = true;
     }
 
-    if ((int)$icalattachmenttype == MDL_F2F_BOTH) {
-        $ical_attach = facetoface_generate_ical($facetoface, $session, $icalattachmentmethod, $user,$session->sessiondates, $olddates);
-        $notice->set_ical_attachment($ical_attach);
-    }
     $notice->set_newevent($user, $session->id, null, $fromuser);
+    if ((int)$icalattachmenttype == MDL_F2F_BOTH) {
+        $notice->add_ical_attachment($user, $session, $icalattachmentmethod, null, $olddates);
+    }
     if ($session->notifyuser) {
         $notice->send_to_user($user, $session->id);
     }
@@ -1366,12 +1401,11 @@ function facetoface_send_oneperday_notice($facetoface, $session, $userid, $param
                 $notice->ccmanager = $facetoface->ccmanager;
             }
             $notice->set_facetoface($facetoface);
-            if ($sendical) {
-                $ical_attach = facetoface_generate_ical($facetoface, $session, $icalattachmentmethod, $user, !$cancel ? $date : [], $cancel ? $date : []);
-                $notice->set_ical_attachment($ical_attach);
-            }
             // Send original notice for this date.
             $notice->set_newevent($user, $session->id, $date);
+            if ($sendical) {
+                $notice->add_ical_attachment($user, $session, $icalattachmentmethod, !$cancel ? $date : [], $cancel ? $date : []);
+            }
             if ($session->notifyuser) {
                 $notice->send_to_user($user, $session->id, $date);
             }
