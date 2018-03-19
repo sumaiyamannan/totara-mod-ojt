@@ -520,3 +520,105 @@ Scenario: Verify personal goal data can be added to an appraisal.
   And the field "customfield_url1_1_2[text]" matches value "Totara Learning"
   And the field "Open in new window" matches value "1"
   And I should see "Not bad."
+
+@totara_customfield
+Scenario: Verify personal goal custom fields work together with Multiple Fields option in appraisal.
+
+  # Create an appraisal using the data generator.
+  Given the following "appraisals" exist in "totara_appraisal" plugin:
+    | name        |
+    | Appraisal 1 |
+  And the following "stages" exist in "totara_appraisal" plugin:
+    | appraisal   | name    | timedue    |
+    | Appraisal 1 | Stage 1 | 2082672000 |
+  And the following "pages" exist in "totara_appraisal" plugin:
+    | appraisal   | stage   | name   |
+    | Appraisal 1 | Stage 1 | Page 1 |
+
+  # Add a personal goal review item to the appraisal.
+  When I log in as "admin"
+  And I navigate to "Manage appraisals" node in "Site administration > Appraisals"
+  And I follow "Appraisal 1"
+  And I follow "Content"
+  And I set the field "datatype" to "Goals"
+  And I press "submitbutton"
+  And I set the field "Question" to "Please review your personal goals"
+  And I set the field "Include personal goal custom fields" to "1"
+  # Automatically add all personal goals to review
+  And I click on "#id_selection_selectpersonal_4" "css_element"
+  And I set the field "Multiple fields" to "1"
+  And I set the field with xpath "//input[@id='id_choice_0_option']" to "Goal question 1"
+  And I set the field with xpath "//input[@id='id_choice_1_option']" to "Goal question 2"
+
+  # Get the learner and their manager to participate in the appraisal.
+  And I set the field "roles[1][2]" to "1"
+  And I set the field "roles[1][6]" to "1"
+  And I set the field "roles[2][1]" to "1"
+  And I set the field "roles[2][2]" to "1"
+  And I set the field "roles[2][6]" to "1"
+  And I press "Save changes"
+  Then I should see "Please review your personal goals"
+
+  # Assign a user to the appraisal.
+  When I follow "Assignments"
+  And I set the field "groupselector" to "Audience"
+  And I follow "Audience 1 (A1)"
+  And I press "Save"
+
+  # Activate the appraisal.
+  When I follow "Activate now"
+  And I press "Activate"
+  Then I should see "Appraisal Appraisal 1 activated"
+
+  # Create a new Personal Goal Type
+  When I navigate to "Manage personal goal types" node in "Site administration > Hierarchies > Goals"
+  And I press "Add a new personal goal type"
+  And I set the following fields to these values:
+    | Type full name         | Personal Goal Type 1                |
+    | Goal type ID number    | PGT1                                |
+  And I press "Save changes"
+  And I follow "Personal Goal Type 1"
+
+  # Create a text input.
+  When I set the field "Create a new custom field" to "Text input"
+  And I set the following fields to these values:
+    | Full name                   | Text input 1 |
+    | Short name (must be unique) | textinput1   |
+  And I press "Save changes"
+  Then I should see "Text input 1"
+
+  # Login as a learner and create a personal goal with the custom fields.
+  When I log out
+  And I log in as "learner1"
+  And I click on "Goals" in the totara menu
+  And I press "Add personal goal"
+  And I set the following fields to these values:
+    | Name | Personal Goal 1      |
+    | Type | Personal Goal Type 1 |
+  And I press "Save changes"
+  And I click on "Latest Appraisal" in the totara menu
+  And I press "Start"
+  Then I should see "Incomplete"
+  And I should see "Personal Goal 1"
+  And I should see "Goal question 1"
+  And I should see "Goal question 2"
+
+  # Add some date to the custom fields and fill in the review answers.
+  When I set the following fields to these values:
+    | Text input 1                       | Text input 1              |
+
+  And I set the field with xpath "//div[contains(@class, 'ftextarea')]//textarea[@data-multifield='0']" to "Learner goal answer 1"
+  And I set the field with xpath "//div[contains(@class, 'ftextarea')]//textarea[@data-multifield='1']" to "Learner goal answer 2"
+  And I press "Complete Stage"
+  Then I should see "You have completed this stage"
+  And I log out
+
+  # Login as the manager, access the learners appraisal and check the fields are set as they should be.
+  When I log in as "manager1"
+  And I click on "All Appraisals" in the totara menu
+  And I follow "Appraisal 1"
+  And I press "Start"
+  Then I should see "Personal Goal 1"
+  And the field "Text input 1" matches value "Text input 1"
+  And I should see "Learner goal answer 1"
+  And I should see "Learner goal answer 2"

@@ -129,7 +129,7 @@ class totara_question_renderer extends plugin_renderer_base {
         $form->addElement('html', html_writer::div(html_writer::tag('h3', $title) . $extralinks, 'totara-question-review-item-title clearfix'));
 
         if ($review->cananswer) {
-            $review->add_item_specific_edit_elements($form, $currentuseritems[0]);
+            $review->add_item_specific_edit_elements($form, reset($currentuseritems));
         } else {
             $review->add_item_specific_edit_elements($form, $anyitem);
         }
@@ -171,12 +171,18 @@ class totara_question_renderer extends plugin_renderer_base {
             } else {
                 if ($multifield) {
                     $youranswerlabel = get_string('youranswer', 'totara_question');
+                    $count = 0;
                     foreach ($scalevalues as $scalevalue) {
-                        $form->addElement(new MoodleQuickForm_static('', $youranswerlabel,
+                        $item_form_element_name = $form_prefix . '_reviewitem_' . $currentuseritems[$scalevalue->id]->id;
+                        $form->addElement(new MoodleQuickForm_static($item_form_element_name . '_label', $youranswerlabel,
                                 html_writer::tag('b', format_string($scalevalue->name))));
                         $formelement = $form->addElement(new MoodleQuickForm_textarea(
-                                $form_prefix . '_reviewitem_' . $currentuseritems[$scalevalue->id]->id, '', $text_area_options));
+                                $item_form_element_name,
+                                '',
+                                $text_area_options + ['data-multifield' => $count])
+                        );
                         $youranswerlabel = '';
+                        $count ++;
                     }
                 } else {
                     $formelement = $form->addElement(
