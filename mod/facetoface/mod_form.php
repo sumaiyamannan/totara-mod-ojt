@@ -229,6 +229,7 @@ class mod_facetoface_mod_form extends moodleform_mod {
             $mform->setConstant('approvaloptions', 'approval_none');
         }
 
+        // Manager reservations.
         $mform->addElement('header', 'managerreserveheader', get_string('managerreserveheader', 'mod_facetoface'));
 
         $mform->addElement('selectyesno', 'managerreserve', get_string('managerreserve', 'mod_facetoface'));
@@ -242,7 +243,6 @@ class mod_facetoface_mod_form extends moodleform_mod {
         $mform->disabledIf('maxmanagerreserves', 'managerreserve', 'eq', 0);
 
         $mform->addElement('selectyesno', 'reservecancel', get_string('reservecancel', 'mod_facetoface'));
-        $mform->setDefault('reservecancel', 1);
         $mform->disabledIf('reservecancel', 'managerreserve', 'eq', 0);
 
         $mform->addElement('text', 'reservecanceldays', get_string('reservecanceldays', 'mod_facetoface'));
@@ -260,6 +260,7 @@ class mod_facetoface_mod_form extends moodleform_mod {
         $mform->addRule(array('reservedays', 'reservecanceldays'), get_string('reservegtcancel', 'mod_facetoface'),
                         'compare', 'gt', 'server');
 
+        // Calendar options.
         $mform->addElement('header', 'calendaroptions', get_string('calendaroptions', 'facetoface'));
 
         $calendarOptions = array(
@@ -432,9 +433,7 @@ class mod_facetoface_mod_form extends moodleform_mod {
 
     // Need to translate the "options" and "reference" field.
     public function set_data($defaultvalues) {
-        global $DB;
 
-        $mform =& $this->_form;
         $defaultvalues = (array)$defaultvalues;
 
         if (!empty($defaultvalues['id'])) {
@@ -463,7 +462,6 @@ class mod_facetoface_mod_form extends moodleform_mod {
             $defaultvalues['declareinterest'] = ($defaultvalues['interestonlyiffull'] == 1) ? 2 : $defaultvalues['declareinterest'];
         }
 
-        $this->data_preprocessing($defaultvalues);
         parent::set_data($defaultvalues);
     }
 
