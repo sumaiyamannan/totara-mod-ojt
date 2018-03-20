@@ -33,13 +33,13 @@ class feedback_item_captcha extends feedback_item_base {
 
         $editurl = new moodle_url('/mod/feedback/edit.php', array('id'=>$cm->id));
 
-        //ther are no settings for recaptcha
+        // There are no settings for recaptcha.
         if (isset($item->id) AND $item->id > 0) {
             notice(get_string('there_are_no_settings_for_recaptcha', 'feedback'), $editurl->out());
             exit;
         }
 
-        //only one recaptcha can be in a feedback
+        // Only one recaptcha can be in a feedback.
         $params = array('feedback' => $feedback->id, 'typ' => $this->type);
         if ($DB->record_exists('feedback_item', $params)) {
             notice(get_string('only_one_captcha_allowed', 'feedback'), $editurl->out());
@@ -48,7 +48,7 @@ class feedback_item_captcha extends feedback_item_base {
 
         $this->item = $item;
         $this->feedback = $feedback;
-        $this->item_form = true; //dummy
+        $this->item_form = true; // Dummy.
 
         $lastposition = $DB->count_records('feedback_item', array('feedback'=>$feedback->id));
 
@@ -154,99 +154,41 @@ class feedback_item_captcha extends feedback_item_base {
      * @return void
      */
     public function print_item_complete($item, $value = '', $highlightrequire = false) {
-        global $SESSION, $CFG, $DB, $USER, $OUTPUT;
-        require_once($CFG->libdir.'/recaptchalib.php');
+        global $SESSION, $CFG, $USER, $OUTPUT;
+        require_once($CFG->libdir.'/recaptchalib_v2.php');
 
         $align = right_to_left() ? 'right' : 'left';
 
-        $cmid = 0;
-        $feedbackid = $item->feedback;
-        if ($feedbackid > 0) {
-            $feedback = $DB->get_record('feedback', array('id'=>$feedbackid));
-            $cm = get_coursemodule_from_instance("feedback", $feedback->id, $feedback->course);
-            if ($cm) {
-                $cmid = $cm->id;
-            }
+        if (empty($CFG->recaptchaprivatekey) || empty($CFG->recaptchapublickey)) {
+            return;
         }
 
         //check if an false value even the value is not required
         if ($highlightrequire AND !$this->check_value($value, $item)) {
-            $falsevalue = true;
-        } else {
-            $falsevalue = false;
-        }
-
-        if ($falsevalue) {
-            $highlight = '<br class="error"><span id="id_error_recaptcha_response_field" class="error"> '.
-                get_string('err_required', 'form').'</span><br id="id_error_break_recaptcha_response_field" class="error" >';
+            $highlight = '<br class="error"><span class="error"> '.
+                get_string('err_required', 'form').'</span><br id="id_error_break_g-recaptcha-response" class="error" >';
         } else {
             $highlight = '';
         }
 
-        $requiredmark  = $OUTPUT->flex_icon('required', array('classes' => 'flex-icon-pre', 'alt' => get_string('requiredelement', 'form')));
+        $captchahtml = recaptcha_get_challenge_html(RECAPTCHA_API_URL, $CFG->recaptchapublickey);
+        $inputname = $item->typ.'_'.$item->id;
 
-        if (isset($SESSION->feedback->captchacheck) AND
-                $SESSION->feedback->captchacheck == $USER->sesskey AND
-                $value == $USER->sesskey) {
+        $html = '
+                <div class="feedback_item_label_' . $align . '">
+                </div>
+                <div class="feedback_item_presentation_' . $align . '">
+                    <div id="recaptcha_widget">
+                        <label for="recaptcha_element">' . $highlight . '</label>
+                    </div>
+                    <span class="feedback_item_recaptcha">
+                        <input type="hidden" value="' . $USER->sesskey . '" name="'.$inputname.'"/>
+                        ' . $captchahtml . '
+                    </span>
+                </div>
+        ';
 
-            //print the question and label
-            echo '<div class="feedback_item_label_'.$align.'">';
-            echo '('.format_string($item->label).') ';
-            echo format_text($item->name.$requiredmark, true, false, false);
-            $inputname = 'name="'.$item->typ.'_'.$item->id.'"';
-            echo '<input type="hidden" value="'.$USER->sesskey.'" '.$inputname.' />';
-            echo '</div>';
-            return;
-        }
-
-        $strincorrectpleasetryagain = get_string('incorrectpleasetryagain', 'auth');
-        $strenterthewordsabove = get_string('enterthewordsabove', 'auth');
-        $strenterthenumbersyouhear = get_string('enterthenumbersyouhear', 'auth');
-        $strgetanothercaptcha = get_string('getanothercaptcha', 'auth');
-        $strgetanaudiocaptcha = get_string('getanaudiocaptcha', 'auth');
-        $strgetanimagecaptcha = get_string('getanimagecaptcha', 'auth');
-
-        $recaptureoptions = Array('theme'=>'custom', 'custom_theme_widget'=>'recaptcha_widget');
-        $html = html_writer::script(js_writer::set_variable('RecaptchaOptions', $recaptureoptions));
-        $html .= '
-
-        <div id="recaptcha_widget" style="display:none">
-
-        <div id="recaptcha_image"></div>
-        <div class="recaptcha_only_if_incorrect_sol" style="color:red">'.
-        $strincorrectpleasetryagain.
-        '</div>
-        <span class="recaptcha_only_if_image">
-        <label for="recaptcha_response_field">'.$strenterthewordsabove.$requiredmark.'</label>
-        </span>
-        <span class="recaptcha_only_if_audio">
-        <label for="recaptcha_response_field">'.$strenterthenumbersyouhear.'</label>
-        </span>
-        <label for="recaptcha_response_field">'.$highlight.'</label>
-
-        <input type="text" id="recaptcha_response_field" name="'.$item->typ.'_'.$item->id.'" />
-
-        <div><a href="javascript:Recaptcha.reload()">' . $strgetanothercaptcha . '</a></div>
-        <div class="recaptcha_only_if_image">
-        <a href="javascript:Recaptcha.switch_type(\'audio\')">' . $strgetanaudiocaptcha . '</a>
-        </div>
-        <div class="recaptcha_only_if_audio">
-        <a href="javascript:Recaptcha.switch_type(\'image\')">' . $strgetanimagecaptcha . '</a>
-        </div>
-        </div>';
-
-        // Check if we are using SSL.
-        if (is_https()) {
-            $ssl = true;
-        } else {
-            $ssl = false;
-        }
-
-        //we have to rename the challengefield
-        if (!empty($CFG->recaptchaprivatekey) AND !empty($CFG->recaptchapublickey)) {
-            $captchahtml = recaptcha_get_html($CFG->recaptchapublickey, null, $ssl);
-            echo $html.$captchahtml;
-        }
+        echo $html;
     }
 
     /**
@@ -283,20 +225,16 @@ class feedback_item_captcha extends feedback_item_base {
 
     public function check_value($value, $item) {
         global $SESSION, $CFG, $USER;
-        require_once($CFG->libdir.'/recaptchalib.php');
+        require_once($CFG->libdir.'/recaptchalib_v2.php');
 
-        //is recaptcha configured in moodle?
+        $value = optional_param('g-recaptcha-response', '', PARAM_RAW);
+        // Is recaptcha configured in moodle?
         if (empty($CFG->recaptchaprivatekey) OR empty($CFG->recaptchapublickey)) {
             return true;
         }
-        $challenge = optional_param('recaptcha_challenge_field', '', PARAM_RAW);
+        $response = recaptcha_check_response(RECAPTCHA_VERIFY_URL, $CFG->recaptchaprivatekey, getremoteaddr(), $value);
 
-        if ($value == $USER->sesskey AND $challenge == '') {
-            return true;
-        }
-        $remoteip = getremoteaddr(null);
-        $response = recaptcha_check_answer($CFG->recaptchaprivatekey, $remoteip, $challenge, $value);
-        if ($response->is_valid) {
+        if ($response['isvalid']) {
             $SESSION->feedback->captchacheck = $USER->sesskey;
             return true;
         }
@@ -327,7 +265,7 @@ class feedback_item_captcha extends feedback_item_base {
     public function get_hasvalue() {
         global $CFG;
 
-        //is recaptcha configured in moodle?
+        // Is recaptcha configured in moodle?
         if (empty($CFG->recaptchaprivatekey) OR empty($CFG->recaptchapublickey)) {
             return 0;
         }
