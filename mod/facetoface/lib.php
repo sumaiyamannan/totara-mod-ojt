@@ -106,6 +106,10 @@ define('APPROVAL_ROLE', 2);
 define('APPROVAL_MANAGER', 4);
 define('APPROVAL_ADMIN', 8);
 
+// Define events displayed on course page settings
+define('MDL_F2F_MAX_EVENTS_ON_COURSE', 18);
+define('MDL_F2F_DEFAULT_EVENTS_ON_COURSE', 6);
+
 // This array must match the status codes above, and the values
 // must equal the end of the constant name but in lower case
 global $MDL_F2F_STATUS, $F2F_SELECT_OPTIONS;

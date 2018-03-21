@@ -37,6 +37,14 @@ class enrol_totara_facetoface_plugin extends enrol_plugin {
     const SETTING_UNENROLWHENREMOVED = 'customint7';
     const SETTING_AUTOSIGNUP = 'customint8';
 
+    // Enrolments displayed on course page.
+    const ENROLMENTS_ON_COURSE = [
+        '2'  => '2',
+        '4'  => '4',
+        '8'  => '8',
+        '16' => '16'
+    ];
+
     protected $lastenroller = null;
     protected $lastenrollerinstanceid = 0;
     protected $sessions = array();
@@ -519,8 +527,10 @@ class enrol_totara_facetoface_plugin extends enrol_plugin {
             $f2fsessionarrays[$session->facetoface][] = $session;
         }
 
-        $output = '';
+        $customtext2 = json_decode($instance->customtext2, true);
+        $enrolmentsoncoursepage = empty($customtext2) ? 0 : (int)$customtext2['enrolmentsoncoursepage'];
 
+        $output = '';
         foreach ($f2fsessionarrays as $id => $f2fsessionarray) {
             if (!empty($f2fsessionarray)) {
                 $f2f = $DB->get_record('facetoface', array('id' => $id));
@@ -542,7 +552,8 @@ class enrol_totara_facetoface_plugin extends enrol_plugin {
                     $reserveinfo = facetoface_can_reserve_or_allocate($f2f, $f2fsessionarray, $contextmodule);
                 }
 
-                $f2fsessionarray = array_slice($f2fsessionarray, 0, $f2f->display, true);
+                $display = ((int)$enrolmentsoncoursepage == 0) ? count($f2fsessionarray) : (int)$enrolmentsoncoursepage;
+                $f2fsessionarray = array_slice($f2fsessionarray, 0, $display, true);
                 $output .= html_writer::tag('h4', format_string($f2f->name));
                 $f2frenderer->setcontext($contextmodule);
                 $output .= $f2frenderer->print_session_list_table($f2fsessionarray, $viewattendees, $editevents,
@@ -759,6 +770,7 @@ class enrol_totara_facetoface_plugin extends enrol_plugin {
         $fields['customint4']      = $this->get_config('sendcoursewelcomemessage');
         $fields['customint5']      = 0;
         $fields['customint6']      = $this->get_config('newenrols');
+        $fields['customtext2']     = json_encode(['enrolmentsoncoursepage' => $this->get_config('enrolmentsoncoursepage')]);
         $fields[self::SETTING_UNENROLWHENREMOVED] = $this->get_config('unenrolwhenremoved');
 
         return $fields;

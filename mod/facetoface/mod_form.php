@@ -62,11 +62,11 @@ class mod_facetoface_mod_form extends moodleform_mod {
         $mform->setType('thirdpartywaitlist', PARAM_INT);
 
         $display = array();
-        for ($i=0; $i<=18; $i += 2) {
+        for ($i = 0; $i <= MDL_F2F_MAX_EVENTS_ON_COURSE; $i += 2) {
             $display[$i] = $i;
         }
         $mform->addElement('select', 'display', get_string('sessionsoncoursepage', 'facetoface'), $display);
-        $mform->setDefault('display', 6);
+        $mform->setDefault('display', MDL_F2F_DEFAULT_EVENTS_ON_COURSE);
         $mform->addHelpButton('display', 'sessionsoncoursepage', 'facetoface');
 
         if (has_capability('mod/facetoface:configurecancellation', $this->context)) {
