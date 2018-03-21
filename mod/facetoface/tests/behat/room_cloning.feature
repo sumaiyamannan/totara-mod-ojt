@@ -94,9 +94,7 @@ Feature: Clone pre-defined rooms in seminar
       | timefinish[hour]   | 12   |
       | timefinish[minute] | 0    |
     And I press "OK"
-    And I press "Save changes"
     And I should see "The new dates you have selected are unavailable due to a scheduling conflict"
-    And I click on "Edit session" "link"
     And I set the following fields to these values:
       | timestart[day]     | 1    |
       | timestart[month]   | 1    |
