@@ -3,6 +3,93 @@
 
 Totara Learn Changelog
 
+Release 9.18 (23rd March 2018):
+===============================
+
+
+Important:
+
+    TL-14114       Added support for Google ReCaptcha v2 (MDL-48501)
+
+                   Google deprecated reCAPTCHA V1 in May 2016 and it will not work for newer
+                   sites. reCAPTCHA v1 is no longer supported by Google and continued
+                   functionality can not be guaranteed.
+
+    TL-17228       Added description of environment requirements for Totara 12
+
+                   Totara 12 will raise the minimum required version of PostgreSQL from 9.2 to
+                   9.4
+
+Security issues:
+
+    TL-17225       Fixed security issues in course restore UI
+
+Improvements:
+
+    TL-15003       Improved the performance of the approval authentication queue report
+    TL-16864       Improved the template of Seminar date/time change notifications to accommodate booked and wait-listed users
+
+                   Clarified Seminar notification messages to specifically say that it is
+                   related to the session that you are booked on, or are on the wait-list for.
+                   Also removed the iCal invitations/cancellations from the templates of users
+                   on the wait-list so that there is no confusion, as previously users who
+                   were on the wait-list when the date of a seminar was changed received an
+                   email saying that the session you are booked on has changed along with an
+                   iCal invitation which was misleading.
+
+    TL-16914       Added contextual details to the notification about broken audience rules
+
+                   Additional information about broken rules and rule sets are added to email
+                   notifications. This information is similar to what is displayed on
+                   audiences "Overview" and "Rule Sets" tabs and contains the broken audience
+                   name, the rule set with broken rule, and the internal name of the broken
+                   rule.
+
+                   This will be helpful to investigate the cause of the notifications if a
+                   rule was fixed before administrator visited the audience pages.
+
+    TL-17149       Fixed undefined index for the 'Audience visibility' column in Report Builder when there is no course present
+
+Bug fixes:
+
+    TL-6209        Fixed goal summary report source not displaying headings for the "Scale count columns" column
+    TL-10394       Fixed bad grammar in the contextual help for Seminars > Custom fields > text input
+    TL-16549       Cancelling a multi-date session results in notifications that do not include the cancelled date
+
+                   Changed the algorithm of iCal UID generation for seminar event dates. This
+                   allows reliable dates to be sent for changed\cancelled notifications with
+                   an attached iCal file that would update the existing events in the
+                   calendar.
+
+    TL-16820       Fixed the current learning block using the wrong course URL when enabling audience based visibility
+    TL-16831       Fixed Totara Sync not always creating job assignments when users are created by the sync
+    TL-16838       Stopped reaggregating competencies using the ANY aggregation rule when the user is already proficient
+    TL-16856       Fixed text area user profile fields when using Self-registration with approval plugin
+
+                   Using text area user profile fields on the registration page was stopping
+                   the user and site administrator from attempting to approve the account.
+
+    TL-16865       Fixed the length of the uniquedelimiter string used as separator for the MS SQL GROUP_CONCAT_D aggregate function
+
+                   MS SQL Server custom GROUP_CONCAT_* aggregate functions have issues when
+                   the delimeter is more than 4 characters.
+
+                   Some report builder sources used 5 character delimiter "\.|./" which caused
+                   display issues in report. To fix it, delimeter was changed to 3 characters
+                   sequence: "^|:"
+
+    TL-16882       Removed the "allocation of spaces" link when a seminar event is in progress
+    TL-16925       Fixed the calculation of SCORM display size when the Navigation panel is no longer displayed
+    TL-17111       Renamed some incorrectly named unit test files
+    TL-17207       Fixed a missing include in user/lib.php for the report table block
+
+Contributions:
+
+    * Ben Lobo at Kineo UK - TL-16549
+    * Francis Devine at Catalyst - TL-16831
+    * Russell England at Kineo USA - TL-17149
+
+
 Release 9.17 (12th March 2018):
 ===============================
 
