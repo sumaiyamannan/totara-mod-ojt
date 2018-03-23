@@ -141,6 +141,8 @@ Feature: User can self complete an activity from within a single activity course
       | Completion tracking | Students can manually mark the activity as completed |
     And I upload "mod/imscp/tests/packages/singlescobasic.zip" file to "Package file" filemanager
     And I click on "Save and display" "button"
+    # Waiting for ISC to load, otherwise it will periodically load SCO resource files on pages load.
+    And I wait "1" seconds
     And I log out
 
     When I log in as "user1"
