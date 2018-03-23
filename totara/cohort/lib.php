@@ -1551,16 +1551,26 @@ function totara_cohort_broken_rules($courseid, $cohortid, progress_trace $trace)
     }
 
     foreach ($dynamiccohorts as $cohort) {
+        $brokenrules = [];
+
         $rulesets = $DB->get_records('cohort_rulesets', array('rulecollectionid' => $cohort->activecollectionid), 'sortorder');
         foreach ($rulesets as $ruleset) {
             $rules = $DB->get_records('cohort_rules', array('rulesetid' => $ruleset->id));
             foreach ($rules as $rulerec) {
                 $rule = cohort_rules_get_rule_definition($rulerec->ruletype, $rulerec->name);
                 if (!$rule) { // There is a broken rule.
-                    $cohortwithbrokenrules[$cohort->id] = $cohort;
-                    break 2;
+                    $a = new stdClass();
+                    $a->type = $rulerec->ruletype;
+                    $a->name = $rulerec->name;
+                    $a->ruleset = $ruleset->name;
+                    $brokenrules[] = get_string('cohortbrokenruleemail', 'totara_cohort', $a);
                 }
             }
+        }
+
+        if (!empty($brokenrules)) {
+            $cohort->brokenrules = $brokenrules;
+            $cohortwithbrokenrules[$cohort->id] = $cohort;
         }
     }
 
@@ -1594,6 +1604,11 @@ function totara_send_notification_broken_rule($users, $cohort) {
     $fullmessage .= html_writer::start_tag('ul');
     $url = html_writer::link(new moodle_url('/totara/cohort/rules.php', array('id' => $cohort->id)), $cohort->name);
     $fullmessage .= html_writer::tag('li', $url);
+
+    if (!empty($cohort->brokenrules)) {
+        $fullmessage .= html_writer::alist($cohort->brokenrules);
+    }
+
     $fullmessage .= html_writer::end_tag('ul');
 
     foreach ($users as $user) {

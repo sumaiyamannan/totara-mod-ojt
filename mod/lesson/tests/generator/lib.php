@@ -425,4 +425,24 @@ class mod_lesson_generator extends testing_module_generator {
         $page = lesson_page::create((object)$record, new lesson($lesson), $context, $CFG->maxbytes);
         return $DB->get_record('lesson_pages', array('id' => $page->id), '*', MUST_EXIST);
     }
+
+    /**
+     * Wind lesson time back by the specified number of seconds
+     *
+     * @param string $lessonname Lesson name
+     * @param int $seconds Number of seconds to wind back
+     */
+    public function wind_back_timer($lessonname, $seconds) {
+        global $DB;
+
+        $sql = "UPDATE {lesson_timer}
+                   SET starttime = starttime - :seconds1
+                 WHERE lessonid IN (
+                       SELECT id
+                         FROM {lesson}
+                         WHERE name = :lessonname)
+                   AND starttime > :seconds2";
+        $params = array('lessonname' => $lessonname, 'seconds1' => $seconds, 'seconds2' => $seconds);
+        $DB->execute($sql, $params);
+    }
 }

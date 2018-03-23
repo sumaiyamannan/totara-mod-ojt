@@ -226,8 +226,7 @@ class rb_source_goal_summary extends rb_base_source {
                         'nosort' => $columnoption->nosort,
                         'style' => $columnoption->style,
                         'class' => $columnoption->class,
-                        'hidden' => $hidden,
-                        'customheading' => null
+                        'hidden' => $hidden
                     )
                 );
         }

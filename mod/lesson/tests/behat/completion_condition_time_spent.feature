@@ -65,7 +65,9 @@ Feature: Set time spent as a completion condition for a lesson
     And I follow "Course 1"
     And I follow "Test lesson"
     And I press "Next page"
-    And I wait "11" seconds
+    # On slow systems 9 seconds is not enough. To avoid problems in jenkins - waiting 2 time 6 seconds instead of 11
+    And I wait "6" seconds
+    And I wait "6" seconds
     And I press "Next page"
     And I should not see "You might need to attempt the lesson again."
     And I follow "Course 1"

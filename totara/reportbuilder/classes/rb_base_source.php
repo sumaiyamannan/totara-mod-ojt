@@ -58,7 +58,7 @@ abstract class rb_base_source {
      * TODO - it would be nice to make this definable in the config or something.
      * @var string $uniqueseperator - A string unique enough to use as a seperator for textareas
      */
-    protected $uniquedelimiter = '\.|./';
+    protected $uniquedelimiter = '^|:';
 
     /**
      * Class constructor
@@ -1543,6 +1543,10 @@ abstract class rb_base_source {
 
     public function rb_display_audience_visibility($visibility, $row, $isexport = false) {
         global $COHORT_VISIBILITY;
+
+        if (!isset($COHORT_VISIBILITY[$visibility])) {
+            return $visibility;
+        }
 
         return $COHORT_VISIBILITY[$visibility];
     }

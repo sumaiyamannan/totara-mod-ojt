@@ -43,6 +43,25 @@ $url = new moodle_url('/backup/backupfilesedit.php', array('currentcontext'=>$cu
 require_login($course, false, $cm);
 require_capability('moodle/restore:uploadfile', $context);
 
+if ($component === 'backup') {
+    if ($contextid != $context->id) {
+        throw new invalid_parameter_exception('invalid context parameter');
+    }
+    if ($filearea !== 'course' and $filearea !== 'activity') {
+        throw new invalid_parameter_exception('invalid filearea parameter');
+    }
+} else if ($component === 'user') {
+    $filecontext = context_user::instance($USER->id);
+    if ($contextid != $filecontext->id) {
+        throw new invalid_parameter_exception('invalid context parameter');
+    }
+    if ($filearea !== 'backup') {
+        throw new invalid_parameter_exception('invalid filearea parameter');
+    }
+} else {
+    throw new invalid_parameter_exception('invalid component parameter');
+}
+
 $PAGE->set_url($url);
 $PAGE->set_context($context);
 $PAGE->set_title(get_string('managefiles', 'backup'));

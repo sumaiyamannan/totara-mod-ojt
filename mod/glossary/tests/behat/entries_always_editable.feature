@@ -35,7 +35,7 @@ Feature: A teacher can set whether glossary entries are always editable or not
       | Definition | Test concept description |
     Then "Delete: Test concept name" "link" should exist
     And "Edit: Test concept name" "link" should exist
-    And I wait "65" seconds
+    And I age the "Test concept name" "entry" in the "mod_glossary" plugin "65" seconds
     And I reload the page
     Then "Delete: Test concept name" "link" should not exist
     And "Edit: Test concept name" "link" should not exist

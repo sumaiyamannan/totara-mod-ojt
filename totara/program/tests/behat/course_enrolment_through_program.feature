@@ -116,17 +116,9 @@ Feature: Course enrolment through programs
     Then I should see "Test Program 1"
     And I should see "Test Program 2"
 
-    # If you get here it is because this test fails and you've just made this block use totara/program/required.php
-    # them you can just remove this block, it is testing the course the user cannot see anywhere else is unavailable.
+    # learner2 use current learning block to enrol in the course
     When I toggle "Test Program 1" in the current learning block
     And I should see "Course 1" in "Test Program 1" within the current learning block
-    And I follow "Course 1"
-    Then I should see "This course is currently unavailable to students"
-
-    # Use the link to the course first up and confirm that they can access the course.
-    When I follow "Dashboard"
-    And I follow "Test Program 1"
-    Then I should see "Course 1"
     And I follow "Course 1"
     Then I should see "You have been enrolled in course Course 1 via required learning program Test Program 1."
 

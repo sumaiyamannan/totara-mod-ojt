@@ -78,7 +78,26 @@ if (!check_dir_exists($tmpdir, true, true)) {
 }
 
 // choose the backup file from backup files tree
-if ($action == 'choosebackupfile') {
+if ($action == 'choosebackupfile' and $filecontextid) {
+    if ($component === 'backup') {
+        if ($filecontext->id != $context->id) {
+            throw new invalid_parameter_exception('invalid context parameter');
+        }
+        if ($filearea !== 'course' and $filearea !== 'activity') {
+            throw new invalid_parameter_exception('invalid filearea parameter');
+        }
+    } else if ($component === 'user') {
+        $usercontext = context_user::instance($USER->id);
+        if ($filecontext->id != $usercontext->id) {
+            throw new invalid_parameter_exception('invalid context parameter');
+        }
+        if ($filearea !== 'backup') {
+            throw new invalid_parameter_exception('invalid filearea parameter');
+        }
+    } else {
+        throw new invalid_parameter_exception('invalid component parameter');
+    }
+
     if ($fileinfo = $browser->get_file_info($filecontext, $component, $filearea, $itemid, $filepath, $filename)) {
         if (is_a($fileinfo, 'file_info_stored')) {
             // Use the contenthash rather than copying the file where possible,
@@ -88,7 +107,7 @@ if ($action == 'choosebackupfile') {
             $file = $fs->get_file($params['contextid'], $params['component'], $params['filearea'],
                     $params['itemid'], $params['filepath'], $params['filename']);
             $restore_url = new moodle_url('/backup/restore.php', array('contextid' => $contextid,
-                    'pathnamehash' => $file->get_pathnamehash(), 'contenthash' => $file->get_contenthash()));
+                    'pathnamehash' => $file->get_pathnamehash(), 'contenthash' => $file->get_contenthash(), 'sesskey' => sesskey()));
         } else {
             // If it's some weird other kind of file then use old code.
             $filename = restore_controller::get_tempdir_name($courseid, $USER->id);
@@ -97,7 +116,7 @@ if ($action == 'choosebackupfile') {
                 throw new restore_ui_exception('errorcopyingbackupfile', null, $pathname);
             }
             $restore_url = new moodle_url('/backup/restore.php', array(
-                    'contextid' => $contextid, 'filename' => $filename));
+                    'contextid' => $contextid, 'filename' => $filename, 'sesskey' => sesskey()));
         }
         redirect($restore_url);
     } else {
@@ -120,7 +139,7 @@ if ($data && has_capability('moodle/restore:uploadfile', $context)) {
     if (!$form->save_file('backupfile', $pathname)) {
         throw new restore_ui_exception('errorcopyingbackupfile', null, $pathname);
     }
-    $restore_url = new moodle_url('/backup/restore.php', array('contextid'=>$contextid, 'filename'=>$filename));
+    $restore_url = new moodle_url('/backup/restore.php', array('contextid'=>$contextid, 'filename'=>$filename, 'sesskey' => sesskey()));
     redirect($restore_url);
     die;
 }

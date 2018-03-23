@@ -85,13 +85,14 @@ define(['jquery', 'totara_form/form', 'totara_form/modernizr'], function($, Form
         }
 
         if (!(/Android|iPhone|iPad|iPod/i.test(navigator.userAgent))) {
-            var dateDeferred = $.Deferred();
             this.input.attr('type', 'text');
+            var dateDeferred = $.Deferred();
             deferreds.push(dateDeferred);
             // Polyfill the date/time functionality.
             require(['totara_form/polyfill_date-lazy'], function(date) {
-                date.init(id);
-                dateDeferred.resolve();
+                date.init(id).then(function() {
+                    dateDeferred.resolve();
+                });
             });
         }
 

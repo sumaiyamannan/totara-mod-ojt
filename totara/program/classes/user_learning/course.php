@@ -57,4 +57,23 @@ class course extends core_course {
         }
         return $this->points;
     }
+
+    /**
+     * Modify template URL based on course audience visibility
+     *
+     * @return \stdClass
+     */
+    public function export_for_template() {
+        global $CFG;
+        $data = parent::export_for_template();
+        if (!empty($CFG->audiencevisibility) && isset($this->get_owner()->id) && $this->learningitemrecord->audiencevisible != COHORT_VISIBLE_NOUSERS) {
+            $url = new \moodle_url(
+                '/totara/program/required.php',
+                array('id' => $this->get_owner()->id, 'cid' => $this->id, 'sesskey' => sesskey())
+            );
+            $data->url_view = $url->out(false);
+        }
+
+        return $data;
+    }
 }
