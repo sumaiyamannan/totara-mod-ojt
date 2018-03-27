@@ -82,7 +82,7 @@ class backup_glossary_activity_task extends backup_activity_task {
             }
 
             $search = "#{$showentrybase}{$courseid}(&|&amp;)eid=(?<eid>\d+(?!\d))#";
-            if (preg_match_all($search, $content, $matches)) {
+            if (!empty($activityids) && preg_match_all($search, $content, $matches)) {
                 list($eidsin, $eidparams) = $DB->get_in_or_equal($matches[2], SQL_PARAMS_NAMED, 'eid');
                 list($activityidsin, $activityparams) = $DB->get_in_or_equal($activityids, SQL_PARAMS_NAMED, 'act');
                 $sql = 'SELECT ge.id
