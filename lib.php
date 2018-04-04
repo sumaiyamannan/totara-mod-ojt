@@ -287,20 +287,6 @@ function ojt_get_completion_state($course, $cm, $userid, $type) {
 
 }
 
-
-/**
- * Given a course and a time, this module should find recent activity
- * that has occurred in ojt activities and print it out.
- *
- * @param stdClass $course The course record
- * @param bool $viewfullnames Should we display full names
- * @param int $timestart Print activity since this timestamp
- * @return boolean True if anything was printed, otherwise false
- */
-function ojt_print_recent_activity($course, $viewfullnames, $timestart) {
-    return false;
-}
-
 /**
  * Prepares the recent activity data
  *
