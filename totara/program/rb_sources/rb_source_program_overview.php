@@ -729,7 +729,9 @@ class rb_source_program_overview extends rb_base_source {
 
     function rb_display_course_status_list($data, $row) {
         global $COMPLETION_STATUS;
-
+        if (empty($data)) {
+            return '';
+        }
         $output = array();
         $items = explode($this->uniquedelimiter, $data);
         foreach ($items as $status) {
@@ -744,6 +746,9 @@ class rb_source_program_overview extends rb_base_source {
 
     function rb_display_category_link_list($data, $row) {
         $output = array();
+        if (empty($data)) {
+            return '';
+        }
         $items = explode($this->uniquedelimiter, $data);
         foreach ($items as $item) {
             list($catid, $visible, $catname) = explode('|', $item);
@@ -759,7 +764,9 @@ class rb_source_program_overview extends rb_base_source {
     }
 
     function rb_display_coursename_list($data, $row) {
-
+        if (empty($data)) {
+            return '';
+        }
          $items = explode($this->uniquedelimiter, $data);
          foreach ($items as $key => $item) {
              list($id, $coursename) = explode('|', $item);

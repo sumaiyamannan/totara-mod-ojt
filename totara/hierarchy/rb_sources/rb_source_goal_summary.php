@@ -326,7 +326,9 @@ class rb_source_goal_summary extends rb_base_source {
         if ($isexport) {
             return $name;
         }
-
+        if (empty($name)) {
+            return '';
+        }
         $url = new moodle_url('/totara/hierarchy/prefix/goal/statusreport.php',
                 array('clearfilters' => 1, 'goalid' => $row->goalid));
         return html_writer::link($url, $name);

@@ -351,7 +351,9 @@ class rb_source_badge_issued extends rb_base_source {
     //
     public function rb_display_issuernamelink($name, $row, $isexport) {
         global $CFG;
-
+        if (empty($name)) {
+            return '';
+        }
         $url = parse_url($CFG->wwwroot);
         if (empty($row->issuerurl) || $row->issuerurl == ($url['scheme'] . '://' . $url['host']) || substr($row->issuerurl, 0, 4) != 'http') {
             return $name;

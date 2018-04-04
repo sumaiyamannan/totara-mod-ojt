@@ -601,6 +601,9 @@ class rb_source_competency_evidence extends rb_base_source {
     // requires the competency_id extra field
     // in column definition
     function rb_display_link_competency($comp, $row) {
+        if (empty($comp)) {
+            return '';
+        }
         $compid = $row->competency_id;
         $url = new moodle_url('/totara/hierarchy/item/view.php', array('prefix' => 'competency', 'id' => $compid));
         return html_writer::link($url, $comp);

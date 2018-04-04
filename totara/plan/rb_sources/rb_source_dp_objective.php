@@ -497,7 +497,9 @@ class rb_source_dp_objective extends rb_base_source {
      */
     public function rb_display_objectivelink($objective, $row) {
         global $OUTPUT;
-
+        if (empty($objective)) {
+            return '';
+        }
         return $OUTPUT->action_link(new moodle_url('/totara/plan/components/objective/view.php', array('id' => $row->plan_id, 'itemid' => $row->objective_id)), $objective);
     }
 
