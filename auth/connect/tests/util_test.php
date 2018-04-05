@@ -1087,6 +1087,45 @@ class auth_connect_util_testcase extends advanced_testcase {
         $this->assertFalse($fs->file_exists(context_user::instance($user1->id)->id, 'user', 'icon', 0, '/', 'f3.jpg'));
     }
 
+    public function test_update_local_user_embedded_preferences() {
+        global $DB;
+        $this->resetAfterTest();
+
+        set_config('syncpasswords', 0, 'totara_connect');
+        $fs = get_file_storage();
+
+        /** @var auth_connect_generator $generator */
+        $generator = $this->getDataGenerator()->get_plugin_generator('auth_connect');
+        $server = $generator->create_server();
+        $this->assertEquals(2, $DB->count_records('user', array()));
+
+        // Add new users from server. One has emailstop set on the server
+        $serverusers = array();
+        $serverusers[] = $generator->get_fake_server_user();
+        $serverusers[] = $generator->get_fake_server_user();
+        $serverusers[1]['emailstop'] = '1';
+
+        foreach ($serverusers as $serveruser) {
+            $user = util::update_local_user($server, $serveruser, true);
+            $this->assertSame($serveruser['firstname'], $user->firstname);
+            $this->assertSame($serveruser['lastname'], $user->lastname);
+            $this->assertSame($serveruser['emailstop'], $user->emailstop);
+        }
+
+        // Update emailstop attribute on client
+        $sql = "UPDATE {user}
+                   SET emailstop = 1";
+        $DB->execute($sql);
+
+        // Check that users' emailstop is still set
+        foreach ($serverusers as $serveruser) {
+            $user = util::update_local_user($server, $serveruser, true);
+            $this->assertSame($serveruser['firstname'], $user->firstname);
+            $this->assertSame($serveruser['lastname'], $user->lastname);
+            $this->assertEquals(1, $user->emailstop);
+        }
+    }
+
     public function test_finish_sso() {
         global $DB, $SESSION, $USER;
         $this->resetAfterTest();

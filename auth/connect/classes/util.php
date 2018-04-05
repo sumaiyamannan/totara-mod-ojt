@@ -44,6 +44,19 @@ class util {
     const MAX_API_VERSION = 1;
 
     /**
+     * Names of user columns that we don't want to sync for existing users
+     * These include fields that are controlled by admin or user sync as well as
+     * user preferences stored in the user table
+     * @var string[]
+     */
+    protected static $user_nosync_columns = array(
+        'username',
+        'susppended',    // TODO: See TL-17386
+        'deleted',
+        'emailstop',
+    );
+
+    /**
      * Create unique hash for a field in a db table.
      *
      * @param string $table database table
@@ -541,10 +554,12 @@ class util {
                 }
                 $userundeleted = true;
             } else {
-                // Regular user update - do not sync these fields, admin or user sync controls them.
-                unset($user->username);
-                unset($user->susppended);
-                unset($user->deleted);
+                // Regular user update - do not sync these fields
+                foreach (self::$user_nosync_columns as $colname) {
+                    if (property_exists($user, $colname)) {
+                        unset($user->{$colname});
+                    }
+                }
             }
 
             if (!empty($user->idnumber)) {
