@@ -54,10 +54,9 @@ class rb_source_auth_approved_requests extends rb_base_source {
         $this->defaultfilters = $this->define_defaultfilters();
         $this->requiredcolumns = $this->define_requiredcolumns();
 
-        // Add the created user info.
+        // Adding join to make sure tests are passing, but we actually do not need
+        // columns and filters from the user info table.
         $this->add_user_table_to_joinlist($this->joinlist, 'base', 'userid', 'auser');
-        $this->add_user_fields_to_columns($this->columnoptions, 'auser', 'user', true);
-        $this->add_user_fields_to_filters($this->filteroptions, 'user', true);
 
         // NOTE: we cannot add more user type columns in Totara 9 - see TL-12609 for more info.
 
@@ -318,6 +317,17 @@ class rb_source_auth_approved_requests extends rb_base_source {
                 'base.timeresolved',
                 array(
                     'displayfunc' => 'nice_datetime'
+                )
+            ),
+            new rb_column_option(
+                'request',
+                'profilefields',
+                get_string('profilefields', 'auth_approved'),
+                'base.profilefields',
+                array(
+                    'displayfunc'  => 'request_profilefields',
+                    'outputformat' => 'text',
+                    'nosort'       => true,
                 )
             ),
             new rb_column_option(
