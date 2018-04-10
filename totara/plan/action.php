@@ -61,11 +61,15 @@ $referer = optional_param('referer', get_local_referer(false), PARAM_URL);
 //in case passed param is invalid or even HTTP_REFERER is bogus
 $referer = clean_param($referer, PARAM_LOCALURL);
 
+if (!$referer) {
+    $referer = $CFG->wwwroot . '/totara/plan/view.php?id=' . $id;
+}
+
 if (!confirm_sesskey()) {
     if (empty($ajax)) {
         redirect($referer);
     } else {
-        return;
+        exit;
     }
 }
 

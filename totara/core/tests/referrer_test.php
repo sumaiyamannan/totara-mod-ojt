@@ -77,6 +77,47 @@ class totara_core_referrer_testcase extends advanced_testcase {
 
         $_SERVER['HTTP_REFERER'] = 'http://www.example.com/';
         $this->assertSame('', get_local_referer());
+
+        // Totara: test default url
+
+        $CFG->wwwroot = 'http://www.example.com';
+        $defaulturl = $CFG->wwwroot . '/xx.php?zz=ww';
+
+        unset($_SERVER['HTTP_REFERER']);
+        $this->assertSame($defaulturl, get_local_referer(true, $defaulturl));
+
+        unset($_SERVER['HTTP_REFERER']);
+        $this->assertSame($defaulturl, get_local_referer(true, new moodle_url($defaulturl)));
+
+        unset($_SERVER['HTTP_REFERER']);
+        $this->assertSame($defaulturl, get_local_referer(false, $defaulturl));
+
+        $_SERVER['HTTP_REFERER'] = '';
+        $this->assertSame($defaulturl, get_local_referer(true, $defaulturl));
+
+        $_SERVER['HTTP_REFERER'] = '';
+        $this->assertSame($defaulturl, get_local_referer(false, $defaulturl));
+
+        $_SERVER['HTTP_REFERER'] = 'http://www.example.com/';
+        $this->assertSame('http://www.example.com/', get_local_referer(true, $defaulturl));
+
+        $_SERVER['HTTP_REFERER'] = 'http://www.example.com/test.php';
+        $this->assertSame('http://www.example.com/test.php', get_local_referer(true, $defaulturl));
+
+        $_SERVER['HTTP_REFERER'] = 'http://www.example.com/test.php?id=1';
+        $this->assertSame('http://www.example.com/test.php', get_local_referer(true, $defaulturl));
+
+        $_SERVER['HTTP_REFERER'] = 'http://www.example.com/test.php?id=1';
+        $this->assertSame('http://www.example.com/test.php?id=1', get_local_referer(false, $defaulturl));
+
+        $_SERVER['HTTP_REFERER'] = 'https://www.example.com/';
+        $this->assertSame($defaulturl, get_local_referer(true, $defaulturl));
+
+        $_SERVER['HTTP_REFERER'] = 'http://example.com/';
+        $this->assertSame($defaulturl, get_local_referer(true, $defaulturl));
+
+        $_SERVER['HTTP_REFERER'] = 'http://example.com/';
+        $this->assertSame($defaulturl, get_local_referer(false, $defaulturl));
     }
 
     public function test_get_referrer_policy() {

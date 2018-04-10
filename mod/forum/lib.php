@@ -3967,7 +3967,7 @@ function forum_set_return() {
     if (! isset($SESSION->fromdiscussion)) {
         $referer = get_local_referer(false);
         // If the referer is NOT a login screen then save it.
-        if (! strncasecmp("$CFG->wwwroot/login", $referer, 300)) {
+        if ($referer and !strncasecmp("$CFG->wwwroot/login", $referer, 300)) {
             $SESSION->fromdiscussion = $referer;
         }
     }

@@ -218,19 +218,24 @@ function is_https() {
  * Returns the cleaned local URL of the HTTP_REFERER less the URL query string parameters if required.
  *
  * @param bool $stripquery if true, also removes the query part of the url.
- * @return string The resulting referer or empty string.
+ * @param string|moodle_url default url (query part is not stripped)
+ * @return string The local referer or default url if invalid or not present.
  */
-function get_local_referer($stripquery = true) {
-    if (isset($_SERVER['HTTP_REFERER'])) {
-        $referer = clean_param($_SERVER['HTTP_REFERER'], PARAM_LOCALURL);
-        if ($stripquery) {
-            return strip_querystring($referer);
-        } else {
-            return $referer;
-        }
-    } else {
-        return '';
+function get_local_referer($stripquery = true, $defaulturl = '') {
+    if ($defaulturl instanceof moodle_url) {
+        $defaulturl = $defaulturl->out(false);
     }
+    if (empty($_SERVER['HTTP_REFERER'])) {
+        return $defaulturl;
+    }
+    $referer = clean_param($_SERVER['HTTP_REFERER'], PARAM_LOCALURL);
+    if (empty($referer)) {
+        return $defaulturl;
+    }
+    if ($stripquery) {
+        $referer = strip_querystring($referer);
+    }
+    return $referer;
 }
 
 /**

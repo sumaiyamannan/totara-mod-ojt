@@ -385,12 +385,12 @@ class manager {
             if (\core_useragent::is_web_crawler()) {
                 $user = guest_user();
             }
-            $referer = get_local_referer(false);
-            if (!empty($CFG->guestloginbutton) and !$user and !empty($referer)) {
+            // Totara: this is not a place for get_local_referer()!!!
+            if (!empty($CFG->guestloginbutton) and !$user and !empty($_SERVER['HTTP_REFERER'])) {
                 // Automatically log in users coming from search engine results.
-                if (strpos($referer, 'google') !== false ) {
+                if (strpos($_SERVER['HTTP_REFERER'], 'google') !== false ) {
                     $user = guest_user();
-                } else if (strpos($referer, 'altavista') !== false ) {
+                } else if (strpos($_SERVER['HTTP_REFERER'], 'altavista') !== false ) {
                     $user = guest_user();
                 }
             }

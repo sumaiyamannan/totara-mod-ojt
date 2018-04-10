@@ -66,7 +66,7 @@ if (forum_tp_is_tracked($forum) ) {
         $event->trigger();
         redirect($returnto, get_string("nownottracking", "forum", $info), 1);
     } else {
-        print_error('cannottrack', '', get_local_referer(false));
+        print_error('cannottrack', '', get_local_referer(false, $CFG->wwwroot . '/'));
     }
 
 } else { // subscribe
@@ -75,6 +75,6 @@ if (forum_tp_is_tracked($forum) ) {
         $event->trigger();
         redirect($returnto, get_string("nowtracking", "forum", $info), 1);
     } else {
-        print_error('cannottrack', '', get_local_referer(false));
+        print_error('cannottrack', '', get_local_referer(false, $CFG->wwwroot . '/'));
     }
 }
