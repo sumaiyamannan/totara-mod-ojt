@@ -51,7 +51,7 @@ class util {
      */
     protected static $user_nosync_columns = array(
         'username',
-        'susppended',    // TODO: See TL-17386
+        'suspended',
         'deleted',
         'emailstop',
     );
@@ -320,6 +320,8 @@ class util {
         global $DB, $CFG;
         require_once($CFG->libdir . '/authlib.php');
 
+        $removeaction = get_config('auth_connect', 'removeuser');
+
         // Fetch the complete list of current users into memory.
         $sql = "SELECT cu.serveruserid, cu.userid, u.deleted, u.suspended, u.id AS knownuser
                   FROM {auth_connect_users} cu
@@ -359,13 +361,38 @@ class util {
                 continue;
             }
 
+            // What to do with the suspended flag depends on the auth_connect/removeuser setting
+            // Ideally users should not be suspended manually on the client site, but at the
+            // moment there is no way of preventing this
+            if ($userinfo &&
+                !is_null($userinfo->knownuser) &&
+                !$userinfo->deleted &&
+                $serveruser['suspended'] != $userinfo->suspended) {
+
+                // Not doing anything if $removeaction == AUTH_REMOVEUSER_KEEP as we did nothing when the user was deleted
+                // - therefore not doing anything when user re-appears
+                // Not doing anything if $removeaction == AUTH_REMOVEUSER_FULLDELETE as the user should have been deleted
+                // on the client when it was deleted on the server and we shouldn't get here in this case
+
+                if ($removeaction == AUTH_REMOVEUSER_SUSPEND) {
+                    // Sync from server as we assume that the user was suspended when he 'disappeared' from the server
+                    // (basically ignore changes made on the client)
+                    $DB->set_field('user', 'suspended', $serveruser['suspended'], array('id' => $userinfo->userid));
+                    $user = $DB->get_record('user', array('id' => $userinfo->userid));
+                    \core\event\user_updated::create_from_userid($user->id)->trigger();
+
+                    if ($serveruser['suspended'] == 1) {
+                        \totara_core\event\user_suspended::create_from_user($user)->trigger();
+                    }
+                }
+            }
+
             // Create, update or undelete local user account.
             self::update_local_user($server, $serveruser);
         }
 
         // Deal with users that this client is not allowed to see any more,
         // this is the result of removing users from a cohort that restricts a client.
-        $removeaction = get_config('auth_connect', 'removeuser');
         if ($removeaction == AUTH_REMOVEUSER_SUSPEND) {
             foreach ($userinfos as $userinfo) {
                 if ($userinfo->knownuser === null) {
