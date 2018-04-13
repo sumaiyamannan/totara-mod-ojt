@@ -759,14 +759,26 @@ function facetoface_session_dates_check($olddates, $newdates) {
     return $dateschanged;
 }
 
+/**
+ * Update site/course and user calendar entries.
+ *
+ * @param object $session
+ * @param object $facetoface, optional
+ * @return bool
+ */
 function facetoface_update_calendar_entries($session, $facetoface = null){
     global $USER, $DB;
+
+    // Do not re-create calendars as they already removed from cancelled session.
+    if ((bool)$session->cancelledstatus) {
+        return true;
+    }
 
     if (empty($facetoface)) {
         $facetoface = $DB->get_record('facetoface', array('id' => $session->facetoface));
     }
 
-    //remove from all calendars
+    // Remove from all calendars.
     facetoface_delete_user_calendar_events($session, 'booking');
     facetoface_delete_user_calendar_events($session, 'session');
     facetoface_remove_session_from_calendar($session, $facetoface->course);
@@ -776,9 +788,9 @@ function facetoface_update_calendar_entries($session, $facetoface = null){
         return true;
     }
 
-    //add to NEW calendartype
+    // Add to NEW calendartype.
     if ($facetoface->usercalentry) {
-    //get ALL enrolled/booked users
+        // Get ALL enrolled/booked users.
         $users  = facetoface_get_attendees($session->id);
         if (!in_array($USER->id, $users)) {
             facetoface_add_session_to_calendar($session, $facetoface, 'user', $USER->id, 'session');
