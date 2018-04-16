@@ -22,7 +22,7 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-$string['description'] = 'Require students to complete (or not complete) another activity.';
+$string['description'] = 'Require learners to complete (or not complete) another activity.';
 $string['error_selectcmid'] = 'You must select an activity for the completion condition.';
 $string['label_cm'] = 'Activity or resource';
 $string['label_completion'] = 'Required completion status';

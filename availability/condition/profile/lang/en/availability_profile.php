@@ -23,7 +23,7 @@
  */
 
 $string['conditiontitle'] = 'User profile field';
-$string['description'] = 'Control access based on fields within the student&rsquo;s profile.';
+$string['description'] = 'Control access based on fields within the learner&rsquo;s profile.';
 $string['error_selectfield'] = 'You must select a profile field.';
 $string['error_setvalue'] = 'You must type a value.';
 $string['label_operator'] = 'Method of comparison';

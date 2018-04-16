@@ -46,7 +46,7 @@ $string['addremoveattendees'] = 'Add/remove attendees';
 $string['addremoveattendeeswaitlisted'] = 'Please Note: Attendees added will be automatically added to the waiting list';
 $string['addroom'] = 'Add a room';
 $string['addsession'] = 'Add a new event';
-$string['addstudent'] = 'Add student';
+$string['addstudent'] = 'Add learner';
 $string['afterendofsession'] = 'after end of event';
 $string['alljamanagersdesc'] = 'Managers from all job assignements will be chosen if left empty.';
 $string['alllocations'] = 'All locations';
@@ -795,7 +795,7 @@ $string['nostarttime'] = 'No dates specified';
 $string['notallowedtocancel'] = 'You are not allowed to cancel your booking in this event.';
 $string['notapplicable'] = 'N/A';
 $string['note'] = 'Note';
-$string['notefull'] = 'Even if the event is fully booked you can still register. You will be queued (marked in red). If someone signs out, the first student in the queue will be moved into registeres students and a notification will be sent to him/her by mail.';
+$string['notefull'] = 'Even if the event is fully booked you can still register. You will be queued (marked in red). If someone signs out, the first learner in the queue will be moved into registeres learners and a notification will be sent to him/her by mail.';
 $string['notificationalreadysent'] = 'This notification has already been sent, so can no longer be edited.';
 $string['notificationdeleted'] = 'Notification deleted';
 $string['notificationduplicatesfound'] = 'Duplicates of auto notifications found. Please remove them manually on <a href="{$a}">Notifications page</a> to avoid wrong notifications being sent.';
@@ -2079,8 +2079,8 @@ $string['updateattendeesunsuccessful'] = 'An error has occurred, attendance coul
 $string['updatejobassignment'] = 'Update job assignment';
 $string['updaterequests'] = 'Update requests';
 $string['updatewaitlist'] = 'Update waitlist';
-$string['upgradefixstatusapprovedlimbousersdescription'] = 'Students with an invalid seminar signup status were detected.
-The following students were removed from events:<br>{$a}';
+$string['upgradefixstatusapprovedlimbousersdescription'] = 'Learners with an invalid seminar signup status were detected.
+The following learners were removed from events:<br>{$a}';
 $string['upgradefixstatusapprovedlimbousersdetail'] = '{$a->user} was removed from seminar {$a->f2f}';
 $string['upgradeprocessinggrades'] = 'Processing seminar grades, this may take a while if there are many events...';
 $string['usercancelledon'] = 'User cancelled on {$a}';

@@ -24,7 +24,7 @@
 
 $string['cachedef_items'] = 'Grade items cached for evaluating conditional availability';
 $string['cachedef_scores'] = 'User grades cached for evaluating conditional availability';
-$string['description'] = 'Require students to achieve a specified grade.';
+$string['description'] = 'Require learners to achieve a specified grade.';
 $string['error_backwardrange'] = 'When specifying a grade range, the minimum must be lower than the maximum.';
 $string['error_invalidnumber'] = 'Grade ranges must be specified with valid percentages.';
 $string['error_selectgradeid'] = 'You must select a grade item for the grade condition.';

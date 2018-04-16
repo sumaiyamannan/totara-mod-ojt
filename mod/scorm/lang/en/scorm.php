@@ -162,7 +162,7 @@ $string['forcenewattempt_help'] = 'If **yes**, hides the **Start new attempt** c
 If **no**, SCORM allows a learner to return to the same attempt at any point and a new attempt is not possible unless the previous attempt has been set as **completed**, **passed**, or **failed**. If the SCORM package does not do this, the learner will always re-enter the same attempt.
 
 An attempt is not complete until the **cmi.core.lesson_status** for the attempt is set to either **completed** or **passed**. After that, the **Start new attempt** checkbox is available to the learner.';
-$string['forcenewattemptdesc'] = 'This setting hides the "Start new attempt" checkbox and prevents review mode. SCORM allows a student to return to the same attempt at any point and a new attempt is not possible unless the previous attempt has been set as "completed", "passed" or "failed". If the SCORM package does not do this, the student will always re-enter the same attempt. An attempt is not complete until the "cmi.core.lesson_status" for the attempt is set to either "completed" or "passed". After that, the Start new attempt checkbox is available to the learner.';
+$string['forcenewattemptdesc'] = 'This setting hides the "Start new attempt" checkbox and prevents review mode. SCORM allows a learner to return to the same attempt at any point and a new attempt is not possible unless the previous attempt has been set as "completed", "passed" or "failed". If the SCORM package does not do this, the learner will always re-enter the same attempt. An attempt is not complete until the "cmi.core.lesson_status" for the attempt is set to either "completed" or "passed". After that, the Start new attempt checkbox is available to the learner.';
 $string['forcejavascript'] = 'Force users to enable JavaScript';
 $string['forcejavascript_desc'] = 'If enabled (recommended) this prevents access to SCORM objects when JavaScript is not supported/enabled in a users browser. If disabled the user may view the SCORM but API communication will fail and no grade information will be saved.';
 $string['forcejavascriptmessage'] = 'JavaScript is required to view this object, please enable JavaScript in your browser and try again.';
@@ -194,7 +194,7 @@ $string['height'] = 'Height';
 $string['hidden'] = 'Hidden';
 $string['hidebrowse'] = 'Disable preview mode';
 $string['hidebrowse_help'] = 'Preview mode allows a learner to browse an activity before attempting it. If preview mode is disabled, the preview button is hidden.';
-$string['hidebrowsedesc'] = 'Preview mode allows a student to browse an activity before attempting it.';
+$string['hidebrowsedesc'] = 'Preview mode allows a learner to browse an activity before attempting it.';
 $string['hideexit'] = 'Hide exit link';
 $string['hidereview'] = 'Hide review button';
 $string['hidetoc'] = 'Display course structure in player';
@@ -247,7 +247,7 @@ $string['lastaccess'] = 'Last access';
 $string['lastattempt'] = 'Last completed attempt';
 $string['lastattemptlock'] = 'Lock after final attempt';
 $string['lastattemptlock_help'] = 'If enabled, a learner is prevented from launching the SCORM player after using up all their allocated attempts.';
-$string['lastattemptlockdesc'] = 'If enabled, a student is prevented from launching the SCORM player after using up all their allocated attempts.';
+$string['lastattemptlockdesc'] = 'If enabled, a learner is prevented from launching the SCORM player after using up all their allocated attempts.';
 $string['location'] = 'Show the location bar';
 $string['max'] = 'Max score';
 $string['maximumattempts'] = 'Number of attempts';
@@ -378,7 +378,7 @@ $string['selectall'] = 'Select all';
 $string['selectnone'] = 'Deselect all';
 $string['show'] = 'Show';
 $string['sided'] = 'To the side';
-$string['skipview'] = 'Student skip content structure page';
+$string['skipview'] = 'Learner skip content structure page';
 $string['skipview_help'] = 'This setting specifies whether the content structure page should ever be skipped (not displayed). If the package contains only one learning object, the content structure page can always be skipped.';
 $string['skipviewdesc'] = 'This preference sets the default for when to skip content structure for a page';
 $string['slashargs'] = 'WARNING: slash arguments is disabled on this site and objects may not function as expected!';

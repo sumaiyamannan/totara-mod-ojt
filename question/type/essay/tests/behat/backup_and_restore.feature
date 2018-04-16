@@ -43,7 +43,7 @@ Feature: Test duplicating a quiz containing an Assay question
       | Question text              | Please write a story about a frog.                      |
       | General feedback           | I hope your story had a beginning, a middle and an end. |
       | Response format            | HTML editor                                             |
-      | Require text               | Require the student to enter text                       |
+      | Require text               | Require the learner to enter text                       |
     And I press "Cancel"
     And I click on "Edit" "link" in the "essay-002" "table_row"
     Then the following fields match these values:
@@ -51,7 +51,7 @@ Feature: Test duplicating a quiz containing an Assay question
       | Question text              | Please write a story about a frog.                      |
       | General feedback           | I hope your story had a beginning, a middle and an end. |
       | Response format            | HTML editor with file picker                            |
-      | Require text               | Require the student to enter text                       |
+      | Require text               | Require the learner to enter text                       |
     And I press "Cancel"
     And I click on "Edit" "link" in the "essay-003" "table_row"
     Then the following fields match these values:
@@ -59,4 +59,4 @@ Feature: Test duplicating a quiz containing an Assay question
       | Question text              | Please write a story about a frog.                      |
       | General feedback           | I hope your story had a beginning, a middle and an end. |
       | Response format            | Plain text                                              |
-      | Require text               | Require the student to enter text                       |
+      | Require text               | Require the learner to enter text                       |

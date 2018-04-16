@@ -17,4 +17,4 @@ Feature: We can use the user report
       And I press "Go"
       And I select "All users (0)" from the "Select all or one user" singleselect
       And I click on "Go" "button" in the "#choosegradeuser" "css_element"
-      Then I should see "No students enrolled in this course yet"
+      Then I should see "No learners enrolled in this course yet"

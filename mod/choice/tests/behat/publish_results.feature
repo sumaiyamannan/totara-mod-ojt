@@ -24,7 +24,7 @@ Feature: A teacher can choose one of 4 options for publishing choice results
     Given I add a "Choice" to section "1" and I fill the form with:
       | Choice name | Choice 1 |
       | Description | Choice Description |
-      | Publish results | Do not publish results to students |
+      | Publish results | Do not publish results to learners |
       | option[0] | Option 1 |
       | option[1] | Option 2 |
     And I log out
@@ -41,7 +41,7 @@ Feature: A teacher can choose one of 4 options for publishing choice results
       | Description | Choice Description |
       | option[0] | Option 1 |
       | option[1] | Option 2 |
-      | Publish results | Show results to students after they answer |
+      | Publish results | Show results to learners after they answer |
     And I log out
     And I log in as "student1"
     And I follow "Course 1"
@@ -58,7 +58,7 @@ Feature: A teacher can choose one of 4 options for publishing choice results
     Given I add a "Choice" to section "1" and I fill the form with:
       | Choice name | Choice 1 |
       | Description | Choice Description |
-      | Publish results | Show results to students only after the choice is closed |
+      | Publish results | Show results to learners only after the choice is closed |
       | option[0] | Option 1 |
       | option[1] | Option 2 |
     And I log out
@@ -96,7 +96,7 @@ Feature: A teacher can choose one of 4 options for publishing choice results
       | Description | Choice Description |
       | option[0] | Option 1 |
       | option[1] | Option 2 |
-      | Publish results | Always show results to students |
+      | Publish results | Always show results to learners |
     And I log out
     And I log in as "student1"
     And I follow "Course 1"

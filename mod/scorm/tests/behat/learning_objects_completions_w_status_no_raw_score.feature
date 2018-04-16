@@ -31,7 +31,7 @@ Feature: Activity completion status of multisco SCORM with status but no raw sco
 
   Scenario: multisco_0_0: self mark as complete, no other conditions
     When I set the following fields to these values:
-      | Completion tracking | Students can manually mark the activity as completed |
+      | Completion tracking | Learners can manually mark the activity as completed |
     And I click on "Save and display" "button"
     Then I should see "Multi-sco SCORM package"
 

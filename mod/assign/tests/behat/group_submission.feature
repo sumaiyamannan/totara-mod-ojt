@@ -32,7 +32,7 @@ Feature: Group assignment submissions
     And I add a "Assignment" to section "1" and I fill the form with:
       | Assignment name | Test assignment name |
       | Description | Test assignment description |
-      | Students submit in groups | Yes |
+      | Learners submit in groups | Yes |
       | Group mode | No groups |
     And I follow "Test assignment name"
     When I follow "View/grade all submissions"
@@ -98,7 +98,7 @@ Feature: Group assignment submissions
       | Description | Test assignment description |
       | assignsubmission_onlinetext_enabled | 1 |
       | assignsubmission_file_enabled | 0 |
-      | Students submit in groups | Yes |
+      | Learners submit in groups | Yes |
       | Group mode | No groups |
       | Require group to make submission | No |
     And I log out
@@ -185,8 +185,8 @@ Feature: Group assignment submissions
       | Description | Test assignment description |
       | assignsubmission_onlinetext_enabled | 1 |
       | assignsubmission_file_enabled | 0 |
-      | Students submit in groups | Yes |
-      | Grouping for student groups | Grouping 1 |
+      | Learners submit in groups | Yes |
+      | Grouping for learner groups | Grouping 1 |
       | Group mode | Separate groups |
       | Require group to make submission | No |
     And I log out

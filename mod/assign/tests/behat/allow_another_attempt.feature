@@ -94,7 +94,7 @@ Feature: In an assignment, students start a new attempt based on their previous 
       | Description | Test assignment description |
       | assignsubmission_onlinetext_enabled | 1 |
       | assignsubmission_file_enabled | 0 |
-      | Students submit in groups | Yes |
+      | Learners submit in groups | Yes |
       | Attempts reopened | Manually |
       | Maximum attempts | 3 |
       | Group mode | Separate groups |

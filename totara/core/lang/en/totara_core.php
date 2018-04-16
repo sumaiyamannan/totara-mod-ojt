@@ -24,7 +24,7 @@
  * these should be called like get_string('key', 'totara_core');
  */
 
-$string['activitycompletionunlockedtext'] = 'When you save changes, completion state for all students who have completed this activity will be erased. If you change your mind about this, do not save the form.';
+$string['activitycompletionunlockedtext'] = 'When you save changes, completion state for all learners who have completed this activity will be erased. If you change your mind about this, do not save the form.';
 $string['activitycompletionunlockednoresettext'] = 'Completion has been unlocked without deleting activity completion data. After this change different users may have received their completion status for different reasons.';
 $string['addanothercolumn'] = 'Add another column...';
 $string['allf2fbookings'] = 'All Seminar Bookings';
@@ -660,7 +660,7 @@ $string['tempmanagers'] = 'Temporary managers';
 $string['tempmanagerselectionallusers'] = 'All users';
 $string['tempmanagerselectiononlymanagers'] = 'Only staff managers';
 $string['tempmanagersupporttext'] = ' Note, only current team managers can be selected.';
-$string['totaralearn'] = 'Totara Learn';
+$string['totaralearn'] = 'Totara';
 $string['totaralearnlink'] = '<a href="{$a->url}">{$a->totaralearn}</a>';
 $string['updatetemporarymanagerstask'] = 'Update temporary managers';
 // Deprecated in 10

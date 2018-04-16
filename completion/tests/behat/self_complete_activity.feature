@@ -22,7 +22,7 @@ Feature: User can self complete an activity from within an activity
     And I click on "Turn editing on" "button"
     And I add a "<activity>" to section "1" and I fill the form with:
       | <name>              | Activity Name                                        |
-      | Completion tracking | Students can manually mark the activity as completed |
+      | Completion tracking | Learners can manually mark the activity as completed |
       | <req1>              | <reqvalue>                                           |
     And I log out
 
@@ -69,7 +69,7 @@ Feature: User can self complete an activity from within an activity
     And I click on "Turn editing on" "button"
     And I add a "File" to section "1" and I fill the form with:
       | Name                | Pictured                                             |
-      | Completion tracking | Students can manually mark the activity as completed |
+      | Completion tracking | Learners can manually mark the activity as completed |
       | Display             | <type>                                               |
     And I upload "completion/tests/fixtures/fruit.jpg" file to "Select files" filemanager
     And I click on "Save and return to course" "button"
@@ -100,7 +100,7 @@ Feature: User can self complete an activity from within an activity
     And I click on "Turn editing on" "button"
     And I add a "Book" to section "1" and I fill the form with:
       | Name                | Book Book                                            |
-      | Completion tracking | Students can manually mark the activity as completed |
+      | Completion tracking | Learners can manually mark the activity as completed |
     And I follow "Book Book"
     And I set the following fields to these values:
       | Chapter title | Hi there                     |
@@ -129,7 +129,7 @@ Feature: User can self complete an activity from within an activity
     And I click on "Turn editing on" "button"
     And I add a "SCORM package" to section "1" and I fill the form with:
       | Name                | SCORMed                                              |
-      | Completion tracking | Students can manually mark the activity as completed |
+      | Completion tracking | Learners can manually mark the activity as completed |
     # This works as validation fails
     And I upload "mod/scorm/tests/packages/singlesco_scorm12.zip" file to "Package file" filemanager
     And I click on "Save and return to course" "button"
@@ -156,7 +156,7 @@ Feature: User can self complete an activity from within an activity
     And I click on "Turn editing on" "button"
     And I add a "IMS content package" to section "1" and I fill the form with:
       | Name                | This is IMS                                          |
-      | Completion tracking | Students can manually mark the activity as completed |
+      | Completion tracking | Learners can manually mark the activity as completed |
     And I upload "mod/imscp/tests/packages/singlescobasic.zip" file to "Package file" filemanager
     And I click on "Save and return to course" "button"
     And I log out
@@ -182,7 +182,7 @@ Feature: User can self complete an activity from within an activity
     And I click on "Turn editing on" "button"
     And I add a "File" to section "1" and I fill the form with:
       | Name                | Pictured                                             |
-      | Completion tracking | Students can manually mark the activity as completed |
+      | Completion tracking | Learners can manually mark the activity as completed |
     And I upload "completion/tests/fixtures/fruit.jpg" file to "Select files" filemanager
     And I click on "Save and return to course" "button"
     And I log out

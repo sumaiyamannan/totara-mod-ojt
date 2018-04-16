@@ -25,7 +25,7 @@ Feature: In a lesson activity, students can review the answers they gave to ques
       | Display ongoing score | Yes |
       | Slideshow | Yes |
       | Maximum number of answers | 10 |
-      | Allow student review | Yes |
+      | Allow learner review | Yes |
       | Maximum number of attempts | 3 |
       | Custom scoring | No |
       | Re-takes allowed | Yes |

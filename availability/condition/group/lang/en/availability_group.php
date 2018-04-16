@@ -23,7 +23,7 @@
  */
 
 $string['anygroup'] = '(Any group)';
-$string['description'] = 'Allow only students who belong to a specified group, or all groups.';
+$string['description'] = 'Allow only learners who belong to a specified group, or all groups.';
 $string['missing'] = '(Missing group)';
 $string['pluginname'] = 'Restriction by group';
 $string['error_selectgroup'] = 'You must select a group.';

@@ -23,7 +23,7 @@
  */
 
 $string['auth_ldap_ad_create_req'] = 'Cannot create the new account in Active Directory. Make sure you meet all the requirements for this to work (LDAPS connection, bind user with adequate rights, etc.)';
-$string['auth_ldap_attrcreators'] = 'List of groups or contexts whose members are allowed to create attributes. Separate multiple groups with \';\'. Usually something like \'cn=teachers,ou=staff,o=myorg\'';
+$string['auth_ldap_attrcreators'] = 'List of groups or contexts whose members are allowed to create attributes. Separate multiple groups with \';\'. Usually something like \'cn=trainers,ou=staff,o=myorg\'';
 $string['auth_ldap_attrcreators_key'] = 'Attribute creators';
 $string['auth_ldap_auth_user_create_key'] = 'Create users externally';
 $string['auth_ldap_bind_dn'] = 'If you want to use bind-user to search users, specify it here. Something like \'cn=ldapuser,ou=public,o=org\'';
@@ -36,7 +36,7 @@ $string['auth_ldap_contexts_key'] = 'Contexts';
 $string['auth_ldap_create_context'] = 'If you enable user creation with email confirmation, specify the context where users are created. This context should be different from other users to prevent security issues. You don\'t need to add this context to ldap_context-variable, Totara will search for users from this context automatically.<br /><b>Note!</b> You have to modify the method user_create() in file auth/ldap/auth.php to make user creation work';
 $string['auth_ldap_create_context_key'] = 'Context for new users';
 $string['auth_ldap_create_error'] = 'Error creating user in LDAP.';
-$string['auth_ldap_creators'] = 'List of groups or contexts whose members are allowed to create new courses. Separate multiple groups with \';\'. Usually something like \'cn=teachers,ou=staff,o=myorg\'';
+$string['auth_ldap_creators'] = 'List of groups or contexts whose members are allowed to create new courses. Separate multiple groups with \';\'. Usually something like \'cn=trainers,ou=staff,o=myorg\'';
 $string['auth_ldap_creators_key'] = 'Creators';
 $string['auth_ldapdescription'] = 'This method provides authentication against an external LDAP server.
                                   If the given username and password are valid, Totara creates a new user
@@ -54,7 +54,7 @@ $string['auth_ldap_graceattr_desc'] = 'Optional: Overrides  gracelogin attribute
 $string['auth_ldap_gracelogin_key'] = 'Grace login attribute';
 $string['auth_ldap_gracelogins_desc'] = 'Enable LDAP gracelogin support. After password has expired user can login until gracelogin count is 0. Enabling this setting displays grace login message if password is expired.';
 $string['auth_ldap_gracelogins_key'] = 'Grace logins';
-$string['auth_ldap_groupecreators'] = 'List of groups or contexts whose members are allowed to create groups. Separate multiple groups with \';\'. Usually something like \'cn=teachers,ou=staff,o=myorg\'';
+$string['auth_ldap_groupecreators'] = 'List of groups or contexts whose members are allowed to create groups. Separate multiple groups with \';\'. Usually something like \'cn=trainers,ou=staff,o=myorg\'';
 $string['auth_ldap_groupecreators_key'] = 'Group creators';
 $string['auth_ldap_host_url'] = 'Specify LDAP host in URL-form like \'ldap://ldap.myorg.com/\' or \'ldaps://ldap.myorg.com/\'. Separate multiple servers with \';\' to get failover support.';
 $string['auth_ldap_host_url_key'] = 'Host URL';

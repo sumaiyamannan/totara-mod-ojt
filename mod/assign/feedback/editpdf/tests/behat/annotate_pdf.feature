@@ -110,8 +110,8 @@ Feature: In an assignment, teacher can annotate PDF files during grading
       | Description | Submit your PDF file |
       | assignsubmission_file_enabled | 1 |
       | Maximum number of uploaded files | 2 |
-      | Students submit in groups | Yes |
-      | Grouping for student groups | G1 |
+      | Learners submit in groups | Yes |
+      | Grouping for learner groups | G1 |
     And I log out
     When I log in as "student1"
     And I follow "Course 1"

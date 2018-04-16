@@ -25,7 +25,7 @@ Feature: User can self complete an activity from within a single activity course
     And I click on "Save and display" "button"
     And I set the following fields to these values:
       | <name>              | Activity Name                                        |
-      | Completion tracking | Students can manually mark the activity as completed |
+      | Completion tracking | Learners can manually mark the activity as completed |
       | <req1>              | <reqvalue>                                           |
     And I press "Save and display"
     # This is used instead of "I log out" as there is no footer (with a log out in an External tool activity)
@@ -73,7 +73,7 @@ Feature: User can self complete an activity from within a single activity course
     And I click on "Course 1" "link"
     And I set the following fields to these values:
       | Name                | Book Book                                            |
-      | Completion tracking | Students can manually mark the activity as completed |
+      | Completion tracking | Learners can manually mark the activity as completed |
     And I click on "Save and display" "button"
     And I set the following fields to these values:
       | Chapter title | Hi there                     |
@@ -107,7 +107,7 @@ Feature: User can self complete an activity from within a single activity course
     And I click on "Save and display" "button"
     And I set the following fields to these values:
       | Name                | SCORMed                                              |
-      | Completion tracking | Students can manually mark the activity as completed |
+      | Completion tracking | Learners can manually mark the activity as completed |
     And I upload "mod/scorm/tests/packages/singlesco_scorm12.zip" file to "Package file" filemanager
     And I click on "Save and display" "button"
     And I log out
@@ -138,7 +138,7 @@ Feature: User can self complete an activity from within a single activity course
     And I click on "Save and display" "button"
     And I set the following fields to these values:
       | Name                | This is IMS                                          |
-      | Completion tracking | Students can manually mark the activity as completed |
+      | Completion tracking | Learners can manually mark the activity as completed |
     And I upload "mod/imscp/tests/packages/singlescobasic.zip" file to "Package file" filemanager
     And I click on "Save and display" "button"
     # Waiting for ISC to load, otherwise it will periodically load SCO resource files on pages load.
@@ -174,7 +174,7 @@ Feature: User can self complete an activity from within a single activity course
     And I click on "Save and display" "button"
     And I set the following fields to these values:
       | Name                | Pictured                                             |
-      | Completion tracking | Students can manually mark the activity as completed |
+      | Completion tracking | Learners can manually mark the activity as completed |
       | Display             | <type>                                               |
     And I upload "completion/tests/fixtures/fruit.jpg" file to "Select files" filemanager
     And I click on "Save and display" "button"
