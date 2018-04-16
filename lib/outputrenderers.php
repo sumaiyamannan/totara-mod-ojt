@@ -3043,7 +3043,7 @@ EOD;
                         // Process this as a link item.
                         $pix = null;
                         if (isset($value->pix) && !empty($value->pix)) {
-                            $pix = new pix_icon($value->pix, $value->title, null, array('class' => 'iconsmall'));
+                            $pix = \core\output\flex_icon::get_icon($value->pix, 'core', array('class' => 'iconsmall', 'alt' => $value->title));
                         } else if (isset($value->imgsrc) && !empty($value->imgsrc)) {
                             $value->title = html_writer::img(
                                 $value->imgsrc,

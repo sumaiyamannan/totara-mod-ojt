@@ -1,6 +1,13 @@
 This files describes API changes in core libraries and APIs,
 information provided here is intended especially for developers.
 
+=== 9.20 ===
+
+* String helpers are no longer used in the following templates, string data is passed via context data:
+** lib/templates/block.mustache
+* Icon helpers are no longer used in the following templates, icon data is passed via context data:
+** lib/templates/permissionmanager_role.mustache
+
 === 9.7 ===
 
 * filter_get_globally_enabled() added first argument $resetcache

@@ -256,4 +256,35 @@ class flex_icon extends \pix_icon {
 
         return "{$component}|{$pixpath}";
     }
+
+    /**
+     * Given a flex or pix identifier, returns the appropriate icon
+     *
+     * @param string $identifier icon identifier (either flex or pix)
+     * @param string $component which component the icon belongs to
+     * @param array $data additional data to feed into either the flex or pix constructor
+     * @return pix_icon|flex_icon depending on whether a pix or flex icon was requested
+     */
+    public static function get_icon($identifier, $component = 'core', $data = array()) {
+
+        if (self::exists($identifier)) {
+            return new flex_icon($identifier, $data);
+        }
+
+        if (!isset($data['alt'])) {
+            $data['alt'] = '';
+        }
+        if (isset($data['classes'])) {
+            $data['class'] = $data['classes'];
+            unset($data['classes']);
+        }
+        $icon = new pix_icon($identifier, $data['alt'], $component, $data);
+
+        $flex = self::create_from_pix_icon($icon);
+        if ($flex !== null) {
+            $icon = $flex;
+        }
+
+        return $icon;
+    }
 }

@@ -45,25 +45,19 @@
 {{{ coursename }}} -> {{# str }} forums, forum {{/ str }} -> {{{ forumname }}}{{# showdiscussionname }} -> {{{ discussionname }}} {{/ showdiscussionname }}
 {{ discussionlink }}
 {{{ subject }}}
-{{# str }} bynameondate, forum, {
-        "name": {{# quote }}{{{ authorfullname }}}{{/ quote }},
-        "date": {{# quote}}{{ postdate }}{{/ quote }}
-    } {{/ str }}
+{{{ bynameonstring }}}
 ---------------------------------------------------------------------
 {{{ message }}}
 
 {{{ attachments }}}
 ---------------------------------------------------------------------
 {{# canreply }}
-{{# str }} postmailinfolink, forum, {
-        "coursename": {{# quote }}{{{ coursename }}}{{/ quote }},
-        "replylink": {{# quote }}{{ replylink }}{{/ quote }}
-    } {{/ str }}
+{{{postmailinfolinkstring}}}
 {{/ canreply }}
 {{# unsubscribeforumlink }}
-{{# str }} unsubscribelink, forum, {{{ unsubscribeforumlink }}} {{/ str }}
+{{{unsubscribeforumlinkstring}}}
 {{/ unsubscribeforumlink }}
 {{# unsubscribediscussionlink }}
-{{# str }} unsubscribediscussionlink, forum, {{{ unsubscribediscussionlink }}} {{/ str }}
+{{{unsubscribediscussionlinkstring}}}
 {{/ unsubscribediscussionlink }}
-{{# str }} digestmailpostlink, forum, {{{ forumindexlink }}} {{/ str }}
+{{{forumindexlinkstring}}}

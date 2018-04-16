@@ -81,7 +81,11 @@ class block implements renderable {
         }
 
         if ($skiptitle) {
-            $block->accessible_skip_from = array('href' => '#sb-' . $bc->skipid, 'title' => $skiptitle);
+            $block->accessible_skip_from = array(
+                'href' => '#sb-' . $bc->skipid,
+                'title' => $skiptitle,
+                'skiptext' => get_string('skipa', 'access', $skiptitle)
+            );
             $block->accessible_skip_to = array('id' => 'sb-' . $bc->skipid);
         }
         $title = array();

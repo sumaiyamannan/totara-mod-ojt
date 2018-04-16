@@ -90,6 +90,18 @@ class core_role_permissions_table extends core_role_capability_table_base {
             unset($forbitable[$id]);
         }
 
+        $flexicon_prevent = \core\output\flex_icon::get_icon('delete-ns', ['alt'=> 'prevent']);
+        $data_flexicon_prevent = [
+            'template' => $flexicon_prevent->get_template(),
+            'context' => $flexicon_prevent->export_for_template($OUTPUT)
+        ];
+
+        $flexicon_unprohibit = new \core\output\flex_icon('delete-ns', array('alt'=> 'unprohibit'));
+        $data_flexicon_unprohibit = [
+            'template' => $flexicon_unprohibit->get_template(),
+            'context' => $flexicon_unprohibit->export_for_template($OUTPUT)
+        ];
+
         foreach ($roles as $id => $name) {
             if (isset($needed[$id])) {
                 $templatecontext = array(
@@ -99,12 +111,14 @@ class core_role_permissions_table extends core_role_capability_table_base {
                     "spanclass" => "label label-success allowed",
                     "linkclass" => "preventlink",
                     "adminurl" => '#',
-                    "imageurl" => ""
+                    "imageurl" => "",
+                    "deleteicon" => ""
                 );
                 if (isset($overridableroles[$id]) and ($allowoverrides or ($allowsafeoverrides and is_safe_capability($capability)))) {
                     $adminurl = new moodle_url($PAGE->url, array('contextid'=>$contextid, 'roleid'=>$id, 'capability'=>$capability->name, 'prevent'=>1));
                     $templatecontext['adminurl'] = $adminurl->out(false); // Cleaned in the template.
                     $templatecontext['imageurl'] = 'delete-ns';
+                    $templatecontext['deleteicon'] = $data_flexicon_prevent;
                 }
                 $neededroles[$id] = $renderer->render_from_template('core/permissionmanager_role', $templatecontext);
             }
@@ -119,12 +133,14 @@ class core_role_permissions_table extends core_role_capability_table_base {
                     "spanclass" => "label label-danger forbidden",
                     "linkclass" => "unprohibitlink",
                     "adminurl" => '#',
-                    "imageurl" => ""
+                    "imageurl" => "",
+                    "deleteicon" => ""
                 );
                 if (isset($overridableroles[$id]) and prohibit_is_removable($id, $context, $capability->name)) {
                     $adminurl = new moodle_url($PAGE->url, array('contextid'=>$contextid, 'roleid'=>$id, 'capability'=>$capability->name, 'unprohibit'=>1));
                     $templatecontext['adminurl'] = $adminurl->out(false); // Cleaned in the template.
                     $templatecontext['imageurl'] = 'delete-ns';
+                    $templatecontext['deleteicon'] = $data_flexicon_unprohibit;
                 }
                 $forbiddenroles[$id] = $renderer->render_from_template('core/permissionmanager_role', $templatecontext);
             }

@@ -75,6 +75,7 @@ class tag implements renderable, templatable {
         $r->id = (int)$this->record->id;
         $r->rawname = clean_param($this->record->rawname, PARAM_TAG);
         $r->name = clean_param($this->record->name, PARAM_TAG);
+        $r->rawnamestr = get_string('newnamefor', 'core_tag', $r->rawname);
         $format = clean_param($this->record->descriptionformat, PARAM_INT);
         list($r->description, $r->descriptionformat) = external_format_text($this->record->description,
             $format, \context_system::instance()->id, 'core', 'tag', $r->id);

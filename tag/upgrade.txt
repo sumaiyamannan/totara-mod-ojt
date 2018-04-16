@@ -1,6 +1,11 @@
 This files describes API changes in tagging, information provided
 here is intended especially for developers.
 
+=== 9.20 ===
+
+* String helpers are no longer used in the following templates, string data is passed via context data:
+** tag/templates/tagname.mustache
+
 === 3.0 ===
 
 * Tagging courses is now implemented without user id - through course edit form or

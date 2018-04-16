@@ -185,4 +185,199 @@ class mustache_flex_icon_helper_testcase extends basic_testcase {
         $this->assertEquals($expected, $actual);
 
     }
+
+    /**
+     * Test core, components, and standard plugins to ensure that we are aware of all potentially
+     * abusable helper uses.
+     */
+    public function test_no_exploitable_flex_icon_helper_uses() {
+        global $CFG;
+
+        $directories = [
+            $CFG->dirroot . '/lib/templates'
+        ];
+
+        $subsystems = \core_component::get_core_subsystems();
+        foreach ($subsystems as $directory) {
+            if (empty($directory)) {
+                continue;
+            }
+            $directory .= '/templates';
+            if (file_exists($directory) && is_dir($directory)) {
+                $directories[] = $directory;
+            }
+        }
+
+        $manager = \core_plugin_manager::instance();
+        foreach ($manager->get_plugins() as $plugintype_class => $plugins) {
+            foreach ($plugins as $plugin_class => $plugin) {
+                /** @var \core\plugininfo\base $plugin */
+                if (!$plugin->is_standard()) {
+                    continue;
+                }
+                $directory = $CFG->dirroot . $plugin->get_dir() . '/templates';
+                if (file_exists($directory) && is_dir($directory)) {
+                    $directories[] = $directory;
+                }
+            }
+        }
+
+        // OK, so we are about to scan all mustache templates to look for abuses.
+        // There should be none, but if there are valid cases that are found to be false positive then we
+        // can list them here and know that they have been manually validated as safe.
+        // If you are adding to this list you need approval from the security experts.
+        $whitelist = [
+            $CFG->dirroot . '/totara/form/templates/element_filemanager.mustache', // No user data variables involved.
+            $CFG->dirroot . '/totara/form/templates/element_filepicker.mustache', // No user data variables involved.
+            $CFG->dirroot . '/totara/form/templates/required_suffix.mustache', // No user data variables involved.
+            $CFG->dirroot . '/blocks/current_learning/templates/program_row.mustache', // Only variable is programmatically created.
+        ];
+        $recursivehelpers = [];
+        $variablesinhelpers = [];
+        foreach ($directories as $directory) {
+            foreach (new DirectoryIterator($directory) as $file) {
+                /** @var SplFileInfo $file */
+                if ($file->isFile() && $file->getExtension() === 'mustache') {
+                    $path = $file->getPathname();
+                    $whitelistkey = array_search($path, $whitelist);
+                    if (!is_readable($path)) {
+                        $this->fail('Mustache template is not readable by unit test suite "'.$path.'"');
+                    }
+                    $content = file_get_contents($path);
+                    $content = str_replace("\n", '', $content);
+                    $result = self::has_flex_icon_helper_containing_recursive_helpers($content);
+                    if ($result) {
+                        if ($whitelistkey !== false) {
+                            // It's OK, its on the whitelist.
+                            unset($whitelist[$whitelistkey]);
+                            continue;
+                        }
+                        $recursivehelpers[] = str_replace($CFG->dirroot, '', $path).' :: '.$result;
+                    }
+                    $result = self::has_flex_icon_helper_containing_variables($content);
+                    if ($result) {
+                        if ($whitelistkey !== false) {
+                            // It's OK, its on the whitelist.
+                            unset($whitelist[$whitelistkey]);
+                            continue;
+                        }
+                        $variablesinhelpers[] = str_replace($CFG->dirroot, '', $path).' :: '.$result;
+                    }
+                }
+            }
+        }
+
+        if (!empty($recursivehelpers)) {
+            $this->fail('Templates containing flex_icon helper uses which contain recursive helper calls found'."\n * ".join("\n * ", $recursivehelpers));
+        }
+        if (!empty($variablesinhelpers)) {
+            $this->fail('Templates containing variables in flex_icon helpers.'."\n * ".join("\n * ", $variablesinhelpers));
+        }
+        if (!empty($whitelist)) {
+            $this->fail('Items on the whitelist were not found to contain vulnerabilities.'."\n".join("\n", $whitelist));
+        }
+    }
+
+    public function test_has_flex_icon_helper_containing_variables() {
+        // None.
+        self::assertFalse(self::has_flex_icon_helper_containing_variables(''));
+        self::assertFalse(self::has_flex_icon_helper_containing_variables('test'));
+        self::assertFalse(self::has_flex_icon_helper_containing_variables('{{test}}'));
+        self::assertFalse(self::has_flex_icon_helper_containing_variables('{{{test}}}'));
+        self::assertFalse(self::has_flex_icon_helper_containing_variables('{{#flex_icon}}test{{/flex_icon}}'));
+        self::assertFalse(self::has_flex_icon_helper_containing_variables('{{#str}}test{{/str}}'));
+        self::assertFalse(self::has_flex_icon_helper_containing_variables('{{#flex_icon}}  test  {{/flex_icon}}'));
+        self::assertFalse(self::has_flex_icon_helper_containing_variables('{{#flex_icon}}{test}{{/flex_icon}}'));
+        self::assertFalse(self::has_flex_icon_helper_containing_variables('{{#str}}{test}{{/str}}'));
+        self::assertFalse(self::has_flex_icon_helper_containing_variables('{{#str}}{{test}}{{/str}}'));
+        self::assertFalse(self::has_flex_icon_helper_containing_variables('#flex_icon{{test}}flex_icon'));
+        self::assertFalse(self::has_flex_icon_helper_containing_variables('{{flex_icon}}{{test}}{{flex_icon}}'));
+
+        // One.
+        self::assertSame(1, self::has_flex_icon_helper_containing_variables('{{#flex_icon}}{{test}}{{/flex_icon}}'));
+        self::assertSame(1, self::has_flex_icon_helper_containing_variables('{{# flex_icon }} {{ test }} {{/ flex_icon }}'));
+        self::assertSame(1, self::has_flex_icon_helper_containing_variables('{{#  flex_icon  }} {{  test  }}  {{/  flex_icon  }}'));
+        self::assertSame(1, self::has_flex_icon_helper_containing_variables('{{#flex_icon}}{{{test}}}{{/flex_icon}}'));
+        self::assertSame(1, self::has_flex_icon_helper_containing_variables('{{#flex_icon}}{{{{test}}}}{{/flex_icon}}'));
+        self::assertSame(1, self::has_flex_icon_helper_containing_variables('{{#flex_icon}}  {{test}}  {{/flex_icon}}'));
+        self::assertSame(1, self::has_flex_icon_helper_containing_variables('{{#flex_icon}}  {{{test}}}  {{/flex_icon}}'));
+        self::assertSame(1, self::has_flex_icon_helper_containing_variables('{{#flex_icon}}  {{{{test}}}}  {{/flex_icon}}'));
+        self::assertSame(1, self::has_flex_icon_helper_containing_variables('{{#flex_icon}}{{test}}{{/flex_icon}}{{#str}}test{{/str}}'));
+
+        // Multiple.
+        self::assertSame(2, self::has_flex_icon_helper_containing_variables('{{#flex_icon}}{{test}}{{/flex_icon}}{{#flex_icon}}{{test}}{{/flex_icon}}'));
+        self::assertSame(3, self::has_flex_icon_helper_containing_variables('{{#flex_icon}} {{test}}, {{test}} {{/flex_icon}} {{#flex_icon}} {{test}} {{/flex_icon}}'));
+        self::assertSame(3, self::has_flex_icon_helper_containing_variables('{{# flex_icon }} {{ test }}, {{ test }} {{/ flex_icon }} {{# flex_icon }} {{ test }} {{/ flex_icon }}'));
+    }
+
+    private static function has_flex_icon_helper_containing_variables($template) {
+        preg_match_all('@(\{{2}[#/][^\}]+\}{2}|\{{2,3}[^\}]+\}{2,3})@', $template, $matches);
+        $helper = 'flex_icon';
+        $helperlevel = 0;
+        $count = 0;
+        $regex_open = '@\{{2}# *'.preg_quote($helper, '@').' *\}{2}@';
+        $regex_close = '@\{{2}/ *'.preg_quote($helper, '@').' *\}{2}@';
+        foreach ($matches[0] as $match) {
+            $opening = preg_match($regex_open, $match);
+            $closing = preg_match($regex_close, $match);
+            if ($opening) {
+                $helperlevel ++;
+            } else if ($closing) {
+                $helperlevel --;
+            }
+            if ($helperlevel > 0 && !$opening && !$closing) {
+                // We're withing a helper.
+                $count++;
+            }
+        }
+        return ($count === 0) ? false : $count;
+    }
+
+    public function test_has_flex_icon_helper_containing_recursive_helpers() {
+        // None.
+        self::assertFalse(self::has_flex_icon_helper_containing_recursive_helpers(''));
+        self::assertFalse(self::has_flex_icon_helper_containing_recursive_helpers('test'));
+        self::assertFalse(self::has_flex_icon_helper_containing_recursive_helpers('{{test}}'));
+        self::assertFalse(self::has_flex_icon_helper_containing_recursive_helpers('{{{test}}}'));
+        self::assertFalse(self::has_flex_icon_helper_containing_recursive_helpers('{{#flex_icon}}{{test}}{{/flex_icon}}'));
+        self::assertFalse(self::has_flex_icon_helper_containing_recursive_helpers('{{# flex_icon }} {{ test }} {{/ flex_icon }}'));
+        self::assertFalse(self::has_flex_icon_helper_containing_recursive_helpers('{{#flex_icon}}{{test}}{{/flex_icon}}{{#flex_icon}}{{test}}{{/flex_icon}}'));
+
+        // One.
+        self::assertSame(1, self::has_flex_icon_helper_containing_recursive_helpers('{{#flex_icon}}{{#flex_icon}}{{test}}{{/flex_icon}}{{/flex_icon}}'));
+        self::assertSame(1, self::has_flex_icon_helper_containing_recursive_helpers('{{#flex_icon}}{{#str}}test{{/str}}{{/flex_icon}}'));
+        self::assertSame(1, self::has_flex_icon_helper_containing_recursive_helpers('{{# flex_icon }}{{# str }} test {{/ str }} {{/ flex_icon }}'));
+        self::assertSame(2, self::has_flex_icon_helper_containing_recursive_helpers('{{#flex_icon}}{{#str}}{{#flex_icon}}test{{/flex_icon}}{{/str}}{{/flex_icon}}'));
+
+        // Multiple.
+        self::assertSame(2, self::has_flex_icon_helper_containing_recursive_helpers('{{#flex_icon}}{{#flex_icon}}{{#flex_icon}}{{test}}{{/flex_icon}}{{/flex_icon}}{{/flex_icon}}'));
+    }
+
+    private static function has_flex_icon_helper_containing_recursive_helpers($template) {
+        preg_match_all('@\{{2}[#/][^\}]+\}{2}@', $template, $matches);
+        $helper = 'flex_icon';
+        $level = 0;
+        $count = 0;
+        $regex_open = '@\{{2}# *'.preg_quote($helper, '@').' *\}{2}@';
+        $regex_close = '@\{{2}/ *'.preg_quote($helper, '@').' *\}{2}@';
+        foreach ($matches[0] as $match) {
+            $opening_flex_icon = preg_match($regex_open, $match);
+            $closing_flex_icon = preg_match($regex_close, $match);
+            $opening = $opening_flex_icon || (strpos($match, '{{#') !== false);
+
+            if ($opening_flex_icon) {
+                if ($level > 0) {
+                    $count++;
+                }
+                $level++;
+            } else if ($closing_flex_icon) {
+                $level--;
+            } else if ($opening) {
+                if ($level > 0) {
+                    $count++;
+                }
+            }
+        }
+        return ($count === 0) ? false : $count;
+    }
 }

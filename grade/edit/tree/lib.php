@@ -147,7 +147,7 @@ class grade_edit_tree {
         if ($element['type'] == 'item' or ($element['type'] == 'category' and $element['depth'] > 1)) {
             if ($this->element_deletable($element)) {
                 $aurl = new moodle_url('index.php', array('id' => $COURSE->id, 'action' => 'delete', 'eid' => $eid, 'sesskey' => sesskey()));
-                $icon = new action_menu_link_secondary($aurl, new pix_icon('t/delete', get_string('delete')), get_string('delete'));
+                $icon = new action_menu_link_secondary($aurl, \core\output\flex_icon::get_icon('t/delete', 'core', array('alt' => get_string('delete'))), get_string('delete'));
                 $actionsmenu->add($icon);
             }
 

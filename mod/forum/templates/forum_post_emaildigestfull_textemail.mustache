@@ -38,13 +38,10 @@
 
 {{ discussionlink }}
 {{{ subject }}} ({{{ permalink }}})
-{{# str }} bynameondate, forum, {
-        "name": {{# quote }}{{{ authorfullname }}}{{/ quote }},
-        "date": {{# quote }}{{ postdate }}{{/ quote }}
-    } {{/ str }}
+{{bynameonstring}}
 ---------------------------------------------------------------------
 {{{ message }}}
 
 {{{ attachments }}}
 ---------------------------------------------------------------------
-{{# str }} digestmailpostlink, forum, {{{ forumindexlink }}} {{/ str }}
+{{{forumindexlinkstring}}}

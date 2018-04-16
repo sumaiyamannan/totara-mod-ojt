@@ -109,7 +109,7 @@ abstract class format_section_renderer_base extends plugin_renderer_base {
                 $alt = empty($item['pixattr']['alt']) ? '' : $item['pixattr']['alt'];
                 $al = new action_menu_link_secondary(
                     new moodle_url($url),
-                    new pix_icon($icon, $name, null, array('class' => "smallicon " . $class, 'alt' => $alt)),
+                    \core\output\flex_icon::get_icon($icon, 'core', array('class' => "smallicon " . $class, 'alt' => $alt)),
                     $name,
                     $attr
                 );

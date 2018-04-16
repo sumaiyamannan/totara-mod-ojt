@@ -111,6 +111,7 @@ class block_last_course_accessed extends block_base {
         $templateobject = new stdClass();
         $templateobject->course_url = (string) new moodle_url('/course/view.php', array('id' => $courseid));
         $templateobject->course_name = format_string($course->fullname, true, $context);
+        $templateobject->course_name_link_title = get_string('access_course', 'block_last_course_accessed', $templateobject->course_name);
         $templateobject->last_accessed = $last_accessed;
 
         // Set the class to be used depending on the length of the course name.

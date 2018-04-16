@@ -1,6 +1,15 @@
 This files describes API changes in /mod/forum/*,
 information provided here is intended especially for developers.
 
+=== 9.20 ===
+
+* String helpers are no longer used in the following templates, string data is passed via context data:
+** mod/forum/templates/forum_post_email_htmlemail_body.mustache
+** mod/forum/templates/forum_post_email_textemail.mustache
+** mod/forum/templates/forum_post_emaildigestbasic_htmlemail.mustache
+** mod/forum/templates/forum_post_emaildigestbasic_textemail.mustache
+** mod/forum/templates/forum_post_emaildigestfull_textemail.mustache
+
 === 9.7 ===
 
 * renderer.php - function subscriber_overview() now outputs an unordered list (instead of a HTML table)

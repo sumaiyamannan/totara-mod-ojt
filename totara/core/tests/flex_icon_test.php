@@ -335,4 +335,43 @@ class totara_core_flex_icon_testcase extends advanced_testcase {
         $this->assertInstanceOf('moodle_url', $url);
         $this->assertSame("http://www.example.com/moodle/theme/image.php/_s/{$CFG->theme}/core/1/i/edit", $url->out());
     }
+
+    public function test_get_icon() {
+        global $PAGE;
+        /** @var core_renderer $renderer */
+        $renderer = $PAGE->get_renderer('core');
+
+        $data = array(
+            'alt' => 'muppet',
+            'classes' => 'my test'
+        );
+
+        // Convert from pix to flex
+        $actual = flex_icon::get_icon('t/delete', 'core', $data);
+        $actualcontext = $actual->export_for_template($renderer);
+        $expected = new flex_icon('delete', $data);
+        $expectedcontext = $expected->export_for_template($renderer);
+
+        $this->assertSame($expectedcontext['classes'], $actualcontext['classes']);
+        $this->assertSame($expectedcontext['customdata']['alt'], $actualcontext['customdata']['alt']);
+        $this->assertSame($expectedcontext['customdata']['classes'], $actualcontext['customdata']['classes']);
+        $this->assertSame($expectedcontext['customdata']['title'], $actualcontext['customdata']['title']);
+
+        // Straight flex
+        $actual = flex_icon::get_icon('delete', 'core', $data);
+        $actualcontext = $actual->export_for_template($renderer);
+        $expected = new flex_icon('delete', $data);
+        $expectedcontext = $expected->export_for_template($renderer);
+
+        $this->assertSame($expected->export_for_template($renderer), $actual->export_for_template($renderer));
+
+        $pix_data = array(
+            'alt' => 'muppet',
+            'class' => 'my test'
+        );
+
+        $actual = flex_icon::get_icon('e/decrease_indent', 'core', $data);
+        $expected = new pix_icon('e/decrease_indent', 'muppet', 'core', $pix_data);
+        $this->assertSame($expected->export_for_template($renderer), $actual->export_for_template($renderer));
+    }
 }

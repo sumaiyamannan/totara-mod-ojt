@@ -290,6 +290,7 @@ function cohort_ruleset_form_template_object($ruleset) {
         $data->rulename = $rulerec->name;
         $data->broken = $brokenrule;
         $data->brokenruleinfo = json_encode($brokenruleinfo);
+        $data->brokenruleinfostring = get_string('cohortbrokenrule', 'totara_cohort', $brokenruleinfo);
 
         $rulesetdata->rules[] = $data;
     }

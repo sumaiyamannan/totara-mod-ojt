@@ -1,5 +1,14 @@
 List of upgrade and API changes in Totara core
 
+=== 9.20 ===
+
+* Icon helpers are no longer used in the following templates, icon data is passed via context data:
+** totara/core/templates/my_team_nav.mustache
+* String helpers are no longer used in the following templates, string data is passed via context data:
+** totara/core/templates/errorlog_link.mustache
+** totara/core/templates/my_team_nav.mustache
+** totara/core/templates/progressbar.mustache
+
 === 9.9 ===
 
 * totara/core/templates/report_list.mustache context object has changed, the property ->report_list[]->name is no

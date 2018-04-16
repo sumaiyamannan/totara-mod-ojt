@@ -50,6 +50,9 @@
          * fullname - The fullname of the job assignment.
          * shortname - The shortname of the job assignment.
          * editurl - The URL that is used to edit the job assignment.
+         * icon_movedown - flex icon context
+         * icon_moveup - flex icon context
+         * icon_delete - flex icon context
 
     Example context (json):
       {"jobcount":3,"hasjobs":true,"jobs":[{"id":"41","idnumber":"Two","sortorder":"0","fullname":"Two","shortname":"Two"},{"id":"40","idnumber":"One","sortorder":"1","fullname":"One","shortname":"One"},{"id":"42","idnumber":"Three","sortorder":"2","fullname":"Three","shortname":"Three"}],"canedit":true,"canadd":true,"userid":"2"}
@@ -59,9 +62,11 @@
     <ul class="joblist unlist">
     {{#jobs}}
         <li><a class="editjoblink" href="{{editurl}}" title="{{#str}}editjobassignment,totara_job{{/str}}" data-id="{{id}}" data-sortorder="{{sortorder}}">{{{fullname}}}</a>
-            {{#canedit}}<span class="pull-right"><a href="#" data-action="down" title="{{#str}}movedown,core{{/str}}">{{#flex_icon}}move-down, {"alt":"{{#str}}movedownxjobassignment, totara_job, {{fullname}}{{/str}}"}{{/flex_icon}}</a>
-                <a href="#" data-action="up" data-function="move" title="{{#str}}moveup,core{{/str}}">{{#flex_icon}}move-up, {"alt":"{{#str}}moveupxjobassignment, totara_job, {{fullname}}{{/str}}"}{{/flex_icon}}</a>
-                <a href="#" data-action="delete" data-function="move" title="{{#str}}delete,core{{/str}}">{{#flex_icon}}delete, {"alt":"{{#str}}deletexjobassignment, totara_job, {{fullname}}{{/str}}"}{{/flex_icon}}</a></span>{{/canedit}}</li>
+            {{#canedit}}<span class="pull-right">
+                <a href="#" data-action="down" title="{{#str}}movedown,core{{/str}}">{{#icon_movedown}}{{#context}}{{> &&template }}{{/context}}{{/icon_movedown}}</a>
+                <a href="#" data-action="up" data-function="move" title="{{#str}}moveup,core{{/str}}">{{#icon_moveup}}{{#context}}{{> &&template }}{{/context}}{{/icon_moveup}}</a>
+                <a href="#" data-action="delete" data-function="move" title="{{#str}}delete,core{{/str}}">{{#icon_delete}}{{#context}}{{> &&template }}{{/context}}{{/icon_delete}}</a>
+            </span>{{/canedit}}</li>
     {{/jobs}}
     </ul>
     {{/hasjobs}}
