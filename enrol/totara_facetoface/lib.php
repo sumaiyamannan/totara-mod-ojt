@@ -37,14 +37,6 @@ class enrol_totara_facetoface_plugin extends enrol_plugin {
     const SETTING_UNENROLWHENREMOVED = 'customint7';
     const SETTING_AUTOSIGNUP = 'customint8';
 
-    // Enrolments displayed on course page.
-    const ENROLMENTS_ON_COURSE = [
-        '2'  => '2',
-        '4'  => '4',
-        '8'  => '8',
-        '16' => '16'
-    ];
-
     protected $lastenroller = null;
     protected $lastenrollerinstanceid = 0;
     protected $sessions = array();
@@ -1221,6 +1213,21 @@ class enrol_totara_facetoface_plugin extends enrol_plugin {
         // Allow delete only when no users here.
         return !$DB->record_exists('user_enrolments', array('enrolid' => $instance->id));
     }
+
+    /**
+     * Enrolments displayed on course page.
+     * @return array
+     */
+    public static function enrolments_on_course() {
+
+        return array(
+            '2' => '2',
+            '4' => '4',
+            '8' => '8',
+            '16' => '16'
+        );
+    }
+
 }
 
 /*
