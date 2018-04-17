@@ -5992,13 +5992,6 @@ function facetoface_limit_reserveinfo_to_capacity_left($sessionid, $reserveinfo,
             $reserveinfo['maxreserve'][$sessionid] = $reserveinfo['reserve'][$sessionid] + $reserveinfo['reserved'][$sessionid];
         }
     }
-    if (!empty($reserveinfo['allocate'])) {
-        if ($reserveinfo['allocate'][$sessionid] > $capacityleft) {
-            $reserveinfo['allocate'][$sessionid] = $capacityleft;
-            $reserveinfo['maxallocate'][$sessionid] = $reserveinfo['allocate'][$sessionid] + $reserveinfo['allocated'][$sessionid];
-        }
-    }
-
     return $reserveinfo;
 }
 
