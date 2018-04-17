@@ -177,6 +177,10 @@ if (!empty($dataid)) {
     // Ensure that we found a file we can use, if not throw an exception.
     portfolio_include_callback_file($callbackcomponent, $callbackclass);
 
+    if (!is_subclass_of($callbackclass, 'portfolio_caller_base')) {
+        throw new portfolio_caller_exception('callbackclassinvalid', 'portfolio');
+    }
+
     $caller = new $callbackclass($callbackargs);
     $caller->set('user', $USER);
     if ($formats = explode(',', $callerformats)) {
