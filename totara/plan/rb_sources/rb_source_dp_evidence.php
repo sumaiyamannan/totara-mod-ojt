@@ -335,6 +335,9 @@ class rb_source_dp_evidence extends rb_base_source {
 
     public function rb_display_evidencelink($evidencelink, $row) {
         global $OUTPUT;
+        if (empty($evidencelink)) {
+            return '';
+        }
         return $OUTPUT->action_link(new moodle_url($evidencelink), $evidencelink);
     }
 

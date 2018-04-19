@@ -27,7 +27,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $string['bufferwrites'] = 'Buffer writes';
-$string['bufferwrites_help'] = 'Enables or disables buffered I/O. Enabling buffered I/O causes storage commands to "buffer" instead of being sent. Any action that retrieves data causes this buffer to be sent to the remote connection. Quitting the connection or closing down the connection will also cause the buffered data to be pushed to the remote connection.';
+$string['bufferwrites_help'] = 'Enables or disables buffered I/O. Enabling buffered I/O causes storage commands to buffer instead of being sent. Any action that retrieves data causes this buffer to be sent to the remote connection. Quitting the connection or closing down the connection will also cause the buffered data to be pushed to the remote connection.';
 $string['clustered'] = 'Enable clustered servers';
 $string['clustered_help'] = 'This is used to allow read-one, set-multi functionality.
 
@@ -48,7 +48,7 @@ $string['hash_hsieh'] = 'Hsieh';
 $string['hash_murmur'] = 'Murmur';
 $string['pluginname'] = 'Memcached';
 $string['prefix'] = 'Prefix key';
-$string['prefix_help'] = 'This can be used to create a "domain" for your item keys allowing you to create multiple memcached stores on a single memcached installation. It cannot be longer than 16 characters in order to ensure key length issues are not encountered.';
+$string['prefix_help'] = 'This can be used to create a domain for your item keys allowing you to create multiple memcached stores on a single memcached installation. It cannot be longer than 16 characters in order to ensure key length issues are not encountered.';
 $string['prefixinvalid'] = 'Invalid prefix. You can only use a-z A-Z 0-9-_.';
 $string['serialiser_igbinary'] = 'The igbinary serializer.';
 $string['serialiser_json'] = 'The JSON serializer.';
@@ -65,11 +65,11 @@ ipaddress:port
 servername:port:weight
 </pre>
 
-If *Enable clustered servers* is enabled below, there must be only one server listed here. This would usually be a name that always resolves to the local machine, like 127.0.0.1 or localhost.';
+If **Enable clustered servers** is enabled below, there must be only one server listed here. This would usually be a name that always resolves to the local machine, like 127.0.0.1 or localhost.';
 $string['serversclusterinvalid'] = 'Exactly one server is required when clustering is enabled.';
 $string['setservers'] = 'Set Servers';
 $string['setservers_help'] = 'This is the list of servers that will updated when data is modified in the cache. Generally the fully qualified name of each server in the pool.
-It **must** include the server listed in *Servers* above, even if by a different hostname.
+It **must** include the server listed in **Servers** above, even if by a different hostname.
 Servers should be defined one per line and consist of a server address and optionally a port.
 If no port is provided then the default port (11211) is used.
 

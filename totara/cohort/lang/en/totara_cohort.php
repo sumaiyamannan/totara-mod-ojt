@@ -39,14 +39,11 @@ $string['addrule'] = 'Add rule';
 $string['addruleset'] = 'Add a Rule Set';
 $string['addvisiblelearning'] = 'Add visible learning';
 $string['alertmembers'] = 'Alerts';
-$string['alertmembers_help'] = '**Do not send alerts -**
-Alerts will not be sent to members when they are added or removed from this group.
+$string['alertmembers_help'] = 'The options are:
 
-**Send alerts to affected members only -**
-If selected, notifications will be sent to members when they are added to the audience, or when they are removed.
-
-**Send alerts to all members -**
-As above, but for all members.';
+* **Do not send alerts**: Alerts will not be sent to members when they are added or removed from this group.
+* **Send alerts to affected members only**: If selected, notifications will be sent to members when they are added to the audience, or when they are removed.
+* **Send alerts to all members**: As above, but for all members.';
 $string['alertmembersaffected'] = 'Send alerts to affected members only';
 $string['alertmembersall'] = 'Send alerts to all members';
 $string['alertmembersnone'] = 'Do not send alerts';
@@ -78,13 +75,13 @@ $string['audiencevisibility'] = 'Audience-based visibility';
 $string['autocreatenew'] = 'Dynamic creation';
 $string['autocreatenew_help'] = 'Based on these settings, automatically create a new learning plan for every new user who becomes a member of this audience.
 
-If the \'exclude users who\' setting for \'have an existing, automatically created plan based on this template\' is not set, automatic creation of learning plans will not be available.
+If the **exclude users who** setting for **have an existing, automatically created plan based on this template** is not set, automatic creation of learning plans will not be available.
 
-If a user is removed from the audience any created learning plans will remain';
+If a user is removed from the audience any created learning plans will remain.';
 $string['autocreatenewon'] = 'New learning plans will be automatically generated for every new user who becomes a member of this audience.';
 $string['autocreatenewoff'] = 'Learning plans will not be automatically generated for users who become a member of this audience in the future.';
 $string['autocreateplan'] = 'Automatically create plans';
-$string['autocreateplan_help'] = 'Automatically create learning plans for members of this Audience using the selected plan template';
+$string['autocreateplan_help'] = 'Automatically create learning plans for members of this audience using the selected plan template.';
 $string['backtocohorts'] = 'Back to audiences';
 $string['cancel'] = 'Cancel';
 $string['cancelchanges'] = 'Cancel changes';
@@ -120,8 +117,7 @@ $string['cohort_associations'] = 'Audience associated learning';
 $string['cohort_associations_visible'] = 'Audience associated visible learning';
 $string['cohortadminreportname'] = 'Audience Admin Screen';
 $string['cohortalertoptions'] = 'Alert options';
-$string['cohortalertoptions_help'] = '
-**Audiences alert settings** allows a user with the appropriate permissions to specify the alert options that are available to users on the Audience edit page. This setting affects all **Audience** edit pages.
+$string['cohortalertoptions_help'] = '**Audiences alert settings** allows a user with the appropriate permissions to specify the alert options that are available to users on the audience edit page. This setting affects all **Audience** edit pages.
 
 When multiple options are selected the user can choose their preferred options from the alert dropdown menu.
 
@@ -159,10 +155,10 @@ $string['cohortmsgnotyetstartedlimited'] = 'This audience is inactive, because i
 $string['cohortname'] = 'Audience name';
 $string['cohortoperatorandlabel'] = 'AND (members are in every rule set)';
 $string['cohortoperatorlabel'] = 'Membership setting between every rule set';
-$string['cohortoperatorlabel_help'] = 'This setting determines how the audience rules will behave if you define more than one rule set. It is based on the logical "AND" and "OR" operators.
+$string['cohortoperatorlabel_help'] = 'This setting determines how the audience rules will behave if you define more than one rule set. It is based on the logical **AND** and **OR** operators.
 
-* If set to "AND", then a user will only be added to the audience if they satisfy the conditions of <strong>all</strong> of the rule sets. (They will be omitted if they fail to satisfy even one ruleset)
-* If set to "OR", then a user will be added to the audience if they satisfy the conditions of <strong>any</strong> of the rule sets. (They only have to satisfy the conditions of a single rule set to be included)
+* If set to **AND**, then a user will only be added to the audience if they satisfy the conditions of **all** of the rule sets. (They will be omitted if they fail to satisfy even one ruleset.)
+* If set to **OR**, then a user will be added to the audience if they satisfy the conditions of **any** of the rule sets. (They only have to satisfy the conditions of a single rule set to be included.)
 
 Note that each ruleset has its own, separate, logical operator to indicate the relationship between the rules within that ruleset.';
 $string['cohortoperatororlabel'] = 'OR (members are in any rule set)';
@@ -210,7 +206,7 @@ $string['createnewcohort'] = 'Create new audience';
 $string['createplans'] = 'Create plans';
 $string['createplansfornewmembers'] = 'Automatically create a new learning plan for every new user who becomes a member of this audience';
 $string['createplanstatus'] = 'Create new plans as';
-$string['createplanstatus_help'] = 'This will be the status that the created plans are given';
+$string['createplanstatus_help'] = 'This will be the status that the created plans are given.';
 $string['criteria'] = 'Criteria';
 $string['criteriaoptional'] = 'All criteria are optional but you have to select at least one option.';
 $string['currentusers'] = 'Current users';
@@ -257,14 +253,12 @@ $string['editrule'] = 'Edit rule';
 $string['editrules'] = 'Rule sets';
 $string['enableaudiencevisibility'] = 'Enable audience-based visibility';
 $string['enddate'] = 'End date';
-$string['enddate_help'] = 'If an end date is provided, the audience will be treated as empty after the end date.'; // Unused.
+$string['enddate_help'] = 'If an end date is provided, the audience will be treated as empty after the end date.';
 $string['enddatelimited'] = 'End date';
 $string['enddatelimited_help'] = 'If an end date is provided:
 
-* access to dashboards granted by this audience will not be available after this date
-* if this is a dynamic audience, audience members will not be automatically updated after this date
-
-';
+* Access to dashboards granted by this audience will not be available after this date.
+* If this is a dynamic audience, audience members will not be automatically updated after this date.';
 $string['endswith'] = 'ends with';
 $string['enrolledcohorts'] = 'Enrolled audiences';
 $string['enrolledlearning'] = 'Enrolled learning';
@@ -317,13 +311,16 @@ $string['error:typecompletion'] = 'Rule definition type is incorrect';
 $string['excludeuserswho'] = 'Exclude users who';
 $string['excludeuserswho_help'] = 'This setting lets you choose types of users to exclude from having plans generated for them
 
-**having an existing, manually created plan based on this template** <br />
-If a user has a plan based on this template that was manually created by them or their manager then they will not get a new plan created.
+(**having an existing, manually created plan based on this template**).
 
-**having an existing, automatically created plan based on this template** <br />
-If a user has an automatically created plan based on this template then they will not get a new plan created.
+If a user has a plan based on this template that was manually created by them or their manager then they will not get a new plan created (
 
-**have a completed plan based on this template** <br />
+**having an existing, automatically created plan based on this template**).
+
+If a user has an automatically created plan based on this template then they will not get a new plan created (
+
+**have a completed plan based on this template**).
+
 If this option is selected then users who have a completed plans based on this template will not have a new template created.';
 $string['failedtoclone'] = 'Failed to clone audience';
 $string['failedtodeleted'] = 'Failed to delete audience';
@@ -522,14 +519,12 @@ $string['separatemultiplebycommas'] = 'Separate multiple values by commas';
 $string['set'] = 'Set';
 $string['setcompletion'] = 'Set completion';
 $string['startdate'] = 'Start date';
-$string['startdate_help'] = 'If a start date is provided, the audience will be treated as empty until the start date.'; // Unused.
+$string['startdate_help'] = 'If a start date is provided, the audience will be treated as empty until the start date.';
 $string['startdatelimited'] = 'Start date';
 $string['startdatelimited_help'] = 'If a start date is provided:
 
-* access to dashboards granted by this audience will not be available until this date
-* if this is a dynamic audience, audience members will not be automatically updated until this date
-
-';
+* Access to dashboards granted by this audience will not be available until this date.
+* If this is a dynamic audience, audience members will not be automatically updated until this date.';
 $string['startswith'] = 'starts with';
 $string['status'] = 'Status';
 $string['successfullyaddedcohort'] = 'Successfully added audience';
@@ -542,10 +537,13 @@ $string['thiscohortwillhave'] = 'This audience will have {$a} members at this po
 $string['toomanyusersmatchsearch'] = 'Too many users match the search ({$a->count})';
 $string['toomanyuserstoshow'] = 'There are too many users to show ({$a})';
 $string['type'] = 'Type';
-$string['type_help'] = '<p>The audience type can be \'set\' or \'dynamic\'.</p>
-<p>Set audiences are a predefined list of users, manually created by the audience creator. The creator can add or remove users but otherwise the list is static.</p>
-<p>Dynamic audiences are determined by a rule or set of rules, and the users included in the audience will dynamically update to include users who match those rules (and remove users who no longer match).</p>
-<p>The members of a set audience can be changed at any time, and the rules that define a dynamic audience can also be changed, leading to the audience membership being updated.</p>';
+$string['type_help'] = 'The audience type can be **set** or **dynamic**.
+
+Set audiences are a predefined list of users, manually created by the audience creator. The creator can add or remove users but otherwise the list is static.
+
+Dynamic audiences are determined by a rule or set of rules, and the users included in the audience will dynamically update to include users who match those rules (and remove users who no longer match).
+
+The members of a set audience can be changed at any time, and the rules that define a dynamic audience can also be changed, leading to the audience membership being updated.';
 $string['typeunknown'] = '{$a}';
 $string['updatecohortstask'] = 'Sync and clean audiences';
 $string['updateoperatorsbutton'] = 'Update "and/or" operators in current draft';
@@ -568,11 +566,11 @@ $string['visibleaudience'] = 'Enrolled users and members of the selected audienc
 $string['visiblelearning'] = 'Visible learning';
 $string['visiblelearning_help'] = 'This setting determines whether the course, program or certification appears in the corresponding list.
 
-If "Visible to enrolled users and members of the selected audiences" is selected then it will be visible to all members of the assigned audiences.
+If **Visible to enrolled users and members of the selected audiences** is selected then it will be visible to all members of the assigned audiences.
 
 Users that are enrolled will be able to see it, not matter what visibility setting is selected.
 
-Users granted the \'manageaudiencevisibility\' capability (managers by default) can see all courses, programs and certifications.';
+Users granted the **manageaudiencevisibility** capability (managers by default) can see all courses, programs and certifications.';
 $string['visibleenrolled'] = 'Enrolled users only';
 $string['visiblenousers'] = 'No users';
 $string['youhaveadded'] = 'You have added {$a->itemnames} to this program<br />

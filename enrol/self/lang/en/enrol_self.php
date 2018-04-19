@@ -66,7 +66,7 @@ $string['groupkey'] = 'Use group enrolment keys';
 $string['groupkey_desc'] = 'Use group enrolment keys by default.';
 $string['groupkey_help'] = 'In addition to restricting access to the course to only those who know the key, use of group enrolment keys means users are automatically added to groups when they enrol in the course.
 
-Note: An enrolment key for the course must be specified in the self enrolment settings as well as group enrolment keys in the group settings.';
+Note that an enrolment key for the course must be specified in the self enrolment settings as well as group enrolment keys in the group settings.';
 $string['keyholder'] = 'You should have received this enrolment key from:';
 $string['longtimenosee'] = 'Unenrol inactive after';
 $string['longtimenosee_help'] = 'If users haven\'t accessed a course for a long time, then they are automatically unenrolled. This parameter specifies that time limit.';
@@ -83,7 +83,7 @@ $string['password_help'] = 'An enrolment key enables access to the course to be 
 
 If the field is left blank, any user may enrol in the course.
 
-If an enrolment key is specified, any user attempting to enrol in the course will be required to supply the key. Note that a user only needs to supply the enrolment key ONCE, when they enrol in the course.';
+If an enrolment key is specified, any user attempting to enrol in the course will be required to supply the key. Note that a user only needs to supply the enrolment key once, when they enrol in the course.';
 $string['passwordinvalid'] = 'Incorrect enrolment key, please try again';
 $string['passwordinvalidhint'] = 'That enrolment key was incorrect, please try again<br />
 (Here\'s a hint - it starts with \'{$a}\')';
@@ -103,7 +103,7 @@ $string['showhint'] = 'Show hint';
 $string['showhint_desc'] = 'Show first letter of the guest access key.';
 $string['status'] = 'Allow existing enrolments';
 $string['status_desc'] = 'Enable self enrolment method in new courses.';
-$string['status_help'] = 'If enabled together with \'Allow new enrolments\' disabled, only users who self enrolled previously can access the course. If disabled, this self enrolment method is effectively disabled, since all existing self enrolments are suspended and new users cannot self enrol.';
+$string['status_help'] = 'If enabled together with **Allow new enrolments** disabled, only users who self enrolled previously can access the course. If disabled, this self enrolment method is effectively disabled, since all existing self enrolments are suspended and new users cannot self enrol.';
 $string['unenrol'] = 'Unenrol user';
 $string['unenrolselfconfirm'] = 'Do you really want to unenrol yourself from course "{$a}"?';
 $string['unenroluser'] = 'Do you really want to unenrol "{$a->user}" from course "{$a->course}"?';

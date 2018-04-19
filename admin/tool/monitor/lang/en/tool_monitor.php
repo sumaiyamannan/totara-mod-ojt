@@ -41,7 +41,7 @@ $string['disablefieldswarning'] = 'Some fields can not be edited as this rule al
 $string['duplicaterule'] = 'Duplicate rule';
 $string['editrule'] = 'Edit rule';
 $string['enablehelp'] = 'Enable/disable event monitoring';
-$string['enablehelp_help'] = 'Event monitoring must be enabled before you can create and subscribe to rules. Note that enabling Event monitoring may affect the performance of your site.';
+$string['enablehelp_help'] = 'Event monitoring must be enabled before you can create and subscribe to rules. Note that enabling **Event monitoring** may affect the performance of your site.';
 $string['event'] = 'Event';
 $string['eventnotfound'] = 'Event not found';
 $string['eventrulecreated'] = 'Rule created';
@@ -64,12 +64,12 @@ $string['managerules'] = 'Event monitoring rules';
 $string['messageprovider:notification'] = 'Notifications of rule subscriptions';
 $string['messagetemplate'] = 'Notification message';
 $string['messagetemplate_help'] = 'A notification message is sent to subscribers once the notification threshold has been reached. It can include any or all of the following placeholders:
-<br /><br />
-* Link to the location of the event {link}<br />
-* Link to the area monitored {modulelink}<br />
-* Rule name {rulename}<br />
-* Description {description}<br />
-* Event {eventname}';
+
+* Link to the location of the event {link}.
+* Link to the area monitored {modulelink}.
+* Rule name {rulename}.
+* Description {description}.
+* Event {eventname}.';
 $string['messagetemplate_link'] = 'admin/tool/monitor/managerules';
 $string['moduleinstance'] = 'Instance';
 $string['monitorenabled'] = 'Event monitoring is currently enabled. ';
@@ -86,7 +86,7 @@ $string['ruleareyousureextra'] = 'There are {$a} subscription(s) to this rule th
 $string['rulecopysuccess'] = 'Rule successfully duplicated';
 $string['ruledeletesuccess'] = 'Rule successfully deleted';
 $string['rulehelp'] = 'Rule details';
-$string['rulehelp_help'] = 'This rule listens for when the event \'{$a->eventname}\' in \'{$a->eventcomponent}\' has been triggered {$a->frequency} time(s) in {$a->minutes} minute(s).';
+$string['rulehelp_help'] = 'This rule listens for when the event (**{$a->eventname}**) in **{$a->eventcomponent}** has been triggered **{$a->frequency}** time(s) in **{$a->minutes}** minute(s).';
 $string['rulenopermission'] = 'You do not have permission to subscribe to any events.';
 $string['rulenopermissions'] = 'You do not have permissions to "{$a} a rule"';
 $string['rulescansubscribe'] = 'Rules you can subscribe to';
@@ -96,7 +96,7 @@ $string['subareyousure'] = 'Are you sure you want to delete the subscription to 
 $string['subcreatesuccess'] = 'Subscription successfully created';
 $string['subdeletesuccess'] = 'Subscription successfully removed';
 $string['subhelp'] = 'Subscription details';
-$string['subhelp_help'] = 'This subscription listens for when the event \'{$a->eventname}\' has been triggered in \'{$a->moduleinstance}\' {$a->frequency} time(s) in {$a->minutes} minute(s).';
+$string['subhelp_help'] = 'This subscription listens for when the event (**{$a->eventname}**) has been triggered in a module instance (**{$a->moduleinstance}**) a certain number of times (**{$a->frequency}**) in a certain number of minute(s) (**{$a->minutes}**).';
 $string['subscribeto'] = 'Subscribe to rule "{$a}"';
 $string['taskcleanevents'] = 'Removes any unnecessary event monitor events';
 $string['taskchecksubscriptions'] = 'Activate/deactivate invalid rule subscriptions';

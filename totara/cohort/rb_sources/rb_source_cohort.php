@@ -393,6 +393,9 @@ class rb_source_cohort extends rb_base_source {
      * @param object $row
      */
     public function rb_display_cohort_name_link($cohortname, $row ) {
+        if (empty($cohortname)) {
+            return '';
+        }
         return html_writer::link(new moodle_url('/cohort/view.php', array('id' => $row->cohort_id)), format_string($cohortname));
     }
 

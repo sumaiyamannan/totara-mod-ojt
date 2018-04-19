@@ -92,13 +92,23 @@ class rb_filter_grpconcat_jobassignment extends rb_filter_hierarchy_multi {
      * @return array of comparison operators
      */
     function get_operators() {
-        return array(
+        global $CFG;
+        // Basic operators that we allow users to use if multiple job assignments are disabled.
+        $operators = [
             self::JOB_OPERATOR_ANY => get_string('isanyvalue', 'filters'),
             self::JOB_OPERATOR_CONTAINS => get_string('filtercontains', 'totara_reportbuilder'),
             self::JOB_OPERATOR_NOTCONTAINS => get_string('filtercontainsnot', 'totara_reportbuilder'),
-            self::JOB_OPERATOR_EQUALS => get_string('filterequals', 'totara_reportbuilder'),
-            self::JOB_OPERATOR_NOTEQUALS => get_string('filterequalsnot', 'totara_reportbuilder')
-        );
+        ];
+
+        // Operators that make sense to add only when multiple job assignments are enabled.
+        if (!empty($CFG->totara_job_allowmultiplejobs)) {
+            $operators = array_merge($operators, [
+                self::JOB_OPERATOR_EQUALS => get_string('filterequals', 'totara_reportbuilder'),
+                self::JOB_OPERATOR_NOTEQUALS => get_string('filterequalsnot', 'totara_reportbuilder')
+            ]);
+        }
+
+        return $operators;
     }
 
     /**
@@ -199,6 +209,12 @@ class rb_filter_grpconcat_jobassignment extends rb_filter_hierarchy_multi {
             $mform->setDefault($this->name, $saved['value']);
             $mform->setDefault($this->name . '_op', $saved['operator']);
             $mform->setDefault($this->name . '_child', $saved['children']);
+        }
+
+        // Add maximum select value.
+        if (!empty($this->options['selectionlimit'])) {
+            $mform->addElement('hidden', $this->name . '_selection_limit', $this->options['selectionlimit']);
+            $mform->setType($this->name . '_selection_limit', PARAM_INT);
         }
     }
 

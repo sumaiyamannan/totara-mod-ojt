@@ -700,13 +700,13 @@ function prog_move_programs($programids, $categoryid) {
  * $safe (bool) prevents it from assuming category-sortorder is unique, used to upgrade
  * safely from 1.4 to 1.5
  *
- * @global <type> $CFG
- * @param <type> $categoryid
- * @param <type> $n
- * @param <type> $safe
- * @param <type> $depth
- * @param <type> $path
- * @return <type>
+ * @global $CFG
+ * @param int $categoryid
+ * @param int $n
+ * @param int $safe
+ * @param int $depth
+ * @param string $path
+ * @return int
  */
 function prog_fix_program_sortorder($categoryid=0, $n=0, $safe=0, $depth=0, $path='') {
 
@@ -841,7 +841,7 @@ function prog_fix_program_sortorder($categoryid=0, $n=0, $safe=0, $depth=0, $pat
         $n = $max;
     }
 
-    if ($categories = coursecat::get($categoryid)->get_children()) {
+    if ($categories = coursecat::get($categoryid, MUST_EXIST, true)->get_children()) {
         foreach ($categories as $category) {
             $n = prog_fix_program_sortorder($category->id, $n, $safe, $depth, $path);
         }

@@ -547,9 +547,6 @@ abstract class question_base {
      * @return question_base $this
      */
     public function set_preview($ispreview = true) {
-        if ($this->formsent) {
-            throw new question_exception('Form already rendered');
-        }
         $this->preview = $ispreview;
         return $this;
     }

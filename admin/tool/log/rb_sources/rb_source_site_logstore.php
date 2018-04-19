@@ -534,6 +534,9 @@ class rb_source_site_logstore extends rb_base_source {
      */
     public function rb_display_name_link($id, $row) {
         $event = \core\event\base::restore((array)$row, array());
+        if (!$event) {
+            return '';
+        }
         return html_writer::link($event->get_url(), $event->get_name());
     }
 

@@ -27,6 +27,6 @@ $string['configplugin'] = 'Configuration for legacy course files repository';
 $string['emptyfilelist'] = 'There are no files to show';
 $string['notitle'] = 'notitle';
 $string['remember'] = 'Remember me';
-$string['pluginname_help'] = 'Legacy course files';
+$string['pluginname_help'] = 'Legacy course files.';
 $string['pluginname'] = 'Legacy course files';
 $string['coursefiles:view'] = 'Use course files repository plugin';

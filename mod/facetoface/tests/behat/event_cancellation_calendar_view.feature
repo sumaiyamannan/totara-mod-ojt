@@ -146,3 +146,30 @@ Feature: Seminar event cancellation calendar views
     And I should not see "10:00 AM - 4:00 PM Australia/Perth"
     And I should not see "You are booked for this Seminar event"
     And I should not see "Editing Trainer Teacher One"
+
+  Scenario: mod_facetoface_cancel_802: cancelled events do not re-create in calendar when seminar updated
+    Given I click on "Find Learning" in the totara menu
+    And I follow "Course 1"
+    And I follow "Test Seminar"
+    And I click on "Cancel event" "link" in the "1 / 29" "table_row"
+    And I press "Yes"
+    And I navigate to "Edit settings" node in "Seminar administration"
+    And I set the following fields to these values:
+      | Description | Test Seminar Lorem ipsum dolor sit amet |
+    And I press "Save and display"
+    And I log out
+
+    When I log in as "teacher1"
+    And I click on "Find Learning" in the totara menu
+    And I follow "Course 1"
+    And I follow "View all events"
+    Then I should see date "1 day Australia/Perth" formatted "%d %B %Y"
+    And I should see "Event cancelled" in the "10:00 AM - 4:00 PM Australia/Perth" "table_row"
+    And I should see "Sign-up unavailable" in the "10:00 AM - 4:00 PM Australia/Perth" "table_row"
+
+    When I click on "Dashboard" in the totara menu
+    And I click on "Go to calendar" "link"
+    Then I should not see "Course 1"
+    And I should not see "10:00 AM - 4:00 PM Australia/Perth"
+    And I should not see "You are booked for this Seminar event"
+    And I should not see "Editing Trainer Teacher One"

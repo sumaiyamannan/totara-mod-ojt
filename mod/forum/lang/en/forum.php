@@ -44,9 +44,9 @@ $string['attachmentnopost'] = 'You cannot export attachments without a post id';
 $string['attachments'] = 'Attachments';
 $string['attachmentswordcount'] = 'Attachments and word count';
 $string['blockafter'] = 'Post threshold for blocking';
-$string['blockafter_help'] = 'This setting specifies the maximum number of posts which a user can post in the given time period. Users with the capability mod/forum:postwithoutthrottling are exempt from post limits.';
+$string['blockafter_help'] = 'This setting specifies the maximum number of posts which a user can post in the given time period. Users with the capability **mod/forum:postwithoutthrottling** are exempt from post limits.';
 $string['blockperiod'] = 'Time period for blocking';
-$string['blockperiod_help'] = 'Students can be blocked from posting more than a given number of posts in a given time period. Users with the capability mod/forum:postwithoutthrottling are exempt from post limits.';
+$string['blockperiod_help'] = 'Learners can be blocked from posting more than a given number of posts in a given time period. Users with the capability **mod/forum:postwithoutthrottling** are exempt from post limits.';
 $string['blockperioddisabled'] = 'Don\'t block';
 $string['blogforum'] = 'Standard forum displayed in a blog-like format';
 $string['bynameondate'] = 'by {$a->name} - {$a->date}';
@@ -190,11 +190,10 @@ $string['emaildigestsubjectsshort'] = 'Subjects only';
 $string['emaildigesttype'] = 'Email digest options';
 $string['emaildigesttype_help'] = 'The type of notification that you will receive for each forum.
 
-* Default - follow the digest setting found in your user profile. If you update your profile, then that change will be reflected here too;
-* No digest - you will receive one e-mail per forum post;
-* Digest - complete posts - you will receive one digest e-mail per day containing the complete contents of each forum post;
-* Digest - subjects only - you will receive one digest e-mail per day containing just the subject of each forum post.
-';
+* **Default**: Follow the digest setting found in your user profile. If you update your profile, then that change will be reflected here too.
+* **No digest**: You will receive one email per forum post.
+* **Digest - complete posts**: You will receive one digest email per day containing the complete contents of each forum post.
+* **Digest - subjects only**: You will receive one digest email per day containing just the subject of each forum post.';
 $string['emaildigestupdated'] = 'The e-mail digest option was changed to \'{$a->maildigesttitle}\' for the forum \'{$a->forum}\'. {$a->maildigestdescription}';
 $string['emaildigestupdated_default'] = 'Your default profile setting of \'{$a->maildigesttitle}\' was used for the forum \'{$a->forum}\'. {$a->maildigestdescription}.';
 $string['emaildigest_0'] = 'You will receive one e-mail per forum post.';
@@ -248,13 +247,13 @@ $string['forumsubjecthidden'] = 'Subject (hidden)';
 $string['forumtracked'] = 'Unread posts are being tracked';
 $string['forumtrackednot'] = 'Unread posts are not being tracked';
 $string['forumtype'] = 'Forum type';
-$string['forumtype_help'] = 'There are 5 forum types:
+$string['forumtype_help'] = 'There are five forum types:
 
-* A single simple discussion - A single discussion topic which everyone can reply to (cannot be used with separate groups)
-* Each person posts one discussion - Each student can post exactly one new discussion topic, which everyone can then reply to
-* Q and A forum - Students must first post their perspectives before viewing other students\' posts
-* Standard forum displayed in a blog-like format - An open forum where anyone can start a new discussion at any time, and in which discussion topics are displayed on one page with "Discuss this topic" links
-* Standard forum for general use - An open forum where anyone can start a new discussion at any time';
+* **A single simple discussion**: A single discussion topic which everyone can reply to (cannot be used with separate groups).
+* **Each person posts one discussion**: Each learner can post exactly one new discussion topic, which everyone can then reply to.
+* **Q and A forum**: Learners must first post their perspectives before viewing other learners\' posts.
+* **Standard forum displayed in a blog-like format**: An open forum where anyone can start a new discussion at any time, and in which discussion topics are displayed on one page with **Discuss this topic** links.
+* **Standard forum for general use**: An open forum where anyone can start a new discussion at any time.';
 $string['forum:viewallratings'] = 'View all raw ratings given by individuals';
 $string['forum:viewanyrating'] = 'View total ratings that anyone received';
 $string['forum:viewdiscussion'] = 'View discussions';
@@ -310,22 +309,22 @@ $string['modethreaded'] = 'Display replies in threaded form';
 $string['modulename'] = 'Forum';
 $string['modulename_help'] = 'The forum activity module enables participants to have asynchronous discussions i.e. discussions that take place over an extended period of time.
 
-There are several forum types to choose from, such as a standard forum where anyone can start a new discussion at any time; a forum where each student can post exactly one discussion; or a question and answer forum where students must first post before being able to view other students\' posts. A teacher can allow files to be attached to forum posts. Attached images are displayed in the forum post.
+There are several forum types to choose from, such as a standard forum where anyone can start a new discussion at any time; a forum where each learner can post exactly one discussion; or a question and answer forum where learners must first post before being able to view other learners\' posts. A trainer can allow files to be attached to forum posts. Attached images are displayed in the forum post.
 
-Participants can subscribe to a forum to receive notifications of new forum posts. A teacher can set the subscription mode to optional, forced or auto, or prevent subscription completely. If required, students can be blocked from posting more than a given number of posts in a given time period; this can prevent individuals from dominating discussions.
+Participants can subscribe to a forum to receive notifications of new forum posts. A trainer can set the subscription mode to optional, forced, auto, or they can prevent subscription completely. If required, learners can be blocked from posting more than a given number of posts in a given time period; this can prevent individuals from dominating discussions.
 
-Forum posts can be rated by teachers or students (peer evaluation). Ratings can be aggregated to form a final grade which is recorded in the gradebook.
+Forum posts can be rated by trainers or learners (peer evaluation). Ratings can be aggregated to form a final grade which is recorded in the gradebook.
 
-Forums have many uses, such as
+Forums have many uses, such as:
 
-* A social space for students to get to know each other
-* For course announcements (using a news forum with forced subscription)
-* For discussing course content or reading materials
-* For continuing online an issue raised previously in a face-to-face session
-* For teacher-only discussions (using a hidden forum)
-* A help centre where tutors and students can give advice
-* A one-on-one support area for private student-teacher communications (using a forum with separate groups and with one student per group)
-* For extension activities, for example ‘brain teasers’ for students to ponder and suggest solutions to';
+* A social space for learners to get to know each other.
+* For course announcements (using a news forum with forced subscription).
+* For discussing course content or reading materials.
+* For continuing online an issue raised previously in a face-to-face session.
+* For trainer-only discussions (using a hidden forum).
+* A help centre where trainers and learners can give advice.
+* A one-on-one support area for private learner-trainer communications (using a forum with separate groups and with one learner per group).
+* For extension activities, for example thinking exercises for learners to ponder and suggest solutions to.';
 $string['modulename_link'] = 'mod/forum/view';
 $string['modulenameplural'] = 'Forums';
 $string['more'] = 'more';
@@ -336,7 +335,7 @@ $string['myprofileownpost'] = 'My forum posts';
 $string['myprofileowndis'] = 'My forum discussions';
 $string['myprofileotherdis'] = 'Forum discussions';
 $string['namenews'] = 'News forum';
-$string['namenews_help'] = 'The news forum is a special forum for announcements that is automatically created when a course is created. A course can have only one news forum. Only teachers and administrators can post in the news forum. The "Latest news" block will display recent discussions from the news forum.';
+$string['namenews_help'] = 'The news forum is a special forum for announcements that is automatically created when a course is created. A course can have only one news forum. Only trainers and administrators can post in the news forum. The **Latest news** block will display recent discussions from the news forum.';
 $string['namesocial'] = 'Social forum';
 $string['nameteacher'] = 'Teacher forum';
 $string['nextdiscussiona'] = 'Next discussion: {$a}';
@@ -385,7 +384,7 @@ $string['page-mod-forum-discuss'] = 'Forum module discussion thread page';
 $string['parent'] = 'Show parent';
 $string['parentofthispost'] = 'Parent of this post';
 $string['posttomygroups'] = 'Post a copy to all groups';
-$string['posttomygroups_help'] = 'Posts a copy of this message to all groups you have access to. Participants in groups you do not have access to will not see this post';
+$string['posttomygroups_help'] = 'Posts a copy of this message to all groups you have access to. Participants in groups you do not have access to will not see this post.';
 $string['prevdiscussiona'] = 'Previous discussion: {$a}';
 $string['pluginadministration'] = 'Forum administration';
 $string['pluginname'] = 'Forum';
@@ -439,7 +438,7 @@ $string['resettrackprefs'] = 'Delete all forum tracking preferences';
 $string['rsssubscriberssdiscussions'] = 'RSS feed of discussions';
 $string['rsssubscriberssposts'] = 'RSS feed of posts';
 $string['rssarticles'] = 'Number of RSS recent articles';
-$string['rssarticles_help'] = 'This setting specifies the number of articles (either discussions or posts) to include in the RSS feed. Between 5 and 20 generally acceptable.';
+$string['rssarticles_help'] = 'This setting specifies the number of articles (either discussions or posts) to include in the RSS feed. Between 5-20 is generally acceptable.';
 $string['rsstype'] = 'RSS feed for this activity';
 $string['rsstype_help'] = 'To enable the RSS feed for this activity, select either discussions or posts to be included in the feed.';
 $string['rsstypedefault'] = 'RSS feed type';
@@ -479,14 +478,14 @@ $string['subscription'] = 'Subscription';
 $string['subscription_help'] = 'If you are subscribed to a forum it means you will receive notification of new forum posts. Usually you can choose whether you wish to be subscribed, though sometimes subscription is forced so that everyone receives notifications.';
 $string['subscriptionandtracking'] = 'Subscription and tracking';
 $string['subscriptionmode'] = 'Subscription mode';
-$string['subscriptionmode_help'] = 'When a participant is subscribed to a forum it means they will receive forum post notifications. There are 4 subscription mode options:
+$string['subscriptionmode_help'] = 'When a participant is subscribed to a forum it means they will receive forum post notifications. There are four subscription mode options:
 
-* Optional subscription - Participants can choose whether to be subscribed
-* Forced subscription - Everyone is subscribed and cannot unsubscribe
-* Auto subscription - Everyone is subscribed initially but can choose to unsubscribe at any time
-* Subscription disabled - Subscriptions are not allowed
+* **Optional subscription**: Participants can choose whether to be subscribed.
+* **Forced subscription**: Everyone is subscribed and cannot unsubscribe.
+* **Auto subscription**: Everyone is subscribed initially but can choose to unsubscribe at any time.
+* **Subscription disabled**: Subscriptions are not allowed.
 
-Note: Any subscription mode changes will only affect users who enrol in the course in the future, and not existing users.';
+Note that any subscription mode changes will only affect users who enrol in the course in the future, and not existing users.';
 $string['subscriptionoptional'] = 'Optional subscription';
 $string['subscriptionforced'] = 'Forced subscription';
 $string['subscriptionauto'] = 'Auto subscription';
@@ -507,7 +506,7 @@ $string['trackingtype_help'] = 'Read tracking enables participants to easily che
 
 If set to optional, participants can choose whether to turn tracking on or off via a link in the administration block. (Users must also enable forum tracking in their forum preferences.)
 
-If \'Allow forced read tracking\' is enabled in the site administration, then a further option is available - forced. This means that tracking is always on, regardless of users\' forum preferences.';
+If **Allow forced read tracking** is enabled in the site administration, then a further option is available,  **forced**. This means that tracking is always on, regardless of users\' forum preferences.';
 $string['unread'] = 'Unread';
 $string['unreadposts'] = 'Unread posts';
 $string['unreadpostsnumber'] = '{$a} unread posts';
@@ -527,7 +526,7 @@ $string['unsubscribeshort'] = 'Unsubscribe';
 $string['usermarksread'] = 'Manual message read marking';
 $string['viewalldiscussions'] = 'View all discussions';
 $string['warnafter'] = 'Post threshold for warning';
-$string['warnafter_help'] = 'Students can be warned as they approach the maximum number of posts allowed in a given period. This setting specifies after how many posts they are warned. Users with the capability mod/forum:postwithoutthrottling are exempt from post limits.';
+$string['warnafter_help'] = 'Learners can be warned as they approach the maximum number of posts allowed in a given period. This setting specifies after how many posts they are warned. Users with the capability **mod/forum:postwithoutthrottling** are exempt from post limits.';
 $string['warnformorepost'] = 'Warning! There is more than one discussion in this forum - using the most recent';
 $string['yournewquestion'] = 'Your new question';
 $string['yournewtopic'] = 'Your new discussion topic';

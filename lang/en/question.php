@@ -109,10 +109,10 @@ $string['editcategories_help'] = 'Rather than keeping everything in one big list
 
 Each category has a context which determines where the questions in the category can be used:
 
-* Activity context - Questions only available in the activity module
-* Course context - Questions available in all activity modules in the course
-* Course category context - Questions available in all activity modules and courses in the course category
-* System context - Questions available in all courses and activities on the site
+* **Activity context**: Questions only available in the activity module.
+* **Course context**: Questions available in all activity modules in the course.
+* **Course category context**: Questions available in all activity modules and courses in the course category.
+* **System context**: Questions available in all courses and activities on the site.
 
 Categories are also used for random questions, as questions are selected from a particular category.';
 $string['editcategories_link'] = 'question/category';
@@ -151,7 +151,7 @@ $string['exporterror'] = 'Errors occur during exporting!';
 $string['exportfilename'] = 'questions';
 $string['exportnameformat'] = '%Y%m%d-%H%M';
 $string['exportquestions'] = 'Export questions to file';
-$string['exportquestions_help'] = 'This function enables the export of a complete category (and any subcategories) of questions to file. Please note that, depending on the file format selected, some question data and certain question types may not be exported.';
+$string['exportquestions_help'] = 'This function enables the export of a complete category (and any subcategories) of questions to file. Please note that, depending on the file format selected, some question data, and certain question types may not be exported.';
 $string['exportquestions_link'] = 'question/export';
 $string['filecantmovefrom'] = 'The questions files cannot be moved because you do not have permission to remove files from the place you are trying to move questions from.';
 $string['filecantmoveto'] = 'The question files cannot be moved or copied becuase you do not have permission to add files to the place you are trying to move the questions to.';
@@ -203,8 +203,8 @@ $string['matchgradeserror'] = 'Error if grade not listed';
 $string['matchgradesnearest'] = 'Nearest grade if not listed';
 $string['matchgrades_help'] = 'Imported grades must match one of the fixed list of valid grades - 100, 90, 80, 75, 70, 66.666, 60, 50, 40, 33.333, 30, 25, 20, 16.666, 14.2857, 12.5, 11.111, 10, 5, 0 (also negative values). If not, there are two options:
 
-*  Error if grade not listed - If a question contains any grades not found in the list an error is displayed and that question will not be imported
-* Nearest grade if not listed - If a grade is found that does not match a value in the list, the grade is changed to the closest matching value in the list ';
+* **Error if grade not listed**: If a question contains any grades not found in the list an error is displayed and that question will not be imported.
+* **Nearest grade if not listed**: If a grade is found that does not match a value in the list, the grade is changed to the closest matching value in the list.';
 $string['missingcourseorcmid'] = 'Need to provide courseid or cmid to print_question.';
 $string['missingcourseorcmidtolink'] = 'Need to provide courseid or cmid to get_question_edit_link.';
 $string['missingimportantcode'] = 'This question type is missing important code: {$a}.';
@@ -246,7 +246,7 @@ $string['page-question-category'] = 'Question category page';
 $string['page-question-import'] = 'Question import page';
 $string['page-question-export'] = 'Question export page';
 $string['parentcategory'] = 'Parent category';
-$string['parentcategory_help'] = 'The parent category is the one in which the new category will be placed. "Top" means that this category is not contained in any other category. Category contexts are shown in bold type. There must be at least one category in each context.';
+$string['parentcategory_help'] = 'The parent category is the one in which the new category will be placed. **Top** means that this category is not contained in any other category. Category contexts are shown in bold type. There must be at least one category in each context.';
 $string['parentcategory_link'] = 'question/category';
 $string['parenthesisinproperclose'] = 'Parenthesis before ** is not properly closed in {$a}**';
 $string['parenthesisinproperstart'] = 'Parenthesis before ** is not properly started in {$a}**';
@@ -254,7 +254,7 @@ $string['parsingquestions'] = 'Parsing questions from import file.';
 $string['penaltyfactor'] = 'Penalty factor';
 $string['penaltyfactor_help'] = 'This setting determines what fraction of the achieved score is subtracted for each wrong response. It is only applicable if the quiz is run in adaptive mode.
 
-The penalty factor should be a number between 0 and 1. A penalty factor of 1 means that the student has to get the answer right in his first response to get any credit for it at all. A penalty factor of 0 means the student can try as often as he likes and still get the full marks.';
+The penalty factor should be a number between 0 and 1. A penalty factor of 1 means that the learner has to get the answer right in their first response to get any credit for it at all. A penalty factor of 0 means the learner can try as often as they like and still get the full marks.';
 $string['permissionedit'] = 'Edit this question';
 $string['permissionmove'] = 'Move this question';
 $string['permissionsaveasnew'] = 'Save this as a new question';
@@ -337,18 +337,18 @@ $string['fillincorrect'] = 'Fill in correct responses';
 $string['flagged'] = 'Flagged';
 $string['flagthisquestion'] = 'Flag this question';
 $string['generalfeedback'] = 'General feedback';
-$string['generalfeedback_help'] = 'General feedback is shown to the student after they have completed the question. Unlike specific feedback, which depends on the question type and what response the student gave, the same general feedback text is shown to all students.
+$string['generalfeedback_help'] = 'General feedback is shown to the learner after they have completed the question. Unlike specific feedback, which depends on the question type and what response the learner gave, the same general feedback text is shown to all learners.
 
-You can use the general feedback to give students a fully worked answer and perhaps a link to more information they can use if they did not understand the questions.';
+You can use the general feedback to give learners a fully worked answer and perhaps a link to more information they can use if they did not understand the questions.';
 $string['hintn'] = 'Hint {no}';
 $string['hintnoptions'] = 'Hint {no} options';
 $string['hinttext'] = 'Hint text';
 $string['howquestionsbehave'] = 'How questions behave';
-$string['howquestionsbehave_help'] = 'Students can interact with the questions in the quiz in various different ways. For example, you may wish the students to enter an answer to each question and then submit the entire quiz, before anything is graded or they get any feedback. That would be \'Deferred feedback\' mode.
+$string['howquestionsbehave_help'] = 'Learners can interact with the questions in the quiz in various different ways. For example, you may wish the learners to enter an answer to each question and then submit the entire quiz, before anything is graded or they get any feedback. That would be **Deferred feedback** mode.
 
-Alternatively, you may wish for students to submit each question as they go along to get immediate feedback, and if they do not get it right immediately, have another try for fewer marks. That would be \'Interactive with multiple tries\' mode.
+Alternatively, you may wish for learners to submit each question as they go along to get immediate feedback, and if they do not get it right immediately, have another try for fewer marks. That would be **Interactive with multiple tries** mode.
 
-Those are probably the two most commonly used modes of behaviour. ';
+Those are probably the two most commonly used modes of behaviour.';
 $string['howquestionsbehave_link'] = 'question/behaviour';
 $string['importfromcoursefiles'] = '... or choose a course file to import.';
 $string['importfromupload'] = 'Select a file to upload ...';
@@ -380,9 +380,9 @@ $string['partiallycorrect'] = 'Partially correct';
 $string['partiallycorrectfeedback'] = 'For any partially correct response';
 $string['partiallycorrectfeedbackdefault'] = 'Your answer is partially correct.';
 $string['penaltyforeachincorrecttry'] = 'Penalty for each incorrect try';
-$string['penaltyforeachincorrecttry_help'] = 'When questions are run using the \'Interactive with multiple tries\' or \'Adaptive mode\' behaviour, so that the student will have several tries to get the question right, then this option controls how much they are penalised for each incorrect try.
+$string['penaltyforeachincorrecttry_help'] = 'When questions are run using the **Interactive with multiple tries** or **Adaptive mode** behaviour, so that the learner will have several tries to get the question right, then this option controls how much they are penalised for each incorrect try.
 
-The penalty is a proportion of the total question grade, so if the question is worth three marks, and the penalty is 0.3333333, then the student will score 3 if they get the question right first time, 2 if they get it right second try, and 1 of they get it right on the third try.';
+The penalty is a proportion of the total question grade, so if the question is worth three marks, and the penalty is 0.3333333, then the learner will score 3 if they get the question right first time, 2 if they get it right second try, and 1 of they get it right on the third try.';
 $string['previewquestion'] = 'Preview question: {$a}';
 $string['questionbehaviouradminsetting'] = 'Question behaviour settings';
 $string['questionbehavioursdisabled'] = 'Question behaviours to disable';
@@ -402,7 +402,7 @@ $string['responsehistory'] = 'Response history';
 $string['restart'] = 'Start again';
 $string['restartwiththeseoptions'] = 'Start again with these options';
 $string['rightanswer'] = 'Right answer';
-$string['rightanswer_help'] = 'an automatically generated summary of the correct response. This can be limited, so you may wish to consider explaining the correct solution in the general feedback for the question, and turning this option off.';
+$string['rightanswer_help'] = 'An automatically generated summary of the correct response. This can be limited, so you may wish to consider explaining the correct solution in the general feedback for the question, and turning this option off.';
 $string['saved'] = 'Saved: {$a}';
 $string['saveflags'] = 'Save the state of the flags';
 $string['settingsformultipletries'] = 'Multiple tries';
@@ -414,7 +414,7 @@ $string['shown'] = 'Shown';
 $string['shownumpartscorrect'] = 'Show the number of correct responses';
 $string['shownumpartscorrectwhenfinished'] = 'Show the number of correct responses once the question has finished';
 $string['specificfeedback'] = 'Specific feedback';
-$string['specificfeedback_help'] = 'Feedback that depends on what response the student gave.';
+$string['specificfeedback_help'] = 'Feedback that depends on what response the learner gave.';
 $string['started'] = 'Started';
 $string['state'] = 'State';
 $string['step'] = 'Step';
@@ -439,7 +439,7 @@ $string['unknownquestiontype'] = 'Unknown question type: {$a}.';
 $string['unusedcategorydeleted'] = 'This category has been deleted because, after deleting the course, its questions weren\'t used any more.';
 $string['updatedisplayoptions'] = 'Update display options';
 $string['whethercorrect'] = 'Whether correct';
-$string['whethercorrect_help'] = 'This covers both the textual description \'Correct\', \'Partially correct\' or \'Incorrect\', and any coloured highlighting that conveys the same information.';
+$string['whethercorrect_help'] = 'This covers both the textual description **Correct**, **Partially correct**, or **Incorrect**, and any coloured highlighting that conveys the same information.';
 $string['whichtries'] = 'Which tries';
 $string['withselected'] = 'With selected';
 $string['xoutofmax'] = '{$a->mark} out of {$a->max}';

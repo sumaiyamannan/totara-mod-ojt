@@ -59,7 +59,7 @@ $string['editgroupsettings'] = 'Edit group settings';
 $string['enrolmentkey'] = 'Enrolment key';
 $string['enrolmentkey_help'] = 'An enrolment key enables access to the course to be restricted to only those who know the key. If a group enrolment key is specified, then not only will entering that key let the user into the course, but it will also automatically make them a member of this group.
 
-Note: Group enrolment keys must be enabled in the self enrolment settings and an enrolment key for the course must also be specified.';
+Note that group enrolment keys must be enabled in the self enrolment settings and an enrolment key for the course must also be specified.';
 $string['enrolmentkeyalreadyinuse'] = 'This enrolment key is already used for another group.';
 $string['erroraddremoveuser'] = 'Error adding/removing user {$a} to group';
 $string['erroreditgroup'] = 'Error creating/updating group {$a}';
@@ -89,9 +89,9 @@ $string['groupinfomembers'] = 'Info about selected members';
 $string['groupinfopeople'] = 'Info about selected people';
 $string['grouping'] = 'Grouping';
 $string['groupingaddedsuccesfully'] = 'Grouping {$a} added successfully';
-$string['grouping_help'] = 'A grouping is a collection of groups within a course. If a grouping is selected, students assigned to groups within the grouping will be able to work together.';
+$string['grouping_help'] = 'A grouping is a collection of groups within a course. If a grouping is selected, learners assigned to groups within the grouping will be able to work together.';
 $string['groupingsection'] = 'Grouping access';
-$string['groupingsection_help'] = 'A grouping is a collection of groups within a course. If a grouping is selected here, only students assigned to groups within this grouping will have access to the section.';
+$string['groupingsection_help'] = 'A grouping is a collection of groups within a course. If a grouping is selected here, only learners assigned to groups within this grouping will have access to the section.';
 $string['groupingdescription'] = 'Grouping description';
 $string['groupingname'] = 'Grouping name';
 $string['groupingnameexists'] = 'The grouping name \'{$a}\' already exists in this course, please choose another one.';
@@ -103,11 +103,11 @@ $string['groupmembers'] = 'Group members';
 $string['groupmemberssee'] = 'See group members';
 $string['groupmembersselected'] = 'Members of selected group';
 $string['groupmode'] = 'Group mode';
-$string['groupmode_help'] = 'This setting has 3 options:
+$string['groupmode_help'] = 'This setting has three options:
 
-* No groups - There are no sub groups, everyone is part of one big community
-* Separate groups - Each group member can only see their own group, others are invisible
-* Visible groups - Each group member works in their own group, but can also see other groups
+* **No groups**: There are no sub groups, everyone is part of one big community.
+* **Separate groups**: Each group member can only see their own group, others are invisible.
+* **Visible groups**: Each group member works in their own group, but can also see other groups.
 
 The group mode defined at course level is the default mode for all activities within the course. Each activity that supports groups can also define its own group mode, though if the group mode is forced at course level, the group mode setting for each activity is ignored.';
 $string['groupmodeforce'] = 'Force group mode';
@@ -131,19 +131,19 @@ $string['hidepicture'] = 'Hide picture';
 $string['importgroups'] = 'Import groups';
 $string['importgroups_help'] = 'Groups may be imported via text file. The format of the file should be as follows:
 
-* Each line of the file contains one record
-* Each record is a series of data separated by commas
-* The first record contains a list of fieldnames defining the format of the rest of the file
-* Required fieldname is groupname
-* Optional fieldnames are description, enrolmentkey, picture, hidepicture';
+* Each line of the file contains one record.
+* Each record is a series of data separated by commas.
+* The first record contains a list of field names defining the format of the rest of the file.
+* Required field name is **groupname**.
+* Optional fieldnames are **description**, **enrolmentkey**, **picture**, **hidepicture**.';
 $string['importgroups_link'] = 'group/import';
 $string['javascriptrequired'] = 'This page requires JavaScript to be enabled.';
 $string['members'] = 'Members per group';
 $string['membersofselectedgroup'] = 'Members of:';
 $string['namingscheme'] = 'Naming scheme';
-$string['namingscheme_help'] = 'The at symbol (@) may be used to create groups with names containing letters. For example Group @ will generate groups named Group A, Group B, Group C, ...
+$string['namingscheme_help'] = 'The at symbol (@) may be used to create groups with names containing letters. For example Group @ will generate groups named Group A, Group B, Group C, etc.
 
-The hash symbol (#) may be used to create groups with names containing numbers. For example Group # will generate groups named Group 1, Group 2, Group 3, ...';
+The hash symbol (#) may be used to create groups with names containing numbers. For example Group # will generate groups named Group 1, Group 2, Group 3, etc.';
 $string['newgrouping'] = 'New grouping';
 $string['newpicture'] = 'New picture';
 $string['newpicture_help'] = 'Select an image in JPG or PNG format. The image will be cropped to a square and resized to 100x100 pixels.';

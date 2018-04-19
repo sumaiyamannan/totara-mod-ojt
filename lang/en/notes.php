@@ -58,9 +58,9 @@ $string['personalnotes'] = 'Personal notes';
 $string['publishstate'] = 'Context';
 $string['publishstate_help'] = 'A note\'s context determines who can see the note.
 
-* Personal - The note will be visible only to you
-* Course - The note will be visible to teachers in this course
-* Site - The note will be visible to teachers in all courses';
+* **Personal**: The note will be visible only to you.
+* **Course**: The note will be visible to trainers in this course.
+* **Site**: The note will be visible to trainers in all courses.';
 $string['selectnotestate'] = "Select note state";
 $string['site'] = 'site';
 $string['sitenotes'] = 'Site notes';

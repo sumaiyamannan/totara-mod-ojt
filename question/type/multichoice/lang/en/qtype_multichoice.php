@@ -64,6 +64,6 @@ $string['pluginnamesummary'] = 'Allows the selection of a single or multiple res
 $string['selectmulti'] = 'Select one or more:';
 $string['selectone'] = 'Select one:';
 $string['shuffleanswers'] = 'Shuffle the choices?';
-$string['shuffleanswers_help'] = 'If enabled, the order of the answers is randomly shuffled for each attempt, provided that "Shuffle within questions" in the activity settings is also enabled.';
+$string['shuffleanswers_help'] = 'If enabled, the order of the answers is randomly shuffled for each attempt, provided that **Shuffle within questions** in the activity settings is also enabled.';
 $string['singleanswer'] = 'Choose one answer.';
 $string['toomanyselected'] = 'You have selected too many options.';

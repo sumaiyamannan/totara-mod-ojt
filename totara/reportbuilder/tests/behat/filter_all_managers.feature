@@ -4,8 +4,7 @@ Feature: Use the multi-item manager filter
   As an authenticated user
   I need to use the all managers filter
 
-  @javascript
-  Scenario: Filter a list of users by a single manager
+  Background:
     Given I am on a totara site
     And the following "users" exist:
       | username   | firstname  | lastname | email                  |
@@ -42,7 +41,10 @@ Feature: Use the multi-item manager filter
      | Authenticated user | 1 |
     And I press "Save changes"
     And I log out
-    And I log in as "user1"
+
+  @javascript
+  Scenario: Filter a list of users by a single manager
+    Given I log in as "user1"
     And I click on "Reports" in the totara menu
     And I click on "Users Report" "link"
     Then I should see "user1" in the ".reportbuilder-table" "css_element"
@@ -78,3 +80,23 @@ Feature: Use the multi-item manager filter
     And I should see "user3" in the ".reportbuilder-table" "css_element"
     And I should not see "user4" in the ".reportbuilder-table" "css_element"
     And I should not see "user5" in the ".reportbuilder-table" "css_element"
+
+  @javascript
+  Scenario: There is a limit of maximum number of selected managers.
+    Given I am on a totara site
+    And the following config values are set as admin:
+      | totara_reportbuilder_filter_selected_managers_limit | 2 |
+    Given I log in as "user1"
+    And I click on "Reports" in the totara menu
+    And I click on "Users Report" "link"
+    And I select "Any of the selected" from the "User's Manager(s) field limiter" singleselect
+    When I click on "Choose Managers" "link" in the "Search by" "fieldset"
+    And I click on "Manager1 One1" "link" in the "Choose Managers" "totaradialogue"
+    And I click on "Manager2 Two2" "link" in the "Choose Managers" "totaradialogue"
+    And I click on "Manager3 Three3" "link" in the "Choose Managers" "totaradialogue"
+    Then I should see "There is a maximum limit of 2 selected managers" in the ".selectionlimiterror" "css_element"
+    # When I click on remove last selected manager button (deciphering xpath from the next line).
+    When I click on "//div[contains(@class, 'selected')]/div[last()]//span[@class='deletebutton']" "xpath_element"
+    Then I should not see "There is a maximum limit of 2 selected managers"
+    And I press "Cancel"
+    And I log out

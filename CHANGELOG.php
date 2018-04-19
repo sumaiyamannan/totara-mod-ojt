@@ -3,6 +3,119 @@
 
 Totara Learn Changelog
 
+Release 9.19 (19th April 2018):
+===============================
+
+
+Improvements:
+
+    TL-10295       Added link validation for report builder rb_display functions
+
+                   In some cases if a param value in rb_display function is empty the function
+                   returns the HTML link with empty text which breaks a page's accessibility.
+
+    TL-16582       Updated language contextual help strings to use terminology consistent with the rest of Totara
+
+                   This change updates the contextual help information displayed against form
+                   labels. For example this includes references to System roles, such as
+                   student and teacher, have been replaced with learner and trainer.
+
+                   In addition, HTML mark-up has been removed in the affected strings and
+                   replaced with Markdown.
+
+    TL-17170       Included hidden items while updating the sort order of Programs and Certifications
+    TL-17268       Upgraded Node.js requirements to v8 LTS
+    TL-17280       Improved compatibility for browsers with disabled HTTP referrers
+    TL-17321       Added visibility checks to the Program deletion page
+
+                   Previously the deletion of hidden programs was being stopped by an
+                   exception in the deletion code, we've fixed the exception and added an
+                   explicit check to only allow deletion of programs the user can see. If you
+                   have users or roles with the totara/program:deleteprogram capability you
+                   might want to consider allowing totara/program:viewhiddenprograms as well.
+
+    TL-17352       PHPUnit and Behat do not show composer suggestions any more to minimise developer confusion
+    TL-17384       composer.json now includes PHP version and extension requirements
+
+Bug fixes:
+
+    TL-14364       Disabled the option to issue a certificate based on the time spent on the course when tracking data is not available
+
+                   The certificate activity has an option which requires a certain amount of
+                   time to be spent on a course to receive a certificate. This time is
+                   calculated on user actions recorded in the standard log. When the standard
+                   log is disabled, the legacy log will be used instead. If both logs are
+                   disabled, the option will also be disabled.
+
+                   Please note, if the logs are disabled, and then re-enabled, user actions in
+                   the time the logs were disabled will not be recorded. Consequently, actions
+                   in this period will not be counted towards time spent on the course.
+
+    TL-16122       Added the 'Enrolments displayed on course page' setting for the Seminar direct enrolment plugin and method
+
+                   Previously the amount of enrolments on the course page was controlled by
+                   the 'Events displayed on course page' course setting. Now there are two new
+                   settings, one is under "Site administration > Plugins > Enrolments >
+                   Seminar direct enrolment plugin" where the admin can set a default value
+                   for all courses with the Seminar direct enrolment method. The other is
+                   under the Course seminar direct enrolment method where the admin can set a
+                   different value. The available options are "All(default), 2, 4, 8, 16" for
+                   both settings.
+
+    TL-16724       Fixed an error while backing up a course containing a deleted glossary
+
+                   This error occurred while attempting to backup a course that contained a
+                   URL pointing to a glossary activity that had been deleted in the course
+                   description. Deleted glossary items are now skipped during the backup
+                   process.
+
+    TL-16821       Removed an error that was stopping redisplay questions in Appraisals from displaying the same question twice
+    TL-16898       Fixed the seminar booking email with iCal invitation not containing the booking text in some email clients.
+
+                   Some email clients only display the iCal invitation and do not show the
+                   email text if the email contains a valid iCal invitation. To handle this
+                   the iCal description will now include the booking email text as well as
+                   Seminar and Seminar session description.
+
+    TL-16926       Limited the maximum number of selected users in the Report builder job assignment filter
+
+                   Added 'selectionlimit' option to manager field filters, also introduced
+                   "$CFG->totara_reportbuilder_filter_selected_managers_limit" to limit the
+                   number of selected managers in the report builder job assignment filter
+                   dialog. The default value is 25, to make it unlimited, set it to 0.
+
+                   This patch also removed the equals and not-equals options from the job
+                   assignment filter when multiple job assignments are not enabled.
+
+    TL-17254       Fixed a custom field error for appraisals when goal review question was set up with "Multiple fields" option
+    TL-17267       Fixed the resetting of the 'Automatically cancel reservations' checkbox when updating a Seminar
+    TL-17358       Fixed notification preference override during Totara Connect sync
+
+                   Changes made to a user's notification preferences on a Totara Connect
+                   client site will no longer be overridden during sync.
+
+    TL-17386       Fixed the syncing of the suspended flag in Totara Connect
+
+                   When users are synced between a Totara Connect server and client, a user's
+                   suspended flag is only changed on the client when a previously
+                   deleted/suspended user is restored on the server and then re-synced to the
+                   client with the "auth_connect/removeuser" configuration setting set to
+                   "Suspend internal user"
+
+    TL-17392       Fixed the seminar events report visibility records when Audience-based visibility is enabled
+
+                   When a course had audience-based visibility enabled and the course
+                   visibility was set to anything other than "All users", the seminar events
+                   report was still displaying the course to users even when they didn't match
+                   the visibility criteria. This has been corrected.
+
+    TL-17415       Stopped updating calendar entries for cancelled events when updating the seminar information
+
+                   Previously the system re-created the site, course, and user calendar
+                   entries when updating seminar information. This patch added validation to
+                   calendar updates for cancelled events.
+
+
 Release 9.18 (23rd March 2018):
 ===============================
 

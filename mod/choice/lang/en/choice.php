@@ -54,7 +54,7 @@ $string['choiceopen'] = 'Open';
 $string['choiceoptions'] = 'Choice options';
 $string['choiceoptions_help'] = 'Here is where you specify the options that participants have to choose from.
 
-You can fill in any number of these. If you leave some of the options blank, they will not be displayed. If you need more than 8 options, click the "Add 3 fields to form" button.';
+You can fill in any number of these. If you leave some of the options blank, they will not be displayed. If you need more than eight options, click the **Add 3 fields to form** button.';
 $string['limitanswers_help'] = 'This option allows you to limit the number of participants that can select each choice option. When the limit is reached then no-one else can select that option.
 
 If limits are disabled then any number of participants can select each of the options.';
@@ -68,15 +68,15 @@ $string['limit'] = 'Limit';
 $string['limitno'] = 'Limit {no}';
 $string['limitanswers'] = 'Limit the number of responses allowed';
 $string['modulename'] = 'Choice';
-$string['modulename_help'] = 'The choice activity module enables a teacher to ask a single question and offer a selection of possible responses.
+$string['modulename_help'] = 'The choice activity module enables a trainer to ask a single question and offer a selection of possible responses.
 
-Choice results may be published after students have answered, after a certain date, or not at all. Results may be published with student names or anonymously.
+Choice results may be published after learners have answered, after a certain date, or not at all. Results may be published with learner names or anonymously.
 
-A choice activity may be used
+A choice activity may be used:
 
-* As a quick poll to stimulate thinking about a topic
-* To quickly test students\' understanding
-* To facilitate student decision-making, for example allowing students to vote on a direction for the course';
+* As a quick poll to stimulate thinking about a topic.
+* To quickly test learners\' understanding.
+* To facilitate learner decision-making, for example allowing learners to vote on a direction for the course.';
 $string['modulename_link'] = 'mod/choice/view';
 $string['modulenameplural'] = 'Choices';
 $string['moveselectedusersto'] = 'Move selected users to...';
@@ -112,7 +112,7 @@ $string['responsesto'] = 'Responses to {$a}';
 $string['results'] = 'Results';
 $string['savemychoice'] = 'Save my choice';
 $string['showpreview'] = 'Show preview';
-$string['showpreview_help'] = 'Allow students to preview the available options before the choice is opened for submission.';
+$string['showpreview_help'] = 'Allow learners to preview the available options before the choice is opened for submission.';
 $string['showunanswered'] = 'Show column for unanswered';
 $string['spaceleft'] = 'space available';
 $string['spacesleft'] = 'spaces available';

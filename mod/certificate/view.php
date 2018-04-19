@@ -77,7 +77,7 @@ if ($PAGE->user_allowed_editing()) {
 }
 
 // Check if the user can view the certificate
-if ($certificate->requiredtime && !has_capability('mod/certificate:manage', $context)) {
+if ($certificate->requiredtime && !has_capability('mod/certificate:manage', $context) && (bool)certificate_log_stores_enabled()) {
     if (certificate_get_course_time($course->id) < ($certificate->requiredtime * 60)) {
         $a = new stdClass;
         $a->requiredtime = $certificate->requiredtime;

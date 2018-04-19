@@ -358,6 +358,7 @@ class mod_facetoface_notifications_testcase extends advanced_testcase {
             'uids_match' => 'Two different dates have matching UIDs',
             'location_doesnt_match' => 'iCal location doesn\'t match predefined seminar room location',
             'cancelled_count_dont_match' => 'The number of cancelled dates doesn\'t match',
+            'description_not_found' => 'iCal description does not contain expected string'
         ];
 
         $icals = [];
@@ -391,12 +392,18 @@ class mod_facetoface_notifications_testcase extends advanced_testcase {
             $this->dissect_ical(facetoface_generate_ical($seminar,
                 $session,
                 MDL_F2F_INVITE,
-                $students[0])->content, ['location', 'uid', 'sequence', 'dtstart', 'dtend']),
+                $students[0],
+                null,[],
+                'iCal description must have this text')->content, ['location', 'uid', 'sequence', 'dtstart', 'dtend', 'description']),
             $this->dissect_ical(facetoface_generate_ical($seminar,
                 $session,
                 MDL_F2F_INVITE,
                 $students[1])->content, ['location', 'uid', 'sequence', 'dtstart', 'dtend']),
         ];
+
+        // Checking that iCal contains custom description.
+        $this->assertRegExp('/.*iCal description must have this text.*/',
+            implode('', $icals['original'][0]->description), $errors['description_not_found']);
 
         // Checking that dates match for both events.
         $this->assertTrue($this->ical_date_match($icals['original'][0], $session->sessiondates),
@@ -671,9 +678,23 @@ class mod_facetoface_notifications_testcase extends advanced_testcase {
     private function get_ical_values($content, $name) {
         $strings = explode("\n", $content);
         $result = array();
+        $isdecription = false;
         foreach($strings as $string) {
+            // Multi-line description workaround.
+            if ($isdecription) {
+                if (strpos($string, 'SUMMARY:') !== 0) {
+                    $result[] = trim($string);
+                    continue;
+                }
+                $isdecription = false;
+            }
+
             if (strpos($string, $name.':') === 0) {
                 $result[] = trim(substr($string, strlen($name)+1));
+                // Multi-line description workaround.
+                if ($name == 'DESCRIPTION') {
+                    $isdecription = true;
+                }
             }
         }
         return $result;

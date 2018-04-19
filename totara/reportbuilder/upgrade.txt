@@ -11,3 +11,9 @@ This file descripts API changes in reportbuilder.
 === 9 ===
 
 * Added isexport param to rb_base_source::rb_display_link_program_icon.
+
+=== 9.19 ===
+
+* Added 'selectionlimit' option to manager field filters. "{$CFG->totara_reportbuilder_filter_selected_managers_limit}"
+  introduced to limit the number of selected managers in the report builder job assignment filter dialog.
+  Default value is 25, to make it unlimited, set it to 0.

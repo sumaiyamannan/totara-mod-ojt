@@ -22,9 +22,9 @@
  */
 
 $string['addnewcourses'] = 'Add new courses';
-$string['addnewcourses_help'] = 'If enabled, each new course created in the LMS will be synchronised with the client to create a matching new group (Totara Social) or audience (Totara Learn). The enrolled users of the courses will be added as members to the respective groups or audiences created.';
+$string['addnewcourses_help'] = 'If enabled, each new course created in the LMS will be synchronised with the client to create a matching new group (Totara Social) or audience (Totara). The enrolled users of the courses will be added as members to the respective groups or audiences created.';
 $string['addnewcohorts'] = 'Add new audiences';
-$string['addnewcohorts_help'] = 'If enabled, each new audience created in the LMS will be synchronised with the client to create a new group (Totara Social) or audience (Totara Learn). The members of the audiences are added as members to the respective groups or new audiences.';
+$string['addnewcohorts_help'] = 'If enabled, each new audience created in the LMS will be synchronised with the client to create a new group (Totara Social) or audience (Totara). The members of the audiences are added as members to the respective groups or new audiences.';
 $string['cancelsso'] = 'Return to {$a}';
 $string['clientadd'] = 'Add client';
 $string['clientedit'] = 'Add client';

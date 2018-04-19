@@ -235,12 +235,12 @@ function testing_update_composer_dependencies() {
     exec("php composer.phar validate -q", $output, $code);
     if ($code == 2) {
         // Most likely requirements changed or dev switched branch.
-        passthru("php composer.phar update", $code);
+        passthru("php composer.phar update --no-suggest", $code);
     } else {
-        passthru("php composer.phar install", $code);
+        passthru("php composer.phar install --no-suggest", $code);
         if ($code == 2) {
             // Switched php version most likely.
-            passthru("php composer.phar update", $code);
+            passthru("php composer.phar update --no-suggest", $code);
         }
     }
     if ($code != 0) {

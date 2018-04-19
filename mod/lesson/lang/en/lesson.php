@@ -25,11 +25,11 @@
 
 $string['accesscontrol'] = 'Access control';
 $string['actionaftercorrectanswer'] = 'Action after correct answer';
-$string['actionaftercorrectanswer_help'] = 'After answering a question correctly, there are 3 options for the following page:
+$string['actionaftercorrectanswer_help'] = 'After answering a question correctly, there are three options for the following page:
 
-* Normal - Follow lesson path
-* Show an unseen page - Pages are shown in a random order with no page shown twice
-* Show an unanswered page - Pages are shown in a random order, with pages containing unanswered questions shown again';
+* **Normal**: Follow lesson path.
+* **Show an unseen page**: Pages are shown in a random order with no page shown twice.
+* **Show an unanswered page**: Pages are shown in a random order, with pages containing unanswered questions shown again.';
 $string['actions'] = 'Actions';
 $string['activitylink'] = 'Link to next activity';
 $string['activitylink_help'] = 'To provide a link at the end of the lesson to another activity in the course, select the activity from the dropdown list.';
@@ -133,22 +133,22 @@ $string['deletepagenamed'] = 'Delete page: {$a}';
 $string['deleting'] = 'Deleting';
 $string['deletingpage'] = 'Deleting page: {$a}';
 $string['dependencyon'] = 'Dependent on';
-$string['dependencyon_help'] = 'This setting allows access to this lesson to be dependent upon a student\'s performance in another lesson in the same course. Any combination of time spent, completed or "grade better than" may be used.';
+$string['dependencyon_help'] = 'This setting allows access to this lesson to be dependent upon a learner\'s performance in another lesson in the same course. Any combination of time spent, completed, or **grade better than** may be used.';
 $string['description'] = 'Description';
 $string['detailedstats'] = 'Detailed statistics';
 $string['didnotanswerquestion'] = 'Did not answer this question.';
 $string['didnotreceivecredit'] = 'Did not receive credit';
 $string['disabled'] = 'Disabled';
 $string['displaydefaultfeedback'] = 'Use default feedback';
-$string['displaydefaultfeedback_help'] = 'If enabled, when a response is not found for a particular question, the default response of "That\'s the correct answer" or "That\'s the wrong answer" will be shown.';
+$string['displaydefaultfeedback_help'] = 'If enabled, when a response is not found for a particular question, the default response of **That\'s the correct answer** or **That\'s the wrong answer** will be shown.';
 $string['displayinleftmenu'] = 'Display in menu?';
 $string['displayleftif'] = 'Minimum grade to display menu';
-$string['displayleftif_help'] = 'This setting determines whether a student must obtain a certain grade before viewing the lesson menu. This forces the student to go through the entire lesson on their first attempt, then after obtaining the required grade they can use the menu for review.';
+$string['displayleftif_help'] = 'This setting determines whether a learner must obtain a certain grade before viewing the lesson menu. This forces the learner to go through the entire lesson on their first attempt, then after obtaining the required grade they can use the menu for review.';
 $string['displayleftmenu'] = 'Display menu';
 $string['displayleftmenu_help'] = 'If enabled, a menu allowing users to navigate through the list of pages is displayed.';
 $string['displayofgrade'] = 'Display of grade (for students only)';
 $string['displayreview'] = 'Provide option to try a question again';
-$string['displayreview_help'] = 'If enabled, when a question is answered incorrectly, the student is given the option to try it again for no point credit, or continue with the lesson.';
+$string['displayreview_help'] = 'If enabled, when a question is answered incorrectly, the learner is given the option to try it again for no point credit, or continue with the lesson.';
 $string['displayscorewithessays'] = '<p>You earned {$a->score} out of {$a->tempmaxgrade} for the automatically graded questions.</p>
 <p>Your {$a->essayquestions} essay question(s) will be graded and added into your final score at a later date.</p>
 <p>Your current grade without the essay question(s) is {$a->score} out of {$a->grade}.</p>';
@@ -271,13 +271,13 @@ $string['matchingpair'] = 'Matching pair {$a}';
 $string['maxgrade'] = 'Maximum grade';
 $string['maxgrade_help'] = 'This setting specifies the maximum grade for the lesson. If set to 0, the lesson does not appear in the grades pages.';
 $string['maximumnumberofanswersbranches'] = 'Maximum number of answers';
-$string['maximumnumberofanswersbranches_help'] = 'This setting specifies the maximum number of answers that may be used in the lesson. If only true/false questions are used, it can be set to 2. The setting may be changed at any time, since it only affects what the teacher sees, not the data.';
+$string['maximumnumberofanswersbranches_help'] = 'This setting specifies the maximum number of answers that may be used in the lesson. If only true/false questions are used, it can be set to 2. The setting may be changed at any time, since it only affects what the trainer sees, not the data.';
 $string['maximumnumberofattempts'] = 'Maximum number of attempts';
 $string['maximumnumberofattempts_help'] = 'This setting specifies the maximum number of attempts allowed for each question. If answered incorrectly repeatedly, when the maximum is reached, the next page of the lesson is displayed.';
 $string['maximumnumberofattemptsreached'] = 'Maximum number of attempts reached - Moving to next page';
 $string['mediaclose'] = 'Show close button';
 $string['mediafile'] = 'Linked media';
-$string['mediafile_help'] = 'A media file may be uploaded for use in the lesson. A \'Click here to view\' link will then be displayed in a block called \'Linked media\' on each page of the lesson.';
+$string['mediafile_help'] = 'A media file may be uploaded for use in the lesson. A **Click here to view** link will then be displayed in a block called **Linked media** on each page of the lesson.';
 $string['mediafilepopup'] = 'Click here to view';
 $string['mediaheight'] = 'Popup window height';
 $string['mediawidth'] = 'Popup window width';
@@ -286,18 +286,18 @@ $string['minimumnumberofquestions'] = 'Minimum number of questions';
 $string['minimumnumberofquestions_help'] = 'This setting specifies the minimum number of questions that will be used to calculate a grade for the activity.';
 $string['missingname'] = 'Please enter a nickname';
 $string['modattempts'] = 'Allow student review';
-$string['modattempts_help'] = 'If enabled, students can navigate through the lesson again from the start.';
+$string['modattempts_help'] = 'If enabled, learners can navigate through the lesson again from the start.';
 $string['modattemptsnoteacher'] = 'Student review only works for students.';
 $string['modulename'] = 'Lesson';
-$string['modulename_help'] = 'The lesson activity module enables a teacher to deliver content and/or practice activities in  interesting and flexible ways. A teacher can use the lesson to create a linear set of content pages or instructional activities that offer a variety of paths or options for the learner. In either case, teachers can choose to increase engagement and ensure understanding by including a variety of questions, such as multiple choice, matching and short answer. Depending on the student\'s choice of answer and how the teacher develops the lesson, students may progress to the next page, be taken back to a previous page or redirected down a different path entirely.
+$string['modulename_help'] = 'The lesson activity module enables a trainer to deliver content and/or practice activities in flexible and interesting ways. A trainer can use the lesson to create a linear set of content pages or instructional activities that offer a variety of paths or options for the learner. In either case, trainers can choose to increase engagement and ensure understanding by including a variety of questions, such as multiple choice, matching, and short answer. Depending on the learner\'s choice of answer and how the trainer develops the lesson, learners may progress to the next page, be taken back to a previous page or redirected down a different path entirely.
 
 A lesson may be graded, with the grade recorded in the gradebook.
 
-Lessons may be used
+Lessons may be used:
 
-* For self-directed learning of a new topic
-* For  scenarios or simulations/decision-making exercises
-* For differentiated revision, with different sets of revision questions depending upon answers given to initial questions';
+* For self-directed learning of a new topic.
+* For  scenarios or simulations/decision-making exercises.
+* For differentiated revision, with different sets of revision questions depending upon answers given to initial questions.';
 $string['modulename_link'] = 'mod/lesson/view';
 $string['modulenameplural'] = 'Lessons';
 $string['move'] = 'Move page';
@@ -346,13 +346,13 @@ $string['numberofcorrectanswers'] = 'Number of correct answers: {$a}';
 $string['numberofcorrectanswersheader'] = 'Number of correct answers';
 $string['numberofcorrectmatches'] = 'Number of correct matches: {$a}';
 $string['numberofpagestoshow'] = 'Number of pages to show';
-$string['numberofpagestoshow_help'] = 'This setting specifies the number of pages shown in a lesson. It is only applicable for lessons with pages shown in a random order (when "Action after correct answer" is set to "Show an unseen page" or "Show an unanswered page"). If set to zero, then all pages are shown.';
+$string['numberofpagestoshow_help'] = 'This setting specifies the number of pages shown in a lesson. It is only applicable for lessons with pages shown in a random order (when **Action after correct answer** is set to **Show an unseen page** or **Show an unanswered page**). If set to zero, then all pages are shown.';
 $string['numberofpagesviewed'] = 'Number of questions answered: {$a}';
 $string['numberofpagesviewedheader'] = 'Number of questions answered';
 $string['numberofpagesviewednotice'] = 'Number of questions answered: {$a->nquestions} (You should answer at least {$a->minquestions})';
 $string['numerical'] = 'Numerical';
 $string['ongoing'] = 'Display ongoing score';
-$string['ongoing_help'] = 'If enabled, each page will display the student\'s current points earned out of the total possible thus far.';
+$string['ongoing_help'] = 'If enabled, each page will display the learner\'s current points earned out of the total possible thus far.';
 $string['ongoingcustom'] = 'You have earned {$a->score} point(s) out of {$a->currenthigh} point(s) thus far.';
 $string['ongoingnormal'] = 'You have answered {$a->correct} correctly out of {$a->viewed} attempts.';
 $string['onpostperpage'] = 'Only one posting per grade';
@@ -422,7 +422,7 @@ $string['report'] = 'Report';
 $string['reports'] = 'Reports';
 $string['response'] = 'Response';
 $string['retakesallowed'] = 'Re-takes allowed';
-$string['retakesallowed_help'] = 'If enabled, students can attempt the lesson more than once.';
+$string['retakesallowed_help'] = 'If enabled, learners can attempt the lesson more than once.';
 $string['returnto'] = 'Return to {$a}';
 $string['returntocourse'] = 'Return to the course';
 $string['reverttodefaults'] = 'Revert to lesson defaults';

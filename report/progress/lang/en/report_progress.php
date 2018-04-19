@@ -29,4 +29,4 @@ $string['page-report-progress-index'] = 'Activity completion report';
 $string['page-report-progress-user'] = 'User activity completion report';
 $string['progress:view'] = 'View activity completion reports';
 $string['showonlyactiveenrols'] = 'Show only active enrolments';
-$string['showonlyactiveenrols_help'] = 'Normally the course activity completion report within a course does not show completion information for learners who do not have existing active enrolments, but who may have completed activities in the past when enrolled. Disabling this option will display all completion data in these reports including for those learners with suspended, expired or removed enrolments';
+$string['showonlyactiveenrols_help'] = 'Normally the course activity completion report within a course does not show completion information for learners who do not have existing active enrolments, but who may have completed activities in the past when enrolled. Disabling this option will display all completion data in these reports including for those learners with suspended, expired, or removed enrolments.';

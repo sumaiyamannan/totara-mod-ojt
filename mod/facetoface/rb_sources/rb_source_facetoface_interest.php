@@ -266,7 +266,9 @@ class rb_source_facetoface_interest extends rb_base_source {
         global $OUTPUT;
 
         debugging('The rb_display_link_f2f function has been deprecated. Please use \'seminar_name_link\' for the display function instead.', DEBUG_DEVELOPER);
-
+        if (empty($name)) {
+            return '';
+        }
         $activityid = $row->activity_id;
         return $OUTPUT->action_link(new moodle_url('/mod/facetoface/view.php', array('f' => $activityid)), $name);
     }

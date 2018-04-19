@@ -441,6 +441,9 @@ abstract class rb_facetoface_base_source extends rb_base_source {
     public function rb_display_coded_link_user($name, $row, $isexport = false) {
         // Concatenated names are provided as (kind of) pascal string beginning with id in the following format:
         // length_of_following_string.' '.id.' '.name.', '
+        if (empty($name)) {
+            return '';
+        }
         $leftname = $name;
         $result = array();
         while(true) {
@@ -571,6 +574,9 @@ abstract class rb_facetoface_base_source extends rb_base_source {
         if ($isexport) {
             return $roomname;
         }
+        if (empty($roomname)) {
+            return '';
+        }
         return html_writer::link(
             new moodle_url('/mod/facetoface/room.php', array('roomid' => $row->roomid)),
             $roomname
@@ -578,19 +584,22 @@ abstract class rb_facetoface_base_source extends rb_base_source {
     }
 
     /**
-     * Room name linked to room details
+     * Asset name linked to asset details
      *
-     * @param string $roomname
+     * @param string $assetname
      * @param stdClass $row
      * @param bool $isexport
      */
-    public function rb_display_asset_name_link($roomname, $row, $isexport = false) {
+    public function rb_display_asset_name_link($assetname, $row, $isexport = false) {
         if ($isexport) {
-            return $roomname;
+            return $assetname;
+        }
+        if (empty($assetname)) {
+            return '';
         }
         return html_writer::link(
             new moodle_url('/mod/facetoface/asset.php', array('assetid' => $row->assetid)),
-            $roomname
+            $assetname
         );
     }
 

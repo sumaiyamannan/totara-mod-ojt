@@ -68,95 +68,66 @@ $string['advancedsettingscompetencypermissions_help'] = '**Competency permission
 
 There are four permission levels available:
 
-*   **Allow** allows the user to perform the action
-*   **Deny** prevents the user from performing the action
-*   **Request** allows the user to request that this action is performed
-*   **Approve** allows the user to approve a requested action.';
+* **Allow**: Lets the user perform the action.
+* **Deny**: Prevents the user from performing the action.
+* **Request**: Allows the user to request that this action is performed.
+* **Approve**: Allows the user to approve a requested action.';
 $string['advancedsettingscompetencysettings'] = 'Competency settings';
-$string['advancedsettingscompetencysettings_help'] = '**Competency settings** allow you to define which settings are available for competencies within the plan.
+$string['advancedsettingscompetencysettings_help'] = '**Competency settings** allow you to define which settings are available for competencies within the plan. There are some useful things to note about settings:*When **Due dates** is set to **None** the column does not appear on the learning plan.* When you are using **Priorities** you need a **Priority Scale**. Click the dropdown menu to select the priority scale. Note that the option to set up priority scales is in *Learning Plans > Priority Scales*.* The **Automatic assignment** option enables you to automatically display competencies in a learning plan which have previously been assigned to a user\'s position or organisation.* The
 
-Select the **‘Due dates’** setting. When **‘Due dates’** is set to ‘None’ the column does not appear on the learning plan.
-
-Select the **‘Priorities’** setting. When you are using **‘Priorities’** you need a **‘Priority Scale’**. Click the dropdown menu to select the priority scale.
-
-**Note:** The option to set up such a scale is in Learning Plans>Priority Scales.
-**Automatic assignment** enables you to automatically display competencies in a learning plan which have previously been assigned to a user’s position or organisation.
-
-**Default status** determines the status of a competency when it is is first approved within a plan. If \'Assign newly approved competencies their default status\' is checked, all competencies will be given the default status for that competency\'s scale at the moment the competency is approved. If left unchecked no initial status will be set.';
+**Default status** determines the status of a competency when it is is first approved within a plan.* If **Assign newly approved competencies their default status** is checked, all competencies will be given the default status for that competency\'s scale at the moment the competency is approved. If left unchecked no initial status will be set.';
 $string['advancedsettingscoursepermissions'] = 'Course permissions';
 $string['advancedsettingscoursepermissions_help'] = '**Course permissions** allow you to define which course settings are available and the types of actions that can be performed by the Learner and Manager in the learning plan.
 
 There are four available permission levels:
 
-*   **Allow** allows the user to perform the action
-*   **Deny** prevents the user from performing the action
-*   **Request** allows the user to request that this action
-*   **Approve** allows the user to approve a action.';
+* **Allow**: Lets the user perform the action.
+* **Deny**: Prevents the user from performing the action.
+* **Request**: Allows the user to request that this action.
+* **Approve**: Allows the user to approve a action.';
 $string['advancedsettingscoursesettings'] = 'Course settings';
-$string['advancedsettingscoursesettings_help'] = '**Course settings** allow you to define the settings available for courses within the plan.
+$string['advancedsettingscoursesettings_help'] = '**Course settings** allow you to define the settings available for courses within the plan. There are some things to note about settings.* When **Due dates** is set to **None** the column does not appear on the learning plan.* When **Priorities** is set to **None** the column does not appear on the learning plan.* When you are using **Priorities** you need a **Priority Scale**. Click the dropdown menu to select the priority scale.
 
-Select the **‘Due dates’** setting. When **‘Due dates’** is set to ‘None’ the column does not appear on the learning plan.
-
-Select the **‘Priorities’** setting. When **‘Priorities’** is set to ‘None’ the column does not appear on the learning plan.
-
-When you are using **‘Priorities’** you need a **‘Priority Scale’**. Click the dropdown menu to select the priority scale.
-
-**Note:** The option to set up such a scale is in Learning Plans>Priority Scales.';
+The option to set up such a scale is in *Learning Plans > Priority Scales*.';
 $string['advancedsettingsobjectivepermissions'] = 'Objective permissions';
 $string['advancedsettingsobjectivepermissions_help'] = '**Objective permissions** allow you to define the actions that can be performed by the Learner and Manager in the learning plan when setting up objectives.
 
 There are four available permission levels:
 
-*   **Allow** allows the user to perform the action
-*   **Deny** prevents the user from performing the action
-*   **Request** allows the user to request that this action
-*   **Approve** allows the user to approve the action.';
+* **Allow**: Lets the user to perform the action.
+* **Deny**: Prevents the user from performing the action.
+* **Request**: Allows the user to request that this action.
+* **Approve**: Allows the user to approve the action.';
 $string['advancedsettingsobjectivesettings'] = 'Objective settings';
-$string['advancedsettingsobjectivesettings_help'] = '**Objective settings** allow you define the settings available for objectives within the plan.
-
-Select the **‘Due dates’** setting. When **‘Due dates’** is set to ‘None’ the column does not appear on the learning plan.
-
-Select the **‘Priorities’** setting. When **‘Priorities’** is set to ‘None’ the column does not appear on the learning plan.
-
-When you are using **‘Priorities’** you need a **‘Priority Scale’**. Click the dropdown menu to select the priority scale.
-
-**Note:** The option to set up such a scale is in Learning Plans>Priority Scales.
-
-**Objective scale** is used to measure a learners’ progress towards their objectives. Set up objective scales using the menu option under Site Administration>Learning Plans.';
+$string['advancedsettingsobjectivesettings_help'] = '**Objective settings** allow you define the settings available for objectives within the plan. There are some setting to make note of.* When **Due dates** is set to **None** the column does not appear on the learning plan.* When **Priorities** is set to **None** the column does not appear on the learning plan.* When you are using **Priorities** you need a **Priority Scale**. Click the dropdown menu to select the priority scale. The option to set up such a scale is in *Learning Plans > Priority Scales*.* The **Objective scale** is used to measure a learner\'s progress towards their objectives. Set up objective scales using the menu option under *Site Administration > Learning Plans*.';
 $string['advancedsettingsplanpermissions'] = 'Plan permissions';
 $string['advancedsettingsplanpermissions_help'] = 'The advanced workflow settings allows you to define the type of actions which can be performed by learners and managers. For each type of action there are four permission levels available:
 
-*   **Allow** allows the user to perform the action.
-*   **Deny** prevents the user from performing the action.
-*   **Request** allows the user to request that this action is performed.
-*   **Approve** allows the user to approve an action.';
+* **Allow**: Lets the user perform the action.
+* **Deny**: Prevents the user from performing the action.
+* **Request**: Allows the user to request that this action is performed.
+* **Approve**: Allows the user to approve an action.';
 $string['advancedsettingsplansettings'] = 'Plan settings';
 $string['advancedsettingsplansettings_help'] = '**Plan settings** allow you to define general settings for the plan.
 
 The Learning Plan is able to be marked as complete based on the following choices:
 
-*   **Manually, by a user with \'complete\' permission.**
-    The learning plan is able to be marked as complete by a Learner or Manager who has Allow selected in the Approve row of the Plan Permissions.
-*   **Automatically, when all items have been completed.**
-    The learning plan is marked as completed when all of the courses, competencies, Objectives or programs that are included in the learning plan have been marked as completed
-*   **Automatically, when the plan completion date has passed.**
-    The learning plan is marked as complete when the Completion Date that has been saved with the Learning Plan has passed';
+* **Manually, by a user with \'complete\' permission**: The learning plan is able to be marked as complete by a Learner or Manager who has **Allow** selected in the **Approve** row of the plan permissions.
+* **Automatically, when all items have been completed**: The learning plan is marked as completed when all of the courses, competencies, objectives, or programs that are included in the learning plan have been marked as completed.
+* **Automatically, when the plan completion date has passed**: The learning plan is marked as complete when the **Completion Date** that has been saved with the Learning Plan has passed.';
 $string['advancedsettingsprogrampermissions'] = 'Program permissions';
 $string['advancedsettingsprogrampermissions_help'] = 'The advanced workflow settings allows you to define the type of actions which can be performed by learners and managers. For each type of action there are four permission levels available:
 
-*   **Allow** allows the user to perform the action.
-*   **Deny** prevents the user from performing the action.
-*   **Request** allows the user to request that this action is performed.
-*   **Approve** allows the user to approve an action.';
+* **Allow**: Lets the user to perform the action.
+* **Deny**: Prevents the user from performing the action.
+* **Request**: Allows the user to request that this action is performed.
+* **Approve**: Allows the user to approve an action.';
 $string['advancedsettingsprogramsettings'] = 'Program settings';
 $string['advancedsettingsprogramsettings_help'] = 'The Learning Plan is able to be marked as complete based on the following choices:
 
-*   **Manually, by a user with \'complete\' permission.**
-    The learning plan is able to be marked as complete by a Learner or Manager who has Allow selected in the Approve row of the Plan Permissions.
-*   **Automatically, when all items have been completed.**
-    The learning plan is marked as completed when all of the courses, competencies, Objectives or programs that are included in the learning plan have been marked as completed
-*   **Automatically, when the plan completion date has passed.**
-    The learning plan is marked as complete when the Completion Date that has been saved with the Learning Plan has passed';
+* **Manually, by a user with \'complete\' permission**: The learning plan is able to be marked as complete by a Learner or Manager who has **Allow** selected in the **Approve** row of the plan permissions.
+* **Automatically, when all items have been completed**: The learning plan is marked as completed when all of the courses, competencies, objectives, or programs that are included in the learning plan have been marked as completed.
+* **Automatically, when the plan completion date has passed**: The learning plan is marked as complete when the **Completion Date** that has been saved with the Learning Plan has passed.';
 $string['advancedworkflow'] = 'Advanced workflow settings';
 $string['after'] = 'After';
 $string['allcertifications'] = 'Certifications';
@@ -756,9 +727,9 @@ $string['objectivescalevaluenumeric_help'] = '**Objective scale value numerical 
 $string['objectivescalevalues'] = 'Objective scale values';
 $string['objectivescalevalues_help'] = 'Enter a list of values for the new objective scale (one value per line), in order from highest to lowest. For example:
 
-<p class="indent">
-  <em> High<br /> Medium<br /> Low </em>
-</p>';
+* High
+* Medium
+* Low';
 $string['objectivescalevalueupdated'] = 'Objective scale value "{$a}" updated';
 $string['objectivescalex'] = 'Objective scale "{$a}"';
 $string['objectivesettings'] = 'Objective settings';
@@ -902,9 +873,9 @@ $string['priorityscalevaluenumeric_help'] = '**Priority scale value numerical va
 $string['priorityscalevalues'] = 'Priority scale values';
 $string['priorityscalevalues_help'] = 'Enter a list of values for the new priority scale (one priority per line), in order from highest priority to lowest. For example:
 
-<p class="indent">
-  <em> High<br /> Medium<br /> Low </em>
-</p>';
+* High
+* Medium
+* Low';
 $string['priorityscalevalueupdated'] = 'Priority scale value "{$a}" updated';
 $string['priorityscalex'] = 'Priority scale "{$a}"';
 $string['priorityvalues'] = 'Priority values';

@@ -34,7 +34,7 @@ $string['anonymous_entries'] = 'Anonymous entries';
 $string['anonymous_user'] = 'Anonymous user';
 $string['append_new_items'] = 'Append new items';
 $string['autonumbering'] = 'Auto number questions';
-$string['autonumbering_help'] = 'Enables or disables automated numbers for each question';
+$string['autonumbering_help'] = 'Enables or disables automated numbers for each question.';
 $string['average'] = 'Average';
 $string['bold'] = 'Bold';
 $string['cancel_moving'] = 'Cancel moving';
@@ -65,23 +65,21 @@ $string['delete_old_items'] = 'Delete old items';
 $string['delete_template'] = 'Delete template';
 $string['delete_templates'] = 'Delete template...';
 $string['depending'] = 'Dependencies';
-$string['depending_help'] = 'It is possible to show an item depending on the value of another item.<br />
-<strong>Here is an example.</strong><br />
-<ul>
-<li>First, create an item on which another item will depend on.</li>
-<li>Next, add a pagebreak.</li>
-<li>Then add the items dependant on the value of the item created before. Choose the item from the list labelled "Dependence item" and write the required value in the textbox labelled "Dependence value".</li>
-</ul>
-<strong>The item structure should look like this.</strong>
-<ol>
-<li>Item Q: Do you have a car? A: yes/no</li>
-<li>Pagebreak</li>
-<li>Item Q: What colour is your car?<br />
-(this item depends on item 1 with value = yes)</li>
-<li>Item Q: Why don\'t you have a car?<br />
-(this item depends on item 1 with value = no)</li>
-<li> ... other items</li>
-</ol>';
+$string['depending_help'] = 'It is possible to show an item depending on the value of another item.
+
+Here is an example:
+
+* First, create an item on which another item will depend on.
+* Next, add a pagebreak.
+* Then add the items dependant on the value of the item created before. Choose the item from the list labelled **Dependence item** and write the required value in the textbox labelled **Dependence value**.
+
+The item structure should look like this.
+
+1. Item Q: Do you have a car? A: yes/no
+2. Pagebreak
+3. Item Q: What colour is your car? (This item depends on item 1 with value = yes)
+4. Item Q: Why don\'t you have a car? (This item depends on item 1 with value = no)
+5. ... other items';
 $string['dependitem'] = 'Dependence item';
 $string['dependvalue'] = 'Dependence value';
 $string['description'] = 'Description';
@@ -94,7 +92,7 @@ $string['drop_feedback'] = 'Remove from this course';
 $string['edit_item'] = 'Edit question';
 $string['edit_items'] = 'Edit questions';
 $string['email_notification'] = 'Enable notification of submissions';
-$string['email_notification_help'] = 'If enabled, teachers will receive notification of feedback submissions.';
+$string['email_notification_help'] = 'If enabled, trainers will receive notification of feedback submissions.';
 $string['emailteachermail'] = '{$a->username} has completed feedback activity : \'{$a->feedback}\'
 
 You can view it here:
@@ -127,10 +125,8 @@ $string['feedback:viewreports'] = 'View reports';
 $string['file'] = 'File';
 $string['filter_by_course'] = 'Filter by course';
 $string['generategrade'] = 'Generate Grade';
-$string['generategrade_help'] = 'If you want to use this feedback as a prerequisite for a conditional activity -
-requiring that the feedback must be completed before that conditional activity becomes available -
-then you must set Generate Grade to Yes';
-
+$string['generategrade_help'] = 'If you want to use this feedback as a prerequisite for a conditional activity, requiring that the feedback must be completed before that conditional activity becomes available,
+then you must set **Generate Grade** to **Yes**.';
 $string['handling_error'] = 'Error occurred in feedback module action handling';
 $string['hide_no_select_option'] = 'Hide the "Not selected" option';
 $string['horizontal'] = 'horizontal';
@@ -146,7 +142,7 @@ $string['info'] = 'Information';
 $string['infotype'] = 'Information type';
 $string['insufficient_responses_for_this_group'] = 'There are insufficient responses for this group';
 $string['insufficient_responses'] = 'insufficient responses';
-$string['insufficient_responses_help'] = 'For the feedback to be anonymous, there must be at least 2 responses.';
+$string['insufficient_responses_help'] = 'For the feedback to be anonymous, there must be at least two responses.';
 $string['item_label'] = 'Label';
 $string['item_name'] = 'Question';
 $string['label'] = 'Label';
@@ -157,8 +153,7 @@ $string['mapcourse'] = 'Map feedback to courses';
 $string['mapcourse_help'] = 'By default, feedback forms created on your homepage are available site-wide
 and will appear in all courses using the feedback block. You can force the feedback form to appear by making it a sticky block or limit the courses in which a feedback form will appear by mapping it to specific courses.';
 $string['mapcourses'] = 'Map feedback to courses';
-$string['mapcourses_help'] = 'Once you have selected the relevant course(s) from your search,
-you can associate them with this feedback using map course(s). Multiple courses may be selected by holding down the Apple or Ctrl key whilst clicking on the course names. A course may be disassociated from a feedback at any time.';
+$string['mapcourses_help'] = 'Once you have selected the relevant course(s) from your search, you can associate them with this feedback using map course(s). Multiple courses may be selected by holding down the Apple or Ctrl key whilst clicking on the course names. A course may be disassociated from a feedback at any time.';
 $string['mappedcourses'] = 'Mapped courses';
 $string['max_args_exceeded'] = 'Max 6 arguments can be handled, too many arguments for';
 $string['maximal'] = 'maximal';
@@ -166,16 +161,15 @@ $string['messageprovider:message'] = 'Feedback reminder';
 $string['messageprovider:submission'] = 'Feedback notifications';
 $string['mode'] = 'Mode';
 $string['modulename'] = 'Feedback';
-$string['modulename_help'] = 'The feedback activity module enables a teacher to create a custom survey for collecting feedback from participants using a variety of question types including multiple choice, yes/no or text input.
+$string['modulename_help'] = 'The feedback activity module enables a trainer to create a custom survey for collecting feedback from participants using a variety of question types including multiple choice, yes/no, or text input.
 
-Feedback responses may be anonymous if desired, and results may be shown to all participants or restricted to teachers only. Any feedback activities on the site front page may also be completed by non-logged-in users.
+Feedback responses may be anonymous if desired, and results may be shown to all participants or restricted to trainers only. Any feedback activities on the site front page may also be completed by non-logged-in users.
 
-Feedback activities may be used
+Feedback activities may be used:
 
-* For course evaluations, helping improve the content for later participants
+* For course evaluations, helping improve the content for later participants.
 * To enable participants to sign up for course modules, events etc.
-* For guest surveys of course choices, school policies etc.
-* For anti-bullying surveys in which students can report incidents anonymously';
+* For surveys of course choices, company policies, etc.';
 $string['modulename_link'] = 'mod/feedback/view';
 $string['modulenameplural'] = 'Feedback';
 $string['movedown_item'] = 'Move this question down';

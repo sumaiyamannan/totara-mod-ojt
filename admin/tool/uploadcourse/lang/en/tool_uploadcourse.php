@@ -120,9 +120,9 @@ $string['updatewithdataonly'] = 'Update with CSV data only';
 $string['uploadcourses'] = 'Upload courses';
 $string['uploadcourses_help'] = 'Courses may be uploaded via text file. The format of the file should be as follows:
 
-* Each line of the file contains one record
-* Each record is a series of data separated by commas (or other delimiters)
-* The first record contains a list of fieldnames defining the format of the rest of the file
-* Required fieldnames are shortname, fullname, and category';
+* Each line of the file contains one record.
+* Each record is a series of data separated by commas (or other delimiters).
+* The first record contains a list of field names defining the format of the rest of the file.
+* Required field names are **shortname**, **fullname**, and **category**.';
 $string['uploadcoursespreview'] = 'Upload courses preview';
 $string['uploadcoursesresult'] = 'Upload courses results';

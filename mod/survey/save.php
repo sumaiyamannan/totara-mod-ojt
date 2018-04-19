@@ -62,7 +62,7 @@
     echo $OUTPUT->heading($survey->name);
 
     if (survey_already_done($survey->id, $USER->id)) {
-        notice(get_string("alreadysubmitted", "survey"), get_local_referer(false));
+        notice(get_string("alreadysubmitted", "survey"), get_local_referer(false, $CFG->wwwroot . '/mod/survey/view.php?id=' . $id));
         exit;
     }
 

@@ -45,6 +45,8 @@ define('CERT_PER_PAGE', 30);
 
 define('CERT_MAX_PER_PAGE', 200);
 
+define('CERT_LEGACY_LOG', 1);
+define('CERT_STANDARD_LOG', 2);
 
 /**
  * Returns a list of teachers by group
@@ -533,13 +535,12 @@ function certificate_print_attempts($course, $certificate, $attempts) {
  * @return int the total time spent in seconds
  */
 function certificate_get_course_time($courseid) {
-    global $CFG, $USER;
+    global $CFG;
 
     core_php_time_limit::raise(0);
 
     $totaltime = 0;
-    $sql = "l.course = :courseid AND l.userid = :userid";
-    if ($logs = get_logs($sql, array('courseid' => $courseid, 'userid' => $USER->id), 'l.time ASC', '', '', $totalcount)) {
+    if ($logs = certificate_get_log_stores_data($courseid)) {
         foreach ($logs as $log) {
             if (!isset($login)) {
                 // For the first time $login is not set so the first log is also the first login
@@ -1303,4 +1304,57 @@ function certificate_get_certificate_filename($certificate, $cm, $course) {
     }
 
     return $filename;
+}
+
+/**
+ * Check if Leagacy log or Standard log plugin is enabled and if its enabled then return 1 for Legacy log
+ * or 2 for Standard log otherwise false.
+ *
+ * @return bool|int false if all disabled and 1|2 if enabled.
+ */
+function certificate_log_stores_enabled() {
+    static $log = null;
+    if ($log !== null) {
+        return $log;
+    }
+    $config = get_config('tool_log', 'enabled_stores');
+    $logstores = array_flip(explode(',', $config));
+    if (isset($logstores['logstore_legacy'])) {
+        $log = CERT_LEGACY_LOG;
+    } else if (isset($logstores['logstore_standard'])) {
+        $log = CERT_STANDARD_LOG;
+    } else {
+        $log = false;
+    }
+    return $log;
+}
+
+/**
+ * Get data records of Legacy or Standard log store.
+
+ * @param $courseid course id
+ * @return array
+ */
+function certificate_get_log_stores_data($courseid) {
+    global $USER, $DB;
+
+    $logs = array();
+    $logstore = certificate_log_stores_enabled();
+    $params = array('courseid' => $courseid, 'userid' => $USER->id);
+
+    if ((int)$logstore === CERT_LEGACY_LOG) {
+        $sql = "l.course = :courseid AND l.userid = :userid";
+        $logs = get_logs($sql, $params, 'l.time ASC', '', '', $totalcount);
+    }
+
+    if ((int)$logstore === CERT_STANDARD_LOG) {
+        $sql = "SELECT l.id, l.timecreated AS time
+                  FROM {logstore_standard_log} l
+             LEFT JOIN {user} u ON l.userid = u.id
+                 WHERE l.courseid = :courseid AND l.userid = :userid
+              ORDER BY l.id, l.timecreated ASC";
+
+        $logs = $DB->get_records_sql($sql, $params) ;
+    }
+    return $logs;
 }

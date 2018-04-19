@@ -37,6 +37,10 @@ if (!has_capability('totara/program:deleteprogram', $program->get_context())) {
     print_error('error:nopermissions', 'local_program');
 }
 
+if (!$program->is_viewable()) {
+    print_error('error:inaccessible', 'totara_program');
+}
+
 // Check if programs or certifications are enabled.
 if ($program->certifid) {
     check_certification_enabled();

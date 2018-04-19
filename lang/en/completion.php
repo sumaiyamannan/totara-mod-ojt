@@ -73,11 +73,11 @@ $string['completiondefault'] = 'Default completion tracking';
 $string['completiondisabled'] = 'Disabled, not shown in activity settings';
 $string['completionenabled'] = 'Enabled, control via completion and activity settings';
 $string['completionexpected'] = 'Expect completed on';
-$string['completionexpected_help'] = 'This setting specifies the date when the activity is expected to be completed. The date is not shown to students and is only displayed in the activity completion report.';
+$string['completionexpected_help'] = 'This setting specifies the date when the activity is expected to be completed. The date is not shown to learners and is only displayed in the activity completion report.';
 $string['completionicons'] = 'Completion tick boxes';
 $string['completionicons_help'] = 'A tick next to an activity name may be used to indicate when the activity is complete.
 
-If a box with a dotted border is shown, a tick will appear automatically when you have completed the activity according to conditions set by the teacher.
+If a box with a dotted border is shown, a tick will appear automatically when you have completed the activity according to conditions set by the trainer.
 
 If a box with a solid border is shown, you can click it to tick the box when you think you have completed the activity. (Clicking it again removes the tick if you change your mind.) The tick is optional and is simply a way of tracking your progress through the course.';
 $string['completionmenuitem'] = 'Completion';
@@ -88,20 +88,20 @@ $string['completionondate'] = 'Date';
 $string['completionondatevalue'] = 'User must remain enrolled until';
 $string['completionprogressonview'] = 'Mark as In Progress on first view';
 $string['completionprogressonviewhelp'] = 'Mark course completion status as In Progress as soon as students view the course the first time (instead of when they meet the first criterion).';
-$string['completionprogressonview_help'] = 'Mark course completion status as In Progress as soon as students view the course the first time (instead of when they meet the first criterion).';
+$string['completionprogressonview_help'] = 'Mark course completion status as **In Progress** as soon as learners view the course the first time (instead of when they meet the first criterion).';
 $string['completionduration'] = 'Enrolment';
 $string['completionsettingslocked'] = 'Completion settings locked';
 $string['completionsettingsunlocked'] = 'Completion settings unlocked';
 $string['completionusegrade'] = 'Require grade';
 $string['completionusegrade_desc'] = 'Student must receive a grade to complete this activity';
-$string['completionusegrade_help'] = 'If enabled, the activity is considered complete when a student receives a grade. Pass and fail icons may be displayed if a pass grade for the activity has been set.';
+$string['completionusegrade_help'] = 'If enabled, the activity is considered complete when a learner receives a grade. Pass and fail icons may be displayed if a pass grade for the activity has been set.';
 $string['completionview'] = 'Require view';
 $string['completionview_desc'] = 'Student must view this activity to complete it';
-$string['completionview_help'] = 'If this activity has \'Require view\' in combination with other criteria, the user will only be marked complete if they view the activity at a moment when all other criteria are already complete.
+$string['completionview_help'] = 'If this activity has **Require view** in combination with other criteria, the user will only be marked complete if they view the activity at a moment when all other criteria are already complete.
 
-For example, consider an activity with \'Require view\' and \'Require grade\' both enabled. If a user first viewed the activity, then later was granted a grade by an administrator, the user would need to view the activity again (after the grade was received) to trigger activity completion.
+For example, consider an activity with **Require view** and **Require grade** both enabled. If a user first viewed the activity, then later was granted a grade by an administrator, the user would need to view the activity again (after the grade was received) to trigger activity completion.
 
-For this reason, it is recommended to not use \'Require view\' in combination with other criteria, unless this specific behaviour is required. In most cases, the other criteria should be sufficient. E.g. a user can\'t have been granted a grade without having viewed the activity, so including \'Require view\' would be superfluous.';
+For this reason, it is recommended to not use **Require view** in combination with other criteria, unless this specific behaviour is required. In most cases, the other criteria should be sufficient. E.g. a user can\'t have been granted a grade without having viewed the activity, so including **Require view** would be superfluous.';
 $string['configcompletiondefault'] = 'The default setting for completion tracking when creating new activities.';
 $string['configenablecompletion'] = 'When enabled, this lets you turn on completion tracking (progress) features at course level.';
 $string['configenablecourserpl'] = 'When enabled, a course can be marked as completed by assigning the user a Record of Prior Learning.';
@@ -230,26 +230,26 @@ $string['viewedactivity'] = 'Viewed the {$a}';
 $string['writingcompletiondata'] = 'Writing completion data';
 $string['xdays'] = '{$a} days';
 $string['yourprogress'] = 'Your progress';
-$string['activitiescompleted_help']='These are activities that a learner is required to complete to complete this criteria. Activities are required to have "Activity completion" enabled in order to appear in this list.';
+$string['activitiescompleted_help'] = 'These are activities that a learner is required to complete to complete this criteria. Activities are required to have **Activity completion** enabled in order to appear in this list.';
 $string['activityaggregationmethod']='Aggregation method';
-$string['activityaggregationmethod_help'] = 'An aggregation method of "All" means this criteria will be marked as complete when the learner has complete all the selected activities. If the aggregation method is set to "Any" only one of the selected activities will be required for the learner to complete the course.';
+$string['activityaggregationmethod_help'] = 'An aggregation method of **All** means this criteria will be marked as complete when the learner has complete all the selected activities. If the aggregation method is set to **Any** only one of the selected activities will be required for the learner to complete the course.';
 $string['activityrpl']='Activity RPL';
 $string['afterspecifieddate']='After specified date';
 $string['aggregationmethod']='Aggregation method';
-$string['aggregationmethod_help'] = 'An aggregation method of "All" means the course will be marked as complete when the learner meets all the criteria set on this page. If the aggregation method is set to "Any" only one criteria type for the course will be required for the learner to complete the course.';
+$string['aggregationmethod_help'] = 'An aggregation method of **All** means the course will be marked as complete when the learner meets all the criteria set on this page. If the aggregation method is set to **Any** only one criteria type for the course will be required for the learner to complete the course.';
 $string['aggregateall']='All';
 $string['aggregateany']='Any';
 $string['completiondependencies']='Completion dependencies';
-$string['completiondependencies_help']='These are courses that a learner is required to complete before this course can be marked as complete';
+$string['completiondependencies_help'] = 'These are courses that a learner is required to complete before this course can be marked as complete.';
 $string['completionstartonenrol']='Completion tracking begins on enrolment';
 $string['completionstartonenrolhelp']='Begin tracking a student\'s progress in course completion after course enrolment';
-$string['completionstartonenrol_help']='Begin tracking a student\'s progress in course completion after course enrolment';
+$string['completionstartonenrol_help'] = 'Begin tracking a learner\'s progress in course completion after course enrolment';
 $string['courseaggregationmethod']='Aggregation method';
-$string['courseaggregationmethod_help'] = 'An aggregation method of "All" means this criteria will be marked as complete when the learner has complete all the selected courses. If the aggregation method is set to "Any" only one of the selected courses will be required for the learner to complete the course.';
-$string['coursegrade_help']='When enabled this criteria will be marked complete for a learner when they achieve the grade specified or higher';
+$string['courseaggregationmethod_help'] = 'An aggregation method of **All** means this criteria will be marked as complete when the learner has complete all the selected courses. If the aggregation method is set to **Any** only one of the selected courses will be required for the learner to complete the course.';
+$string['coursegrade_help'] = 'When enabled this criteria will be marked complete for a learner when they achieve the grade specified or higher.';
 $string['criteriagradenote'] = 'Please note that updating the required grade here will not update the current course pass grade.';
 $string['date']='Date';
-$string['date_help']='When enabled this criteria will be marked as complete for all users where the specified date is reached';
+$string['date_help'] = 'When enabled this criteria will be marked as complete for all users where the specified date is reached.';
 $string['enrolmentduration']='Days left';
 $string['err_nocriteria']='No course completion criteria have been set for this course';
 $string['err_noroles']='There are no roles with the capability \'moodle/course:markcomplete\' in this course. You can enable this criteria type by adding this capability to role(s).';
@@ -257,14 +257,14 @@ $string['datepassed']='Date passed';
 $string['daysafterenrolment']='Days after enrolment';
 $string['deletedcourse']='Deleted course';
 $string['durationafterenrolment']='Duration after enrolment';
-$string['durationafterenrolment_help']='When enabled this criteria will be marked as complete when the duration of a user\'s enrolment has reached the specified length.';
-$string['manualcompletionby_help']='Enabling this criteria allows you to select a role (or multiple roles) to manually mark a learner as complete in a course';
+$string['durationafterenrolment_help'] = 'When enabled this criteria will be marked as complete when the duration of a user\'s enrolment has reached the specified length.';
+$string['manualcompletionby_help'] = 'Enabling this criteria allows you to select a role (or multiple roles) to manually mark a learner as complete in a course.';
 $string['manuallymarkwhencomplete'] = 'Manually mark this activity when complete';
-$string['manualselfcompletion_help']='A learner can mark themselves complete in this course using the "Self completion" block';
+$string['manualselfcompletion_help'] = 'A learner can mark themselves complete in this course using the **Self completion** block.';
 $string['overallcriteriaaggregation']='Overall criteria type aggregation';
-$string['overallcriteriaaggregation_help']='How the course completion system determines if a learner is complete';
+$string['overallcriteriaaggregation_help'] = 'How the course completion system determines if a learner is complete.';
 $string['roleaggregationmethod']='Aggregation method';
-$string['roleaggregationmethod_help'] = 'An aggregation method of "All" means this criteria will be marked as complete when the learner has been marked complete by all the selected roles. If the aggregation method is set to "Any" only one of the selected roles will be required to mark the learner complete for them to complete the course.';
+$string['roleaggregationmethod_help'] = 'An aggregation method of **All** means this criteria will be marked as complete when the learner has been marked complete by all the selected roles. If the aggregation method is set to **Any** only one of the selected roles will be required to mark the learner complete for them to complete the course.';
 $string['returntocourse']='Return to course';
 $string['selectnone'] = 'Select none';
 

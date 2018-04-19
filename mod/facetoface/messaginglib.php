@@ -71,9 +71,10 @@ function facetoface_get_unmailed_reminders() {
  * @param integer|\stdClass $user user id\instance
  * @param null|array|\stdClass $dates Array or a single date to create\update
  * @param array $canceldates Array or a single date to cancel
+ * @param string $description Extra message to add in the iCal description
  * @return \stdClass iCal filename and template
  */
-function facetoface_generate_ical($f2f, $session, $method, $user, $dates = null, $canceldates = []) {
+function facetoface_generate_ical($f2f, $session, $method, $user, $dates = null, $canceldates = [], $description = '') {
     global $DB;
 
     // Checking date overrides.
@@ -125,7 +126,7 @@ function facetoface_generate_ical($f2f, $session, $method, $user, $dates = null,
     // Little helper which would have been a private method only if we had a class to generate
     // a VEVENT block for a single date to avoid code duplication.
     $generate_event_for_the_date = function ($date, $cancel = false)
-        use ($f2f, $session, $user, $method, $rooms) {
+        use ($f2f, $session, $user, $method, $rooms, $description) {
         global $CFG;
 
         $method = $cancel ? MDL_F2F_CANCEL : $method;
@@ -155,7 +156,9 @@ function facetoface_generate_ical($f2f, $session, $method, $user, $dates = null,
         $SUMMARY = str_replace("\\n", "\\n ", facetoface_ical_escape($f2f->name, true));
 
         $icaldescription = get_string('icaldescription', 'facetoface', $f2f);
-        $icaldescription .= !empty($session->details) ? $session->details : '';
+        $icaldescription .= !empty($description) ? "\n" . $description : '';
+        $icaldescription .= !empty($f2f->intro) ? "\n" . $f2f->intro : '';
+        $icaldescription .= !empty($session->details) ? "\n" . $session->details : '';
         $DESCRIPTION = facetoface_ical_escape($icaldescription, true);
 
         // Get the location data from custom fields if they exist.

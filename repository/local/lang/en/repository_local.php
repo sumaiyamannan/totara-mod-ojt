@@ -29,5 +29,5 @@ $string['emptyfilelist'] = 'There are no files to show';
 $string['local:view'] = 'View server repository';
 $string['notitle'] = 'notitle';
 $string['remember'] = 'Remember me';
-$string['pluginname_help'] = 'Files previously uploaded to the Totara server';
+$string['pluginname_help'] = 'Files previously uploaded to the Totara server.';
 $string['pluginname'] = 'Server files';

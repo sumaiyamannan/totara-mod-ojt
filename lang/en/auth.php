@@ -31,9 +31,9 @@ $string['authenticationoptions'] = 'Authentication options';
 $string['auth_fieldlock'] = 'Lock value';
 $string['auth_fieldlock_expl'] = '<p><b>Lock value:</b> If enabled, will prevent Totara users and admins from editing the field directly. Use this option if you are maintaining this data in the external auth system. </p>';
 $string['auth_fieldlocks'] = 'Lock user fields';
-$string['auth_fieldlocks_help'] = 'You can lock user data fields. This is useful for sites where the user data is maintained by the administrators manually by editing user records or uploading using the \'Upload users\' facility. If you are locking fields that are required by Totara, make sure that you provide that data when creating user accounts or the accounts will be unusable.
+$string['auth_fieldlocks_help'] = 'You can lock user data fields. This is useful for sites where the user data is maintained by the administrators manually by editing user records or uploading using the **Upload users** facility. If you are locking fields that are required by Totara, make sure that you provide that data when creating user accounts or the accounts will be unusable.
 
-Consider setting the lock mode to \'Unlocked if empty\' to avoid this problem.';
+Consider setting the lock mode to **Unlocked if empty** to avoid this problem.';
 $string['auth_changepasswordhelp'] = 'Change password help';
 $string['auth_changepasswordhelp_expl'] = 'Display lost password help to users who have lost their {$a} password. This will be displayed either as well as or instead of the <strong>Change Password URL</strong> or Internal Totara password change.';
 $string['auth_changepasswordurl'] = 'Change password URL';
@@ -100,7 +100,7 @@ $string['guestloginbutton'] = 'Guest login button';
 $string['changepassword'] = 'Change password URL';
 $string['changepasswordhelp'] = 'URL of lost password recovery page, which will be sent to users in an email. Note that this setting will have no effect if a forgotten password URL is set in the authentication common settings.';
 $string['chooseauthmethod'] = 'Choose an authentication method';
-$string['chooseauthmethod_help'] = 'This setting determines the authentication method used when the user logs in. Only enabled authentication plugins should be chosen, otherwise the user will no longer be able to log in. To block the user from logging in, select "No login".';
+$string['chooseauthmethod_help'] = 'This setting determines the authentication method used when the user logs in. Only enabled authentication plugins should be chosen, otherwise the user will no longer be able to log in. To block the user from logging in, select **No login**.';
 $string['incorrectpleasetryagain'] = 'Incorrect. Please try again.';
 $string['infilefield'] = 'Field required in file';
 $string['informminpassworddigits'] = 'at least {$a} digit(s)';
@@ -132,13 +132,13 @@ $string['pluginnotenabled'] = 'Authentication plugin \'{$a}\' is not enabled.';
 $string['pluginnotinstalled'] = 'Authentication plugin \'{$a}\' is not installed.';
 $string['potentialidps'] = 'Log in using your account on:';
 $string['recaptcha'] = 'reCAPTCHA';
-$string['recaptcha_help'] = 'The CAPTCHA is for preventing abuse from automated programs. Follow the instructions to verify you are a person. This could be a box to check, characters presented in an image you must enter or a set of images to select from.
+$string['recaptcha_help'] = 'The CAPTCHA is for preventing abuse from automated programs. Simply enter the words in the box, in order and separated by a space.
 
-If you are not sure what the images are, you can try getting another CAPTCHA or an audio CAPTCHA.';
+If you are not sure what the words are, you can try getting another CAPTCHA or an audio CAPTCHA.';
 $string['recaptcha_link'] = 'auth/email';
 $string['security_question'] = 'Security question';
 $string['selfregistration'] = 'Self registration';
-$string['selfregistration_help'] = 'If an authentication plugin, such as email-based self-registration, is selected, then it enables potential users to register themselves and create accounts. This results in the possibility of spammers creating accounts in order to use forum posts, blog entries etc. for spam. To avoid this risk, self-registration should be disabled or limited by <em>Allowed email domains</em> setting.';
+$string['selfregistration_help'] = 'If an authentication plugin, such as email-based self-registration, is selected, then it enables potential users to register themselves and create accounts. This results in the possibility of spammers creating accounts in order to use forum posts, blog entries etc. for spam. To avoid this risk, self-registration should be disabled or limited by **Allowed email domains** setting.';
 $string['sha1'] = 'SHA-1 hash';
 $string['showguestlogin'] = 'You can hide or show the guest login button on the login page.';
 $string['stdchangepassword'] = 'Use standard page for changing password';

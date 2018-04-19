@@ -94,7 +94,7 @@ $string['bookmarkalreadyexists'] = 'You have already bookmarked this page.';
 $string['bookmarkdeleted'] = 'Bookmark deleted.';
 $string['bookmarkthispage'] = 'Bookmark this page';
 $string['cachejs'] = 'Cache Javascript';
-$string['cachejs_help'] = 'Javascript caching and compression greatly improves page loading performance. it is strongly recommended for production sites. Developers will probably want to disable this feature.';
+$string['cachejs_help'] = 'Javascript caching and compression greatly improves page loading performance. It is strongly recommended for production sites. Developers will probably want to disable this feature.';
 $string['calendarexportsalt'] = 'Calendar export salt';
 $string['calendarsettings'] = 'Calendar';
 $string['calendartype'] = 'Calendar type';
@@ -555,7 +555,7 @@ $string['gmapsdefaultzoomlevel_help'] = 'Sets the initial zoom level of the map.
 $string['gmapsforcemaplanguage'] = 'Force map language';
 $string['gmapsforcemaplanguage_help'] = 'If empty, map text will be displayed using the user\'s browser\'s language. Set this setting to force all users to see map text in the specified language. Visit <a href="https://developers.google.com/maps/faq#languagesupport" target="_blank">this page</a> for a list of supported languages.';
 $string['gmapsregionbias'] = 'Region bias';
-$string['gmapsregionbias_help'] = 'Google Maps address returns results influenced by your region/country. For example, searches for "San Francisco" may return different results if sent from a domain within the United States than one sent from Spain. This should be the <a href="https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2#Officially_assigned_code_elements" target="_blank">ISO 3166-1</a> code for the appropriate region/country.';
+$string['gmapsregionbias_help'] = 'Google Maps address returns results influenced by your region/country. For example, searches for \'San Francisco\' may return different results if sent from a domain within the United States than one sent from Spain. This should be the <a href="https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2#Officially_assigned_code_elements" target="_blank">ISO 3166-1</a> code for the appropriate region/country.';
 $string['groupenrolmentkeypolicy'] = 'Group enrolment key policy';
 $string['groupenrolmentkeypolicy_desc'] = 'Turning this on will make Totara check group enrolment keys against a valid password policy.';
 $string['googlemapkey3'] = 'Google Maps JavaScript API key';
@@ -570,11 +570,8 @@ If you have purchased a Premium Plan then please put your Client ID into the API
 
 Totara currently uses the Google Maps JavaScript API in the following locations:
 
-<ul>
-<li>Location custom fields.</li>
-<li>IP Address lookup visualisation within the site log reports.</li>
-</ul>
-';
+* Location custom fields.
+* Address lookup visualisation within the site log reports.';
 $string['googlemaps'] = 'Google Maps';
 $string['gotofirst'] = 'Go to first missing string';
 $string['gradebook'] = 'Gradebook';
@@ -788,7 +785,7 @@ $string['navshowcategories'] = 'Show course categories';
 $string['navshowmycoursecategories'] = 'Show my course categories';
 $string['navshowmycoursecategories_help'] = 'If enabled courses in the users my courses branch will be shown in categories.';
 $string['navsortmycoursessort'] = 'Sort my courses';
-$string['navsortmycoursessort_help'] = 'This determines whether courses are listed under My courses according to the sort order (i.e. the order set in Site administration > Courses > Manage courses and categories) or alphabetically by course setting.';
+$string['navsortmycoursessort_help'] = 'This determines whether courses are listed under My courses according to the sort order (i.e. the order set in *Site administration > Courses > Manage courses and categories*) or alphabetically by course setting.';
 $string['neverdeleteruns'] = 'Never delete runs';
 $string['nobookmarksforuser'] = 'You do not have any bookmarks.';
 $string['nodatabase'] = 'No database';
@@ -826,7 +823,7 @@ $string['pathtodot'] = 'Path to dot';
 $string['pathtodot_help'] = 'Path to dot. Probably something like /usr/bin/dot. To be able to generate graphics from DOT files, you must have installed the dot executable and point to it here. Note that, for now, this only used by the profiling features (Development->Profiling) built into Totara.';
 $string['pathtodu'] = 'Path to du';
 $string['pathtogs'] = 'Path to ghostscript';
-$string['pathtogs_help'] = 'On most Linux installs, this can be left as \'/usr/bin/gs\'. On Windows it will be something like \'c:\\gs\\bin\\gswin32c.exe\' (make sure there are no spaces in the path - if necessary copy the files \'gswin32c.exe\' and \'gsdll32.dll\' to a new folder without a space in the path)';
+$string['pathtogs_help'] = 'On most Linux installs, this can be left as **/usr/bin/gs**. On Windows it will be something like \'c:\gs\bin\gswin32c.exe\' (make sure there are no spaces in the path. If necessary copy the files **gswin32c.exe** and **gsdll32.dll** to a new folder without a space in the path).';
 $string['pathtopgdump'] = 'Path to pg_dump';
 $string['pathtopgdumpdesc'] = 'This is only necessary to enter if you have more than one pg_dump on your system (for example if you have more than one version of postgresql installed)';
 $string['pathtopgdumpinvalid'] = 'Invalid path to pg_dump - either wrong path or not executable';
@@ -897,9 +894,11 @@ $string['profileshortnamenotunique'] = 'This short name is already in use';
 $string['profilesignup'] = 'Display on signup page?';
 $string['profilespecificsettings'] = 'Specific settings';
 $string['profilevisible'] = 'Who is this field visible to?';
-$string['profilevisible_help'] = '* Not visible - For private data only viewable by administrators
-* Restricted visibility - For private data only viewable by the user, the administrators and anyone with the "totara/core:viewhiddenusercustomfielddata" capability.
-* Visible to everyone';
+$string['profilevisible_help'] = 'The options are:
+
+* **Not visible**: For private data only viewable by administrators.
+* **Restricted visibility**: For private data only viewable by the user, the administrators and anyone with the **totara/core:viewhiddenusercustomfielddata** capability.
+* **Visible to everyone**: Everyone can see the data.';
 $string['profilevisibleall'] = 'Visible to everyone';
 $string['profilevisiblenone'] = 'Not visible';
 $string['profilevisibleprivate'] = 'Restricted visibility';
@@ -907,13 +906,13 @@ $string['profiling'] = 'Profiling';
 $string['profilingallowall'] = 'Continuous profiling';
 $string['profilingallowall_help'] = 'If you enable this setting, then, at any moment, you can use the PROFILEALL parameter anywhere (PGC) to enable profiling for all the executed scripts along the Totara session life. Analogously, you can use the PROFILEALLSTOP parameter to stop it.';
 $string['profilingallowme'] = 'Selective profiling';
-$string['profilingallowme_help'] = 'If you enable this setting, then, selectively, you can use the PROFILEME parameter anywhere (PGC) and profiling for that script will happen. Analogously, you can use the DONTPROFILEME parameter to prevent profiling to happen';
+$string['profilingallowme_help'] = 'If you enable this setting, then, selectively, you can use the PROFILEME parameter anywhere (PGC) and profiling for that script will happen. Analogously, you can use the DONTPROFILEME parameter to prevent profiling to happen.';
 $string['profilingautofrec'] = 'Automatic profiling';
 $string['profilingautofrec_help'] = 'By configuring this setting, some request (randomly, based on the frequency specified - 1 of N) will be picked and automatically profiled, storing results for further analysis. Note that this way of profiling observes the include/exclude settings. Set it to 0 to disable automatic profiling.';
 $string['profilingenabled'] = 'Enable profiling';
-$string['profilingenabled_help'] = 'If you enable this setting, then profiling will be available in this site and you will be able to define its behavior by configuring the next options.';
+$string['profilingenabled_help'] = 'If you enable this setting, then profiling will be available in this site and you will be able to define its behaviour by configuring the next options.';
 $string['profilingexcluded'] = 'Exclude profiling';
-$string['profilingexcluded_help'] = 'List of (comma separated, absolute skipping wwwroot, callable) URLs that will be excluded from being profiled from the ones defined by \'Profile these\' setting.';
+$string['profilingexcluded_help'] = 'List of (comma separated, absolute skipping wwwroot, callable) URLs that will be excluded from being profiled from the ones defined by **Profile these** setting.';
 $string['profilingimportprefix'] = 'Profiling import prefix';
 $string['profilingimportprefix_desc'] = 'For easier detection, all the imported profiling runs will be prefixed with the value specified here.';
 $string['profilingincluded'] = 'Profile these';
@@ -957,7 +956,7 @@ $string['purgecachesfinished']= 'All caches were purged.';
 $string['requestcategoryselection'] = 'Enable category selection';
 $string['restorecourse'] = 'Restore course';
 $string['restorernewroleid'] = 'Restorers\' role in courses';
-$string['restorernewroleid_help'] = 'If the user does not already have the permission to manage the newly restored course, the user is automatically assigned this role and enrolled if necessary. Select "None" if you do not want restorers to be able to manage every restored course.';
+$string['restorernewroleid_help'] = 'If the user does not already have the permission to manage the newly restored course, the user is automatically assigned this role and enrolled if necessary. Select **None** if you do not want restorers to be able to manage every restored course.';
 $string['reverseproxy'] = 'Reverse proxy';
 $string['riskconfig'] = 'Users could change site configuration and behaviour';
 $string['riskconfigshort'] = 'Configuration risk';
@@ -1013,7 +1012,7 @@ $string['sitepolicies'] = 'Site policies';
 $string['sitepolicy'] = 'Site policy URL';
 $string['sitepolicy_help'] = 'If you have a site policy that all registered users must see and agree to before using this site, then specify the URL to it here, otherwise leave this field blank. This setting can contain any public URL.';
 $string['sitepolicyguest'] = 'Site policy URL for guests';
-$string['sitepolicyguest_help'] = 'If you have a site policy that all guests must see and agree to before using this site, then specify the URL to it here, otherwise leave this field blank. This setting can contain any public URL. Note: access of not-logged-in users may be prevented with forcelogin setting.';
+$string['sitepolicyguest_help'] = 'If you have a site policy that all guests must see and agree to before using this site, then specify the URL to it here, otherwise leave this field blank. This setting can contain any public URL. Note that access of not-logged-in users may be prevented with the **forcelogin** setting.';
 $string['sitesectionhelp'] = 'If selected, a topic section will be displayed on the site\'s front page.';
 $string['slasharguments'] = 'Use slash arguments';
 $string['slashargumentswarning'] = 'It is recommended that the use of slash arguments is enabled. In future it will be required. For more details, see the documentation.';

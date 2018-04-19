@@ -29,14 +29,14 @@
 $string['additionalinformation'] = 'Additional signup information';
 $string['autobookingcompleted'] = 'Your booking has been completed and you have been enrolled on {$a} event(s).';
 $string['autosignup'] = 'Automatically sign users up to seminar events';
-$string['autosignup_help'] = 'If set to yes then on enrolling the user will be signed up to all seminar activities on the course.
+$string['autosignup_help'] = 'If set to **yes** then on enrolling the user will be signed up to all seminar activities on the course.
 If multiple enrolment is enabled then the user will be signed up to every event that has availability or a waiting list, otherwise they will be signed up to the earliest event with either a space or waiting list.';
 $string['cannotenrol'] = 'Enrolment is disabled or inactive';
 $string['cannotenrolalreadyrequested'] = 'It is not possible to sign up for these events (manager request already pending).';
 $string['cannotenrolnosessions'] = 'Cannot enrol (no seminar events in this course)';
 $string['cohortnonmemberinfo'] = 'Only members of cohort \'{$a}\' can use seminar enrolment.';
 $string['cohortonly'] = 'Only cohort members';
-$string['cohortonly_help'] = 'Seminar Direct enrolment may be restricted to members of a specified cohort only. Note that changing this setting has no effect on existing enrolments.';
+$string['cohortonly_help'] = '**Seminar Direct** enrolment may be restricted to members of a specified cohort only. Note that changing this setting has no effect on existing enrolments.';
 $string['customwelcomemessage'] = 'Custom welcome message';
 $string['customwelcomemessage_help'] = 'A custom welcome message may be added as plain text or Totara-auto format, including HTML tags and multi-lang tags.
 
@@ -53,6 +53,8 @@ $string['enrolenddate'] = 'End date';
 $string['enrolenddate_help'] = 'If enabled, users can enrol themselves until this date only.';
 $string['enrolenddateerror'] = 'Enrolment end date cannot be earlier than start date';
 $string['enrolme'] = 'Enrol me';
+$string['enrolmentsoncoursepage'] = 'Enrolments displayed on course page';
+$string['enrolmentsoncoursepage_help'] = 'This is the number of enrolments for each seminar activity that will be shown on the main course page.';
 $string['enrolperiod'] = 'Enrolment duration';
 $string['enrolperiod_desc'] = 'Default length of time that the enrolment is valid. If set to zero, the enrolment duration will be unlimited by default.';
 $string['enrolperiod_help'] = 'Length of time that the enrolment is valid, starting with the moment the user enrols themselves. If disabled, the enrolment duration will be unlimited.';

@@ -26,8 +26,7 @@
 $string['add'] = 'Add';
 $string['addanotheroption'] = 'Add another option';
 $string['aggregate'] = 'Aggregate rating questions';
-$string['aggregate_help'] = 'Aggregate rating questions allow you to select ratings questions from previous pages
-    and aggregate the scores.';
+$string['aggregate_help'] = 'Aggregate rating questions allow you to select ratings questions from previous pages and aggregate the scores.';
 $string['aggregateaverage'] = 'Display average';
 $string['aggregatedisplayavg'] = ' Average score: {$a}';
 $string['aggregatedisplaymed'] = ' Median score: {$a}';
@@ -39,7 +38,15 @@ $string['aggregatetype'] = 'Aggregation Type';
 $string['aggregateincludezeroscores'] = 'Include zero scores';
 $string['aggregateincludescoresforunanswered'] = 'Include scores for unanswered questions';
 $string['aggregateincludedvalues'] = 'Included values';
-$string['aggregateincludedvalues_help'] = 'By default, only answered questions resulting in a non-zero score are included in the average and/or median calculations.<br />The provided checkboxes can be used to also include unanswered and/or zero scored questions in the calculation.<br /><br />When you check the <strong>Include scores for unanswered questions</strong> option, unanswered questions will be given the default score specified by an administrator. If no default score exists then they will be given the minimum value (numeric scales) or 0 (custom scales).<br /><br />When you check the <strong>Include zero scores</strong> option, questions with a zero score will be used in the calculation.<br /><br />When either/both options are enabled, the overall calculated result will be lower when zero scores and/or unanswered questions are present.';
+$string['aggregateincludedvalues_help'] = 'By default, only answered questions resulting in a non-zero score are included in the average and/or median calculations.
+
+The provided checkboxes can be used to also include unanswered and/or zero scored questions in the calculation.
+
+When you check the **Include scores for unanswered questions** option, unanswered questions will be given the default score specified by an administrator. If no default score exists then they will be given the minimum value (numeric scales) or 0 (custom scales).
+
+When you check the **Include zero scores** option, questions with a zero score will be used in the calculation.
+
+When either/both options are enabled, the overall calculated result will be lower when zero scores and/or unanswered questions are present.';
 $string['answerrange'] = 'Answer range';
 $string['atleastonerequired'] = 'You must specify at least one item';
 $string['availablechoices'] = 'Available choices';
@@ -138,7 +145,7 @@ $string['organisations'] = 'Organisations';
 $string['pluginname'] = 'Question';
 $string['positions'] = 'Positions';
 $string['question'] = 'Question';
-$string['question_help'] = 'Here you specify what information you want the user to provide when they answer this element';
+$string['question_help'] = 'Here you specify what information you want the user to provide when they answer this element.';
 $string['questionandstage'] = '{$a->name} ({$a->stage})';
 $string['questionandtype'] = '{$a->name} ({$a->type})';
 $string['questionaddheader'] = 'Add {$a}';

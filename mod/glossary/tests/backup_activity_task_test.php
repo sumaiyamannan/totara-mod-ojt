@@ -639,4 +639,34 @@ class mod_glossary_backup_activity_task_testcase extends advanced_testcase {
         //     backup_glossary_activity_task::encode_content_links('<a href="'.$url.'">'.$url.'</a>', $roottask)
         // );
     }
+
+    /**
+     * Tests that a coding exception isn't thrown when a course task is passed to the 'encode_content_links' method but it doesn't find any glossary task
+     */
+    public function test_coding_exception_is_not_thrown_when_course_cannot_find_glossary_task() {
+        global $CFG, $USER;
+
+        $this->resetAfterTest();
+        $this->setAdminUser();
+
+        $generator = $this->getDataGenerator();
+        $course = $generator->create_course();
+
+        // Do backup with default settings. MODE_IMPORT means it will just create the directory and not zip it.
+        $bc = new backup_controller(backup::TYPE_1COURSE, $course->id, backup::FORMAT_MOODLE, backup::INTERACTIVE_NO, backup::MODE_IMPORT, $USER->id);
+        $tasks = $bc->get_plan()->get_tasks();
+
+        // We need a course task so a coding exception would be thrown if a check for empty($activityids) didn't exist in the 'encode_content_links' method.
+        $coursetask = null;
+        foreach ($tasks as $task) {
+            if ($task instanceof backup_course_task) {
+                $coursetask = $task;
+                break;
+            }
+        }
+        $this->assertNotEmpty($coursetask, 'Unable to find a course backup task');
+        $content = "$CFG->wwwroot/mod/glossary/showentry.php?courseid=$course->id&eid=1&displayformat=dictionary";
+        $encoded_content = backup_glossary_activity_task::encode_content_links($content, $coursetask);
+        $this->assertSame($content, $encoded_content);
+    }
 }

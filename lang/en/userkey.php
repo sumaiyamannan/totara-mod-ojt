@@ -34,5 +34,5 @@ $string['keyvaliduntil_help'] = 'Select an optional date after which the key wil
 $string['keyvalue'] = 'Key value';
 $string['newuserkey'] = 'New user key';
 $string['userkey'] = 'User key';
-$string['userkey_help'] = 'Select a saved key that will give users access to the data published by this export plugin, without having to log into Totara. Select "Create a new user key" to generate a new key when submitting this form.';
+$string['userkey_help'] = 'Select a saved key that will give users access to the data published by this export plugin, without having to log into Totara. Select **Create a new user key** to generate a new key when submitting this form.';
 $string['userkeys'] = 'User keys';

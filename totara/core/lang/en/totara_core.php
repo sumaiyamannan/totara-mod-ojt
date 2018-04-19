@@ -304,15 +304,13 @@ $string['menuitem:accessbypreset'] = 'Restrict access by preset rule';
 $string['menuitem:accessbyrole'] = 'Restrict access by role';
 $string['menuitem:accesscontrols'] = 'Access Controls';
 $string['menuitem:accessmode'] = 'Access Mode';
-$string['menuitem:accessmode_help'] = '
-Access controls are used to restrict which users can view the menu item.
+$string['menuitem:accessmode_help'] = 'Access controls are used to restrict which users can view the menu item.
 
 **Restrict access** determines how the following criteria are applied.
 
 When set to **any**, users will be able to see this menu item if they meet **any one** of the enabled criteria below.
 
-When set to **all**, users will only be able to see this menu item if they meet **all** the enabled criteria below.
-';
+When set to **all**, users will only be able to see this menu item if they meet **all** the enabled criteria below.';
 $string['menuitem:accessnotenabled'] = 'The settings below are not currently active because this item\'s visibility is not set to "Use custom access settings".';
 $string['menuitem:addcohorts'] = 'Add audiences';
 $string['menuitem:addnew'] = 'Add new menu item';
@@ -320,8 +318,7 @@ $string['menuitem:anycontext'] = 'Users may have role in any context';
 $string['menuitem:audienceaggregation'] = 'Audience aggregation';
 $string['menuitem:audienceaggregation_help'] = 'Determines whether the user must be a member of all of the selected audiences, or any of the selected audiences.';
 $string['menuitem:context'] = 'Context';
-$string['menuitem:context_help'] = '
-**Context** allows you to specify where a user must have a role assigned in order to view the menu item.
+$string['menuitem:context_help'] = '**Context** allows you to specify where a user must have a role assigned in order to view the menu item.
 
 A user can be assigned a role at the system level giving them site wide access or just within a particular context. For instance a trainer may only be assigned the role at the course level.
 
@@ -344,11 +341,10 @@ $string['menuitem:formitemurl_help'] = 'Start the URL with a "/" to make the lin
 
 You can also use following placeholders:
 
-* ##userid## - current user id
-* ##username## - current username
-* ##useremail## - current user email
-* ##courseid## - current course id
-';
+* **##userid##**: Current user ID.
+* **##username##**: Current username.
+* **##useremail##**: Current user email.
+* **##courseid##**: Current course ID.';
 $string['menuitem:formitemvisibility'] = 'Visibility';
 $string['menuitem:hide'] = 'Hide';
 $string['menuitem:movesuccess'] = 'The item was moved successfully';
@@ -356,7 +352,7 @@ $string['menuitem:norolesfound'] = 'No roles found';
 $string['menuitem:presetwithaccess'] = 'Condition required to view';
 $string['menuitem:presetwithaccess_help'] = 'This criteria allows you to restrict access to the menu item using one or more predefined rules.
 
-How these rules are required is determined by the **Preset rule aggregation** setting. If it is set to "all" then the user must meet all of the selected criteria. If it is set to "any" the user must meet only one of the selected criteria.';
+How these rules are required is determined by the **Preset rule aggregation** setting. If it is set to **all** then the user must meet all of the selected criteria. If it is set to **any** the user must meet only one of the selected criteria.';
 $string['menuitem:presetaggregation'] = 'Preset rule aggregation';
 $string['menuitem:presetaggregation_help'] = 'Determines whether the user must be a meet all of the selected preset rules, or any of the selected preset rules.';
 $string['menuitem:resettodefault'] = 'Reset menu to default configuration';
@@ -444,14 +440,14 @@ $string['organisationsarrow'] = 'Organisations > ';
 $string['participant'] = 'Participant';
 $string['pastbookingsfor'] = 'Past Bookings for ';
 $string['pathtowkhtmltopdf'] = 'Path to wkhtmltopdf';
-$string['pathtowkhtmltopdf_help'] = 'Specify location of the wkhtmltopdf executable file. wkhtmltopdf is used for creation of PDF snapshots.';
+$string['pathtowkhtmltopdf_help'] = 'Specify location of the WKHTMLTOPDF executable file. WKHTMLTOPDF is used for creation of PDF snapshots.';
 $string['performinglocalpostinst'] = 'Local Post-installation setup';
 $string['permittedcrossdomainpolicies'] = 'Permitted cross domain policies';
 $string['permittedcrossdomainpolicies_desc'] = 'If set to "none" browsers are instructed to prevent embedding of content from this server in extenal Flash or PDF files. If set to "master-only" the policies can be defined in main crossdomain.xml file.';
 $string['pluginname'] = 'Totara core';
 $string['pluginnamewithkey'] = 'Self enrolment with key';
 $string['pos_description'] = 'Description';
-$string['pos_description_help'] = 'Description of the position';
+$string['pos_description_help'] = 'Description of the position.';
 $string['position_typeicon'] = 'Position type icon';
 $string['positiona'] = 'Position {$a}';
 $string['positionatcompletion'] = 'Position at completion';
@@ -508,6 +504,7 @@ $string['securereferrers'] = 'Secure referrers';
 $string['securereferrers_desc'] = 'When enabled browsers are instructed to not send script names and page parameters to external sites which improves security and privacy. This may affect functionality of browsers that do not fully implement referrer policy.';
 $string['selectanassessor'] = 'Select an assessor...';
 $string['selectaproficiency'] = 'Select a proficiency...';
+$string['selectionlimited'] = 'There is a maximum limit of {$a} selected managers';
 $string['sendregistrationdatatask'] = 'Send site registration data';
 $string['sendremindermessagestask'] = 'Send reminder messages';
 $string['settings'] = 'Settings';
@@ -621,7 +618,6 @@ $string['choosetempmanager_help'] = 'A temporary manager can be assigned. The as
 Click **Choose temporary manager** to select a temporary manager.
 
 If the name you are looking for does not appear in the list, it might be that the user does not have the necessary rights to act as a temporary manager.';
-
 $string['recordoflearningfor'] = 'Record of Learning for ';
 $string['developmentplan'] = 'Development Planner';
 $string['enablemyteam'] = 'Enable My Team';

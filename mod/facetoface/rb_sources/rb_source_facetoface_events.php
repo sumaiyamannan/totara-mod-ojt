@@ -114,6 +114,9 @@ class rb_source_facetoface_events extends rb_facetoface_base_source {
         $this->add_user_table_to_joinlist($joinlist, 'allattendees', 'userid');
         $this->add_facetoface_session_roles_to_joinlist($joinlist, 'base.id');
 
+        $this->add_context_table_to_joinlist($joinlist, 'course', 'id', CONTEXT_COURSE, 'INNER');
+        $this->add_cohort_user_tables_to_joinlist($joinlist, 'base', 'userid');
+
         return $joinlist;
     }
 
@@ -514,6 +517,53 @@ class rb_source_facetoface_events extends rb_facetoface_base_source {
     protected function define_requiredcolumns() {
         $requiredcolumns = array();
 
+        $requiredcolumns[] = new rb_column(
+            'visibility',
+            'id',
+            '',
+            "course.id",
+            array(
+                'joins' => 'course',
+                'required' => 'true',
+                'hidden' => 'true'
+            )
+        );
+
+        $requiredcolumns[] = new rb_column(
+            'visibility',
+            'visible',
+            '',
+            "course.visible",
+            array(
+                'joins' => 'course',
+                'required' => 'true',
+                'hidden' => 'true'
+            )
+        );
+
+        $requiredcolumns[] = new rb_column(
+            'visibility',
+            'audiencevisible',
+            '',
+            "course.audiencevisible",
+            array(
+                'joins' => 'course',
+                'required' => 'true',
+                'hidden' => 'true')
+        );
+
+        $requiredcolumns[] = new rb_column(
+            'ctx',
+            'id',
+            '',
+            "ctx.id",
+            array(
+                'joins' => 'ctx',
+                'required' => 'true',
+                'hidden' => 'true'
+            )
+        );
+
         $context = context_system::instance();
         if (has_any_capability(['mod/facetoface:viewattendees'], $context)) {
             $requiredcolumns[] = new rb_column(
@@ -543,5 +593,18 @@ class rb_source_facetoface_events extends rb_facetoface_base_source {
         );
 
         return $paramoptions;
+    }
+
+    /**
+     * Report post config operations.
+     *
+     * @param reportbuilder $report
+     */
+    public function post_config(reportbuilder $report) {
+        $userid = $report->reportfor;
+        if (isset($report->embedobj->embeddedparams['userid'])) {
+            $userid = $report->embedobj->embeddedparams['userid'];
+        }
+        $report->set_post_config_restrictions($report->post_config_visibility_where('course', 'course', $userid));
     }
 }
