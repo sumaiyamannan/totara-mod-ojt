@@ -112,7 +112,6 @@ final class signup extends \moodleform {
 
         if ($this->stage == request::STAGE_SIGNUP and $this->authplugin->is_captcha_enabled()) {
             $mform->addElement('recaptcha', 'recaptcha_element', get_string('security_question', 'auth'), array('https' => $CFG->loginhttps));
-            $mform->addRule('recaptcha_element', get_string('errormissingsecurityquestion', 'auth_approved'), 'required', null, 'client');
             $mform->addHelpButton('recaptcha_element', 'recaptcha', 'auth');
             $mform->closeHeaderBefore('recaptcha_element');
         }
@@ -243,15 +242,11 @@ final class signup extends \moodleform {
         if ($this->stage == request::STAGE_SIGNUP and $this->authplugin->is_captcha_enabled()) {
             // Captcha is a special case, do not do anything else if it fails.
             $errors = array();
-            $recaptcha_element = $this->_form->getElement('recaptcha_element');
-            if (!empty($this->_form->_submitValues['recaptcha_challenge_field'])) {
-                $challenge_field = $this->_form->_submitValues['recaptcha_challenge_field'];
-                $response_field = $this->_form->_submitValues['recaptcha_response_field'];
-                if (true !== ($result = $recaptcha_element->verify($challenge_field, $response_field))) {
-                    $errors['recaptcha_element']
-                        = $result == 'incorrect-captcha-sol'
-                        ? get_string('incorrectpleasetryagain', 'auth')
-                        : $result;
+            $recaptchaelement = $this->_form->getElement('recaptcha_element');
+            if (!empty($this->_form->_submitValues['g-recaptcha-response'])) {
+                $response = $this->_form->_submitValues['g-recaptcha-response'];
+                if (!$recaptchaelement->verify($response)) {
+                    $errors['recaptcha_element'] = get_string('incorrectpleasetryagain', 'auth');
                 }
             } else {
                 $errors['recaptcha_element'] = get_string('missingrecaptchachallengefield');
