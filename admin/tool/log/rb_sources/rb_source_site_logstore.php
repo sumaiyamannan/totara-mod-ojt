@@ -533,7 +533,13 @@ class rb_source_site_logstore extends rb_base_source {
      * @return string
      */
     public function rb_display_name_link($id, $row) {
-        $event = \core\event\base::restore((array)$row, array());
+        $row = (array)$row;
+        $row['other'] = unserialize($row['other']);
+        if ($row['other'] === false) {
+            $row['other'] = array();
+        }
+
+        $event = \core\event\base::restore($row, array());
         if (!$event) {
             return '';
         }
