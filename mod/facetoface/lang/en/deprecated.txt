@@ -83,3 +83,5 @@ allowsignupnotedefault,mod_facetoface
 allowsignupnotedefault_help,mod_facetoface
 availablesignupnote,mod_facetoface
 availablesignupnote_help,mod_facetoface
+missingdefaultnotifications,mod_facetoface
+missingdefaultsfix,mod_facetoface
