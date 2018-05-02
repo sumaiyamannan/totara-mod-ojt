@@ -27,7 +27,17 @@ class rb_source_ojt_completion extends rb_base_source {
     public $contentoptions, $paramoptions, $defaultcolumns;
     public $defaultfilters, $requiredcolumns, $sourcetitle;
 
-    function __construct() {
+    function __construct($groupid, rb_global_restriction_set $globalrestrictionset = null) {
+        if ($groupid instanceof rb_global_restriction_set) {
+            throw new coding_exception('Wrong parameter orders detected during report source instantiation.');
+        }
+
+        // Remember the active global restriction set.
+        $this->globalrestrictionset = $globalrestrictionset;
+
+        // Apply global user restrictions.
+        $this->add_global_report_restriction_join('base', 'userid');
+
         global $CFG, $DB;
         require_once($CFG->dirroot.'/mod/ojt/lib.php');
 
@@ -72,11 +82,11 @@ class rb_source_ojt_completion extends rb_base_source {
     }
 
     /**
-     * Global report restrictions are not yet implemented for this source.
+     * Global report restrictions are implemented in this source.
      * @return boolean
      */
     public function global_restrictions_supported() {
-        return false;
+        return true;
     }
 
 
