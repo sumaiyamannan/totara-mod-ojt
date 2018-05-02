@@ -570,7 +570,7 @@ This information will allow Totara to better examine and resolve any support iss
 $string['totararegistrationlastsent'] = 'Data last sent to Totara';
 $string['totararegistrationsaved'] = 'Totara registration was updated';
 $string['totararelease'] = 'Totara release identifier';
-$string['totarareleaselink'] = 'See the <a href="https://totara.community/mod/forum/view.php?id=1834" target=\"_blank\">release notes</a> for more details.';
+$string['totarareleaselink'] = 'See the <a href="https://totara.community/mod/forum/view.php?id=7038" target=\"_blank\">release notes</a> for more details.';
 $string['totararequiredupgradeversion'] = 'Totara 2.2.13';
 $string['totarauniqueidnumbercheckfail'] = 'The following tables contain non-unique values in the column idnumber:<br/><br/>
 {$a}
