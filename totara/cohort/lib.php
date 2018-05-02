@@ -1303,7 +1303,6 @@ function totara_cohort_notify_users($cohortid, $userids, $action, $delaymessages
     $a->affectedcount = count($memberlist);
     unset($memberlist);
 
-    //$fields = "u.id, u.username, u.firstname, u.lastname, u.maildisplay, u.mailformat, u.maildigest, u.emailstop, u.imagealt, u.email, u.city, u.country, u.lastaccess, u.lastlogin, u.picture, u.timezone, u.theme, u.lang, u.trackforums, u.mnethostid";
     $fields  = "id, username, maildisplay, mailformat, maildigest, emailstop, imagealt, email, city, country, lastaccess, lastlogin, picture, timezone, theme, lang, trackforums, mnethostid, auth, suspended, deleted, ";
     $fields .= $usernamefields;
     switch ($cohort->alertmembers) {
@@ -1320,10 +1319,10 @@ function totara_cohort_notify_users($cohortid, $userids, $action, $delaymessages
     }
 
     $strmgr = get_string_manager();
-    $eventdata = new stdClass();
 
     foreach ($tousers as $touser) {
         // Send emails in user lang.
+        $eventdata = new stdClass();
         $emailsubject = $strmgr->get_string("msg:{$action}_{$towho}_emailsubject", 'totara_cohort', $a, $touser->lang);
         $notice = $strmgr->get_string("msg:{$action}_{$towho}_notice", 'totara_cohort', $a, $touser->lang);
         $eventdata->subject = $emailsubject;
@@ -1339,9 +1338,9 @@ function totara_cohort_notify_users($cohortid, $userids, $action, $delaymessages
     if ($cohort->alertmembers == COHORT_ALERT_ALL && $action == 'membersremoved') {
         $towho = 'toaffected';
         $tousers = $DB->get_records_select('user', 'id IN ('.implode(',', $userids).')', null, 'id', $fields);
-        $eventdata = new stdClass();
         foreach ($tousers as $touser) {
             // Send emails in user lang.
+            $eventdata = new stdClass();
             $emailsubject = $strmgr->get_string("msg:{$action}_{$towho}_emailsubject", 'totara_cohort', $a, $touser->lang);
             $notice = $strmgr->get_string("msg:{$action}_{$towho}_notice", 'totara_cohort', $a, $touser->lang);
             $eventdata->subject = $emailsubject;
