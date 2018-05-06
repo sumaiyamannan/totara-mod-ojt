@@ -38,7 +38,7 @@ Feature: Test we can manually archive course completion.
     And I log in as "admin"
     And I follow "Course 1"
     And I navigate to "Completions archive" node in "Course administration"
-    And I should see "Are you sure you want to archive all completion records"
+    And I should see "The course completion data that will be archived is limited to: id; courseid; userid; timecompleted; grade."
     And I should see "1 users will be affected"
     And I press "Continue"
     And I should see "1 users completion records have been successfully archived"
@@ -85,7 +85,7 @@ Feature: Test we can manually archive course completion.
     And I navigate to "Completions archive" node in "Course administration"
     Then I should see "Courses which are a part of a Program or Certification can not be manually archived."
     And I should see "Completion archive test"
-    And I should not see "Are you sure you want to archive all completion records"
+    And I should not see "The course completion data that will be archived is limited to: id; courseid; userid; timecompleted; grade."
 
   @javascript @totara_reportbuilder
   Scenario: Grades are archived but can be viewed via report builder
