@@ -1881,12 +1881,14 @@ function facetoface_get_attendee($sessionid, $userid) {
 
 /**
  * Return all user fields to include in exports
+ *
+ * @param bool $reset If true the user fields static cache is reset
  */
-function facetoface_get_userfields() {
+function facetoface_get_userfields($reset = false) {
     global $CFG, $DB;
 
     static $userfields = null;
-    if (null == $userfields) {
+    if ($userfields === null || $reset) {
         $userfields = array();
 
         $fieldnames = array('firstname', 'lastname', 'email', 'city',
@@ -1894,6 +1896,21 @@ function facetoface_get_userfields() {
         if (!empty($CFG->facetoface_export_userprofilefields)) {
             $fieldnames = array_map('trim', explode(',', $CFG->facetoface_export_userprofilefields));
         }
+
+        // Strip out any fields that are not allowed.
+        $forbiddenuserfields = array(
+            'username', // We don't share this freely!
+            'password', // You can't have the users password!
+            'secret', // You can't have this, it is secret!
+            'lastip', // Just to be safe.
+        );
+        foreach ($forbiddenuserfields as $field) {
+            $key = array_search($field, $fieldnames);
+            if ($key !== false) {
+                unset($fieldnames[$key]);
+            }
+        }
+
         foreach ($fieldnames as $shortname) {
             if (get_string_manager()->string_exists($shortname, 'moodle')) {
                 $userfields[$shortname] = get_string($shortname);
