@@ -1530,7 +1530,7 @@ class block_manager {
         $block = $this->find_instance($blockid);
 
         if (!$this->page->user_can_edit_blocks()) {
-            throw new moodle_exception('nopermissions', '', $this->page->url->out(), get_string('editblock'));
+            throw new moodle_exception('nopermissions', '', $this->page->url->out(), get_string('cannotsaveblock', 'error'));
         }
 
         $newregion = optional_param('bui_newregion', '', PARAM_ALPHANUMEXT);
@@ -2018,6 +2018,14 @@ function blocks_name_allowed_in_format($name, $pageformat) {
     if (!$formats) {
         $formats = array();
     }
+
+    // TOTARA: we want blocks that can be added to my dashboards to be addable to our dashboards;
+    if (strpos($pageformat, 'totara-dashboard-') === 0 && isset($formats['my']) && !isset($formats['totara-dashboard'])) {
+        // It's a totara dashboard. Do some magic mapping.
+        // If it's allowed/not allowed in my pages, its allowed on dashboards.
+        $formats['totara-dashboard'] = $formats['my'];
+    }
+
     foreach ($formats as $format => $allowed) {
         $formatregex = '/^'.str_replace('*', '[^-]*', $format).'.*$/';
         $depth = substr_count($format, '-');

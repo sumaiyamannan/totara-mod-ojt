@@ -66,8 +66,8 @@ class block_totara_dashboard extends block_base {
      */
     public function get_current_id() {
         global $PAGE;
-        if (substr($PAGE->pagetype, 0, 20) == 'my-totara-dashboard-') {
-            return (int)substr($PAGE->pagetype, 20);
+        if (strpos($PAGE->pagetype, 'totara-dashboard-') === 0) {
+            return (int)substr($PAGE->pagetype, strlen('totara-dashboard-'));
         }
         return false;
     }

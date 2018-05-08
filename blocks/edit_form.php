@@ -132,6 +132,7 @@ class block_edit_form extends moodleform {
                         // however this causes mod-data-view to be added if the only option available is mod-data-*
                         // so we are just showing a warning to users about their prev setting being reset.
                         $this->pagetypelist_warning = true;
+                        $this->pagetypelist_options[$currentpagetypepattern] = $currentpagetypepattern;
                     }
                 }
             }

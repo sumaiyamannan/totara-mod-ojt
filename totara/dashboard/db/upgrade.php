@@ -131,5 +131,60 @@ function xmldb_totara_dashboard_upgrade($oldversion) {
         totara_upgrade_mod_savepoint(true, 2016080501, 'totara_dashboard');
     }
 
+    if ($oldversion < 2016092001.00) {
+        // All dashboard blocks have been added to the wrong pagetype.
+        // Previously they were my-totara-dashboard-x, they are now totara-dashboard-x
+        // First up, take care of all basic dashboard blocks per dashboard. This will perform the best.
+
+        $rs = $DB->get_recordset('totara_dashboard', [], '', 'id');
+        foreach ($rs as $dashboard) {
+            // Update the block instances and positions for each dashboard.
+            $oldkey = 'my-totara-dashboard-' . $dashboard->id;
+            $newkey = 'totara-dashboard-' . $dashboard->id;
+            $DB->set_field('block_instances', 'pagetypepattern', $newkey, ['pagetypepattern' => $oldkey]);
+            $DB->set_field('block_positions', 'pagetype', $newkey, ['pagetype' => $oldkey]);
+        }
+        $rs->close();
+
+        upgrade_plugin_savepoint(true, 2016092001.00, 'totara', 'dashboard');
+    }
+
+    if ($oldversion < 2016092001.01) {
+        // All dashboard blocks have been added to the wrong pagetype.
+        // Previously they were my-totara-dashboard-x, they are now totara-dashboard-x
+        // Now deal with situations where the user has managed to move the block within the space.
+
+        // There should be none of these, but still, be very aware of it!
+        $rs = $DB->get_recordset_select(
+            'block_instances',
+            $DB->sql_like('pagetypepattern', ':key'),
+            ['key' => 'my-totara-dashboard-%'],
+            'id',
+            'id,pagetypepattern'
+        );
+        foreach ($rs as $row) {
+            $oldkey = $row->pagetypepattern;
+            $newkey = substr($row->pagetypepattern, 3);
+            $DB->set_field('block_instances', 'pagetypepattern', $newkey, ['pagetypepattern' => $oldkey]);
+        }
+        $rs->close();
+
+        $rs = $DB->get_recordset_select(
+            'block_positions',
+            $DB->sql_like('pagetype', ':key'),
+            ['key' => 'my-totara-dashboard-%'],
+            'id',
+            'id,pagetype'
+        );
+        foreach ($rs as $row) {
+            $oldkey = $row->pagetypepattern;
+            $newkey = substr($row->pagetypepattern, 3);
+            $DB->set_field('block_positions', 'pagetype', $newkey, ['pagetype' => $oldkey]);
+        }
+        $rs->close();
+
+        upgrade_plugin_savepoint(true, 2016092001.01, 'totara', 'dashboard');
+    }
+
     return true;
 }

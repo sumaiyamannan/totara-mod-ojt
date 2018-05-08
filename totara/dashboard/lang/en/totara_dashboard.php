@@ -70,6 +70,7 @@ $string['name'] = 'Name';
 $string['noavailabledashboards'] = 'No available dashboards found';
 $string['nodashboards'] = 'No dashboards';
 $string['options'] = 'Options';
+$string['pagetype-this-dashboard'] = 'This dashboard';
 $string['pluginname'] = 'Totara Dashboards';
 $string['publish'] = 'Publish';
 $string['resetalldashboard'] = 'Reset dashboard for all users';
