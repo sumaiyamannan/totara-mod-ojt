@@ -3,6 +3,84 @@
 
 Totara Learn Changelog
 
+Release 9.20 (14th May 2018):
+=============================
+
+
+Security issues:
+
+    TL-17382       Mustache str, pix, and flex helpers no longer support recursive helpers
+
+                   A serious security issue was found in the way in which the String, Pix
+                   icon, and Flex icon Mustache helpers processed variable data.
+                   An attacker could craft content that would use this parsing to instantiate
+                   unexpected helpers and allow them to access context data they should be
+                   able to access, and in some cases to allow them to get malicious JavaScript
+                   into pages viewed by other users.
+                   Failed attempts to get malicious JavaScript into the page could still lead
+                   to parsing issues, encoding issues, and JSON encoding issues. Some of which
+                   may lead to other exploits.
+
+                   To fix this all uses of these three mustache helpers in core code have been
+                   reviewed, and any uses of them that were using user data variables have
+                   been updated to ensure that they are secure.
+
+                   In this months Evergreen release and above the API for these three helpers has
+                   been revised. User data variables can no longer be used in Mustache
+                   template helpers.
+
+                   We strongly recommend all users review any customisations they have that
+                   make use of Mustache templates to ensure that any helpers being used don't
+                   make use of context data variables coming from user input.
+                   If you find helpers that are using variables containing user data we strongly
+                   recommend preparing new pre-resolved context variables in PHP or JavaScript
+                   and not passing that information through the helpers.
+
+    TL-17436       Added additional validation on caller component when exporting to portfolio
+    TL-17440       Added additional validation when exporting forum attachments using portfolio plugins
+    TL-17445       Added additional validation when exporting assignments using portfolio plugins
+    TL-17527       Seminar attendance can no longer be used to export sensitive user data
+
+                   Previously it was possible for a site administrator to configure Seminar
+                   attendance exports to contain sensitive user data, such as a user's hashed
+                   password. User fields containing sensitive data can no longer be included
+                   in Seminar attendance exports.
+
+Improvements:
+
+    TL-16958       Updated language strings to replace outdated references to system roles
+
+                   This issue is a follow up to TL-16582 with further updates to language
+                   strings to ensure any outdated references to systems roles are corrected
+                   and consistent, in particular changing student to learner and teacher to
+                   trainer.
+
+Bug fixes:
+
+    TL-6476        Removed the weekday-textual and month-textual options from the data source selector for report builder graphs
+
+                   The is_graphable() method was changed to return false for the
+                   weekday-textual and month-textual, stopping them from being selected in the
+                   data source of a graph. This will not change existing graphs that contain
+                   these fields, however if they are edited then a new data source will have
+                   to be chosen. You can still display the weekday or month in a data source
+                   by using the numeric form.
+
+    TL-15037       Fixed name_link display function of the "Event name" column for the site log report source
+
+                   The Event name (linked to event source) column in the Site Logs reporting
+                   source was not fully restoring the event data.
+
+    TL-17387       Fixed managers not being able to allocate reserved spaces when an event was fully booked
+    TL-17471       Fixed Google reCAPTCHA v2 for the "self registration with approval" authentication plugin
+    TL-17528       Removed some duplicated content from the audience member alert notification
+    TL-17535       Fixed hard-coded links to the community site that were not being redirected properly
+
+Contributions:
+
+    * Marcin Czarnecki at Kineo UK - TL-17387
+
+
 Release 9.19 (19th April 2018):
 ===============================
 

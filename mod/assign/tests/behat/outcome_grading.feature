@@ -94,7 +94,7 @@ Feature: Outcome grading
       | Assignment name | Test assignment name |
       | Description | Test assignment description |
       | assignsubmission_onlinetext_enabled | 1 |
-      | Students submit in groups | Yes |
+      | Learners submit in groups | Yes |
       | Group mode | No groups |
       | Outcome Test | 1 |
     And I log out

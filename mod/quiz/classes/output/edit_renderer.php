@@ -544,7 +544,7 @@ class edit_renderer extends \plugin_renderer_base {
 
         $actions['addasection'] = new \action_menu_link_secondary(
                 new \moodle_url($pageurl, $params),
-                new \pix_icon('t/add', $str->addasection, 'moodle', array('class' => 'iconsmall', 'title' => '')),
+                \core\output\flex_icon::get_icon('t/add', 'moodle', array('class' => 'iconsmall', 'title' => '', 'alt' => $str->addasection)),
                 $str->addasection, array('class' => 'cm-edit-action addasection', 'data-action' => 'addasection')
         );
 
@@ -556,12 +556,12 @@ class edit_renderer extends \plugin_renderer_base {
 
         $actions['addaquestion'] = new \action_menu_link_secondary(
             new \moodle_url('/question/addquestion.php', $params),
-            new \pix_icon('t/add', $str->addaquestion, 'moodle', array('class' => 'iconsmall', 'title' => '')),
+            \core\output\flex_icon::get_icon('t/add', 'moodle', array('class' => 'iconsmall', 'title' => '', 'alt' => $str->addaquestion)),
             $str->addaquestion, array('class' => 'cm-edit-action addquestion', 'data-action' => 'addquestion')
         );
 
         // Call question bank.
-        $icon = new \pix_icon('t/add', $str->questionbank, 'moodle', array('class' => 'iconsmall', 'title' => ''));
+        $icon = \core\output\flex_icon::get_icon('t/add', 'moodle', array('class' => 'iconsmall', 'title' => '', 'alt' => $str->questionbank));
         if ($page) {
             $title = get_string('addquestionfrombanktopage', 'quiz', $page);
         } else {
@@ -575,7 +575,7 @@ class edit_renderer extends \plugin_renderer_base {
         $returnurl = new \moodle_url('/mod/quiz/edit.php', array('cmid' => $structure->get_cmid(), 'data-addonpage' => $page));
         $params = array('returnurl' => $returnurl, 'cmid' => $structure->get_cmid(), 'appendqnumstring' => 'addarandomquestion');
         $url = new \moodle_url('/mod/quiz/addrandom.php', $params);
-        $icon = new \pix_icon('t/add', $str->addarandomquestion, 'moodle', array('class' => 'iconsmall', 'title' => ''));
+        $icon = \core\output\flex_icon::get_icon('t/add', 'moodle', array('class' => 'iconsmall', 'title' => '', 'alt' => $str->addarandomquestion));
         $attributes = array('class' => 'cm-edit-action addarandomquestion', 'data-action' => 'addarandomquestion');
         if ($page) {
             $title = get_string('addrandomquestiontopage', 'quiz', $page);

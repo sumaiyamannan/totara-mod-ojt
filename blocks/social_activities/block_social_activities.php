@@ -119,7 +119,7 @@ class block_social_activities extends block_list {
                     // Prepend list of actions with the 'move' action.
                     $actions = array('move' => new action_menu_link_primary(
                         new moodle_url('/course/mod.php', array('sesskey' => sesskey(), 'copy' => $mod->id)),
-                        new pix_icon('t/move', $strmove, 'moodle', array('class' => 'iconsmall', 'title' => '')),
+                        \core\output\flex_icon::get_icon('t/move', 'moodle', array('class' => 'iconsmall', 'title' => '', 'alt' => $strmove)),
                         $strmove
                     )) + $actions;
 

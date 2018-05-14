@@ -140,6 +140,11 @@ function totara_job_myprofile_navigation(\core_user\output\myprofile\tree $tree,
 
     $courseid = !empty($course->id) ? $course->id : null;
 
+    // Prep some icons for use later.
+    $icon_movedown = new \core\output\flex_icon('move-down');
+    $icon_moveup = new \core\output\flex_icon('move-up');
+    $icon_delete = new \core\output\flex_icon('delete');
+
     // A bit of a hack here.
     // We are going to display a list in a single node.
     // This is cheap and easy and works around the tragic design of the my profile navigation.
@@ -154,7 +159,26 @@ function totara_job_myprofile_navigation(\core_user\output\myprofile\tree $tree,
     $data->addurl = new moodle_url('/totara/job/jobassignment.php', array('userid' => $user->id));
     foreach (\totara_job\job_assignment::get_all($user->id) as $jobassignment) {
         $jobdata = $jobassignment->export_for_template($OUTPUT, $courseid);
+
+        // The reason that these icons are here and not in the job assignment template data is because
+        // the icons belong to the management template, and are not individually useful to the job.
+        $icon_movedown->customdata['alt'] = get_string('movedownxjobassignment', 'totara_job', $jobdata->fullname);
+        $icon_moveup->customdata['alt'] = get_string('moveupxjobassignment', 'totara_job', $jobdata->fullname);
+        $icon_delete->customdata['alt'] = get_string('deletexjobassignment', 'totara_job', $jobdata->fullname);
+
         $jobdata->canedit = $canedit;
+        $jobdata->icon_movedown = [
+            'template' => $icon_movedown->get_template(),
+            'context' => $icon_movedown->export_for_template($OUTPUT)
+        ];
+        $jobdata->icon_moveup = [
+            'template' => $icon_moveup->get_template(),
+            'context' => $icon_moveup->export_for_template($OUTPUT)
+        ];
+        $jobdata->icon_delete = [
+            'template' => $icon_delete->get_template(),
+            'context' => $icon_delete->export_for_template($OUTPUT)
+        ];
         $data->jobs[] = $jobdata;
         $data->hasjobs = true;
         $data->jobcount ++;

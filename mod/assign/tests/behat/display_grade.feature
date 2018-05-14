@@ -58,7 +58,7 @@ Feature: Check that the assignment grade can be updated correctly
       | Assignment name | Test assignment name |
       | Description | Test assignment description |
       | Use marking workflow | Yes |
-      | Students submit in groups | Yes |
+      | Learners submit in groups | Yes |
       | Group mode | No groups |
     When I follow "Test assignment name"
     Then I follow "View/grade all submissions"

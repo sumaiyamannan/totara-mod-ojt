@@ -28,8 +28,8 @@ Feature: A teacher can choose whether to publish choice activity results anonymo
       | Description | Choice Description |
       | option[0] | Option 1 |
       | option[1] | Option 2 |
-      | Publish results | Always show results to students |
-      | Privacy of results | Publish anonymous results, do not show student names |
+      | Publish results | Always show results to learners |
+      | Privacy of results | Publish anonymous results, do not show learner names |
     And I log out
     And I log in as "student1"
     And I follow "Course 1"
@@ -48,7 +48,7 @@ Feature: A teacher can choose whether to publish choice activity results anonymo
       | Description | Choice Description |
       | option[0] | Option 1 |
       | option[1] | Option 2 |
-      | Publish results | Always show results to students |
+      | Publish results | Always show results to learners |
       | Privacy of results | Publish full results, showing names and their choices |
     And I log out
     And I log in as "student1"

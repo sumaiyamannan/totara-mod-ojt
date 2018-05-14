@@ -1515,7 +1515,27 @@ class mod_facetoface_lib_testcase extends advanced_testcase {
     function test_facetoface_get_userfields() {
         $this->init_sample_data();
 
-        $this->assertTrue((bool)facetoface_get_userfields(), $this->msgtrue);
+        $data = facetoface_get_userfields();
+        $this->assertTrue((bool)$data, $this->msgtrue);
+
+        ksort($data);
+        $this->assertEquals(array(
+            'department',
+            'email',
+            'firstname',
+            'idnumber',
+            'institution',
+            'lastname',
+        ), array_keys($data));
+
+        // Test we can't export sensitive data.
+        set_config('facetoface_export_userprofilefields', 'lastname,firstname,password');
+
+        $data = facetoface_get_userfields(true);
+        $this->assertEquals(array(
+            'lastname',
+            'firstname',
+        ), array_keys($data));
     }
 
     function test_facetoface_get_user_custom_fields() {

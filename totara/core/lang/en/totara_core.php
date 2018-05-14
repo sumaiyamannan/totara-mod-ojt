@@ -24,7 +24,7 @@
  * these should be called like get_string('key', 'totara_core');
  */
 
-$string['activitycompletionunlockedtext'] = 'When you save changes, completion state for all students who have completed this activity will be erased. If you change your mind about this, do not save the form.';
+$string['activitycompletionunlockedtext'] = 'When you save changes, completion state for all learners who have completed this activity will be erased. If you change your mind about this, do not save the form.';
 $string['activitycompletionunlockednoresettext'] = 'Completion has been unlocked without deleting activity completion data. After this change different users may have received their completion status for different reasons.';
 $string['addanothercolumn'] = 'Add another column...';
 $string['allf2fbookings'] = 'All Seminar Bookings';
@@ -570,7 +570,7 @@ This information will allow Totara to better examine and resolve any support iss
 $string['totararegistrationlastsent'] = 'Data last sent to Totara';
 $string['totararegistrationsaved'] = 'Totara registration was updated';
 $string['totararelease'] = 'Totara release identifier';
-$string['totarareleaselink'] = 'See the <a href="https://totara.community/mod/forum/view.php?id=1834" target=\"_blank\">release notes</a> for more details.';
+$string['totarareleaselink'] = 'See the <a href="https://totara.community/mod/forum/view.php?id=7038" target=\"_blank\">release notes</a> for more details.';
 $string['totararequiredupgradeversion'] = 'Totara 2.2.13';
 $string['totarauniqueidnumbercheckfail'] = 'The following tables contain non-unique values in the column idnumber:<br/><br/>
 {$a}
@@ -660,7 +660,7 @@ $string['tempmanagers'] = 'Temporary managers';
 $string['tempmanagerselectionallusers'] = 'All users';
 $string['tempmanagerselectiononlymanagers'] = 'Only staff managers';
 $string['tempmanagersupporttext'] = ' Note, only current team managers can be selected.';
-$string['totaralearn'] = 'Totara Learn';
+$string['totaralearn'] = 'Totara';
 $string['totaralearnlink'] = '<a href="{$a->url}">{$a->totaralearn}</a>';
 $string['updatetemporarymanagerstask'] = 'Update temporary managers';
 // Deprecated in 10

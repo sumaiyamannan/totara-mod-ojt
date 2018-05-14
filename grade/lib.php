@@ -1771,10 +1771,12 @@ class grade_structure {
         ));
 
         if ($returnactionmenulink) {
-            return new action_menu_link_secondary($gpr->add_url_params($url), new pix_icon('t/reset', $str),
+            return new action_menu_link_secondary(
+                $gpr->add_url_params($url),
+                \core\output\flex_icon::get_icon('t/reset', 'core', array('alt' => $str)),
                 get_string('resetweightsshort', 'grades'));
         } else {
-            return $OUTPUT->action_icon($gpr->add_url_params($url), new pix_icon('t/reset', $str));
+            return $OUTPUT->action_icon($gpr->add_url_params($url), \core\output\flex_icon::get_icon('t/reset', 'core', array('alt' => $str)));
         }
     }
 
@@ -1849,10 +1851,10 @@ class grade_structure {
         if ($url) {
             if ($returnactionmenulink) {
                 return new action_menu_link_secondary($gpr->add_url_params($url),
-                    new pix_icon('t/edit', $stredit),
+                    \core\output\flex_icon::get_icon('t/edit', 'core', array('alt' => $stredit)),
                     get_string('editsettings'));
             } else {
-                return $OUTPUT->action_icon($gpr->add_url_params($url), new pix_icon('t/edit', $stredit));
+                return $OUTPUT->action_icon($gpr->add_url_params($url), \core\output\flex_icon::get_icon('t/edit', 'core', array('alt' => $stredit)));
             }
 
         } else {
@@ -1901,17 +1903,17 @@ class grade_structure {
             $url->param('action', 'show');
 
             if ($returnactionmenulink) {
-                $hideicon = new action_menu_link_secondary($url, new pix_icon('t/'.$type, $tooltip), get_string('show'));
+                $hideicon = new action_menu_link_secondary($url, \core\output\flex_icon::get_icon('t/'.$type, 'core', array('alt' => $tooltip)), get_string('show'));
             } else {
-                $hideicon = $OUTPUT->action_icon($url, new pix_icon('t/'.$type, $tooltip, 'moodle', array('alt'=>$strshow, 'class'=>'smallicon')));
+                $hideicon = $OUTPUT->action_icon($url, \core\output\flex_icon::get_icon('t/'.$type, 'moodle', array('alt'=>$strshow, 'class'=>'smallicon')));
             }
 
         } else {
             $url->param('action', 'hide');
             if ($returnactionmenulink) {
-                $hideicon = new action_menu_link_secondary($url, new pix_icon('t/hide', $strhide), get_string('hide'));
+                $hideicon = new action_menu_link_secondary($url, \core\output\flex_icon::get_icon('t/hide', 'core', array('alt' => $strhide)), get_string('hide'));
             } else {
-                $hideicon = $OUTPUT->action_icon($url, new pix_icon('t/hide', $strhide));
+                $hideicon = $OUTPUT->action_icon($url, \core\output\flex_icon::get_icon('t/hide', 'core', array('alt' => $strhide)));
             }
         }
 
@@ -2011,10 +2013,10 @@ class grade_structure {
                 $url = $gpr->add_url_params($url);
                 if ($returnactionmenulink) {
                     return new action_menu_link_secondary($url,
-                        new pix_icon($icon, $streditcalculation),
+                        \core\output\flex_icon::get_icon($icon, 'core', array('alt' => $streditcalculation)),
                         get_string('editcalculation', 'grades'));
                 } else {
-                    return $OUTPUT->action_icon($url, new pix_icon($icon, $streditcalculation));
+                    return $OUTPUT->action_icon($url, \core\output\flex_icon::get_icon($icon, 'core', array('alt' => $streditcalculation)));
                 }
             }
         }

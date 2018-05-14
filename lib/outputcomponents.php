@@ -3900,11 +3900,10 @@ class action_menu implements renderable {
             $linkclasses[] = 'textmenu';
         } else {
             $title = new lang_string('actions', 'moodle');
-            $this->actionicon = new pix_icon(
+            $this->actionicon = \core\output\flex_icon::get_icon(
                 't/edit_menu',
-                $title,
                 'moodle',
-                array('class' => 'iconsmall actionmenu', 'title' => '')
+                array('class' => 'iconsmall actionmenu', 'title' => '', 'alt' => $title)
             );
             $pixicon = $this->actionicon;
         }

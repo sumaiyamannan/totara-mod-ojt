@@ -178,9 +178,9 @@ Feature: auth_approved: signup workflow
     And the field "Organisation free text" matches value "Secret Service MI5"
     And the field "Position free text" matches value "Spy (First class)"
     And the field "Manager free text" matches value "M (Judi Dench)"
-    And I should see "Choose organisation"
-    And I should see "Choose position"
-    And I should see "Choose manager"
+    And ".mform [value='Choose organisation']" "css_element" should exist
+    And ".mform [value='Choose position']" "css_element" should exist
+    And ".mform [value='Choose manager']" "css_element" should exist
 
     # Successful signup outcome #2: audit trail created.
     When I press "Cancel"

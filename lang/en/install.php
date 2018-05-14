@@ -83,7 +83,7 @@ $string['directorysettings'] = '<p>Please confirm the locations of this Totara i
 <p><b>Web address:</b>
 Specify the full web address where Totara will be accessed.  
 If your web site is accessible via multiple URLs then choose the 
-most natural one that your students would use.  Do not include 
+most natural one that your learners would use.  Do not include 
 a trailing slash.</p>
 
 <p><b>Totara directory:</b>
@@ -99,7 +99,7 @@ $string['directorysettingshead'] = 'Please confirm the locations of this Totara 
 $string['directorysettingssub'] = '<b>Web address:</b>
 Specify the full web address where Totara will be accessed.  
 If your web site is accessible via multiple URLs then choose the 
-most natural one that your students would use.  Do not include 
+most natural one that your learners would use.  Do not include 
 a trailing slash.
 <br />
 <br />

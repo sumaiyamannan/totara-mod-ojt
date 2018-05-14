@@ -187,6 +187,7 @@ class block_current_learning extends block_base {
         } else {
             $rollink = new moodle_url('/totara/plan/record/index.php', array('userid' => $USER->id));
             $contextdata['rollink'] = $rollink->out();
+            $contextdata['nocurrentlearning_rol_link'] = get_string('nocurrentlearning', 'block_current_learning', $contextdata['rollink']);
         }
 
         $core_renderer = $this->page->get_renderer('core');

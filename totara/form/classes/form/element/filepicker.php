@@ -223,6 +223,9 @@ class filepicker extends element {
             $attributes['maxbytes'] = $maxbytes;
             $attributes['fpoptions'] = json_encode($fpoptions);
             $attributes['displaymaxsize'] = ($maxbytes == -1) ? false : display_size($maxbytes);
+            if ($attributes['displaymaxsize']) {
+                $attributes['displaymaxsize_string'] = get_string('maxfilesize', 'core', s($attributes['displaymaxsize']));
+            }
             $attributes['currentfile'] = $fpoptions->currentfile;
             $attributes['client_id'] = $fpoptions->client_id;
         }

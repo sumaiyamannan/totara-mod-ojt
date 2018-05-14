@@ -22,7 +22,7 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-$string['description'] = 'Allow only students who belong to a group within a specified grouping.';
+$string['description'] = 'Allow only learners who belong to a group within a specified grouping.';
 $string['error_selectgrouping'] = 'You must select a grouping.';
 $string['missing'] = '(Missing grouping)';
 $string['pluginname'] = 'Restriction by grouping';

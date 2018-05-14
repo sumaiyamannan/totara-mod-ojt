@@ -68,7 +68,7 @@ $string['addnewapp'] = 'Enable external application';
 $string['addserver'] = 'Add new trusted server';
 $string['addtype'] = 'Add external tool configuration';
 $string['allow'] = 'Allow';
-$string['allowinstructorcustom'] = 'Allow teachers to add custom parameters';
+$string['allowinstructorcustom'] = 'Allow trainers to add custom parameters';
 $string['allowsetting'] = 'Allow tool to store 8K of settings in Totara';
 $string['always'] = 'Always';
 $string['automatic'] = 'Automatic, based on launch URL';
@@ -123,7 +123,7 @@ real estate to the tool, and others provide a more integrated feel with the Tota
 * **Embed**: The tool is displayed within the existing Totara window, in a manner similar to most other activity types.
 * **Embed, without blocks**: The tool is displayed within the existing Totara window, with just the navigation controls at the top of the page.
 * **New window**: The tool opens in a new window, occupying all the available space. Depending on the browser, it will open in a new tab or a popup window. It is possible that browsers will prevent the new window from opening.';
-$string['delegate'] = 'Delegate to teacher';
+$string['delegate'] = 'Delegate to trainer';
 $string['delete'] = 'Delete';
 $string['delete_confirmation'] = 'Are you sure you want to delete this external tool configuration?';
 $string['deletetype'] = 'Delete external tool configuration';

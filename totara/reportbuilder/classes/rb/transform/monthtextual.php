@@ -31,4 +31,8 @@ class monthtextual extends month {
     public static function get_displayfunc(\rb_column $column) {
         return 'monthtextual';
     }
+
+    public static function is_graphable(\rb_column $column, \rb_column_option $option, \reportbuilder $report) {
+        return false;
+    }
 }

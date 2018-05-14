@@ -87,7 +87,7 @@ Feature: link to gradebook on the end of lesson page
     Given I follow "Course 1"
     And I click on "Edit settings" "link" in the "Administration" "block"
     And I set the following fields to these values:
-      | Show gradebook to students | No |
+      | Show gradebook to learners | No |
     And I press "Save and display"
     And I log out
     When I log in as "student1"

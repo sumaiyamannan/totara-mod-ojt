@@ -23,7 +23,7 @@
  */
 
 $string['aftersaving...'] = 'Once you have saved your settings, you may wish to';
-$string['allowunenrol'] = 'Allow the IMS data to <strong>unenrol</strong> students/teachers';
+$string['allowunenrol'] = 'Allow the IMS data to <strong>unenrol</strong> learners/trainers';
 $string['allowunenrol_desc'] = 'If enabled, course enrolments will be removed when specified in the Enterprise data.';
 $string['basicsettings'] = 'Basic settings';
 $string['coursesettings'] = 'Course data options';
@@ -58,7 +58,7 @@ $string['miscsettings'] = 'Miscellaneous';
 $string['pluginname'] = 'IMS Enterprise file';
 $string['pluginname_desc'] = 'This method will repeatedly check for and process a specially-formatted text file in the location that you specify.  The file must follow the IMS Enterprise specifications containing person, group, and membership XML elements.';
 $string['processphoto'] = 'Add user photo data to profile';
-$string['processphotowarning'] = 'Warning: Image processing is likely to add a significant burden to the server. You are recommended not to activate this option if large numbers of students are expected to be processed.';
+$string['processphotowarning'] = 'Warning: Image processing is likely to add a significant burden to the server. You are recommended not to activate this option if large numbers of learners are expected to be processed.';
 $string['restricttarget'] = 'Only process data if the following target is specified';
 $string['restricttarget_desc'] = 'An IMS Enterprise data file could be intended for multiple "targets" - different LMSes, or different systems within a school/university. It\'s possible to specify in the Enterprise file that the data is intended for one or more named target systems, by naming them in <target> tags contained within the <properties> tag.
 
@@ -72,11 +72,11 @@ $string['settingsummarydescription'] = 'Is an optional field, select \'Leave it 
 $string['sourcedidfallback'] = 'Use the &quot;sourcedid&quot; for a person\'s userid if the &quot;userid&quot; field is not found';
 $string['sourcedidfallback_desc'] = 'In IMS data, the <sourcedid> field represents the persistent ID code for a person as used in the source system. The <userid> field is a separate field which should contain the ID code used by the user when logging in. In many cases these two codes may be the same - but not always.
 
-Some student information systems fail to output the <userid> field. If this is the case, you should enable this setting to allow for using the <sourcedid> as the Totara user ID. Otherwise, leave this setting disabled.';
+Some learner information systems fail to output the <userid> field. If this is the case, you should enable this setting to allow for using the <sourcedid> as the Totara user ID. Otherwise, leave this setting disabled.';
 $string['truncatecoursecodes'] = 'Truncate course codes to this length';
 $string['truncatecoursecodes_desc'] = 'In some situations you may have course codes which you wish to truncate to a specified length before processing. If so, enter the number of characters in this box. Otherwise, leave the box blank and no truncation will occur.';
 $string['usecapitafix'] = 'Tick this box if using &quot;Capita&quot; (their XML format is slightly wrong)';
-$string['usecapitafix_desc'] = 'The student data system produced by Capita has been found to have one slight error in its XML output. If you are using Capita you should enable this setting - otherwise leave it un-ticked.';
+$string['usecapitafix_desc'] = 'The learner data system produced by Capita has been found to have one slight error in its XML output. If you are using Capita you should enable this setting - otherwise leave it un-ticked.';
 $string['usersettings'] = 'User data options';
 $string['zeroisnotruncation'] = '0 indicates no truncation';
 $string['roles'] = 'Roles';

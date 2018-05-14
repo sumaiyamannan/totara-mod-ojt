@@ -106,7 +106,7 @@ Feature: Rubrics can be created and edited
     And I click on "Move down" "button" in the "Criterion 2" "table_row"
     And I replace "1" rubric level with "11" in "Criterion 1" criterion
     And I press "Save"
-    And I should see "You are about to save significant changes to a rubric that has already been used for grading. The gradebook value will be unchanged, but the rubric will be hidden from students until their item is regraded."
+    And I should see "You are about to save significant changes to a rubric that has already been used for grading. The gradebook value will be unchanged, but the rubric will be hidden from learners until their item is regraded."
     And I press "Continue"
     And I log out
     # Check that the student doesn't see the grade.
@@ -121,7 +121,7 @@ Feature: Rubrics can be created and edited
     And I follow "Course 1"
     And I follow "Test assignment 1 name"
     And I go to "Student 1" "Test assignment 1 name" activity advanced grading page
-    And I should see "The rubric definition was changed after this student had been graded. The student can not see this rubric until you check the rubric and update the grade."
+    And I should see "The rubric definition was changed after this learner had been graded. The learner can not see this rubric until you check the rubric and update the grade."
     And I save the advanced grading form
     And I log out
     # Check that the student sees the grade again.

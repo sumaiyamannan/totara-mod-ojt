@@ -82,7 +82,7 @@ Feature: Add - Remove manager reservations in Seminar
     And I click on "Sam2 Student2" "option"
     And I press "Remove"
     And I click on "Test Seminar name" "link"
-    And I should see "Allocate spaces for team (1/1)"
+    And I should see "Allocate spaces for team (1/2)"
     And I should see "Reserve spaces for team (1/1)"
 
   Scenario: Confirm correct message when other manager cannot have reservations
