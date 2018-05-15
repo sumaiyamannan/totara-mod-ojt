@@ -38,7 +38,8 @@ class learning_plan_helper {
      * @return int|array
      */
     public static function get_affected_users(learning_plan_config $config, $countonly = false) {
-        global $DB;
+        global $DB, $CFG;
+        require_once("$CFG->dirroot/totara/cohort/lib.php");
 
         // Calculate the number of affected users.
         if ($countonly === true) {

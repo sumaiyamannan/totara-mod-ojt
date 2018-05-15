@@ -1424,32 +1424,38 @@ class dp_competency_component extends dp_base_component {
         $includecompleted = $this->get_setting('includecompleted');
 
         require_once($CFG->dirroot.'/totara/hierarchy/prefix/position/lib.php');
-        // Get primary position
-        $jobassignment = \totara_job\job_assignment::get_first($this->plan->userid);
-        $organisationid = $jobassignment->organisationid;
-        if (empty($organisationid)) {
-            // No organisation assigned to the primary position, so just go away
+        require_once($CFG->dirroot.'/totara/hierarchy/prefix/organisation/lib.php');
+
+        // Get job assignments.
+        $jobassignments = \totara_job\job_assignment::get_all($this->plan->userid);
+        if (empty($jobassignments)) {
             return true;
         }
 
-        require_once($CFG->dirroot.'/totara/hierarchy/prefix/organisation/lib.php');
         $org = new organisation();
-        if ($includecompleted) {
-            $competencies = $org->get_assigned_competencies($organisationid);
-        } else {
-            $completed_competency_ids = competency::get_user_completed_competencies($this->plan->userid);
-            $competencies = $org->get_assigned_competencies($organisationid, 0, $completed_competency_ids);
-        }
+        foreach ($jobassignments as $jobassignment) {
+            $organisationid = $jobassignment->organisationid;
+            if (empty($organisationid)) {
+                continue;
+            }
 
-        if ($competencies) {
-            $relation = array('component' => 'organisation', 'id' => $organisationid);
-            if ($this->auto_assign_competencies($competencies, false, $relation)) {
-                // assign courses
-                if ($includecourses) {
-                    $this->assign_linked_courses($competencies, false);
-                }
+            if ($includecompleted) {
+                $competencies = $org->get_assigned_competencies($organisationid);
             } else {
-                return false;
+                $completed_competency_ids = competency::get_user_completed_competencies($this->plan->userid);
+                $competencies = $org->get_assigned_competencies($organisationid, 0, $completed_competency_ids);
+            }
+
+            if ($competencies) {
+                $relation = array('component' => 'organisation', 'id' => $organisationid);
+                if ($this->auto_assign_competencies($competencies, false, $relation)) {
+                    // assign courses
+                    if ($includecourses) {
+                        $this->assign_linked_courses($competencies, false);
+                    }
+                } else {
+                    return false;
+                }
             }
         }
 
