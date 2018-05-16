@@ -122,6 +122,15 @@ M.totara_completionrpl = M.totara_completionrpl || {
             // Trigger the save/hide for any other open input groups
             fnc_savehide();
 
+            // Get table cell
+            var cell = $(this).parent('td');
+            // If RPL exists in a cell, just show one value and exit.
+            if (cell.length) {
+                $('a.rplshow', cell).hide();
+                $('span.rplvalue', cell).show();
+                return;
+            }
+
             // Get rpl type
             var type = fnc_rpltype($(this).parent());
 
@@ -269,9 +278,9 @@ M.totara_completionrpl = M.totara_completionrpl || {
                 input.focus();
             }
 
-        }
-        $('a.rpledit, a.rplshow').click(fnc_edit);
-
+        };
+        $('a.rpledit').on('click', fnc_edit);
+        $('a.rplshow').on('click', fnc_expand);
 
         // Trigger the save/hide for any other open input groups
         var fnc_savehide = function() {

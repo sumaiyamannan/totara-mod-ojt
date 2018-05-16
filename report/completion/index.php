@@ -122,6 +122,7 @@ function show_rpl_readonly($rpl, $describe) {
 
     if (!empty($rpl)) {
         print $OUTPUT->flex_icon('completion-rpl-y', ['classes' => 'ft-size-300', 'alt' => $describe]);
+        print '<a href="#" class="rplshow" title="'.get_string('showrpl', 'completion').'">...</a>';
         print '<span class="rplvalue">' . format_string($rpl) . '</span>';
     }
 }
