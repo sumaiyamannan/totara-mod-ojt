@@ -47,6 +47,7 @@ $string['appraisal:manageactivation'] = 'Manage activation of appraisal';
 $string['appraisal:managepageelements'] = 'Manage page elements';
 $string['appraisal:printstaffappraisals'] = 'Print staff appraisals';
 $string['appraisal:viewownappraisals'] = 'View own appraisals';
+$string['appraisal:viewallappraisals'] = 'View full details of all appraisals';
 $string['appraisal:printownappraisals'] = 'Print own appraisals';
 $string['appraisal'] = 'Appraisal';
 $string['appraisalcreated'] = 'Appraisal Created';

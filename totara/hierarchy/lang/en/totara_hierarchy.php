@@ -848,6 +848,7 @@ $string['hierarchy:updateposition'] = 'Update a position';
 $string['hierarchy:updatepositiondepth'] = 'Update a position depth';
 $string['hierarchy:updatepositionframeworks'] = 'Update a position framework';
 $string['hierarchy:updatepositiontype'] = 'Update a position type';
+$string['hierarchy:viewallgoals'] = 'View all goals';
 $string['hierarchy:viewcompetency'] = 'View a competency';
 $string['hierarchy:viewcompetencyframeworks'] = 'View competency frameworks';
 $string['hierarchy:viewcompetencyscale'] = 'View competency scales';
