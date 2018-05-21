@@ -223,9 +223,9 @@ The details of any rooms used for the session can also be added to the notificat
 
 ### 4.2. Room custom fields for each session
 
-In addition to the above room custom field information for each session can be added to the notification by using the following placeholder, replacing "placeholder" with the shortname for the custom field.
+In addition to the above, room custom field information for each session can be added to the notification by using the following placeholder, replacing "placeholder" with the shortname for the custom field.
 
-    [session:room:placeholder]
+    [session:room:cf_placeholder]
 
 For example if you have a room custom field with the shortname "building", to use the value recorded in the custom field in the notification body you would use the placeholder [session:room:building].
 
