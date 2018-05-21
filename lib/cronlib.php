@@ -54,9 +54,6 @@ function cron_run() {
     // Increase memory limit
     raise_memory_limit(MEMORY_EXTRA);
 
-    // Emulate normal session - we use admin accoutn by default
-    cron_setup_user();
-
     // Start output log
     $timenow  = time();
     mtrace("Server Time: ".date('r', $timenow)."\n\n");
@@ -64,6 +61,10 @@ function cron_run() {
     // Run all scheduled tasks.
     while (!\core\task\manager::static_caches_cleared_since($timenow) &&
            $task = \core\task\manager::get_next_scheduled_task($timenow)) {
+
+        // Emulate normal session - we use admin account by default
+        cron_setup_user();
+
         $fullname = $task->get_name() . ' (' . get_class($task) . ')';
         mtrace('Execute scheduled task: ' . $fullname);
         cron_trace_time_and_memory();
@@ -116,6 +117,10 @@ function cron_run() {
     // Run all adhoc tasks.
     while (!\core\task\manager::static_caches_cleared_since($timenow) &&
            $task = \core\task\manager::get_next_adhoc_task($timenow)) {
+
+        // Emulate normal session - we use admin account by default
+        cron_setup_user();
+
         mtrace("Execute adhoc task: " . get_class($task));
         cron_trace_time_and_memory();
         $predbqueries = null;
