@@ -4190,6 +4190,57 @@ class appraisal_question extends question_storage {
         return $questionrs;
     }
 
+    /**
+     * MySQL only: Calculate if we are (close to) hitting the internal row size limit
+     * when creating mdl_appraisal_quest_data_* table for this appraisal.
+     *
+     * For MySQL the *internal* storage of one row is usually limited to a bit less
+     * than 8KB and creating a table e.g. with 190 columns of type LONGTEXT will just
+     * exceed that because of minimum bytes required for pointers to external storage
+     * of row data etc.
+     *
+     * We try to find out if the questions in this appraisal are coming close to
+     * causing a row size limit error, so we can give a warning.
+     *
+     * The mentioned 8KB limit can be adjusted by changing MySQL config innodb_page_size
+     * but this is rarely done and given that this is a rare problem anyway, we assume
+     * the default configuration. If cases occur where this is not accurate enough,
+     * this calculation could be refined by taking non-default config into account.
+     *
+     * @param int $appraisalid
+     * @param int $max_bytes  Mainly for testing purposes. Defaults to 8000.
+     * @return bool
+     */
+    public static function has_too_many_questions($appraisalid, $max_bytes = 8000) {
+        global $DB;
+
+        if ($DB->get_dbfamily() != 'mysql') {
+            // We haven't had problems with hitting limits on pgsql or sqlsrv yet.
+            return false;
+        }
+
+        $map_type_to_row_bytes = [
+            'text' => 43, // Text
+            'datepicker' => 11, // Integer
+            'fileupload' => 11,
+            'longtext' => 65, // Text + 2*Integer
+            'multichoicemulti' => 11,
+            'multichoicesingle' => 11,
+            'ratingcustom' => 54, // Text + Integer
+            'ratingnumeric' => 11,
+        ];
+
+        $estimated_bytes = 0;
+        $questions = self::fetch_appraisal($appraisalid);
+        foreach ($questions as $question) {
+            if (isset($map_type_to_row_bytes[$question->datatype])) {
+                $estimated_bytes += $map_type_to_row_bytes[$question->datatype];
+            }
+        }
+
+        return ($estimated_bytes > $max_bytes);
+    }
+
 
     /**
      * Get list of questions and count the number of redisplay items pointing to it.
