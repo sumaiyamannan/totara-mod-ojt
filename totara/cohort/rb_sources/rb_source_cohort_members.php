@@ -103,7 +103,7 @@ class rb_source_cohort_members extends rb_base_source {
         );
 
         $this->add_user_table_to_joinlist($joinlist, 'base', 'userid');
-        $this->add_job_assignment_tables_to_joinlist($joinlist, 'base', 'userid');
+        $this->add_job_assignment_tables_to_joinlist($joinlist, 'base', 'userid', 'INNER');
 
         return $joinlist;
     }

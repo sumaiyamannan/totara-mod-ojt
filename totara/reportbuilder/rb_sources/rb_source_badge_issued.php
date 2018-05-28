@@ -94,7 +94,7 @@ class rb_source_badge_issued extends rb_base_source {
         // Requires the course join.
         $this->add_course_category_table_to_joinlist($joinlist,
             'course', 'category');
-        $this->add_job_assignment_tables_to_joinlist($joinlist, 'base', 'userid');
+        $this->add_job_assignment_tables_to_joinlist($joinlist, 'base', 'userid', 'INNER');
         $this->add_tag_tables_to_joinlist('course', $joinlist, 'badge', 'courseid');
         $this->add_cohort_user_tables_to_joinlist($joinlist, 'base', 'userid');
         $this->add_cohort_course_tables_to_joinlist($joinlist, 'badge', 'courseid');

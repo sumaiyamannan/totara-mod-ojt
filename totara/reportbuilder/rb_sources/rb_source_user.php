@@ -153,7 +153,7 @@ class rb_source_user extends rb_base_source {
         );
 
         $this->add_user_table_to_joinlist($joinlist, 'base', 'id');
-        $this->add_job_assignment_tables_to_joinlist($joinlist, 'base', 'id');
+        $this->add_job_assignment_tables_to_joinlist($joinlist, 'base', 'id', 'INNER');
         $this->add_cohort_user_tables_to_joinlist($joinlist, 'base', 'id');
 
         return $joinlist;
