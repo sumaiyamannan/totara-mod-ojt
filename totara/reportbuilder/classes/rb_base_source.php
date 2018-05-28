@@ -3849,7 +3849,7 @@ abstract class rb_base_source {
 
         $joinlist[] = new rb_join(
             'alljobfields',
-            'LEFT',
+            'INNER',
             $jobfieldlistsubsql,
             "alljobfields.jfid = {$join}.{$field}",
             REPORT_BUILDER_RELATION_ONE_TO_MANY,
@@ -3879,7 +3879,7 @@ abstract class rb_base_source {
 
         $joinlist[] = new rb_join(
             'manallfields',
-            'LEFT',
+            'INNER',
             $manlistsubsql,
             "manallfields.manlistid = {$join}.{$field}",
             REPORT_BUILDER_RELATION_ONE_TO_MANY,
@@ -3909,7 +3909,7 @@ abstract class rb_base_source {
 
         $joinlist[] = new rb_join(
             'posallfields',
-            'LEFT',
+            'INNER',
             $poslistsubsql,
             "posallfields.poslistid = {$join}.{$field}",
             REPORT_BUILDER_RELATION_ONE_TO_MANY,
@@ -3939,7 +3939,7 @@ abstract class rb_base_source {
 
         $joinlist[] = new rb_join(
             'orgallfields',
-            'LEFT',
+            'INNER',
             $orglistsubsql,
             "orgallfields.orglistid = {$join}.{$field}",
             REPORT_BUILDER_RELATION_ONE_TO_MANY,
@@ -3960,7 +3960,7 @@ abstract class rb_base_source {
 
         $joinlist[] = new rb_join(
             'appallfields',
-            'LEFT',
+            'INNER',
             $applistsubsql,
             "appallfields.applistid = {$join}.{$field}",
             REPORT_BUILDER_RELATION_ONE_TO_MANY,
