@@ -93,6 +93,7 @@ class mod_forum_renderer extends plugin_renderer_base {
         $output .= html_writer::end_tag('div');
 
         $output .= html_writer::tag('div', $potentialuc->display(true), array('class' => 'span5'));
+        $output .= html_writer::end_tag('div');
 
         $output .= html_writer::end_tag('form');
         return $output;
