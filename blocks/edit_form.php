@@ -404,6 +404,14 @@ class block_edit_form extends moodleform {
         } else {
             $defaults->bui_contexts = $defaults->bui_showinsubcontexts;
         }
+        // Default context may be set to value that not allowed anymore. For example when "All pages" page
+        // pattern was previously selected, bui_contexts will be set to 1, while it is not allowed option for course page.
+        // Default context must be set to allowed context.
+        // Especially when user has no options (e.g. when field is hidden).
+        $allowedbuicontexts = $this->get_context_options();
+        if (count($allowedbuicontexts) == 1) {
+            $defaults->bui_contexts = array_keys($allowedbuicontexts)[0];
+        }
 
         parent::set_data($defaults);
     }
@@ -422,7 +430,7 @@ class block_edit_form extends moodleform {
         // pagetypepattern needs to be validated because it is sometimes a select and sometimes hidden.
         if (empty($errors['bui_pagetypepattern'])) {
             $options = $this->get_pagetypelist_options();
-            if (!isset($options[$data['bui_pagetypepattern']])) {
+            if (!isset($options[$data['bui_pagetypepattern']]) && !isset($options['*'])) {
                 // Literally they hacked it, no special message here. They won't see it as the element is hidden.
                 debugging('Unexpected bui_pagetypepattern provided '.$data['bui_pagetypepattern'], DEBUG_DEVELOPER);
                 $errors['bui_pagetypepattern'] = get_string('error', 'error');
