@@ -260,7 +260,7 @@ switch($action) {
         if (appraisal::is_draft($stage->appraisalid)) {
             // Display a warning if there are too many questions.
             if (appraisal_question::has_too_many_questions($stage->appraisalid)) {
-                echo '<p class="alert">' .
+                echo '<p>' .
                     $output->pix_icon('i/warning', '') . ' ' .
                     get_string('toomanyquestionswarning', 'totara_appraisal') .
                     $output->help_icon('toomanyquestions', 'totara_appraisal', null) .
