@@ -249,12 +249,12 @@
 
 // The headers need to be an appropriate size for
 // use within the block so use the standard font size.
-.block .content h1,
-.block .content h2,
-.block .content h3,
-.block .content h4,
-.block .content h5,
-.block .content h6 {
+:not(.block_html).block .content h1,
+:not(.block_html).block .content h2,
+:not(.block_html).block .content h3,
+:not(.block_html).block .content h4,
+:not(.block_html).block .content h5,
+:not(.block_html).block .content h6 {
   font-size: @font-size-base;
   margin-top: 0;
   margin-bottom: (@line-height-computed / 2);
