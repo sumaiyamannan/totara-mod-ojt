@@ -66,7 +66,7 @@ class course extends core_course {
     public function export_for_template() {
         global $CFG;
         $data = parent::export_for_template();
-        if (!empty($CFG->audiencevisibility) && isset($this->get_owner()->id) && $this->learningitemrecord->audiencevisible != COHORT_VISIBLE_NOUSERS) {
+        if (!empty($CFG->audiencevisibility) && $this->has_owner() && $this->learningitemrecord->audiencevisible != COHORT_VISIBLE_NOUSERS) {
             $url = new \moodle_url(
                 '/totara/program/required.php',
                 array('id' => $this->get_owner()->id, 'cid' => $this->id, 'sesskey' => sesskey())
