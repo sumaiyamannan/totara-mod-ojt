@@ -1635,7 +1635,9 @@ function get_request_storage_directory($exceptiononerror = true) {
 
         if ($requestdir = make_unique_writable_directory($CFG->localcachedir, $exceptiononerror)) {
             // Register a shutdown handler to remove the directory.
-            \core_shutdown_manager::register_function('remove_dir', array($requestdir));
+            if (!PHPUNIT_TEST) {
+                \core_shutdown_manager::register_function('remove_dir', array($requestdir));
+            }
         }
     }
 
