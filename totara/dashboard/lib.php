@@ -424,7 +424,7 @@ class totara_dashboard {
                 ORDER BY bi.id";
         $params = array(
             'parentcontextid' => $context->id,
-            'pagetypepattern' => 'my-totara-dashboard-' . $this->id
+            'pagetypepattern' => 'totara-dashboard-' . $this->id
         );
         $blockinstances = $DB->get_records_sql($sql, $params);
         if ($blockinstances) {
@@ -432,7 +432,7 @@ class totara_dashboard {
                 // Clone block record.
                 $block = new stdClass();
                 // Amend the page type pattern to the newly cloned dashboard.
-                $block->pagetypepattern = 'my-totara-dashboard-' . $dashboard->id;
+                $block->pagetypepattern = 'totara-dashboard-' . $dashboard->id;
                 $block->blockname = $bi->blockname;
                 $block->parentcontextid = $bi->parentcontextid;
                 $block->showinsubcontexts = $bi->showinsubcontexts;
@@ -544,7 +544,7 @@ class totara_dashboard {
 
         // Copy instances.
         $blockinstances = $DB->get_records('block_instances', array('parentcontextid' => $systemcontext->id,
-                                                                    'pagetypepattern' => 'my-totara-dashboard-' . $this->id,
+                                                                    'pagetypepattern' => 'totara-dashboard-' . $this->id,
                                                                     'subpagepattern' => 'default'));
         $clonedids = array();
         foreach ($blockinstances as $instance) {
@@ -562,7 +562,7 @@ class totara_dashboard {
         // Copy positions of system blocks.
         $blockpositions = $DB->get_records('block_positions', array(
             'contextid' => $systemcontext->id,
-            'pagetype' => 'my-totara-dashboard-' . $this->id,
+            'pagetype' => 'totara-dashboard-' . $this->id,
             'subpage' => 'default'
         ));
         if (!empty($blockpositions)) {
@@ -595,7 +595,7 @@ class totara_dashboard {
             $context = context_user::instance($userid, IGNORE_MISSING);
             if ($context) {
                 if ($blocks = $DB->get_records('block_instances', array('parentcontextid' => $context->id,
-                        'pagetypepattern' => 'my-totara-dashboard-' . $this->id))) {
+                        'pagetypepattern' => 'totara-dashboard-' . $this->id))) {
                     foreach ($blocks as $block) {
                         if (is_null($block->subpagepattern) || $block->subpagepattern == $pageid) {
                             blocks_delete_instance($block);
@@ -604,7 +604,7 @@ class totara_dashboard {
                 }
                 $DB->delete_records('block_positions', array(
                     'contextid' => $context->id,
-                    'pagetype' => 'my-totara-dashboard-' . $this->id,
+                    'pagetype' => 'totara-dashboard-' . $this->id,
                     'subpage' => $pageid
                 ));
             }
@@ -636,7 +636,7 @@ class totara_dashboard {
         $page = new moodle_page();
         $page->set_context(context_system::instance());
         $page->set_pagelayout('dashboard');
-        $page->set_pagetype('my-totara-dashboard-' . $this->id);
+        $page->set_pagetype('totara-dashboard-' . $this->id);
         $page->set_subpage('default');
 
         $blockman = $page->blocks;
@@ -649,7 +649,7 @@ class totara_dashboard {
     protected function delete_dashboard_blocks() {
         global $DB;
 
-        if ($blocks = $DB->get_records('block_instances', array('pagetypepattern' => 'my-totara-dashboard-' . $this->id))) {
+        if ($blocks = $DB->get_records('block_instances', array('pagetypepattern' => 'totara-dashboard-' . $this->id))) {
             foreach ($blocks as $block) {
                 blocks_delete_instance($block);
             }
@@ -664,4 +664,19 @@ class totara_dashboard {
             print_error('totaradashboarddisabled', 'totara_dashboard');
         }
     }
+}
+
+/**
+ * Return the block pagetype options for Totara dashboards.
+ * @param string $pagetype
+ * @param context $parentcontext
+ * @param context $currentcontext
+ * @return array
+ */
+function totara_dashboard_page_type_list($pagetype, $parentcontext, $currentcontext) {
+    $result = [];
+    if (strpos($pagetype, 'totara-dashboard-') === 0) {
+        $result[$pagetype] = get_string('pagetype-this-dashboard', 'totara_dashboard');
+    }
+    return $result;
 }

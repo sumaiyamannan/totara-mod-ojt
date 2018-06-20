@@ -1,6 +1,11 @@
 This files describes API changes for code that uses the appraisal API,
 information provided here is intended especially for developers.
 
+=== 9.21 ===
+
+* The dynamically created appraisal question data table columns have been changed from char to text. Any use of
+  these columns in the where clause of sql queries will need to be changed to use $DB->sql_compare_text.
+
 === 9.5 ===
 
 * store_role_assignments() function returns array of removed appraisal_role_assignments

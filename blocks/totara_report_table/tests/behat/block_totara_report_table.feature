@@ -93,21 +93,84 @@ Feature: Report builder table block
     And I click on "Username" "link" in the "Report sid" "block"
     Then I should see "learner1" in the "Report sid" "block"
     And I should see "learner5" in the "Report sid" "block"
+    And I should not see "teacher1" in the "Report sid" "block"
+    And I should not see "teacher2" in the "Report sid" "block"
     And I click on "Next" "link" in the "Report sid" "block"
     And I should see "learner6" in the "Report sid" "block"
     And I should see "learner9" in the "Report sid" "block"
+    And I should not see "teacher1" in the "Report sid" "block"
+    And I should not see "teacher2" in the "Report sid" "block"
     And I should not see "Next" in the "Report sid" "block"
     And I click on "Previous" "link" in the "Report sid" "block"
     And I should see "learner1" in the "Report sid" "block"
     And I should see "learner5" in the "Report sid" "block"
+    And I should not see "teacher1" in the "Report sid" "block"
+    And I should not see "teacher2" in the "Report sid" "block"
 
     # Change sorting and check (sid)
     And I click on "Username" "link" in the "Report sid" "block"
     And I should see "learner9" in the "Report sid" "block"
     And I should see "learner5" in the "Report sid" "block"
+    And I should not see "teacher1" in the "Report sid" "block"
+    And I should not see "teacher2" in the "Report sid" "block"
     And I click on "Username" "link" in the "Report sid" "block"
     And I should see "learner4" in the "Report sid" "block"
     And I should see "learner1" in the "Report sid" "block"
+    And I should not see "teacher1" in the "Report sid" "block"
+    And I should not see "teacher2" in the "Report sid" "block"
+
+  Scenario: Test report block navigation with sid from filter
+  # Add Filter
+    And I click on "Filters" "link"
+    And I set the following fields to these values:
+      | newsearchcolumn | User's Fullname |
+    And I press "Save changes"
+
+  # Create saved search
+    And I click on "View This Report" "link"
+    And I set the following fields to these values:
+      | toolbarsearchtext | Learner |
+  # "Search" button ambigous with "Search by" form section
+    And I press "id_toolbarsearchbutton"
+    And I press "Save this search"
+    And I set the following fields to these values:
+      | Search Name          | LearnerFilter |
+      | Let other users view | 1             |
+    And I press "Save changes"
+
+  # Add and configure block with sid
+    When I click on "Dashboard" in the totara menu
+    And I press "Customise this page"
+    And I add the "Report table" block
+    And I configure the "Report table" block
+    And I set the following fields to these values:
+      | Block title | Report sid |
+      | Report | User report |
+    And I press "Save changes"
+    And I configure the "Report sid" block
+    And I set the following fields to these values:
+      | Saved search | LearnerFilter |
+    And I press "Save changes"
+    And I press "Stop customising this page"
+
+  # Change page and check filter has been applied
+  # Don't check specific names this time, as that is tested above
+    Then I should see "Learner" in the "Report sid" "block"
+    And I should not see "Teacher" in the "Report sid" "block"
+    And I click on "Next" "link" in the "Report sid" "block"
+    And I should see "Learner" in the "Report sid" "block"
+    And I should not see "Teacher" in the "Report sid" "block"
+    And I click on "Previous" "link" in the "Report sid" "block"
+    And I should see "Learner" in the "Report sid" "block"
+    And I should not see "Teacher" in the "Report sid" "block"
+
+  # Change sorting and check (sid)
+    And I click on "Username" "link" in the "Report sid" "block"
+    And I should see "Learner" in the "Report sid" "block"
+    And I should not see "Teacher" in the "Report sid" "block"
+    And I click on "Username" "link" in the "Report sid" "block"
+    And I should see "Learner" in the "Report sid" "block"
+    And I should not see "Teacher" in the "Report sid" "block"
 
   Scenario: Test block settings by user that does not have access to report
     # Make report public

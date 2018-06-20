@@ -341,6 +341,8 @@ define(['jquery'], function ($) {
             address = this.url_encode_address(this.address),
             srcurl = 'https://maps.googleapis.com/maps/api/geocode/json?address=' + address
                 + '&region=' + this.regionbias;
+
+        M.util.js_pending('totara_customfield-location_search');
         if (address === '') {
             return;
         }
@@ -358,17 +360,20 @@ define(['jquery'], function ($) {
                     self.location = data.results[0].geometry.location;
                     self.load_map();
                     $('#fgroup_id_' + self.fieldprefix + 'mapelements .felement .alert').hide();
+                    M.util.js_complete('totara_customfield-location_search');
                 } else {
                     if ($('#fgroup_id_' + self.fieldprefix + 'mapelements .felement .alert').length === 0){
                         require(['core/templates', 'core/str'], function (templates, mdlstrings) {
                             mdlstrings.get_string('locationnotfound', 'totara_customfield').done(function (notfound) {
                                 templates.render('core/notification_problem', {message: notfound}).done(function (html) {
                                     $('#fgroup_id_' + self.fieldprefix + 'mapelements .felement').prepend(html);
+                                    M.util.js_complete('totara_customfield-location_search');
                                 });
                             });
                         });
                     } else {
                         $('#fgroup_id_' + self.fieldprefix + 'mapelements .felement .alert').show();
+                        M.util.js_complete('totara_customfield-location_search');
                     }
                 }
             },
@@ -462,9 +467,11 @@ define(['jquery'], function ($) {
 
     return {
         init: function (args) {
+            M.util.js_pending('totara_customfield-location_init');
             require(['totara_customfield/field_location_loader!'+args.mapparams], function() {
                 // google is now defined thanks to the async loader.
                 new Location(google, args);
+                M.util.js_complete('totara_customfield-location_init');
             });
         }
     };

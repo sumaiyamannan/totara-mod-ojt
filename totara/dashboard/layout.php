@@ -39,7 +39,7 @@ totara_dashboard::check_feature_enabled();
 $header = $SITE->shortname . ': ' . get_string('editdashboard', 'totara_dashboard');
 
 // Override pagetype to show blocks properly.
-$PAGE->set_pagetype('my-totara-dashboard-' . $id);
+$PAGE->set_pagetype('totara-dashboard-' . $id);
 $PAGE->set_subpage('default');
 
 $dashboard = new totara_dashboard($id);

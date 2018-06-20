@@ -32,9 +32,12 @@ Feature: auth_approved: signup with profile fields
     And I set the following fields to these values:
       | datatype | datetime |
     And I set the following fields to these values:
-      | Short name | datetime              |
-      | Name       | User datetime profile |
-      | signup     | 1                     |
+      | Short name    | datetime              |
+      | Name          | User datetime profile |
+      | signup        | 1                     |
+      | Start year    | 2015                  |
+      | End year      | 2020                  |
+      | Include time? | 1                     |
     And I press "Save changes"
 
     And I set the following fields to these values:
@@ -43,12 +46,12 @@ Feature: auth_approved: signup with profile fields
       | Short name | menu              |
       | Name       | User menu profile |
       | signup     | 1                 |
-    And I set the field "Menu options (one per line)" to multiline
-          """
-          AAA
-          BBB
-          CCC
-          """
+    And I set the field "Menu options (one per line)" to multiline:
+      """
+      AAA
+      BBB
+      CCC
+      """
     And I press "Save changes"
 
     And I set the following fields to these values:
@@ -80,6 +83,11 @@ Feature: auth_approved: signup with profile fields
       | User checkbox profile           | 1   |
       | profile_field_date[enabled]     | 1   |
       | profile_field_datetime[enabled] | 1   |
+      | profile_field_datetime[day]     | 1   |
+      | profile_field_datetime[month]   | 1   |
+      | profile_field_datetime[year]    | 2017 |
+      | profile_field_datetime[hour]    | 10  |
+      | profile_field_datetime[minute]  | 00  |
       | User menu profile               | BBB |
       | User text profile               | Lorem ipsum dolor sit amet |
       | User textarea profile           | Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. |
@@ -90,6 +98,15 @@ Feature: auth_approved: signup with profile fields
 
     When I log in as "admin"
     And I navigate to "Pending requests" node in "Site administration > Plugins > Authentication > Self-registration with approval"
+    And I click on "Edit this report" "button"
+    And I switch to "Columns" tab
+    And I add the "Additional request data" column to the report
+    And I press "Save changes"
+    And I click on "View This Report" "link"
+    Then I should see "1 Jan 2017 at 10:00" in the "test1@example.com" "table_row"
+    And I should see "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur." in the "test1@example.com" "table_row"
+    And I should see "Lorem ipsum dolor sit amet" in the "test1@example.com" "table_row"
+
     And I click on "Approve" "link" in the "test1@example.com" "table_row"
     And I press "Approve"
     Then I should see "Account request \"test1@example.com\" was approved"

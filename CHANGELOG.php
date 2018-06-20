@@ -3,6 +3,164 @@
 
 Totara Learn Changelog
 
+Release 9.21 (20th June 2018):
+==============================
+
+
+Security issues:
+
+    TL-10268       Prevented EXCEL/ODS Macro Injection
+
+                   The Excel and Open Document Spreadsheet export functionality allowed the
+                   exporting of formulas when they were detected, which could lead to
+                   incorrect rendering and security issues on different reports throughout the
+                   code base. To prevent exploitation of this functionality, formula detection
+                   was removed and standard string type applied instead.
+
+                   The formula type is still in the code base and can still be used, however
+                   it now needs to be called directly using the "write_formula" method.
+
+    TL-17424       Improved the validation of the form used to edit block configuration
+
+                   Validation on the fields in the edit block configuration form has been
+                   improved, and only fields that the user is permitted to change are passed
+                   through this form.
+                   The result of logical operators are no longer passed through or relied
+                   upon.
+
+    TL-17785       MDL-62275: Improved validation of calculated question formulae
+
+Improvements:
+
+    TL-17288       Missing Seminar notifications can now be restored by a single bulk action
+
+                   During Totara upgrades from earlier versions to T9 and above, existing
+                   seminars are missing the new default notification templates. There is
+                   existing functionality to restore them by visiting each seminar
+                   notification one by one, which will take some time if there are a lot of
+                   seminars. This patch introduces new functionality to restore any missing
+                   templates for ALL existing seminars at once.
+
+    TL-17414       Improved information around the 'completions archive' functionality
+
+                   It now explicitly expresses that completion data will be permanently
+                   deleted and mentions that the data that will be archived is limited to: id,
+                   courseid, userid, timecompleted, and grade. It also mentions that this
+                   information will be available in the learner's Record of Learning.
+
+    TL-17626       Prevented report managers from seeing performance data without specific capabilities
+
+                   Site managers will no longer have access to the following report columns as
+                   a default:
+
+                   Appraisal Answers: Learner's Answers, Learner's Rating Answers, Learner's
+                   Score, Manager's Answers, Manager's Rating Answers, Manager's
+                   Score, Manager's Manager Answers, Manager's Manager Rating Answers,
+                   Manager's Manager Score, Appraiser's Answers, Appraiser's Rating Answers,
+                   Appraiser's Score, All Roles' Answers, All Roles' Rating Answers, All
+                   Roles' Score.
+
+                   Goals: Goal Name, Goal Description
+
+                   This has been implemented to ensure site managers cannot access users'
+                   performance-related personal data. To give site managers access to this
+                   data the role must be updated with the following permissions:
+                   * totara/appraisal:viewallappraisals
+                   * totara/hierarchy:viewallgoals
+
+Bug fixes:
+
+    TL-16967       Fixed an 'invalidrecordunknown' error when creating Learning Plans for Dynamic Audiences
+
+                   Once the "Automatically assign by organisation" setting was set under the
+                   competencies section of Learning Plan templates, and new Learning Plans
+                   were created for Dynamic Audiences, a check for the first job assignment of
+                   the user was made. This first job assignment must exist otherwise an error
+                   was thrown for all users that did not have a job assignment. This has now
+                   been fixed and a check for all of the user's job assignments is made
+                   rather than just the first one.
+
+    TL-17102       Fixed saved searches not being applied to report blocks
+    TL-17289       Made message metadata usage consistent for alerts and blocks
+    TL-17364       Fixed displaying profile fields data in the self-registration request report
+    TL-17405       Fixed setuplib test case error when test executed separated
+    TL-17416       Prevented completion report link appearing in user profile page when user does not have permission to view reports.
+    TL-17523       Removed the ability to create multiple job assignments via the dialog when multiple jobs is disabled
+    TL-17524       Fixed exporting reports as PDF during scheduled tasks when the PHP memory limit is exceeded
+
+                   Generating PDF files as part of a scheduled report previously caused an
+                   error and aborted the entire scheduled task if a report had a large data
+                   set that exceeded the PDF memory limit. With this patch, the exception is
+                   still raised, but the export completes with the exception message in the
+                   PDF file notifying the user that they need to change their report. The
+                   scheduled task then continues on to the next report to be exported.
+
+    TL-17541       Fixed the help text for a setting in the course completion report
+
+                   The help text for the 'Show only active enrolments' setting in the course
+                   completion report was misleading, sounding like completion records for
+                   users with removed enrolments were going to be shown on the report. This
+                   has now been fixed to reflect the actual behaviour of the setting, which
+                   excludes records from removed enrolments.
+
+    TL-17542       Made sure that RPL completion information remains collapsed on the course completion report until it is explicitly expanded
+    TL-17610       Setup cron user and course before each scheduled or adhoc task
+
+                   Before this patch we set the admin user and the course at the beginning of
+                   the cron run. Any task could have overridden the user. But if the task did
+                   not take care of resetting the user at the end it affected all following
+                   tasks, potentially creating unwanted results. Same goes for the course. To
+                   avoid any interference we now set the admin user and the default course
+                   before each task to make sure all get the same environment.
+
+    TL-17612       Added a warning by the "next page" button when using sequential navigation
+
+                   When the quiz is using sequential navigation, learners are unaware that
+                   they cannot navigate back to a question. A warning has been introduced when
+                   sequential navigation is in place to make the learner aware of this.
+
+    TL-17630       Fixed Error in help text when editing seminar notifications
+
+                   in the 'body_help' string replaced [session:room:placeholder] with
+                   [session:room:cf_placeholder] as all custom field placeholders have to have
+                   the cf_ prefix in the notification.
+
+    TL-17633       Removed misleading information in the program/certification extension help text
+
+                   Previously the help text stated "This option will appear before the due
+                   date (when it is close)" which was not accurate as the option always
+                   appeared during the program/certification enrollment period. This statement
+                   has now been removed.
+
+    TL-17647       Raised MySQL limitation on the amount of questions for Appraisals.
+
+                   Due to MySQL/MariaDB row size limit there could only be about 85 questions
+                   of types "text" in one appraisal. Creating appraisals with higher numbers
+                   of questions caused an error on activation. Changes have been made to the
+                   way the questions are stored so that now it's possible to have up to about
+                   186 questions of these types when using MySQL/MariaDB.
+
+                   On the appraisal creation page a warning message has been added that is
+                   shown when the limit is about to be exceeded due to the amount of added
+                   questions.
+
+                   Also, when this error still occurs on activation, an informative error
+                   message will be shown instead of the MySQL error message.
+
+    TL-17702       Fixed display issue when editing forum subscribers
+    TL-17724       Fixed nonfunctional cleanup script for incorrectly deleted users
+    TL-17732       Fixed a regression in the Current Learning block caused by TL-16820
+
+                   The export_for_template() function in the course user learning item was
+                   incorrectly calling get_owner() when it should have been using has_owner().
+
+    TL-17744       Fixed header tags being the same size as all other text in the HTML block
+
+Contributions:
+
+    * Jo Jones at Kineo UK - TL-17524
+
+
 Release 9.20 (14th May 2018):
 =============================
 

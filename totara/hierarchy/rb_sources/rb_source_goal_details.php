@@ -133,7 +133,9 @@ class rb_source_goal_details extends rb_base_source {
                 array('joins' => 'goal',
                       'defaultheading' => get_string('goalnameheading', 'rb_source_goal_details'),
                       'dbdatatype' => 'char',
-                      'outputformat' => 'text')
+                      'outputformat' => 'text',
+                      'capability' => 'totara/hierarchy:viewallgoals',
+                    )
             ),
             new rb_column_option(
                 'goal',

@@ -80,11 +80,13 @@ class writer extends tabexport_writer {
 
         // Table.
         $html = '';
+        $colspan = 0;
         $html .= '<table border="1" cellpadding="2" cellspacing="0">
                         <thead>
                             <tr style="background-color: #CCC;">';
         foreach ($this->source->get_headings() as $heading) {
             $html .= '<th>' . s($heading) . '</th>';
+            $colspan++;
         }
         $html .= '</tr></thead><tbody>';
         $count = 0;
@@ -99,8 +101,15 @@ class writer extends tabexport_writer {
             // Check memory limit.
             $mramuse = ceil(((memory_get_usage(true)/1024)/1024));
             if (1024 <= $mramuse and !PHPUNIT_TEST) {
-                // Notice message.
-                print_error('exportpdf_mramlimitexceeded', 'totara_reportbuilder', '', 1024);
+                if (defined('CLI_SCRIPT') && CLI_SCRIPT) {
+                    $html .= '<tr><td colspan="'.$colspan.'">';
+                    $html .= get_string('exportpdf_mramlimitexceeded', 'totara_reportbuilder', 1024);
+                    $html .= '</td></tr>';
+                    break;
+                } else {
+                    // Notice message.
+                    print_error('exportpdf_mramlimitexceeded', 'totara_reportbuilder', '', 1024);
+                }
             }
         }
         $html .= '</tbody></table>';

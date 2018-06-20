@@ -189,6 +189,7 @@ $string['positionframeworks'] = 'Available position frameworks';
 $string['positionframeworks_desc'] = 'This setting allows you to specify which frameworks are used to find positions available for selection.';
 $string['positionfreetext'] = 'Position free text';
 $string['positionselect'] = 'Select a position';
+$string['profilefields'] = 'Additional request data';
 $string['reject'] = 'Reject';
 $string['rejectsure'] = 'Are you sure you want to reject this request?';
 $string['reportdetails'] = 'Self-registration request details';

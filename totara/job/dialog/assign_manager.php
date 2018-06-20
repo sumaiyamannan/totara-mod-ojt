@@ -157,7 +157,9 @@ class totara_job_dialog_assign_manager extends totara_dialog_content {
     }
 
     private function load_job_assignments() {
+        global $CFG;
 
+        $allowmultiple = !empty($CFG->totara_job_allowmultiplejobs);
         if (empty($this->managerid)) {
             // This is used when expanding a single manager's node only.
             $this->jobassignments = array();
@@ -181,15 +183,18 @@ class totara_job_dialog_assign_manager extends totara_dialog_content {
         }
 
         if ($this->allowcreate && totara_job_can_edit_job_assignments($manager->id)) {
-            // The current user can create the empty placeholder job assignments for this manager.
-            $item = new stdClass();
-            $item->id = $this->managerid . '-NEW';
-            $item->userid = $this->managerid;
-            $item->jaid = null;
-            $item->name = get_string('dialogmanagercreateemptyjob', 'totara_job');
-            $item->displaystring = totara_job_display_user_job($manager, null, $this->canviewemail, true);
+            // If multiple job assignments is off, only allow the creation of 1 job assignment per user.
+            if ($allowmultiple || empty($jobassignments)) {
+                // The current user can create the empty placeholder job assignments for this manager.
+                $item = new stdClass();
+                $item->id = $this->managerid . '-NEW';
+                $item->userid = $this->managerid;
+                $item->jaid = null;
+                $item->name = get_string('dialogmanagercreateemptyjob', 'totara_job');
+                $item->displaystring = totara_job_display_user_job($manager, null, $this->canviewemail, true);
 
-            $this->jobassignments[$item->id] = $item;
+                $this->jobassignments[$item->id] = $item;
+            }
         }
     }
 

@@ -67,6 +67,7 @@ class rb_source_appraisal_detail extends rb_source_appraisal {
                 get_string('answersfromlearner', 'rb_source_appraisal_detail'),
                 'rolelearner.data_',
                 array('joins' => 'rolelearner',
+                      'capability' => 'totara/appraisal:viewallappraisals',
                       'columngenerator' => 'answers')
             ),
             new rb_column_option(
@@ -75,6 +76,7 @@ class rb_source_appraisal_detail extends rb_source_appraisal {
                 get_string('numericanswersfromlearner', 'rb_source_appraisal_detail'),
                 'rolelearner.data_',
                 array('joins' => 'rolelearner',
+                      'capability' => 'totara/appraisal:viewallappraisals',
                       'columngenerator' => 'numericanswers')
             ),
             new rb_column_option(
@@ -83,6 +85,7 @@ class rb_source_appraisal_detail extends rb_source_appraisal {
                 get_string('totalsfromlearner', 'rb_source_appraisal_detail'),
                 'rolelearner.data_',
                 array('joins' => 'rolelearner',
+                      'capability' => 'totara/appraisal:viewallappraisals',
                       'columngenerator' => 'totals')
             ),
             new rb_column_option(
@@ -91,6 +94,7 @@ class rb_source_appraisal_detail extends rb_source_appraisal {
                 get_string('answersfrommanager', 'rb_source_appraisal_detail'),
                 'rolemanager.data_',
                 array('joins' => 'rolemanager',
+                      'capability' => 'totara/appraisal:viewallappraisals',
                       'columngenerator' => 'answers')
             ),
             new rb_column_option(
@@ -99,6 +103,7 @@ class rb_source_appraisal_detail extends rb_source_appraisal {
                 get_string('numericanswersfrommanager', 'rb_source_appraisal_detail'),
                 'rolemanager.data_',
                 array('joins' => 'rolemanager',
+                      'capability' => 'totara/appraisal:viewallappraisals',
                       'columngenerator' => 'numericanswers')
             ),
             new rb_column_option(
@@ -107,6 +112,7 @@ class rb_source_appraisal_detail extends rb_source_appraisal {
                 get_string('totalsfrommanager', 'rb_source_appraisal_detail'),
                 'rolemanager.data_',
                 array('joins' => 'rolemanager',
+                      'capability' => 'totara/appraisal:viewallappraisals',
                       'columngenerator' => 'totals')
             ),
             new rb_column_option(
@@ -115,6 +121,7 @@ class rb_source_appraisal_detail extends rb_source_appraisal {
                 get_string('answersfromteamlead', 'rb_source_appraisal_detail'),
                 'roleteamlead.data_',
                 array('joins' => 'roleteamlead',
+                      'capability' => 'totara/appraisal:viewallappraisals',
                       'columngenerator' => 'answers')
             ),
             new rb_column_option(
@@ -123,6 +130,7 @@ class rb_source_appraisal_detail extends rb_source_appraisal {
                 get_string('numericanswersfromteamlead', 'rb_source_appraisal_detail'),
                 'roleteamlead.data_',
                 array('joins' => 'roleteamlead',
+                      'capability' => 'totara/appraisal:viewallappraisals',
                       'columngenerator' => 'numericanswers')
             ),
             new rb_column_option(
@@ -131,6 +139,7 @@ class rb_source_appraisal_detail extends rb_source_appraisal {
                 get_string('totalsfromteamlead', 'rb_source_appraisal_detail'),
                 'roleteamlead.data_',
                 array('joins' => 'roleteamlead',
+                      'capability' => 'totara/appraisal:viewallappraisals',
                       'columngenerator' => 'totals')
             ),
             new rb_column_option(
@@ -139,6 +148,7 @@ class rb_source_appraisal_detail extends rb_source_appraisal {
                 get_string('answersfromappraiser', 'rb_source_appraisal_detail'),
                 'roleappraiser.data_',
                 array('joins' => 'roleappraiser',
+                      'capability' => 'totara/appraisal:viewallappraisals',
                       'columngenerator' => 'answers')
             ),
             new rb_column_option(
@@ -147,6 +157,7 @@ class rb_source_appraisal_detail extends rb_source_appraisal {
                 get_string('numericanswersfromappraiser', 'rb_source_appraisal_detail'),
                 'roleappraiser.data_',
                 array('joins' => 'roleappraiser',
+                      'capability' => 'totara/appraisal:viewallappraisals',
                       'columngenerator' => 'numericanswers')
             ),
             new rb_column_option(
@@ -155,6 +166,7 @@ class rb_source_appraisal_detail extends rb_source_appraisal {
                 get_string('totalsfromappraiser', 'rb_source_appraisal_detail'),
                 'roleappraiser.data_',
                 array('joins' => 'roleappraiser',
+                      'capability' => 'totara/appraisal:viewallappraisals',
                       'columngenerator' => 'totals')
             ),
             new rb_column_option(
@@ -163,6 +175,7 @@ class rb_source_appraisal_detail extends rb_source_appraisal {
                 get_string('answersfromall', 'rb_source_appraisal_detail'),
                 'roleall.data_',
                 array('joins' => array('rolelearner', 'rolemanager', 'roleteamlead', 'roleappraiser'),
+                      'capability' => 'totara/appraisal:viewallappraisals',
                       'columngenerator' => 'allroleanswers')
             ),
             new rb_column_option(
@@ -171,6 +184,7 @@ class rb_source_appraisal_detail extends rb_source_appraisal {
                 get_string('numericanswersfromall', 'rb_source_appraisal_detail'),
                 'roleall.data_',
                 array('joins' => array('rolelearner', 'rolemanager', 'roleteamlead', 'roleappraiser'),
+                      'capability' => 'totara/appraisal:viewallappraisals',
                       'columngenerator' => 'allrolenumericanswers')
             ),
             new rb_column_option(
@@ -179,6 +193,7 @@ class rb_source_appraisal_detail extends rb_source_appraisal {
                 get_string('totalsfromall', 'rb_source_appraisal_detail'),
                 'roleall.data_',
                 array('joins' => array('rolelearner', 'rolemanager', 'roleteamlead', 'roleappraiser'),
+                      'capability' => 'totara/appraisal:viewallappraisals',
                       'columngenerator' => 'allroletotals')
             )
         );

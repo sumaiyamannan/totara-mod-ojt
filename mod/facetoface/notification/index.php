@@ -214,10 +214,12 @@ foreach ($notifications as $note) {
 }
 
 if (!empty($defaultnotifications)) {
-    $message = get_string('missingdefaultnotifications', 'facetoface', count($defaultnotifications));
-    $addmissingdefaulturl = new moodle_url('/mod/facetoface/notification/index.php', array('update' => $cm->id, 'restoredefaults' => 1));
-    $link = html_writer::link($addmissingdefaulturl, get_string('missingdefaultsfix', 'facetoface'));
-    echo $OUTPUT->notification($message . ' ' . $link, 'notifymessage');
+    $url = new moodle_url('/mod/facetoface/notification/index.php', array('update' => $cm->id, 'restoredefaults' => 1));
+    $a['url1'] = $url->out();
+    $url = new moodle_url('/mod/facetoface/notification/template/index.php');
+    $a['url2'] = $url->out();
+    $message = get_string('unavailablenotifications', 'facetoface', (object)$a);
+    echo $OUTPUT->notification($message, 'notifywarning');
 }
 
 $str_edit = get_string('edit', 'moodle');

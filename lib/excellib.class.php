@@ -318,12 +318,7 @@ class MoodleExcelWorksheet {
         } elseif (preg_match("/^(?:in|ex)ternal:/", $token)) {
             // Match internal or external sheet link
             return $this->write_url($row, $col, $token, '', $format);
-        } elseif (preg_match("/^=/", $token)) {
-            // Match formula
-            return $this->write_formula($row, $col, $token, $format);
-        } elseif (preg_match("/^@/", $token)) {
-            // Match formula
-            return $this->write_formula($row, $col, $token, $format);
+            // Formula processing was intentionally removed in TL-10268.
         } elseif ($token == '') {
             // Match blank
             return $this->write_blank($row, $col, $format);

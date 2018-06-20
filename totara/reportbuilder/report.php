@@ -55,6 +55,11 @@ $globalrestrictionset = rb_global_restriction_set::create_from_page_parameters($
 
 // New report object.
 $report = new reportbuilder($id, null, false, $sid, null, false, array(), $globalrestrictionset);
+
+if ($report->has_disabled_filters()) {
+    totara_set_notification(get_string('filterdisabledwarning', 'totara_reportbuilder'), null, array('class' => 'notifywarning'));
+}
+
 if (!$report->is_capable($id)) {
     print_error('nopermission', 'totara_reportbuilder');
 }

@@ -1363,6 +1363,7 @@ class block_manager {
             $classname = 'block_edit_form';
         }
 
+        /** @var block_edit_form $mform */
         $mform = new $classname($editpage->url, $block, $this->page);
         $mform->set_data($block->instance);
 
@@ -1376,7 +1377,7 @@ class block_manager {
             // This may get overwritten by the special case handling below.
             $bi->pagetypepattern = $data->bui_pagetypepattern;
             $bi->showinsubcontexts = (bool) $data->bui_contexts;
-            if (empty($data->bui_subpagepattern) || $data->bui_subpagepattern == '%@NULL@%') {
+            if (empty($data->bui_subpagepattern) || $data->bui_subpagepattern == block_edit_form::NULL) {
                 $bi->subpagepattern = null;
             } else {
                 $bi->subpagepattern = $data->bui_subpagepattern;
@@ -1384,7 +1385,7 @@ class block_manager {
 
             $systemcontext = context_system::instance();
             $frontpagecontext = context_course::instance(SITEID);
-            $parentcontext = context::instance_by_id($data->bui_parentcontextid);
+            $parentcontext = $mform->get_block_parent_context();
 
             // Updating stickiness and contexts.  See MDL-21375 for details.
             if (has_capability('moodle/site:manageblocks', $parentcontext)) { // Check permissions in destination
@@ -1392,7 +1393,7 @@ class block_manager {
                 // Explicitly set the default context
                 $bi->parentcontextid = $parentcontext->id;
 
-                if ($data->bui_editingatfrontpage) {   // The block is being edited on the front page
+                if ($mform->is_editing_the_frontpage()) {   // The block is being edited on the front page
 
                     // The interface here is a special case because the pagetype pattern is
                     // totally derived from the context menu.  Here are the excpetions.   MDL-30340
@@ -1529,7 +1530,7 @@ class block_manager {
         $block = $this->find_instance($blockid);
 
         if (!$this->page->user_can_edit_blocks()) {
-            throw new moodle_exception('nopermissions', '', $this->page->url->out(), get_string('editblock'));
+            throw new moodle_exception('nopermissions', '', $this->page->url->out(), get_string('cannotsaveblock', 'error'));
         }
 
         $newregion = optional_param('bui_newregion', '', PARAM_ALPHANUMEXT);
@@ -2017,6 +2018,14 @@ function blocks_name_allowed_in_format($name, $pageformat) {
     if (!$formats) {
         $formats = array();
     }
+
+    // TOTARA: we want blocks that can be added to my dashboards to be addable to our dashboards;
+    if (strpos($pageformat, 'totara-dashboard-') === 0 && isset($formats['my']) && !isset($formats['totara-dashboard'])) {
+        // It's a totara dashboard. Do some magic mapping.
+        // If it's allowed/not allowed in my pages, its allowed on dashboards.
+        $formats['totara-dashboard'] = $formats['my'];
+    }
+
     foreach ($formats as $format => $allowed) {
         $formatregex = '/^'.str_replace('*', '[^-]*', $format).'.*$/';
         $depth = substr_count($format, '-');

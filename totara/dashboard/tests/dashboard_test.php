@@ -67,7 +67,7 @@ class totara_dashboard_testcase extends advanced_testcase {
 
         // Check that navigation block created.
         $count = $DB->count_records('block_instances',
-                array('pagetypepattern' => 'my-totara-dashboard-' . $id, 'blockname' => 'totara_dashboard'));
+                array('pagetypepattern' => 'totara-dashboard-' . $id, 'blockname' => 'totara_dashboard'));
         $this->assertEquals(1, $count);
     }
 
@@ -142,7 +142,7 @@ class totara_dashboard_testcase extends advanced_testcase {
         $page = new moodle_page();
         $page->set_context(context_system::instance());
         $page->set_pagelayout('dashboard');
-        $page->set_pagetype('my-totara-dashboard-' . $dashboard->get_id());
+        $page->set_pagetype('totara-dashboard-' . $dashboard->get_id());
         $page->set_subpage('default');
         $page->blocks->add_block('html', $page->blocks->get_default_region(), -1, false, null, 'default');
 
@@ -261,7 +261,7 @@ class totara_dashboard_testcase extends advanced_testcase {
 
         // Check that instance of totara_dashboard block is created for user.
         $count = $DB->count_records('block_instances',
-                array('pagetypepattern' => 'my-totara-dashboard-' . $dashboard->get_id(),
+                array('pagetypepattern' => 'totara-dashboard-' . $dashboard->get_id(),
                       'blockname' => 'totara_dashboard',
                       'subpagepattern' => $pageid));
         $this->assertEquals(1, $count);
@@ -344,7 +344,7 @@ class totara_dashboard_testcase extends advanced_testcase {
 
         // Check that instance of totara_dashboard block is deleted for user.
         $count = $DB->count_records('block_instances',
-                array('pagetypepattern' => 'my-totara-dashboard-' . $dashboard->get_id(),
+                array('pagetypepattern' => 'totara-dashboard-' . $dashboard->get_id(),
                       'blockname' => 'totara_dashboard',
                       'subpagepattern' => $pageid));
         $this->assertEquals(0, $count);
@@ -434,7 +434,7 @@ class totara_dashboard_testcase extends advanced_testcase {
         $blockhtml1 = $dashboard_gen->add_block($dashboard2id, 'html', 1);
         $blockhtml2 = $dashboard_gen->add_block($dashboard2id, 'html', 2);
         $blockhtml3 = $dashboard_gen->add_block($dashboard2id, 'html', 3);
-        $count2 = $DB->count_records('block_instances', array('pagetypepattern' => 'my-totara-dashboard-' . $dashboard2id));
+        $count2 = $DB->count_records('block_instances', array('pagetypepattern' => 'totara-dashboard-' . $dashboard2id));
         $this->assertEquals(5, $count2);
 
         $dashboard2->delete();
@@ -467,14 +467,14 @@ class totara_dashboard_testcase extends advanced_testcase {
         $userpages2 = $DB->get_records('totara_dashboard_user', array('dashboardid' => $dashboard2id));
         $this->assertEmpty($userpages2);
 
-        $count2 = $DB->count_records('block_instances', array('pagetypepattern' => 'my-totara-dashboard-' . $dashboard2id));
+        $count2 = $DB->count_records('block_instances', array('pagetypepattern' => 'totara-dashboard-' . $dashboard2id));
         $this->assertEquals(0, $count2);
 
         // Check that user copy of dashboard3 left.
         $userpages3 = $DB->get_records('totara_dashboard_user', array('dashboardid' => $dashboard3id));
         $this->assertCount(1, $userpages3);
 
-        $count3 = $DB->count_records('block_instances', array('pagetypepattern' => 'my-totara-dashboard-' . $dashboard3id));
+        $count3 = $DB->count_records('block_instances', array('pagetypepattern' => 'totara-dashboard-' . $dashboard3id));
         $this->assertEquals(2, $count3);
     }
 

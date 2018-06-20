@@ -742,7 +742,7 @@ function tm_messages_get($type, $order_by=false, $userto=false, $limit=true) {
             d.icon,
             m.contexturl,
             m.contexturlname
-            FROM ({message} m INNER JOIN  {message_working} w ON m.id = w.unreadmessageid) LEFT JOIN {message_metadata} d ON (d.messageid = m.id)
+            FROM ({message} m INNER JOIN  {message_working} w ON m.id = w.unreadmessageid) INNER JOIN {message_metadata} d ON (d.messageid = m.id)
             WHERE m.useridto = ? AND w.processorid = ?' .$order_by,
             array($userid, $processor->id), 0, $limit);
 
@@ -780,7 +780,7 @@ function tm_messages_count($type, $userto=false) {
         $msgs = $DB->get_records_sql('SELECT m.id AS count
             FROM ({message} m
             INNER JOIN {message_working} w ON m.id = w.unreadmessageid)
-            LEFT JOIN {message_metadata} d ON (d.messageid = m.id)
+            INNER JOIN {message_metadata} d ON (d.messageid = m.id)
             WHERE ' . $where,
             array($userid, $processor->id));
         return count($msgs);

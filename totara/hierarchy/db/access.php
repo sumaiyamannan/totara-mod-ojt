@@ -515,6 +515,12 @@ $capabilities = array(
                 'archetypes' => array('manager' => CAP_ALLOW),
                 'clonepermissionsfrom' => 'totara/hierarchy:updategoal'
         ),
+        'totara/hierarchy:viewallgoals' => array(
+            'riskbitmask'  => RISK_PERSONAL,
+            'captype'      => 'read',
+            'contextlevel' => CONTEXT_SYSTEM,
+            'archetypes'   => array(),
+        ),
 
         // User goals self management permissions.
         'totara/hierarchy:viewownpersonalgoal' => array(

@@ -445,7 +445,10 @@ class job_assignment_form extends moodleform {
     }
 
     function validation($data, $files) {
+        global $CFG;
+
         $mform = $this->_form;
+        $allowmultiple = !empty($CFG->totara_job_allowmultiplejobs);
 
         $result = array();
 
@@ -469,6 +472,14 @@ class job_assignment_form extends moodleform {
             }
         }
 
+        // Prevent creation of multiple jobs for the manager when multiple jobs is disabled.
+        if (!$allowmultiple && $data['managerid'] && empty($data['managerjaid'])) {
+            $managerjas = \totara_job\job_assignment::get_all($data['managerid']);
+            if (!empty($managerjas)) {
+                $result['managerselector'] = get_string('error:managerhasjobassignment', 'totara_job');
+            }
+        }
+
         // If setting a temporary manager, check that an expiry date is set.
         $canedittempmanager = $this->_customdata['canedittempmanager'];
         if ($canedittempmanager && $mform->getElement('tempmanagerid')->getValue()) {
@@ -478,6 +489,13 @@ class job_assignment_form extends moodleform {
                 if (time() >  $data['tempmanagerexpirydate'] && $data['tempmanagerexpirydate'] !== 0) {
                     $result['tempmanagerexpirydate'] = get_string('error:datenotinfuture', 'totara_job');
                 }
+            }
+        }
+
+        if (!$allowmultiple) {
+            // Prevent creation of multiple jobs for the tempmanager when multiple jobs is disabled.
+            if ($data['id'] && $data['managerid'] && empty($data['managerjaid'])) {
+
             }
         }
 

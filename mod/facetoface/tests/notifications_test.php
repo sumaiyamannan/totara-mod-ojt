@@ -2114,26 +2114,6 @@ class mod_facetoface_notifications_testcase extends advanced_testcase {
     public function test_facetoface_is_notification_active() {
         global $DB,$CFG;
 
-        $notifications = [
-            'reminder' => MDL_F2F_CONDITION_BEFORE_SESSION,
-            'confirmation' => MDL_F2F_CONDITION_BOOKING_CONFIRMATION,
-            'cancellation' => MDL_F2F_CONDITION_CANCELLATION_CONFIRMATION,
-            'decline' => MDL_F2F_CONDITION_DECLINE_CONFIRMATION,
-            'waitlist' => MDL_F2F_CONDITION_WAITLISTED_CONFIRMATION,
-            'request' => MDL_F2F_CONDITION_BOOKING_REQUEST_MANAGER,
-            'timechange' => MDL_F2F_CONDITION_SESSION_DATETIME_CHANGE,
-            'trainerconfirm' => MDL_F2F_CONDITION_TRAINER_CONFIRMATION,
-            'trainercancel' => MDL_F2F_CONDITION_TRAINER_SESSION_CANCELLATION,
-            'trainerunassign' => MDL_F2F_CONDITION_TRAINER_SESSION_UNASSIGNMENT,
-            'registrationexpired' => MDL_F2F_CONDITION_REGISTRATION_DATE_EXPIRED,
-            'sessioncancellation' => MDL_F2F_CONDITION_SESSION_CANCELLATION,
-            'reservationcancel' => MDL_F2F_CONDITION_RESERVATION_CANCELLED,
-            'allreservationcancel' => MDL_F2F_CONDITION_RESERVATION_ALL_CANCELLED,
-            'rolerequest' => MDL_F2F_CONDITION_BOOKING_REQUEST_ROLE,
-            'adminrequest' => MDL_F2F_CONDITION_BOOKING_REQUEST_ADMIN,
-            'registrationclosure' => MDL_F2F_CONDITION_BEFORE_REGISTRATION_ENDS,
-        ];
-
         // Seeding initial data.
         $f2f = $this->getDataGenerator()
             ->get_plugin_generator('mod_facetoface')
@@ -2151,7 +2131,7 @@ class mod_facetoface_notifications_testcase extends advanced_testcase {
             ]);
         };
 
-        foreach ($notifications as $notification => $type) {
+        foreach (facetoface_notification::get_references() as $notification => $type) {
 
             $local = $get_notification($f2f->id, $type);
 
@@ -2174,5 +2154,61 @@ class mod_facetoface_notifications_testcase extends advanced_testcase {
         }
 
         $this->resetAfterTest();
+    }
+
+    /**
+     * Test to restore missing default notification templates for existing seminars,
+     * this is happening when upgrade from t2.9 to t9.
+     */
+    public function test_restore_missing_default_notifications() {
+        global $DB;
+
+        // Seeding initial data.
+        $f2f1 = $this->getDataGenerator()
+            ->get_plugin_generator('mod_facetoface')
+            ->create_instance([
+                'name' => 'Seminar 17288A',
+                'course' => $this->getDataGenerator()->create_course()->id
+            ]);
+        $f2f2 = $this->getDataGenerator()
+            ->get_plugin_generator('mod_facetoface')
+            ->create_instance([
+                'name' => 'Seminar 17288B',
+                'course' => $this->getDataGenerator()->create_course()->id
+            ]);
+        $f2f3 = $this->getDataGenerator()
+            ->get_plugin_generator('mod_facetoface')
+            ->create_instance([
+                'name' => 'Seminar 17288C',
+                'course' => $this->getDataGenerator()->create_course()->id
+            ]);
+
+        // Get a count default notification templates.
+        $counttpl = $DB->count_records('facetoface_notification_tpl');
+        // Get total amount all notifications for 3 seminars.
+        $countnote = $DB->count_records('facetoface_notification');
+
+        // Multiply default count by 3 as we have 3 seminars created.
+        $this->assertEquals($countnote, $counttpl * 3);
+
+        // Test the facetoface_notification_get_missing_templates() function there are no missing templates.
+        $this->assertEmpty(facetoface_notification_get_missing_templates());
+
+        // Test facetoface_notification_restore_missing_template function there are nothing to restore.
+        $affectedrows = facetoface_notification_restore_missing_template(MDL_F2F_CONDITION_SESSION_CANCELLATION);
+        $this->assertEquals(0, $affectedrows);
+
+        // This a hack to pretend that the 'Seminar event cancellation' default template is missing.
+        $DB->delete_records('facetoface_notification', ['type' => MDL_F2F_NOTIFICATION_AUTO, 'conditiontype' => MDL_F2F_CONDITION_SESSION_CANCELLATION]);
+        // Test we deleted 3 records.
+        $this->assertEquals($countnote - 3, $DB->count_records('facetoface_notification'));
+
+        // Test the facetoface_notification_get_missing_templates() function there are missing templates.
+        // MDL_F2F_CONDITION_SESSION_CANCELLATION is missing template.
+        $this->assertCount(1, facetoface_notification_get_missing_templates());
+
+        // Restore templates.
+        $affectedrows = facetoface_notification_restore_missing_template(MDL_F2F_CONDITION_SESSION_CANCELLATION);
+        $this->assertEquals(3, $affectedrows);
     }
 }

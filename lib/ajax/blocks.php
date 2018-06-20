@@ -59,6 +59,12 @@ $PAGE->set_subpage($subpage);
 $PAGE->blocks->add_custom_regions_for_pagetype($pagetype);
 $pagetype = explode('-', $pagetype);
 switch ($pagetype[0]) {
+    case 'totara':
+        if ($pagetype[1] === 'dashboard' && $PAGE->context->contextlevel == CONTEXT_USER
+            && $PAGE->context->instanceid == $USER->id) {
+            $PAGE->set_blocks_editing_capability('totara/dashboard:manageblocks');
+        }
+        break;
     case 'my':
         $PAGE->set_blocks_editing_capability('moodle/my:manageblocks');
         break;

@@ -1197,6 +1197,33 @@ class facetoface_notification extends data_object {
 
         return false;
     }
+
+    /**
+     * All notification references list.
+     *
+     * @return array notification references
+     */
+    public static function get_references() {
+        return array(
+            'reminder' => MDL_F2F_CONDITION_BEFORE_SESSION,
+            'confirmation' => MDL_F2F_CONDITION_BOOKING_CONFIRMATION,
+            'cancellation' => MDL_F2F_CONDITION_CANCELLATION_CONFIRMATION,
+            'decline' => MDL_F2F_CONDITION_DECLINE_CONFIRMATION,
+            'waitlist' => MDL_F2F_CONDITION_WAITLISTED_CONFIRMATION,
+            'request' => MDL_F2F_CONDITION_BOOKING_REQUEST_MANAGER,
+            'timechange' => MDL_F2F_CONDITION_SESSION_DATETIME_CHANGE,
+            'trainerconfirm' => MDL_F2F_CONDITION_TRAINER_CONFIRMATION,
+            'trainercancel' => MDL_F2F_CONDITION_TRAINER_SESSION_CANCELLATION,
+            'trainerunassign' => MDL_F2F_CONDITION_TRAINER_SESSION_UNASSIGNMENT,
+            'registrationexpired' => MDL_F2F_CONDITION_REGISTRATION_DATE_EXPIRED,
+            'sessioncancellation' => MDL_F2F_CONDITION_SESSION_CANCELLATION,
+            'reservationcancel' => MDL_F2F_CONDITION_RESERVATION_CANCELLED,
+            'allreservationcancel' => MDL_F2F_CONDITION_RESERVATION_ALL_CANCELLED,
+            'rolerequest' => MDL_F2F_CONDITION_BOOKING_REQUEST_ROLE,
+            'adminrequest' => MDL_F2F_CONDITION_BOOKING_REQUEST_ADMIN,
+            'registrationclosure' => MDL_F2F_CONDITION_BEFORE_REGISTRATION_ENDS,
+        );
+    }
 }
 
 /**
@@ -2718,4 +2745,107 @@ function facetoface_notification_match($data1, $data2) {
         return false;
     }
     return true;
+}
+
+/**
+ * Get a list reference -> conditiontype of notification templates which are not existed in active seminars.
+ *
+ * @return array list of notification templates
+ */
+function facetoface_notification_get_missing_templates() {
+    global $DB;
+
+    $type = MDL_F2F_NOTIFICATION_AUTO;
+    $result = [];
+    $sqlqueries = [];
+    foreach (facetoface_notification::get_references() as $reference => $conditiontype) {
+        $sqlqueries[] =
+            "SELECT f.id as fid, fnt.reference, fnt.title
+               FROM {facetoface_notification_tpl} fnt
+         CROSS JOIN {facetoface} f
+          LEFT JOIN {facetoface_notification} fn
+                 ON (fn.type = $type AND fn.facetofaceid=f.id AND fn.conditiontype = $conditiontype)
+              WHERE fnt.reference = '$reference' AND fn.id IS NULL";
+    }
+    $sql = implode(" UNION ", $sqlqueries);
+    $records = $DB->get_recordset_sql($sql);
+
+    foreach ($records as $record) {
+        $result[$record->reference] = true;
+    }
+    return $result;
+}
+
+/**
+ * Create new seminar notifications for active seminars from notification templates.
+ *
+ * @param int $conditiontype seminar notification condition type
+ * @return int how many records are affected
+ */
+function facetoface_notification_restore_missing_template($conditiontype) {
+    global $DB;
+
+    $referencelist = facetoface_notification::get_references();
+    $reference = array_flip($referencelist)[$conditiontype];
+
+    $sql = "SELECT f.id as fid, f.course as courseid, fnt.reference
+              FROM {facetoface_notification_tpl} fnt
+        CROSS JOIN {facetoface} f
+         LEFT JOIN {facetoface_notification} fn ON (fn.type = :type AND fn.facetofaceid=f.id AND fn.conditiontype = :conditiontype)
+             WHERE fnt.reference = :reference AND fn.id IS NULL";
+    $params = ['type' => MDL_F2F_NOTIFICATION_AUTO, 'conditiontype' => $conditiontype, 'reference' => $reference];
+    if (!($records = $DB->get_recordset_sql($sql, $params))) {
+        return 0;
+    }
+
+    $template = $DB->get_record('facetoface_notification_tpl', ['reference' => $reference], '*', MUST_EXIST);
+
+    $default = array();
+    $default['type'] = MDL_F2F_NOTIFICATION_AUTO;
+    $default['booked'] = 0;
+    $default['waitlisted'] = 0;
+    $default['cancelled'] = 0;
+    $default['requested'] = 0;
+    $default['issent'] = 0;
+    $default['status'] = 1;
+    $default['ccmanager'] = 0;
+
+    $rows = 0;
+    foreach ($records as $record) {
+        $rows++;
+        $default['facetofaceid'] = $record->fid;
+        $default['courseid'] = $record->courseid;
+
+        $notification = new facetoface_notification($default, false);
+        $notification->title = $template->title;
+        $notification->body = $template->body;
+        $notification->managerprefix = $template->managerprefix;
+        $notification->conditiontype = $conditiontype;
+        $notification->status = $template->status;
+        $notification->templateid = $template->id;
+
+        switch ($conditiontype) {
+            case MDL_F2F_CONDITION_CANCELLATION_CONFIRMATION:
+            case MDL_F2F_CONDITION_RESERVATION_CANCELLED:
+            case MDL_F2F_CONDITION_RESERVATION_ALL_CANCELLED:
+            case MDL_F2F_CONDITION_SESSION_CANCELLATION:
+                $notification->cancelled = 1;
+                break;
+            case MDL_F2F_CONDITION_BEFORE_SESSION:
+                $notification->scheduleunit = MDL_F2F_SCHEDULE_UNIT_DAY;
+                $notification->scheduleamount = 2;
+                $notification->booked = 1;
+                break;
+            case MDL_F2F_CONDITION_SESSION_DATETIME_CHANGE:
+                $notification->booked = 1;
+                $notification->waitlisted = 1;
+                break;
+            case MDL_F2F_CONDITION_BEFORE_REGISTRATION_ENDS:
+                $notification->requested = 1;
+                break;
+        }
+
+        $notification->save();
+    }
+    return $rows;
 }

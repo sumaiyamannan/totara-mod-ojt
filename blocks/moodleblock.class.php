@@ -558,7 +558,7 @@ class block_base {
         if (!empty($USER->id)
             && $page->context->contextlevel == CONTEXT_USER // Page belongs to a user
             && $page->context->instanceid == $USER->id // Page belongs to this user
-            && ($page->pagetype == 'my-index' || substr($page->pagetype, 0, 20) == 'my-totara-dashboard-')) {
+            && ($page->pagetype == 'my-index' || strpos($page->pagetype, 'totara-dashboard-') === 0)) {
 
             // If the block cannot be displayed on /my it is ok if the myaddinstance capability is not defined.
             $formats = $this->applicable_formats();
