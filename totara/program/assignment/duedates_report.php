@@ -61,9 +61,7 @@ if (!empty($program->certifid)) {
 list($reporthtml, $debughtml) = $renderer->report_html($report, $debug);
 echo $debughtml;
 
-$countall = $report->get_full_count();
-
-$heading = get_string('totalusersinassignment', 'totara_program', $countall);
+$heading = get_string('actualduedates', 'totara_program');
 echo $renderer->heading($heading);
 
 $report->display_search();
