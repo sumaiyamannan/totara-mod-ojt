@@ -149,12 +149,12 @@ function get_shortnameoridnumber($relatedtable, $importtable, $shortnamefield, $
     $emptyidnumber = $DB->sql_isempty($importtable, "{$importtable}.{$idnumberfield}", true, false);
     $shortnameoridnumber = "
         ({$notemptyshortname} AND {$notemptyidnumber}
-            AND {$relatedtable}.shortname = {$importtable}.{$shortnamefield}
-            AND {$relatedtable}.idnumber = {$importtable}.{$idnumberfield})
+            AND TRIM({$relatedtable}.shortname) = {$importtable}.{$shortnamefield}
+            AND TRIM({$relatedtable}.idnumber) = {$importtable}.{$idnumberfield})
         OR ({$notemptyshortname} AND {$emptyidnumber}
-            AND {$relatedtable}.shortname = {$importtable}.{$shortnamefield})
+            AND TRIM({$relatedtable}.shortname) = {$importtable}.{$shortnamefield})
         OR ({$emptyshortname} AND {$notemptyidnumber}
-            AND {$relatedtable}.idnumber = {$importtable}.{$idnumberfield})
+            AND TRIM({$relatedtable}.idnumber) = {$importtable}.{$idnumberfield})
         ";
     return $shortnameoridnumber;
 }

@@ -62,6 +62,15 @@ class totara_completionimport_importcourse_testcase extends advanced_testcase {
         $this->assertEquals(1, $DB->count_records('course')); // Site course.
         $coursedefaults = array('enablecompletion' => COMPLETION_ENABLED);
         for ($i = 1; $i <= COURSE_HISTORY_IMPORT_USERS; $i++) {
+            if ($i % 2 == 0) {
+                // Add trailing spaces to the shortname and idnumber fields for every other course.
+                // We want to ensure this does not effect the outcome.
+                $coursedefaults['shortname'] = 'Course' . $i . '   ';
+                $coursedefaults['idnumber'] = 'c' . $i . '   ';
+            } else {
+                $coursedefaults['shortname'] = 'Course' . $i;
+                $coursedefaults['idnumber'] = 'c' . $i;
+            }
             $this->getDataGenerator()->create_course($coursedefaults);
         }
         // Site course + generated courses.

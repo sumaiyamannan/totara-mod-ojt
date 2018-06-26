@@ -106,8 +106,18 @@ class totara_completionimport_importcertification_testcase extends reportcache_a
 
         // Create some programs.
         $this->assertEquals(0, $DB->count_records('prog'), "Programs table isn't empty");
+        $programdefaults = array();
         for ($i = 1; $i <= CERT_HISTORY_IMPORT_CERTIFICATIONS; $i++) {
-            $certifications[$i] = $this->getDataGenerator()->create_certification(array('prog_idnumber' => 'ID' . $i));
+            if ($i % 2 == 0) {
+                // Add trailing spaces to the shortname and idnumber fields for every other certification.
+                // We want to ensure this does not effect the outcome.
+                $programdefaults['prog_shortname'] = 'Certification' . $i . '   ';
+                $programdefaults['prog_idnumber'] = 'ID' . $i . '   ';
+            } else {
+                $programdefaults['prog_shortname'] = 'Certification' . $i;
+                $programdefaults['prog_idnumber'] = 'ID' . $i;
+            }
+            $certifications[$i] = $this->getDataGenerator()->create_certification($programdefaults);
         }
         $this->assertEquals(CERT_HISTORY_IMPORT_CERTIFICATIONS, $DB->count_records('prog'),
                 'Record count mismatch in program table');
