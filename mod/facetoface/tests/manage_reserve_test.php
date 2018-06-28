@@ -121,4 +121,46 @@ class mod_facetoface_manage_reserve_test extends \advanced_testcase {
         }
         return $ri;
     }
+
+    /**
+     * Check that facetoface_get_users_by_status returns correct results when include reserve is used.
+     */
+    public function test_facetoface_get_users_by_status_include_reserve() {
+        $this->resetAfterTest(true);
+
+        $user1 = $this->getDataGenerator()->create_user();
+        $manager = $this->getDataGenerator()->create_user();
+        $course1 = $this->getDataGenerator()->create_course();
+
+        /** @var mod_facetoface_generator $facetofacegenerator */
+        $facetofacegenerator = $this->getDataGenerator()->get_plugin_generator('mod_facetoface');
+
+        $time = time();
+        $day = 86400;
+
+        $facetoface = $facetofacegenerator->create_instance(['course' => $course1->id]);
+        $session1id = $facetofacegenerator->add_session([
+            'facetoface' => $facetoface->id,
+            'sessiondates' => [
+                (object)[
+                    'timestart' => $time + ($day / 24) * 36,
+                    'timefinish' => $time + ($day / 24) * 38,
+                    'sessiontimezone' => 'Pacific/Auckland',
+                ]
+            ]
+        ]);
+        $session1 = facetoface_get_session($session1id);
+
+        facetoface_add_reservations($session1, $manager->id, 2, 0);
+        facetoface_user_signup($session1, $facetoface, $course1, '', MDL_F2F_TEXT, MDL_F2F_STATUS_BOOKED, $user1->id);
+        $records = facetoface_get_users_by_status($session1->id, MDL_F2F_STATUS_BOOKED, '', true);
+        $this->assertCount(3, $records);
+        $signupcnt = 0;
+        foreach ($records as $record) {
+            if (empty($record->email)) {
+                $signupcnt++;
+            }
+        }
+        $this->assertEquals(2, $signupcnt);
+    }
 }
