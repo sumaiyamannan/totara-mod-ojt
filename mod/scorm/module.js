@@ -310,7 +310,7 @@ M.mod_scorm.init = function(Y, nav_display, navposition_left, navposition_top, h
             }
 
             // Some SCORMS may have their hieght set - check if it does (usually it's below 200px if it doesn't)
-            if (parseInt(Y.one('#scorm_layout').getComputedStyle('height')) < 200) {
+            if (parseInt(Y.one('#scorm_content').getComputedStyle('height')) < 200) {
                 var marginbottom = 40;
                 if (Y.one('#scorm_navpanel')) {
                     marginbottom = parseInt(Y.one('#scorm_navpanel').getComputedStyle('height'), 10) + 40;
