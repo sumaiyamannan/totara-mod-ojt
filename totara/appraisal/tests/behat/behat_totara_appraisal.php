@@ -62,7 +62,6 @@ class behat_totara_appraisal extends behat_base {
      * @param string    $page page number
      */
     public function create_appraisal_questions_on_page_for_type($numberofquestions, $type, $page) {
-        \behat_hooks::set_step_readonly(false);
 
         switch($type) {
             case 'datepicker':
