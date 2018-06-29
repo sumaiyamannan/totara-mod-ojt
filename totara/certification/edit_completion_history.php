@@ -87,6 +87,7 @@ if ($chid) {
     $certcomplhistory->timecompleted = $now;
     $certcomplhistory->timewindowopens = $now;
     $certcomplhistory->timeexpires = $now;
+    $certcomplhistory->baselinetimeexpires = $now;
     $certcomplhistory->timemodified = time();
     $certcomplhistory->unassigned = 0;
 }
@@ -101,6 +102,7 @@ $currentformdata->certifpath = $certcomplhistory->certifpath;
 $currentformdata->timecompleted = $certcomplhistory->timecompleted;
 $currentformdata->timewindowopens = $certcomplhistory->timewindowopens;
 $currentformdata->timeexpires = $certcomplhistory->timeexpires;
+$currentformdata->baselinetimeexpires = $certcomplhistory->baselinetimeexpires;
 $currentformdata->unassigned = $certcomplhistory->unassigned;
 
 // Prepare the form.

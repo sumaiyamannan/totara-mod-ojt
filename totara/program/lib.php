@@ -1248,7 +1248,16 @@ function prog_process_extensions($extensionslist, $reasonfordecision = array()) 
                 // Load the program for this extension
                 $extension_program = new program($extension->programid);
 
-                if ($prog_completion = $DB->get_record('prog_completion', array('programid' => $extension_program->id, 'userid' => $extension->userid, 'coursesetid' => 0))) {
+                $cert_completion = null;
+                $prog_completion = null;
+
+                if ($extension_program->certifid) {
+                    list($cert_completion, $prog_completion) = certif_load_completion($extension->programid, $extension->userid, false);
+                } else {
+                    $prog_completion = prog_load_completion($extension->programid, $extension->userid, false);
+                }
+
+                if ($prog_completion) {
                     $duedate = empty($prog_completion->timedue) ? 0 : $prog_completion->timedue;
 
                     if ($extension->extensiondate < $duedate) {
@@ -1264,7 +1273,23 @@ function prog_process_extensions($extensionslist, $reasonfordecision = array()) 
                 }
 
                 // Try to update due date for program using extension date
-                if (!$extension_program->set_timedue($extension->userid, $extension->extensiondate, 'Due date extension granted')) {
+                //Check whether user is on a recertification path, and update certification expiry if required
+                if ($cert_completion) {
+                    if ($cert_completion->certifpath == CERTIFPATH_RECERT) {
+                        $cert_completion->timeexpires = $extension->extensiondate;
+                    }
+
+                    $prog_completion->timedue = $extension->extensiondate;
+                    $result = certif_write_completion($cert_completion, $prog_completion, 'Due date extension granted');
+                } else if ($prog_completion) {
+                    $prog_completion->timedue = $extension->extensiondate;
+                    $result = prog_write_completion($prog_completion, 'Due date extension granted');
+                } else {
+                    $update_fail_count++;
+                    continue;
+                }
+
+                if (!$result) {
                     $update_fail_count++;
                     continue;
                 } else {

@@ -515,6 +515,7 @@ class totara_program_observer_testcase extends reportcache_advanced_testcase {
         $certcompletion->timecompleted = 100;
         $certcompletion->timewindowopens = 200;
         $certcompletion->timeexpires = 300;
+        $certcompletion->baselinetimeexpires = 300;
         $progcompletion->status = STATUS_PROGRAM_COMPLETE;
         $progcompletion->timecompleted = 100;
         $progcompletion->timedue = 300;
@@ -528,6 +529,7 @@ class totara_program_observer_testcase extends reportcache_advanced_testcase {
         $certcompletion->timecompleted = 100;
         $certcompletion->timewindowopens = 200;
         $certcompletion->timeexpires = 300;
+        $certcompletion->baselinetimeexpires = 300;
         $progcompletion->status = STATUS_PROGRAM_COMPLETE;
         $progcompletion->timecompleted = 100;
         $progcompletion->timedue = 300;

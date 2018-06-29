@@ -33,7 +33,7 @@ function certif_upgrade_fix_reassigned_users() {
 
     // Search certification completion records for the specific problem.
     $sql = "SELECT cc.id AS ccid, cc.userid, pc.id AS pcid,
-                   cc.certifid, cc.status, cc.renewalstatus, cc.certifpath, cc.timecompleted, cc.timewindowopens, cc.timeexpires,
+                   cc.certifid, cc.status, cc.renewalstatus, cc.certifpath, cc.timecompleted, cc.timewindowopens, cc.timeexpires, cc.baselinetimeexpires,
                    pc.programid, pc.status AS progstatus, pc.timecompleted AS progtimecompleted, pc.timedue
               FROM {certif_completion} cc
               JOIN {prog} prog ON prog.certifid = cc.certifid
@@ -60,6 +60,7 @@ function certif_upgrade_fix_reassigned_users() {
         $certcompletion->timecompleted = $record->timecompleted;
         $certcompletion->timewindowopens = $record->timewindowopens;
         $certcompletion->timeexpires = $record->timeexpires;
+        $certcompletion->baselinetimeexpires = $record->baselinetimeexpires;
 
         $progcompletion = new stdClass();
         $progcompletion->id = $record->pcid;
@@ -101,6 +102,7 @@ function certif_upgrade_fix_reassigned_users() {
                     $certcompletion->timecompleted = $history->timecompleted;
                     $certcompletion->timewindowopens = $history->timewindowopens;
                     $certcompletion->timeexpires = $history->timeexpires;
+                    $certcompletion->baselinetimeexpires = $history->baselinetimeexpires;
 
                     $progcompletion->status = STATUS_PROGRAM_COMPLETE;
                     $progcompletion->timecompleted = $history->timecompleted;

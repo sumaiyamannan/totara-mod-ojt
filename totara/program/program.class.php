@@ -1592,7 +1592,7 @@ class program {
                 if ($this->has_pending_extension_request($userid)) {
                     // Show pending text if they have already requested an extension.
                     $request = ' ' . get_string('pendingextension', 'totara_program');
-                } else {
+                } else if (!$prog_completion || $prog_completion->timedue < time()) {
                     // Show extension request link if it is their assignment and they have a manager to request it from.
                     $url = new moodle_url('/totara/program/view.php', array('id' => $this->id, 'extrequest' => '1'));
                     $request = ' ' . html_writer::link($url, get_string('requestextension', 'totara_program'), array('id' => 'extrequestlink'));
