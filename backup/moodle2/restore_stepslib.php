@@ -3781,6 +3781,7 @@ class restore_activity_grade_history_structure_step extends restore_structure_st
  */
 class restore_block_instance_structure_step extends restore_structure_step {
 
+    protected static $duplicatedblocks = array();
     protected function define_structure() {
 
         $paths = array();
@@ -3865,17 +3866,38 @@ class restore_block_instance_structure_step extends restore_structure_step {
 
         // If there is already one block of that type in the parent context
         // with the same showincontexts, pagetypepattern, subpagepattern, defaultregion and configdata
-        // stop processing
+        // stop processing, unless the backup amount of duplicated block is greater than the course has.
         $params = array(
             'blockname' => $data->blockname, 'parentcontextid' => $data->parentcontextid,
             'showinsubcontexts' => $data->showinsubcontexts, 'pagetypepattern' => $data->pagetypepattern,
-            'subpagepattern' => $data->subpagepattern, 'defaultregion' => $data->defaultregion);
-        if ($birecs = $DB->get_records('block_instances', $params)) {
-            foreach($birecs as $birec) {
-                if ($birec->configdata == $data->configdata) {
-                    return false;
-                }
-            }
+            'subpagepattern' => $data->subpagepattern, 'defaultregion' => $data->defaultregion,
+            'configdata' => $data->configdata);
+        $duplicated = self::$duplicatedblocks;
+        $key = array_search($params, array_map(function($duplicated) {
+            return $duplicated['data'];
+        }, $duplicated));
+        if ($key) {
+            self::$duplicatedblocks[$key]['counter']++;
+        } else {
+            $sql = "SELECT COUNT(id)
+                 FROM {block_instances} 
+                 WHERE blockname = :blockname 
+                   AND parentcontextid = :parentcontextid 
+                   AND showinsubcontexts = :showinsubcontexts
+                   AND pagetypepattern = :pagetypepattern 
+                   AND defaultregion = :defaultregion
+                   AND {$DB->sql_compare_text('configdata')} = :configdata";
+            // Add subpagepattern to the select.
+            $sql .= ($data->subpagepattern === null) ? ' AND subpagepattern IS NULL' : ' AND subpagepattern = :subpagepattern';
+            $birecs = $DB->count_records_sql($sql, $params);
+            self::$duplicatedblocks[] = array('counter' => 1, 'indatabase' => $birecs, 'data' => $params);
+            end(self::$duplicatedblocks);
+            $key = key(self::$duplicatedblocks);
+        }
+
+        // Check if the number of duplicated blocks in restore is not greater than the ones in the course.
+        if (self::$duplicatedblocks[$key]['counter'] <= self::$duplicatedblocks[$key]['indatabase']) {
+            return false;
         }
 
         // Set task old contextid, blockid and blockname once we know them
