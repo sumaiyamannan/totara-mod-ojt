@@ -324,4 +324,43 @@ class behat_facetoface extends behat_base {
         $this->wait_for_pending_js();
     }
 
+    /**
+     * Selects an attendees job assignment.
+     *
+     * Must start out on the attendees page.
+     *
+     * @When /^I set the Seminar signup job assignment to "([^"]*)" for "([^"]*)"$/
+     * @param string $jobassignment
+     * @param string $username
+     */
+    public function i_set_the_seminar_signup_job_assignment_to_for($jobassignment, $username) {
+        $username_escaped = $this->getSession()->getSelectorsHandler()->xpathLiteral($username);
+        $edit_escaped = $this->getSession()->getSelectorsHandler()->xpathLiteral(get_string('edit'));
+        $xpath = "//table[@id='facetoface_sessions']//td[contains(@class, 'user_namelink') and contains(., {$username_escaped})]/ancestor::tr/td[contains(@class, 'session_positionnameedit')]//a[contains(., {$edit_escaped})]";
+        $nodes = $this->find_all('xpath', $xpath);
+        if (empty($nodes) || count($nodes) > 1) {
+            throw new \Behat\Mink\Exception\ExpectationException('Unable to find the edit job assignment icon for '.$username, $this->getSession());
+        }
+        $node = reset($nodes);
+        $node->click();
+
+        $data = new TableNode();
+        $data->setRows([['selectjobassign', $jobassignment]]);
+        /** @var behat_forms $behatformcontext */
+        $behatformcontext = behat_context_helper::get('behat_forms');
+        $behatformcontext->i_set_the_following_fields_to_these_values($data);
+
+        /** @var Behat\Mink\Element\NodeElement[] $nodes */
+        $nodes = $this->find_all('xpath', "//form//input[@type='submit' and @value='Update job assignment']");
+        if (empty($nodes)) {
+            throw new \Behat\Mink\Exception\ExpectationException('Unable to find the save button when editing seminar signup job assignment for '.$username, $this->getSession());
+        }
+        foreach ($nodes as $node) {
+            if ($node->isVisible()) {
+                $node->click();
+                break;
+            }
+        }
+    }
+
 }
