@@ -152,7 +152,10 @@ class mod_facetoface_manage_reserve_test extends \advanced_testcase {
         $session1 = facetoface_get_session($session1id);
 
         facetoface_add_reservations($session1, $manager->id, 2, 0);
+        $sink = $this->redirectMessages();
         facetoface_user_signup($session1, $facetoface, $course1, '', MDL_F2F_TEXT, MDL_F2F_STATUS_BOOKED, $user1->id);
+        $sink->close();
+
         $records = facetoface_get_users_by_status($session1->id, MDL_F2F_STATUS_BOOKED, '', true);
         $this->assertCount(3, $records);
         $signupcnt = 0;
