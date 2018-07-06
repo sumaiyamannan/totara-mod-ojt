@@ -332,4 +332,12 @@ class mod_facetoface_generator extends testing_module_generator {
 
         return $this->add_session($record);
     }
+
+    /**
+     * @param array $record
+     */
+    public function create_global_asset_for_behat(array $record) {
+        $record['custom'] = 0;
+        $this->add_asset($record);
+    }
 }
