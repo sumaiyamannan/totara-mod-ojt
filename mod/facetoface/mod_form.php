@@ -167,9 +167,18 @@ class mod_facetoface_mod_form extends moodleform_mod {
                     }
                 }
             }
-            if ($currentapprovaltype === APPROVAL_ROLE && !$currentfound) {
-                    $radiogroup[] =& $mform->createElement('radio', 'approvaloptions', '', $rolenames[$roleid]->localname, $option);
-                    $default = empty($default) ? $option : $default;
+
+            //This is only happening when the option is being
+            //disabled from the global settings, however,
+            //the seminar module's settings still need to support it
+            if ($currentapprovaltype === APPROVAL_ROLE && !$currentfound && isset($rolenames[$currentapprovalrole])) {
+                if (!isset($roleid)) {
+                    $roleid = $currentapprovalrole;
+                }
+
+                $option = "approval_role_{$roleid}";
+                $radiogroup[] =& $mform->createElement('radio', 'approvaloptions', '', $rolenames[$roleid]->localname, $option);
+                $default = empty($default) ? $option : $default;
             }
 
             // Manager approval.
