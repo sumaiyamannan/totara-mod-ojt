@@ -196,6 +196,32 @@ class hierarchy {
     var $frameworkid;
 
     /**
+     * Content restriction SQL
+     * @var string
+     */
+    protected $contentwhere = '';
+
+    /**
+     * Content restriction SQL parameters
+     */
+    protected $contentparams = array();
+
+    /**
+     * Set the content restriction where clause to apply as defined in the provided report
+     *
+     * @param int $reportid Id of the report containing the content restriction definition
+     * @param int $userid Report user to use - mainly useful for testing
+     */
+    public function set_content_restriction_from_report($reportid, $userid=null) {
+        if (empty($reportid)) {
+            return;
+        }
+
+        $report = new reportbuilder($reportid, null, false, null, $userid);
+        list($this->contentwhere, $this->contentparams) = $report->get_hierarchy_content_restrictions($this->shortprefix);
+    }
+
+    /**
      * Get a framework
      *
      * @param integer $id (optional) ID of the framework to return. If not set returns the default (first) framework
@@ -208,21 +234,44 @@ class hierarchy {
     function get_framework($id = 0, $showhidden = false, $noframeworkok = false) {
         global $DB;
 
-        // If no framework id supplied, use first in sortorder
+        $fw_where = '';
+        $params = array();
+        $contentjoin = '';
+        $contentwhere = '';
+
         if ($id == 0) {
-            $visible_sql = $showhidden ? '' : ' WHERE visible = 1';
-            $sql = "SELECT * FROM {{$this->shortprefix}_framework}
-                {$visible_sql}
-                ORDER BY sortorder ASC";
-            if (!$framework = $DB->get_record_sql($sql, null, true)) {
+            if (!$showhidden) {
+                $fw_where = 'fw.visible = :visible';
+                $params['visible'] = 1;
+            } else {
+                $fw_where = '(1=1)';
+            }
+        } else {
+            $fw_where = 'fw.id = :id';
+            $params['id'] = $id;
+        }
+
+        list($contentjoin, $contentwhere, $contentparams) = $this->get_content_sql_elements('fw', 'frameworkid');
+        $params = array_merge($params, $contentparams);
+
+        $sql =
+            "SELECT fw.*
+               FROM {{$this->shortprefix}_framework} fw
+                    {$contentjoin}
+               WHERE {$fw_where}
+                     {$contentwhere}
+            ORDER BY sortorder ASC";
+
+        // If multiple frameworks, use first in sortorder
+        $framework = $DB->get_record_sql($sql, $params, IGNORE_MULTIPLE);
+        if ($framework === false) {
+            if ($id == 0) {
                 if ($noframeworkok) {
                     return false;
                 } else {
                     print_error('noframeworks', 'totara_hierarchy');
                 }
-            }
-        } else {
-            if (!$framework = $DB->get_record($this->shortprefix.'_framework', array('id' => $id))) {
+            } else {
                 print_error('frameworkdoesntexist', 'totara_hierarchy', '', $this->prefix);
             }
         }
@@ -239,11 +288,22 @@ class hierarchy {
      */
     public function get_type_by_id($id, $usertype = false) {
         global $DB;
-        if ($usertype) {
-            return $DB->get_record($this->shortprefix.'_user_type', array('id' => $id));
-        } else {
-            return $DB->get_record($this->shortprefix.'_type', array('id' => $id));
-        }
+
+        $tablename = $usertype
+            ? $this->shortprefix.'_user_type'
+            : $this->shortprefix.'_type';
+
+        list($contentjoin, $contentwhere, $contentparams) = $this->get_content_sql_elements('t', 'typeid');
+        $params = array_merge(['id' => $id], $contentparams);
+
+        $sql =
+            "SELECT t.*
+               FROM {{$tablename}} t
+               {$contentjoin}
+               WHERE id = :id
+               {$contentwhere}";
+
+        return $DB->get_record_sql($sql, $params);
     }
 
     /**
@@ -256,29 +316,40 @@ class hierarchy {
     function get_frameworks($extra_data=array(), $showhidden=false) {
         global $DB;
 
-        if (!count($extra_data) && !$showhidden) {
-            return $DB->get_records($this->shortprefix.'_framework', array('visible' => '1'), 'sortorder, fullname');
-        } else if (!count($extra_data)) {
-            return $DB->get_records($this->shortprefix.'_framework', array(), 'sortorder, fullname');
+        $fields = 'f.*';
+        $table = "{{$this->shortprefix}_framework} f ";
+        $where = '';
+        $wherejoin = 'WHERE';
+        $params = array();
+
+        if (count($extra_data)) {
+            if (isset($extra_data['depth_count'])) {
+                $fields .= ",(SELECT COALESCE(MAX(depthlevel), 0) FROM {{$this->shortprefix}} item
+                            WHERE item.frameworkid = f.id) AS depth_count ";
+            }
+            if (isset($extra_data['item_count'])) {
+                $fields .= ",(SELECT COUNT(*) FROM {{$this->shortprefix}} ic
+                            WHERE ic.frameworkid=f.id) AS item_count ";
+            }
         }
 
-        $sql = "SELECT f.* ";
-        if (isset($extra_data['depth_count'])) {
-            $sql .= ",(SELECT COALESCE(MAX(depthlevel), 0) FROM {{$this->shortprefix}} item
-                        WHERE item.frameworkid = f.id) AS depth_count ";
-        }
-        if (isset($extra_data['item_count'])) {
-            $sql .= ",(SELECT COUNT(*) FROM {{$this->shortprefix}} ic
-                        WHERE ic.frameworkid=f.id) AS item_count ";
-        }
-        $sql .= "FROM {{$this->shortprefix}_framework} f ";
         if (!$showhidden) {
-            $sql .= "WHERE f.visible=1 ";
+            $where = " WHERE f.visible=:visible ";
+            $params['visible'] = 1;
+            $wherejoin = 'AND';
         }
-        $sql .= "ORDER BY f.sortorder, f.fullname";
 
-        return $DB->get_records_sql($sql);
+        list($contentjoin, $contentwhere, $contentparams) = $this->get_content_sql_elements('f', 'frameworkid', $wherejoin);
+        $params = array_merge($params, $contentparams);
 
+        $sql =
+            "SELECT DISTINCT {$fields}
+               FROM {$table}
+                    {$contentjoin}
+               {$where} {$contentwhere}
+           ORDER BY f.sortorder, f.fullname";
+
+        return $DB->get_records_sql($sql, $params);
     }
 
     /**
@@ -290,22 +361,30 @@ class hierarchy {
     function get_types($extra_data=array()) {
         global $DB;
 
-        if (!count($extra_data)) {
-           return $DB->get_records($this->shortprefix.'_type', array(), 'fullname');
+        $fields = "c.*";
+        $table = "{{$this->shortprefix}_type} c";
+
+        if (count($extra_data)) {
+            if (isset($extra_data['custom_field_count'])) {
+                $fields .= ", (SELECT COUNT(*) FROM {{$this->shortprefix}_type_info_field} cif
+                            WHERE cif.typeid = c.id) AS custom_field_count ";
+            }
+            if (isset($extra_data['item_count'])) {
+                $fields .= ", (SELECT COUNT(*) FROM {{$this->shortprefix}} ic
+                     WHERE ic.typeid = c.id) AS item_count";
+            }
         }
 
-        $sql = "SELECT c.* ";
-        if (isset($extra_data['custom_field_count'])) {
-            $sql .= ", (SELECT COUNT(*) FROM {{$this->shortprefix}_type_info_field} cif
-                        WHERE cif.typeid = c.id) AS custom_field_count ";
-        }
-        if (isset($extra_data['item_count'])) {
-            $sql .= ", (SELECT COUNT(*) FROM {{$this->shortprefix}} ic
-                 WHERE ic.typeid = c.id) AS item_count";
-        }
-        $sql .= " FROM {{$this->shortprefix}_type} c
-                  ORDER BY c.fullname";
-        return $DB->get_records_sql($sql);
+        list($contentjoin, $contentwhere, $contentparams) = $this->get_content_sql_elements('c', 'typeid', 'WHERE');
+
+        $sql =
+            "SELECT {$fields}
+               FROM {$table}
+                    {$contentjoin}
+               {$contentwhere}
+           ORDER BY c.fullname";
+
+        return $DB->get_records_sql($sql, $contentparams);
     }
 
     /**
@@ -352,7 +431,16 @@ class hierarchy {
      */
     function get_types_list() {
         global $DB;
-        return $DB->get_records_menu($this->shortprefix.'_type', array(), 'fullname', 'id,fullname');
+
+        list($contentjoin, $contentwhere, $contentparams) = $this->get_content_sql_elements('t', 'typeid', 'WHERE');
+
+        $sql = "SELECT t.id, t.fullname
+                  FROM {{$this->shortprefix}_type} t
+                       {$contentjoin}
+                  {$contentwhere}
+              ORDER BY t.fullname";
+
+        return $DB->get_records_sql_menu($sql, $contentparams);
     }
 
     /**
@@ -397,7 +485,18 @@ class hierarchy {
      */
     function get_item($id) {
         global $DB;
-        return $DB->get_record($this->shortprefix, array('id' => $id));
+
+        list($contentjoin, $contentwhere, $contentparams) = $this->get_content_sql_elements();
+        $params = array_merge(['id' => $id], $contentparams);
+
+        $sql =
+            "SELECT base.*
+               FROM {{$this->shortprefix}} base
+               {$contentjoin}
+               WHERE id = :id
+               {$contentwhere}";
+
+        return $DB->get_record_sql($sql, $params);
     }
 
     /**
@@ -406,7 +505,21 @@ class hierarchy {
      */
     function get_items() {
         global $DB;
-        return $DB->get_records($this->shortprefix, array('frameworkid' => $this->frameworkid), 'sortthread, fullname');
+
+        $where = "base.frameworkid = :fwid";
+        $params = array('fwid' => $this->frameworkid);
+
+        list($contentjoin, $contentwhere, $contentparams) = $this->get_content_sql_elements('', '', 'AND');
+        $params = array_merge($params, $contentparams);
+
+        $sql =   "SELECT base.*
+                    FROM {{$this->shortprefix}} base
+                         {$contentjoin}
+                   WHERE {$where}
+                         {$contentwhere}
+                ORDER BY base.sortthread, base.fullname";
+
+        return $DB->get_records_sql($sql, $params);
     }
 
     /**
@@ -418,11 +531,27 @@ class hierarchy {
     public static function get_framework_items($frameworkid = null) {
         global $DB;
 
+        $wherejoin = "WHERE";
+        $where = '';
+        $params = array();
+
         if (isset($frameworkid)) {
-            return $DB->get_records(static::SHORT_PREFIX, array('frameworkid' => $frameworkid), 'sortthread, fullname');
-        } else {
-            return $DB->get_records(static::SHORT_PREFIX, array(), 'sortthread, fullname');
+            $where = "WHERE base.frameworkid = :fwid";
+            $params['fwid'] = $frameworkid;;
+            $wherejoin = "AND";
         }
+
+        list($contentjoin, $contentwhere, $contentparams) = $this->get_content_sql_elements('', '', $wherejoin);
+        $params = array_merge($params, $contentparams);
+
+        $sql =
+            "SELECT base.fullname
+               FROM {{static::SHORT_PREFIX}} base
+                     {$contentjoin}
+               {$where} {$contentwhere}
+           ORDER BY base.sortthread";
+
+        return $DB->get_records_sql($sql, $params);
     }
 
     /**
@@ -432,11 +561,27 @@ class hierarchy {
      */
     function get_items_by_parent($parentid=false) {
         global $DB;
+
         if ($parentid) {
             // Parentid supplied, do not specify frameworkid as
             // sometimes it is not set correctly. And a parentid
             // is enough to get the right results
-            return $DB->get_records_select($this->shortprefix, "parentid = ? AND visible = ?", array($parentid, 1), 'frameworkid, sortthread, fullname');
+
+            $where = "base.parentid = :parentid AND base.visible = :visible";
+            $params = array('parentid' => $parentid, 'visible' => 1);
+
+            list($contentjoin, $contentwhere, $contentparams) = $this->get_content_sql_elements('', '', 'AND');
+            $params = array_merge($params, $contentparams);
+
+            $sql =
+               "SELECT base.*
+                  FROM {{$this->shortprefix}} base
+                       {$contentjoin}
+                 WHERE {$where}
+                       {$contentwhere}
+              ORDER BY base.frameworkid, base.sortthread, base.fullname";
+
+            return $DB->get_records_sql($sql, $params);
         }
         else {
             // If no parentid, grab the root node of this framework
@@ -444,7 +589,7 @@ class hierarchy {
         }
     }
 
-    /*
+    /**
      * Returns all items at the root level (parentid=0) for the current framework (obtained
      * from $this->frameworkid)
      * If no framework is specified, returns root items across all frameworks
@@ -456,14 +601,27 @@ class hierarchy {
      */
     function get_all_root_items($all=false) {
         global $DB;
-        if (empty($this->frameworkid) || $all) {
-            // all root level items across frameworks
-            return $DB->get_records_select($this->shortprefix, "parentid = ? AND visible = ?", array(0, 1), 'frameworkid, sortthread, fullname');
-        } else {
-            // root level items for current framework only
-            $fwid = $this->frameworkid;
-            return $DB->get_records_select($this->shortprefix, "parentid = ? AND frameworkid = ? AND visible = ?", array(0, $fwid, 1), 'sortthread, fullname');
+
+        $where = "base.parentid = :parentid AND base.visible = :visible";
+        $params = array('parentid' => 0, 'visible' => 1);
+
+        if (!empty($this->frameworkid) && !$all) {
+            $where .= " AND base.frameworkid = :fwid";
+            $params['fwid'] = $this->frameworkid;
         }
+
+        list($contentjoin, $contentwhere, $contentparams) = $this->get_content_sql_elements('', '', 'AND');
+        $params = array_merge($params, $contentparams);
+
+        $sql =
+            "SELECT base.*
+               FROM {{$this->shortprefix}} base
+                    {$contentjoin}
+               WHERE {$where}
+                     {$contentwhere}
+            ORDER BY base.sortthread, base.fullname";
+
+        return $DB->get_records_sql($sql, $params);
     }
 
     /**
@@ -476,11 +634,19 @@ class hierarchy {
         $path = $DB->get_field($this->shortprefix, 'path', array('id' => $id));
         if ($path) {
             // the WHERE clause must be like this to avoid /1% matching /10
-            $sql = "SELECT id, fullname, parentid, path, sortthread
-                    FROM {{$this->shortprefix}}
-                    WHERE path = ? OR " . $DB->sql_like('path', '?') . "
-                    ORDER BY path";
-            return $DB->get_records_sql($sql, array($path, "{$path}/%"));
+            $where = "path = ? OR " . $DB->sql_like('path', '?');
+            $params = array($path, "{$path}/%");
+
+            // We need ? query parameters here
+            list($contentjoin, $contentwhere, $contentparams) = $this->get_content_sql_elements('', '', 'AND', true);
+            $params = array_merge($params, $contentparams);
+
+            $sql = "SELECT base.id, base.fullname, base.parentid, base.path, base.sortthread
+                    FROM {{$this->shortprefix}} base
+                    WHERE ({$where})
+                          {$contentwhere}
+                    ORDER BY base.path";
+            return $DB->get_records_sql($sql, $params);
         } else {
             print_error('nopathfoundforid', 'totara_hierarchy', '', (object)array('prefix' => $this->prefix, 'id' => $id));
         }
@@ -527,12 +693,18 @@ class hierarchy {
             'sortthread'    =>  $sortthread,
         );
 
-        $sql = "SELECT id FROM {{$this->shortprefix}}
-            WHERE frameworkid = :frameworkid AND
-            depthlevel = :depthlevel AND
-            parentid = :parentid AND
-            sortthread $sqlop :sortthread
-            ORDER BY sortthread $sqlsort";
+        list($contentjoin, $contentwhere, $contentparams) = $this->get_content_sql_elements('', '', 'AND');
+        $params = array_merge($params, $contentparams);
+
+        $sql =
+            "SELECT id
+               FROM {{$this->shortprefix}} base
+              WHERE base.frameworkid = :frameworkid
+                AND depthlevel = :depthlevel
+                AND base.parentid = :parentid
+                AND base.sortthread $sqlop :sortthread
+                    {$contentwhere}
+            ORDER BY base.sortthread $sqlsort";
         // only return first match
         $dest = $DB->get_record_sql($sql, $params, IGNORE_MULTIPLE);
         if ($dest) {
@@ -551,7 +723,19 @@ class hierarchy {
      */
     protected function get_visible_items_and_map() {
         global $DB;
-        $records = $DB->get_records($this->shortprefix, array('visible' => '1'), 'path', 'id,fullname,shortname,parentid,sortthread,path');
+
+        list($contentjoin, $contentwhere, $contentparams) = $this->get_content_sql_elements('', '', 'AND', true);
+        $params = array_merge(array('visible' => '1'), $contentparams);
+
+        $sql =
+            "SELECT base.id, base.fullname, base.shortname, base.parentid, base.sortthread, base.path
+               FROM {{$this->shortprefix}} base
+                    {$contentjoin}
+              WHERE base.visible = :visible
+                    {$contentwhere}
+            ORDER BY base.path";
+
+        $records = $DB->get_records_sql($sql, $params);
         $pathmap = array();
         $parentmap = array();
         foreach ($records as $record) {
@@ -1315,9 +1499,10 @@ class hierarchy {
      *
      * @access  public
      * @param   string $prefix string  Hierarchy prefix
+     * @param   int $cntentreportid Optional id of report containing content restrictions to apply
      * @return  hierarchy Instance of the hierarchy prefix object
      */
-    static function load_hierarchy($prefix) {
+    static function load_hierarchy($prefix, $contentreportid = 0) {
         global $CFG;
 
         // $prefix could be user input so sanitize
@@ -1335,6 +1520,11 @@ class hierarchy {
         // Check class exists
         if (!class_exists($prefix)) {
             print_error('error:hierarchyprefixnotfound', 'totara_hierarchy', '', $prefix);
+        }
+
+        if (!empty($contentreportid)) {
+            $report = new reportbuilder($reportid);
+            list($this->contentwhere, $this->contentparams) = $report->get_hierarchy_content_restrictions();
         }
 
         return new $prefix();
@@ -3099,6 +3289,50 @@ class hierarchy {
         return $items_to_add;
     }
 
+    /**
+     * Return content restriction join, whereclause and parameters to use
+     * As content restriction is obtained from report builder, we need to use
+     * 'base' as table alias for {shortprefix} table.
+     *
+     * @param string $tablealias Main selection table's alias
+     *                           Leave empty if only selecting from {shortprefix}
+     * @param string $linkcolumn Foreign key in {shortprefix} to main selection table
+     * @param string $wherestr Where connect string
+     * @param bool $q_params Use ? query paramenters
+     * @return array containing join clause, where clause and where clause parameters
+     */
+    protected function get_content_sql_elements($tablealias = '', $linkcolumn = '', $wherestr = 'AND', $q_params = false) {
+        if (!empty($this->contentwhere)) {
+            $contentjoin = '';
+            if (!empty($tablealias) && !empty($linkcolumn)) {
+                $contentjoin =
+                    "INNER JOIN {{$this->shortprefix}} base
+                             ON base.{$linkcolumn} = {$tablealias}.id";
+            }
+
+            $contentwhere = $this->contentwhere;
+            $contentparams = $q_params ? array() : $this->contentparams;
+
+            if ($q_params) {
+                // We need to replace named sql parameters to ?
+                $pattern = '/(?<!:):[a-z][a-z0-9_]*/';
+
+                $named_count = preg_match_all($pattern, $contentwhere, $named_matches); // :: used in pgsql casts
+                foreach ($named_matches[0] as $key) {
+                    $key = trim($key, ':');
+                    if (array_key_exists($key, $this->contentparams)) {
+                        $contentparams[] = $this->contentparams[$key];
+                    }
+                }
+
+                $contentwhere = preg_replace($pattern, '?', $contentwhere);
+            }
+
+            return array($contentjoin, " {$wherestr} {$contentwhere}", $contentparams);
+        }
+
+        return array('', '', array());
+    }
 }
 
 /**

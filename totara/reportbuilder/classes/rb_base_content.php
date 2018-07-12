@@ -70,12 +70,13 @@ class rb_current_pos_content extends rb_base_content {
     /**
      * Generate the SQL to apply this content restriction
      *
+     * @param string $jafield Job assignment field to compare
      * @param string $field SQL field to apply the restriction against
      * @param integer $reportid ID of the report
      *
      * @return array containing SQL snippet to be used in a WHERE clause, as well as array of SQL params
      */
-    public function sql_restriction($field, $reportid) {
+    private function restriction_sql($jafield, $field, $reportid) {
         global $CFG, $DB;
 
         // remove rb_ from start of classname
@@ -99,7 +100,7 @@ class rb_current_pos_content extends rb_base_content {
                 $joinsql .= " LEFT JOIN {job_assignment} u2ja
                                      ON u2ja.positionid = p1.id";
 
-                $wheresql .= " AND u2ja.userid = {$field}";
+                $wheresql .= " AND u2ja.{$jafield} = {$field}";
                 break;
             case self::CONTENT_POS_BELOW:
                 $joinsql .= " LEFT JOIN {pos} p2
@@ -107,7 +108,7 @@ class rb_current_pos_content extends rb_base_content {
                               LEFT JOIN {job_assignment} u3ja
                                      ON u3ja.positionid = p2.id";
 
-                $wheresql .= " AND u3ja.userid = {$field} ";
+                $wheresql .= " AND u3ja.{$jafield} = {$field} ";
                 break;
             case self::CONTENT_POS_EQUALANDBELOW:
                 $joinsql .= " INNER JOIN ( SELECT ja.userid,p.id AS positionid,p.path
@@ -119,12 +120,45 @@ class rb_current_pos_content extends rb_base_content {
                                      AND ( p1.path LIKE " . $DB->sql_concat('viewerja.path', "'/%'") . "
                                            OR viewerja.positionid = u1ja.positionid
                                          )";
-                $wheresql = " WHERE u1ja.userid = {$field}";
+                $wheresql = " WHERE u1ja.{$jafield} = {$field}";
                 break;
         }
 
         $sql = "EXISTS({$joinsql}{$wheresql})";
         return array($sql, $params);
+    }
+
+    /**
+     * Generate the SQL to apply this content restriction
+     *
+     * @param string $field SQL field to apply the restriction against
+     * @param integer $reportid ID of the report
+     *
+     * @return array containing SQL snippet to be used in a WHERE clause, as well as array of SQL params
+     */
+    public function sql_restriction($field, $reportid) {
+        return $this->restriction_sql('userid', $field, $reportid);
+    }
+
+    /**
+     * Return hierarchy prefix to which this restriction applies
+     *
+     * @return string Hierarchy prefix
+     */
+    public function sql_hierarchy_restriction_prefix() {
+        return 'pos';
+    }
+
+    /**
+     * Generate the SQL to apply this content restriction to hierarchy queries
+     *
+     * @param string $field SQL field to apply the restriction against
+     * @param integer $reportid ID of the report
+     *
+     * @return array containing SQL snippet to be used in a WHERE clause, as well as array of SQL params
+     */
+    public function sql_hierarchy_restriction($field, $reportid) {
+        return $this->restriction_sql('positionid', $field, $reportid);
     }
 
     /**
@@ -238,12 +272,13 @@ class rb_current_org_content extends rb_base_content {
     /**
      * Generate the SQL to apply this content restriction
      *
+     * @param string $jafield Job assignment field to compare
      * @param string $field SQL field to apply the restriction against
      * @param integer $reportid ID of the report
      *
      * @return array containing SQL snippet to be used in a WHERE clause, as well as array of SQL params
      */
-    public function sql_restriction($field, $reportid) {
+    private function restriction_sql($jafield, $field, $reportid) {
         global $CFG, $DB;
 
         // remove rb_ from start of classname
@@ -266,7 +301,7 @@ class rb_current_org_content extends rb_base_content {
                 $joinsql .= " LEFT JOIN {job_assignment} u2ja
                                 ON u2ja.organisationid = o1.id";
 
-                $wheresql .= " AND u2ja.userid = {$field}";
+                $wheresql .= " AND u2ja.{$jafield} = {$field}";
                 break;
             case self::CONTENT_ORG_BELOW:
                 $joinsql .= " LEFT JOIN {org} o2
@@ -274,7 +309,7 @@ class rb_current_org_content extends rb_base_content {
                          LEFT JOIN {job_assignment} u3ja
                                 ON u3ja.organisationid = o2.id";
 
-                $wheresql .= " AND u3ja.userid = {$field} ";
+                $wheresql .= " AND u3ja.{$jafield} = {$field} ";
                 break;
             case self::CONTENT_ORG_EQUALANDBELOW:
                 $joinsql .= " INNER JOIN (
@@ -284,12 +319,45 @@ class rb_current_org_content extends rb_base_content {
                     ) viewerja ON viewerja.userid = :{$viewparam}
                         AND ( o1.path LIKE " . $DB->sql_concat('viewerja.path', "'/%'") . "
                         OR viewerja.organisationid = u1ja.organisationid )";
-                $wheresql = " WHERE u1ja.userid = {$field}";
+                $wheresql = " WHERE u1ja.{$jafield} = {$field}";
                 break;
         }
 
         $sql = "EXISTS({$joinsql}{$wheresql})";
         return array($sql, $params);
+    }
+
+    /**
+     * Generate the SQL to apply this content restriction
+     *
+     * @param string $field SQL field to apply the restriction against
+     * @param integer $reportid ID of the report
+     *
+     * @return array containing SQL snippet to be used in a WHERE clause, as well as array of SQL params
+     */
+    public function sql_restriction($field, $reportid) {
+        return $this->restriction_sql('userid', $field, $reportid);
+    }
+
+    /**
+     * Return hierarchy prefix to which this restriction applies
+     *
+     * @return string Hierarchy prefix
+     */
+    public function sql_hierarchy_restriction_prefix() {
+        return 'org';
+    }
+
+    /**
+     * Generate the SQL to apply this content restriction to hierarchy queries
+     *
+     * @param string $field SQL field to apply the restriction against
+     * @param integer $reportid ID of the report
+     *
+     * @return array containing SQL snippet to be used in a WHERE clause, as well as array of SQL params
+     */
+    public function sql_hierarchy_restriction($field, $reportid) {
+        return $this->restriction_sql('organisationid', $field, $reportid);
     }
 
     /**
