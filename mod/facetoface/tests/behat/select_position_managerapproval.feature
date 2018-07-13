@@ -84,7 +84,7 @@ Feature: Seminar Select position with Manager approval
     And I set the following fields to these values:
       | Select a job assignment | Unnamed job assignment (ID: 2) (Position2) |
     And I press "Request approval"
-    And I should see "Your booking has been completed but requires approval from your manager."
+    And I should see "Your request was sent to your manager for approval."
     And I log out
     And I log in as "teacher1"
     And I click on "Find Learning" in the totara menu

@@ -89,7 +89,7 @@ Feature: Users can enrol on courses that have position signup enabled and get si
     And I follow "Course 1"
     And I click on "Sign-up" "link" in the "1 January 2020" "table_row"
     And I press "Sign-up"
-    Then I should see "Your booking has been completed."
+    Then I should see "Your request was accepted"
 
   Scenario: Enrol using seminar direct where position asked for and required
     Given I log in as "teacher1"

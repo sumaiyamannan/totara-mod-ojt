@@ -57,7 +57,7 @@ Feature: Sign up to a seminar
     And I should see "Sign-up"
     And I follow "Sign-up"
     And I press "Sign-up"
-    And I should see "Your booking has been completed."
+    And I should see "Your request was accepted"
     # Check the user is back on the course page.
     And I should see "Course view page"
     And I should not see "All events in Test seminar name"
@@ -76,7 +76,7 @@ Feature: Sign up to a seminar
     And I should see "Sign-up"
     And I follow "Sign-up"
     And I press "Sign-up"
-    And I should see "Your booking has been completed."
+    And I should see "Your request was accepted"
     # Check the user is back on the all events page.
     And I should not see "Course view page"
     And I should see "All events in Test seminar name"
@@ -95,7 +95,7 @@ Feature: Sign up to a seminar
     And I set the following fields to these values:
      | Requests for session organiser | My test |
     And I press "Sign-up"
-    And I should see "Your booking has been completed."
+    And I should see "Your request was accepted"
     And I log out
 
     And I log in as "teacher1"
@@ -115,7 +115,7 @@ Feature: Sign up to a seminar
     And I set the following fields to these values:
      | Requests for session organiser | My test |
     And I press "Sign-up"
-    And I should see "Your booking has been completed."
+    And I should see "Your request was accepted"
     And I log out
 
     And I log in as "admin"
@@ -359,7 +359,7 @@ Feature: Sign up to a seminar
     And I set the field "Describe this image for someone who cannot see it" to "Green leaves on customfield text area"
     And I click on "Save image" "button"
     And I press "Sign-up"
-    Then I should see "Your booking has been completed."
+    Then I should see "Your request was accepted"
 
     # As the trainer confirm I can see the details of the signup.
     When I log out

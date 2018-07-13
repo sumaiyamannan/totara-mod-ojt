@@ -62,7 +62,7 @@ Feature: Seminar Manager signup approval changes
     Then I should not see "Manager Approval"
 
     When I press "Sign-up"
-    Then I should see "Your booking has been completed."
+    Then I should see "Your request was accepted"
 
     When I log out
     And I log in as "timmy"
@@ -91,7 +91,7 @@ Feature: Seminar Manager signup approval changes
     Then I should see "Manager Approval"
     And I should see "This event is currently full. By clicking the \"Join waitlist\" button, you will be placed on the event's waitlist."
     When I press "Request approval"
-    Then I should see "Your booking has been completed but requires approval from your manager."
+    Then I should see "Your request was sent to your manager for approval."
 
     Given I log out
     And I log in as "manager"

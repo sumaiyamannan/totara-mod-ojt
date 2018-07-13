@@ -88,7 +88,7 @@ Feature: Test add/update/delete actions for Seminar direct enrolment method
     And I follow "Course 10782"
     And I follow "Sign-up"
     When I press "Sign-up"
-    Then I should see "Seminar 10782: Your booking has been completed."
+    Then I should see "Seminar 10782: Your request was accepted"
     And I log out
 
     And I log in as "admin"

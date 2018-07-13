@@ -65,7 +65,7 @@ Feature: Seminar Manager approval of waiting list
     And I follow "Course 1"
     And I follow "Sign-up"
     And I press "Sign-up"
-    And I should see "Your booking has been completed."
+    And I should see "Your request was accepted"
     And I log out
 
     When I log in as "student2"

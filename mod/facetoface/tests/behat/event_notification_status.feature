@@ -68,7 +68,7 @@ Feature: Seminar event notification must not be available for user after it has 
     When I follow "Sign-up"
     Then I <visibility> "Receive confirmation by"
     When I press "Sign-up"
-    Then I <visibility> "You should immediately receive a confirmation email."
+    Then I <visibility> "You will receive a booking confirmation email shortly."
     And I log out
     Examples:
       | signup_enabled | visibility     |

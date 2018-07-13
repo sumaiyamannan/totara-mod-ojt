@@ -91,7 +91,7 @@ Feature: Seminar Signup Manager Approval
     And I click on "Cassy Cas" "link" in the "Select manager" "totaradialogue"
     And I click on "OK" "button" in the "Select manager" "totaradialogue"
     And I press "Request approval"
-    Then I should see "Your booking has been completed but requires approval from your manager"
+    Then I should see "Your request was sent to your manager for approval"
 
     When I log out
     And I log in as "manager"

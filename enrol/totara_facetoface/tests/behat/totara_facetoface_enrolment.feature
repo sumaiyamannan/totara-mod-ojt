@@ -60,7 +60,7 @@ Feature: Users can auto-enrol themself in courses where seminar direct enrolment
     And I set the following fields to these values:
       | Requests for session organiser | Lorem ipsum dolor sit amet |
     And I press "Sign-up"
-    Then I should see "Test seminar name: Your booking has been completed."
+    Then I should see "Test seminar name: Your request was accepted"
     And I log out
     # Check signup note
     And I log in as "admin"
@@ -127,7 +127,7 @@ Feature: Users can auto-enrol themself in courses where seminar direct enrolment
       | Signup text input | Lorem ipsum dolor sit amet |
       | Signup textarea   | Some other text data |
     And I press "Sign-up"
-    Then I should see "Test seminar name: Your booking has been completed."
+    Then I should see "Test seminar name: Your request was accepted"
     And I log out
   # Check signup note
     And I log in as "admin"

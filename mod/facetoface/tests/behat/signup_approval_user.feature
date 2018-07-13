@@ -49,7 +49,7 @@ Feature: Seminar Signup Manager Approval
     And I follow "Sign-up"
     And I should see "Manager Approval"
     And I press "Request approval"
-    And I should see "Your booking has been completed but requires approval from your manager"
+    And I should see "Your request was sent to your manager for approval"
     And I log out
 
     And I log in as "student2"
