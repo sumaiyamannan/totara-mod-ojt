@@ -80,7 +80,7 @@ $userlaunchurl = $result['data']['UserLaunchUrl'];
 $certificate = \repository_opensesame\local\opensesame_com::get_catalogue_certificate();
 $callback = \repository_opensesame\local\opensesame_com::get_catalogue_callback_url();
 
-$url = new moodle_url($userlaunchurl, array('Certificate' => $certificate, 'PullContentSyncUrl' => $callback));
+$url = new moodle_url($userlaunchurl, array('Certificate' => $certificate, 'PullContentSyncUrl' => $callback, 'version' => 2));
 \repository_opensesame\event\catalogue_accessed::create()->trigger();
 
 echo $OUTPUT->heading(get_string('catalogueheading', 'repository_opensesame', $a));
