@@ -33,8 +33,7 @@ text < term
       | menu profile | A & B |
     And I press "Update profile"
     # Confirm that selected item does not reset
-    And I follow "Edit profile"
-    And I press "Update profile"
+    And I follow "Student 1"
     And I should see "A & B"
 
     And I navigate to "Browse list of users" node in "Site administration > Users > Accounts"
@@ -45,8 +44,7 @@ text < term
       | menu profile | text < term |
     And I press "Update profile"
     # Confirm that selected item does not reset
-    And I follow "Edit profile"
-    And I press "Update profile"
+    And I follow "Student 2"
     And I should see "text < term"
 
     And I navigate to "Audiences" node in "Site administration > Users > Accounts"
