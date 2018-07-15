@@ -41,7 +41,7 @@ Background: Given I am on a totara site
     And I click on "OK" "button" in the "Select date" "totaradialogue"
     And I click on "Save changes" "button"
     And I should see "Event in progress"
-    And I navigate to "Reports > Report builder >  Create report" in site administration
+    And I navigate to "Manage reports" node in "Site administration > Reports > Report builder"
     And I set the following fields to these values:
       | fullname | Asset Session    |
       | source   | Seminar Sessions |
@@ -54,7 +54,7 @@ Background: Given I am on a totara site
     And I set the field "newstandardfilter" to "Asset Availability"
     And I click on "Add" "button"
     And I click on "Save changes" "button"
-    And I navigate to "Seminars > Assets" in site administration
+    And I navigate to "Assets" node in "Site administration > Seminars"
     Then I should see "asset1"
     And I click on "Reports" in the totara menu
     And I follow "Asset Session"

@@ -13,7 +13,7 @@ Background: I am on totara site
   @javascript
   Scenario: Disabled approval options in global settings are not affect to seminars module's settings
     Given I log in as "admin"
-    And I navigate to "Users > Permissions > Define roles" in site administration
+    And I navigate to "Define roles" node in "Site administration >  Users > Permissions"
     And I click on "Add a new role" "button"
     And I set the following fields to these values:
       | resettype | 3 |
@@ -23,7 +23,7 @@ Background: I am on totara site
       | Short name       | train    |
       | Custom full name | Training |
     And I click on "Create this role" "button"
-    And I navigate to "Seminars > Global settings" in site administration
+    And I navigate to "Global settings" node in "Site administration > Seminars"
     And I set the following fields to these values:
       | Training | 1 |
     And I click on "Save changes" "button"
@@ -36,7 +36,7 @@ Background: I am on totara site
     And I add a "Seminar" to section "1" and I fill the form with:
       | Name        | Seminar 1           |
       | Training    | 1                   |
-    And I navigate to "Seminars > Global settings" in site administration
+    And I navigate to "Global settings" node in "Site administration > Seminars"
     And I set the following fields to these values:
       | id_s__facetoface_approvaloptions_approval_role_10 | 0 |
     And I click on "Save changes" "button"
