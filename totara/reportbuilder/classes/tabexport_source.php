@@ -128,11 +128,14 @@ class tabexport_source extends \totara_core\tabexport_source {
         }
         $graph = new \totara_reportbuilder\local\graph($graphrecord, $this->report, false);
 
+        // Get report sort.
+        $order = $this->report->get_report_sort();
+
         list($sql, $params) = $this->report->build_query(false, true, true);
 
         $reportdb = $this->report->get_report_db();
-        $rs = $reportdb->get_recordset_sql($sql, $params, 0, $graphrecord->maxrecords);
-        foreach($rs as $record) {
+        $rs = $reportdb->get_recordset_sql($sql.$order, $params, 0, $graphrecord->maxrecords);
+        foreach ($rs as $record) {
             $graph->add_record($record);
         }
         $rs->close();
