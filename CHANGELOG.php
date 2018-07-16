@@ -3,6 +3,128 @@
 
 Totara Learn Changelog
 
+Release 9.22 (18th July 2018):
+==============================
+
+
+Bug fixes:
+
+    TL-16293       Fixed user profile custom fields "Dropdown Menu" to store non-formatted data
+
+                   This fix has several consequences:
+                   1) Whenever special characters (&, <, and >) were used in user custom
+                      profile field, it was not found in dynamic audiences. It was fixed
+                      by storing unfiltered values on save. Existing values will not be changed.
+                   2) Improved multi language support of this custom field, which will display
+                      item in user's preferred language (or default language if the user's
+                      language is not given in the item).
+                   3) Totara "Dropdown Menu" customfield also fixed on save.
+
+                   Existing values that were stored previously, will not be automatically
+                   fixed during upgrade. To fix them either:
+                   1) Edit instance that holds value (e.g. user profile or seminar event),
+                      re-select the value and save.
+                   2) Use a special tool that we will provide upon request. This tool can work
+                      in two modes: automatic or manual. In automatic mode it will attempt to
+                      search filtered values and provide a confirmation form before fixing them.
+                      In manual mode it will search for all inconsistent values (values that
+                      don't have a relevant menu item in dropdown menu customfield settings)
+                      across all supported components and allow you to choose to update them to
+                      an existing menu item. To get this tool please request it on support board.
+
+    TL-17324       Made completion imports trim leading and trailing spaces from the 'shortname' and 'idnumber' fields
+
+                   Previously leading and trailing spaces on the 'shortname' or 'idnumber'
+                   fields, were causing inconsistencies while matching upload data to existing
+                   records during course and certification completion uploads. This patch now
+                   trims any leading or trailing spaces from these fields while doing the
+                   matching.
+
+    TL-17385       Fixed an error when viewing the due date column in program reports that don't allow the display of the total count
+    TL-17420       Formatted any dates in program emails based on the recipient's selected language package
+    TL-17531       Fixed user report performance issue when joining job assignments
+
+                   This fix improves performance for certain reports when adding columns from
+                   the "All User's job assignments" section. The fix applies to the following
+                   report sources:
+                    * Appraisal Status
+                    * Audience Members
+                    * Badges Issued
+                    * Competency Status
+                    * Competency Status History
+                    * Goal Status
+                    * Learning Plans
+                    * Program Completion
+                    * Program Overview
+                    * Record of Learning: Recurring Programs
+                    * User
+
+    TL-17657       Fixed an error causing a debugging message in the facetoface_get_users_by_status() function
+
+                   Previously when the function was called with the include reservations
+                   parameter while multiple reservations were available, there were some
+                   fields added to the query that were causing a debugging message to be
+                   displayed.
+
+    TL-17845       Fixed SCORM height issue when side navigation was turned on
+
+                   In some SCORM modules the height of the player was broken when the side
+                   navigation was turned on. The height of the player is now calculated
+                   correctly with both side and drop down navigation.
+
+    TL-17847       Reduced specificity of fix for TL-17744
+
+                   The June releases of Totara included a fix for heading levels in an HTML
+                   block. This increased the specificity of the CSS causing it to override
+                   other CSS declarations (this included some in the featured links block).
+                   This is now fixed in a different manner, maintaining the
+                   existing specificity.
+
+    TL-17868       Fixed a bug which assumed a job must have a manager when messaging attendees of a Seminar
+
+                   Prior to this fix due to a bug in code it was not possible to send a
+                   message to Seminar attendees, cc'ing their managers, if the attendee job
+                   assignments were tracked, and there was at least one attendee who had a
+                   manager, and at least one attendee who had a job assignment which did not
+                   have a manager. This has now been fixed.
+
+                   When messaging attendees, having selected to cc their managers, if an
+                   attendee does not have a manager the attendee will still receive the
+                   message.
+
+    TL-17869       Fixed SQL query in display function in "Pending registrations" report
+
+                   The SQL being used in the display function caused an error in MySQL and
+                   MariaDB
+
+    TL-17885       Display seminar assets on reports even when they are being used in an ongoing event
+
+                   When the Asset Availability filter is being used in a report, assets that
+                   are available but currently in use (by an ongoing event at the time of
+                   searching) should not be excluded from the report. Assets should only be
+                   excluded if they are not available between the dates/times specified in the
+                   filter.
+
+    TL-17894       Fixed the display of Seminar approval settings when they have been disabled at the system level
+
+                   When an admin disabled an approval option on the seminar global settings
+                   page, and there was an existing seminar using the approval option, the
+                   approval option would then display as an empty radio selector on that
+                   seminar's settings page, and none of the approval options would be
+                   displayed as selected. However unless a different approval option was
+                   selected the seminar would continue using the disabled option.
+                   This patch fixes the display issue by making the previously empty radio
+                   selector correctly display the disabled setting's name, and marking it as
+                   selected. As before, the disabled approval option can still be used for
+                   existing seminars until it is changed to a different setting. When the
+                   setting is changed for the seminar the now disabled approval option will no
+                   longer be displayed.
+
+Contributions:
+
+    *  Grace Ashton at Kineo.com - TL-17657
+
+
 Release 9.21 (20th June 2018):
 ==============================
 
