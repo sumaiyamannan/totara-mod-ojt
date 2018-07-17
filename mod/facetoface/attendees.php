@@ -560,7 +560,9 @@ if ($form = data_submitted()) {
                     $managers = array();
                     if (!empty($recipient->jobassignmentid)) {
                         $ja = \totara_job\job_assignment::get_with_id($recipient->jobassignmentid);
-                        $managers[] = $ja->managerid;
+                        if (!empty($ja->managerid)) {
+                            $managers[] = $ja->managerid;
+                        }
                     } else {
                         $managers = \totara_job\job_assignment::get_all_manager_userids($recipient->id);
                     }

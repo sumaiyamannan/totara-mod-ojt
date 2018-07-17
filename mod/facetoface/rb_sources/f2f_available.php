@@ -29,6 +29,20 @@ require_once($CFG->dirroot . '/totara/reportbuilder/filters/lib.php');
  * Filter for rooms/assets to find those not used during specified time
  */
 abstract class rb_filter_f2f_available extends rb_filter_type {
+    /**
+     * When the filter of asset availability is set
+     * to value "Any time"
+     * @var int
+     */
+    const ANY_TIME=0;
+
+    /**
+     * When the filter of asset availability is set to
+     * value "Free between the following times"
+     * @var int
+     */
+    const BETWEEN_TIME=1;
+
     public function setupForm(&$mform) {
         global $CFG, $PAGE, $SESSION;
 
@@ -44,8 +58,8 @@ abstract class rb_filter_f2f_available extends rb_filter_type {
 
         $label = format_string($this->label);
         $options = array(
-            0 => get_string('anytime', 'facetoface'),
-            1 => get_string('freebetween', 'facetoface')
+            self::ANY_TIME => get_string('anytime', 'facetoface'),
+            self::BETWEEN_TIME => get_string('freebetween', 'facetoface')
         );
 
         $objs = array();
@@ -84,21 +98,21 @@ abstract class rb_filter_f2f_available extends rb_filter_type {
         $grp = $mform->addElement('group', $this->name.'_grp', $label, $objs, '', false);
         $mform->addHelpButton($grp->_name, 'filter_'.$this->value, 'facetoface');
 
-        $mform->disabledIf($this->name . '_start[day]', $this->name . '_enable', 'eq', 0);
-        $mform->disabledIf($this->name . '_start[month]', $this->name . '_enable', 'eq', 0);
-        $mform->disabledIf($this->name . '_start[year]', $this->name . '_enable', 'eq', 0);
-        $mform->disabledIf($this->name . '_start[hour]', $this->name . '_enable', 'eq', 0);
-        $mform->disabledIf($this->name . '_start[minute]', $this->name . '_enable', 'eq', 0);
-        $mform->disabledIf($this->name . '_start[calendar]', $this->name . '_enable', 'eq', 0);
-        $mform->disabledIf($this->name . '_end[day]', $this->name . '_enable', 'eq', 0);
-        $mform->disabledIf($this->name . '_end[month]', $this->name . '_enable', 'eq', 0);
-        $mform->disabledIf($this->name . '_end[year]', $this->name . '_enable', 'eq', 0);
-        $mform->disabledIf($this->name . '_end[hour]', $this->name . '_enable', 'eq', 0);
-        $mform->disabledIf($this->name . '_end[minute]', $this->name . '_enable', 'eq', 0);
-        $mform->disabledIf($this->name . '_end[calendar]', $this->name . '_enable', 'eq', 0);
+        $mform->disabledIf($this->name . '_start[day]', $this->name . '_enable', 'eq', self::ANY_TIME);
+        $mform->disabledIf($this->name . '_start[month]', $this->name . '_enable', 'eq', self::ANY_TIME);
+        $mform->disabledIf($this->name . '_start[year]', $this->name . '_enable', 'eq', self::ANY_TIME);
+        $mform->disabledIf($this->name . '_start[hour]', $this->name . '_enable', 'eq', self::ANY_TIME);
+        $mform->disabledIf($this->name . '_start[minute]', $this->name . '_enable', 'eq', self::ANY_TIME);
+        $mform->disabledIf($this->name . '_start[calendar]', $this->name . '_enable', 'eq', self::ANY_TIME);
+        $mform->disabledIf($this->name . '_end[day]', $this->name . '_enable', 'eq', self::ANY_TIME);
+        $mform->disabledIf($this->name . '_end[month]', $this->name . '_enable', 'eq', self::ANY_TIME);
+        $mform->disabledIf($this->name . '_end[year]', $this->name . '_enable', 'eq', self::ANY_TIME);
+        $mform->disabledIf($this->name . '_end[hour]', $this->name . '_enable', 'eq', self::ANY_TIME);
+        $mform->disabledIf($this->name . '_end[minute]', $this->name . '_enable', 'eq', self::ANY_TIME);
+        $mform->disabledIf($this->name . '_end[calendar]', $this->name . '_enable', 'eq', self::ANY_TIME);
         if ($showtimezone) {
-            $mform->disabledIf($this->name . '_start[timezone]', $this->name . '_enable', 'eq', 0);
-            $mform->disabledIf($this->name . '_end[timezone]', $this->name . '_enable', 'eq', 0);
+            $mform->disabledIf($this->name . '_start[timezone]', $this->name . '_enable', 'eq', self::ANY_TIME);
+            $mform->disabledIf($this->name . '_end[timezone]', $this->name . '_enable', 'eq', self::ANY_TIME);
         }
 
         // Set default values.
@@ -152,6 +166,10 @@ abstract class rb_filter_f2f_available extends rb_filter_type {
     public function get_sql_filter($data) {
         if ($data['start'] > $data['end']) {
             return array(" 1=0 ", array());
+        }
+        else if (isset($data['enable']) && $data['enable'] == self::ANY_TIME)
+        {
+            return array(" 1=1 ", array());
         }
 
         return $this->get_sql_snippet($data['start'], $data['end']);

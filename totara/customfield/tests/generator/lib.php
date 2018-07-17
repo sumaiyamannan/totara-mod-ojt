@@ -18,10 +18,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  * @author Valerii Kuznetsov <valerii.kuznetsov@totaralms.com>
- * @package totara_reportbuilder
+ * @package totara_customfield
  * @category test
  *
- * Reportbuilder generator.
+ * Customfield generator.
  */
 
 defined('MOODLE_INTERNAL') || die();
@@ -338,5 +338,59 @@ class totara_customfield_generator extends testing_data_generator {
         $item->{$thiscf->inputname . "_filemanager"} = $draftitemid;
 
         $thiscf->edit_save_data($item, $prefix, $tableprefix);
+    }
+
+    /**
+     * Add menu custom field.
+     *
+     * @param string $tableprefix
+     * @param array $cfdef Format: array('fieldname' => array('item1', 'item2', 'item3', ...), ...)
+     * @return array id's of custom fields. Format: array('fieldname' => id, ...)
+     */
+    public function create_menu($tableprefix, $cfdef) {
+        global $DB;
+
+        $result = array();
+
+        foreach ($cfdef as $name => $cfitems) {
+            $data = new stdClass();
+            $data->id = 0;
+            $data->datatype = 'menu';
+            $data->fullname = $name;
+            $data->shortname = preg_replace('/\s+/', '', $name); // A shortname shouldn't have spaces.
+            $data->description = '';
+            $data->defaultdata = '';
+            $data->forceunique = 0;
+            $data->hidden = 0;
+            $data->locked = 0;
+            $data->required = 0;
+            $data->description_editor = array('text' => '', 'format' => 0);
+            $data->param1 = implode("\n", $cfitems);;
+            $formfield = new customfield_define_text();
+            $formfield->define_save($data, $tableprefix);
+            $sql = "SELECT id FROM {{$tableprefix}_info_field} WHERE " .
+                $DB->sql_compare_text('fullname') . ' = ' . $DB->sql_compare_text(':fullname');
+            $result[$name] = $DB->get_field_sql($sql, array('fullname' => $name));
+        }
+        return $result;
+    }
+
+    /**
+     * Put an item into menu customfield
+     *
+     * @param stdClass $item Course/prog or other supported object
+     * @param int $cfid Customfield id
+     * @param string $value Field value
+     * @param string $prefix
+     * @param string $tableprefix
+     */
+    public function set_menu($item, $cfid, $value, $prefix, $tableprefix) {
+        $field = new customfield_menu($cfid, $item, $prefix, $tableprefix);
+        $field->inputname = 'cftest';
+
+        $data = new stdClass();
+        $data->id = $item->id;
+        $data->cftest = $value;
+        $field->edit_save_data($data, $prefix, $tableprefix);
     }
 }

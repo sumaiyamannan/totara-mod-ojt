@@ -23,6 +23,7 @@
 
 $string['action'] = 'Action';
 $string['actualduedate'] = 'Actual due date';
+$string['actualduedates'] = 'Actual due dates';
 $string['addcohortstoprogram'] = 'Add audiences to program';
 $string['addcohorttoprogram'] = 'Add audience to program';
 $string['addcompetency'] = 'Add competency';

@@ -74,6 +74,19 @@ abstract class prog_message {
     protected $replacementvars = array();
     protected $helppage = '';
 
+    /**
+     * Since it is hard to re-use the value of completion time
+     * and passing it arround for the child class using it to
+     * send the message to the manager.
+     *
+     * Therefore, this private variable is being used,
+     * and it can only access via get method
+     *
+     * @see prog_message::get_completion_time
+     * @var int
+     */
+    private $completiontime = COMPLETION_TIME_NOT_SET;
+
     const messageprefixstr = 'message_';
 
     public function __construct($programid, $messageob=null, $uniqueid=null) {
@@ -150,6 +163,15 @@ abstract class prog_message {
         return $this->managermessagedata;
     }
 
+    /**
+     * The only interface that other child class
+     * can access to attribute completiontime
+     * @return int
+     */
+    protected final function get_completion_time() {
+        return $this->completiontime;
+    }
+
     public function check_message_action($action, $formdata) {
         return false;
     }
@@ -192,6 +214,7 @@ abstract class prog_message {
         global $DB;
 
         $userid = $recipient->id;
+        $lang = isset($recipient->lang) ? $recipient->lang : null;
         $programid = $this->programid;
         $coursesetid = isset($options['coursesetid']) ? $options['coursesetid'] : 0;
 
@@ -245,9 +268,11 @@ abstract class prog_message {
                     // Get completion date.
                     $completiontime = $DB->get_field('prog_completion', 'timedue',
                         array('programid' => $programid, 'userid' => $userid, 'coursesetid' => 0));
+                    $this->completiontime = $completiontime;
                     $duedate = get_string('duedatenotset', 'totara_program');
                     if ($completiontime && $completiontime != COMPLETION_TIME_NOT_SET) {
-                        $duedate = userdate($completiontime, get_string('strftimedatefulllong', 'langconfig'), core_date::get_user_timezone($recipient), false);
+                        $datetimeformat = get_string_manager()->get_string("strftimedatefulllong", "langconfig", null, $lang);
+                        $duedate = userdate($completiontime, $datetimeformat, core_date::get_user_timezone($recipient), false);
                     }
                     $this->replacementvars['duedate']   = $duedate;
                     break;
@@ -678,6 +703,19 @@ abstract class prog_noneventbased_message extends prog_message {
             if ($result && $this->notifymanager && !empty($managers)) {
                 foreach ($managers as $managerid) {
                     $manager = core_user::get_user($managerid, '*', MUST_EXIST);
+
+                    //Set the completion time for the manager
+                    //using the attribute $completiontime from a super class
+                    //to modify the attribute $replacementvars so that it can
+                    //convert the time for specific manager language configuration
+                    $completiontime = $this->get_completion_time();
+                    if ($completiontime != COMPLETION_TIME_NOT_SET) {
+                        $lang = isset($manager->lang) ? $manager->lang : null;
+                        $datetimeformat = get_string_manager()->get_string("strftimedatefulllong", "langconfig", null, $lang);
+                        $timezone = core_date::get_user_timezone($manager);
+
+                        $this->replacementvars['duedate'] = userdate($completiontime, $datetimeformat, $timezone, false);
+                    }
 
                     $managerdata = new stdClass();
                     $managerdata->userto = $manager;

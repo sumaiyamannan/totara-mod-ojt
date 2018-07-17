@@ -4695,7 +4695,7 @@ function facetoface_get_users_by_status($sessionid, $status, $select = '', $incl
     if (!$select) {
         $select = "u.id, su.id AS signupid, {$usernamefields}, ss.timecreated, u.email";
         if ($includereserved) {
-            $select = "su.id, ".$select;
+            $select = "su.id, {$usernamefields}, ss.timecreated, u.email";
         }
     }
     $userjoin = 'JOIN';

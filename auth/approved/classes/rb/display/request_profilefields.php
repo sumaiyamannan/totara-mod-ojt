@@ -38,7 +38,7 @@ final class request_profilefields extends base {
         $customfields = json_decode($value);
 
         // Get all the fields that appear on sign-up page keyed by their shortname.
-        $signupfields = $DB->get_records_select('user_info_field', 'signup = 1 AND visible <> 0', [], '', 'shortname, *');
+        $signupfields = $DB->get_records_sql('SELECT shortname, {user_info_field}.* FROM {user_info_field} WHERE signup = 1 AND visible <> 0');
 
         $display = '';
         foreach ($customfields as $name => $fieldvalue) {

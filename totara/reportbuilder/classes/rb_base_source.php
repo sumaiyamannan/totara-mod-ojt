@@ -3831,9 +3831,12 @@ abstract class rb_base_source {
      *                         include new table joins
      * @param string $join Name of the join that provides the 'user' table
      * @param string $field Name of user id field to join on
+     * @param string $jointype Type of join. For performance reasons it's better to use INNER, but only use INNER if the
+     *                         report base doesn't have rows with invalid or NULL values for userid (=$join.$field),
+     *                         because these rows would be dropped.
      * @return boolean True
      */
-    protected function add_job_assignment_tables_to_joinlist(&$joinlist, $join, $field) {
+    protected function add_job_assignment_tables_to_joinlist(&$joinlist, $join, $field, $jointype = 'LEFT') {
         global $DB;
 
         // All job fields listed by sortorder.
@@ -3849,7 +3852,7 @@ abstract class rb_base_source {
 
         $joinlist[] = new rb_join(
             'alljobfields',
-            'LEFT',
+            $jointype,
             $jobfieldlistsubsql,
             "alljobfields.jfid = {$join}.{$field}",
             REPORT_BUILDER_RELATION_ONE_TO_MANY,
@@ -3879,7 +3882,7 @@ abstract class rb_base_source {
 
         $joinlist[] = new rb_join(
             'manallfields',
-            'LEFT',
+            $jointype,
             $manlistsubsql,
             "manallfields.manlistid = {$join}.{$field}",
             REPORT_BUILDER_RELATION_ONE_TO_MANY,
@@ -3909,7 +3912,7 @@ abstract class rb_base_source {
 
         $joinlist[] = new rb_join(
             'posallfields',
-            'LEFT',
+            $jointype,
             $poslistsubsql,
             "posallfields.poslistid = {$join}.{$field}",
             REPORT_BUILDER_RELATION_ONE_TO_MANY,
@@ -3939,7 +3942,7 @@ abstract class rb_base_source {
 
         $joinlist[] = new rb_join(
             'orgallfields',
-            'LEFT',
+            $jointype,
             $orglistsubsql,
             "orgallfields.orglistid = {$join}.{$field}",
             REPORT_BUILDER_RELATION_ONE_TO_MANY,
@@ -3960,7 +3963,7 @@ abstract class rb_base_source {
 
         $joinlist[] = new rb_join(
             'appallfields',
-            'LEFT',
+            $jointype,
             $applistsubsql,
             "appallfields.applistid = {$join}.{$field}",
             REPORT_BUILDER_RELATION_ONE_TO_MANY,

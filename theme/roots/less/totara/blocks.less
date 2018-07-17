@@ -249,15 +249,42 @@
 
 // The headers need to be an appropriate size for
 // use within the block so use the standard font size.
-:not(.block_html).block .content h1,
-:not(.block_html).block .content h2,
-:not(.block_html).block .content h3,
-:not(.block_html).block .content h4,
-:not(.block_html).block .content h5,
-:not(.block_html).block .content h6 {
-  font-size: @font-size-base;
-  margin-top: 0;
-  margin-bottom: (@line-height-computed / 2);
+.block .content h1,
+.block .content h2,
+.block .content h3,
+.block .content h4,
+.block .content h5,
+.block .content h6 {
+    font-size: @font-size-base;
+    margin-top: 0;
+    margin-bottom: (@line-height-computed / 2);
+}
+
+// Ensure the headings in the html block are the correct size
+.block_html .content {
+    h1 {
+        font-size: @font-size-h1;
+    }
+
+    h2 {
+        font-size: @font-size-h2;
+    }
+
+    h3 {
+        font-size: @font-size-h3;
+    }
+
+    h4 {
+        font-size: @font-size-h4;
+    }
+
+    h5 {
+        font-size: @font-size-h5;
+    }
+
+    h6 {
+        font-size: @font-size-h6;
+    }
 }
 
 // Ensure the Administration block search extends to

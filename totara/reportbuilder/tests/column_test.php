@@ -835,6 +835,9 @@ class totara_reportbuilder_column_testcase extends reportcache_advanced_testcase
     /**
      * Check all reports columns and filters
      *
+     * Note for MySQL/MariaDB: Report modification can result in queries hanging in a 'statistics' state in this test. If
+     * you have this problem, the MySQL config setting "optimizer_search_depth" is likely the cause.
+     *
      * @group slowtest
      * @dataProvider data_columns_and_filters
      */
