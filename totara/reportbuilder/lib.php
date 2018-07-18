@@ -1372,7 +1372,9 @@ class reportbuilder {
                 $dbfields[] = $column->type . '_' . $column->value;
             } else {
                 $columnobject = self::get_single_item($this->columnoptions, $column->type, $column->value);
-                $dbfields[] = $columnobject->field;
+                if (!empty($columnobject)) {
+                    $dbfields[] = $columnobject->field;
+                }
             }
         }
 
