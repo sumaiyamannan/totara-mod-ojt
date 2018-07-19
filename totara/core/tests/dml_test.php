@@ -29,20 +29,163 @@ defined('MOODLE_INTERNAL') || die();
 class totara_core_dml_testcase extends database_driver_testcase {
     public function test_get_in_or_equal() {
         $DB = $this->tdb;
+        $dbman = $DB->get_manager();
+
+        $tablename = 'test_table';
+        $table = new xmldb_table($tablename);
+
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('valint', XMLDB_TYPE_INTEGER, '10', null, null, null, null);
+        $table->add_field('valchar', XMLDB_TYPE_CHAR, '225', null, null, null, null);
+        $table->add_field('valtext', XMLDB_TYPE_TEXT, null, null, null, null, null);
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
+        $dbman->create_table($table);
+
+        $DB->insert_record($tablename, (object)array('valint' => 0));
+        $DB->insert_record($tablename, (object)array('valint' => 1));
+        $DB->insert_record($tablename, (object)array('valint' => 2));
+        $DB->insert_record($tablename, (object)array('valchar' => 0));
+        $DB->insert_record($tablename, (object)array('valchar' => 1));
+        $DB->insert_record($tablename, (object)array('valchar' => 2));
+        $DB->insert_record($tablename, (object)array('valchar' => 'abc'));
+        $DB->insert_record($tablename, (object)array('valchar' => '1a'));
+        $DB->insert_record($tablename, (object)array('valchar' => ' 1'));
+        $DB->insert_record($tablename, (object)array('valtext' => 0));
+        $DB->insert_record($tablename, (object)array('valtext' => 1));
+        $DB->insert_record($tablename, (object)array('valtext' => 2));
+        $DB->insert_record($tablename, (object)array('valtext' => 'abc'));
+        $DB->insert_record($tablename, (object)array('valtext' => '1a'));
+        $DB->insert_record($tablename, (object)array('valtext' => ' 1'));
+
+        $totalcount = $DB->count_records($tablename, array());
+        $this->assertGreaterThan(5, $totalcount, 'More than 5 records expected in tests');
+
+        // Search integer id column - note that non-integer items would fail in PostgreSQL, but work in MySQL.
+
+        $items = range(1, 5, 1);
+        list($usql, $params) = $DB->get_in_or_equal($items);
+        $this->assertCount(count($items), $params, 'Items are not supposed to be embedded in SQL if less than 10');
+        $count = $DB->count_records_sql("SELECT COUNT('x') FROM {{$tablename}} WHERE id $usql", $params);
+        $this->assertEquals(5, $count);
 
         $items = range(1, 100, 1);
-        list($usql, $params) = $DB->get_in_or_equal($items, SQL_PARAMS_QM, 'param', true);
-        $this->assertSame('IN (' . implode(',', $items) . ')', $usql);
-        $this->assertSame(array(), $params);
+        list($usql, $params) = $DB->get_in_or_equal($items);
+        $this->assertCount(0, $params, 'Items are supposed to be embedded in SQL if more than 10');
+        $count = $DB->count_records_sql("SELECT COUNT('x') FROM {{$tablename}} WHERE id $usql", $params);
+        $this->assertEquals($totalcount, $count);
 
-        list($usql, $params) = $DB->get_in_or_equal($items, SQL_PARAMS_QM, 'param', false);
-        $this->assertSame('NOT IN (' . implode(',', $items) . ')', $usql);
-        $this->assertSame(array(), $params);
+        // Search integer column - note that non-integer items would fail in PostgreSQL, but work in MySQL.
 
+        $items = range(0, 5, 1);
+        list($usql, $params) = $DB->get_in_or_equal($items);
+        $this->assertCount(count($items), $params, 'Items are not supposed to be embedded in SQL if less than 10');
+        $count = $DB->count_records_sql("SELECT COUNT('x') FROM {{$tablename}} WHERE valint $usql", $params);
+        $this->assertEquals(3, $count);
+
+        $items = range(0, 100, 1);
+        list($usql, $params) = $DB->get_in_or_equal($items);
+        $this->assertCount(0, $params, 'Items are supposed to be embedded in SQL if more than 10');
+        $count = $DB->count_records_sql("SELECT COUNT('x') FROM {{$tablename}} WHERE valint $usql", $params);
+        $this->assertEquals(3, $count);
+
+        $items = range(1, 100, 1);
+        $items[] = null;
+        list($usql, $params) = $DB->get_in_or_equal($items);
+        $this->assertCount(count($items), $params, 'Items are not supposed to be embedded in SQL if there are NULLs');
+        $count = $DB->count_records_sql("SELECT COUNT('x') FROM {{$tablename}} WHERE valchar $usql", $params);
+        $this->assertEquals(2, $count, 'NULL should not match anything if more array items given');
+
+        $items = array(null);
+        list($usql, $params) = $DB->get_in_or_equal($items);
+        $this->assertCount(count($items), $params, 'Items are not supposed to be embedded in SQL if there are NULLs');
+        $count = $DB->count_records_sql("SELECT COUNT('x') FROM {{$tablename}} WHERE valchar $usql", $params);
+        $this->assertEquals(0, $count, 'NULL should not match anything if more array items given');
+
+        // Search char column.
+
+        $items = range(0, 5, 1);
+        list($usql, $params) = $DB->get_in_or_equal($items);
+        $this->assertCount(count($items), $params, 'Items are not supposed to be embedded in SQL if less than 10');
+        $count = $DB->count_records_sql("SELECT COUNT('x') FROM {{$tablename}} WHERE valchar $usql", $params);
+        $this->assertEquals(3, $count);
+
+        $items = range(1, 5, 1);
         $items[] = 'x';
         list($usql, $params) = $DB->get_in_or_equal($items);
-        $this->assertStringStartsWith('IN (', $usql);
-        $this->assertSame(array_values($items), $params);
+        $this->assertCount(count($items), $params, 'Items are not supposed to be embedded in SQL if less than 10');
+        $count = $DB->count_records_sql("SELECT COUNT('x') FROM {{$tablename}} WHERE valchar $usql", $params);
+        $this->assertEquals(2, $count);
+
+        $items = range(1, 5, 1);
+        $items[] = ' 1';
+        list($usql, $params) = $DB->get_in_or_equal($items);
+        $this->assertCount(count($items), $params, 'Items are not supposed to be embedded in SQL if less than 10');
+        $count = $DB->count_records_sql("SELECT COUNT('x') FROM {{$tablename}} WHERE valchar $usql", $params);
+        $this->assertEquals(3, $count);
+
+        $items = range(0, 100, 1);
+        list($usql, $params) = $DB->get_in_or_equal($items);
+        $this->assertCount(0, $params, 'Items are supposed to be embedded in SQL if more than 10');
+        $count = $DB->count_records_sql("SELECT COUNT('x') FROM {{$tablename}} WHERE valchar $usql", $params);
+        $this->assertEquals(3, $count);
+
+        $items = range(1, 100, 1);
+        $items[] = 'x';
+        list($usql, $params) = $DB->get_in_or_equal($items);
+        $this->assertCount(count($items), $params, 'Items are not supposed to be embedded in SQL if there are non-integers');
+        $count = $DB->count_records_sql("SELECT COUNT('x') FROM {{$tablename}} WHERE valchar $usql", $params);
+        $this->assertEquals(2, $count);
+
+        $items = range(1, 100, 1);
+        $items[] = ' 1';
+        list($usql, $params) = $DB->get_in_or_equal($items);
+        $this->assertCount(count($items), $params, 'Items are not supposed to be embedded in SQL if there are non-integers');
+        $count = $DB->count_records_sql("SELECT COUNT('x') FROM {{$tablename}} WHERE valchar $usql", $params);
+        $this->assertEquals(3, $count);
+
+        // Search text column.
+
+        $items = range(0, 5, 1);
+        list($usql, $params) = $DB->get_in_or_equal($items);
+        $this->assertCount(count($items), $params, 'Items are not supposed to be embedded in SQL if less than 10');
+        $count = $DB->count_records_sql("SELECT COUNT('x') FROM {{$tablename}} WHERE valtext $usql", $params);
+        $this->assertEquals(3, $count);
+
+        $items = range(1, 5, 1);
+        $items[] = 'x';
+        list($usql, $params) = $DB->get_in_or_equal($items);
+        $this->assertCount(count($items), $params, 'Items are not supposed to be embedded in SQL if less than 10');
+        $count = $DB->count_records_sql("SELECT COUNT('x') FROM {{$tablename}} WHERE valtext $usql", $params);
+        $this->assertEquals(2, $count);
+
+        $items = range(1, 5, 1);
+        $items[] = ' 1';
+        list($usql, $params) = $DB->get_in_or_equal($items);
+        $this->assertCount(count($items), $params, 'Items are not supposed to be embedded in SQL if less than 10');
+        $count = $DB->count_records_sql("SELECT COUNT('x') FROM {{$tablename}} WHERE valtext $usql", $params);
+        $this->assertEquals(3, $count);
+
+        $items = range(0, 100, 1);
+        list($usql, $params) = $DB->get_in_or_equal($items);
+        $this->assertCount(0, $params, 'Items are supposed to be embedded in SQL if more than 10');
+        $count = $DB->count_records_sql("SELECT COUNT('x') FROM {{$tablename}} WHERE valtext $usql", $params);
+        $this->assertEquals(3, $count);
+
+        $items = range(1, 100, 1);
+        $items[] = 'x';
+        list($usql, $params) = $DB->get_in_or_equal($items);
+        $this->assertCount(count($items), $params, 'Items are not supposed to be embedded in SQL if there are non-integers');
+        $count = $DB->count_records_sql("SELECT COUNT('x') FROM {{$tablename}} WHERE valtext $usql", $params);
+        $this->assertEquals(2, $count);
+
+        $items = range(1, 100, 1);
+        $items[] = ' 1';
+        list($usql, $params) = $DB->get_in_or_equal($items);
+        $this->assertCount(count($items), $params, 'Items are not supposed to be embedded in SQL if there are non-integers');
+        $count = $DB->count_records_sql("SELECT COUNT('x') FROM {{$tablename}} WHERE valtext $usql", $params);
+        $this->assertEquals(3, $count);
+
+        $dbman->drop_table($table);
     }
 
     public function test_sql_group_concat() {
