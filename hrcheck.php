@@ -52,7 +52,7 @@ try {
     exit(2);
 }
 if (!$hrcheckstarted) {
-    echo "HR sync was not run in the last 26 hours";
+    print_error("HR sync was not run in the last 26 hours");
     exit(2);
 }
 echo "HR sync succeeded\n";
