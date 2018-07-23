@@ -531,27 +531,11 @@ class hierarchy {
     public static function get_framework_items($frameworkid = null) {
         global $DB;
 
-        $wherejoin = "WHERE";
-        $where = '';
-        $params = array();
-
         if (isset($frameworkid)) {
-            $where = "WHERE base.frameworkid = :fwid";
-            $params['fwid'] = $frameworkid;;
-            $wherejoin = "AND";
+            return $DB->get_records(static::SHORT_PREFIX, array('frameworkid' => $frameworkid), 'sortthread, fullname');
+        } else {
+            return $DB->get_records(static::SHORT_PREFIX, array(), 'sortthread, fullname');
         }
-
-        list($contentjoin, $contentwhere, $contentparams) = $this->get_content_sql_elements('', '', $wherejoin);
-        $params = array_merge($params, $contentparams);
-
-        $sql =
-            "SELECT base.fullname
-               FROM {{static::SHORT_PREFIX}} base
-                     {$contentjoin}
-               {$where} {$contentwhere}
-           ORDER BY base.sortthread";
-
-        return $DB->get_records_sql($sql, $params);
     }
 
     /**
