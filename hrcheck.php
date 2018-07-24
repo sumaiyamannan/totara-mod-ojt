@@ -43,16 +43,19 @@ try {
                      info = ?", array($hoursago26, 'info', $syncstring, 'HR Import finished'));
             if (empty($check)) {
                 print_error("HR sync failed - " . $syncstring . " did not complete in the last 26 hours");
+                // This exit code is never reached because of print_error().
                 exit(2);
             }
         } else continue;
     }
 } catch (dml_exception $e) {
     print_error("COULDN'T INITIALISE - HR check fail");
+    // This exit code is never reached because of print_error().
     exit(2);
 }
 if (!$hrcheckstarted) {
     print_error("HR sync was not run in the last 26 hours");
+    // This exit code is never reached because of print_error().
     exit(2);
 }
 echo "HR sync succeeded\n";
