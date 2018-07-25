@@ -3665,7 +3665,10 @@ function glossary_get_search_terms_sql(array $terms, $fullsearch = true, $glossa
         $i++;
         $not = false; // Initially we aren't going to perform NOT LIKE searches, only MSSQL and Oracle
         // will use it to simulate the "-" operator with LIKE clause.
-        if (empty($fullsearch)) {
+
+        // Totara: We cannot use sql_concat() with the text type 'definition' on MSSQL
+        // because of casting to 255 characters. We will do simple LIKE on this field later.
+        if (empty($fullsearch) || !$DB->sql_regex_supported()) {
             // With fullsearch disabled, look only within concepts and aliases.
             $concat = $DB->sql_concat('ge.concept', "' '", "COALESCE(al.alias, :emptychar{$i})");
         } else {
@@ -3689,8 +3692,17 @@ function glossary_get_search_terms_sql(array $terms, $fullsearch = true, $glossa
             $conditions[] = "$concat $notregexp :searchterm{$i}";
             $params['searchterm' . $i] = '(^|[^a-zA-Z0-9])' . preg_quote($searchterm, '|') . '([^a-zA-Z0-9]|$)';
         } else {
-            $conditions[] = $DB->sql_like($concat, ":searchterm{$i}", false, true, $not);
+            $search_sql = $DB->sql_like($concat, ":searchterm{$i}", false, true, $not);
             $params['searchterm' . $i] = '%' . $DB->sql_like_escape($searchterm) . '%';
+
+            // Totara: add definition search into the main where-statement.
+            if ($fullsearch) {
+                $predicate = $not ? 'AND' : 'OR';
+                $definition_sql = $DB->sql_like('ge.definition', ":searchdef{$i}", false, true, $not);
+                $search_sql = "({$search_sql} {$predicate} {$definition_sql})";
+                $params['searchdef' . $i] = '%' . $DB->sql_like_escape($searchterm) . '%';
+            }
+            $conditions[] = $search_sql;
         }
     }
     // Reduce the search results by restricting it to one glossary.
