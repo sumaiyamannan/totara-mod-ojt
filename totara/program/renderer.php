@@ -188,6 +188,8 @@ class totara_program_renderer extends plugin_renderer_base {
      * @return string HTML fragment
      */
     public function display_edit_assignment_form($id, $categories, $certificationpath) {
+        global $ASSIGNMENT_CATEGORY_CLASSNAMES;
+
         $dropdown_options = array();
         $out = '';
         $out .= html_writer::start_tag('form', array('name' => 'form_prog_assignments', 'method' => 'post', 'class' => 'mform'));
@@ -196,6 +198,16 @@ class totara_program_renderer extends plugin_renderer_base {
         // Show the program time required so people know the minimum to set completion to.
         $program = new program($id);
         $programtime = $program->content->get_total_time_allowance($certificationpath);
+
+        $context = context_program::instance($program->id);
+        $contextids = $context->get_parent_context_ids(true);
+        $canaddcohort = false;
+        foreach ($contextids as $contextid) {
+            if (has_capability("moodle/cohort:view", context::instance_by_id($contextid))) {
+                $canaddcohort = true;
+                break;
+            }
+        }
 
         if ($programtime > 0) {
             $out .= prog_format_seconds($programtime);
@@ -211,6 +223,10 @@ class totara_program_renderer extends plugin_renderer_base {
                 $canadd = false;
             } else {
                 $canadd = true;
+            }
+
+            if ((get_class($category) === $ASSIGNMENT_CATEGORY_CLASSNAMES[ASSIGNTYPE_COHORT]) && !$canaddcohort) {
+                $canadd = false;
             }
 
             $category->build_table($id);
