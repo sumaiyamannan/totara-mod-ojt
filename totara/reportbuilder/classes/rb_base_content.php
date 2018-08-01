@@ -178,13 +178,17 @@ class rb_current_pos_content extends rb_base_content {
         $type = substr(get_class($this), 3);
         $settings = reportbuilder::get_all_settings($reportid, $type);
 
+        $posnames = $DB->get_fieldset_sql('SELECT p.fullname FROM {pos} p WHERE EXISTS (SELECT ja.positionid FROM {job_assignment} ja WHERE ja.userid = ? AND p.id = ja.positionid)',
+            array($userid));
+
+        $delim = get_string('contentdesc_delim', 'totara_reportbuilder');
         switch ($settings['recursive']) {
             case self::CONTENT_POS_EQUAL:
-                return get_string('contentdesc_posequal', 'totara_reportbuilder');
+                return get_string('contentdesc_posequal', 'totara_reportbuilder', format_string(implode($delim, $posnames)));
             case self::CONTENT_POS_EQUALANDBELOW:
-                return get_string('contentdesc_posboth', 'totara_reportbuilder');
+                return get_string('contentdesc_posboth', 'totara_reportbuilder', format_string(implode($delim, $posnames)));
             case self::CONTENT_POS_BELOW:
-                return get_string('contentdesc_posbelow', 'totara_reportbuilder');
+                return get_string('contentdesc_posbelow', 'totara_reportbuilder', format_string(implode($delim, $posnames)));
             default:
                 return '';
         }
@@ -377,13 +381,17 @@ class rb_current_org_content extends rb_base_content {
         $type = substr(get_class($this), 3);
         $settings = reportbuilder::get_all_settings($reportid, $type);
 
+        $orgnames = $DB->get_fieldset_sql('SELECT p.fullname FROM {org} p WHERE EXISTS (SELECT ja.organisationid FROM {job_assignment} ja WHERE ja.userid = ? AND p.id = ja.organisationid)',
+            array($userid));
+
+        $delim = get_string('contentdesc_delim', 'totara_reportbuilder');
         switch ($settings['recursive']) {
             case self::CONTENT_ORG_EQUAL:
-                return get_string('contentdesc_orgequal', 'totara_reportbuilder');
+                return get_string('contentdesc_orgequal', 'totara_reportbuilder', format_string(implode($delim, $orgnames)));
             case self::CONTENT_ORG_EQUALANDBELOW:
-                return get_string('contentdesc_orgboth', 'totara_reportbuilder');
+                return get_string('contentdesc_orgboth', 'totara_reportbuilder', format_string(implode($delim, $orgnames)));
             case self::CONTENT_ORG_BELOW:
-                return get_string('contentdesc_orgbelow', 'totara_reportbuilder');
+                return get_string('contentdesc_orgbelow', 'totara_reportbuilder', format_string(implode($delim, $orgnames)));
             default:
                 return '';
         }
