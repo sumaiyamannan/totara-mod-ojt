@@ -489,9 +489,11 @@ class totara_dialog_content {
         if (empty($this->search_code) || empty($this->searchtype)) {
             return '';
         }
-        define('TOTARA_DIALOG_SEARCH', true);
+        if (!defined('TOTARA_DIALOG_SEARCH')) {
+            define('TOTARA_DIALOG_SEARCH', true);
+        }
         ob_start();
-        require_once("{$CFG->dirroot}{$this->search_code}");
+        require("{$CFG->dirroot}{$this->search_code}");
         return ob_get_clean();
     }
 
