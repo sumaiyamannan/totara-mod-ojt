@@ -60,7 +60,11 @@ class totara_job_dialog_assign_manager extends totara_dialog_content {
     /** @var bool if true, this allows empty job assignments to be created as long current user also has capabilities */
     private $allowcreate = true;
 
+    /** @var bool variable for the setting allows multiple job assignments to be created */
+    private $allowmultiple;
+
     public function __construct($userid, $managerid = false, $usualmanagerid = null) {
+        global $CFG;
 
         // By default this is a single item dialog. Use set_as_multi_item method to change.
         $this->type = self::TYPE_CHOICE_SINGLE;
@@ -69,6 +73,8 @@ class totara_job_dialog_assign_manager extends totara_dialog_content {
         $this->urlparams = array('userid' => $userid);
         // We define this so that someone can't select themself as manager via the search.
         $this->customdata = array('current_user' => $userid);
+
+        $this->allowmultiple = !empty($CFG->totara_job_allowmultiplejobs);
 
         // Check if being used to select temp manager.
         $this->tempmanagers = isset($usualmanagerid);
@@ -97,10 +103,7 @@ class totara_job_dialog_assign_manager extends totara_dialog_content {
     }
 
     private function load_managers() {
-
         $managers = $this->get_managers_from_db();
-
-        $multiplejobsenabled = get_config(null, 'totara_job_allowmultiplejobs');
 
         foreach ($managers as $manager) {
             $manager->fullname = fullname($manager);
@@ -130,7 +133,7 @@ class totara_job_dialog_assign_manager extends totara_dialog_content {
                     $this->disabled_items[$item->id] = $item;
                 }
                 $this->managers[$item->id] = $item;
-            } else if (!$canedit and (count($jobassignments) == 1 or !$multiplejobsenabled)) {
+            } else if (!$canedit and (count($jobassignments) == 1 or !$this->allowmultiple)) {
                 // There's one job to display. There's no other options available to the user. So they can
                 // select this manager and this job. No need to make the node expandable.
                 $firstjob = reset($jobassignments);
@@ -157,9 +160,6 @@ class totara_job_dialog_assign_manager extends totara_dialog_content {
     }
 
     private function load_job_assignments() {
-        global $CFG;
-
-        $allowmultiple = !empty($CFG->totara_job_allowmultiplejobs);
         if (empty($this->managerid)) {
             // This is used when expanding a single manager's node only.
             $this->jobassignments = array();
@@ -184,7 +184,7 @@ class totara_job_dialog_assign_manager extends totara_dialog_content {
 
         if ($this->allowcreate && totara_job_can_edit_job_assignments($manager->id)) {
             // If multiple job assignments is off, only allow the creation of 1 job assignment per user.
-            if ($allowmultiple || empty($jobassignments)) {
+            if ($this->allowmultiple || empty($jobassignments)) {
                 // The current user can create the empty placeholder job assignments for this manager.
                 $item = new stdClass();
                 $item->id = $this->managerid . '-NEW';
@@ -316,7 +316,7 @@ class totara_job_dialog_assign_manager extends totara_dialog_content {
             $item->id = $result->id;
 
             if ($this->allowcreate && isset($addcreateitem)) {
-                if (($result->userid != $addcreateitem->userid) && totara_job_can_edit_job_assignments($addcreateitem->userid)) {
+                if (($result->userid != $addcreateitem->userid) && totara_job_can_edit_job_assignments($addcreateitem->userid) && $this->allowmultiple) {
                     // We've moved on to a new user. We need to add a 'create job assignment' option for the previous one.
                     $previtem = new stdClass();
                     $previtem->id = $addcreateitem->userid . '-NEW';
@@ -348,7 +348,7 @@ class totara_job_dialog_assign_manager extends totara_dialog_content {
             $items[$item->id] = $item;
         }
 
-        if ($this->allowcreate && isset($addcreateitem) && totara_job_can_edit_job_assignments($addcreateitem->userid)) {
+        if ($this->allowcreate && isset($addcreateitem) && totara_job_can_edit_job_assignments($addcreateitem->userid) && $this->allowmultiple) {
             // We still need to add the 'create job assignment' option for the last user.
             $previtem = new stdClass();
             $previtem->id = $addcreateitem->userid . '-NEW';
