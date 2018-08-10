@@ -87,7 +87,7 @@ class backup_forum_activity_task extends backup_activity_task {
             // Rather than fetch all discussions and search for them we will identify links and check the discussion ids in them.
             // This will be cheaper as typically there will be no links to translate.
             $search = "#(?<path>{$base})(?<discussion>\d+)((?:\&amp;|\&)parent\=(?<parent>\d+)|\#(?<post>\d+))?#";
-            if (preg_match_all($search, $content, $matches, PREG_SET_ORDER)) {
+            if (!empty($instances) && preg_match_all($search, $content, $matches, PREG_SET_ORDER)) {
                 // OK one or more links to discussion have been found.
                 // First up work out the signatures, so that we can authenticate the discussions will be included in that
                 // backup.
