@@ -5,7 +5,7 @@ Feature: Duplicate block
   I need to duplicate blocks in a course and then restore it
 
   @javascript
-  Scenario: Restore course with duplicate blocks inse the same course
+  Scenario: Restore course with duplicate blocks inside the same course
     Given the following "courses" exist:
       | fullname | shortname | category |
       | Course 1 | C1 | 0 |
@@ -14,12 +14,12 @@ Feature: Duplicate block
     And I turn editing mode on
     And I add the "HTML" block
     And I configure the "(new HTML block)" block
-    And I set the field "Block title (no title if blank)" to "htitle"
+    And I set the field "Block title" to "htitle"
     And I set the field "Content" to "hcontent"
     And I press "Save changes"
     And I add the "HTML" block
     And I configure the "(new HTML block)" block
-    And I set the field "Block title (no title if blank)" to "htitle"
+    And I set the field "Block title" to "htitle"
     And I set the field "Content" to "hcontent"
     And I press "Save changes"
     When I backup "Course 1" course using this options:
@@ -42,19 +42,19 @@ Feature: Duplicate block
     And I turn editing mode on
     And I add the "HTML" block
     And I configure the "(new HTML block)" block
-    And I set the field "Block title (no title if blank)" to "htitle"
+    And I set the field "Block title" to "htitle"
     And I set the field "Content" to "hcontent"
     And I press "Save changes"
     And I click on "Find Learning" in the totara menu
     And I follow "Course 1"
     And I add the "HTML" block
     And I configure the "(new HTML block)" block
-    And I set the field "Block title (no title if blank)" to "htitle"
+    And I set the field "Block title" to "htitle"
     And I set the field "Content" to "hcontent"
     And I press "Save changes"
     And I add the "HTML" block
     And I configure the "(new HTML block)" block
-    And I set the field "Block title (no title if blank)" to "htitle"
+    And I set the field "Block title" to "htitle"
     And I set the field "Content" to "hcontent"
     And I press "Save changes"
     When I backup "Course 1" course using this options:
@@ -77,29 +77,29 @@ Feature: Duplicate block
     And I turn editing mode on
     And I add the "HTML" block
     And I configure the "(new HTML block)" block
-    And I set the field "Block title (no title if blank)" to "htitle"
+    And I set the field "Block title" to "htitle"
     And I set the field "Content" to "hcontent"
     And I press "Save changes"
     And I add the "HTML" block
     And I configure the "(new HTML block)" block
-    And I set the field "Block title (no title if blank)" to "htitle"
+    And I set the field "Block title" to "htitle"
     And I set the field "Content" to "hcontent"
     And I press "Save changes"
     And I add the "HTML" block
     And I configure the "(new HTML block)" block
-    And I set the field "Block title (no title if blank)" to "htitle"
+    And I set the field "Block title" to "htitle"
     And I set the field "Content" to "hcontent"
     And I press "Save changes"
     And I click on "Find Learning" in the totara menu
     And I follow "Course 1"
     And I add the "HTML" block
     And I configure the "(new HTML block)" block
-    And I set the field "Block title (no title if blank)" to "htitle"
+    And I set the field "Block title" to "htitle"
     And I set the field "Content" to "hcontent"
     And I press "Save changes"
     And I add the "HTML" block
     And I configure the "(new HTML block)" block
-    And I set the field "Block title (no title if blank)" to "htitle"
+    And I set the field "Block title" to "htitle"
     And I set the field "Content" to "hcontent"
     And I press "Save changes"
     When I backup "Course 1" course using this options:
@@ -121,12 +121,12 @@ Feature: Duplicate block
     And I turn editing mode on
     And I add the "HTML" block
     And I configure the "(new HTML block)" block
-    And I set the field "Block title (no title if blank)" to "htitle"
+    And I set the field "Block title" to "htitle"
     And I set the field "Content" to "hcontent"
     And I press "Save changes"
     And I add the "HTML" block
     And I configure the "(new HTML block)" block
-    And I set the field "Block title (no title if blank)" to "htitle"
+    And I set the field "Block title" to "htitle"
     And I set the field "Content" to "hcontent"
     And I press "Save changes"
     When I backup "Course 1" course using this options:

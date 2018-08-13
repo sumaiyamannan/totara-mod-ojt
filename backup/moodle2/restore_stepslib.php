@@ -3876,7 +3876,7 @@ class restore_block_instance_structure_step extends restore_structure_step {
         $key = array_search($params, array_map(function($duplicated) {
             return $duplicated['data'];
         }, $duplicated));
-        if ($key) {
+        if ($key !== false) {
             self::$duplicatedblocks[$key]['counter']++;
         } else {
             $sql = "SELECT COUNT(id)
