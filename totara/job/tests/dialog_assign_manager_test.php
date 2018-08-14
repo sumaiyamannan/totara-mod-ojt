@@ -197,22 +197,26 @@ class totara_job_dialog_assign_manager_testcase extends advanced_testcase {
 
         set_config('totara_job_allowmultiplejobs', 1);
         $items = $this->execute_restricted_method($dialog, 'get_search_items_array', array($results));
+        // MySQL doesn't append '-' when manager job ID doesn't exist, so strip any dashes from the keys for testing.
+        $keys = array_map(function($item) { return rtrim($item, '-'); }, array_keys($items));
         // Count: manager1 2+NEW; manager2 1+NEW; manager3 NEW;
         $this->assertCount(6, $items);
-        $this->assertArrayHasKey($manager1->id . '-' . $ja11->id, $items);
-        $this->assertArrayHasKey($manager1->id . '-' . $ja12->id, $items);
-        $this->assertArrayHasKey($manager1->id . '-NEW', $items);
-        $this->assertArrayHasKey($manager3->id . '-', $items); // Managers without jobs don't get NEW appended to the key.
+        $this->assertContains($manager1->id . '-' . $ja11->id, $keys);
+        $this->assertContains($manager1->id . '-' . $ja12->id, $keys);
+        $this->assertContains($manager1->id . '-NEW', $keys);
+        $this->assertContains($manager3->id, $keys); // Managers without jobs don't get NEW appended to the key.
 
         set_config('totara_job_allowmultiplejobs', 0);
         $dialog = new totara_job_dialog_assign_manager($currentuser->id); // New dialog object to update config setting.
         $items = $this->execute_restricted_method($dialog, 'get_search_items_array', array($results));
+        // MySQL doesn't append '-' when manager job ID doesn't exist, so strip any dashes from the keys for testing.
+        $keys = array_map(function($item) { return rtrim($item, '-'); }, array_keys($items));
         // Count: manager1 2; manager2 1; manager3 NEW;
         $this->assertCount(4, $items);
-        $this->assertArrayHasKey($manager1->id . '-' . $ja11->id, $items);
-        $this->assertArrayHasKey($manager1->id . '-' . $ja12->id, $items);
-        $this->assertArrayNotHasKey($manager1->id . '-NEW', $items); // Can't create any more job assignments.
-        $this->assertArrayHasKey($manager3->id . '-', $items); // Managers without jobs don't get NEW appended to the key.
+        $this->assertContains($manager1->id . '-' . $ja11->id, $keys);
+        $this->assertContains($manager1->id . '-' . $ja12->id, $keys);
+        $this->assertNotContains($manager1->id . '-NEW', $keys); // Can't create any more job assignments.
+        $this->assertContains($manager3->id, $keys); // Managers without jobs don't get NEW appended to the key.
     }
 
     public function test_get_managers_from_db() {
