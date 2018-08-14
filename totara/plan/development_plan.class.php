@@ -295,6 +295,40 @@ class development_plan {
 
 
     /**
+     * Get a component setting
+     *
+     * @param array $component
+     * @param string $action
+     * @param string $role
+     * @return int|false Value of setting
+     */
+    public function get_component_setting_for_role($component, $action, $role) {
+        // we need the know the template to get settings
+        if (!$this->templateid) {
+            return false;
+        }
+        $templateid = $this->templateid;
+
+        // only load settings when first needed
+        if (!isset($this->settings)) {
+            $this->initialize_settings();
+        }
+
+        // return false the setting if it exists
+        if (array_key_exists($component.'_'.$action, $this->settings)) {
+            return $this->settings[$component.'_'.$action];
+        }
+
+        // return the role specific setting if it exists
+        if (array_key_exists($component.'_'.$action.'_'.$role, $this->settings)) {
+            return $this->settings[$component.'_'.$action.'_'.$role];
+        }
+
+        print_error('error:settingdoesnotexist', 'totara_plan', '', (object)array('component' => $component, 'action' => $action));
+    }
+
+
+    /**
      * Get a setting for an action
      *
      * @param string $action
@@ -1491,32 +1525,84 @@ class development_plan {
             $data['userid'] = $this->userid;
             $data['planid'] = $this->id;
 
-            foreach($managers as $manager) {
-                $event = new tm_task_eventdata($manager, 'plan', $data, $data);
-                // Cast to a stdClass.
-                $event = (object)(array)$event;
+            // Get permission for manager
+            $manager_canview = $this->get_component_setting_for_role('plan', 'view', 'manager') == DP_PERMISSION_ALLOW;
+            $manager_canapprove = $this->get_component_setting_for_role('plan', 'approve', 'manager') == DP_PERMISSION_ALLOW;
+
+            $stringmanager = get_string_manager();
+
+            $sendalert = false;
+
+            foreach ($managers as $manager) {
+                // Get managers language for string localisation
+                $managerlang = $manager->lang;
+
+                // String data
+                $a = new stdClass;
+                $a->learner = fullname($learner);
+                $a->plan = s($this->name);
+
+                if ($manager_canview && !$manager_canapprove) {
+                    $event = new tm_alert_eventdata($manager, 'plan', $data, $data);
+                    // Cast to a stdClass.
+                    $event = (object)(array)$event;
+
+                    $event->subject = $stringmanager->get_string('plan-request-manager-short-view-no-approve', 'totara_plan', $a, $managerlang);
+                    $event->fullmessage = $stringmanager->get_string('plan-request-manager-long-view-no-approve', 'totara_plan', $a, $managerlang);
+
+                    $sendalert = true;
+
+                } else if (!$manager_canview && $manager_canapprove) {
+                    $event = new tm_task_eventdata($manager, 'plan', $data, $data);
+                    // Cast to a stdClass.
+                    $event = (object)(array)$event;
+
+                    $event->subject = $stringmanager->get_string('plan-request-manager-short-approve-no-view', 'totara_plan', $a, $managerlang);
+                    $event->fullmessage = $stringmanager->get_string('plan-request-manager-long-approve-no-view', 'totara_plan', $a, $managerlang);
+                    $event->acceptbutton = $stringmanager->get_string('approve', 'totara_plan', null, $managerlang) . ' ' . $stringmanager->get_string('plan', 'totara_plan', null, $managerlang);
+                    $event->accepttext = $stringmanager->get_string('approveplantext', 'totara_plan', null, $managerlang);
+                    $event->rejectbutton = $stringmanager->get_string('decline', 'totara_plan', null, $managerlang) . ' ' . $stringmanager->get_string('plan', 'totara_plan', null, $managerlang);
+                    $event->rejecttext = $stringmanager->get_string('declineplantext', 'totara_plan', null, $managerlang);
+
+                } else if (!$manager_canview && !$manager_canapprove) {
+                    $event = new tm_alert_eventdata($manager, 'plan', $data, $data);
+                    // Cast to a stdClass.
+                    $event = (object)(array)$event;
+
+                    $event->subject = $stringmanager->get_string('plan-request-manager-short-no-view-no-approve', 'totara_plan', $a, $managerlang);
+                    $event->fullmessage = $stringmanager->get_string('plan-request-manager-long-no-view-no-approve', 'totara_plan', $a, $managerlang);
+
+                    // Send alert instead of workflow task.
+                    $sendalert = true;
+                } else {
+                    // Default
+                    $event = new tm_task_eventdata($manager, 'plan', $data, $data);
+                    // Cast to a stdClass.
+                    $event = (object)(array)$event;
+
+                    $event->subject = $stringmanager->get_string('plan-request-manager-short', 'totara_plan', $a, $managerlang);
+                    $event->fullmessage = $stringmanager->get_string('plan-request-manager-long', 'totara_plan', $a, $managerlang);
+                    $event->acceptbutton = $stringmanager->get_string('approve', 'totara_plan', null, $managerlang) . ' ' . $stringmanager->get_string('plan', 'totara_plan', null, $managerlang);
+                    $event->accepttext = $stringmanager->get_string('approveplantext', 'totara_plan', null, $managerlang);
+                    $event->rejectbutton = $stringmanager->get_string('decline', 'totara_plan', null, $managerlang) . ' ' . $stringmanager->get_string('plan', 'totara_plan', null, $managerlang);
+                    $event->rejecttext = $stringmanager->get_string('declineplantext', 'totara_plan', null, $managerlang);
+                    $event->infobutton = $stringmanager->get_string('review', 'totara_plan', null, $managerlang) . ' ' . $stringmanager->get_string('plan', 'totara_plan', null, $managerlang);
+                    $event->infotext = $stringmanager->get_string('reviewplantext', 'totara_plan', null, $managerlang);
+                }
+
+                $event->data = $data;
+
                 //ensure the message is actually coming from $learner, default to support
                 $event->userfrom = ($USER->id == $learner->id) ? $learner : core_user::get_support_user();
                 $event->contexturl = $this->get_display_url();
                 $event->contexturlname = $this->name;
                 $event->icon = 'learningplan-request';
 
-                $a = new stdClass;
-                $a->learner = fullname($learner);
-                $a->plan = s($this->name);
-                $stringmanager = get_string_manager();
-                $managerlang = $manager->lang;
-                $event->subject = $stringmanager->get_string('plan-request-manager-short', 'totara_plan', $a, $managerlang);
-                $event->fullmessage = $stringmanager->get_string('plan-request-manager-long', 'totara_plan', $a, $managerlang);
-                $event->acceptbutton = $stringmanager->get_string('approve', 'totara_plan', null, $managerlang) . ' ' . $stringmanager->get_string('plan', 'totara_plan', null, $managerlang);
-                $event->accepttext = $stringmanager->get_string('approveplantext', 'totara_plan', null, $managerlang);
-                $event->rejectbutton = $stringmanager->get_string('decline', 'totara_plan', null, $managerlang) . ' ' . $stringmanager->get_string('plan', 'totara_plan', null, $managerlang);
-                $event->rejecttext = $stringmanager->get_string('declineplantext', 'totara_plan', null, $managerlang);
-                $event->infobutton = $stringmanager->get_string('review', 'totara_plan', null, $managerlang) . ' ' . $stringmanager->get_string('plan', 'totara_plan', null, $managerlang);
-                $event->infotext = $stringmanager->get_string('reviewplantext', 'totara_plan', null, $managerlang);
-                $event->data = $data;
-
-                tm_workflow_send($event);
+                if ($sendalert) {
+                    tm_alert_send($event);
+                } else {
+                    tm_workflow_send($event);
+                }
             }
             $this->set_status(DP_PLAN_STATUS_PENDING, DP_PLAN_REASON_APPROVAL_REQUESTED);
             \totara_plan\event\approval_requested::create_from_plan($this)->trigger();
