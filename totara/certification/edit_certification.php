@@ -140,6 +140,7 @@ require_once($CFG->dirroot . '/totara/program/tabs.php');
 
 
 // Display the form.
+echo $OUTPUT->notification(get_string('editdetailswindowupdate', 'totara_certification'), 'notifywarning');
 $form->display();
 
 echo $renderer->get_cancel_button(array('id' => $program->id));

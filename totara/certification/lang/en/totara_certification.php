@@ -174,6 +174,7 @@ The active period is repeatedly added to the base date until the first future da
 $string['editdetailsrcwin'] = 'Recertification Window';
 $string['editdetailsvalid'] = 'Define how long the certification should be valid once complete';
 $string['editdetailswindow'] = 'Period window opens before expiration';
+$string['editdetailswindowupdate'] = 'Any changes to these details will not affect the data of users who are currently certified. The new values will be used the next time a user certifies, to calculate their next window open and expiry dates.';
 $string['editdetailswindow_help'] = 'The period before certification expires that a learner can start recertifying. When the window opens, all course and activity completion data will be reset, including courses and activities completed by RPL.';
 $string['error:cannotcreatecompletion'] = 'Failure attempting to insert the certification completion record into the database';
 $string['error:categoryidwasincorrect'] = 'Category ID was incorrect';
