@@ -3057,10 +3057,18 @@ abstract class rb_base_source {
                 )
             )
         );
+        $audvisibility = get_config(null, 'audiencevisibility');
+        if (empty($audvisibility)) {
+            $coursevisiblestring = get_string('coursevisible', 'totara_reportbuilder');
+            $audvisibilitystring = get_string('audiencevisibilitydisabled', 'totara_reportbuilder');
+        } else {
+            $coursevisiblestring = get_string('coursevisibledisabled', 'totara_reportbuilder');
+            $audvisibilitystring = get_string('audiencevisibility', 'totara_reportbuilder');
+        }
         $columnoptions[] = new rb_column_option(
             'course',
             'visible',
-            get_string('coursevisible', 'totara_reportbuilder'),
+            $coursevisiblestring,
             "$join.visible",
             array(
                 'joins' => $join,
@@ -3070,7 +3078,7 @@ abstract class rb_base_source {
         $columnoptions[] = new rb_column_option(
             'course',
             'audvis',
-            get_string('audiencevisibility', 'totara_reportbuilder'),
+            $audvisibilitystring,
             "$join.audiencevisible",
             array(
                 'joins' => $join,
@@ -3458,10 +3466,18 @@ abstract class rb_base_source {
                     'prog_certifid' => "$join.certifid")
             )
         );
+        $audvisibility = get_config(null, 'audiencevisibility');
+        if (empty($audvisibility)) {
+            $programvisiblestring = get_string('programvisible', $langfile);
+            $audvisibilitystring = get_string('audiencevisibilitydisabled', 'totara_reportbuilder');
+        } else {
+            $programvisiblestring = get_string('programvisibledisabled', $langfile);
+            $audvisibilitystring = get_string('audiencevisibility', 'totara_reportbuilder');
+        }
         $columnoptions[] = new rb_column_option(
             'prog',
             'visible',
-            get_string('programvisible', $langfile),
+            $programvisiblestring,
             "$join.visible",
             array(
                 'joins' => $join,
@@ -3471,7 +3487,7 @@ abstract class rb_base_source {
         $columnoptions[] = new rb_column_option(
             'prog',
             'audvis',
-            get_string('audiencevisibility', 'totara_reportbuilder'),
+            $audvisibilitystring,
             "$join.audiencevisible",
             array(
                 'joins' => $join,

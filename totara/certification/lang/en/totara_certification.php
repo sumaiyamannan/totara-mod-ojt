@@ -305,6 +305,7 @@ $string['programidnumber'] = 'Certification ID number';
 $string['programid'] = 'Certification ID';
 $string['programsummary'] = 'Certification Summary';
 $string['programvisible'] = 'Certification Visible';
+$string['programvisibledisabled'] = 'Certification Visible (not applicable)';
 $string['prognamelinkedicon'] = 'Certification Name and Linked Icon';
 $string['recertdatetype'] = 'Recertification method';
 $string['recertfailrecert'] = 'Failure to recertify';
