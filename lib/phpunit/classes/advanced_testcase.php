@@ -620,14 +620,10 @@ abstract class advanced_testcase extends base_testcase {
      * due to calls we may wait more than sleep() would have, on average it will be less.
      */
     public function waitForSecond() {
-        // NOTE: time_sleep_until() seems to be broken on Totara jenkins AWS
-        $prevtime = time();
-        $timestart = microtime(true);
-        usleep((floor(microtime(true)) + 1.01 - $timestart) * 1000000);
-        $now = time();
-        if ($prevtime >= $now) {
-            echo "usleep() does NOT work: $prevtime >= $now !!!";
-            sleep(1);
+        $start = time();
+        while (time() == $start) {
+            // The while loop is necessary because the sleeping may get interrupted.
+            @time_sleep_until($start + 1);
         }
     }
 }
