@@ -211,12 +211,16 @@ class mod_facetoface_session_form extends moodleform {
             }
         }
 
-        // If conflicts are disabled
+        // Show override conflicts if global setting is enabled.
         if (!empty($CFG->facetoface_allowschedulingconflicts)) {
-            $mform->addElement('selectyesno', 'allowconflicts', get_string('allowschedulingconflicts', 'facetoface'));
-            $mform->setDefault('allowconflicts', 0); // defaults to 'no'
-            $mform->addHelpButton('allowconflicts', 'allowschedulingconflicts', 'facetoface');
-            $mform->setType('allowconflicts', PARAM_BOOL);
+            $text = format_text(get_string('allowschedulingconflictsnote', 'facetoface'));
+            $allowschedulingconflictsgroup = array();
+            $allowschedulingconflictsgroup[] =& $mform->createElement('selectyesno', 'allowconflicts', get_string('allowschedulingconflicts', 'facetoface'));
+            $allowschedulingconflictsgroup[] =& $mform->createElement('static', 'allowschedulingconflictsnote', null, $text);
+            $mform->addGroup($allowschedulingconflictsgroup, 'allowschedulingconflictsgroup', get_string('allowschedulingconflicts', 'facetoface'), '<br />', false);
+            $mform->setType('allowschedulingconflictsgroup', PARAM_BOOL);
+            $mform->addHelpButton('allowschedulingconflictsgroup', 'allowschedulingconflicts', 'facetoface');
+            $mform->setDefault('allowconflicts', 0); // Defaults to 'no'.
         }
 
         // Show all custom fields. Customfield support.

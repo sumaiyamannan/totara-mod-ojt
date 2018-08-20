@@ -69,6 +69,8 @@ $string['allowroomconflicts_help'] = 'This will allow room scheduling conflicts 
 $string['allowroomconflictswarning'] = 'Note: Room scheduling conflicts are not automatically prevented. Please ensure that this room is available before creating this booking.';
 $string['allowscheduleconflicts'] = 'Allow scheduling conflicts';
 $string['allowschedulingconflicts'] = 'Override user conflicts';
+$string['allowschedulingconflictsnote'] = 'Default: No.
+Switch to "Yes" before saving the event if you wish to override user scheduling conflicts. It will switch back to "No" after the event is saved.';
 $string['allowschedulingconflicts_help'] = 'If trainers or users are already assigned or booked onto another seminar event at the same time as this event then the administrator will be warned, but can override such warnings and proceed anyway by selecting **Yes** from the dropdown menu';
 $string['allowselectedschedulingconflicts'] = 'Allow selected scheduling conflicts';
 $string['allrooms'] = 'All rooms';
@@ -1107,7 +1109,7 @@ $string['setting:approval_role'] = 'TODO - session role name?';
 $string['setting:approval_manager'] = 'Manager approval';
 $string['setting:approval_admin'] = 'Manager and Administrative approval';
 $string['setting:allowschedulingconflicts_caption'] = 'Allow override user conflicts:';
-$string['setting:allowschedulingconflicts'] = 'Allow or disallow user conflicts to exist while creating a new event.';
+$string['setting:allowschedulingconflicts'] = 'Allow user scheduling conflicts when saving a seminar event.';
 $string['setting:allowwaitlisteveryone_caption'] = 'Everyone on waiting list';
 $string['setting:allowwaitlisteveryone'] = 'When enabled a setting will appear in seminar event settings to put all users onto the waiting list when they signup regardless of event capacity.';
 $string['setting:calendarfilters'] = 'Selected fields will be displayed as filters in the user\'s calendar';
