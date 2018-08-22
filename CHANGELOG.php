@@ -3,6 +3,114 @@
 
 Totara Learn Changelog
 
+Release 9.23 (24th August 2018):
+================================
+
+
+Security issues:
+
+    TL-18491       Added upstream security hardening patch for Quickforms library
+
+                   A remote code execution vulnerability was reported in the Quickforms
+                   library. This applied to other software but no such vulnerability was found
+                   in Totara. The changes made to fix this vulnerability have been taken to
+                   reduce risks associated with this code.
+
+Improvements:
+
+    TL-13987       Improved approval request messages sent to managers for Learning Plans
+
+                   Prior to this fix if a user requested approval for a learning plan then a
+                   message was sent to the user's manager with a link to approve the request,
+                   regardless of whether the manager actually had permission to view or
+                   approve the request. This fix sends more appropriate messages depending on
+                   the view and approve settings in the learning plan template.
+
+    TL-17780       Added a warning message about certification changes not affecting users until they re-certify
+    TL-18675       Added 'not applicable' text to visibility column names when audience visibility is enabled
+
+                   When audience based visibility is enabled it takes priority over other
+                   types of visibility. Having multiple visibility columns added to a report
+                   may cause confusion as to which type of visibility is being used. '(not
+                   applicable)' is now suffixed to the visibility column to clarify which type
+                   of visibility is inactive, e.g. 'Program Visible (not applicable)'.
+
+Bug fixes:
+
+    TL-17349       Made username field in admin/users visible to make users aware autofill has taken place
+
+                   Chrome very stubbornly ignores attempts to prevent autocompletion of forms,
+                   particularly when a username is involved. We aren't able to fix it without
+                   creating breaking changes to the layout of the admin/user form (fixed from
+                   t10), so instead, we opted to make the field more visible so that at least
+                   the user is aware that autocomplete has taken place.
+
+    TL-17734       Fixed OpenSesame registration
+    TL-17767       Fixed multiple blocks of the same type not being restored upon course restore
+    TL-17846       Content restrictions are now applied correctly for Report Builder filters utilising dialogs
+
+                   Before Totara Learn 9 the organisation and position content restriction
+                   rules were applied when displaying organisation and position filters in
+                   reports.
+
+                   With the introduction of multiple job assignments in Totara Learn 9,
+                   organisation and position report filters now use the generic totara dialog
+                   to display available organisation and position filter values.
+
+                   This patch added the application of the missing report content restriction
+                   rules when retrieving the data to display in totara dialogs used in report
+                   filters.
+
+    TL-17936       Report builder graphs now use the sort order from the underlying report
+
+                   When scheduled reports were sent, the report data was correctly ordered,
+                   but the graph (if included) was not being ordered correctly. The ordering
+                   of the graph now matches the order in the graph table.
+
+    TL-17977       Users editing Program assignments are now only shown the option to assign audiences if they have the required capability
+
+                   Previously if a user did not have moodle/cohort:view capability and tried
+                   to assign an audience to a program an error would be thrown. The option to
+                   add audiences is now hidden from users who do not have this capability.
+
+    TL-18488       Fixed a regression in DB->get_in_or_equal() when searching only integer values within a character field
+
+                   This is a regression from TL-16700, introduced in 2.6.52, 2.7.35, 2.9.27,
+                   9.15, 10.4, and 11.0. A fatal error would be encountered in PostgreSQL if
+                   you attempted to call get_in_or_equal() with an array of integers, and then
+                   used the output to search a character field.
+                   The solution is ensure that all values are handled as strings.
+
+    TL-18499       Fixed an issue where searching in glossary definitions longer than 255 characters would return no results on MSSQL database
+
+                   The issue manifested itself in the definitions where the search term
+                   appeared in the text only after the 255th character due to incorrectly used
+                   concatenation in an SQL query.
+
+    TL-18544       Fixed SQL error on reports using Toolbar Search when custom fields are deleted
+
+                   If a custom field that is included as part of the Toolbar Search for a
+                   Report Builder report (configured in the report settings) gets deleted then
+                   an SQL error is generated. This only occurs after a search is done, viewing
+                   the page normally will not display the error.
+
+    TL-18546       Fixed missing string parameter when exporting report with job assignment filters
+    TL-18574       Fixed a return type issue within the Redis session management code responsible for checking if a session exists
+    TL-18590       Made sure that multiple jobs are not created via search dialogs if multiple jobs are disabled sitewide
+    TL-18618       Restoring a course now correctly ignores links to external or deleted forum discussions
+    TL-18649       Improved the Auto login guest setting description
+
+                   The auto login guest setting incorrectly sets the expectation that
+                   automatic login only happens when a non-logged in user attempts to access a
+                   course. In fact it happens as soon as the user is required to login,
+                   regardless of what they are trying to access. The description has been
+                   improved to reflect the actual behaviour.
+
+Contributions:
+
+    * Russell England, Kineo USA - TL-17977
+
+
 Release 9.22 (18th July 2018):
 ==============================
 
