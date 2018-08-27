@@ -152,7 +152,9 @@ class totara_job_dialog_assign_manager_testcase extends advanced_testcase {
     }
 
     public function test_search_managers() {
-        global $DB;
+        global $DB, $CFG;
+
+        require_once($CFG->dirroot . '/totara/core/searchlib.php');
 
         $currentuser = $this->users[0];
 
