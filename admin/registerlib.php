@@ -128,8 +128,10 @@ function get_registration_data() {
     $data['usercount'] = $DB->count_records('user', array('deleted' => '0'));
     $data['coursecount'] = $DB->count_records_select('course', 'format <> ?', array('site'));
     $oneyearago = time() - 60*60*24*365;
+    $threemonthsago = time() - 60*60*24*90;
     // See MDL-22481 for why currentlogin is used instead of lastlogin
     $data['activeusercount'] = $DB->count_records_select('user', "currentlogin > ?", array($oneyearago));
+    $data['activeusercount3mth'] = $DB->count_records_select('user', "currentlogin > ?", array($threemonthsago));
     $data['usersessionscount'] = $DB->count_records_sql("SELECT COUNT('x') FROM {sessions} WHERE userid > 0");
     $data['badgesnumber'] = $DB->count_records_select('badge', 'status <> ' . BADGE_STATUS_ARCHIVED);
     $data['issuedbadgesnumber'] = $DB->count_records('badge_issued');
