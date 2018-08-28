@@ -627,6 +627,7 @@ IP address location is displayed on simple map or using Google Maps. Please note
 $string['iplookupmaxmindnote'] = 'This product includes GeoLite data created by MaxMind, available from <a href="http://www.maxmind.com/">http://www.maxmind.com/</a>.';
 $string['keeptagnamecase'] = 'Keep tag name casing';
 $string['lang'] = 'Default language';
+$string['installedlangs'] = 'Installed language packs';
 $string['language'] = 'Language';
 $string['language_help'] = 'Set the language of the new user. Selecting this when creating a user ensures the login page or an email greets the user in the given language.';
 $string['langcache'] = 'Cache language menu';

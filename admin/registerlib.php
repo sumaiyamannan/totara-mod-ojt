@@ -138,6 +138,7 @@ function get_registration_data() {
     $data['debugstatus'] = (isset($CFG->debug) ? $CFG->debug : DEBUG_NONE); // Support needs to know what errors users see.
     $data['lastcron'] = $DB->get_field_sql('SELECT MAX(lastruntime) FROM {task_scheduled}'); // Support needs to know if cron is configured and running.
     $data['addons'] = implode(',', $addons); // Support needs to know if there are plugins that might be incompatible with Totara.
+    $data['installedlangs'] = implode(',', array_keys(get_string_manager()->get_list_of_translations())); // Language pack usage informs translation effort.
     if ($flavour = get_config('totara_flavour', 'currentflavour')) {
         $data['flavour'] = $flavour;
     }
