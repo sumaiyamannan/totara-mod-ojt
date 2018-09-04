@@ -126,6 +126,7 @@ $string['commonactivitysettings'] = 'Common activity settings';
 $string['commonfiltersettings'] = 'Common filter settings';
 $string['commonsettings'] = 'Common settings';
 $string['componentinstalled'] = 'Component installed';
+$string['componentusage'] = 'Component usage';
 $string['computedfromlogs'] = 'Computed from logs since {$a}.';
 $string['condifmodeditdefaults'] = 'Default values are used in the settings form when creating a new activity or resource.';
 $string['confeditorhidebuttons'] = 'Select the buttons that should be hidden in the HTML editor.';

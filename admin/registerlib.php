@@ -148,6 +148,11 @@ function get_registration_data() {
     if (!empty($CFG->registrationcode)) {
         $data['registrationcode'] = $CFG->registrationcode;
     }
+
+    $pluginmanager = \core_plugin_manager::instance();
+    $componentdata = $pluginmanager->get_component_usage_data();
+    $data['componentusage'] = json_encode($componentdata);
+
     return $data;
 }
 

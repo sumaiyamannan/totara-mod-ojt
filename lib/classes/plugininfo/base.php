@@ -580,4 +580,19 @@ abstract class base {
             'return' => $return,
         ));
     }
+
+    /**
+     * Optional method allowing component to provide usage
+     * data for the component, which will be merged with other
+     * components and returned with site registration data.
+     * Data returned should be general, anonymous information about
+     * the component's usage.
+     *
+     * @since Totara 12
+     *
+     * @return array|null Data to return, or null if none.
+     */
+    public function get_usage_for_registration_data() {
+        return null;
+    }
 }

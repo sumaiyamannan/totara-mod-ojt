@@ -1933,4 +1933,27 @@ class core_plugin_manager {
 
         return $this->codemanager;
     }
+
+    /**
+     * Returns an array, keyed by component name with a value which is an array
+     * containing data provided by that class.
+     *
+     * @since Totara 12
+     *
+     * @return array Registration data from components.
+     */
+    public function get_component_usage_data() {
+        $plugintypes = $this->get_plugins();
+        $plugindata = array();
+        foreach ($plugintypes as $type => $plugins) {
+            foreach ($plugins as $plugin) {
+                $regdata = $plugin->get_usage_for_registration_data();
+                if (!is_null($regdata)) {
+                    $key = "{$type}_{$plugin->name}";
+                    $plugindata[$key] = $regdata;
+                }
+            }
+        }
+        return $plugindata;
+    }
 }
