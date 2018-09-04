@@ -132,7 +132,23 @@ abstract class base {
      * @return base the instance of $typeclass
      */
     protected static function make_plugin_instance($type, $typerootdir, $name, $namerootdir, $typeclass, $pluginman) {
-        $plugin              = new $typeclass();
+        // Totara: allow plugins to extend the type class,
+        //         this allows us to add plugin specific meta data to plugininfo class.
+        $plugin = null;
+        if ($type !== 'core') {
+            $pluginclass = "{$type}_{$name}\\plugininfo";
+            if (class_exists($pluginclass)) {
+                if (in_array(ltrim($typeclass, '\\'), class_parents($pluginclass))) {
+                    $plugin = new $pluginclass();
+                } else {
+                    debugging('Class ' . $pluginclass . ' must extend ' . $typeclass, DEBUG_DEVELOPER);
+                }
+            }
+        }
+        if (!$plugin) {
+            $plugin = new $typeclass();
+        }
+
         $plugin->type        = $type;
         $plugin->typerootdir = $typerootdir;
         $plugin->name        = $name;
