@@ -34,6 +34,11 @@ class question_goals extends reviewrating {
     const SELECT_PERSONAL_USERCANCHOOSE = 8;
     const INCLUDE_PERSONAL_CUSTOM_FIELDS = 16;
 
+    /**
+     * @var callable reporting hierarchy finder.
+     */
+    private $hierarchyfinder = null;
+
     public static function get_info() {
         return array('group' => question_manager::GROUP_REVIEW,
                      'type' => get_string('questiontypegoals', 'totara_question'));
@@ -41,8 +46,21 @@ class question_goals extends reviewrating {
 
     public function __construct($storage, $subjectid = 0, $answerid = 0) {
         $this->buttonlabel = get_string('choosegoalsreview', 'totara_question');
+        $this->hierarchyfinder = null;
 
         parent::__construct($storage, $subjectid, $answerid);
+    }
+
+    /**
+     * Registers the reporting hierarchy finder that will be passed to the goals
+     * module in order to determine access rights to this question.
+     *
+     * @param callable $fn (int)=>[array, array, array] function that determines
+     *        the "correct" (manager ids, team leader ids, appraiser ids) tuple
+     *        for a specified userid.
+     */
+    public function set_reporting_hierarchy_finder(callable $fn) {
+        $this->hierarchyfinder = $fn;
     }
 
     /**
@@ -240,7 +258,7 @@ class question_goals extends reviewrating {
             return;
         }
 
-        $goal = new goal();
+        $goal = new goal($this->hierarchyfinder);
         if (!$permissions = $goal->get_permissions(null, $this->subjectid)) {
             // Error setting up page permissions.
             print_error('error:viewusergoals', 'totara_hierarchy');
@@ -496,7 +514,7 @@ class question_goals extends reviewrating {
             return false;
         }
 
-        $goal = new goal();
+        $goal = new goal($this->hierarchyfinder);
         $permissions = $goal->get_permissions(null, $this->subjectid);
 
         $scope = $anyitem->scope;
@@ -547,7 +565,7 @@ class question_goals extends reviewrating {
     public function edit_set(stdClass $data, $source) {
         parent::edit_set($data, $source);
 
-        $goal = new goal();
+        $goal = new goal($this->hierarchyfinder);
         if (!$permissions = $goal->get_permissions(null, $this->subjectid)) {
             // Error setting up page permissions.
             print_error('error:viewusergoals', 'totara_hierarchy');
@@ -587,7 +605,7 @@ class question_goals extends reviewrating {
 
             $goalitem = goal::get_goal_item(array('id' => $item->itemid), $item->scope);
 
-            $permissions = (new goal())->get_permissions(null, $goalitem->userid);
+            $permissions = (new goal($this->hierarchyfinder))->get_permissions(null, $goalitem->userid);
             if (!$permissions) {
                 $canedit = false;
             } else {

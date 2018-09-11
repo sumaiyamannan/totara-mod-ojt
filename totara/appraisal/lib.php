@@ -742,12 +742,53 @@ class appraisal {
      * @return stdClass
      */
     public function import_answers($pageid, stdClass $questdata, appraisal_role_assignment $roleassignment) {
+        global $CFG;
+
         $records = appraisal_question::fetch_page($pageid);
         $answers = new stdClass();
         foreach ($records as $record) {
             $question = new appraisal_question($record->id, $roleassignment);
             if ($question->get_element()->get_type() == 'redisplay') {
                 $question = new appraisal_question($question->get_element()->param1, $roleassignment);
+            }
+
+            if ($question->get_element()->get_type() == "goals") {
+                // If a learner's reporting hierarchy changes after a dynamic
+                // appraisal is completed, the new reporting hierarchy sees the
+                // the completed appraisal and the old hierarchy cannot see it.
+                // For static appraisals, the new reporting hierarchy will not
+                // be able to see any appraisal - whether active or not. But the
+                // appraisals will be visible to the old hierarchy and the goals
+                // module must then check against the old hierarchy with respect
+                // to access rights.
+                if (!$CFG->dynamicappraisals) {
+                    $finder = function ($subjectid) {
+                        $managerids = [];
+                        $teamleaderids = [];
+                        $appraiserids = [];
+
+                        $roles = $this->get_user_roles_involved(0, $subjectid);
+                        foreach ($roles as $role) {
+                            switch ($role->appraisalrole) {
+                                case self::ROLE_MANAGER:
+                                    $managerids[] = $role->userid;
+                                    break;
+
+                                case self::ROLE_TEAM_LEAD:
+                                    $teamleaderids[] = $role->userid;
+                                    break;
+
+                                case self::ROLE_APPRAISER:
+                                    $appraiserids[] = $role->userid;
+                                    break;
+                            }
+                        }
+
+                        return [$managerids, $teamleaderids, $appraiserids];
+                    };
+
+                    $question->get_element()->set_reporting_hierarchy_finder($finder);
+                }
             }
             $answers = $question->get_element()->set_as_db($questdata)->get_as_form($answers, true);
         }
@@ -910,7 +951,7 @@ class appraisal {
                         WHERE aua.userid = ?
                           AND aua.appraisalid = ?
                           AND appraisalrole {$insql}";
-        $missingparams = array_merge(array($subjectid, $this->appraisalid), $inparam);
+        $missingparams = array_merge(array($subjectid, $this->id), $inparam);
         return $DB->get_records_sql($missingsql, $missingparams);
     }
 
