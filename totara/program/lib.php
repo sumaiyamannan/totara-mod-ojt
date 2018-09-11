@@ -2867,33 +2867,47 @@ function prog_write_completion($progcompletion, $message = '', $ignoreproblemkey
 
     // Ensure the record matches the database records.
     if ($isinsert) {
-        $sql = "SELECT prog.id, pc.id AS pcid
+        $sql = "SELECT prog.id, prog.certifid, pc.id AS pcid
                   FROM {prog} prog
              LEFT JOIN {prog_completion} pc
                     ON pc.programid = prog.id AND pc.userid = :pcuserid AND pc.coursesetid = 0
                  WHERE prog.id = :programid";
         $params = array('programid' => $progcompletion->programid, 'pcuserid' => $progcompletion->userid);
         $prog = $DB->get_record_sql($sql, $params);
+
         if (empty($prog) || !empty($prog->pcid)) {
             print_error(get_string('error:updatinginvalidcompletionrecord', 'totara_program'));
+        }
+
+        if (!empty($prog->certifid)) {
+            throw new coding_exception("prog_write_completion was used to insert a prog_completion record relating to a certification - this must never happen!");
         }
 
         if (empty($message)) {
             $message = "Completion record created";
         }
     } else {
-        $sql = "SELECT pc.id
+        $sql = "SELECT pc.id, prog.certifid
                   FROM {prog_completion} pc
                   JOIN {prog} prog
                     ON prog.id = pc.programid
                  WHERE pc.id = :pcid
                    AND pc.programid = :programid
                    AND pc.userid = :userid
-                   AND pc.coursesetid = 0
-                   AND prog.certifid IS NULL";
+                   AND pc.coursesetid = 0";
         $params = array('pcid' => $progcompletion->id, 'programid' => $progcompletion->programid, 'userid' => $progcompletion->userid);
-        if (!$DB->record_exists_sql($sql, $params)) {
+
+        $existingrecord = $DB->record_exists_sql($sql, $params);
+        if (empty($existingrecord)) {
             print_error(get_string('error:updatinginvalidcompletionrecord', 'totara_program'));
+        }
+
+        if (!empty($existingrecord->certifid)) {
+            throw new coding_exception("prog_write_completion was used to update a prog_completion record relating to a certification - this must never happen!");
+        }
+
+        if (empty($message)) {
+            $message = "Completion record updated";
         }
     }
 
