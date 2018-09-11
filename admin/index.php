@@ -566,6 +566,9 @@ $errorrecords = $DB->get_records_sql("SELECT id, timeoccured FROM {errorlog} ORD
 $latesterror = array_shift($errorrecords);
 
 require_once("$CFG->dirroot/$CFG->admin/registerlib.php");
+$regdata = get_registration_data();
+$activeusers = $regdata['activeusercount'];
+$activeusers3mth = $regdata['activeusercount3mth'];
 if (is_registration_required()) {
     redirect("$CFG->wwwroot/$CFG->admin/register.php?return=admin");
 }
@@ -578,4 +581,4 @@ $output = $PAGE->get_renderer('core', 'admin');
 
 echo $output->admin_notifications_page($maturity, $insecuredataroot, $errorsdisplayed, $cronoverdue, $dbproblems,
                                        $maintenancemode, null, null, $buggyiconvnomb,
-                                       $registered, $cachewarnings, $latesterror, $activeusers, $TOTARA->release);
+                                       $registered, $cachewarnings, $latesterror, $activeusers, $TOTARA->release, $activeusers3mth);
