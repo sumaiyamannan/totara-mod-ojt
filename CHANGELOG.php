@@ -3,6 +3,52 @@
 
 Totara Learn Changelog
 
+Release 9.24 (19th September 2018):
+===================================
+
+
+Important:
+
+    TL-14270       Added additional information about plugins usage to registration system
+    TL-18788       Added data about installed language packs into registration system
+    TL-18789       Added data about number of active users in last 3 months to registration system
+
+Improvements:
+
+    TL-11243       Removed ambiguity from the confirmation messages for Seminar booking requests
+    TL-18777       Allowed plugins to have custom plugininfo class instead of just type class
+
+Bug fixes:
+
+    TL-18494       Fixed 'Bulk add attendees' results in Seminar to show ID Number instead of internal user ID
+    TL-18571       Fixed access rights bug when viewing goal questions in completed appraisals
+
+                   If an appraisal has a goal question and the appraisal was completed, then
+                   it is the current learner's manager who can see the goal question. However,
+                   there was an issue when a learner and their manager completed the appraisal
+                   but then a new manager was assigned to the learner. In this case, only the
+                   old manager could see the completed appraisal but they could not see the
+                   goal question because they didn't have the correct access rights. The new
+                   manager could not see the completed appraisal at all.
+
+                   This applies to static appraisals.
+
+    TL-18588       Prevented duplicate results when searching in Seminar dialogs
+
+                   Seminar dialogs that provide search functionality (such as the rooms and
+                   assets selectors) now ensure that search results are unique.
+
+    TL-18602       Fixed Seminar's event decline emails to not include iCalendar attachments
+
+                   When a booking approval request with a setting of email confirmation set as
+                   'Email with iCalendar appointment' gets declined, then the iCalendar
+                   attachment will not be included in the email sent back to the user who made
+                   the request.
+
+    TL-18742       Fixed failing unit tests in totara_job_dialog_assign_manager_testcase
+    TL-18772       Backported MDL-62239 to fix broken drag-drop of question types on iOS 11.3
+
+
 Release 9.23 (24th August 2018):
 ================================
 
