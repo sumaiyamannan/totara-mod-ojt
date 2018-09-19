@@ -98,4 +98,4 @@ Feature: Seminar Signup Self Approval
     When I press "Close"
     And I click on "authorisation" "checkbox"
     When I press "Agree and submit"
-    Then I should see "Your booking has been completed."
+    Then I should see "Your request was accepted"

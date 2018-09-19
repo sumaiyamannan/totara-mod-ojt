@@ -58,7 +58,7 @@ Feature: Add a seminar with select position
     And I follow "View all events"
     And I follow "Sign-up"
     And I press "Sign-up"
-    Then I should see "Your booking has been completed."
+    Then I should see "Your request was accepted"
 
   @javascript
   Scenario: Add and configure a seminar activity with a single session and position asked for but not mandated then sign in as user with two positions and check attendee list reflects this and the selected position can be updated

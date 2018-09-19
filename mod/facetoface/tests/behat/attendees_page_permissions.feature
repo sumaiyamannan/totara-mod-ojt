@@ -199,7 +199,7 @@ Feature: Check attendees actions are performed by users with the right permissio
     And I follow "Course 1"
     And I follow "Sign-up"
     And I press "Request approval"
-    Then I should see "Your booking has been completed but requires approval from your manager."
+    Then I should see "Your request was sent to your manager for approval."
     And I log out
 
     When I log in as "manager1"

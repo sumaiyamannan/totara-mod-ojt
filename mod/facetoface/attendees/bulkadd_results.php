@@ -28,7 +28,7 @@ require_once($CFG->dirroot . '/mod/facetoface/lib.php');
 // Face-to-face session ID
 $s = required_param('s', PARAM_INT);
 $listid = optional_param('listid', '',PARAM_ALPHANUM); // Session key to list of users to add.
-$bulkaddsource = 'bulkaddsourceuserid';
+$bulkaddsource = 'bulkaddsourceidnumber';
 
 list($session, $facetoface, $course, $cm, $context) = facetoface_get_env_session($s);
 
@@ -56,10 +56,10 @@ $table->head = array(get_string($bulkaddsource, 'facetoface'), get_string('name'
 $table->data = array();
 
 foreach($userresults as $result) {
-    $id = new html_table_cell($result['id']);
+    $idnumber = new html_table_cell($result['idnumber']);
     $name = new html_table_cell($result['name']);
     $message = new html_table_cell($result['result']);
-    $row = new html_table_row(array($id, $name, $message));
+    $row = new html_table_row(array($idnumber, $name, $message));
     $table->data[] = $row;
 }
 

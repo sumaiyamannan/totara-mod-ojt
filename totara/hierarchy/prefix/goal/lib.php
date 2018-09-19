@@ -59,6 +59,53 @@ class goal extends hierarchy {
     protected $extrafields = array();
 
     /**
+     * @var callable reporting hierarchy finder.
+     */
+    private $hierarchyFinder = '';
+
+    /**
+     * Returns the *current* reporting hierarchy for the given user.
+     *
+     * @param int userid user whose reporting hierarchy is to be determined.
+     *
+     * @return array (aray of manager ids, array of teamleader ids, array of
+     *                appraiser ids) tuple.
+     */
+    private static function reporting_hierarchy($userid) {
+        $jobassignments = \totara_job\job_assignment::get_all($userid, false);
+        $managers = [];
+        $teamleaders = [];
+        $appraisers = [];
+        foreach($jobassignments as $jobassignment) {
+            if (!empty($jobassignment->managerid)) {
+                $managers[] = $jobassignment->managerid;
+            }
+            if (!empty($jobassignment->teamleaderid)) {
+                $teamleaders[] = $jobassignment->teamleaderid;
+            }
+            if (!empty($jobassignment->appraiserid)) {
+                $appraisers[] = $jobassignment->appraiserid;
+            }
+        }
+
+        return [$managers, $teamleaders, $appraisers];
+    }
+
+    /**
+     * Create instance of the goal
+     *
+     * @param callable $fn (int)=>[array, array, array] function that determines
+     *        the "correct" (manager ids, team leader ids, appraiser ids) tuple
+     *        for a  specified userid. This is used when checking access rights
+     *        to a user's goal. Defaults to self::reporting_hierarchy() if not
+     *        specified.
+     */
+    public function __construct(callable $fn = null) {
+        $this->hierarchyFinder = empty($fn)
+                                 ? [self::class, 'reporting_hierarchy'] : $fn;
+    }
+
+    /**
      * Delete goal framework and updated associated scales.
      *
      * @access public
@@ -1289,7 +1336,7 @@ class goal extends hierarchy {
      *                  ->can_edit
      */
     public function get_permissions($context = null, $user = null) {
-        global $USER, $DB;
+        global $USER;
 
         $permissions = parent::get_permissions($context, $user);
 
@@ -1299,18 +1346,13 @@ class goal extends hierarchy {
             $context = context_user::instance($userid);
             $syscontext = context_system::instance();
 
-            // Get team leader and appraiser for permissions checks.
-            $jobassignments = \totara_job\job_assignment::get_all($userid, false);
-            $teamleaders = array();
-            $appraisers = array();
-            foreach($jobassignments as $jobassignment) {
-                if (!empty($jobassignment->teamleaderid)) {
-                    $teamleaders[] = $jobassignment->teamleaderid;
-                }
-                if (!empty($jobassignment->appraiserid)) {
-                    $appraisers[] = $jobassignment->appraiserid;
-                }
-            }
+            // Using a user's current reporting hierarchy is not always correct.
+            // For example, in completed appraisals, it is the hierarchy at the
+            // time of completion that is "correct". Hence the need for a finder
+            // function (possibly supplied by an external entity) to determine
+            // the right hierarchy.
+            $finder = $this->hierarchyFinder;
+            list($managers, $teamleaders, $appraisers) = $finder($userid);
 
             // Set up permissions checks so we don't have to do them everytime.
             if (has_capability('totara/hierarchy:managegoalassignments', $syscontext)) {
@@ -1325,9 +1367,7 @@ class goal extends hierarchy {
                     GOAL_ASSIGNMENT_MANAGER => true,
                     GOAL_ASSIGNMENT_ADMIN => true,
                 );
-            } else if (\totara_job\job_assignment::is_managing($USER->id, $userid) ||
-                (in_array($USER->id, $teamleaders)) ||
-                (in_array($USER->id, $appraisers))) {
+            } else if (in_array($USER->id, $managers) || in_array($USER->id, $teamleaders) || in_array($USER->id, $appraisers)) {
                 // Manager, manager's manager and appraiser permissions.
                 $permissions['can_view_personal'] = has_capability('totara/hierarchy:viewstaffpersonalgoal', $context);
                 $permissions['can_edit_personal'] = has_capability('totara/hierarchy:managestaffpersonalgoal', $context);

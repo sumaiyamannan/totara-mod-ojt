@@ -1779,6 +1779,7 @@ function facetoface_get_attendees($sessionid, $status = array(MDL_F2F_STATUS_BOO
         SELECT
             {$reservedfields}
             u.id,
+            u.idnumber,
             su.id AS submissionid,
             {$usernamefields},
             u.email,
@@ -5064,7 +5065,7 @@ function facetoface_user_import($course, $facetoface, $session, $userid, $params
     global $DB, $CFG, $USER;
 
     $result = array();
-    $result['id'] = $userid;
+    $result['idnumber'] = $userid;
 
     $suppressemail    = (isset($params['suppressemail'])    ? $params['suppressemail']    : false);
     $ignoreconflicts  = (isset($params['ignoreconflicts'])  ? $params['ignoreconflicts']  : false);
@@ -5111,6 +5112,9 @@ function facetoface_user_import($course, $facetoface, $session, $userid, $params
         $result['result'] = get_string('userdoesnotexist', 'facetoface', $a);
         return $result;
     }
+
+    // Lets get the user ID number as the result output for the id.
+    $result['idnumber'] = $user->idnumber;
 
     $result['name'] = fullname($user);
 
@@ -6890,7 +6894,7 @@ function facetoface_validate_user_import($user, $context, $facetoface, $session,
     }
 
     $result = array(
-        'id' => $user->id,
+        'idnumber' => $user->idnumber,
         'name' =>fullname($user)
     );
 

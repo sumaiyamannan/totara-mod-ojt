@@ -284,9 +284,9 @@ class enrol_totara_facetoface_plugin extends enrol_plugin {
                 $message = get_string('bookingcompleted', 'facetoface');
             }
 
-            if ($session->cntdates
+            if ($needapproval || ($session->cntdates
                 && isset($facetoface->confirmationinstrmngr)
-                && !empty($facetoface->confirmationstrmngr)) {
+                && !empty($facetoface->confirmationstrmngr))) {
                 $message .= html_writer::start_tag('p');
                 $message .= get_string('confirmationsentmgr', 'facetoface');
                 $message .= html_writer::end_tag('p');

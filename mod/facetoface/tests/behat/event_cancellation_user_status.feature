@@ -107,7 +107,7 @@ Feature: Seminar event cancellation status
     And I follow "Sign-up"
     And I should see "Manager Approval"
     And I press "Request approval"
-    And I should see "Your booking has been completed but requires approval from your manager."
+    And I should see "Your request was sent to your manager for approval."
     Then I click on "Find Learning" in the totara menu
     And I follow "Course 1"
     And I should see "It is not possible to sign up for these events (manager request already pending)."
@@ -220,7 +220,7 @@ Feature: Seminar event cancellation status
     And I should see "Sign-up"
     And I follow "Sign-up"
     And I press "Sign-up"
-    Then I should see "Your booking has been completed."
+    Then I should see "Your request was accepted"
     And I should not see "Sign-up"
     And I log out
 

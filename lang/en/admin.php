@@ -126,6 +126,7 @@ $string['commonactivitysettings'] = 'Common activity settings';
 $string['commonfiltersettings'] = 'Common filter settings';
 $string['commonsettings'] = 'Common settings';
 $string['componentinstalled'] = 'Component installed';
+$string['componentusage'] = 'Component usage';
 $string['computedfromlogs'] = 'Computed from logs since {$a}.';
 $string['condifmodeditdefaults'] = 'Default values are used in the settings form when creating a new activity or resource.';
 $string['confeditorhidebuttons'] = 'Select the buttons that should be hidden in the HTML editor.';
@@ -148,7 +149,7 @@ $string['configallowuserthemes'] = 'If you enable this, then users will be allow
 $string['configallusersaresitestudents'] = 'For activities on the front page of the site, should ALL users be considered as learners?  If you answer "Yes", then any confirmed user account will be allowed to participate as a learner in those activities.  If you answer "No", then only users who are already a participant in at least one course will be able to take part in those front page activities. Only admins and specially assigned trainers can act as trainers for these front page activities.';
 $string['configauthenticationplugins'] = 'Please choose the authentication plugins you wish to use and arrange them in order of failthrough.';
 $string['configautolang'] = 'Detect default language from browser setting, if disabled site default is used.';
-$string['configautologinguests'] = 'Should visitors be logged in as guests automatically when entering courses with guest access?';
+$string['configautologinguests'] = 'Should visitors be logged in as guests automatically?';
 $string['configbloglevel'] = 'This setting allows you to restrict the level to which user blogs can be viewed on this site.  Note that they specify the maximum context of the VIEWER not the poster or the types of blog posts.  Blogs can also be disabled completely if you don\'t want them at all.';
 $string['configcalendarcustomexport'] = 'Enable custom date range export of calendar';
 $string['configcalendarexportsalt'] = 'This random text is used for improving of security of authentication tokens used for exporting of calendars. A unique random value is generated during installation. If security is a concern we recommend changing this value after installation. Please note that all current tokens are invalidated if you change this value. You can disable calendar export by turning off the enablecalendarexport.';
@@ -627,6 +628,7 @@ IP address location is displayed on simple map or using Google Maps. Please note
 $string['iplookupmaxmindnote'] = 'This product includes GeoLite data created by MaxMind, available from <a href="http://www.maxmind.com/">http://www.maxmind.com/</a>.';
 $string['keeptagnamecase'] = 'Keep tag name casing';
 $string['lang'] = 'Default language';
+$string['installedlangs'] = 'Installed language packs';
 $string['language'] = 'Language';
 $string['language_help'] = 'Set the language of the new user. Selecting this when creating a user ensures the login page or an email greets the user in the given language.';
 $string['langcache'] = 'Cache language menu';
@@ -1252,5 +1254,6 @@ $string['dbtype'] = 'Database type';
 
 $string['usercount'] = 'Number of site users';
 $string['activeusercount'] = 'Number of active users';
+$string['activeusercount3mth'] = 'Number of active users in last three months';
 $string['webserversoftware'] = 'Web server software identifier';
 $string['wwwroot'] = 'Site www root';

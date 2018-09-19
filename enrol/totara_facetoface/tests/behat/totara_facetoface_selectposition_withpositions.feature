@@ -99,7 +99,7 @@ Feature: Users can enrol themself in courses with selected position where semina
     And I set the following fields to these values:
       | Select a job assignment | jobassignment2 (Position2) |
     And I press "Sign-up"
-    Then I should see "Your booking has been completed."
+    Then I should see "Your request was accepted"
     And I log out
 
     And I log in as "teacher1"

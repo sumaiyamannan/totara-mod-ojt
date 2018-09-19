@@ -685,4 +685,149 @@ class mod_forum_backup_activity_task_testcase extends advanced_testcase {
         //     backup_forum_activity_task::encode_content_links('<a href="'.$url.'">'.$url.'</a>', $roottask)
         // );
     }
+
+    /**
+     * Test encode_content_links can convert discuss links when called with a valid task.
+     */
+    public function test_encode_content_links_discussion_with_a_task_without_modules() {
+        global $CFG, $USER;
+
+        $this->resetAfterTest();
+        $this->setAdminUser();
+
+        $generator = $this->getDataGenerator();
+        /** @var mod_forum_generator $forumgenerator */
+        $forumgenerator = $generator->get_plugin_generator('mod_forum');
+
+        $user = $generator->create_user();
+
+        $course1 = $generator->create_course();
+        $course2 = $generator->create_course();
+
+        // Turn off file logging, otherwise it can't delete the file (Windows).
+        $CFG->backup_file_logger_level = backup::LOG_NONE;
+
+        // Do backup with default settings. MODE_IMPORT means it will just create the directory and not zip it.
+        $bc = new backup_controller(backup::TYPE_1COURSE, $course1->id, backup::FORMAT_MOODLE, backup::INTERACTIVE_NO,
+            backup::MODE_IMPORT, $USER->id);
+        $tasks = $bc->get_plan()->get_tasks();
+
+        // We need a task to test with, it doesn't matter which, but we'll use the root task.
+        $roottask = null;
+        foreach ($tasks as $task) {
+            if ($task instanceof backup_root_task) {
+                $roottask = $task;
+                break;
+            }
+        }
+        $this->assertNotEmpty($roottask, 'Unable to find the root backup task');
+
+        // We expect the module in course 1 to be encoded, but not the module in course 2.
+        $this->assertSame(
+            $CFG->wwwroot.'/mod/forum/discuss.php?d=3',
+            backup_forum_activity_task::encode_content_links($CFG->wwwroot.'/mod/forum/discuss.php?d=3', $roottask)
+        );
+        $this->assertSame(
+            $CFG->wwwroot.'/mod/forum/discuss.php?d=3',
+            backup_forum_activity_task::encode_content_links($CFG->wwwroot.'/mod/forum/discuss.php?d=3', $roottask)
+        );
+        $this->assertSame(
+            $CFG->wwwroot.'/mod/forum/discuss.php?d=987654321',
+            backup_forum_activity_task::encode_content_links($CFG->wwwroot.'/mod/forum/discuss.php?d=987654321', $roottask)
+        );
+
+        // Test no relative URL's get encoded.
+        $this->assertSame(
+            '/mod/forum/discuss.php?d=3',
+            backup_forum_activity_task::encode_content_links('/mod/forum/discuss.php?d=3', $roottask)
+        );
+        $this->assertSame(
+            '/mod/forum/discuss.php?d=4',
+            backup_forum_activity_task::encode_content_links('/mod/forum/discuss.php?d=4', $roottask)
+        );
+        $this->assertSame(
+            '/mod/forum/discuss.php?d=987654321',
+            backup_forum_activity_task::encode_content_links('/mod/forum/discuss.php?d=987654321', $roottask)
+        );
+
+        // Now test the correct URL's with additional anchors and arguments.
+        $url = $CFG->wwwroot.'/mod/forum/discuss.php?d=7#anchor';
+        $this->assertSame(
+            '<a href="'.$url.'">'.$url.'</a>',
+            backup_forum_activity_task::encode_content_links('<a href="'.$url.'">'.$url.'</a>', $roottask)
+        );
+        $url = $CFG->wwwroot.'/mod/forum/discuss.php?d=8#anchor';
+        $this->assertSame(
+            '<a href="'.$url.'">'.$url.'</a>',
+            backup_forum_activity_task::encode_content_links('<a href="'.$url.'">'.$url.'</a>', $roottask)
+        );
+        $url = $CFG->wwwroot.'/mod/forum/discuss.php?d=546#anchor';
+        $this->assertSame(
+            '<a href="'.$url.'">'.$url.'</a>',
+            backup_forum_activity_task::encode_content_links('<a href="'.$url.'">'.$url.'</a>', $roottask)
+        );
+        $url = $CFG->wwwroot.'/mod/forum/discuss.php?d=7&arg=value';
+        $this->assertSame(
+            '<a href="'.$url.'">'.$url.'</a>',
+            backup_forum_activity_task::encode_content_links('<a href="'.$url.'">'.$url.'</a>', $roottask)
+        );
+        $url = $CFG->wwwroot.'/mod/forum/discuss.php?d=8&arg=value';
+        $this->assertSame(
+            '<a href="'.$url.'">'.$url.'</a>',
+            backup_forum_activity_task::encode_content_links('<a href="'.$url.'">'.$url.'</a>', $roottask)
+        );
+        $url = $CFG->wwwroot.'/mod/forum/discuss.php?d=546&arg=value';
+        $this->assertSame(
+            '<a href="'.$url.'">'.$url.'</a>',
+            backup_forum_activity_task::encode_content_links('<a href="'.$url.'">'.$url.'</a>', $roottask)
+        );
+
+        // Now try for discussions with a post hash.
+        $url = $CFG->wwwroot.'/mod/forum/discuss.php?d=7#4';
+        $this->assertSame(
+            '<a href="'.$url.'">'.$url.'</a>',
+            backup_forum_activity_task::encode_content_links('<a href="'.$url.'">'.$url.'</a>', $roottask)
+        );
+        // You may note that this isn't strictly correct, currently we don't validate that the post belongs to the discussion.
+        // Doing so costs us another query per link, and in this case we will just rely on the people using correct links, rather
+        // than trying to handle poorly formed links.
+        $url = $CFG->wwwroot.'/mod/forum/discuss.php?d=7#5';
+        $this->assertSame(
+            '<a href="'.$url.'">'.$url.'</a>',
+            backup_forum_activity_task::encode_content_links('<a href="'.$url.'">'.$url.'</a>', $roottask)
+        );
+        $url = $CFG->wwwroot.'/mod/forum/discuss.php?d=8#4';
+        $this->assertSame(
+            '<a href="'.$url.'">'.$url.'</a>',
+            backup_forum_activity_task::encode_content_links('<a href="'.$url.'">'.$url.'</a>', $roottask)
+        );
+        $url = $CFG->wwwroot.'/mod/forum/discuss.php?d=8#5';
+        $this->assertSame(
+            '<a href="'.$url.'">'.$url.'</a>',
+            backup_forum_activity_task::encode_content_links('<a href="'.$url.'">'.$url.'</a>', $roottask)
+        );
+
+        // Now try for discussions with a parent.
+        $url = $CFG->wwwroot.'/mod/forum/discuss.php?d=7&parent=4';
+        $this->assertSame(
+            '<a href="'.$url.'">'.$url.'</a>',
+            backup_forum_activity_task::encode_content_links('<a href="'.$url.'">'.$url.'</a>', $roottask)
+        );
+        // As above we don't validate the post belongs to the discussion, we only deal with "correct" links.
+        $url = $CFG->wwwroot.'/mod/forum/discuss.php?d=7&parent=5';
+        $this->assertSame(
+            '<a href="'.$url.'">'.$url.'</a>',
+            backup_forum_activity_task::encode_content_links('<a href="'.$url.'">'.$url.'</a>', $roottask)
+        );
+        $url = $CFG->wwwroot.'/mod/forum/discuss.php?d=8&parent=4';
+        $this->assertSame(
+            '<a href="'.$url.'">'.$url.'</a>',
+            backup_forum_activity_task::encode_content_links('<a href="'.$url.'">'.$url.'</a>', $roottask)
+        );
+        $url = $CFG->wwwroot.'/mod/forum/discuss.php?d=8&parent=5';
+        $this->assertSame(
+            '<a href="'.$url.'">'.$url.'</a>',
+            backup_forum_activity_task::encode_content_links('<a href="'.$url.'">'.$url.'</a>', $roottask)
+        );
+    }
 }

@@ -128,14 +128,17 @@ function get_registration_data() {
     $data['usercount'] = $DB->count_records('user', array('deleted' => '0'));
     $data['coursecount'] = $DB->count_records_select('course', 'format <> ?', array('site'));
     $oneyearago = time() - 60*60*24*365;
+    $threemonthsago = time() - 60*60*24*90;
     // See MDL-22481 for why currentlogin is used instead of lastlogin
     $data['activeusercount'] = $DB->count_records_select('user', "currentlogin > ?", array($oneyearago));
+    $data['activeusercount3mth'] = $DB->count_records_select('user', "currentlogin > ?", array($threemonthsago));
     $data['usersessionscount'] = $DB->count_records_sql("SELECT COUNT('x') FROM {sessions} WHERE userid > 0");
     $data['badgesnumber'] = $DB->count_records_select('badge', 'status <> ' . BADGE_STATUS_ARCHIVED);
     $data['issuedbadgesnumber'] = $DB->count_records('badge_issued');
     $data['debugstatus'] = (isset($CFG->debug) ? $CFG->debug : DEBUG_NONE); // Support needs to know what errors users see.
     $data['lastcron'] = $DB->get_field_sql('SELECT MAX(lastruntime) FROM {task_scheduled}'); // Support needs to know if cron is configured and running.
     $data['addons'] = implode(',', $addons); // Support needs to know if there are plugins that might be incompatible with Totara.
+    $data['installedlangs'] = implode(',', array_keys(get_string_manager()->get_list_of_translations())); // Language pack usage informs translation effort.
     if ($flavour = get_config('totara_flavour', 'currentflavour')) {
         $data['flavour'] = $flavour;
     }
@@ -145,6 +148,11 @@ function get_registration_data() {
     if (!empty($CFG->registrationcode)) {
         $data['registrationcode'] = $CFG->registrationcode;
     }
+
+    $pluginmanager = \core_plugin_manager::instance();
+    $componentdata = $pluginmanager->get_component_usage_data();
+    $data['componentusage'] = json_encode($componentdata);
+
     return $data;
 }
 

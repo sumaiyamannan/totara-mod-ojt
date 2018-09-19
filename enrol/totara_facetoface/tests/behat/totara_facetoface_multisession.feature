@@ -77,9 +77,9 @@ Feature: Users can enrol on courses that have several seminar activities and sig
     And I follow "Course 1"
     And I click on "Sign-up" "link" in the "2 January 2020" "table_row"
     And I press "Sign-up"
-    Then I should see "Your booking has been completed."
+    Then I should see "Your request was accepted"
     And I click on "Find Learning" in the totara menu
     And I follow "Course 1"
     And I click on "Sign-up" "link" in the "1 January 2020" "table_row"
     And I press "Sign-up"
-    And I should see "Your booking has been completed."
+    And I should see "Your request was accepted"

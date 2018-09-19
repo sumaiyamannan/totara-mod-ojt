@@ -151,6 +151,76 @@ class totara_job_dialog_assign_manager_testcase extends advanced_testcase {
         }
     }
 
+    public function test_search_managers() {
+        global $DB, $CFG;
+
+        require_once($CFG->dirroot . '/totara/core/searchlib.php');
+
+        $currentuser = $this->users[0];
+
+        // Create our own users here so that we can search for them.
+        $manager1 = $this->data_generator->create_user(['lastname' => 'Smith-Jennison', 'firstname' => 'Richard']);
+        $manager2 = $this->data_generator->create_user(['lastname' => 'Robertson', 'firstname' => 'Jennifer']);
+        $manager3 = $this->data_generator->create_user(['lastname' => 'Jenkins', 'firstname' => 'Bob']);
+
+        // Set admin user to pass permission checks for being allowed to create a user.
+        $this->setAdminUser();
+
+        // Prepare job assignments for managers:
+        // - manager1 - 2 job assignments
+        // - manager2 - 1 job assignment
+        // - manager3 - no job assignment
+        $jobdata1 = array('userid' => $manager1->id, 'idnumber' => 1, 'fullname' => 'Manager 1 job 1');
+        $ja11 = \totara_job\job_assignment::create($jobdata1);
+        $jobdata2 = array('userid' => $manager1->id, 'idnumber' => 2, 'fullname' => 'Manager 1 job 2');
+        $ja12 = \totara_job\job_assignment::create($jobdata2);
+        $jobdata3 = array('userid' => $manager2->id, 'idnumber' => 3, 'fullname' => 'Manager 2 job');
+        $ja21 = \totara_job\job_assignment::create($jobdata3);
+
+        $dialog = new totara_job_dialog_assign_manager($currentuser->id);
+        list($sql, $params) = $this->execute_restricted_method($dialog, 'get_managers_joinsql_and_params', array(true));
+
+        $fields = get_all_user_name_fields(false, 'u', null, null, true);
+        $keywords = totara_search_parse_keywords('jen');
+        list($searchsql, $searchparams) = totara_search_get_keyword_where_clause($keywords, $fields, SQL_PARAMS_NAMED, 'u');
+
+        $search_info = new stdClass();
+        $search_info->id = 'COALESCE((' . $DB->sql_concat_join('\'-\'', array('u.id', 'managerja.id')) . '), '
+            . $DB->sql_concat('u.id', '\'-\'') . ')';
+        $search_info->fullnamefields = 'managerja.fullname, managerja.idnumber, u.id AS userid, managerja.id AS jaid, ' . implode(',', $fields);
+        $search_info->sql = $sql . ' AND ' . $searchsql;
+        $search_info->params = array_merge($params, $searchparams);
+        $search_info->order = ' ORDER BY ' . implode(',', $fields);
+        $search_info->datakeys = array('userid', 'jaid', 'displaystring');
+        $select = "SELECT {$search_info->id} AS id, {$search_info->fullnamefields} ";
+
+        // Get the search results.
+        $results = $DB->get_records_sql($select . $search_info->sql . $search_info->order, $search_info->params);
+
+        set_config('totara_job_allowmultiplejobs', 1);
+        $items = $this->execute_restricted_method($dialog, 'get_search_items_array', array($results));
+        // MySQL doesn't append '-' when manager job ID doesn't exist, so strip any dashes from the keys for testing.
+        $keys = array_map(function($item) { return rtrim($item, '-'); }, array_keys($items));
+        // Count: manager1 2+NEW; manager2 1+NEW; manager3 NEW;
+        $this->assertCount(6, $items);
+        $this->assertContains($manager1->id . '-' . $ja11->id, $keys);
+        $this->assertContains($manager1->id . '-' . $ja12->id, $keys);
+        $this->assertContains($manager1->id . '-NEW', $keys);
+        $this->assertContains($manager3->id, $keys); // Managers without jobs don't get NEW appended to the key.
+
+        set_config('totara_job_allowmultiplejobs', 0);
+        $dialog = new totara_job_dialog_assign_manager($currentuser->id); // New dialog object to update config setting.
+        $items = $this->execute_restricted_method($dialog, 'get_search_items_array', array($results));
+        // MySQL doesn't append '-' when manager job ID doesn't exist, so strip any dashes from the keys for testing.
+        $keys = array_map(function($item) { return rtrim($item, '-'); }, array_keys($items));
+        // Count: manager1 2; manager2 1; manager3 NEW;
+        $this->assertCount(4, $items);
+        $this->assertContains($manager1->id . '-' . $ja11->id, $keys);
+        $this->assertContains($manager1->id . '-' . $ja12->id, $keys);
+        $this->assertNotContains($manager1->id . '-NEW', $keys); // Can't create any more job assignments.
+        $this->assertContains($manager3->id, $keys); // Managers without jobs don't get NEW appended to the key.
+    }
+
     public function test_get_managers_from_db() {
         $currentuser = $this->users[0];
         $manager = $this->users[1];

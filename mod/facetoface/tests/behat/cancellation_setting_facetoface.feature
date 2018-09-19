@@ -64,7 +64,7 @@ Feature: Cancellation for session
     And I follow "View all events"
     And I click on the link "Sign-up" in row 1
     And I press "Sign-up"
-    Then I should see "Your booking has been completed."
+    Then I should see "Your request was accepted"
     And I should see "Cancel booking"
     When I click on the link "Cancel booking" in row 1
     And I press "Yes"
@@ -126,7 +126,7 @@ Feature: Cancellation for session
     And I follow "View all events"
     And I click on the link "Sign-up" in row 1
     And I press "Sign-up"
-    Then I should see "Your booking has been completed."
+    Then I should see "Your request was accepted"
     And I should not see "Cancel booking"
     And I log out
 
@@ -163,7 +163,7 @@ Feature: Cancellation for session
     And I follow "View all events"
     And I click on the link "Sign-up" in row 1
     And I press "Sign-up"
-    Then I should see "Your booking has been completed."
+    Then I should see "Your request was accepted"
     And I should see "Cancel booking"
     And I log out
 
@@ -238,7 +238,7 @@ Feature: Cancellation for session
     And I follow "View all events"
     And I click on the link "Sign-up" in row 1
     And I press "Sign-up"
-    Then I should see "Your booking has been completed."
+    Then I should see "Your request was accepted"
     And I should see "Cancel booking"
     When I click on the link "Cancel booking" in row 1
     And I press "Yes"

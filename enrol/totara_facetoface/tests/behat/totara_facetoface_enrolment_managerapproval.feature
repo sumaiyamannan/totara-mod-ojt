@@ -71,7 +71,7 @@ Feature: Users are forced to get manager approval where required
     And I follow "Course 1"
     And I click on "Sign-up" "link" in the "1 January 2020" "table_row"
     And I press "Request approval"
-    Then I should see "Your booking has been completed but requires approval from your manager."
+    Then I should see "Your request was sent to your manager for approval."
     And I log out
 
     When I log in as "teacher1"
@@ -104,7 +104,7 @@ Feature: Users are forced to get manager approval where required
     And I follow "Course 1"
     And I click on "Sign-up" "link" in the "1 January 2020" "table_row"
     And I press "Request approval"
-    Then I should see "Your booking has been completed but requires approval from your manager."
+    Then I should see "Your request was sent to your manager for approval."
     And I log out
     And I log in as "teacher1"
     And I follow "Course 1"

@@ -169,6 +169,7 @@ $string['contentdesc_posequal'] = 'The user\'s current position is equal to "{$a
 $string['contentdesc_orgbelow'] = 'The user\'s current organisation is below "{$a}" in one of their job assignments';
 $string['contentdesc_orgboth'] = 'The user\'s current organisation is equal to or below "{$a}" in one of their job assignments';
 $string['contentdesc_orgequal'] = 'The user\'s current organisation is equal to "{$a}" in one of their job assignments';
+$string['contentdesc_delim'] = '" or "';
 $string['context'] = 'Context';
 $string['couldnotsortjoinlist'] = 'Could not sort join list. Source either contains circular dependencies or references a non-existent join';
 $string['course_completion'] = 'Course Completion';

@@ -78,7 +78,7 @@ Feature: Seminar Signup Role Approval
     And I follow "Sign-up"
     And I should see "Editing Trainer"
     And I press "Request approval"
-    Then I should see "Your request to attend this session has been received. You should immediately receive a confirmation email."
+    Then I should see "Your request was sent for approval"
 
   Scenario: Student gets approved through role approval
     When I log in as "jimmy"
@@ -90,7 +90,7 @@ Feature: Seminar Signup Role Approval
     And I should see "Freddy Fred"
 
     When I press "Request approval"
-    Then I should see "Your request to attend this session has been received. You should immediately receive a confirmation email."
+    Then I should see "Your request was sent for approval"
 
     And I log out
     And I log in as "manager"

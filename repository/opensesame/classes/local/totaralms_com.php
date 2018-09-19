@@ -44,8 +44,8 @@ class totaralms_com {
     public static function provision_tenant($tenantname, $tenanttype, $repositorykey, $tenantdemosecret) {
         global $CFG, $USER;
 
-        $url = 'https://register.totaralms.com/local/opensesameadmin/request/provison_tenant.php';
-
+        $url = 'https://subscriptions.totara.community/local/opensesameadmin/request/provison_tenant.php';
+        
         $data = array(
             'tenantname' => $tenantname,
             'tenanttype' => $tenanttype,
@@ -62,7 +62,7 @@ class totaralms_com {
         if (!$result) {
             return array(
                 'status' => 'error',
-                'message' => get_string('errorcannotaccesstotaralms', 'repository_opensesame'),
+                'message' => get_string('errorcannotaccesstotaralms', 'repository_opensesame', 'https://subscriptions.totara.community/'),
             );
         }
         $result = json_decode($result, true);
@@ -72,7 +72,7 @@ class totaralms_com {
         } else if (!isset($result['status'])) {
             return array(
                 'status' => 'error',
-                'message' => get_string('errorcannotaccesstotaralms', 'repository_opensesame'),
+                'message' => get_string('errorcannotaccesstotaralms', 'repository_opensesame', 'https://subscriptions.totara.community/'),
             );
         } else if ($result['status'] === 'success') {
             // Add params to result to make the code simpler.
@@ -91,7 +91,7 @@ class totaralms_com {
      * @return array JSend encoded result
      */
     public static function remove_tenant($tenantid, $repositorykey) {
-        $url = 'https://register.totaralms.com/local/opensesameadmin/request/remove_tenant.php';
+        $url = 'https://subscriptions.totara.community/local/opensesameadmin/request/remove_tenant.php';
 
         $data = array(
             'tenantid' => $tenantid,
@@ -103,7 +103,7 @@ class totaralms_com {
         if (!$result) {
             return array(
                 'status' => 'error',
-                'message' => get_string('errorcannotaccesstotaralms', 'repository_opensesame'),
+                'message' => get_string('errorcannotaccesstotaralms', 'repository_opensesame', 'https://subscriptions.totara.community/'),
             );
         }
         $result = json_decode($result, true);
@@ -113,7 +113,7 @@ class totaralms_com {
         } else if (!isset($result['status'])) {
             return array(
                 'status' => 'error',
-                'message' => get_string('errorcannotaccesstotaralms', 'repository_opensesame'),
+                'message' => get_string('errorcannotaccesstotaralms', 'repository_opensesame', 'https://subscriptions.totara.community/'),
             );
         }
 

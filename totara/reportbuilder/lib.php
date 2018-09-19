@@ -1372,7 +1372,9 @@ class reportbuilder {
                 $dbfields[] = $column->type . '_' . $column->value;
             } else {
                 $columnobject = self::get_single_item($this->columnoptions, $column->type, $column->value);
-                $dbfields[] = $columnobject->field;
+                if (!empty($columnobject)) {
+                    $dbfields[] = $columnobject->field;
+                }
             }
         }
 
@@ -2413,6 +2415,79 @@ class reportbuilder {
         if (count($out) == 0) {
             // use 1=0 instead of FALSE for MSSQL support
             return array('(1=0)', array());
+        }
+
+        return array('(' . implode($op, $out) . ')', $params);
+    }
+
+    /**
+     * Returns an SQL snippet that, when applied to the WHERE clause of hierarchy queries,
+     * reduces the results to only include those matched by any specified content
+     * restrictions
+     * @param string $prefix Get restrictions for this prefix class only
+     * @param bool $cache if enabled, only alias fields will be used
+     *
+     * @return array containing SQL snippet created from content restrictions, as well as SQL params array
+     */
+    function get_hierarchy_content_restrictions($prefix, $cache = false) {
+        // if no content restrictions enabled return a TRUE snippet
+        // use 1=1 instead of TRUE for MSSQL support
+        if ($this->contentmode == REPORT_BUILDER_CONTENT_MODE_NONE) {
+            return array("( 1=1 )", array());
+        } else if ($this->contentmode == REPORT_BUILDER_CONTENT_MODE_ALL) {
+            // require all to match
+            $op = "\n    AND ";
+        } else {
+            // require any to match
+            $op = "\n    OR ";
+        }
+
+        $reportid = $this->_id;
+        $out = array();
+        $params = array();
+
+        // go through the content options
+        if (isset($this->contentoptions) && is_array($this->contentoptions)) {
+            foreach ($this->contentoptions as $option) {
+                $name = $option->classname;
+                $classname = 'rb_' . $name . '_content';
+                $settingname = $name . '_content';
+
+                $fields = array();
+                foreach ($option->fields as $key => $field) {
+                    if ($cache) {
+                        $fields[$key] = 'rb_content_option_' . $key;
+                    } else {
+                        $fields[$key] = $field;
+                    }
+                }
+
+                // Collapse array to string if it consists of only one element
+                // This provides backward compatibility in case fields is just
+                // a string instead of an array.
+                if (count($fields) === 1) {
+                    $fields = array_shift($fields);
+                }
+
+                if (class_exists($classname) && method_exists($classname, 'sql_hierarchy_restriction')) {
+                    $class = new $classname($this->reportfor);
+
+                    if (method_exists($classname, 'sql_hierarchy_restriction_prefix') &&
+                        $class->sql_hierarchy_restriction_prefix() == $prefix) {
+                        if (reportbuilder::get_setting($reportid, $settingname, 'enable')) {
+                            // this content option is enabled
+                            // call function to get SQL snippet
+                            list($out[], $contentparams) = $class->sql_hierarchy_restriction($fields, $reportid);
+                            $params = array_merge($params, $contentparams);
+                        }
+                    }
+                }
+            }
+        }
+        // show everything if no hierarchy content restrictions enabled
+        if (count($out) == 0) {
+            // use 1=1 instead of TRUE for MSSQL support
+            return array('(1=1)', array());
         }
 
         return array('(' . implode($op, $out) . ')', $params);

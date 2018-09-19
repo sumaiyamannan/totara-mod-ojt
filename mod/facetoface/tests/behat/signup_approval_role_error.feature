@@ -77,5 +77,5 @@ Feature: Seminar Signup Role Approval after creating an event
     Then I should see "Editing Trainer"
 
     When I press "Request approval"
-    Then I should see "Your request to attend this session has been received. You should immediately receive a confirmation email."
+    Then I should see "Your request was sent for approval"
 

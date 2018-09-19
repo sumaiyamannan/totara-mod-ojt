@@ -63,6 +63,7 @@ $search_info->id = 'id';
 $search_info->fullname = 'fullname';
 $search_info->sql = null;
 $search_info->params = null;
+$search_info->extrafields=null;
 
 // Check if user has capability to view emails.
 if (isset($this->context)) {
@@ -82,6 +83,9 @@ unset($context);
  *  + $search_info->fullname: Title of fullname field (defaults to 'fullname')
  *  + $search_info->sql: SQL after "SELECT .." fragment (e,g, 'FROM ... etc'), without the ORDER BY
  *  + $search_info->order: The "ORDER BY" SQL fragment (should contain the ORDER BY text also)
+ *  + $search_info->extrafields: The extra table's fields that should be added into the sql if the search sql needs the
+ *                               fields for different purposes, for example: DISTINCT sql needs the fields to appear in
+ *                               SELECT when fields were being used as for SORT ORDERED
  *
  *  Remember to generate and include the query SQL in your WHERE clause with:
  *     totara_dialog_get_search_clause()
@@ -509,7 +513,7 @@ switch ($searchtype) {
             $sqlsess = 'OR a.custom > 0 AND fsd.id = ?';
             $params = array_merge($params, array($sessionid));
         }
-        $search_info->id = 'a.id';
+        $search_info->id = 'DISTINCT a.id';
         $search_info->fullname = 'a.name';
         $search_info->sql = "
             FROM {facetoface_asset} a
@@ -543,14 +547,45 @@ switch ($searchtype) {
 
         // Custom rooms for session id.
         $sqlsess = '';
-        $joinsess = '';
+
+        // The logic of checking whether the room was already within a sesison or not is working by checking the `timestart`
+        // of the queried rooms to be smaller than the `timefinish` from POST data and the `timefinish` to be bigger
+        // than `timestart` from POST data
+        $joinsess = 'LEFT JOIN {facetoface_sessions_dates} fsd ON (r.id = fsd.roomid) 
+                     AND (fsd.timestart < ? AND fsd.timefinish > ? AND r.allowconflicts=0 %sessionsql%)';
+
+        $sessionparams = array();
+        // Parameter for checking against `timestart`
+        $sessionparams[] = $this->customdata['timefinish'];
+        // Parameter for checking against `timefinish`
+        $sessionparams[] = $this->customdata['timestart'];
+        // This is a small part of sql for getting those rooms that are not being used by the same session
+        $sessionsql = "";
         if ($sessionid) {
-            $joinsess = 'LEFT JOIN {facetoface_sessions_dates} fsd ON (r.id = fsd.roomid)';
-            $sqlsess = 'OR r.custom > 0 AND fsd.id = ?';
+            $sqlsess = 'OR fsd.sessionid = ?';
             $params = array_merge($params, array($sessionid));
+
+            // Logic in english: The room that is being used by the same session should not be displayed as unavailable,
+            // however if the room is being used by a different session, then it should have a flag of unavailable up
+            $sessionsql = " AND fsd.sessionid <> ? ";
+            $sessionparams[] = $this->customdata['sessionid'];
         }
-        $search_info->id = 'r.id';
-        $search_info->fullname = $DB->sql_concat("r.name", "' (" . get_string('capacity', 'facetoface') . ": '", "r.capacity", "')'");
+
+        // Update the sql
+        $joinsess = str_replace('%sessionsql%', $sessionsql, $joinsess);
+        // Adding the $sessionparams as before $params
+        $params = array_merge($sessionparams, $params);
+
+        $search_info->id = 'DISTINCT r.id';
+        // This field is required within SELECT, sinc the DISTINCT keyword onlys work well with ORDER BY key word if the
+        // the field is ordered also selected
+        $search_info->extrafields= "r.name";
+        $sqlavailable = $DB->sql_concat("r.name", "' (" . get_string('capacity', 'facetoface') . ": '", "r.capacity", "')'");
+        $sqlunavailable = $DB->sql_concat("r.name",
+            "' (" . get_string('capacity', 'facetoface') . ": '", "r.capacity", "')'",
+            "' " . get_string('roomalreadybooked', 'facetoface') . "'"
+        );
+        $search_info->fullname = " CASE WHEN(fsd.id IS NULL) THEN {$sqlavailable} ELSE {$sqlunavailable} END";
 
         $search_info->sql = "
             FROM
@@ -558,7 +593,7 @@ switch ($searchtype) {
                 {$joinsess}
             WHERE
                 {$searchsql}
-                AND (r.custom = 0 {$sqlsess})
+                AND (r.custom=0 OR fsd.id IS NULL {$sqlsess})
                 AND r.hidden = 0
         ";
 
@@ -693,6 +728,9 @@ if (strlen($query)) {
     }
     if (isset($search_info->email)) {
         $select .= ", {$search_info->email} AS email ";
+    }
+    if (isset($search_info->extrafields)) {
+        $select .= ", {$search_info->extrafields} ";
     }
     $count  = "SELECT COUNT({$search_info->id}) ";
 

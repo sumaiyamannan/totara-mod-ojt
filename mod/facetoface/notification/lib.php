@@ -1343,7 +1343,7 @@ function facetoface_send_notice($facetoface, $session, $userid, $params, $icalat
     }
 
     $notice->set_newevent($user, $session->id, null, $fromuser);
-    if ((int)$icalattachmenttype == MDL_F2F_BOTH) {
+    if ((int)$icalattachmenttype == MDL_F2F_BOTH && $notice->conditiontype != MDL_F2F_CONDITION_DECLINE_CONFIRMATION) {
         $notice->add_ical_attachment($user, $session, $icalattachmentmethod, null, $olddates);
     }
     if ($session->notifyuser) {

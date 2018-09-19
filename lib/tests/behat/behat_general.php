@@ -1616,4 +1616,16 @@ class behat_general extends behat_base {
 
         throw new \Moodle\BehatExtension\Exception\SkippedException();
     }
+
+    /**
+     * @Then /^I should see "([^"]*)" exactly "([^"]*)" times$/
+     */
+    public function i_should_see_text_x_times($text, $expected) {
+        $content = $this->getSession()->getPage()->getText();
+        $regexp = '/\b'.$text.'\b/';
+        $found = preg_match_all($regexp, $content);
+        if ($expected != $found) {
+            throw new \Exception('Found '.$found.' occurences of "'.$text.'" when expecting '.$expected);
+        }
+    }
 }

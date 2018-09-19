@@ -241,16 +241,14 @@ if ($fromform = $mform->get_data()) { // Form submitted
                 break;
         }
 
-        if ($session->cntdates
+        if (facetoface_approval_required($facetoface) || ($session->cntdates
             && isset($facetoface->confirmationinstrmngr)
-            && !empty($facetoface->confirmationstrmngr)) {
+            && !empty($facetoface->confirmationstrmngr))) {
             $message .= html_writer::empty_tag('br') . html_writer::empty_tag('br') .
                 get_string('confirmationsentmgr', 'facetoface');
-        } else {
-            if ($fromform->notificationtype != MDL_F2F_NONE) {
-                $message .= html_writer::empty_tag('br') . html_writer::empty_tag('br') .
-                        get_string('confirmationsent', 'facetoface');
-            }
+        } else if ($fromform->notificationtype != MDL_F2F_NONE) {
+            $message .= html_writer::empty_tag('br') . html_writer::empty_tag('br') .
+                    get_string('confirmationsent', 'facetoface');
         }
 
         totara_set_notification($message, $returnurl, array('class' => $cssclass));

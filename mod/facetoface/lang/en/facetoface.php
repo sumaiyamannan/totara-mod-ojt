@@ -273,9 +273,9 @@ For example if you have a user custom profile field with the shortname "suburb" 
 To use placeholders in URL\'s, an admin will need to enable the "Enable trusted content" setting and grant "Trust submitted content" capability to approved roles.';
 $string['booked'] = 'Booked';
 $string['bookingcancelled'] = 'Your booking has been cancelled.';
-$string['bookingcompleted'] = 'Your booking has been completed.';
-$string['bookingcompleted_approvalrequired'] = 'Your booking has been completed but requires approval from your manager.';
-$string['bookingcompleted_roleapprovalrequired'] = 'Your request to attend this session has been received. You should immediately receive a confirmation email. Each {$a} associated with this session has been notified about your request. You should receive a notification about the decision soon.';
+$string['bookingcompleted'] = 'Your request was accepted.';
+$string['bookingcompleted_approvalrequired'] = 'Your request was sent to your manager for approval.';
+$string['bookingcompleted_roleapprovalrequired'] = 'Your request was sent for approval to each {$a} in this session.';
 $string['bookingfull'] = 'Booking full';
 $string['bookingopen'] = 'Booking open';
 $string['bookingoptions'] = 'Booking options';
@@ -345,8 +345,8 @@ $string['confirmlotterybody'] = '"Play Lottery" randomly chooses attendees from 
 $string['confirmanager'] = 'Confirm manager\'s email address';
 $string['confirmation'] = 'Confirmation';
 $string['confirmationmessage'] = 'Confirmation message';
-$string['confirmationsent'] = 'You should immediately receive a confirmation email.';
-$string['confirmationsentmgr'] = 'You and your manager should immediately receive a confirmation email.';
+$string['confirmationsent'] = 'You will receive a booking confirmation email shortly.';
+$string['confirmationsentmgr'] = 'You will be notified about their decision.';
 $string['completionstatusrequired'] = 'Require status';
 $string['completionstatusrequired_help'] = 'Checking one or more statuses will require a user to achieve at least one of the checked statuses in order to be marked complete in this seminar activity, as well as any other activity completion requirements.';
 $string['copyingsession'] = 'Copying as a new event in {$a}';

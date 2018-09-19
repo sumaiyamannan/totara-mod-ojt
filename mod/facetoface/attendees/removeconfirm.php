@@ -104,7 +104,7 @@ if ($fromform = $mform->get_data()) {
         $clonefromform = serialize($fromform);
         foreach ($attendeestoremove as $attendee) {
             $result = array();
-            $result['id'] = $attendee->id;
+            $result['idnumber'] = $attendee->idnumber;
             $result['name'] = fullname($attendee);
 
             if (facetoface_user_cancel($session, $attendee->id, true, $cancelerr)) {
