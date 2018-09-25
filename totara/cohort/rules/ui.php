@@ -30,6 +30,7 @@ if (!defined('MOODLE_INTERNAL')) {
 }
 require_once($CFG->dirroot.'/totara/cohort/rules/lib.php');
 require_once($CFG->dirroot.'/lib/formslib.php');
+require_once($CFG->dirroot.'/totara/core/dialogs/dialog_content_certifications.class.php');
 
 
 /**
@@ -141,6 +142,21 @@ abstract class cohort_rule_ui {
             'classes' => 'ruleparam-delete'
         ));
         return $OUTPUT->action_icon('#', $icon, null, array('data-ruleparam-id' => $paramid));
+    }
+
+    /**
+     * A method of adding missing rule params within all the rule's instances that are going to be added into the rule
+     * description. Before returning as a complete string, within method getRuleDescription, this method should be called
+     * to detect any parameters within rule are actually invalid ones.
+     *
+     * @param array $ruledescriptions   => passed by references, as it needed to be updated
+     * @param int   $ruleinstanceid     => The rule's id that is going to be checked against
+     * @param bool  $static             => Whether the renderer is about displaying readonly text or read with action text
+     * @return void
+     */
+    protected function add_missing_rule_params(array &$ruledescriptions, $ruleinstanceid, $static=true) {
+        // Implementation at the children level
+        return;
     }
 }
 
@@ -495,8 +511,15 @@ JS;
         } else {
             $selected = array_intersect_key($this->options, array_flip($this->listofvalues));
         }
+
+        array_walk($selected, function (&$value, $key) {
+            // Adding quotations marks here.
+            $value = htmlspecialchars("\"{$value}\"");
+        });
+
+        $this->add_missing_rule_params($selected, $ruleid, $static);
         // append the list of selected items
-        $strvar->vars = '"' . htmlspecialchars(implode('", "', $selected)) .'"';
+        $strvar->vars = implode(', ', $selected);
 
         return get_string('ruleformat-descjoinvars', 'totara_cohort', $strvar);
     }
@@ -555,6 +578,41 @@ JS;
         }
 
         return $DB->get_records_sql_menu($sql, $sqlparams, 0, COHORT_RULES_UI_MENU_LIMIT);
+    }
+
+    /**
+     * @param array $ruledescriptions
+     * @param int $ruleinstanceid
+     * @param bool $static
+     * @return void
+     */
+    protected function add_missing_rule_params(array &$ruledescriptions, $ruleinstanceid, $static = true) {
+        global $DB;
+
+        if (count($ruledescriptions) < count($this->listofvalues)) {
+            // Detected that there are missing records in cohort's rules params.
+            $fullparams = $DB->get_records('cohort_rule_params', array(
+                'ruleid' => $ruleinstanceid,
+                'name' => 'listofvalues'
+            ), "", " value AS optionid, id AS paramid");
+
+            foreach ($this->listofvalues as $optioninstanceid) {
+                if (!isset($this->options[$optioninstanceid])) {
+                    $item = isset($fullparams[$optioninstanceid]) ? $fullparams[$optioninstanceid] : null;
+                    if (!$item) {
+                        debugging("Missing {$optioninstanceid} in full params");
+                        continue;
+                    }
+
+                    $a = (object) array('id' => $optioninstanceid);
+                    $value = "\"" . get_string("deleteditem", "totara_cohort", $a) . "\"";
+
+                    $ruledescriptions[$optioninstanceid] = html_writer::tag('span', $value, array(
+                        'class' => 'ruleparamcontainer cohortdeletedparam'
+                    ));
+                }
+            }
+        }
     }
 }
 
@@ -1254,6 +1312,9 @@ class cohort_rule_ui_picker_hierarchy extends cohort_rule_ui {
                 array('class' => 'ruleparamcontainer', 'data-ruleparam-frameworkid' => $frameworkid));
             $frameworkname = $h->frameworkname;
         };
+        // Processing the missing position/organisation here
+        $this->add_missing_rule_params($hierarchylist, $ruleid, $static);
+
         // Process last item.
         $itemlist[] = $get_rule_markup($hierarchylist, $frameworkid, $frameworkname);
 
@@ -1262,6 +1323,37 @@ class cohort_rule_ui_picker_hierarchy extends cohort_rule_ui {
             return get_string('ruleformat-descjoinextvars', 'totara_cohort', $strvar);
         } else {
             return get_string('ruleformat-descjoinvars', 'totara_cohort', $strvar);
+        }
+    }
+
+    protected function add_missing_rule_params(array &$hierarchylist, $ruleinstanceid, $static = true) {
+        global $DB;
+
+        if (count($hierarchylist) < $this->listofvalues) {
+            $fullparams = $DB->get_records('cohort_rule_params', array(
+                'ruleid' => $ruleinstanceid,
+                'name'   => 'listofvalues',
+            ), "", 'value as instanceid, id as paramid');
+
+            foreach ($this->listofvalues as $instanceid) {
+                if (!isset($hierarchylist[$instanceid])) {
+                    // Detected one of the missing hierachy instance here
+                    $item = isset($fullparams[$instanceid]) ? $fullparams[$instanceid] : null;
+                    if (!$item) {
+                        debugging("Missing the rule param for {$this->prefix} {$instanceid}");
+                        continue;
+                    }
+                    $a = (object) array('id' => $instanceid);
+                    $value = "\"" . get_string('deleteditem', 'totara_cohort', $a) . "\"";
+
+                    if (!$static) {
+                        $value .= $this->param_delete_action_icon($item->paramid);
+                    }
+
+                    $hierarchylist[$instanceid] =
+                        html_writer::tag('span', $value, array('class' =>  'ruleparamcontainer cohortdeletedparam'));
+                }
+            }
         }
     }
 }
@@ -1459,10 +1551,50 @@ class cohort_rule_ui_picker_course_allanynotallnone extends cohort_rule_ui_picke
             $courselist[$i] = html_writer::tag('span', $value, array('class' => 'ruleparamcontainer'));
         };
 
+        $this->add_missing_rule_params($courselist, $ruleid, $static);
         $paramseparator = html_writer::tag('span', ', ', array('class' => 'ruleparamseparator'));
         $strvar->vars = implode($paramseparator, $courselist);
 
         return get_string('ruleformat-descvars', 'totara_cohort', $strvar);
+    }
+
+    /**
+     * @param array $courselists
+     * @param int   $ruleinstanceid
+     * @param bool  $static
+     * @throws coding_exception
+     * @throws dml_exception
+     * @inheritdoc
+     */
+    protected function add_missing_rule_params(array &$courselists, $ruleinstanceid, $static = true) {
+        global $DB;
+
+        if (count($courselists) < count($this->listofids)) {
+            $fullparams = $DB->get_records("cohort_rule_params", array(
+                'ruleid'    => $ruleinstanceid,
+                'name'  => 'listofids'
+            ), "", "value AS courseid, id AS paramid");
+
+            foreach ($this->listofids as $courseid) {
+                if (!isset($courselists[$courseid])) {
+                    // Missing couse here
+                    $item = isset($fullparams[$courseid]) ? $fullparams[$courseid] : null;
+                    if(!$item) {
+                        debugging("Missing the rule parameter for course {$courseid}");
+                        continue;
+                    }
+
+                    $a = (object) array('id' => $courseid);
+                    $value = "\"". get_string('deleteditem', 'totara_cohort', $a) . "\"";
+                    if (!$static) {
+                        $value .= $this->param_delete_action_icon($item->paramid);
+                    }
+
+                    $courselists[$courseid]  =
+                        html_writer::tag('span', $value, array('class' => 'ruleparamcontainer cohortdeletedparam'));
+                }
+            }
+        }
     }
 }
 
@@ -1575,10 +1707,52 @@ JS;
             $courselist[$i] = html_writer::tag('span', $value, array('class' => 'ruleparamcontainer'));
         };
 
+        $this->add_missing_rule_params($courselist, $ruleid, $static);
         $paramseparator = html_writer::tag('span', ', ', array('class' => 'ruleparamseparator'));
         $strvar->vars = implode($paramseparator, $courselist);
 
         return get_string('ruleformat-descvars', 'totara_cohort', $strvar);
+    }
+
+    /**
+     * @param array $courselists
+     * @param int $ruleinstanceid
+     * @param bool $static
+     * @throws coding_exception
+     * @throws dml_exception
+     * @inheritdoc
+     * @return void
+     */
+    protected function add_missing_rule_params(array &$courselists, $ruleinstanceid, $static = true) {
+        global $DB;
+
+        if (count($courselists) < count($this->listofids)) {
+            // There are missing courses found at rendering.
+            $fullparams = $DB->get_records("cohort_rule_params", array(
+                'ruleid' => $ruleinstanceid,
+                'name'   => 'listofids'
+            ), "" , " value as courseid, id as paramid ");
+
+            foreach ($this->listofids as $courseid) {
+                if (!isset($courselists[$courseid])) {
+                    // Detected that a course with id {$courseid} is missing here
+                    $item = isset($fullparams[$courseid]) ? $fullparams[$courseid] : null;
+                    if (!$item) {
+                        debugging("Missing the rule parameter for course {$courseid}");
+                        continue;
+                    }
+
+                    $a = (object) array('id' => $courseid);
+                    $value =  "\"" . get_string('deleteditem', 'totara_cohort', $a) . "\"";
+                    if (!$static) {
+                        $value .= $this->param_delete_action_icon($item->paramid);
+                    }
+
+                    $courselists[$courseid] =
+                        html_writer::tag('span', $value, array('class' => "ruleparamcontainer cohortdeletedparam"));
+                }
+            }
+        }
     }
 }
 
@@ -1725,10 +1899,53 @@ class cohort_rule_ui_picker_course_program_date extends cohort_rule_ui_picker_co
             $courselist[$i] = html_writer::tag('span', $value, array('class' => 'ruleparamcontainer'));
         };
 
+        $this->add_missing_rule_params($courselist, $ruleid, $static);
         $paramseparator = html_writer::tag('span', ', ', array('class' => 'ruleparamseparator'));
         $strvar->vars = implode($paramseparator, $courselist);
 
         return get_string('ruleformat-descjoinvars', 'totara_cohort', $strvar);
+    }
+
+    /**
+     * @param array $courseprogramlists
+     * @param int   $ruleinstanceid
+     * @param bool  $static
+     * @throws coding_exception
+     * @throws dml_exception
+     * @return void
+     * @inheritdoc
+     */
+    protected function add_missing_rule_params(array &$courseprogramlists, $ruleinstanceid, $static = true) {
+        global $DB;
+        if (count($courseprogramlists) < count($this->listofids)) {
+            // Detected that there are invalid records. Therefore, this method will automatically state which
+            // recorded was deleted.
+            $fullparams = $DB->get_records('cohort_rule_params', array(
+                'ruleid' => $ruleinstanceid,
+                'name'   => 'listofids'
+            ), "", "value as instanceid, id as paramid");
+
+            foreach($this->listofids as $instanceid) {
+                if (!isset($courseprogramlists[$instanceid])) {
+                    // If the program id was not found in the $ruledescriptionlists, then it means that the
+                    // record/instance was deleted
+
+                    $item = isset($fullparams[$instanceid]) ? $fullparams[$instanceid] : null;
+                    if (!$item) {
+                        debugging("Missing the rule parameter for program/course id {$instanceid}");
+                        continue;
+                    }
+                    $a = (object) array('id' => $instanceid);
+                    $value = "\"". get_string("deleteditem", "totara_cohort", $a) . "\"";
+                    if (!$static) {
+                        $value .= $this->param_delete_action_icon($item->paramid);
+                    }
+
+                    $courseprogramlists[$instanceid] =
+                        html_writer::tag('span', $value, array('class' => 'ruleparamcontainer cohortdeletedparam'));
+                }
+            }
+        }
     }
 }
 
@@ -1820,10 +2037,53 @@ class cohort_rule_ui_picker_program_allanynotallnone extends cohort_rule_ui_pick
             $proglist[$i] = html_writer::tag('span', $value, array('class' => 'ruleparamcontainer'));
         };
 
+        $this->add_missing_rule_params($proglist, $ruleid, $static);
         $paramseparator = html_writer::tag('span', ', ', array('class' => 'ruleparamseparator'));
         $strvar->vars = implode($paramseparator, $proglist);
 
         return get_string('ruleformat-descvars', 'totara_cohort', $strvar);
+    }
+
+    /**
+     * @param array     $ruledescriptions
+     * @param int       $ruleinstanceid
+     * @param bool      $static
+     * @throws coding_exception
+     * @throws dml_exception
+     * @inheritdoc
+     */
+    protected function add_missing_rule_params(array &$ruledescriptions, $ruleinstanceid, $static=true) {
+        global $DB;
+        if (count($ruledescriptions) < count($this->listofids)) {
+            // There are missing records, might be a posibility of deleted records, therefore, add some helper message
+            // here for user to update. For retrieving what parameter of the rule is invalid, we need to know that
+            // which $value (this reference to the program's) is missing in database
+            $ruleparams = $DB->get_records("cohort_rule_params", array(
+                'ruleid' => $ruleinstanceid,
+                'name'   => 'listofids',
+            ), "", "value, id AS paramid");
+
+            foreach ($this->listofids as $id) {
+                if (!isset($ruledescriptions[$id])) {
+                    // So this $id is missing from the tracker, which indicate that it has been removed
+                    // therefore, add the message here.
+                    $item = isset($ruleparams[$id]) ? $ruleparams[$id] : null;
+                    if (!$item) {
+                        debugging("Missing the rule parameter for program id $id");
+                        continue;
+                    }
+
+                    $a = (object) array('id' => $id);
+                    $value = "\"". get_string('deleteditem', 'totara_cohort', $a) . "\"";
+                    if (!$static) {
+                        $value .= $this->param_delete_action_icon($item->paramid);
+                    }
+
+                    $ruledescriptions[$id] =
+                        html_writer::tag('span', $value, array('class' => 'ruleparamcontainer cohortdeletedparam'));
+                }
+            }
+        }
     }
 }
 
@@ -1935,10 +2195,52 @@ JS;
             $proglist[$i] = html_writer::tag('span', $value, array('class' => 'ruleparamcontainer'));
         };
 
+        $this->add_missing_rule_params($proglist, $ruleid, $static);
         $paramseparator = html_writer::tag('span', ', ', array('class' => 'ruleparamseparator'));
         $strvar->vars = implode($paramseparator, $proglist);
 
         return get_string('ruleformat-descvars', 'totara_cohort', $strvar);
+    }
+
+    /**
+     * @param array $ruledescriptions
+     * @param int   $ruleinstanceid
+     * @param bool  $static
+     * @throws coding_exception
+     * @throws dml_exception
+     * @inheritdoc
+     */
+    protected function add_missing_rule_params(array &$ruledescriptions, $ruleinstanceid, $static = true) {
+        global $DB;
+        if (count($ruledescriptions) < count($this->listofids)) {
+            // Detected that there are invalid records. Therefore, this method will automatically state which
+            // recorded was deleted.
+            $fullparams = $DB->get_records('cohort_rule_params', array(
+                'ruleid' => $ruleinstanceid,
+                'name'   => 'listofids'
+            ), "", "value AS programid, id AS paramid");
+
+            foreach($this->listofids as $programid) {
+                if (!isset($ruledescriptions[$programid])) {
+                    // If the program id was not found in the $ruledescriptionlists, then it means that the
+                    // record/instance was deleted
+
+                    $item = isset($fullparams[$programid]) ? $fullparams[$programid] : null;
+                    if (!$item) {
+                        debugging("Missing the rule parameter for program id {$programid}");
+                        continue;
+                    }
+                    $a = (object) array('id' => $programid);
+                    $value = "\"". get_string("deleteditem", "totara_cohort", $a) . "\"";
+                    if (!$static) {
+                        $value .= $this->param_delete_action_icon($item->paramid);
+                    }
+
+                    $ruledescriptions[$programid] =
+                        html_writer::tag('span', $value, array('class' => 'ruleparamcontainer cohortdeletedparam'));
+                }
+            }
+        }
     }
 }
 
@@ -2330,9 +2632,50 @@ class cohort_rule_ui_cohortmember extends cohort_rule_ui {
             $cohortlist[$i] = html_writer::tag('span', $value, array('class' => 'ruleparamcontainer'));
         };
 
+        $this->add_missing_rule_params($cohortlist, $ruleid, $static);
         $paramseparator = html_writer::tag('span', ', ', array('class' => 'ruleparamseparator'));
         $strvar->vars = implode($paramseparator, $cohortlist);
 
         return get_string('ruleformat-descvars', 'totara_cohort', $strvar);
+    }
+
+    /**
+     * @param array $cohortlist
+     * @param int   $ruleinstanceid
+     * @param bool  $static
+     * @return void
+     */
+    protected function add_missing_rule_params(array &$cohortlist, $ruleinstanceid, $static = true) {
+        global $DB;
+
+        if (count($cohortlist) < count($this->cohortids)) {
+            // Detected that there is a missing cohort
+            $fullparams = $DB->get_records('cohort_rule_params', array(
+                'ruleid' => $ruleinstanceid,
+                'name' => 'cohortids'
+            ), "", "value AS cohortid, id AS paramid");
+        }
+
+        foreach ($this->cohortids as $cohortid) {
+            if (!isset($cohortlist[$cohortid])) {
+                // So, the missing $cohortid that does not existing in $cohortlist array_keys. Which
+                // we have to notify the users that it is missing.
+                $item = isset($fullparams[$cohortid]) ? $fullparams[$cohortid] : null;
+                if (!$item) {
+                    debugging("Missing the rule parameter for cohort id {$cohortid}");
+                    continue;
+                }
+
+                $a = (object) array('id' => $cohortid);
+                $value = "\"" . get_string("deleteditem", "totara_cohort", $a) . "\"";
+                if (!$static) {
+                    $value .= $this->param_delete_action_icon($item->paramid);
+                }
+
+                $cohortlist[$cohortid] = html_writer::tag('span', $value, array(
+                    'class' => 'ruleparamcontainer cohortdeletedparam'
+                ));
+            }
+        }
     }
 }

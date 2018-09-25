@@ -231,6 +231,7 @@ $string['datemenufixeddatebefore'] = 'before';
 $string['datemenufixeddatebeforeandon'] = 'before and on';
 $string['delcohort'] = 'Delete audience';
 $string['delconfirm'] = 'Do you really want to delete audience \'{$a}\'?';
+$string['deleteditem'] = 'Deleted (ID: {$a->id})';
 $string['deletelearningconfirm'] = 'Are you sure you want to delete this learning item?';
 $string['deletelearningitem'] = 'Delete';
 $string['deleterule'] = 'Delete rule';

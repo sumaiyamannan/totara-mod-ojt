@@ -21,3 +21,7 @@ select#id_listofvalues {
     float: left;
     width: 100%;
 }
+
+.cohortdeletedparam {
+    color: #953539;
+}
