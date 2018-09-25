@@ -1563,6 +1563,18 @@ function totara_cohort_broken_rules($courseid, $cohortid, progress_trace $trace)
                     $a->name = $rulerec->name;
                     $a->ruleset = $ruleset->name;
                     $brokenrules[] = get_string('cohortbrokenruleemail', 'totara_cohort', $a);
+                } else {
+                    $checker = new \totara_cohort\cohort_broken_rules_check();
+                    // If the rule is still referencing the record that had been deleted at some point, then it should
+                    // be marked as broken rule
+                    if ($checker->has_checker($rule) && $checker->is_invalid($rule, $rulerec->id)) {
+                        $a = new stdClass();
+                        $a->type = $rulerec->ruletype;
+                        $a->name = $rulerec->name;
+                        $a->ruleset = $ruleset->name;
+
+                        $brokenrules[] = get_string('cohortbrokenruleemail', 'totara_cohort', $a);
+                    }
                 }
             }
         }
