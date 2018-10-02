@@ -476,6 +476,53 @@ abstract class advanced_testcase extends base_testcase {
     }
 
     /**
+     * Overrides one lang string in current language.
+     *
+     * NOTE: resetAfterTest must be enabled before calling this method,
+     *       the changes are then reverted automatically.
+     *
+     * @since Totara 9.25
+     *
+     * @param string $string
+     * @param string $component
+     * @param string value
+     */
+    public function overrideLangString($string, $component, $value) {
+        if (!$this->resetAfterTest) {
+            throw new coding_exception('Enable restAfterTest to use string overriding');
+        }
+        $lang = current_language(); // No point specifying lang in tests, we only have the 'en' here.
+        $sm = get_string_manager();
+
+        $rc = new ReflectionClass('core_string_manager_standard');
+        $get_key_suffix = $rc->getMethod('get_key_suffix');
+        $get_key_suffix->setAccessible(true);
+        $rccache = $rc->getProperty('cache');
+        $rccache->setAccessible(true);
+
+        // Normalise data the same way as \core_string_manager_standard::load_component_strings().
+        list($plugintype, $pluginname) = core_component::normalize_component($component);
+        if ($plugintype === 'core' and is_null($pluginname)) {
+            $component = 'core';
+        } else {
+            $component = $plugintype . '_' . $pluginname;
+        }
+
+        if (!$sm->string_exists($string, $component)) {
+            throw new coding_exception('Cannot override non-existent string');
+        }
+
+        // Override the cache, that should be enough to fool regular code.
+        $strings = $sm->load_component_strings($component, $lang);
+        $strings[$string] = $value;
+
+        $cachekey = $lang.'_'.$component.'_'.$get_key_suffix->invokeArgs($sm, array());
+
+        $cache = $rccache->getValue($sm);
+        $cache->set($cachekey, $strings);
+    }
+
+    /**
      * Set current $USER, reset access cache.
      * @static
      * @param null|int|stdClass $user user record, null or 0 means non-logged-in, positive integer means userid
