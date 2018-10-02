@@ -179,6 +179,11 @@ function install_helpbutton($url, $title='') {
  * @return string
  */
 function install_db_validate($database, $dbhost, $dbuser, $dbpass, $dbname, $prefix, $dboptions) {
+    // Totara: do not allow new installations without prefix, even MySQL needs it since 8.0.
+    if (strlen($prefix) < 1) {
+        return get_string_manager()->get_string('prefixcannotbeempty', 'error', $database->get_dbfamily());
+    }
+
     try {
         try {
             $database->connect($dbhost, $dbuser, $dbpass, $dbname, $prefix, $dboptions);
@@ -441,6 +446,11 @@ function install_cli_database(array $options, $interactive) {
     $version = null;
     $release = null;
     $branch = null;
+
+    // Totara: do not allow new installations without prefix, even MySQL needs it since 8.0.
+    if (strlen($DB->get_prefix()) < 1) {
+        cli_error(get_string('prefixcannotbeempty', 'error', $DB->get_dbfamily()));
+    }
 
     // read $version and $release
     require($CFG->dirroot.'/version.php');
