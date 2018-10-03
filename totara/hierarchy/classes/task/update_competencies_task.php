@@ -361,7 +361,7 @@ class update_competencies_task extends \core\task\scheduled_task {
      *
      * @param int $userid
      * @param array $evidence_records
-     * @param stdClass $job_assignment
+     * @param job_assignment|null $job_assignment
      * @return void
      */
     private function aggregate_competency_evidence_items($userid, $evidence_records, $job_assignment = null) {
@@ -453,7 +453,7 @@ class update_competencies_task extends \core\task\scheduled_task {
      * @param int $userid
      * @param int $competencyid
      * @param int $status
-     * @param stdClass $jobassignment
+     * @param job_assignment|null $jobassignment
      */
     private function update_competency_evidence($userid, $competencyid, $status, $jobassignment = null) {
         if (debugging()) {

@@ -22,6 +22,7 @@
  */
 
 use \totara_hierarchy\task\update_competencies_task as task;
+use totara_job\job_assignment;
 
 /**
  * Tests the {@see update_competencies_task} class
@@ -55,6 +56,17 @@ class update_competencies_task_testcase extends advanced_testcase {
         $generator->enrol_user($user1->id, $course->id);
         $generator->enrol_user($user2->id, $course->id);
         $generator->enrol_user($user3->id, $course->id);
+
+        // Create an organisation
+        $org_framework = $generator_hierarchy->create_framework('organisation', array('fullname' => 'All Organisations'));
+        $organisation_data = ['fullname' => 'Test Organisation 1'];
+        $organisation = $generator_hierarchy->create_hierarchy($org_framework->id, 'organisation', $organisation_data);
+
+        $job_assignment_data = [
+            'fullname' => 'ja1',
+            'organisationid' => $organisation->id
+        ];
+        job_assignment::create_default($user1->id, $job_assignment_data);
 
         $framework = $generator_hierarchy->create_comp_frame(['fullname' => 'Framework one', 'idnumber' => 'f1']);
         $comp1 = $generator_hierarchy->create_comp(['frameworkid' => $framework->id, 'idnumber' => 'c1', 'parentid' => 0]);
