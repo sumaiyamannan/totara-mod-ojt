@@ -524,8 +524,9 @@ class facetoface_notification extends data_object {
         if (!empty(get_config(null, 'facetoface_notificationdisable'))) {
             return;
         }
-
-        mtrace(get_string('signupexpired', 'facetoface'));
+        if (!PHPUNIT_TEST) {
+            mtrace(get_string('signupexpired', 'facetoface'));
+        }
 
         if (empty($CFG->facetoface_session_rolesnotify)) {
             // No roles set.
