@@ -215,12 +215,13 @@ function clustercache_create_redis_sentinel_store($storename) {
     }
     $data->server = implode(",", $data->server);
 
-    if (empty($siteenvironmentid)) {
+    if (empty($sitename)) {
         // Can't get enough info to set prefix properly.
-        print "can't find site environment id<br/>\n";
+        print "can't find sitename<br/>\n";
         return false;
     }
-    $data->prefix = $siteenvironmentid;
+
+    $data->prefix = "$sitename-$environment-$apptype";
 
     if (empty($CFG->session_redissentinel_master_group)) {
         print "can't find master group name<br/>\n";
