@@ -2423,13 +2423,17 @@ class reportbuilder {
     /**
      * Returns an SQL snippet that, when applied to the WHERE clause of hierarchy queries,
      * reduces the results to only include those matched by any specified content
-     * restrictions
+     * restrictions.
+     *
+     * NOTE: This is intended primarily for hierarchy dialogs in reports,
+     *       that is why the restriction should also include all parent items to the top,
+     *       so that we may display the results as tree.
+     *
      * @param string $prefix Get restrictions for this prefix class only
-     * @param bool $cache if enabled, only alias fields will be used
      *
      * @return array containing SQL snippet created from content restrictions, as well as SQL params array
      */
-    function get_hierarchy_content_restrictions($prefix, $cache = false) {
+    function get_hierarchy_content_restrictions($prefix) {
         // if no content restrictions enabled return a TRUE snippet
         // use 1=1 instead of TRUE for MSSQL support
         if ($this->contentmode == REPORT_BUILDER_CONTENT_MODE_NONE) {
@@ -2453,31 +2457,15 @@ class reportbuilder {
                 $classname = 'rb_' . $name . '_content';
                 $settingname = $name . '_content';
 
-                $fields = array();
-                foreach ($option->fields as $key => $field) {
-                    if ($cache) {
-                        $fields[$key] = 'rb_content_option_' . $key;
-                    } else {
-                        $fields[$key] = $field;
-                    }
-                }
-
-                // Collapse array to string if it consists of only one element
-                // This provides backward compatibility in case fields is just
-                // a string instead of an array.
-                if (count($fields) === 1) {
-                    $fields = array_shift($fields);
-                }
-
                 if (class_exists($classname) && method_exists($classname, 'sql_hierarchy_restriction')) {
                     $class = new $classname($this->reportfor);
 
                     if (method_exists($classname, 'sql_hierarchy_restriction_prefix') &&
                         $class->sql_hierarchy_restriction_prefix() == $prefix) {
                         if (reportbuilder::get_setting($reportid, $settingname, 'enable')) {
-                            // this content option is enabled
-                            // call function to get SQL snippet
-                            list($out[], $contentparams) = $class->sql_hierarchy_restriction($fields, $reportid);
+                            // this content option is enabled call function to get SQL snippet,
+                            // linking to queries in the hierarchy class - it is always base.id
+                            list($out[], $contentparams) = $class->sql_hierarchy_restriction('base.id', $reportid);
                             $params = array_merge($params, $contentparams);
                         }
                     }

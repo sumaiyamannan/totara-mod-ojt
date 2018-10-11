@@ -200,34 +200,72 @@ class totara_rb_content_hierarchy_restrictions_testcase extends advanced_testcas
                     }
                 }
 
-                // We can already add to the 'equal*' pos and org expected results
+                // We can already add current pos and org to the expected results
                 if (!in_array($pos->id, $userhierarchy['pos']['equal'])) {
                     $userhierarchy['pos']['equal'][] = $pos->id;
                 }
                 if (!in_array($pos->id, $userhierarchy['pos']['equalbelow'])) {
                     $userhierarchy['pos']['equalbelow'][] = $pos->id;
                 }
+                if (!in_array($pos->id, $userhierarchy['pos']['below'])) {
+                    $userhierarchy['pos']['below'][] = $pos->id;
+                }
+                // Look up the pos hierarchy in database directly.
+                $belowposs = $DB->get_records_SELECT('pos', "path LIKE " . $DB->sql_concat(':path', "'/%'"), array('path' => $pos->path));
+                foreach ($belowposs as $belowpos) {
+                    if (!in_array($belowpos->id, $userhierarchy['pos']['equalbelow'])) {
+                        $userhierarchy['pos']['equalbelow'][] = $belowpos->id;
+                    }
+                    if (!in_array($belowpos->id, $userhierarchy['pos']['below'])) {
+                        $userhierarchy['pos']['below'][] = $belowpos->id;
+                    }
+                }
+                // Dialogs need the parents up to the top, no matter if they are above the user restricted positions.
+                $aboveposs = $DB->get_records_SELECT('pos', ":path LIKE " . $DB->sql_concat('path', "'/%'"), array('path' => $pos->path));
+                foreach ($aboveposs as $abovepos) {
+                    if (!in_array($abovepos->id, $userhierarchy['pos']['equal'])) {
+                        $userhierarchy['pos']['equal'][] = $abovepos->id;
+                    }
+                    if (!in_array($abovepos->id, $userhierarchy['pos']['equalbelow'])) {
+                        $userhierarchy['pos']['equalbelow'][] = $abovepos->id;
+                    }
+                    if (!in_array($abovepos->id, $userhierarchy['pos']['below'])) {
+                        $userhierarchy['pos']['below'][] = $abovepos->id;
+                    }
+                }
+
                 if (!in_array($org->id, $userhierarchy['org']['equal'])) {
                     $userhierarchy['org']['equal'][] = $org->id;
                 }
                 if (!in_array($org->id, $userhierarchy['org']['equalbelow'])) {
                     $userhierarchy['org']['equalbelow'][] = $org->id;
                 }
-            }
-        }
-
-        // We don't want to iterate over all posisions and organisations - only those used
-        foreach ($posusers as $posid => $userlist) {
-            $parentid = $positions[$posid]->parentid;
-            if (!empty($parentid)) {
-                $this->set_expected_below($this->hierarchy, "pos", $positions, $posusers, $posid, $parentid);
-            }
-        }
-
-        foreach ($orgusers as $orgid => $userlist) {
-            $parentid = $organisations[(string)$orgid]->parentid;
-            if (!empty($parentid)) {
-                $this->set_expected_below($this->hierarchy, 'org', $organisations, $orgusers, (string)$orgid, $parentid);
+                if (!in_array($org->id, $userhierarchy['org']['below'])) {
+                    $userhierarchy['org']['below'][] = $org->id;
+                }
+                // Look up the org hierarchy in database directly.
+                $beloworgs = $DB->get_records_SELECT('org', "path LIKE " . $DB->sql_concat(':path', "'/%'"), array('path' => $org->path));
+                foreach ($beloworgs as $beloworg) {
+                    if (!in_array($beloworg->id, $userhierarchy['org']['equalbelow'])) {
+                        $userhierarchy['org']['equalbelow'][] = $beloworg->id;
+                    }
+                    if (!in_array($beloworg->id, $userhierarchy['org']['below'])) {
+                        $userhierarchy['org']['below'][] = $beloworg->id;
+                    }
+                }
+                // Dialogs need the parents up to the top, no matter if they are above the user restricted organisations.
+                $aboveorgs = $DB->get_records_SELECT('org', ":path LIKE " . $DB->sql_concat('path', "'/%'"), array('path' => $org->path));
+                foreach ($aboveorgs as $aboveorg) {
+                    if (!in_array($aboveorg->id, $userhierarchy['org']['equal'])) {
+                        $userhierarchy['org']['equal'][] = $aboveorg->id;
+                    }
+                    if (!in_array($aboveorg->id, $userhierarchy['org']['equalbelow'])) {
+                        $userhierarchy['org']['equalbelow'][] = $aboveorg->id;
+                    }
+                    if (!in_array($aboveorg->id, $userhierarchy['org']['below'])) {
+                        $userhierarchy['org']['below'][] = $aboveorg->id;
+                    }
+                }
             }
         }
 
@@ -251,38 +289,6 @@ class totara_rb_content_hierarchy_restrictions_testcase extends advanced_testcas
                    WHERE ",
         ];
     }
-
-    /**
-     * Add the element id to the 'equalbelow' and 'below' expected results of all user's of the parent and its parent
-     *
-     * @param array $hierarchy Hierarchy to add data to
-     * @param string $prefix Element prefix
-     * @param array $elusers Element (pos and org) users array
-     * @param string $addid Element id to add to '*below'
-     * @param string $curid Current element id being updated
-     */
-    protected function set_expected_below(&$hierarchy, $prefix, $elarray, $elusers, $addid, $curid) {
-        $cur = $elarray[$curid];
-
-        if (isset($elusers[$curid])) {
-            foreach ($elusers[$curid] as $toupdate) {
-                $userhierarchy = &$hierarchy[$toupdate];
-
-                if (!in_array($addid, $userhierarchy[$prefix]['equalbelow'])) {
-                    $userhierarchy[$prefix]['equalbelow'][] = $addid;
-                }
-                if (!in_array($addid, $userhierarchy[$prefix]['below'])) {
-                    $userhierarchy[$prefix]['below'][] = $addid;
-                }
-            }
-        }
-
-        $parentid = $cur->parentid;
-        if (!empty($parentid)) {
-            $this->set_expected_below($hierarchy, $prefix, $elarray, $elusers, $addid, $parentid);
-        }
-    }
-
 
     /**
      * Test position sql_hierarchy_restriction with CONTENT_POS_EQUAL
