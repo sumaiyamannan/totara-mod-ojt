@@ -41,3 +41,8 @@ if ($CFG->version < 2013111802.00) { // Upgrade from Totara 2.5.x or earlier.
         $dbman->add_field($table, $field);
     }
 }
+
+// One-off fix for incorrect default setting from Moodle.
+if (!get_config('scorm', 'protectpackagedownloads')) {
+    unset_config('protectpackagedownloads', 'scorm');
+}
