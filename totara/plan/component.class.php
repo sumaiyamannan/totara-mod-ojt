@@ -119,12 +119,12 @@ abstract class dp_base_component {
      * @return  false|int
      */
     public function can_update_items() {
-        // Check plan is active
-        if ($this->plan->is_complete()) {
+        if (!$this->plan->can_manage()) {
             return false;
         }
 
-        if (!dp_can_manage_users_plans($this->plan->userid)) {
+        // Check plan is active
+        if ($this->plan->is_complete()) {
             return false;
         }
 
@@ -164,14 +164,16 @@ abstract class dp_base_component {
             return false;
         }
 
+        $can_manage_plan = $this->plan->can_manage();
+
         // Get permissions
         $can = array();
 
-        $can['setduedate'] = dp_can_manage_users_plans($this->plan->userid) && $this->get_setting('duedatemode') &&
+        $can['setduedate'] = $can_manage_plan && $this->get_setting('duedatemode') &&
             $this->get_setting('setduedate') >= DP_PERMISSION_ALLOW;
-        $can['setpriority'] = dp_can_manage_users_plans($this->plan->userid) && $this->get_setting('prioritymode') &&
+        $can['setpriority'] = $can_manage_plan && $this->get_setting('prioritymode') &&
             $this->get_setting('setpriority') >= DP_PERMISSION_ALLOW;
-        $can['approve'.$this->component] = dp_can_manage_users_plans($this->plan->userid) &&
+        $can['approve'.$this->component] = $can_manage_plan &&
             $this->get_setting('update'.$this->component) == DP_PERMISSION_APPROVE;
 
         if (method_exists($this, 'can_update_settings_extra')) {
@@ -296,8 +298,10 @@ abstract class dp_base_component {
      * return boolean
      */
     public static function is_priority_scale_used($scaleid) {
-        debugging('The component "' . $this->component . '" has not defined the method "is_priority_scale_used()". This should be defined to ensure that priority scales remain consistent. If not required, just return false.', DEBUG_DEVELOPER);
-        return false;
+        // The component has not defined the method "is_priority_scale_used()".
+        // This should be defined to ensure that priority scales remain consistent.
+        // If not required, just return false.
+        throw new coding_exception('The method is_priority_scale_used must be overridden.');
     }
 
     /**
@@ -1215,8 +1219,11 @@ abstract class dp_base_component {
      * @return array $plans an array of plans or false if there are no plans
      */
     public static function get_plans_containing_item($itemid, $userid) {
-        debugging('The component "' . $this->component . '" has not defined the method "get_plans_containing_item($itemid, $userid)". This should be defined in order for auto completion of plans to work correctly. Any component that doen\'t define this method will assume that all items in that component are complete when auto completion is turned on.', DEBUG_DEVELOPER);
-        return true;
+        // The component has not defined the method "get_plans_containing_item($itemid, $userid)".
+        // This should be defined in order for auto completion of plans to work correctly.
+        // Any component that doesn't define this method will assume that all items in that component are complete when auto
+        // completion is turned on.
+        throw new coding_exception('The method get_plans_containing_item must be overridden.');
     }
 
     /**
@@ -1263,6 +1270,11 @@ abstract class dp_base_component {
      * @return  boolean
      */
     public function can_delete_item($item) {
+        if (!$this->plan->can_manage()) {
+            // The user can't manage this plan, thus they cannot delete items.
+            return false;
+        }
+
         // Load permissions
         $canupdateitems = $this->can_update_items();
 
@@ -1489,8 +1501,7 @@ abstract class dp_base_component {
     function display_duedate($itemid, $duedate) {
         $baddates = explode(',',optional_param('badduedates', null, PARAM_TEXT));
 
-        $plancompleted = $this->plan->status == DP_PLAN_STATUS_COMPLETE;
-        $cansetduedate = dp_can_manage_users_plans($this->plan->userid) && !$plancompleted
+        $cansetduedate = $this->plan->can_manage() && !$this->plan->is_complete()
                             && ($this->get_setting('setduedate') == DP_PERMISSION_ALLOW);
         $out = '';
 
@@ -1574,9 +1585,7 @@ abstract class dp_base_component {
         $priorityvalues = $this->get_priority_values();
 
         // Load permissions
-        $plancompleted = $this->plan->is_complete();
-
-        $cansetpriority = dp_can_manage_users_plans($this->plan->userid) && !$plancompleted
+        $cansetpriority = $this->plan->can_manage() && !$this->plan->is_complete()
                             && ($this->get_setting('setpriority') == DP_PERMISSION_ALLOW);
         $priorityenabled = $this->get_setting('prioritymode') != DP_PRIORITY_NONE;
         $priorityrequired = ($this->get_setting('prioritymode') == DP_PRIORITY_REQUIRED);

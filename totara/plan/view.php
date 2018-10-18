@@ -62,47 +62,38 @@ $ownplan = $USER->id == $plan->userid;
 $menuitem = ($ownplan) ? 'learningplans' : 'myteam';
 $PAGE->set_totara_menu_selected($menuitem);
 
-$can_access = dp_can_view_users_plans($plan->userid);
-$can_view = dp_role_is_allowed_action($plan->role, 'view');
-
-if (!$can_access || !$can_view) {
+if (!$plan->can_view()) {
     print_error('error:nopermissions', 'totara_plan');
 }
 
-$can_manage = dp_can_manage_users_plans($plan->userid);
-$can_update = dp_role_is_allowed_action($plan->role, 'update');
-
 require_once('edit_form.php');
 $plan->descriptionformat = FORMAT_HTML;
+/** @var development_plan $plan This is some horrible code! */
 $plan = file_prepare_standard_editor($plan, 'description', $TEXTAREA_OPTIONS, $TEXTAREA_OPTIONS['context'],
                                     'totara_plan', 'dp_plan', $plan->id);
-$form = new plan_edit_form($currenturl, array('plan' => $plan, 'action' => $action, 'can_manage' => $can_manage));
+$form = new plan_edit_form($currenturl, array('plan' => $plan, 'action' => $action));
 
 if ($form->is_cancelled()) {
     totara_set_notification(get_string('planupdatecancelled', 'totara_plan'), $viewurl, array('class' => 'notifysuccess'));
 }
 
-if ($plan->get_setting('view') != DP_PERMISSION_ALLOW) {
-    print_error('error:nopermissions', 'totara_plan');
-}
-
 // Handle form submits
 if ($data = $form->get_data()) {
-    if (!$can_manage) {
+    if (!$plan->can_manage()) {
         print_error('error:nopermissions', 'totara_plan');
     }
     if (isset($data->edit)) {
-        if ($plan->get_setting('update') < DP_PERMISSION_ALLOW) {
+        if (!$plan->can_update()) {
             print_error('error:nopermissions', 'totara_plan');
         }
         redirect($editurl);
     } else if (isset($data->delete)) {
-        if ($plan->get_setting('delete') < DP_PERMISSION_ALLOW) {
+        if (!$plan->can_delete_plan()) {
             print_error('error:nopermissions', 'totara_plan');
         }
         redirect(strip_querystring(qualified_me())."?id={$id}&action=delete");
     } else if (isset($data->deleteyes)) {
-        if ($plan->get_setting('delete') < DP_PERMISSION_ALLOW) {
+        if (!$plan->can_delete_plan()) {
             print_error('error:nopermissions', 'totara_plan');
         }
         if ($plan->delete()) {
@@ -111,12 +102,12 @@ if ($data = $form->get_data()) {
     } else if (isset($data->deleteno)) {
         redirect($viewurl);
     } else if (isset($data->complete)) {
-        if ($plan->get_setting('completereactivate') < DP_PERMISSION_ALLOW) {
+        if (!$plan->can_mark_plan_complete()) {
             print_error('error:nopermissions', 'totara_plan');
         }
         redirect(strip_querystring(qualified_me())."?id={$id}&action=complete");
     } else if (isset($data->completeyes)) {
-        if ($plan->get_setting('completereactivate') < DP_PERMISSION_ALLOW) {
+        if (!$plan->can_mark_plan_complete()) {
             print_error('error:nopermissions', 'totara_plan');
         }
         if ($plan->set_status(DP_PLAN_STATUS_COMPLETE, DP_PLAN_REASON_MANUAL_COMPLETE)) {
@@ -129,7 +120,7 @@ if ($data = $form->get_data()) {
     } else if (isset($data->completeno)) {
         redirect($viewurl);
     } else if (isset($data->submitbutton)) {
-        if ($plan->get_setting('update') < DP_PERMISSION_ALLOW) {
+        if (!$plan->can_update()) {
             print_error('error:nopermissions', 'totara_plan');
         }
         // Save plan data

@@ -54,16 +54,9 @@ $menuitem = ($ownplan) ? 'learningplans' : 'myteam';
 $PAGE->set_totara_menu_selected($menuitem);
 
 // Check if the user can view the component content.
-$can_access = dp_can_view_users_plans($plan->userid);
-$can_view = dp_role_is_allowed_action($plan->role, 'view');
-
-if (!$can_access || !$can_view) {
+if (!$plan->can_view()) {
     print_error('error:nopermissions', 'totara_plan');
 }
-
-// Check if the user can manage the component content.
-$can_manage = dp_can_manage_users_plans($plan->userid);
-$can_update = dp_role_is_allowed_action($plan->role, 'update');
 
 // Check for valid component, before proceeding
 // Check against active components to prevent hackery
@@ -105,7 +98,7 @@ $PAGE->set_url(new moodle_url('/totara/plan/component.php', array('id' => $id, '
 $plan->print_header($componentname);
 $table = $component->display_list();
 
-if ($can_manage && $can_update) {
+if ($plan->can_update()) {
     echo $component->display_picker();
 
     $form = html_writer::start_tag('form', array('id' => "dp-component-update",  'action' => $component->get_url(),

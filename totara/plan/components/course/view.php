@@ -47,11 +47,7 @@ $PAGE->set_pagelayout('report');
 $PAGE->set_totara_menu_selected('learningplans');
 
 // Permissions check.
-$can_access = dp_can_view_users_plans($plan->userid);
-$can_view = dp_role_is_allowed_action($plan->role, 'view');
-$can_manage = dp_can_manage_users_plans($plan->userid);
-
-if (!$can_access || !$can_view) {
+if (!$plan->can_view()) {
     print_error('error:nopermissions', 'totara_plan');
 }
 
@@ -71,7 +67,7 @@ $competenciesenabled = totara_feature_visible('competencies') && $plan->get_comp
 $competencyname = get_string('competencyplural', 'totara_plan');
 $objectivesenabled = $plan->get_component('objective')->get_setting('enabled');
 $objectivename = get_string('objectiveplural', 'totara_plan');
-$canupdate = $component->can_update_items() && $can_manage;
+$canupdate = $component->can_update_items();
 $mandatory_list = $component->get_mandatory_linked_components($caid, 'course');
 
 $fullname = $plan->name;

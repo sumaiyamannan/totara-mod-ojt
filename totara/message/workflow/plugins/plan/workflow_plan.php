@@ -34,8 +34,7 @@ class totara_message_workflow_plan extends totara_message_workflow_plugin_base {
         if (!$plan) {
             print_error('planidnotfound', 'local_plan', $planid);
         }
-
-        if (!in_array($plan->get_setting('approve'), array(DP_PERMISSION_ALLOW, DP_PERMISSION_APPROVE))) {
+        if (!$plan->can_approve_plan()) {
             return false;
         }
 
@@ -64,13 +63,12 @@ class totara_message_workflow_plan extends totara_message_workflow_plugin_base {
         if (!$plan) {
             print_error('planidnotfound', 'local_plan', $planid);
         }
-
-        // Change status.
-        if (!$plan->set_status(DP_PLAN_STATUS_UNAPPROVED, DP_PLAN_REASON_MANUAL_DECLINE, $reasonfordecision)) {
+        if (!$plan->can_approve_plan()) {
             return false;
         }
 
-        if (!in_array($plan->get_setting('approve'), array(DP_PERMISSION_ALLOW, DP_PERMISSION_APPROVE))) {
+        // Change status.
+        if (!$plan->set_status(DP_PLAN_STATUS_UNAPPROVED, DP_PLAN_REASON_MANUAL_DECLINE, $reasonfordecision)) {
             return false;
         }
         \totara_plan\event\approval_declined::create_from_plan($plan)->trigger();

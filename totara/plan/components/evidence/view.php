@@ -43,7 +43,7 @@ $plan = new development_plan($evidence->planid);
 
 // Permissions check
 $systemcontext = context_system::instance();
-if (!has_capability('totara/plan:accessanyplan', $systemcontext) && ($plan->get_setting('view') < DP_PERMISSION_ALLOW)) {
+if (!has_capability('totara/plan:accessanyplan', $systemcontext) && !$plan->can_view()) {
     print_error('error:nopermissions', 'totara_plan');
 }
 

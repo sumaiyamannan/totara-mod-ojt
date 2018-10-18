@@ -37,9 +37,13 @@ class plan_edit_form extends moodleform {
         $mform =& $this->_form;
         $mform->addElement('header', 'details', get_string('plandetails', 'totara_plan'));
         $action = $this->_customdata['action'];
-        $can_manage = $this->_customdata['can_manage'];
+        $plan = null;
         if (isset($this->_customdata['plan'])) {
+            /** @var development_plan $plan */
             $plan = $this->_customdata['plan'];
+            $can_manage = $plan->can_manage();
+        } else {
+            $can_manage = $this->_customdata['can_manage'];
         }
 
         if ($action != 'add') {
@@ -152,15 +156,15 @@ class plan_edit_form extends moodleform {
 
         if ($action == 'view') {
             $mform->hardFreeze(array('name', 'startdate', 'enddate'));
-            if ($can_manage) {
+            if ($can_manage && $plan) {
                 $buttonarray = array();
-                if ($plan->get_setting('update') == DP_PERMISSION_ALLOW && $plan->status != DP_PLAN_STATUS_COMPLETE) {
+                if ($plan->can_update() && $plan->status != DP_PLAN_STATUS_COMPLETE) {
                     $buttonarray[] = $mform->createElement('submit', 'edit', get_string('editdetails', 'totara_plan'));
                 }
-                if ($plan->get_setting('delete') == DP_PERMISSION_ALLOW) {
+                if ($plan->can_delete_plan()) {
                     $buttonarray[] = $mform->createElement('submit', 'delete', get_string('deleteplan', 'totara_plan'));
                 }
-                if ($plan->get_setting('completereactivate') >= DP_PERMISSION_ALLOW && $plan->status == DP_PLAN_STATUS_APPROVED) {
+                if ($plan->can_mark_plan_complete() && $plan->status == DP_PLAN_STATUS_APPROVED) {
                     $buttonarray[] = $mform->createElement('submit', 'complete', get_string('plancomplete', 'totara_plan'));
                 }
                 // The $buttonarray may be empty when learner views the form.
