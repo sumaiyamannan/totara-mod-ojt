@@ -3,6 +3,82 @@
 
 Totara Learn Changelog
 
+Release 9.25 (25th October 2018):
+=================================
+
+
+Security issues:
+
+    TL-18957       Fixed permission checks for learning plans
+
+                   Prior to this patch all plan templates were being checked to see if a user
+                   had a permission (e.g. update plan). Now only the template that the plan is
+                   based off is checked for the permission.
+
+Improvements:
+
+    TL-17586       Greatly improved the performance of the update competencies scheduled task
+
+                   The scheduled task to reaggregate the competencies
+                   "\totara_hierarchy\task\update_competencies_task" was refactored to fix a
+                   memory leak. The scheduled task now loops through the users and loads and
+                   reaggregates items per user and not in one huge query as before. This
+                   minimises impact on memory but increases number of queries and runtime.
+
+    TL-18565       Improved the wording around the 'Override user conflicts' settings page in seminars
+
+                   The 'Override user scheduling conflicts' setting was initially intended for
+                   use with new events where the assigned roles resulted in conflicts with
+                   existing events. It was not originally designed to work with existing
+                   events.
+                   We changed the event configuration flow by moving the 'override' action out
+                   of the settings page and into the 'save' modal dialog where it belongs.
+                   So in essence you will be able override conflicts upon creation and edit.
+
+    TL-18852       Database table prefix is now required for all new installations
+
+                   Previously MySQL did not require database prefix to be set in config.php,
+                   since MySQL 8.0 the prefix is however required. To prevent problems in
+                   future upgrades Totara now requires table prefix for all databases.
+
+    TL-18983       Added workaround for missing support for PDF embedding on iOS devices
+
+                   Web browsers on iOS devices have very limited support for embedding PDF
+                   files – for example, only the first page is displayed and users cannot
+                   scroll to next page. A new workaround was added to PDF embedding in File
+                   resource to allow iPhone and iPad users to open a PDF in full-screen mode
+                   after clicking on an embedded PDF.
+
+Bug fixes:
+
+    TL-14204       Updated the inline helper text for course completion tracking
+
+                   Prior to this patch, there was a misleading inline helper text on the
+                   course view page next to 'Your progress'.
+                   With this patch, the inline helper text is updated to reflect with the
+                   change of the completion icon.
+
+    TL-17629       Fixed failures in the Seminar send_notification_task when performed under high load
+
+                   Some sites with large number of Seminar activities (100 000+) experienced
+                   'out of memory' failures during execution of the scheduled task
+                   (send_notifications_task). This task has now been optimised to use less
+                   memory.
+
+    TL-18802       Changed the date format of Session Date related columns within Seminar Sign-ups report source
+
+                   Previously the report columns 'Session Start' and 'Session Finish' were
+                   formatted differently than the 'Session Start (linked to activity)' column.
+                   These columns are now formatted consistently.
+
+    TL-19072       Fixed wait-listed attendees not being automatically added to the Seminar's attendees list after a reservation is deleted
+
+API changes:
+
+    TL-18845       Removed a superfluous unique index on the job_assignment.id column
+    TL-18985       Unit tests may now override lang strings
+
+
 Release 9.24 (19th September 2018):
 ===================================
 
