@@ -235,7 +235,7 @@ Feature: Filter seminar events in calendar by their customfields
       | timefinish[year]     | 0               |
       | timefinish[hour]     | +1              |
       | timefinish[minute]   | 0               |
-    And I press "OK"
+    And I click on "OK" "button" in the "Select date" "totaradialogue"
     And I click on "Select room" "link"
     And I click on "Room 4" "text" in the "Choose a room" "totaradialogue"
     And I click on "OK" "button" in the "Choose a room" "totaradialogue"
@@ -276,7 +276,7 @@ Feature: Filter seminar events in calendar by their customfields
       | timefinish[year]     | 0               |
       | timefinish[hour]     | +1              |
       | timefinish[minute]   | 0               |
-    And I press "OK"
+    And I click on "OK" "button" in the "Select date" "totaradialogue"
     And I click on "Select room" "link"
     And I click on "Room 3" "text" in the "Choose a room" "totaradialogue"
     And I click on "OK" "button" in the "Choose a room" "totaradialogue"
