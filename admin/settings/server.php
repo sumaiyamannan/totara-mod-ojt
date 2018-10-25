@@ -230,8 +230,4 @@ $ADMIN->add('server', $temp);
 $ADMIN->add('server', new admin_externalpage('registrationhubs', new lang_string('hubs', 'admin'),
     "$CFG->wwwroot/$CFG->admin/registration/index.php"));
 
-if (file_exists("{$CFG->dataroot}/cron.log")) { //only show catalyst cronlog page if file exists
-    $ADMIN->add('server', new admin_externalpage('cronlog', 'cronlog', "$CFG->wwwroot/$CFG->admin/admin_cronlog.php")); // Catalyst "cronlog" page
-}
-
 } // end of speedup
