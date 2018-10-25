@@ -240,6 +240,11 @@ if (!core_tables_exist()) {
     $output = $PAGE->get_renderer('core', 'admin');
     echo $output->header();
 
+    // Totara: do not allow new installations without prefix, even MySQL needs it since 8.0.
+    if (strlen($DB->get_prefix()) < 1) {
+        print_error('prefixcannotbeempty', 'error', '', $DB->get_dbfamily());
+    }
+
     if (!$DB->setup_is_unicodedb()) {
         if (!$DB->change_db_encoding()) {
             // If could not convert successfully, throw error, and prevent installation

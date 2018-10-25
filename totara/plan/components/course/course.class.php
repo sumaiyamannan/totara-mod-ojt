@@ -389,7 +389,7 @@ class dp_course_component extends dp_base_component {
     public function setup_picker() {
         global $PAGE;
         // If we are showing dialog
-        if ($this->can_update_items() && dp_can_manage_users_plans($this->plan->userid)) {
+        if ($this->can_update_items()) {
             // Setup lightbox
             local_js(array(
                 TOTARA_JS_DIALOG,
@@ -1082,7 +1082,7 @@ class dp_course_component extends dp_base_component {
         $approved = $this->is_item_approved($item->approved);
 
         // Actions
-        if (dp_can_manage_users_plans($this->plan->userid)) {
+        if ($this->plan->can_manage()) {
             if ($this->can_delete_item($item)) {
                 $strdelete = get_string('delete', 'totara_plan');
                 $currenturl = $this->get_url();

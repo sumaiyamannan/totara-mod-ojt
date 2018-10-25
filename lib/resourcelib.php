@@ -241,6 +241,11 @@ function resourcelib_embed_pdf($fullurl, $title, $clicktoopen) {
 </div>
 EOT;
 
+    // Totara: Safari on iOS cannot scroll PDFs, so instead open full screen if ppl try to scroll it.
+    if (core_useragent::is_safari_ios()) {
+        $code = "<a href=\"$fullurl\">$code</a>";
+    }
+
     // the size is hardcoded in the boject obove intentionally because it is adjusted by the following function on-the-fly
     $PAGE->requires->js_init_call('M.util.init_maximised_embed', array('resourceobject'), true);
 

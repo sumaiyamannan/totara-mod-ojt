@@ -1163,7 +1163,7 @@ class dp_objective_component extends dp_base_component {
 
         $markup = '';
 
-        if ($this->can_delete_item($item) && dp_can_manage_users_plans($this->plan->userid)) {
+        if ($this->can_delete_item($item)) {
             $deleteurl = new moodle_url('/totara/plan/components/objective/edit.php',
                 array('id' => $this->plan->id, 'itemid' => $item->id, 'd' => 1));
             $strdelete = get_string('delete', 'totara_plan');
@@ -1329,7 +1329,7 @@ class dp_objective_component extends dp_base_component {
 
         $selected = $ca->scalevalueid;
 
-        if (!$plancompleted && $cansetprof && dp_can_manage_users_plans($this->plan->userid)) {
+        if (!$plancompleted && $cansetprof && $this->plan->can_manage()) {
             // Show the menu
             $options = array();
             foreach ($proficiencyvalues as $id => $val) {

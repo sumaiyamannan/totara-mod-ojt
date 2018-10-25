@@ -80,10 +80,7 @@ $plan = new development_plan($id);
 $componentname = 'competency';
 $component = $plan->get_component($componentname);
 
-$can_manage = dp_can_manage_users_plans($plan->userid);
-$can_update = dp_role_is_allowed_action($plan->role, 'update');
-
-if (!$can_manage || !$can_update) {
+if (!$plan->can_update()) {
     print_error('error:cannotupdateitems', 'totara_plan');
 }
 

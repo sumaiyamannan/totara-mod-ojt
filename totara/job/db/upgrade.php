@@ -32,5 +32,22 @@ function xmldb_totara_job_upgrade($oldversion) {
 
     $dbman = $DB->get_manager(); // Loads ddl manager and xmldb classes.
 
+
+    if ($oldversion < 2016092001) {
+        // Update the indexes on the job_assignment table to remove the additional index on id
+        $table = new xmldb_table('job_assignment');
+
+        // Define new index to be removed.
+        $index = new xmldb_index('id', XMLDB_INDEX_UNIQUE, array('id'));
+        // Conditionally launch to remove the index.
+        if ($dbman->index_exists($table, $index)) {
+            $dbman->drop_index($table, $index);
+        }
+
+        // Core savepoint reached.
+        upgrade_plugin_savepoint(true, 2016092001, 'totara', 'job');
+    }
+
+
     return true;
 }

@@ -601,7 +601,6 @@ function totara_core_upgrade_multiple_jobs() {
 
         // Add new indexes.
         $indexes = array(
-            new xmldb_index('job_id_ix', XMLDB_INDEX_UNIQUE, array('id')),
             new xmldb_index('job_useidn_ix', XMLDB_INDEX_UNIQUE, array('userid', 'idnumber')),
             new xmldb_index('job_usesor_ix', XMLDB_INDEX_UNIQUE, array('userid', 'sortorder')),
         );

@@ -104,7 +104,6 @@
         <KEY NAME="job_appraiserid_fk" TYPE="foreign" FIELDS="appraiserid" REFTABLE="user" REFFIELDS="id"/>
       </KEYS>
       <INDEXES>
-        <INDEX NAME="job_id_ix" UNIQUE="true" FIELDS="id"/>
         <INDEX NAME="job_useidn_ix" UNIQUE="true" FIELDS="userid, idnumber"/>
         <INDEX NAME="job_usesor_ix" UNIQUE="true" FIELDS="userid, sortorder"/>
       </INDEXES>

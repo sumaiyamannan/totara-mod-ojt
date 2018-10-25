@@ -273,7 +273,10 @@ function dp_can_manage_users_plans($ownerid) {
 
 
 /**
- * Check if there is a template which allows the given role to perform the given action.
+ * Check if any of the templates allows the given role to perform the specified action.
+ *
+ * NOTE: do not use this for permissions checks for a specific plan. Instead use
+ * development_plan::role_is_allowed_action
  *
  * @param string $role from $DP_AVAILABLE_ROLES
  * @param string/array $action
@@ -818,7 +821,7 @@ function dp_display_plans($userid, $statuses=array(DP_PLAN_STATUSAPPROVED), $col
     $rownumber = 0;
     foreach ($plans as $p) {
         $plan = new development_plan($p->id);
-        if ($plan->get_setting('view') == DP_PERMISSION_ALLOW) {
+        if ($plan->can_view()) {
             $row = array();
             $row[] = $plan->display_summary_widget();
             if (in_array('enddate', $cols)) {
@@ -1387,7 +1390,6 @@ function dp_plan_check_plan_complete($plans) {
 function totara_plan_comment_permissions($details) {
     global $DB;
 
-
     $validareas = array('plan_overview', 'plan_course_item', 'plan_competency_item', 'plan_objective_item', 'plan_program_item');
     if (!in_array($details->commentarea, $validareas)) {
         throw new comment_exception('invalidcommentarea');
@@ -1419,7 +1421,7 @@ function totara_plan_comment_permissions($details) {
     }
 
     $plan = new development_plan($planid);
-    if (!has_capability('totara/plan:accessanyplan', $details->context) && ($plan->get_setting('view') < DP_PERMISSION_ALLOW)) {
+    if (!has_capability('totara/plan:accessanyplan', $details->context) && !$plan->can_view()) {
         return array('post' => false, 'view' => false);
     } else {
         return array('post' => true, 'view' => true);

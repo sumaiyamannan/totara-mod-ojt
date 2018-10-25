@@ -66,10 +66,7 @@ $menuitem = ($ownplan) ? 'learningplans' : 'myteam';
 $PAGE->set_totara_menu_selected($menuitem);
 
 // Permission checks.
-$can_manage = dp_can_manage_users_plans($plan->userid);
-$can_update = dp_role_is_allowed_action($plan->role, 'update');
-
-if (!$can_manage || !$can_update) {
+if (!$plan->can_update()) {
     print_error('error:nopermissions', 'totara_plan');
 }
 
@@ -240,7 +237,7 @@ switch($action) {
         break;
     case 'delete':
         echo $OUTPUT->heading(get_string('deleteobjective', 'totara_plan'));
-        $component->display_objective_detail($objectiveid, $can_manage && $can_update);
+        $component->display_objective_detail($objectiveid, $plan->can_update());
         require_once($CFG->dirroot . '/totara/plan/components/evidence/evidence.class.php');
         $evidence = new dp_evidence_relation($plan->id, $componentname, $objectiveid);
         echo $evidence->display_delete_warning();

@@ -681,4 +681,52 @@ class core_phpunit_advanced_testcase extends advanced_testcase {
         $this->setAdminUser();
         $this->assertSame('admin@example.com', $USER->email);
     }
+
+    /**
+     * Totara - allow admins to override lang string.
+     */
+    public function test_override_lang_string() {
+        // Some system level tests first.
+        $sm = get_string_manager();
+        $this->assertInstanceOf('core_string_manager_standard', $sm);
+        $this->assertSame('en', current_language());
+
+        // Test resetAfterTest must be enabled.
+        $en = '%A, %d %B %Y, %I:%M %p';
+        $us = '%A, %B %d, %Y, %I:%M %p';
+
+        try {
+            $this->overrideLangString('strftimedaydatetime', 'langconfig', $us);
+        } catch (moodle_exception $ex) {
+            $this->assertInstanceOf('coding_exception', $ex);
+            $this->assertSame('Coding error detected, it must be fixed by a programmer: Enable restAfterTest to use string overriding', $ex->getMessage());
+        }
+
+        $this->resetAfterTest();
+
+        $dateformat = get_string('strftimedaydatetime', 'langconfig');
+        $this->assertSame($en, $dateformat);
+
+        $this->assertNotSame($en, $us);
+        $this->overrideLangString('strftimedaydatetime', 'langconfig', $us);
+        $dateformat = get_string('strftimedaydatetime', 'langconfig');
+        $this->assertSame($us, $dateformat);
+
+        try {
+            $this->overrideLangString('xxsddsdssd', 'langconfig', $us);
+        } catch (moodle_exception $ex) {
+            $this->assertInstanceOf('coding_exception', $ex);
+            $this->assertSame('Coding error detected, it must be fixed by a programmer: Cannot override non-existent string', $ex->getMessage());
+        }
+    }
+
+    /**
+     * Totara - make sure tha lang strings reset back.
+     * @depends test_override_lang_string
+     */
+    public function test_override_lang_string_reset() {
+        $en = '%A, %d %B %Y, %I:%M %p';
+        $dateformat = get_string('strftimedaydatetime', 'langconfig');
+        $this->assertSame($en, $dateformat);
+    }
 }

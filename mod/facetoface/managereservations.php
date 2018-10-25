@@ -46,6 +46,7 @@ if ($action == 'delete') {
         // Delete reservations to free up space in session.
         if (confirm_sesskey()) {
             $result = facetoface_delete_reservations($session->id, $managerid);
+            $result = $result && facetoface_update_attendees($session);
 
             if ($result) {
                 $message = get_string('managerreservationdeleted', 'mod_facetoface');

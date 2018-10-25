@@ -45,11 +45,7 @@ $plan = new development_plan($id);
 $plancompleted = $plan->status == DP_PLAN_STATUS_COMPLETE;
 
 // Permissions check.
-$can_access = dp_can_view_users_plans($plan->userid);
-$can_view = dp_role_is_allowed_action($plan->role, 'view');
-$can_manage = dp_can_manage_users_plans($plan->userid);
-
-if (!$can_access || !$can_view) {
+if (!$plan->can_view()) {
     print_error('error:nopermissions', 'totara_plan');
 }
 
@@ -96,7 +92,7 @@ if ($programid = $DB->get_field('dp_plan_program_assign', 'programid', array('id
 
 $componentname = 'program';
 $component = $plan->get_component($componentname);
-$canupdate = $component->can_update_items() && $can_manage;
+$canupdate = $component->can_update_items() && $plan->can_manage();
 
 $evidence = new dp_evidence_relation($id, $componentname, $progassid);
 

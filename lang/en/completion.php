@@ -75,11 +75,11 @@ $string['completionenabled'] = 'Enabled, control via completion and activity set
 $string['completionexpected'] = 'Expect completed on';
 $string['completionexpected_help'] = 'This setting specifies the date when the activity is expected to be completed. The date is not shown to learners and is only displayed in the activity completion report.';
 $string['completionicons'] = 'Completion tick boxes';
-$string['completionicons_help'] = 'A tick next to an activity name may be used to indicate when the activity is complete.
+$string['completionicons_help'] = 'A tick next to activity name indicates completion. This helps track your progress through courses accurately.
 
-If a box with a dotted border is shown, a tick will appear automatically when you have completed the activity according to conditions set by the trainer.
+Round checkbox / auto tick: Applied automatically once you complete the activity and meet required criteria.
 
-If a box with a solid border is shown, you can click it to tick the box when you think you have completed the activity. (Clicking it again removes the tick if you change your mind.) The tick is optional and is simply a way of tracking your progress through the course.';
+Square checkbox / manual: You can tick it to mark activity as complete, or un-tick to mark it incomplete.';
 $string['completionmenuitem'] = 'Completion';
 $string['completionnotenabled'] = 'Completion is not enabled';
 $string['completionnotenabledforcourse'] = 'Completion is not enabled for this course';

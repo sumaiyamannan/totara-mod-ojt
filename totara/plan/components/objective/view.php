@@ -41,11 +41,7 @@ require_login();
 $plan = new development_plan($id);
 
 // Permissions check.
-$can_access = dp_can_view_users_plans($plan->userid);
-$can_view = dp_role_is_allowed_action($plan->role, 'view');
-$can_manage = dp_can_manage_users_plans($plan->userid);
-
-if (!$can_access || !$can_view) {
+if (!$plan->can_view()) {
     print_error('error:nopermissions', 'totara_plan');
 }
 
@@ -63,7 +59,7 @@ $evidence = new dp_evidence_relation($id, $componentname, $caid);
 $objectivename = get_string($componentname, 'totara_plan');
 $coursename = get_string('courseplural', 'totara_plan');
 $currenturl = new moodle_url('/totara/plan/components/objective/view.php', array('id' => $id, 'itemid' => $caid));
-$canupdate = $component->can_update_items() && $can_manage;
+$canupdate = $component->can_update_items();
 
 $systemcontext = context_system::instance();
 $PAGE->set_context($systemcontext);

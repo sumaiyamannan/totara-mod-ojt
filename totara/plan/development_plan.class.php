@@ -266,7 +266,7 @@ class development_plan {
      * @param string $action
      * @return void
      */
-    function get_component_setting($component, $action) {
+    public function get_component_setting($component, $action) {
         // we need the know the template to get settings
         if (!$this->templateid) {
             return false;
@@ -453,10 +453,6 @@ class development_plan {
         $content = '';
         $count = 1;
 
-        // Check if the user can manage the plans.
-        $can_manage = dp_can_manage_users_plans($this->userid);
-        $can_approve = dp_role_is_allowed_action($this->role, 'approve', 'approve');
-
         if (!totara_feature_visible('programs')) {
             $components = totara_search_for_value($components, 'component', TOTARA_SEARCH_OP_NOT_EQUAL, 'program');
         }
@@ -481,7 +477,7 @@ class development_plan {
             $count++;
         }
 
-        if ($pendingitems && $can_manage && $can_approve) {
+        if ($pendingitems && $this->can_approve_plan()) {
             $a = new stdClass();
             $a->count = $pendingitems;
             $link = new moodle_url('/totara/plan/approve.php', array('id' => $this->id));
@@ -585,7 +581,7 @@ class development_plan {
             $out = get_string('planstatusunapproved', 'totara_plan');
             if ($this->status == DP_PLAN_STATUS_UNAPPROVED) {
                 // Approval request
-                if ($this->get_setting('approve') == DP_PERMISSION_REQUEST) {
+                if ($this->can_request_approval()) {
                     $out .= html_writer::empty_tag('br');
                     $url = new moodle_url('/totara/plan/action.php', array('id' => $this->id, 'approvalrequest' => 1, 'sesskey' => sesskey()));
                     $out .= $OUTPUT->action_link($url, get_string('requestapproval', 'totara_plan'));
@@ -668,24 +664,24 @@ class development_plan {
         if ($this->status == DP_PLAN_STATUS_UNAPPROVED || $this->status == DP_PLAN_STATUS_PENDING) {
 
             // Approve/Decline
-            if (in_array($this->get_setting('approve'), array(DP_PERMISSION_ALLOW, DP_PERMISSION_APPROVE))) {
+            if ($this->can_approve_plan()) {
                 echo $OUTPUT->action_icon(new moodle_url('/totara/plan/action.php', array('id' => $this->id, 'approve' => 1, 'sesskey' => sesskey())), new pix_icon('/t/go', get_string('approve', 'totara_plan')));
                 echo $OUTPUT->action_icon(new moodle_url('/totara/plan/action.php', array('id' => $this->id, 'decline' => 1, 'sesskey' => sesskey())), new pix_icon('/t/stop', get_string('decline', 'totara_plan')));
             }
         }
 
         // Complete
-        if ($this->status == DP_PLAN_STATUS_APPROVED && $this->get_setting('completereactivate') >= DP_PERMISSION_ALLOW  && $this->get_setting('manualcomplete')) {
+        if ($this->status == DP_PLAN_STATUS_APPROVED && $this->can_mark_plan_complete() && $this->get_setting('manualcomplete')) {
             echo $OUTPUT->action_icon(new moodle_url('/totara/plan/action.php', array('id' => $this->id, 'complete' => 1, 'sesskey' => sesskey())), new pix_icon('/i/star', get_string('plancomplete', 'totara_plan'), 'totara_plan'));
         }
 
         // Reactivate
-        if ($this->status == DP_PLAN_STATUS_COMPLETE && $this->get_setting('completereactivate') >= DP_PERMISSION_ALLOW) {
+        if ($this->status == DP_PLAN_STATUS_COMPLETE && $this->can_mark_plan_complete()) {
             echo $OUTPUT->action_icon(new moodle_url('/totara/plan/action.php', array('id' => $this->id, 'reactivate' => 1, 'sesskey' => sesskey())), new pix_icon('/i/star_grey', get_string('planreactivate', 'totara_plan'), 'totara_plan'));
         }
 
         // Delete
-        if ($this->get_setting('delete') == DP_PERMISSION_ALLOW) {
+        if ($this->can_delete_plan()) {
             echo $OUTPUT->action_icon(new moodle_url('/totara/plan/action.php', array('id' => $this->id, 'delete' => 1, 'sesskey' => sesskey())), new pix_icon('/i/invalid', get_string('delete')));
         }
 
@@ -1004,13 +1000,10 @@ class development_plan {
      * @return  string
      */
     public function display_plan_message_box() {
-
-        // Check that the user has the capability and permissions to manage the plan.
-        $can_manage = dp_can_manage_users_plans($this->userid);
-
         global $OUTPUT, $USER;
+
         $unapproved = ($this->status == DP_PLAN_STATUS_UNAPPROVED || $this->status == DP_PLAN_STATUS_PENDING);
-        $completed = ($this->status == DP_PLAN_STATUS_COMPLETE);
+        $completed = $this->is_complete();
         $viewingasmanager = $this->role == 'manager';
         $pending = $this->get_pending_items();
         $haspendingitems = $this->has_pending_items($pending);
@@ -1018,17 +1011,19 @@ class development_plan {
         $unapproveditems = $this->get_unapproved_items();
         $hasunapproveditems = !empty($unapproveditems);
 
-        $canapproveplan = (in_array($this->get_setting('approve'), array(DP_PERMISSION_APPROVE, DP_PERMISSION_ALLOW)));
-
         $message = '';
         if ($viewingasmanager) {
             $message .= $this->display_viewing_users_plan($this->userid);
         }
 
         if ($completed) {
-            $message .= $this->display_completed_plan_message($can_manage);
+
+            $message .= $this->display_completed_plan_message();
             $style = 'notifymessage';
+
         } else {
+
+            $canapproveplan = $this->can_approve_plan();
             if (($haspendingitems && $canapprovepending) || ($unapproved && $canapproveplan)) {
                 $style = 'notifynotice';
             } else {
@@ -1036,30 +1031,30 @@ class development_plan {
             }
 
             if (!$viewingasmanager && $hasunapproveditems) {
-                $message .= $this->display_unapproved_items($unapproveditems, $can_manage);
+                $message .= $this->display_unapproved_items($unapproveditems);
                 $style = 'notifynotice';
             }
 
             if ($unapproved) {
                 if ($haspendingitems) {
                     if ($canapprovepending) {
-                        $message .= $this->display_pending_items($pending, $can_manage);
+                        $message .= $this->display_pending_items($pending);
                     } else if ($canapproveplan) {
-                        $message .= $this->display_unapproved_plan_message($can_manage);
+                        $message .= $this->display_unapproved_plan_message();
                     } else {
-                        $message .= $this->display_pending_items($pending, $can_manage);
+                        $message .= $this->display_pending_items($pending);
                     }
                 } else {
                     if ($canapproveplan && $USER->id == $this->userid) {
-                        $message .= $this->display_inactive_plan_message($can_manage);
+                        $message .= $this->display_inactive_plan_message();
                     } else {
-                        $message .= $this->display_unapproved_plan_message($can_manage);
+                        $message .= $this->display_unapproved_plan_message();
                     }
                 }
 
             } else {
                 if ($haspendingitems) {
-                    $message .= $this->display_pending_items($pending, $can_manage);
+                    $message .= $this->display_pending_items($pending);
                 } else {
                     // nothing to report (no message)
                 }
@@ -1076,10 +1071,10 @@ class development_plan {
     /**
      * Display completed plan message
      *
-     * @param bool $can_manage If the current viewer has the capability to manage this learning plan
+     * @param null $unused Previously this was $can_manage, however that was redundant and confusing.
      * @return string
      */
-    public function display_completed_plan_message($can_manage = false) {
+    public function display_completed_plan_message($unused = null) {
         global $DB;
 
         $sql = "SELECT * FROM {dp_plan_history} WHERE planid = ? ORDER BY timemodified DESC";
@@ -1105,7 +1100,7 @@ class development_plan {
         }
 
         $extramessage = '';
-        if ($this->get_setting('completereactivate') == DP_PERMISSION_ALLOW && $can_manage) {
+        if ($this->can_mark_plan_complete()) {
             $url = new moodle_url('/totara/plan/action.php', array('id' => $this->id, 'reactivate' => 1, 'sesskey' => sesskey()));
             $extramessage = html_writer::tag('p', get_string('reactivateplantext', 'totara_plan', $url->out()));
         }
@@ -1116,35 +1111,32 @@ class development_plan {
     /**
      * Display unapproved plan message
      *
-     * @param bool $can_manage If the current viewer has the capability to manage this learning plan
+     * @param null $unused Previously this was $can_manage, however that was redundant and confusing.
      * @return string
      */
-    public function display_unapproved_plan_message($can_manage = false) {
-        $canapproveplan = (in_array($this->get_setting('approve'),  array(DP_PERMISSION_APPROVE, DP_PERMISSION_ALLOW)));
-        $canrequestapproval = ($this->get_setting('approve') == DP_PERMISSION_REQUEST);
+    public function display_unapproved_plan_message($unused = null) {
+
         $out = '';
         $out .= html_writer::start_tag('form', array('action' => new moodle_url('/totara/plan/action.php'), 'method' => 'post', 'class' => 'approvalform'));
         $out .= html_writer::empty_tag('input', array('type' => 'hidden', 'name' => 'id', 'value' => $this->id));
         $out .= html_writer::empty_tag('input', array('type' => 'hidden', 'name' => 'sesskey', 'value' => sesskey()));
         $out .= get_string('plannotapproved', 'totara_plan');
 
-        if ($can_manage) {
-            if ($canapproveplan) {
-                $out .= html_writer::start_div();
-                $out .= html_writer::tag('label', get_string('reasonfordecision', 'totara_message'), array('for' => 'id_reasonfordecision'));
-                $out .= html_writer::empty_tag('input', array('type' => 'text', 'name' => 'reasonfordecision', 'id' => 'id_reasonfordecision'));
-                $out .= html_writer::empty_tag('input', array('type' => 'submit', 'name' => 'approve',
-                    'value' => get_string('approve', 'totara_plan')));
-                $out .= '&nbsp;' . html_writer::empty_tag('input', array('type' => 'submit', 'name' => 'decline',
-                        'value' => get_string('decline', 'totara_plan')));
-                $out .= html_writer::end_div();
-            } else if ($canrequestapproval) {
-                if ($this->status == DP_PLAN_STATUS_UNAPPROVED) {
-                    $out .= html_writer::empty_tag('input', array('type' => 'submit', 'name' => 'approvalrequest',
-                        'value' => get_string('sendapprovalrequest', 'totara_plan')));
-                } else {
-                    $out .= " " . get_string('approvalrequested', 'totara_plan');
-                }
+        if ($this->can_approve_plan()) {
+            $out .= html_writer::start_div();
+            $out .= html_writer::tag('label', get_string('reasonfordecision', 'totara_message'), array('for' => 'id_reasonfordecision'));
+            $out .= html_writer::empty_tag('input', array('type' => 'text', 'name' => 'reasonfordecision', 'id' => 'id_reasonfordecision'));
+            $out .= html_writer::empty_tag('input', array('type' => 'submit', 'name' => 'approve',
+                'value' => get_string('approve', 'totara_plan')));
+            $out .= '&nbsp;' . html_writer::empty_tag('input', array('type' => 'submit', 'name' => 'decline',
+                    'value' => get_string('decline', 'totara_plan')));
+            $out .= html_writer::end_div();
+        } else if ($this->can_request_approval()) {
+            if ($this->status == DP_PLAN_STATUS_UNAPPROVED) {
+                $out .= html_writer::empty_tag('input', array('type' => 'submit', 'name' => 'approvalrequest',
+                    'value' => get_string('sendapprovalrequest', 'totara_plan')));
+            } else {
+                $out .= " " . get_string('approvalrequested', 'totara_plan');
             }
         }
 
@@ -1156,12 +1148,12 @@ class development_plan {
     /**
      * Display message prompting the learner to activate their plan.
      *
-     * @param bool $can_manage If the current viewer has the capability to manage this learning plan
+     * @param null $unused Previously this was $can_manage, however that was redundant and confusing.
      * @return string
      */
-    public function display_inactive_plan_message($can_manage = false) {
+    public function display_inactive_plan_message($unused = null) {
         $out = '';
-        if ($can_manage) {
+        if ($this->can_manage()) {
             $out .= html_writer::start_tag('form', array('action' => new moodle_url('/totara/plan/action.php'),
                                             'method' => 'post', 'class' => 'approvalform'));
             $out .= html_writer::empty_tag('input', array('type' => 'hidden', 'name' => 'id', 'value' => $this->id));
@@ -1182,10 +1174,10 @@ class development_plan {
      * Display pending items list
      *
      * @param object $pendinglist
-     * @param bool $can_manage If the current viewer has the capability to manage this learning plan
+     * @param null $unused Previously this was $can_manage, however that was redundant and confusing.
      * @return string
      */
-    public function display_pending_items($pendinglist = null, $can_manage = false) {
+    public function display_pending_items($pendinglist = null, $unused = null) {
         global $DP_AVAILABLE_COMPONENTS, $OUTPUT;
 
         // If this is the pending review page, do not show list of items
@@ -1200,9 +1192,7 @@ class development_plan {
 
         $list = array();
         $itemscount = 0;
-
-        // Check the user has 'allow' or 'approve' status for the approve permission.
-        $canapprove = $can_manage && dp_role_is_allowed_action($this->role, 'approve', 'approve');
+        $canapprove = $this->can_approve_plan();
 
         foreach ($DP_AVAILABLE_COMPONENTS as $componentname) {
             if (!$component = $this->get_component($componentname)) {
@@ -1250,10 +1240,10 @@ class development_plan {
      *
      * @access  public
      * @param   array   $unapproved
-     * @param bool $can_manage If the current viewer has the capability to manage this learning plan
+     * @param   null $unused Previously this was $can_manage, however that was redundant and confusing.
      * @return  string
      */
-    public function display_unapproved_items($unapproved, $can_manage = false) {
+    public function display_unapproved_items($unapproved, $unused = null) {
         global $OUTPUT;
 
         // Show list of items
@@ -1278,7 +1268,7 @@ class development_plan {
         $out = html_writer::tag('p', get_string(($totalitems > 1 ? 'planhasunapproveditems' : 'planhasunapproveditem'), 'totara_plan')) . html_writer::alist($list);
 
         // Show request button if plan is active
-        if ($this->status == DP_PLAN_STATUS_APPROVED && $can_manage) {
+        if ($this->status == DP_PLAN_STATUS_APPROVED && $this->can_manage()) {
             $out .= html_writer::start_tag('form', array('action' => new moodle_url('/totara/plan/action.php'), 'method' => 'post'));
             $out .= html_writer::empty_tag('input', array('type' => 'hidden', 'name' => 'id', 'value' => $this->id));
             $out .= html_writer::empty_tag('input', array('type' => 'hidden', 'name' => 'sesskey', 'value' => sesskey()));
@@ -2003,16 +1993,13 @@ class development_plan {
             }
         }
 
-        // If the user can't manage and approve this plan, they shouldn't be able to approve changes.
-        $can_manage = dp_can_manage_users_plans($this->userid);
-        $can_approve = dp_role_is_allowed_action($this->role, 'approve', 'approve');
-
         // requested items tabs
-        if ($pitems = $this->num_pendingitems() && $can_manage && $can_approve) {
+        $count_pendingitems = $this->num_pendingitems();
+        if ($count_pendingitems > 0 && $this->can_approve_plan()) {
             $row[] = new tabobject(
                 'pendingitems',
                 "{$CFG->wwwroot}/totara/plan/approve.php?id={$this->id}",
-                get_string('pendingitems', 'totara_plan').' ('.$pitems.')'
+                get_string('pendingitems', 'totara_plan').' ('.$count_pendingitems.')'
             );
         }
 
@@ -2096,6 +2083,82 @@ class development_plan {
             $complete = $complete && $component->items_all_complete();
         }
         return $complete;
+    }
+
+    /**
+     * Returns true if the user can manage plans in general, including this plan.
+     *
+     * @return bool
+     */
+    public function can_manage() {
+        $can_manage = dp_can_manage_users_plans($this->userid);
+        return $can_manage;
+    }
+
+    /**
+     * Check if the user can approve this learning plan.
+     *
+     * @return bool
+     */
+    public final function can_approve_plan() {
+        $can_manage = $this->can_manage();
+        $can_approve = in_array($this->get_setting('approve'), [DP_PERMISSION_ALLOW, DP_PERMISSION_APPROVE]);
+        return ($can_manage && $can_approve);
+    }
+
+    /**
+     * Check if the user can view this plan.
+     *
+     * @return bool
+     */
+    public final function can_view() {
+        $can_access = dp_can_view_users_plans($this->userid);
+        $can_view = ($this->get_setting('view')  == DP_PERMISSION_ALLOW);
+        return ($can_access && $can_view);
+    }
+
+    /**
+     * Check if the user can update this learning plan.
+     *
+     * @return bool
+     */
+    public final function can_update() {
+        $can_manage = $this->can_manage();
+        $can_update = ($this->get_setting('update') == DP_PERMISSION_ALLOW);
+        return ($can_manage && $can_update);
+    }
+
+    /**
+     * Returns true if the user can request approval for this plan.
+     *
+     * @return bool
+     */
+    public function can_request_approval() {
+        $can_manage = $this->can_manage();
+        $can_request = ($this->get_setting('approve') == DP_PERMISSION_REQUEST);
+        return ($can_manage && $can_request);
+    }
+
+    /**
+     * Returns true if the user can reactivate this plan.
+     *
+     * @return bool
+     */
+    public final function can_mark_plan_complete() {
+        $can_manage = $this->can_manage();
+        $can_reactivate = in_array($this->get_setting('completereactivate'), [DP_PERMISSION_ALLOW, DP_PERMISSION_APPROVE]);
+        return ($can_manage && $can_reactivate);
+    }
+
+    /**
+     * Returns true if the user can delete this plan.
+     *
+     * @return bool
+     */
+    public final function can_delete_plan() {
+        $can_manage = $this->can_manage();
+        $can_delete = in_array($this->get_setting('delete'), [DP_PERMISSION_ALLOW, DP_PERMISSION_REQUEST]);
+        return ($can_manage && $can_delete);
     }
 }
 
