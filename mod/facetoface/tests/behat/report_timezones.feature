@@ -59,7 +59,7 @@ Feature: Seminar timezones in reports
     And I click on "#id_customfield_locationdisplay_map" "css_element"
     And I click on "#id_customfield_locationdisplay_map" "css_element"
     And I press "Use Address"
-    And I click on "OK" "button" in the "Create new room" "totaradialogue"
+    And I click on "//div[@aria-describedby='editcustomroom0-dialog']//div[@class='ui-dialog-buttonset']/button[contains(.,'OK')]" "xpath_element"
 
     And I press "Save changes"
     And I follow "Add a new event"
@@ -94,7 +94,7 @@ Feature: Seminar timezones in reports
     And I click on "#id_customfield_locationdisplay_map" "css_element"
     And I click on "#id_customfield_locationdisplay_map" "css_element"
     And I press "Use Address"
-    And I click on "OK" "button" in the "Create new room" "totaradialogue"
+    And I click on "//div[@aria-describedby='editcustomroom0-dialog']//div[@class='ui-dialog-buttonset']/button[contains(.,'OK')]" "xpath_element"
 
     And I press "Save changes"
     And I should see "6:15 PM - 8:45 PM Europe/Prague" in the "Room 1" "table_row"

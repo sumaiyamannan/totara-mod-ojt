@@ -367,7 +367,7 @@ Feature: Seminar room availability
       | Name                         | Zimmer 1 |
       | roomcapacity                 | 30       |
       | Allow room booking conflicts | 0        |
-    And I click on "OK" "button" in the "Create new room" "totaradialogue"
+    And I click on "//div[@aria-describedby='editcustomroom0-dialog']//div[@class='ui-dialog-buttonset']/button[contains(.,'OK')]" "xpath_element"
 
     When  I press "Add a new session"
     # The UI is not usable much here, we just save this and go back and the last added session will be listed first.
@@ -422,7 +422,7 @@ Feature: Seminar room availability
       | Name                         | Zimmer 2 |
       | roomcapacity                 | 40       |
       | Allow room booking conflicts | 0        |
-    And I click on "OK" "button" in the "Create new room" "totaradialogue"
+    And I click on "//div[@aria-describedby='editcustomroom0-dialog']//div[@class='ui-dialog-buttonset']/button[contains(.,'OK')]" "xpath_element"
     And I click on "Delete" "link" in the "Zimmer 2" "table_row"
     And I press "Save changes"
     And I should not see "Zimmer 2" in the "0 / 40" "table_row"
@@ -586,7 +586,7 @@ Feature: Seminar room availability
       | Name                         | Zimmer 1 |
       | roomcapacity                 | 40       |
       | Allow room booking conflicts | 1        |
-    And I click on "OK" "button" in the "Create new room" "totaradialogue"
+    And I click on "//div[@aria-describedby='editcustomroom0-dialog']//div[@class='ui-dialog-buttonset']/button[contains(.,'OK')]" "xpath_element"
     And I press "Save changes"
     And I follow "Add a new event"
     And I set the following fields to these values:
@@ -615,8 +615,7 @@ Feature: Seminar room availability
     And I click on "Edit room" "link" in the "Zimmer 1 (40)" "table_row"
     And I set the following fields to these values:
       | Allow room booking conflicts | 0 |
-    # TODO TL-9503 fix dialog name to be 'Edit room'
-    And I click on "OK" "button" in the "Edit room" "totaradialogue"
+    And I click on "//div[@aria-describedby='editcustomroom0-dialog']//div[@class='ui-dialog-buttonset']/button[contains(.,'OK')]" "xpath_element"
     Then I should see "Room has conflicting usage" in the "Edit room" "totaradialogue"
     And I click on "Cancel" "button" in the "Edit room" "totaradialogue"
     And I click on "Edit session" "link"
@@ -637,8 +636,7 @@ Feature: Seminar room availability
     And I click on "Edit room" "link" in the "Zimmer 1 (40)" "table_row"
     And I set the following fields to these values:
       | Allow room booking conflicts | 0 |
-    # TODO TL-9503 fix dialog name to be 'Edit room'
-    And I click on "OK" "button" in the "Edit room" "totaradialogue"
+    And I click on "//div[@aria-describedby='editcustomroom0-dialog']//div[@class='ui-dialog-buttonset']/button[contains(.,'OK')]" "xpath_element"
     Then I should not see "Room has conflicting usage"
     And I press "Save changes"
 
