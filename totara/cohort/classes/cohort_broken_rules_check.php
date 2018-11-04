@@ -107,9 +107,12 @@ class cohort_broken_rules_check {
         $listofids = $this->get_list_of_ids($sqlhandler);
 
         list($partsql, $params) = $DB->get_in_or_equal($listofids, SQL_QUERY_SELECT);
-        $sql = "SELECT record_table.id FROM {{$tablename}} as record_table WHERE record_table.id {$partsql}";
-        $rs = $DB->record_exists_sql($sql, $params);
+        $sql = "SELECT COUNT(record_table.id) AS total FROM {{$tablename}} as record_table 
+                WHERE record_table.id {$partsql}";
 
-        return $rs;
+        $rs = $DB->get_record_sql($sql, $params);
+        $total = (int) $rs->total;
+        // Checking if the total records within the db match with the rule params or not
+        return $total != count($listofids);
     }
 }
