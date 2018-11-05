@@ -255,7 +255,7 @@ class rb_filter_category extends rb_filter_type {
         $jsdetails->strings = array(
             'totara_reportbuilder' => array('choosecatplural'),
         );
-        $jsdetails->args = array('filter_to_load' => 'category');
+        $jsdetails->args = array('filter_to_load' => 'category', null, null, $this->name, 'reportid' => $this->report->_id);
 
         foreach ($jsdetails->strings as $scomponent => $sstrings) {
             $PAGE->requires->strings_for_js($sstrings, $scomponent);

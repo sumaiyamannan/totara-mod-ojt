@@ -204,7 +204,7 @@ class rb_filter_hierarchy_multi extends rb_filter_type {
             'totara_hierarchy' => array('chooseposition', 'selected', 'chooseorganisation', 'currentlyselected', 'selectcompetency'),
             'totara_reportbuilder' => array('chooseorgplural', 'chooseposplural', 'choosecompplural')
         );
-        $jsdetails->args = array('filter_to_load' => 'hierarchy_multi');
+        $jsdetails->args = array('filter_to_load' => 'hierarchy_multi', null, null, $this->name, 'reportid' => $this->report->_id);
 
         foreach ($jsdetails->strings as $scomponent => $sstrings) {
             $PAGE->requires->strings_for_js($sstrings, $scomponent);
