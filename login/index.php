@@ -104,7 +104,7 @@ $PAGE->navbar->add($loginsite);
 if ($user !== false or $frm !== false or $errormsg !== '') {
     // some auth plugin already supplied full user, fake form data or prevented user login with error message
 
-} else if (!empty($SESSION->wantsurl) && file_exists($CFG->dirroot.'/login/weblinkauth.php')) {
+} else if (!empty($CFG->allowlogincsrf) && !empty($SESSION->wantsurl) && file_exists($CFG->dirroot.'/login/weblinkauth.php')) {
     // Handles the case of another Moodle site linking into a page on this site
     //TODO: move weblink into own auth plugin
     include($CFG->dirroot.'/login/weblinkauth.php');
@@ -119,6 +119,18 @@ if ($user !== false or $frm !== false or $errormsg !== '') {
 
 } else {
     $frm = data_submitted();
+
+    if ($frm) {
+        // Totara: prevent CSRF in regular login page, note that this breaks alternate login url.
+        if (empty($CFG->allowlogincsrf)) {
+            if (!isset($frm->logintoken) or $frm->logintoken !== sesskey()) {
+                $errormsg = get_string('sessionerroruser2', 'error');
+                $errorcode = AUTH_LOGIN_CSRF;
+                $frm = false;
+            }
+        }
+    }
+
     // TOTARA: keeping form state on incorrect submission (TL-7236)
     if (isset($frm->username)) {
         $SESSION->login_username = $frm->username;
@@ -135,7 +147,7 @@ if ($user !== false or $frm !== false or $errormsg !== '') {
 // Restore the #anchor to the original wantsurl. Note that this
 // will only work for internal auth plugins, SSO plugins such as
 // SAML / CAS / OIDC will have to handle this correctly directly.
-if ($anchor && isset($SESSION->wantsurl) && strpos($SESSION->wantsurl, '#') === false) {
+if (!$errorcode && $anchor && isset($SESSION->wantsurl) && strpos($SESSION->wantsurl, '#') === false) {
     $wantsurl = new moodle_url($SESSION->wantsurl);
     $wantsurl->set_anchor(substr($anchor, 1));
     $SESSION->wantsurl = $wantsurl->out();
@@ -143,7 +155,7 @@ if ($anchor && isset($SESSION->wantsurl) && strpos($SESSION->wantsurl, '#') === 
 
 /// Check if the user has actually submitted login data to us
 
-if ($frm and isset($frm->username)) {                             // Login WITH cookies
+if (!$errorcode && $frm and isset($frm->username)) {                             // Login WITH cookies
 
     $frm->username = trim(core_text::strtolower($frm->username));
 
@@ -312,7 +324,7 @@ if (empty($SESSION->wantsurl)) {
 }
 
 /// Redirect to alternative login URL if needed
-if (!empty($CFG->alternateloginurl)) {
+if ((!empty($CFG->allowlogincsrf) || $authsequence[0] == 'shibboleth') && !empty($CFG->alternateloginurl)) { // Totara: alternate login url is deprecated!
     $loginurl = $CFG->alternateloginurl;
 
     if (strpos($SESSION->wantsurl, $loginurl) === 0) {

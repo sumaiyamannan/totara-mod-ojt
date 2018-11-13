@@ -547,6 +547,15 @@ $CFG->admin = 'admin';
 //      $CFG->upgradekey = 'put_some_password-like_value_here';
 //
 //
+// Disable CSRF protection on login page in Totara
+//
+// Cross site request forgery protection can be temporarily disabled on the login
+// page in case of authentication plugin incompatibility or if deprecated alternate
+// login URL is in use.
+//
+//      $CFG->allowlogincsrf = 1; // Enabling this setting is very strongly discouraged for security reasons!
+//
+//
 // Limit to courses loaded by Calendar in Totara.
 //
 // When the the config setting calendar_adminseesall has been turned on,
