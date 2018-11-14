@@ -289,7 +289,8 @@ class rb_source_facetoface_sessions extends rb_facetoface_base_source {
                     'displayfunc' => 'nice_datetime_in_timezone',
                     'extrafields' => array('timezone' => 'sessiondate.sessiontimezone'),
                     'outputformat' => 'text'
-                )            ),
+                )
+            ),
             new rb_column_option(
                 'session',
                 'signupenddate',
@@ -407,6 +408,30 @@ class rb_source_facetoface_sessions extends rb_facetoface_base_source {
                         'timezone' => 'sessiondate.sessiontimezone'),
                     'joins' => 'sessiondate',
                     'displayfunc' => 'nice_time' . $intimezone,
+                    'dbdatatype' => 'timestamp'
+                )
+            ),
+            new rb_column_option(
+                'date',
+                'localsessionstartdate',
+                get_string('localsessstartdate', 'rb_source_facetoface_sessions'),
+                'sessiondate.timestart',
+                array(
+                    'joins' => 'sessiondate',
+                    'displayfunc' => 'local_event_date',
+                    'defaultheading' => get_string('sessdate', 'rb_source_facetoface_sessions'),
+                    'dbdatatype' => 'timestamp'
+                )
+            ),
+            new rb_column_option(
+                'date',
+                'localsessionfinishdate',
+                get_string('localsessfinishdate', 'rb_source_facetoface_sessions'),
+                'sessiondate.timefinish',
+                array(
+                    'joins' => 'sessiondate',
+                    'displayfunc' => 'local_event_date',
+                    'defaultheading' => get_string('sessdatefinish', 'rb_source_facetoface_sessions'),
                     'dbdatatype' => 'timestamp'
                 )
             ),
