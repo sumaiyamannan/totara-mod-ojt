@@ -23,7 +23,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-class mod_facetoface_session_registration_closure_testcase extends advanced_testcase {
+class mod_facetoface_registration_closure_testcase extends advanced_testcase {
 
     private $cfgemail;
     private $eventsink;

@@ -23,7 +23,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-class facetoface_add_session_to_calendar_testcase extends advanced_testcase {
+class mod_facetoface_add_session_to_calendar_testcase extends advanced_testcase {
 
     protected $facetofacegenerator = null;
     protected $facetoface = null;

@@ -30,7 +30,7 @@ if (!defined('MOODLE_INTERNAL')) {
 global $CFG;
 require_once($CFG->dirroot.'/mod/facetoface/lib.php');
 
-class send_notification_task_test extends advanced_testcase {
+class mod_facetoface_send_notification_task_testcase extends advanced_testcase {
     /**
      * Test simple run
      */

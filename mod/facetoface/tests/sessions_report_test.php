@@ -23,7 +23,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-class facetoface_session_report_testcase extends advanced_testcase {
+class mod_facetoface_sessions_report_testcase extends advanced_testcase {
 
     protected $facetofacegenerator = null;
     protected $facetoface = null;
