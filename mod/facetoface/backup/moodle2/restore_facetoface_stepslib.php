@@ -483,24 +483,34 @@ class restore_facetoface_activity_structure_step extends restore_activity_struct
     private function create_custom_field_data(stdClass $data, $newparentid, $tableprefix, $parentfield) {
         global $DB;
 
-        $field = $DB->get_record($tableprefix . '_info_field', array('shortname' => $data->field_name, 'datatype' => $data->field_type));
-        if (!$field) {
+        $infofield = $DB->get_record($tableprefix . '_info_field', array('shortname' => $data->field_name, 'datatype' => $data->field_type));
+        if (!$infofield) {
             $info = "{$tableprefix} custom field {$data->field_name} could not be restored";
             $this->log($info, backup::LOG_WARNING);
             return;
         }
 
-        if ($DB->record_exists($tableprefix . '_info_data', array($parentfield => $newparentid, 'fieldid' => $field->id))) {
+        $infodata = $DB->get_record($tableprefix . '_info_data', array($parentfield => $newparentid, 'fieldid' => $infofield->id));
+        if ($infodata) {
             // Add the values only the first time, the fields can be easily duplicated in the backup tree,
-            // such as for reused custom seminar rooms.
-            return;
+            // such as for reused custom seminar rooms, but multiselect customfield can have more then one param value.
+            if ($infofield->datatype == 'multiselect' && isset($data->paramdatavalue)) {
+                // Lets check if the data already exists in the param table for multiselect customfield, return if it does.
+                // if not, we create a new record below.
+                $dataid = $infodata->id;
+                if ($DB->record_exists($tableprefix . '_info_data_param', array('dataid' => $dataid, 'value' => $data->paramdatavalue))) {
+                    return;
+                }
+            } else {
+                return;
+            }
+        } else {
+            $customfield = new stdClass();
+            $customfield->{$parentfield} = $newparentid;
+            $customfield->fieldid = $infofield->id;
+            $customfield->data = $data->field_data;
+            $dataid = $DB->insert_record($tableprefix . '_info_data', $customfield);
         }
-
-        $customfield = new stdClass();
-        $customfield->{$parentfield} = $newparentid;
-        $customfield->fieldid = $field->id;
-        $customfield->data = $data->field_data;
-        $dataid = $DB->insert_record($tableprefix . '_info_data', $customfield);
 
         // Insert params only if previously existed.
         if (isset($data->paramdatavalue)) {
