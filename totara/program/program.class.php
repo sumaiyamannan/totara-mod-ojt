@@ -1474,17 +1474,31 @@ class program {
             return false;
         }
 
-        $prog_completion = prog_load_completion($this->id, $userid, false);
-        if (!$prog_completion) {
-            return false;
+        $certexpired = false;
+        if (isset($this->certifid) && $this->certifid > 0) {
+            list($certifcompletion, $prog_completion) = certif_load_completion($this->id, $userid, false);
+            if (!$prog_completion) {
+                return false;
+            }
+            if ($certifcompletion) {
+                $certifstate = certif_get_completion_state($certifcompletion);
+                $certexpired = ($certifstate == CERTIFCOMPLETIONSTATE_EXPIRED);
+            }
+        } else {
+            $prog_completion = prog_load_completion($this->id, $userid, false);
+            if (!$prog_completion) {
+                return false;
+            }
         }
 
         // Only show the extension link if the user is assigned via required learning, and it
         // has a due date and they haven't completed it yet.
+        // For certifications, also prevent extension requests after the expiry date.
         if ($this->assigned_to_users_required_learning($userid)
                 && $prog_completion->timedue != COMPLETION_TIME_NOT_SET
                 && $prog_completion->timecompleted == 0
-                && \totara_job\job_assignment::has_manager($userid)) {
+                && \totara_job\job_assignment::has_manager($userid)
+                && !$certexpired) {
             return true;
         }
 
@@ -1592,7 +1606,7 @@ class program {
                 if ($this->has_pending_extension_request($userid)) {
                     // Show pending text if they have already requested an extension.
                     $request = ' ' . get_string('pendingextension', 'totara_program');
-                } else if (!$prog_completion || $prog_completion->timedue < time()) {
+                } else {
                     // Show extension request link if it is their assignment and they have a manager to request it from.
                     $url = new moodle_url('/totara/program/view.php', array('id' => $this->id, 'extrequest' => '1'));
                     $request = ' ' . html_writer::link($url, get_string('requestextension', 'totara_program'), array('id' => 'extrequestlink'));

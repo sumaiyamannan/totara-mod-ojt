@@ -77,6 +77,55 @@ class totara_certif_extension_testcase extends reportcache_advanced_testcase {
         parent::tearDown();
     }
 
+    public function test_can_request_extension() {
+        global $DB;
+
+        $initdate = time();
+
+        // Set up some stuff.
+        $user = $this->data_generator->create_user();
+        $certification = $this->data_generator->create_certification();
+        $course1 = $this->data_generator->create_course();
+        $course2 = $this->data_generator->create_course();
+
+        // Add the courses to the certification.
+        $this->data_generator->add_courseset_program($certification->id, array($course1->id), CERTIFPATH_CERT);
+        $this->data_generator->add_courseset_program($certification->id, array($course2->id), CERTIFPATH_RECERT);
+
+        // Assign the user to the cert as an individual.
+        $this->data_generator->assign_to_program($certification->id, ASSIGNTYPE_INDIVIDUAL, $user->id);
+
+        list($certcompletion, $progcompletion) = certif_load_completion($certification->id, $user->id);
+        // Check the existing data.
+        self::assertEquals(1, $DB->count_records('prog_completion', array('coursesetid' => 0)));
+        self::assertEquals(1, $DB->count_records('certif_completion'));
+
+        // Update the certification so that it is in progress and has a due date.
+        $certcompletion->status = CERTIFSTATUS_INPROGRESS;
+        $progcompletion->timedue = strtotime('+1 day', $initdate);
+        self::assertTrue(certif_write_completion($certcompletion, $progcompletion));
+
+        // Users can request extensions for themselves only.
+        $this->setUser($user->id);
+        self::assertTrue($certification->can_request_extension($user->id));
+
+        // Update the certification so that the user is expired.
+        $progcompletion->status = STATUS_PROGRAM_INCOMPLETE;
+        $progcompletion->timecompleted = 0;
+        $certcompletion->status = CERTIFSTATUS_EXPIRED;
+        $certcompletion->renewalstatus = CERTIFRENEWALSTATUS_EXPIRED;
+        $certcompletion->certifpath = CERTIFPATH_CERT;
+        $certcompletion->timecompleted = 0;
+        $certcompletion->timewindowopens = 0;
+        $certcompletion->timeexpires = 0;
+        $certcompletion->baselinetimeexpires = 0;
+        self::assertTrue(certif_write_completion($certcompletion, $progcompletion)); // Contains data validation, so we don't need to check it here.
+
+        // Check that expired user can no longer request extension.
+        $this->setUser($user->id);
+        self::assertFalse($certification->can_request_extension($user->id));
+    }
+
     public function test_granting_extension_extends_expiry() {
         global $DB;
 

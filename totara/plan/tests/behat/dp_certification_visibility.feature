@@ -416,6 +416,11 @@ Feature: See that certification visibility affects Record of Learning: Certifica
       | timeexpires[year]              | 2030                           |
       | timeexpires[hour]              | 12                             |
       | timeexpires[minute]            | 30                             |
+      | baselinetimeexpires[day]       | 3                              |
+      | baselinetimeexpires[month]     | September                      |
+      | baselinetimeexpires[year]      | 2030                           |
+      | baselinetimeexpires[hour]      | 12                             |
+      | baselinetimeexpires[minute]    | 30                             |
     And I click on "Save changes" "button"
     And I click on "Save changes" "button"
     Then I should see "Completion changes have been saved"
@@ -467,22 +472,27 @@ Feature: See that certification visibility affects Record of Learning: Certifica
     When I switch to "Completion" tab
     And I click on "Edit completion records" "link" in the "fn_002 ln_002" "table_row"
     And I set the following fields to these values:
-      | Certification completion state | Certified, window is open      |
-      | timecompleted[day]             | 1                              |
-      | timecompleted[month]           | September                      |
-      | timecompleted[year]            | 2030                           |
-      | timecompleted[hour]            | 12                             |
-      | timecompleted[minute]          | 30                             |
-      | timewindowopens[day]           | 2                              |
-      | timewindowopens[month]         | September                      |
-      | timewindowopens[year]          | 2030                           |
-      | timewindowopens[hour]          | 12                             |
-      | timewindowopens[minute]        | 30                             |
-      | timeexpires[day]               | 3                              |
-      | timeexpires[month]             | September                      |
-      | timeexpires[year]              | 2030                           |
-      | timeexpires[hour]              | 12                             |
-      | timeexpires[minute]            | 30                             |
+      | Certification completion state | Certified, window is open |
+      | timecompleted[day]             | 1                         |
+      | timecompleted[month]           | September                 |
+      | timecompleted[year]            | 2030                      |
+      | timecompleted[hour]            | 12                        |
+      | timecompleted[minute]          | 30                        |
+      | timewindowopens[day]           | 2                         |
+      | timewindowopens[month]         | September                 |
+      | timewindowopens[year]          | 2030                      |
+      | timewindowopens[hour]          | 12                        |
+      | timewindowopens[minute]        | 30                        |
+      | timeexpires[day]               | 3                         |
+      | timeexpires[month]             | September                 |
+      | timeexpires[year]              | 2030                      |
+      | timeexpires[hour]              | 12                        |
+      | timeexpires[minute]            | 30                        |
+      | baselinetimeexpires[day]       | 3                         |
+      | baselinetimeexpires[month]     | September                 |
+      | baselinetimeexpires[year]      | 2030                      |
+      | baselinetimeexpires[hour]      | 12                        |
+      | baselinetimeexpires[minute]    | 30                        |
     And I click on "Save changes" "button"
     And I click on "Save changes" "button"
     Then I should see "Completion changes have been saved"
