@@ -1889,6 +1889,7 @@ function facetoface_get_attendee($sessionid, $userid) {
  */
 function facetoface_get_userfields($reset = false) {
     global $CFG, $DB;
+    require_once($CFG->dirroot . '/user/lib.php');
 
     static $userfields = null;
     if ($userfields === null || $reset) {
@@ -1900,19 +1901,10 @@ function facetoface_get_userfields($reset = false) {
             $fieldnames = array_map('trim', explode(',', $CFG->facetoface_export_userprofilefields));
         }
 
-        // Strip out any fields that are not allowed.
-        $forbiddenuserfields = array(
-            'username', // We don't share this freely!
-            'password', // You can't have the users password!
-            'secret', // You can't have this, it is secret!
-            'lastip', // Just to be safe.
-        );
-        foreach ($forbiddenuserfields as $field) {
-            $key = array_search($field, $fieldnames);
-            if ($key !== false) {
-                unset($fieldnames[$key]);
-            }
-        }
+        $allowed_fields = user_get_default_fields();
+        // Only the fields in the user table will work. Custom fields are dealt with separately.
+        $allowed_fields = array_diff($allowed_fields, ['profileimageurlsmall', 'profileimageurlsmall', 'customfields', 'groups', 'roles', 'preferences', 'enrolledcourses']);
+        $fieldnames = array_intersect($fieldnames, $allowed_fields);
 
         foreach ($fieldnames as $shortname) {
             if (get_string_manager()->string_exists($shortname, 'moodle')) {
@@ -2055,6 +2047,7 @@ function facetoface_write_worksheet_header(&$worksheet, $context) {
 function facetoface_write_activity_attendance(&$worksheet, $coursecontext, $startingrow, $facetofaceid, $location,
                                               $coursename, $activityname, $dateformat) {
     global $CFG, $DB;
+    require_once($CFG->dirroot . '/user/lib.php');
 
     if (!empty($location)) {
         debugging('The $location parameter in facetoface_write_activity_attendance has been deprecated. Use Room location custom field.',
@@ -2062,10 +2055,21 @@ function facetoface_write_activity_attendance(&$worksheet, $coursecontext, $star
     }
 
     $trainerroles = facetoface_get_trainer_roles($coursecontext);
+
+    // The user fields we fetch need to be broken down into those coming from the user table
+    // and those coming from custom fields so that we can validate them correctly.
     $userfields = facetoface_get_userfields();
+    $customfieldshortnames = array_filter(array_keys($userfields), function($value) {
+        return strpos($value, 'customfield_') === 0;
+    });
+    $usertablefields = array_diff(array_keys($userfields), $customfieldshortnames);
+
     $customsessionfields = customfield_get_fields_definition('facetoface_session', array('hidden' => 0));
     $timenow = time();
     $i = $startingrow;
+
+    $course = new stdClass();
+    $course->id = $coursecontext->instanceid;
 
     // Fast version of "facetoface_get_attendees()" for all sessions
     $sessionsignups = array();
@@ -2303,10 +2307,18 @@ function facetoface_write_activity_attendance(&$worksheet, $coursecontext, $star
                     }
                 }
 
+                // Filter out the attendee's information that the exporting user is not
+                // allowed to see, based on permissions and config settings.
+                // Other properties of $attendee will be used later, but this determines
+                // which $userfields we'll show.
+                $user = user_get_user_details($attendee, $course, $usertablefields);
+
                 foreach ($userfields as $shortname => $fullname) {
                     $value = '-';
-                    if (!empty($attendee->$shortname)) {
-                        $value = $attendee->$shortname;
+                    if (!empty($user[$shortname])) {
+                        $value = $user[$shortname];
+                    } else if (in_array($shortname, $customfieldshortnames) && !empty($attendee->{$shortname})) {
+                        $value = $attendee->{$shortname};
                     }
 
                     if (in_array($shortname, $formatdate)) {
