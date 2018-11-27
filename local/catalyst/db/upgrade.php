@@ -38,6 +38,16 @@ function xmldb_local_catalyst_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2016102800, 'local', 'catalyst');
     }
 
+    if ($oldversion < 2018102800) {
+        $table = new xmldb_table('scorm_scoes_track');
+        $index = new xmldb_index('element', XMLDB_INDEX_UNIQUE, ['element']);
+        if ($dbman->index_exists($table, $index)) {
+            $dbman->drop_index($table, $index);
+        }
+        // Save point reached.
+        upgrade_plugin_savepoint(true, 2018102800, 'local', 'catalyst');
+    }
+
     return true;
 }
 
