@@ -3809,13 +3809,17 @@ function facetoface_update_user_calendar_events($session, $eventtype) {
  * @param string    $eventtype  Type of the event (booking or session)
  */
 function facetoface_delete_user_calendar_events($session, $eventtype) {
-    global $CFG, $DB;
+    global $DB;
 
-    $whereclause = "modulename = 'facetoface' AND
-                    eventtype = 'facetoface$eventtype' AND
-                    instance = ?";
+    // Without uuid(sessionid) param, this function deletes all events(seminar with multiple events) except the last one,
+    // meaning the last event (running the update calendar) will delete all previous events created just now.
+    // Usercase: Seminar has 2 events and attendee signed to the 1st event.
+    $whereclause = "modulename = ? AND
+                    eventtype = ? AND
+                    instance = ? AND
+                    uuid = ?";
 
-    $whereparams = array($session->facetoface);
+    $whereparams = array('facetoface', "facetoface{$eventtype}", $session->facetoface, $session->id);
 
     if ('session' == $eventtype) {
         $likestr = "%attendees.php?s={$session->id}%";
