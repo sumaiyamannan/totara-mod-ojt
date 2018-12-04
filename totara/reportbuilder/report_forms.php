@@ -517,7 +517,6 @@ class report_builder_edit_columns_form extends moodleform {
                 html_writer::tag('th', get_string('options', 'totara_reportbuilder') . html_writer::end_tag('tr')));
 
             $columnsselect = $report->get_columns_select();
-            $columnoptions = array();
             $defaultoptions = array('' => get_string('noneselected', 'totara_reportbuilder'));
 
             $badcolumns = array();
@@ -541,9 +540,8 @@ class report_builder_edit_columns_form extends moodleform {
                 $colcount = count($goodcolumns);
                 $i = 1;
                 foreach ($goodcolumns as $cid => $column) {
-                    $columnoptions["{$column->type}_{$column->value}"] = $column->heading;
                     if ($column->heading and $column->customheading) {
-                        $defaultoptions["{$column->type}_{$column->value}"] = $column->heading;
+                        $defaultoptions["{$column->type}_{$column->value}"] = format_string($column->heading);
                     } else if (isset($report->columnoptions["{$column->type}-{$column->value}"])) {
                         $defaultoptions["{$column->type}_{$column->value}"] = $report->columnoptions["{$column->type}-{$column->value}"]->name;
                     } else {
