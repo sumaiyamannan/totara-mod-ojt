@@ -295,10 +295,8 @@ function totara_visibility_where($userid = null, $fieldbaseid = 'course.id', $fi
         return array('1=1', array());
 
     } else if (empty($CFG->audiencevisibility)) {
-        if (has_capability($capability, $systemcontext, $userid)) {
+        if ($showhidden || has_capability($capability, $systemcontext, $userid)) {
             return array('1=1', array());
-        } else if ($showhidden) {
-            return array($availabilitysql, $availabilityparams);
         } else {
             // Normal visibility unless they have the capability to see hidden learning components.
             $sqlnormalvisible = "
