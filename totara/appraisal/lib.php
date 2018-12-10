@@ -4107,7 +4107,7 @@ class appraisal_question extends question_storage {
             }
         }
 
-        return $this->roles[$roleassignment->appraisalrole] > appraisal::ACCESS_CANVIEWOTHER;
+        return ($this->roles[$roleassignment->appraisalrole] & appraisal::ACCESS_CANANSWER) === appraisal::ACCESS_CANANSWER;
     }
 
 
