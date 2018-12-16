@@ -3,6 +3,60 @@
 
 Totara Learn Changelog
 
+Release 9.27 (19th December 2018):
+==================================
+
+
+Security issues:
+
+    TL-19593       Improved handling of seminar attendee export fields
+
+                   Validation was improved for fields that are set by a site admin to be
+                   included when exporting seminar attendance, making user information that
+                   can be exported consistent with other parts of the application.
+
+                   Permissions checks are now also made to ensure that the user exporting has
+                   permission to access the information of each user in the report.
+
+Bug fixes:
+
+    TL-18892       Fixed problem with redisplayed goal question in appraisals
+
+                   Formerly, a redisplayed goal question would display the goal status as a
+                   drop-down list - whether or not the user had rights to change/answer the
+                   question. However, when the goal was changed, it was ignored. This patch
+                   changes the drop-down into a text string when necessary so that it cannot
+                   be changed.
+
+    TL-19373       Added two new seminar date columns which support export
+
+                   The new columns are "Local Session Start Date/Time" and "Local Session
+                   Finish Date/Time" and they support exporting to Excel and Open Document
+                   formats.
+
+    TL-19481       Fixed the course restoration process for seminar event multi-select customfields
+
+                   Previously during course restoration, the seminar event multi-select
+                   customfield was losing the value(s) if there was more than one value
+                   selected.
+
+    TL-19615       Fixed a permission error when a user tried to edit a seminar calendar event
+    TL-19692       Fixed a naming error for an undefined user profile datatype in the observer class unit tests
+    TL-19696       Fixed the handling of calendar events when editing the calendar display settings of a seminar with multiple sessions
+
+                   Previously with Seminar *Calendar display settings = None* and if the
+                   seminar with multiple events was updated, the user calendar seminar dates
+                   were hidden and the user couldn't see the seminar event in the calendar.
+
+    TL-19760       Fixed multi-language support for custom headings in Report Builder
+    TL-19779       Fixed an error when signing up to a seminar event that requires approval with no job assignment and temporary managers disabled
+
+Contributions:
+
+    * Ghada El-Zoghbi at Catalyst AU - TL-19692
+    * Learning Pool - TL-19779
+
+
 Release 9.26 (4th December 2018):
 =================================
 
