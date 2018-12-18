@@ -326,7 +326,7 @@ if (empty($SESSION->wantsurl)) {
 }
 
 /// Redirect to alternative login URL if needed
-if ((!empty($CFG->allowlogincsrf) || $authsequence[0] == 'shibboleth') && !empty($CFG->alternateloginurl) && empty($noredirect)) { // Totara: alternate login url is deprecated!
+if (!empty($CFG->alternateloginurl) && empty($noredirect)) { // Totara: alternate login url is deprecated!
     $loginurl = $CFG->alternateloginurl;
 
     if (strpos($SESSION->wantsurl, $loginurl) === 0) {
