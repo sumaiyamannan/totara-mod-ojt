@@ -264,7 +264,8 @@ class rb_filter_hierarchy extends rb_filter_type {
             'filter_to_load' => "hierarchy",
             $title . '-currentlyselected' => $currentlyselected,
             'hierarchytype' => $this->options['hierarchytype'],
-            'name' => $this->name
+            'name' => $this->name,
+            'reportid' => $this->report->_id
         );
 
         foreach ($jsdetails->strings as $scomponent => $sstrings) {

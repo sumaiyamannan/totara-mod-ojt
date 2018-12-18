@@ -1474,17 +1474,31 @@ class program {
             return false;
         }
 
-        $prog_completion = prog_load_completion($this->id, $userid, false);
-        if (!$prog_completion) {
-            return false;
+        $certexpired = false;
+        if (isset($this->certifid) && $this->certifid > 0) {
+            list($certifcompletion, $prog_completion) = certif_load_completion($this->id, $userid, false);
+            if (!$prog_completion) {
+                return false;
+            }
+            if ($certifcompletion) {
+                $certifstate = certif_get_completion_state($certifcompletion);
+                $certexpired = ($certifstate == CERTIFCOMPLETIONSTATE_EXPIRED);
+            }
+        } else {
+            $prog_completion = prog_load_completion($this->id, $userid, false);
+            if (!$prog_completion) {
+                return false;
+            }
         }
 
         // Only show the extension link if the user is assigned via required learning, and it
         // has a due date and they haven't completed it yet.
+        // For certifications, also prevent extension requests after the expiry date.
         if ($this->assigned_to_users_required_learning($userid)
                 && $prog_completion->timedue != COMPLETION_TIME_NOT_SET
                 && $prog_completion->timecompleted == 0
-                && \totara_job\job_assignment::has_manager($userid)) {
+                && \totara_job\job_assignment::has_manager($userid)
+                && !$certexpired) {
             return true;
         }
 

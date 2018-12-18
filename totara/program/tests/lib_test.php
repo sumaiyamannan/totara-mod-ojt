@@ -146,6 +146,7 @@ class totara_program_lib_testcase extends reportcache_advanced_testcase {
         $certcompletion->timecompleted = 0;
         $certcompletion->timewindowopens = 0;
         $certcompletion->timeexpires = 0;
+        $certcompletion->baselinetimeexpires = 0;
         $this->assertTrue(certif_write_completion($certcompletion, $progcompletion)); // Contains data validation, so we don't need to check it here.
 
         // The program should currently be complete. Update the program so that the user is incomplete.
@@ -1313,6 +1314,7 @@ class totara_program_lib_testcase extends reportcache_advanced_testcase {
         $certcompletion->timecompleted = 100;
         $certcompletion->timewindowopens = 200;
         $certcompletion->timeexpires = 300;
+        $certcompletion->baselinetimeexpires = 300;
         $progcompletion->status = STATUS_PROGRAM_COMPLETE;
         $progcompletion->timecompleted = 100;
         $progcompletion->timedue = 300;
@@ -1434,6 +1436,7 @@ class totara_program_lib_testcase extends reportcache_advanced_testcase {
         $certcompletion->timecompleted = $now;
         $certcompletion->timewindowopens = $now + DAYSECS * 100;
         $certcompletion->timeexpires = $now + DAYSECS * 200;
+        $certcompletion->baselinetimeexpires = $now + DAYSECS * 200;
         $this->assertTrue(certif_write_completion($certcompletion, $progcompletion));
         $result = prog_display_progress($cert->id, $user2->id, $certcompletion->certifpath, true); // Export, so we just get a string.
         $this->assertEquals('100', $result);
@@ -1449,6 +1452,7 @@ class totara_program_lib_testcase extends reportcache_advanced_testcase {
         $certcompletion->timecompleted = $now;
         $certcompletion->timewindowopens = $now + DAYSECS * 100;
         $certcompletion->timeexpires = $now + DAYSECS * 200;
+        $certcompletion->baselinetimeexpires = $now + DAYSECS * 200;
         $this->assertTrue(certif_write_completion($certcompletion, $progcompletion));
         $result = prog_display_progress($cert->id, $user3->id, $certcompletion->certifpath, true); // Export, so we just get a string.
         $this->assertEquals('0', $result);
@@ -1486,6 +1490,7 @@ class totara_program_lib_testcase extends reportcache_advanced_testcase {
         $certcompletion->timecompleted = $now;
         $certcompletion->timewindowopens = $now + DAYSECS * 100;
         $certcompletion->timeexpires = $now + DAYSECS * 200;
+        $certcompletion->baselinetimeexpires = $now + DAYSECS * 200;
         $this->assertTrue(certif_write_completion($certcompletion, $progcompletion));
         $DB->delete_records('prog_user_assignment');
         certif_conditionally_delete_completion($cert->id, $user6->id);
@@ -1508,6 +1513,7 @@ class totara_program_lib_testcase extends reportcache_advanced_testcase {
         $certcompletion->timecompleted = $now;
         $certcompletion->timewindowopens = $now + DAYSECS * 100;
         $certcompletion->timeexpires = $now + DAYSECS * 200;
+        $certcompletion->baselinetimeexpires = $now + DAYSECS * 200;
         $this->assertTrue(certif_write_completion($certcompletion, $progcompletion));
         $DB->delete_records('prog_user_assignment');
         certif_conditionally_delete_completion($cert->id, $user7->id);

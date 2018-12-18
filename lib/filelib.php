@@ -826,8 +826,23 @@ function file_save_draft_area_files($draftitemid, $contextid, $component, $filea
         if ($draftfiles) {
             $somefile = reset($draftfiles);
             $draftitemid = $somefile->get_itemid();
+            // The following code expects the root dir to be always present, add it if missing.
+            $root = $fs->get_file($usercontext->id, 'user', 'draft', $draftitemid, '/', '.');
+            if ($root) {
+                // We cannot be sure how is the array indexed, so better check each item.
+                $found = false;
+                foreach ($draftfiles as $draftfile) {
+                    if ($root->get_id() == $draftfile->get_id()) {
+                        $found = true;
+                    }
+                }
+                if (!$found) {
+                    $draftfiles[$root->get_pathnamehash()] = $root;
+                }
+                unset($found);
+            }
         } else {
-            // This should not happen because at least the root '.' dir should exist.
+            // No files, any invalid value will do because there should not be any file references.
             $draftitemid = -1;
         }
 

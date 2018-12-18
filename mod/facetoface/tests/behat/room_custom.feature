@@ -38,7 +38,7 @@ Feature: Manage custom rooms by non-admin user
     And I click on "#id_customfield_locationview_satellite" "css_element"
     And I click on "#id_customfield_locationdisplay_map" "css_element"
     And I should not see "Publish for reuse"
-    When I click on "OK" "button" in the "Create new room" "totaradialogue"
+    And I click on "//div[@aria-describedby='editcustomroom0-dialog']//div[@class='ui-dialog-buttonset']/button[contains(.,'OK')]" "xpath_element"
     Then I should see "Room 1 (5)"
 
     # Edit
@@ -48,5 +48,5 @@ Feature: Manage custom rooms by non-admin user
       | Name         | Room edited |
       | roomcapacity | 10          |
     And I should not see "Publish for reuse"
-    When I click on "OK" "button" in the "Edit room" "totaradialogue"
+    And I click on "//div[@aria-describedby='editcustomroom0-dialog']//div[@class='ui-dialog-buttonset']/button[contains(.,'OK')]" "xpath_element"
     Then I should see "Room edited (10)"

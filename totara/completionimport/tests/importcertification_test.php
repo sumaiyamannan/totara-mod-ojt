@@ -935,7 +935,7 @@ class totara_completionimport_importcertification_testcase extends reportcache_a
 
         // Calculate the base time.
         $certification = $DB->get_record('certif', array('id' => $certcompletion->certifid));
-        $base = get_certiftimebase($certification->recertifydatetype, $certcompletion->timeexpires,
+        $base = get_certiftimebase($certification->recertifydatetype, $certcompletion->baselinetimeexpires,
             $timecompleted, $progcompletion->timedue, $certification->activeperiod, $certification->minimumactiveperiod,
             $certification->windowperiod);
 
@@ -945,6 +945,7 @@ class totara_completionimport_importcertification_testcase extends reportcache_a
         $certcompletion->certifpath = CERTIFPATH_RECERT;
         $certcompletion->timecompleted = $timecompleted;
         $certcompletion->timeexpires = get_timeexpires($base, $certification->activeperiod);
+        $certcompletion->baselinetimeexpires = $certcompletion->timeexpires;
         $certcompletion->timewindowopens = get_timewindowopens($certcompletion->timeexpires, $certification->windowperiod);
         $certcompletion->timemodified = $timecompleted;
 
@@ -1028,6 +1029,7 @@ class totara_completionimport_importcertification_testcase extends reportcache_a
         $certcompletion->timecompleted = 0;
         $certcompletion->timewindowopens = 0;
         $certcompletion->timeexpires = 0;
+        $certcompletion->baselinetimeexpires = 0;
         $certcompletion->timemodified = $now;
 
         // Save the change (performs data validation and logging).

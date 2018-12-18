@@ -27,9 +27,9 @@ global $CFG;
 /**
  * Test suite of searching the asset with distinct records, and pagination is correcly rendered
  *
- * Class asset_search_with_distinct_record_test
+ * Class mod_facetoface_asset_search_testcase
  */
-class asset_search_with_distinct_record_test extends advanced_testcase {
+class mod_facetoface_asset_search_testcase extends advanced_testcase {
     /**
      * Creating a course, and a seminar activity for the course
      * @return array

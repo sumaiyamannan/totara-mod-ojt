@@ -35,7 +35,7 @@ global $CFG;
 
 require_once($CFG->dirroot . '/mod/facetoface/lib.php');
 
-class mod_facetoface_customfield_testcase extends advanced_testcase {
+class mod_facetoface_predefine_customfields_testcase extends advanced_testcase {
 
     public function test_signup_cancellation_notes_creation() {
         global $DB;

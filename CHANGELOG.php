@@ -3,6 +3,108 @@
 
 Totara Learn Changelog
 
+Release 9.26 (4th December 2018):
+=================================
+
+
+Security issues:
+
+    TL-19669       Backported MDL-64222 security fix for badges
+    TL-19365       CSRF protection was added to the login page, and HTML blocks on user pages now prevent self-XSS
+
+                   Cross-site request forgery is now prevented on the login page. This means
+                   that alternate login pages cannot be supported anymore and as such this
+                   feature was deprecated. The change may also interfere with incorrectly
+                   designed custom authentication plugins.
+
+                   Previously configured alternate login pages would not work after upgrade;
+                   if attempting to log in on the alternate page, users would be directed to
+                   the regular login page and presented with an error message asking them to
+                   retry log in, where it will be successful. To keep using vulnerable
+                   alternate login pages, the administrator would need to disable CSRF
+                   protection on the login page in config.php.
+
+    TL-19028       SCORM package download protection is now on by default
+
+                   Previously this setting was off by default.
+                   Turning it on ensures that sites are more secure by default.
+
+Improvements:
+
+    TL-18963       Improved the help text for the 'Enable messaging system' setting on the advanced settings page
+
+Bug fixes:
+
+    TL-19312       Added the 'readonlyemptyfield' string that was missing from customfields
+    TL-19250       Fixed Totara forms file manager element with disabled subdirectories bug when uploading one file only
+    TL-19248       Report builder filters supply the report id when changing
+
+                   Previously there were some filters that did not supply the report id when
+                   changing the filter. This issue ensures the access checks are done
+                   correctly for the report
+
+    TL-19215       Improved handling of text in autocomplete forms
+
+                   Previously when adding HTML tags to an autocomplete field, they would be
+                   interpreted by the browser. This issue ensures that they are displayed as
+                   plain text, with offending content being removed when the form being
+                   reloaded.
+
+                   This is not a security fix as the only person who could be affected is the
+                   person who is entering the data, when they are first entering the data (and
+                   not on subsequent visits).
+
+    TL-19195       Fixed display issue when using "Hide if there is nothing to display" setting in the report table block
+
+                   If the setting "Hide if there is nothing to display" was set for the report
+                   table block then the block would hide even if there was data. The setting
+                   now works correctly and only hides the block if the report contains no
+                   data.
+
+    TL-19155       Fixed Google maps Ok button failure in Behat tests
+    TL-19124       Internal implementation and performance of organisation and position based report restrictions
+
+                   This is a backport of TL-19086, which was included in October evergreen
+                   release.
+
+    TL-19122       Fixed an issue in the recurring courses where after the course restarts the enrolment date remained the date from the original course
+    TL-19000       Changed Seminar event approver notification type from alert to task so that dashboard task block is created
+    TL-18932       Added an ability to detect the broken audience rules when scheduled task starts running to update the audience's members
+
+                   Prior to this patch, when the scheduled task
+                   (\totara_cohort\task\update_cohort_task) was running, there was no way that
+                   it could detect whether the rules were still referencing to the invalid
+                   instance records or not (for example: course, program, user's position, and
+                   so on). Therefore, if the rule had a reference to an invalid instance
+                   record, audience will not be able update its members correctly.
+
+                   With this patch, it will start checking whether the referenced instance
+                   records are valid or not before the process of updating members. If there
+                   are any invalid instance records, then the system will send an email out to
+                   notify the site administrator.
+
+    TL-18895       Added warning text to the audience's rules if there are any rules that are referencing a deleted item
+
+                   Prior to the patch: when an item (for example: program, course, position
+                   and so on) that was referenced in an audience rule got deleted, there were
+                   no obvious way to tell the user that this item had been deleted.
+
+                   With this patch: there will be a warning text, when user is viewing the
+                   rule that is still referencing a deleted item.
+
+    TL-18806       Prevented prog_write_completion from being used with certification data
+    TL-18558       Fixed display activity restrictions for editing teachers.
+
+                   Editing teachers can see activity restrictions whether they match them or
+                   not.
+
+    TL-17804       Fixed certification expiry date not being updated when a user is granted an extension
+
+                   Additional changes include:
+                    * new baseline expiry field in the completion editor which is used to calculate subsequent expiry dates
+                    * preventing users from requesting extension after the certification expiry
+
+
 Release 9.25 (25th October 2018):
 =================================
 

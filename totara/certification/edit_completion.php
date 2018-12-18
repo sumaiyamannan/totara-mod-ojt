@@ -107,6 +107,7 @@ if ($certcompletion && $progcompletion && empty($exceptions) && !$dismissedexcep
     $currentformdata->timecompleted = $certcompletion->timecompleted;
     $currentformdata->timewindowopens = $certcompletion->timewindowopens;
     $currentformdata->timeexpires = $certcompletion->timeexpires;
+    $currentformdata->baselinetimeexpires = $certcompletion->baselinetimeexpires;
     $currentformdata->progstatus = $progcompletion->status;
     $currentformdata->progtimecompleted = $progcompletion->timecompleted;
 

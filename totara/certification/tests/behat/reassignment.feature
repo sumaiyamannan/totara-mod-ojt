@@ -94,41 +94,51 @@ Feature: User reassignment to a certification
       And I click on "Edit completion records" "link" in the "Jimmy Jim" "table_row"
       And I click on "Add history" "button"
       And I set the following fields to these values:
-        | timecompleted[day]      | 1    |
-        | timecompleted[month]    | 1    |
-        | timecompleted[year]     | 2000 |
-        | timecompleted[hour]     | 7    |
-        | timecompleted[minute]   | 00   |
-        | timewindowopens[day]    | 1    |
-        | timewindowopens[month]  | 1    |
-        | timewindowopens[year]   | 2020 |
-        | timewindowopens[hour]   | 7    |
-        | timewindowopens[minute] | 00   |
-        | timeexpires[day]        | 1    |
-        | timeexpires[month]      | 1    |
-        | timeexpires[year]       | 2030 |
-        | timeexpires[hour]       | 7    |
-        | timeexpires[minute]     | 00   |
-        | Unassigned              | No   |
+        | timecompleted[day]          | 1    |
+        | timecompleted[month]        | 1    |
+        | timecompleted[year]         | 2000 |
+        | timecompleted[hour]         | 7    |
+        | timecompleted[minute]       | 00   |
+        | timewindowopens[day]        | 1    |
+        | timewindowopens[month]      | 1    |
+        | timewindowopens[year]       | 2020 |
+        | timewindowopens[hour]       | 7    |
+        | timewindowopens[minute]     | 00   |
+        | timeexpires[day]            | 1    |
+        | timeexpires[month]          | 1    |
+        | timeexpires[year]           | 2030 |
+        | timeexpires[hour]           | 7    |
+        | timeexpires[minute]         | 00   |
+        | baselinetimeexpires[day]    | 1    |
+        | baselinetimeexpires[month]  | 1    |
+        | baselinetimeexpires[year]   | 2030 |
+        | baselinetimeexpires[hour]   | 7    |
+        | baselinetimeexpires[minute] | 00   |
+        | Unassigned                  | No   |
       And I click on "Save changes" "button"
       And I click on "Add history" "button"
       And I set the following fields to these values:
-        | timecompleted[day]      | 1    |
-        | timecompleted[month]    | 1    |
-        | timecompleted[year]     | 1990 |
-        | timecompleted[hour]     | 7    |
-        | timecompleted[minute]   | 00   |
-        | timewindowopens[day]    | 1    |
-        | timewindowopens[month]  | 1    |
-        | timewindowopens[year]   | 2000 |
-        | timewindowopens[hour]   | 7    |
-        | timewindowopens[minute] | 00   |
-        | timeexpires[day]        | 1    |
-        | timeexpires[month]      | 1    |
-        | timeexpires[year]       | 2010 |
-        | timeexpires[hour]       | 7    |
-        | timeexpires[minute]     | 00   |
-        | Unassigned              | No   |
+        | timecompleted[day]          | 1    |
+        | timecompleted[month]        | 1    |
+        | timecompleted[year]         | 1990 |
+        | timecompleted[hour]         | 7    |
+        | timecompleted[minute]       | 00   |
+        | timewindowopens[day]        | 1    |
+        | timewindowopens[month]      | 1    |
+        | timewindowopens[year]       | 2000 |
+        | timewindowopens[hour]       | 7    |
+        | timewindowopens[minute]     | 00   |
+        | timeexpires[day]            | 1    |
+        | timeexpires[month]          | 1    |
+        | timeexpires[year]           | 2010 |
+        | timeexpires[hour]           | 7    |
+        | timeexpires[minute]         | 00   |
+        | baselinetimeexpires[day]    | 1    |
+        | baselinetimeexpires[month]  | 1    |
+        | baselinetimeexpires[year]   | 2010 |
+        | baselinetimeexpires[hour]   | 7    |
+        | baselinetimeexpires[minute] | 00   |
+        | Unassigned                  | No   |
       And I click on "Save changes" "button"
       And I follow "Return to certification"
 
@@ -176,22 +186,27 @@ Feature: User reassignment to a certification
       And I click on "Edit completion records" "link" in the "Jimmy Jim" "table_row"
       And I click on "Add history" "button"
       And I set the following fields to these values:
-        | timecompleted[day]      | 1    |
-        | timecompleted[month]    | 1    |
-        | timecompleted[year]     | 1980 |
-        | timecompleted[hour]     | 7    |
-        | timecompleted[minute]   | 00   |
-        | timewindowopens[day]    | 1    |
-        | timewindowopens[month]  | 1    |
-        | timewindowopens[year]   | 1990 |
-        | timewindowopens[hour]   | 7    |
-        | timewindowopens[minute] | 00   |
-        | timeexpires[day]        | 1    |
-        | timeexpires[month]      | 1    |
-        | timeexpires[year]       | 2000 |
-        | timeexpires[hour]       | 7    |
-        | timeexpires[minute]     | 00   |
-        | Unassigned              | Yes  |
+        | timecompleted[day]          | 1    |
+        | timecompleted[month]        | 1    |
+        | timecompleted[year]         | 1980 |
+        | timecompleted[hour]         | 7    |
+        | timecompleted[minute]       | 00   |
+        | timewindowopens[day]        | 1    |
+        | timewindowopens[month]      | 1    |
+        | timewindowopens[year]       | 1990 |
+        | timewindowopens[hour]       | 7    |
+        | timewindowopens[minute]     | 00   |
+        | timeexpires[day]            | 1    |
+        | timeexpires[month]          | 1    |
+        | timeexpires[year]           | 2000 |
+        | timeexpires[hour]           | 7    |
+        | timeexpires[minute]         | 00   |
+        | baselinetimeexpires[day]    | 1    |
+        | baselinetimeexpires[month]  | 1    |
+        | baselinetimeexpires[year]   | 2000 |
+        | baselinetimeexpires[hour]   | 7    |
+        | baselinetimeexpires[minute] | 00   |
+        | Unassigned                  | Yes  |
       And I click on "Save changes" "button"
       Then I should see "Only one historical record can be marked as unassigned, and only if there is no current assignment"
 
@@ -211,43 +226,53 @@ Feature: User reassignment to a certification
       And I click on "Edit completion records" "link" in the "Jimmy Jim" "table_row"
       And I click on "Add history" "button"
       And I set the following fields to these values:
-        | timecompleted[day]      | 1    |
-        | timecompleted[month]    | 1    |
-        | timecompleted[year]     | 1990 |
-        | timecompleted[hour]     | 7    |
-        | timecompleted[minute]   | 00   |
-        | timewindowopens[day]    | 1    |
-        | timewindowopens[month]  | 1    |
-        | timewindowopens[year]   | 2000 |
-        | timewindowopens[hour]   | 7    |
-        | timewindowopens[minute] | 00   |
-        | timeexpires[day]        | 1    |
-        | timeexpires[month]      | 1    |
-        | timeexpires[year]       | 2010 |
-        | timeexpires[hour]       | 7    |
-        | timeexpires[minute]     | 00   |
-        | Unassigned              | Yes  |
+        | timecompleted[day]          | 1    |
+        | timecompleted[month]        | 1    |
+        | timecompleted[year]         | 1990 |
+        | timecompleted[hour]         | 7    |
+        | timecompleted[minute]       | 00   |
+        | timewindowopens[day]        | 1    |
+        | timewindowopens[month]      | 1    |
+        | timewindowopens[year]       | 2000 |
+        | timewindowopens[hour]       | 7    |
+        | timewindowopens[minute]     | 00   |
+        | timeexpires[day]            | 1    |
+        | timeexpires[month]          | 1    |
+        | timeexpires[year]           | 2010 |
+        | timeexpires[hour]           | 7    |
+        | timeexpires[minute]         | 00   |
+        | baselinetimeexpires[day]    | 1    |
+        | baselinetimeexpires[month]  | 1    |
+        | baselinetimeexpires[year]   | 2010 |
+        | baselinetimeexpires[hour]   | 7    |
+        | baselinetimeexpires[minute] | 00   |
+        | Unassigned                  | Yes  |
       And I click on "Save changes" "button"
       Then I should see "Completion changes have been saved"
 
       When I click on "Add history" "button"
       And I set the following fields to these values:
-        | timecompleted[day]      | 1    |
-        | timecompleted[month]    | 1    |
-        | timecompleted[year]     | 2000 |
-        | timecompleted[hour]     | 7    |
-        | timecompleted[minute]   | 00   |
-        | timewindowopens[day]    | 1    |
-        | timewindowopens[month]  | 1    |
-        | timewindowopens[year]   | 2010 |
-        | timewindowopens[hour]   | 7    |
-        | timewindowopens[minute] | 00   |
-        | timeexpires[day]        | 1    |
-        | timeexpires[month]      | 1    |
-        | timeexpires[year]       | 2020 |
-        | timeexpires[hour]       | 7    |
-        | timeexpires[minute]     | 00   |
-        | Unassigned              | Yes  |
+        | timecompleted[day]          | 1    |
+        | timecompleted[month]        | 1    |
+        | timecompleted[year]         | 2000 |
+        | timecompleted[hour]         | 7    |
+        | timecompleted[minute]       | 00   |
+        | timewindowopens[day]        | 1    |
+        | timewindowopens[month]      | 1    |
+        | timewindowopens[year]       | 2010 |
+        | timewindowopens[hour]       | 7    |
+        | timewindowopens[minute]     | 00   |
+        | timeexpires[day]            | 1    |
+        | timeexpires[month]          | 1    |
+        | timeexpires[year]           | 2020 |
+        | timeexpires[hour]           | 7    |
+        | timeexpires[minute]         | 00   |
+        | baselinetimeexpires[day]    | 1    |
+        | baselinetimeexpires[month]  | 1    |
+        | baselinetimeexpires[year]   | 2020 |
+        | baselinetimeexpires[hour]   | 7    |
+        | baselinetimeexpires[minute] | 00   |
+        | Unassigned                  | Yes  |
       And I click on "Save changes" "button"
       Then I should see "Only one historical record can be marked as unassigned, and only if there is no current assignment"
 
@@ -341,21 +366,26 @@ Feature: User reassignment to a certification
       And I click on "Edit completion records" "link" in the "Jimmy Jim" "table_row"
       And I set the following fields to these values:
         | Certification completion state | Certified, before window opens |
-        | timecompleted[day]      | 1    |
-        | timecompleted[month]    | 1    |
-        | timecompleted[year]     | 2010 |
-        | timecompleted[hour]     | 7    |
-        | timecompleted[minute]   | 00   |
-        | timewindowopens[day]    | 1    |
-        | timewindowopens[month]  | 1    |
-        | timewindowopens[year]   | 2020 |
-        | timewindowopens[hour]   | 7    |
-        | timewindowopens[minute] | 00   |
-        | timeexpires[day]        | 1    |
-        | timeexpires[month]      | 1    |
-        | timeexpires[year]       | 2030 |
-        | timeexpires[hour]       | 7    |
-        | timeexpires[minute]     | 00   |
+        | timecompleted[day]             | 1                              |
+        | timecompleted[month]           | 1                              |
+        | timecompleted[year]            | 2010                           |
+        | timecompleted[hour]            | 7                              |
+        | timecompleted[minute]          | 00                             |
+        | timewindowopens[day]           | 1                              |
+        | timewindowopens[month]         | 1                              |
+        | timewindowopens[year]          | 2020                           |
+        | timewindowopens[hour]          | 7                              |
+        | timewindowopens[minute]        | 00                             |
+        | timeexpires[day]               | 1                              |
+        | timeexpires[month]             | 1                              |
+        | timeexpires[year]              | 2030                           |
+        | timeexpires[hour]              | 7                              |
+        | timeexpires[minute]            | 00                             |
+        | baselinetimeexpires[day]       | 1                              |
+        | baselinetimeexpires[month]     | 1                              |
+        | baselinetimeexpires[year]      | 2030                           |
+        | baselinetimeexpires[hour]      | 7                              |
+        | baselinetimeexpires[minute]    | 00                             |
       And I click on "Save changes" "button"
       And I click on "Save changes" "button"
       And I follow "Return to certification"
@@ -408,21 +438,26 @@ Feature: User reassignment to a certification
       And I click on "Edit completion records" "link" in the "Jimmy Jim" "table_row"
       And I set the following fields to these values:
         | Certification completion state | Certified, window is open |
-        | timecompleted[day]      | 1    |
-        | timecompleted[month]    | 1    |
-        | timecompleted[year]     | 2000 |
-        | timecompleted[hour]     | 7    |
-        | timecompleted[minute]   | 00   |
-        | timewindowopens[day]    | 1    |
-        | timewindowopens[month]  | 1    |
-        | timewindowopens[year]   | 2010 |
-        | timewindowopens[hour]   | 7    |
-        | timewindowopens[minute] | 00   |
-        | timeexpires[day]        | 1    |
-        | timeexpires[month]      | 1    |
-        | timeexpires[year]       | 2020 |
-        | timeexpires[hour]       | 7    |
-        | timeexpires[minute]     | 00   |
+        | timecompleted[day]             | 1                         |
+        | timecompleted[month]           | 1                         |
+        | timecompleted[year]            | 2000                      |
+        | timecompleted[hour]            | 7                         |
+        | timecompleted[minute]          | 00                        |
+        | timewindowopens[day]           | 1                         |
+        | timewindowopens[month]         | 1                         |
+        | timewindowopens[year]          | 2010                      |
+        | timewindowopens[hour]          | 7                         |
+        | timewindowopens[minute]        | 00                        |
+        | timeexpires[day]               | 1                         |
+        | timeexpires[month]             | 1                         |
+        | timeexpires[year]              | 2020                      |
+        | timeexpires[hour]              | 7                         |
+        | timeexpires[minute]            | 00                        |
+        | baselinetimeexpires[day]       | 1                         |
+        | baselinetimeexpires[month]     | 1                         |
+        | baselinetimeexpires[year]      | 2020                      |
+        | baselinetimeexpires[hour]      | 7                         |
+        | baselinetimeexpires[minute]    | 00                        |
       And I click on "Save changes" "button"
       And I click on "Save changes" "button"
       And I follow "Return to certification"

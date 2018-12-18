@@ -255,7 +255,7 @@ class rb_filter_course_multi extends rb_filter_type {
         $jsdetails->strings = array(
             'totara_reportbuilder' => array('coursemultiitemchoose'),
         );
-        $jsdetails->args = array('filter_to_load' => 'course_multi');
+        $jsdetails->args = array('filter_to_load' => 'course_multi', null, null, $this->name, 'reportid' => $this->report->_id);
 
         foreach ($jsdetails->strings as $scomponent => $sstrings) {
             $PAGE->requires->strings_for_js($sstrings, $scomponent);

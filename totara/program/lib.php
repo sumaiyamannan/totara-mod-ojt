@@ -1248,7 +1248,16 @@ function prog_process_extensions($extensionslist, $reasonfordecision = array()) 
                 // Load the program for this extension
                 $extension_program = new program($extension->programid);
 
-                if ($prog_completion = $DB->get_record('prog_completion', array('programid' => $extension_program->id, 'userid' => $extension->userid, 'coursesetid' => 0))) {
+                $cert_completion = null;
+                $prog_completion = null;
+
+                if ($extension_program->certifid) {
+                    list($cert_completion, $prog_completion) = certif_load_completion($extension->programid, $extension->userid, false);
+                } else {
+                    $prog_completion = prog_load_completion($extension->programid, $extension->userid, false);
+                }
+
+                if ($prog_completion) {
                     $duedate = empty($prog_completion->timedue) ? 0 : $prog_completion->timedue;
 
                     if ($extension->extensiondate < $duedate) {
@@ -1264,7 +1273,23 @@ function prog_process_extensions($extensionslist, $reasonfordecision = array()) 
                 }
 
                 // Try to update due date for program using extension date
-                if (!$extension_program->set_timedue($extension->userid, $extension->extensiondate, 'Due date extension granted')) {
+                //Check whether user is on a recertification path, and update certification expiry if required
+                if ($cert_completion) {
+                    if ($cert_completion->certifpath == CERTIFPATH_RECERT) {
+                        $cert_completion->timeexpires = $extension->extensiondate;
+                    }
+
+                    $prog_completion->timedue = $extension->extensiondate;
+                    $result = certif_write_completion($cert_completion, $prog_completion, 'Due date extension granted');
+                } else if ($prog_completion) {
+                    $prog_completion->timedue = $extension->extensiondate;
+                    $result = prog_write_completion($prog_completion, 'Due date extension granted');
+                } else {
+                    $update_fail_count++;
+                    continue;
+                }
+
+                if (!$result) {
                     $update_fail_count++;
                     continue;
                 } else {
@@ -2867,33 +2892,47 @@ function prog_write_completion($progcompletion, $message = '', $ignoreproblemkey
 
     // Ensure the record matches the database records.
     if ($isinsert) {
-        $sql = "SELECT prog.id, pc.id AS pcid
+        $sql = "SELECT prog.id, prog.certifid, pc.id AS pcid
                   FROM {prog} prog
              LEFT JOIN {prog_completion} pc
                     ON pc.programid = prog.id AND pc.userid = :pcuserid AND pc.coursesetid = 0
                  WHERE prog.id = :programid";
         $params = array('programid' => $progcompletion->programid, 'pcuserid' => $progcompletion->userid);
         $prog = $DB->get_record_sql($sql, $params);
+
         if (empty($prog) || !empty($prog->pcid)) {
             print_error(get_string('error:updatinginvalidcompletionrecord', 'totara_program'));
+        }
+
+        if (!empty($prog->certifid)) {
+            throw new coding_exception("prog_write_completion was used to insert a prog_completion record relating to a certification - this must never happen!");
         }
 
         if (empty($message)) {
             $message = "Completion record created";
         }
     } else {
-        $sql = "SELECT pc.id
+        $sql = "SELECT pc.id, prog.certifid
                   FROM {prog_completion} pc
                   JOIN {prog} prog
                     ON prog.id = pc.programid
                  WHERE pc.id = :pcid
                    AND pc.programid = :programid
                    AND pc.userid = :userid
-                   AND pc.coursesetid = 0
-                   AND prog.certifid IS NULL";
+                   AND pc.coursesetid = 0";
         $params = array('pcid' => $progcompletion->id, 'programid' => $progcompletion->programid, 'userid' => $progcompletion->userid);
-        if (!$DB->record_exists_sql($sql, $params)) {
+
+        $existingrecord = $DB->record_exists_sql($sql, $params);
+        if (empty($existingrecord)) {
             print_error(get_string('error:updatinginvalidcompletionrecord', 'totara_program'));
+        }
+
+        if (!empty($existingrecord->certifid)) {
+            throw new coding_exception("prog_write_completion was used to update a prog_completion record relating to a certification - this must never happen!");
+        }
+
+        if (empty($message)) {
+            $message = "Completion record updated";
         }
     }
 

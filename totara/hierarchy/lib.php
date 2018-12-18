@@ -207,7 +207,9 @@ class hierarchy {
     protected $contentparams = array();
 
     /**
-     * Set the content restriction where clause to apply as defined in the provided report
+     * Set the content restriction where clause to apply as defined in the provided report.
+     *
+     * NOTE: This is intended primarily for hierarchy dialogs in reports.
      *
      * @param int $reportid Id of the report containing the content restriction definition
      * @param int $userid Report user to use - mainly useful for testing
@@ -1483,7 +1485,7 @@ class hierarchy {
      *
      * @access  public
      * @param   string $prefix string  Hierarchy prefix
-     * @param   int $cntentreportid Optional id of report containing content restrictions to apply
+     * @param   int $contentreportid Optional id of report containing content restrictions to apply (used for dialogs in reports)
      * @return  hierarchy Instance of the hierarchy prefix object
      */
     static function load_hierarchy($prefix, $contentreportid = 0) {
@@ -1506,12 +1508,14 @@ class hierarchy {
             print_error('error:hierarchyprefixnotfound', 'totara_hierarchy', '', $prefix);
         }
 
+        /** @var hierarchy $instance */
+        $instance = new $prefix();
+
         if (!empty($contentreportid)) {
-            $report = new reportbuilder($reportid);
-            list($this->contentwhere, $this->contentparams) = $report->get_hierarchy_content_restrictions();
+            $instance->set_content_restriction_from_report($contentreportid);
         }
 
-        return new $prefix();
+        return $instance;
     }
 
 

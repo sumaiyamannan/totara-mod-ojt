@@ -54,6 +54,7 @@ M.totara_editprogcompletion = M.totara_editprogcompletion || {
         $('#id_timecompleted_enabled').closest('span').hide();
         $('#id_timewindowopens_enabled').closest('span').hide();
         $('#id_timeexpires_enabled').closest('span').hide();
+        $('#id_baselinetimeexpires_enabled').closest('span').hide();
         $('#id_progtimecompleted_enabled').closest('span').hide();
 
         // If there were errors on page load, force the user to select a status (show the existing value).

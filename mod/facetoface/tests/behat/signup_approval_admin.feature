@@ -124,7 +124,7 @@ Feature: Seminar Signup Admin Approval
     And I log in as "actapprover"
     And I click on "Dashboard" in the totara menu
     Then I should see "Seminar booking admin request"
-    And I click on "View all alerts" "link"
+    And I click on "View all tasks" "link"
     And I should see "Sally Sal" in the "td.user_namelink" "css_element"
     And I click on "Attendees" "link" in the "1 January 2020" "table_row"
     Then I should see "Sally Sal"
@@ -157,7 +157,7 @@ Feature: Seminar Signup Admin Approval
     And I log in as "actapprover"
     And I click on "Dashboard" in the totara menu
     Then I should see "Seminar booking admin request"
-    And I click on "View all alerts" "link"
+    And I click on "View all tasks" "link"
     And I should see "Jimmy Jim" in the "td.user_namelink" "css_element"
     And I click on "Attendees" "link" in the "1 January 2020" "table_row"
     Then I should see "Jimmy Jim"
@@ -294,7 +294,7 @@ Feature: Seminar Signup Admin Approval
     # Check alert
     And I log in as "actapprover"
     And I click on "Dashboard" in the totara menu
-    And I click on "View all alerts" "link"
+    And I click on "View all tasks" "link"
     And I should see "This is to advise that Sammy Sam has requested to be booked into the following course"
 
     And I click on "Attendees" "link"

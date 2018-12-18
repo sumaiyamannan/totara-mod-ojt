@@ -79,6 +79,9 @@ define('AUTH_LOGIN_LOCKOUT', 4);
 /** Can not login becauser user is not authorised. */
 define('AUTH_LOGIN_UNAUTHORISED', 5);
 
+/** Totara: Cannot login because CSRF test failed. */
+define('AUTH_LOGIN_CSRF', 9);
+
 /**
  * Abstract authentication plugin.
  *

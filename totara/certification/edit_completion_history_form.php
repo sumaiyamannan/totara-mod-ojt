@@ -138,6 +138,17 @@ class certif_edit_completion_history_form extends moodleform {
             get_string('completiontimeexpires', 'totara_certification'),
             get_string('completiondatenotapplicable', 'totara_program'));
 
+        $mform->addElement('date_time_selector', 'baselinetimeexpires',
+            get_string('completionbaselinetimeexpires', 'totara_certification'), array('optional' => true));
+        $mform->disabledIf('baselinetimeexpires', 'state', 'eq', CERTIFCOMPLETIONSTATE_INVALID);
+        $mform->disabledIf('baselinetimeexpires',  'state', 'eqhide', CERTIFCOMPLETIONSTATE_ASSIGNED);
+        $mform->disabledIf('baselinetimeexpires', 'state', 'eqhide', CERTIFCOMPLETIONSTATE_EXPIRED);
+        $mform->addHelpButton('baselinetimeexpires', 'completionbaselinetimeexpires', 'totara_certification');
+
+        $mform->addElement('static', 'baselinetimeexpiresnotapplicable',
+            get_string('completionbaselinetimeexpires', 'totara_certification'),
+            get_string('completiondatenotapplicable', 'totara_program'));
+
         $mform->addElement('static', 'certificationactiveperiod',
             get_string('completioncertificationactiveperiod', 'totara_certification'),
             $certification->activeperiod);

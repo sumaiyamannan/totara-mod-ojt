@@ -992,7 +992,7 @@ class facetoface_notification extends data_object {
         $event->smallmessage      = $event->manager->smallmessage . $event->smallmessage;
         $event->attachment = null; // Leave out the ical attachments for roleapprovers.
 
-        $event->name = 'alert';
+        $event->name = 'task';
 
         // Send the booking request to all users with the approvalrole set in the session.
         $sessionroles = facetoface_get_trainers($session->id, $facetoface->approvalrole);
@@ -1026,7 +1026,7 @@ class facetoface_notification extends data_object {
         $event->smallmessage      = $event->manager->smallmessage . $event->smallmessage;
         $event->attachment = null; // Leave out the ical attachments for adminapprovers.
 
-        $event->name = 'alert';
+        $event->name = 'task';
 
         // Send the booking request to all site & activity level adminapprovers.
         $systemapprovers = get_users_from_config(get_config(null, 'facetoface_adminapprovers'), 'mod/facetoface:approveanyrequest');

@@ -56,6 +56,7 @@ function report_security_get_issue_list() {
         'report_security_check_cookiehttponly',
         'report_security_check_configrw',
         'report_security_check_riskxss',
+        'report_security_check_logincsrf',
         'report_security_check_riskadmin',
         'report_security_check_riskbackup',
         'report_security_check_defaultuserrole',
@@ -530,6 +531,37 @@ function report_security_check_riskxss($detailed=false) {
         }
         $users = implode(', ', $users);
         $result->details = get_string('check_riskxss_details', 'report_security', $users);
+    }
+
+    return $result;
+}
+
+/**
+ * Makes sure that $CFG->allowlogincsrf is disabled.
+ *
+ * @param bool $detailed
+ * @return object result
+ */
+function report_security_check_logincsrf($detailed=false) {
+    global $CFG;
+
+    $result = new stdClass();
+    $result->issue   = 'report_security_check_logincsrf';
+    $result->name    = get_string('check_logincsrf_name', 'report_security');
+    $result->info    = null;
+    $result->details = null;
+    $result->link    = null;
+
+    if (!empty($CFG->allowlogincsrf)) {
+        $result->status = REPORT_SECURITY_SERIOUS;
+        $result->info   = get_string('check_logincsrf_error', 'report_security');
+    } else {
+        $result->status = REPORT_SECURITY_OK;
+        $result->info   = get_string('check_logincsrf_ok', 'report_security');
+    }
+
+    if ($detailed) {
+        $result->details = get_string('check_logincsrf_details', 'report_security');
     }
 
     return $result;

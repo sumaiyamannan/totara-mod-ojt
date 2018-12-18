@@ -103,6 +103,7 @@ class totara_certification_certification_completion_testcase extends reportcache
         $submitted->timecompleted = 1004;
         $submitted->timewindowopens = 1005;
         $submitted->timeexpires = 1006;
+        $submitted->baselinetimeexpires = 1010;
         $submitted->progstatus = 1007;
         $submitted->timeduenotset = 'no';
         $submitted->timedue = 1008;
@@ -126,6 +127,7 @@ class totara_certification_certification_completion_testcase extends reportcache
         $this->assertEquals(1004, $certcompletion->timecompleted);
         $this->assertEquals(1005, $certcompletion->timewindowopens);
         $this->assertEquals(1006, $certcompletion->timeexpires);
+        $this->assertEquals(1010, $certcompletion->baselinetimeexpires);
         $this->assertGreaterThanOrEqual($timebefore, $certcompletion->timemodified);
         $this->assertLessThanOrEqual($timeafter, $certcompletion->timemodified);
 
@@ -162,6 +164,7 @@ class totara_certification_certification_completion_testcase extends reportcache
         $this->assertEquals(1004, $certcompletion->timecompleted);
         $this->assertEquals(1005, $certcompletion->timewindowopens);
         $this->assertEquals(1006, $certcompletion->timeexpires);
+        $this->assertEquals(1010, $certcompletion->baselinetimeexpires);
         $this->assertGreaterThanOrEqual($timebefore, $certcompletion->timemodified);
         $this->assertLessThanOrEqual($timeafter, $certcompletion->timemodified);
 
@@ -302,7 +305,8 @@ class totara_certification_certification_completion_testcase extends reportcache
                     'certifpath' => CERTIFPATH_CERT,
                     'timecompleted' => 0,
                     'timewindowopens' => 0,
-                    'timeexpires' => 0),
+                    'timeexpires' => 0,
+                    'baselinetimeexpires' => 0),
                 array('status' => STATUS_COURSESET_COMPLETE, // 1, 2: Should be STATUS_PROGRAM_INCOMPLETE.
                     'timecompleted' => 0,
                     'timedue' => 1001),
@@ -316,7 +320,8 @@ class totara_certification_certification_completion_testcase extends reportcache
                     'certifpath' => CERTIFPATH_CERT,
                     'timecompleted' => 0,
                     'timewindowopens' => 0,
-                    'timeexpires' => 0),
+                    'timeexpires' => 0,
+                    'baselinetimeexpires' => 0),
                 array('status' => STATUS_COURSESET_INCOMPLETE, // 1, 2: Should be STATUS_PROGRAM_INCOMPLETE.
                     'timecompleted' => 0,
                     'timedue' => 1001),
@@ -330,18 +335,20 @@ class totara_certification_certification_completion_testcase extends reportcache
                     'certifpath' => CERTIFPATH_RECERT, // 2: Should be CERTIFPATH_CERT.
                     'timecompleted' => 1001, // 3: Should be 0.
                     'timewindowopens' => 1002, // 4: Should be 0.
-                    'timeexpires' => 1003), // 5: Should be 0.
-                array('status' => STATUS_PROGRAM_COMPLETE, // 6: Should be STATUS_PROGRAM_INCOMPLETE.
-                    'timecompleted' => 1004, // 7: Should be 0.
-                    'timedue' => COMPLETION_TIME_UNKNOWN), // 8: Should be anything else.
+                    'timeexpires' => 1003, // 5: Should be 0.
+                    'baselinetimeexpires' => 1005), // 6: Should be 0
+                array('status' => STATUS_PROGRAM_COMPLETE, // 7: Should be STATUS_PROGRAM_INCOMPLETE.
+                    'timecompleted' => 1004, // 8: Should be 0.
+                    'timedue' => COMPLETION_TIME_UNKNOWN), // 9: Should be anything else.
                 array('error:stateassigned-renewalstatusincorrect' => 'renewalstatus', // 1.
                     'error:stateassigned-pathincorrect' => 'certifpath', // 2.
                     'error:stateassigned-timecompletednotempty' => 'timecompleted', // 3.
                     'error:stateassigned-timewindowopensnotempty' => 'timewindowopens', // 4.
                     'error:stateassigned-timeexpiresnotempty' => 'timeexpires', // 5.
-                    'error:stateassigned-progstatusincorrect' => 'progstatus', // 6.
-                    'error:stateassigned-progtimecompletednotempty' => 'progtimecompleted', // 7.
-                    'error:stateassigned-timedueunknown' => 'timedue') // 8.
+                    'error:stateassigned-baselinetimeexpiresnotempty' => 'baselinetimeexpires', // 5.
+                    'error:stateassigned-progstatusincorrect' => 'progstatus', // 7.
+                    'error:stateassigned-progtimecompletednotempty' => 'progtimecompleted', // 8.
+                    'error:stateassigned-timedueunknown' => 'timedue') // 9.
             ),
             // Assigned, problems #2.
             array('assigned problems #2',
@@ -350,15 +357,17 @@ class totara_certification_certification_completion_testcase extends reportcache
                     'certifpath' => CERTIFPATH_CERT,
                     'timecompleted' => -1, // 2: Should be 0.
                     'timewindowopens' => -1, // 3: Should be 0.
-                    'timeexpires' => -1), // 4: Should be 0.
+                    'timeexpires' => -1, // 4: Should be 0.
+                    'baselinetimeexpires' => -1), // 5: Should be 0
                 array('status' => STATUS_PROGRAM_INCOMPLETE,
-                    'timecompleted' => -1, // 5: Should be 0.
+                    'timecompleted' => -1, // 6: Should be 0.
                     'timedue' => 1001),
                 array('error:stateassigned-renewalstatusincorrect' => 'renewalstatus', // 1.
                     'error:stateassigned-timecompletednotempty' => 'timecompleted', // 2.
                     'error:stateassigned-timewindowopensnotempty' => 'timewindowopens', // 3.
                     'error:stateassigned-timeexpiresnotempty' => 'timeexpires', // 4.
-                    'error:stateassigned-progtimecompletednotempty' => 'progtimecompleted') // 5.
+                    'error:stateassigned-baselinetimeexpiresnotempty' => 'baselinetimeexpires', // 5.
+                    'error:stateassigned-progtimecompletednotempty' => 'progtimecompleted') // 6.
             ),
             // Assigned, no problems.
             array('assigned no problems',
@@ -367,7 +376,8 @@ class totara_certification_certification_completion_testcase extends reportcache
                     'certifpath' => CERTIFPATH_CERT,
                     'timecompleted' => 0,
                     'timewindowopens' => 0,
-                    'timeexpires' => 0),
+                    'timeexpires' => 0,
+                    'baselinetimeexpires' => 0),
                 array('status' => STATUS_PROGRAM_INCOMPLETE,
                     'timecompleted' => 0,
                     'timedue' => COMPLETION_TIME_NOT_SET),
@@ -380,17 +390,19 @@ class totara_certification_certification_completion_testcase extends reportcache
                     'certifpath' => CERTIFPATH_RECERT, // 1: Should be CERTIFPATH_CERT.
                     'timecompleted' => 1001, // 3: Should be 0.
                     'timewindowopens' => 1002, // 4: Should be 0.
-                    'timeexpires' => 1003), // 5: Should be 0.
-                array('status' => STATUS_PROGRAM_COMPLETE, // 6: Should be STATUS_PROGRAM_INCOMPLETE.
-                    'timecompleted' => 1004, // 7: Should be 0.
-                    'timedue' => COMPLETION_TIME_UNKNOWN), // 8: Should be anything else.
+                    'timeexpires' => 1003, // 5: Should be 0.
+                    'baselinetimeexpires' => 1003), // 6: Should be 0.
+                array('status' => STATUS_PROGRAM_COMPLETE, // 7: Should be STATUS_PROGRAM_INCOMPLETE.
+                    'timecompleted' => 1004, // 8: Should be 0.
+                    'timedue' => COMPLETION_TIME_UNKNOWN), // 9: Should be anything else.
                 array('error:stateassigned-pathincorrect' => 'certifpath', // 1.
                     'error:stateassigned-timecompletednotempty' => 'timecompleted', // 3.
                     'error:stateassigned-timewindowopensnotempty' => 'timewindowopens', // 4.
                     'error:stateassigned-timeexpiresnotempty' => 'timeexpires', // 5.
-                    'error:stateassigned-progstatusincorrect' => 'progstatus', // 6.
-                    'error:stateassigned-progtimecompletednotempty' => 'progtimecompleted', // 7.
-                    'error:stateassigned-timedueunknown' => 'timedue') // 8.
+                    'error:stateassigned-baselinetimeexpiresnotempty' => 'baselinetimeexpires', // 6.
+                    'error:stateassigned-progstatusincorrect' => 'progstatus', // 7.
+                    'error:stateassigned-progtimecompletednotempty' => 'progtimecompleted', // 8.
+                    'error:stateassigned-timedueunknown' => 'timedue') // 9.
             ),
             // In progress + not due => assigned, problems #2.
             array('in progress not due problems #2',
@@ -399,14 +411,16 @@ class totara_certification_certification_completion_testcase extends reportcache
                     'certifpath' => CERTIFPATH_CERT,
                     'timecompleted' => -1, // 2: Should be 0.
                     'timewindowopens' => -1, // 3: Should be 0.
-                    'timeexpires' => -1), // 4: Should be 0.
+                    'timeexpires' => -1, // 4: Should be 0.
+                    'baselinetimeexpires' => -1), // 5: Should be 0.
                 array('status' => STATUS_PROGRAM_INCOMPLETE,
-                    'timecompleted' => -1, // 5: Should be 0.
+                    'timecompleted' => -1, // 6: Should be 0.
                     'timedue' => 1001),
                 array('error:stateassigned-timecompletednotempty' => 'timecompleted', // 2.
                     'error:stateassigned-timewindowopensnotempty' => 'timewindowopens', // 3.
                     'error:stateassigned-timeexpiresnotempty' => 'timeexpires', // 4.
-                    'error:stateassigned-progtimecompletednotempty' => 'progtimecompleted') // 5.
+                    'error:stateassigned-baselinetimeexpiresnotempty' => 'baselinetimeexpires', // 5.
+                    'error:stateassigned-progtimecompletednotempty' => 'progtimecompleted') // 6.
             ),
             // In progress + not due => assigned, no problems.
             array('in progress not due no problems',
@@ -415,7 +429,8 @@ class totara_certification_certification_completion_testcase extends reportcache
                     'certifpath' => CERTIFPATH_CERT,
                     'timecompleted' => 0,
                     'timewindowopens' => 0,
-                    'timeexpires' => 0),
+                    'timeexpires' => 0,
+                    'baselinetimeexpires' => 0),
                 array('status' => STATUS_PROGRAM_INCOMPLETE,
                     'timecompleted' => 0,
                     'timedue' => COMPLETION_TIME_NOT_SET),
@@ -428,17 +443,19 @@ class totara_certification_certification_completion_testcase extends reportcache
                     'certifpath' => CERTIFPATH_CERT, // 1: Should be CERTIFPATH_RECERT.
                     'timecompleted' => 0, // 3: Should be > 0.
                     'timewindowopens' => 0, // 4: Should be > 0.
-                    'timeexpires' => 0), // 5: Should be > 0.
-                array('status' => STATUS_PROGRAM_INCOMPLETE, // 6: Should be STATUS_PROGRAM_COMPLETE.
-                    'timecompleted' => 0, // 7: Should be > 0.
-                    'timedue' => COMPLETION_TIME_UNKNOWN), // 8: Should be > 0.
+                    'timeexpires' => 0, // 5: Should be > 0.
+                    'baselinetimeexpires' => 0), // 6: Should be > 0.
+                array('status' => STATUS_PROGRAM_INCOMPLETE, // 7: Should be STATUS_PROGRAM_COMPLETE.
+                    'timecompleted' => 0, // 8: Should be > 0.
+                    'timedue' => COMPLETION_TIME_UNKNOWN), // 9: Should be > 0.
                 array('error:statecertified-pathincorrect' => 'certifpath', // 1.
                     'error:statecertified-timecompletedempty' => 'timecompleted', // 3.
                     'error:statecertified-timewindowopensempty' => 'timewindowopens', // 4.
                     'error:statecertified-timeexpiresempty' => 'timeexpires', // 5.
-                    'error:statecertified-progstatusincorrect' => 'progstatus', // 6.
-                    'error:statecertified-progtimecompletedempty' => 'progtimecompleted', // 7.
-                    'error:statecertified-timedueempty' => 'timedue') // 8.
+                    'error:statecertified-baselinetimeexpiresempty' => 'baselinetimeexpires', // 6.
+                    'error:statecertified-progstatusincorrect' => 'progstatus', // 7.
+                    'error:statecertified-progtimecompletedempty' => 'progtimecompleted', // 8.
+                    'error:statecertified-timedueempty' => 'timedue') // 9.
             ),
             // Completed + not due => certified, problems #2.
             array('certified not due problems #2',
@@ -447,15 +464,17 @@ class totara_certification_certification_completion_testcase extends reportcache
                     'certifpath' => CERTIFPATH_RECERT,
                     'timecompleted' => -1, // 2: Should be > 0.
                     'timewindowopens' => -1, // 3: Should be > 0.
-                    'timeexpires' => -1), // 4: Should be > 0.
+                    'timeexpires' => -1, // 4: Should be > 0.
+                    'baselinetimeexpires' => -1), // 5: Should be > 0.
                 array('status' => STATUS_PROGRAM_COMPLETE,
-                    'timecompleted' => -1, // 5: Should be > 0.
-                    'timedue' => COMPLETION_TIME_NOT_SET), // 8: Should be > 0.
+                    'timecompleted' => -1, // 6: Should be > 0.
+                    'timedue' => COMPLETION_TIME_NOT_SET), // 7: Should be > 0.
                 array('error:statecertified-timecompletedempty' => 'timecompleted', // 2.
                     'error:statecertified-timewindowopensempty' => 'timewindowopens', // 3.
                     'error:statecertified-timeexpiresempty' => 'timeexpires', // 4.
-                    'error:statecertified-progtimecompletedempty' => 'progtimecompleted', // 5.
-                    'error:statecertified-timedueempty' => 'timedue') // 8.
+                    'error:statecertified-baselinetimeexpiresempty' => 'baselinetimeexpires', // 5.
+                    'error:statecertified-progtimecompletedempty' => 'progtimecompleted', // 6.
+                    'error:statecertified-timedueempty' => 'timedue') // 7.
             ),
             // Completed + not due => certified, problems #3.
             array('certified not due problems #3',
@@ -464,14 +483,16 @@ class totara_certification_certification_completion_testcase extends reportcache
                     'certifpath' => CERTIFPATH_RECERT,
                     'timecompleted' => 1003,
                     'timewindowopens' => 1002, // 1: Should be >= timecompleted.
-                    'timeexpires' => 1001), // 2: Should be >= timewindowopens.
+                    'timeexpires' => 1001, // 2: Should be >= timewindowopens.
+                    'baselinetimeexpires' => 1001), // 3: Should be >= timewindowopens.
                 array('status' => STATUS_PROGRAM_COMPLETE,
-                    'timecompleted' => 1006000, // 3: TL-8341: Should be equal to cert timecompleted.
-                    'timedue' => 1004), // 4: Should be equal to cert timeexpires.
+                    'timecompleted' => 1006000, // 4: TL-8341: Should be equal to cert timecompleted.
+                    'timedue' => 1004), // 5: Should be equal to cert timeexpires.
                 array('error:statecertified-timewindowopenstimecompletednotordered' => 'timewindowopens', // 1.
                     'error:statecertified-timeexpirestimewindowopensnotordered' => 'timeexpires', // 2.
-                    'error:statecertified-certprogtimecompleteddifferent' => 'progtimecompleted', // 3.
-                    'error:statecertified-timeexpirestimeduedifferent' => 'timedue') // 4.
+                    'error:statecertified-baselinetimeexpirestimewindowopensnotordered' => 'baselinetimeexpires', // 3.
+                    'error:statecertified-certprogtimecompleteddifferent' => 'progtimecompleted', // 4.
+                    'error:statecertified-timeexpirestimeduedifferent' => 'timedue') // 5.
             ),
             // Completed + not due => certified, no problems.
             array('certified not due no problems',
@@ -480,7 +501,8 @@ class totara_certification_certification_completion_testcase extends reportcache
                     'certifpath' => CERTIFPATH_RECERT,
                     'timecompleted' => 1001,
                     'timewindowopens' => 1002,
-                    'timeexpires' => 1003),
+                    'timeexpires' => 1003,
+                    'baselinetimeexpires' => 1003),
                 array('status' => STATUS_PROGRAM_COMPLETE,
                     'timecompleted' => 1001,
                     'timedue' => 1003),
@@ -493,7 +515,8 @@ class totara_certification_certification_completion_testcase extends reportcache
                     'certifpath' => CERTIFPATH_RECERT,
                     'timecompleted' => 1001,
                     'timewindowopens' => 1002,
-                    'timeexpires' => 1003),
+                    'timeexpires' => 1003,
+                    'baselinetimeexpires' => 1003),
                 array('status' => STATUS_PROGRAM_COMPLETE,
                     'timecompleted' => 1001,
                     'timedue' => 1003),
@@ -506,17 +529,19 @@ class totara_certification_certification_completion_testcase extends reportcache
                     'certifpath' => CERTIFPATH_CERT, // 1: Should be CERTIFPATH_RECERT.
                     'timecompleted' => 0, // 3: Should be > 0.
                     'timewindowopens' => 0, // 4: Should be > 0.
-                    'timeexpires' => 0), // 5: Should be > 0.
-                array('status' => STATUS_PROGRAM_COMPLETE, // 6: Should be STATUS_PROGRAM_INCOMPLETE.
-                    'timecompleted' => 1001, // 7: Should be 0.
-                    'timedue' => 0), // 8: Should be > 0.
+                    'timeexpires' => 0, // 5: Should be > 0.
+                    'baselinetimeexpires' => 0), // 6: Should be > 0.
+                array('status' => STATUS_PROGRAM_COMPLETE, // 7: Should be STATUS_PROGRAM_INCOMPLETE.
+                    'timecompleted' => 1001, // 8: Should be 0.
+                    'timedue' => 0), // 9: Should be > 0.
                 array('error:statewindowopen-pathincorrect' => 'certifpath', // 1.
                     'error:statewindowopen-timecompletedempty' => 'timecompleted', // 3.
                     'error:statewindowopen-timewindowopensempty' => 'timewindowopens', // 4.
                     'error:statewindowopen-timeexpiresempty' => 'timeexpires', // 5.
-                    'error:statewindowopen-progstatusincorrect' => 'progstatus', // 6.
-                    'error:statewindowopen-progtimecompletednotempty' => 'progtimecompleted', // 7.
-                    'error:statewindowopen-timedueempty' => 'timedue') // 8.
+                    'error:statewindowopen-baselinetimeexpiresempty' => 'baselinetimeexpires', // 6.
+                    'error:statewindowopen-progstatusincorrect' => 'progstatus', // 7.
+                    'error:statewindowopen-progtimecompletednotempty' => 'progtimecompleted', // 8.
+                    'error:statewindowopen-timedueempty' => 'timedue') // 9.
             ),
             // Completed + due => window open, problems #2.
             array('certified due problems #2',
@@ -525,14 +550,16 @@ class totara_certification_certification_completion_testcase extends reportcache
                     'certifpath' => CERTIFPATH_RECERT,
                     'timecompleted' => -1, // 2: Should be > 0.
                     'timewindowopens' => -1, // 3: Should be > 0.
-                    'timeexpires' => -1), // 4: Should be > 0.
+                    'timeexpires' => -1, // 4: Should be > 0.
+                    'baselinetimeexpires' => -1), // 5: Should be > 0.
                 array('status' => STATUS_PROGRAM_INCOMPLETE,
-                    'timecompleted' => -1, // 5: Should be 0.
+                    'timecompleted' => -1, // 6: Should be 0.
                     'timedue' => -1), // 8: Should be > 0.
                 array('error:statewindowopen-timecompletedempty' => 'timecompleted', // 2.
                     'error:statewindowopen-timewindowopensempty' => 'timewindowopens', // 3.
                     'error:statewindowopen-timeexpiresempty' => 'timeexpires', // 4.
-                    'error:statewindowopen-progtimecompletednotempty' => 'progtimecompleted', // 5.
+                    'error:statewindowopen-baselinetimeexpiresempty' => 'baselinetimeexpires', // 5.
+                    'error:statewindowopen-progtimecompletednotempty' => 'progtimecompleted', // 6.
                     'error:statewindowopen-timedueempty' => 'timedue') // 8.
             ),
             // Completed + due => window open, problems #3.
@@ -542,12 +569,14 @@ class totara_certification_certification_completion_testcase extends reportcache
                     'certifpath' => CERTIFPATH_RECERT,
                     'timecompleted' => 1003,
                     'timewindowopens' => 1002, // 1: Should be >= timecompleted.
-                    'timeexpires' => 1001), // 2: Should be >= timewindowopens.
+                    'timeexpires' => 1001, // 2: Should be >= timewindowopens.
+                    'baselinetimeexpires' => 1001), // 3: Should be >= timewindowopens.
                 array('status' => STATUS_PROGRAM_INCOMPLETE,
                     'timecompleted' => 0,
                     'timedue' => 1004), // 4: Should be same as timeexpires.
                 array('error:statewindowopen-timewindowopenstimecompletednotordered' => 'timewindowopens', // 1.
                     'error:statewindowopen-timeexpirestimewindowopensnotordered' => 'timeexpires', // 2.
+                    'error:statewindowopen-baselinetimeexpirestimewindowopensnotordered' => 'baselinetimeexpires', // 3.
                     'error:statewindowopen-timeexpirestimeduedifferent' => 'timedue') // 4.
             ),
             // Completed + due => window open, no problems.
@@ -557,7 +586,8 @@ class totara_certification_certification_completion_testcase extends reportcache
                     'certifpath' => CERTIFPATH_RECERT,
                     'timecompleted' => 1001,
                     'timewindowopens' => 1002,
-                    'timeexpires' => 1003),
+                    'timeexpires' => 1003,
+                    'baselinetimeexpires' => 1003),
                 array('status' => STATUS_PROGRAM_INCOMPLETE,
                     'timecompleted' => 0,
                     'timedue' => 1003),
@@ -570,17 +600,19 @@ class totara_certification_certification_completion_testcase extends reportcache
                     'certifpath' => CERTIFPATH_CERT, // 1: Should be CERTIFPATH_RECERT.
                     'timecompleted' => 0, // 3: Should be > 0.
                     'timewindowopens' => 0, // 4: Should be > 0.
-                    'timeexpires' => 0), // 5: Should be > 0.
-                array('status' => STATUS_PROGRAM_COMPLETE, // 6: Should be STATUS_PROGRAM_INCOMPLETE.
-                    'timecompleted' => 1001, // 7: Should be 0.
-                    'timedue' => 0), // 8: Should be > 0.
+                    'timeexpires' => 0, // 5: Should be > 0.
+                    'baselinetimeexpires' => 0), // 6: Should be > 0.
+                array('status' => STATUS_PROGRAM_COMPLETE, // 7: Should be STATUS_PROGRAM_INCOMPLETE.
+                    'timecompleted' => 1001, // 8: Should be 0.
+                    'timedue' => 0), // 9: Should be > 0.
                 array('error:statewindowopen-pathincorrect' => 'certifpath', // 1.
                     'error:statewindowopen-timecompletedempty' => 'timecompleted', // 3.
                     'error:statewindowopen-timewindowopensempty' => 'timewindowopens', // 4.
                     'error:statewindowopen-timeexpiresempty' => 'timeexpires', // 5.
-                    'error:statewindowopen-progstatusincorrect' => 'progstatus', // 6.
-                    'error:statewindowopen-progtimecompletednotempty' => 'progtimecompleted', // 7.
-                    'error:statewindowopen-timedueempty' => 'timedue') // 8.
+                    'error:statewindowopen-baselinetimeexpiresempty' => 'baselinetimeexpires', // 6.
+                    'error:statewindowopen-progstatusincorrect' => 'progstatus', // 7.
+                    'error:statewindowopen-progtimecompletednotempty' => 'progtimecompleted', // 8.
+                    'error:statewindowopen-timedueempty' => 'timedue') // 9.
             ),
             // In progress + due => window open, problems #2.
             array('in progress due problems #2',
@@ -589,14 +621,16 @@ class totara_certification_certification_completion_testcase extends reportcache
                     'certifpath' => CERTIFPATH_RECERT,
                     'timecompleted' => -1, // 2: Should be > 0.
                     'timewindowopens' => -1, // 3: Should be > 0.
-                    'timeexpires' => -1), // 4: Should be > 0.
+                    'timeexpires' => -1, // 4: Should be > 0.
+                    'baselinetimeexpires' => -1), // 5: Should be > 0.
                 array('status' => STATUS_PROGRAM_INCOMPLETE,
-                    'timecompleted' => -1, // 5: Should be 0.
+                    'timecompleted' => -1, // 6: Should be 0.
                     'timedue' => -1), // 8: Should be > 0.
                 array('error:statewindowopen-timecompletedempty' => 'timecompleted', // 2.
                     'error:statewindowopen-timewindowopensempty' => 'timewindowopens', // 3.
                     'error:statewindowopen-timeexpiresempty' => 'timeexpires', // 4.
-                    'error:statewindowopen-progtimecompletednotempty' => 'progtimecompleted', // 5.
+                    'error:statewindowopen-baselinetimeexpiresempty' => 'baselinetimeexpires', // 5.
+                    'error:statewindowopen-progtimecompletednotempty' => 'progtimecompleted', // 6.
                     'error:statewindowopen-timedueempty' => 'timedue') // 8.
             ),
             // In progress + due => window open, problems #3.
@@ -606,12 +640,14 @@ class totara_certification_certification_completion_testcase extends reportcache
                     'certifpath' => CERTIFPATH_RECERT,
                     'timecompleted' => 1003,
                     'timewindowopens' => 1002, // 1: Should be >= timecompleted.
-                    'timeexpires' => 1001), // 2: Should be >= timewindowopens.
+                    'timeexpires' => 1001, // 2: Should be >= timewindowopens.
+                    'baselinetimeexpires' => 1001), // 3: Should be >= timewindowopens.
                 array('status' => STATUS_PROGRAM_INCOMPLETE,
                     'timecompleted' => 0,
                     'timedue' => 1004), // 4: Should be same as timeexpires.
                 array('error:statewindowopen-timewindowopenstimecompletednotordered' => 'timewindowopens', // 1.
                     'error:statewindowopen-timeexpirestimewindowopensnotordered' => 'timeexpires', // 2.
+                    'error:statewindowopen-baselinetimeexpirestimewindowopensnotordered' => 'baselinetimeexpires', // 2.
                     'error:statewindowopen-timeexpirestimeduedifferent' => 'timedue') // 4.
             ),
             // In progress + due => window open, no problems.
@@ -621,7 +657,8 @@ class totara_certification_certification_completion_testcase extends reportcache
                     'certifpath' => CERTIFPATH_RECERT,
                     'timecompleted' => 1001,
                     'timewindowopens' => 1002,
-                    'timeexpires' => 1003),
+                    'timeexpires' => 1003,
+                    'baselinetimeexpires' => 1003),
                 array('status' => STATUS_PROGRAM_INCOMPLETE,
                     'timecompleted' => 0,
                     'timedue' => 1003),
@@ -634,18 +671,20 @@ class totara_certification_certification_completion_testcase extends reportcache
                     'certifpath' => CERTIFPATH_RECERT, // 2: Should be CERTIFPATH_CERT.
                     'timecompleted' => 1001, // 3: Should be 0.
                     'timewindowopens' => 1002, // 4: Should be 0.
-                    'timeexpires' => 1003), // 5: Should be 0.
-                array('status' => STATUS_PROGRAM_COMPLETE, // 6: Should be STATUS_PROGRAM_INCOMPLETE.
-                    'timecompleted' => 1004, // 7: Should be 0.
-                    'timedue' => COMPLETION_TIME_UNKNOWN), // 8: Should be > 0.
+                    'timeexpires' => 1003, // 5: Should be 0.
+                    'baselinetimeexpires' => 1003), // 6: Should be 0.
+                array('status' => STATUS_PROGRAM_COMPLETE, // 7: Should be STATUS_PROGRAM_INCOMPLETE.
+                    'timecompleted' => 1004, // 8: Should be 0.
+                    'timedue' => COMPLETION_TIME_UNKNOWN), // 9: Should be > 0.
                 array('error:stateexpired-renewalstatusincorrect' => 'renewalstatus', // 1.
                     'error:stateexpired-pathincorrect' => 'certifpath', // 2.
                     'error:stateexpired-timecompletednotempty' => 'timecompleted', // 3.
                     'error:stateexpired-timewindowopensnotempty' => 'timewindowopens', // 4.
                     'error:stateexpired-timeexpiresnotempty' => 'timeexpires', // 5.
-                    'error:stateexpired-progstatusincorrect' => 'progstatus', // 6.
-                    'error:stateexpired-progtimecompletednotempty' => 'progtimecompleted', // 7.
-                    'error:stateexpired-timedueempty' => 'timedue') // 8.
+                    'error:stateexpired-baselinetimeexpiresnotempty' => 'baselinetimeexpires', // 6.
+                    'error:stateexpired-progstatusincorrect' => 'progstatus', // 7.
+                    'error:stateexpired-progtimecompletednotempty' => 'progtimecompleted', // 8.
+                    'error:stateexpired-timedueempty' => 'timedue') // 9.
             ),
             // Expired, problems #2.
             array('expired problems #2',
@@ -654,15 +693,17 @@ class totara_certification_certification_completion_testcase extends reportcache
                     'certifpath' => CERTIFPATH_CERT,
                     'timecompleted' => -1, // 2: Should be 0.
                     'timewindowopens' => -1, // 3: Should be 0.
-                    'timeexpires' => -1), // 4: Should be 0.
+                    'timeexpires' => -1, // 4: Should be 0.
+                    'baselinetimeexpires' => -1), // 5: Should be 0.
                 array('status' => STATUS_PROGRAM_INCOMPLETE,
-                    'timecompleted' => -1, // 5: Should be 0.
+                    'timecompleted' => -1, // 6: Should be 0.
                     'timedue' => COMPLETION_TIME_NOT_SET), // 8: Should be > 0.
                 array('error:stateexpired-renewalstatusincorrect' => 'renewalstatus', // 1.
                     'error:stateexpired-timecompletednotempty' => 'timecompleted', // 2.
                     'error:stateexpired-timewindowopensnotempty' => 'timewindowopens', // 3.
                     'error:stateexpired-timeexpiresnotempty' => 'timeexpires', // 4.
-                    'error:stateexpired-progtimecompletednotempty' => 'progtimecompleted', // 5.
+                    'error:stateexpired-baselinetimeexpiresnotempty' => 'baselinetimeexpires', // 5.
+                    'error:stateexpired-progtimecompletednotempty' => 'progtimecompleted', // 6.
                     'error:stateexpired-timedueempty' => 'timedue') // 8.
             ),
             // Expired, no problems.
@@ -672,7 +713,8 @@ class totara_certification_certification_completion_testcase extends reportcache
                     'certifpath' => CERTIFPATH_CERT,
                     'timecompleted' => 0,
                     'timewindowopens' => 0,
-                    'timeexpires' => 0),
+                    'timeexpires' => 0,
+                    'baselinetimeexpires' => 0),
                 array('status' => STATUS_PROGRAM_INCOMPLETE,
                     'timecompleted' => 0,
                     'timedue' => 1001),
@@ -685,17 +727,19 @@ class totara_certification_certification_completion_testcase extends reportcache
                     'certifpath' => CERTIFPATH_RECERT, // 2: Should be CERTIFPATH_CERT.
                     'timecompleted' => 1001, // 3: Should be 0.
                     'timewindowopens' => 1002, // 4: Should be 0.
-                    'timeexpires' => 1003), // 5: Should be 0.
-                array('status' => STATUS_PROGRAM_COMPLETE, // 6: Should be STATUS_PROGRAM_INCOMPLETE.
-                    'timecompleted' => 1004, // 7: Should be 0.
-                    'timedue' => COMPLETION_TIME_UNKNOWN), // 8: Should be > 0.
+                    'timeexpires' => 1003, // 5: Should be 0.
+                    'baselinetimeexpires' => 1003), // 6: Should be 0.
+                array('status' => STATUS_PROGRAM_COMPLETE, // 7: Should be STATUS_PROGRAM_INCOMPLETE.
+                    'timecompleted' => 1004, // 8: Should be 0.
+                    'timedue' => COMPLETION_TIME_UNKNOWN), // 9: Should be > 0.
                 array('error:stateexpired-pathincorrect' => 'certifpath', // 2.
                     'error:stateexpired-timecompletednotempty' => 'timecompleted', // 3.
                     'error:stateexpired-timewindowopensnotempty' => 'timewindowopens', // 4.
                     'error:stateexpired-timeexpiresnotempty' => 'timeexpires', // 5.
-                    'error:stateexpired-progstatusincorrect' => 'progstatus', // 6.
-                    'error:stateexpired-progtimecompletednotempty' => 'progtimecompleted', // 7.
-                    'error:stateexpired-timedueempty' => 'timedue') // 8.
+                    'error:stateexpired-baselinetimeexpiresnotempty' => 'baselinetimeexpires', // 6.
+                    'error:stateexpired-progstatusincorrect' => 'progstatus', // 7.
+                    'error:stateexpired-progtimecompletednotempty' => 'progtimecompleted', // 8.
+                    'error:stateexpired-timedueempty' => 'timedue') // 9.
             ),
             // In progress + expired => expired, problems #2.
             array('expired problems #2',
@@ -704,14 +748,16 @@ class totara_certification_certification_completion_testcase extends reportcache
                     'certifpath' => CERTIFPATH_CERT,
                     'timecompleted' => -1, // 2: Should be 0.
                     'timewindowopens' => -1, // 3: Should be 0.
-                    'timeexpires' => -1), // 4: Should be 0.
+                    'timeexpires' => -1, // 4: Should be 0.
+                    'baselinetimeexpires' => -1), // 5: Should be 0.
                 array('status' => STATUS_PROGRAM_INCOMPLETE,
-                    'timecompleted' => -1, // 5: Should be 0.
+                    'timecompleted' => -1, // 6: Should be 0.
                     'timedue' => COMPLETION_TIME_NOT_SET), // 8: Should be > 0.
                 array('error:stateexpired-timecompletednotempty' => 'timecompleted', // 2.
                     'error:stateexpired-timewindowopensnotempty' => 'timewindowopens', // 3.
                     'error:stateexpired-timeexpiresnotempty' => 'timeexpires', // 4.
-                    'error:stateexpired-progtimecompletednotempty' => 'progtimecompleted', // 5.
+                    'error:stateexpired-baselinetimeexpiresnotempty' => 'baselinetimeexpires', // 5.
+                    'error:stateexpired-progtimecompletednotempty' => 'progtimecompleted', // 6.
                     'error:stateexpired-timedueempty' => 'timedue') // 8.
             ),
             // In progress + expired => expired, no problems.
@@ -721,7 +767,8 @@ class totara_certification_certification_completion_testcase extends reportcache
                     'certifpath' => CERTIFPATH_CERT,
                     'timecompleted' => 0,
                     'timewindowopens' => 0,
-                    'timeexpires' => 0),
+                    'timeexpires' => 0,
+                    'baselinetimeexpires' => 0),
                 array('status' => STATUS_PROGRAM_INCOMPLETE,
                     'timecompleted' => 0,
                     'timedue' => 1001),
@@ -752,7 +799,8 @@ class totara_certification_certification_completion_testcase extends reportcache
                     'userid' => 0,
                     'status' => CERTIFSTATUS_UNSET,
                     'timecompleted' => 0,
-                    'timeexpires' => 0),
+                    'timeexpires' => 0,
+                    'baselinetimeexpires' => 0),
                 array('error:completionstatusunset' => 'state')
             ),
             // Assigned, problems #1.
@@ -765,12 +813,14 @@ class totara_certification_certification_completion_testcase extends reportcache
                     'certifpath' => CERTIFPATH_RECERT, // 2: Should be CERTIFPATH_CERT.
                     'timecompleted' => 1001, // 3: Should be 0.
                     'timewindowopens' => 1002, // 4: Should be 0.
-                    'timeexpires' => 1003), // 5: Should be 0.
+                    'timeexpires' => 1003, // 5: Should be 0.
+                    'baselinetimeexpires' => 1003), // 6: Should be 0.
                 array('error:stateassigned-renewalstatusincorrect' => 'renewalstatus', // 1.
                     'error:stateassigned-pathincorrect' => 'certifpath', // 2.
                     'error:stateassigned-timecompletednotempty' => 'timecompleted', // 3.
                     'error:stateassigned-timewindowopensnotempty' => 'timewindowopens', // 4.
-                    'error:stateassigned-timeexpiresnotempty' => 'timeexpires') // 5.
+                    'error:stateassigned-timeexpiresnotempty' => 'timeexpires', // 5.
+                    'error:stateassigned-baselinetimeexpiresnotempty' => 'baselinetimeexpires') // 6.
             ),
             // Assigned, problems #2.
             array('assigned problems #2',
@@ -782,11 +832,13 @@ class totara_certification_certification_completion_testcase extends reportcache
                     'certifpath' => CERTIFPATH_CERT,
                     'timecompleted' => -1, // 2: Should be 0.
                     'timewindowopens' => -1, // 3: Should be 0.
-                    'timeexpires' => -1), // 4: Should be 0.
+                    'timeexpires' => -1, // 4: Should be 0.
+                    'baselinetimeexpires' => -1), // 5: Should be 0.
                 array('error:stateassigned-renewalstatusincorrect' => 'renewalstatus', // 1.
                     'error:stateassigned-timecompletednotempty' => 'timecompleted', // 2.
                     'error:stateassigned-timewindowopensnotempty' => 'timewindowopens', // 3.
-                    'error:stateassigned-timeexpiresnotempty' => 'timeexpires') // 4.
+                    'error:stateassigned-timeexpiresnotempty' => 'timeexpires', // 4.
+                    'error:stateassigned-baselinetimeexpiresnotempty' => 'baselinetimeexpires') // 5.
             ),
             // Assigned, no problems.
             array('assigned no problems',
@@ -798,7 +850,8 @@ class totara_certification_certification_completion_testcase extends reportcache
                     'certifpath' => CERTIFPATH_CERT,
                     'timecompleted' => 0,
                     'timewindowopens' => 0,
-                    'timeexpires' => 0),
+                    'timeexpires' => 0,
+                    'baselinetimeexpires' => 0),
                 array()
             ),
             // In progress + not due => assigned, problems #1.
@@ -811,11 +864,13 @@ class totara_certification_certification_completion_testcase extends reportcache
                     'certifpath' => CERTIFPATH_RECERT, // 1: Should be CERTIFPATH_CERT.
                     'timecompleted' => 1001, // 3: Should be 0.
                     'timewindowopens' => 1002, // 4: Should be 0.
-                    'timeexpires' => 1003), // 5: Should be 0.
+                    'timeexpires' => 1003, // 5: Should be 0.
+                    'baselinetimeexpires' => 1003), // 6: Should be 0.
                 array('error:stateassigned-pathincorrect' => 'certifpath', // 1.
                     'error:stateassigned-timecompletednotempty' => 'timecompleted', // 3.
                     'error:stateassigned-timewindowopensnotempty' => 'timewindowopens', // 4.
-                    'error:stateassigned-timeexpiresnotempty' => 'timeexpires') // 5.
+                    'error:stateassigned-timeexpiresnotempty' => 'timeexpires', // 5.
+                    'error:stateassigned-baselinetimeexpiresnotempty' => 'baselinetimeexpires') // 6.
             ),
             // In progress + not due => assigned, problems #2.
             array('in progress not due problems #2',
@@ -827,10 +882,12 @@ class totara_certification_certification_completion_testcase extends reportcache
                     'certifpath' => CERTIFPATH_CERT,
                     'timecompleted' => -1, // 2: Should be 0.
                     'timewindowopens' => -1, // 3: Should be 0.
-                    'timeexpires' => -1), // 4: Should be 0.
+                    'timeexpires' => -1, // 4: Should be 0.
+                    'baselinetimeexpires' => -1), // 5: Should be 0.
                 array('error:stateassigned-timecompletednotempty' => 'timecompleted', // 2.
                     'error:stateassigned-timewindowopensnotempty' => 'timewindowopens', // 3.
-                    'error:stateassigned-timeexpiresnotempty' => 'timeexpires') // 4.
+                    'error:stateassigned-timeexpiresnotempty' => 'timeexpires', // 4.
+                    'error:stateassigned-baselinetimeexpiresnotempty' => 'baselinetimeexpires') // 5.
             ),
             // In progress + not due => assigned, no problems.
             array('in progress not due no problems',
@@ -842,7 +899,8 @@ class totara_certification_certification_completion_testcase extends reportcache
                     'certifpath' => CERTIFPATH_CERT,
                     'timecompleted' => 0,
                     'timewindowopens' => 0,
-                    'timeexpires' => 0),
+                    'timeexpires' => 0,
+                    'baselinetimeexpires' => 0),
                 array()
             ),
             // Completed + not due => certified, problems #1.
@@ -855,11 +913,13 @@ class totara_certification_certification_completion_testcase extends reportcache
                     'certifpath' => CERTIFPATH_CERT, // 1: Should be CERTIFPATH_RECERT.
                     'timecompleted' => 0, // 3: Should be > 0.
                     'timewindowopens' => 0, // 4: Should be > 0.
-                    'timeexpires' => 0), // 5: Should be > 0.
+                    'timeexpires' => 0, // 5: Should be > 0.
+                    'baselinetimeexpires' => 0), // 6: Should be > 0.
                 array('error:statecertified-pathincorrect' => 'certifpath', // 1.
                     'error:statecertified-timecompletedempty' => 'timecompleted', // 3.
                     'error:statecertified-timewindowopensempty' => 'timewindowopens', // 4.
-                    'error:statecertified-timeexpiresempty' => 'timeexpires') // 5.
+                    'error:statecertified-timeexpiresempty' => 'timeexpires', // 5.
+                    'error:statecertified-baselinetimeexpiresempty' => 'baselinetimeexpires') // 6.
             ),
             // Completed + not due => certified, problems #2.
             array('certified not due problems #2',
@@ -871,10 +931,12 @@ class totara_certification_certification_completion_testcase extends reportcache
                     'certifpath' => CERTIFPATH_RECERT,
                     'timecompleted' => -1, // 2: Should be > 0.
                     'timewindowopens' => -1, // 3: Should be > 0.
-                    'timeexpires' => -1), // 4: Should be > 0.
+                    'timeexpires' => -1, // 4: Should be > 0.
+                    'baselinetimeexpires' => -1), // 4: Should be > 0.
                 array('error:statecertified-timecompletedempty' => 'timecompleted', // 2.
                     'error:statecertified-timewindowopensempty' => 'timewindowopens', // 3.
-                    'error:statecertified-timeexpiresempty' => 'timeexpires') // 4.
+                    'error:statecertified-timeexpiresempty' => 'timeexpires', // 4.
+                    'error:statecertified-baselinetimeexpiresempty' => 'baselinetimeexpires') // 4.
             ),
             // Completed + not due => certified, problems #3.
             array('certified not due problems #3',
@@ -886,9 +948,11 @@ class totara_certification_certification_completion_testcase extends reportcache
                     'certifpath' => CERTIFPATH_RECERT,
                     'timecompleted' => 1003,
                     'timewindowopens' => 1002, // 1: Should be >= timecompleted.
-                    'timeexpires' => 1001), // 2: Should be >= timewindowopens.
+                    'timeexpires' => 1001, // 2: Should be >= timewindowopens.
+                    'baselinetimeexpires' => 1001), // 3: Should be >= timewindowopens.
                 array('error:statecertified-timewindowopenstimecompletednotordered' => 'timewindowopens', // 1.
-                    'error:statecertified-timeexpirestimewindowopensnotordered' => 'timeexpires') // 2.
+                    'error:statecertified-timeexpirestimewindowopensnotordered' => 'timeexpires', // 2.
+                    'error:statecertified-baselinetimeexpirestimewindowopensnotordered' => 'baselinetimeexpires') // 3.
             ),
             // Completed + not due => certified, no problems.
             array('certified not due no problems',
@@ -900,7 +964,8 @@ class totara_certification_certification_completion_testcase extends reportcache
                     'certifpath' => CERTIFPATH_RECERT,
                     'timecompleted' => 1001,
                     'timewindowopens' => 1002,
-                    'timeexpires' => 1003),
+                    'timeexpires' => 1003,
+                    'baselinetimeexpires' => 1003),
                 array()
             ),
             // Completed + expired => certified, one big problem. This can never be valid.
@@ -913,7 +978,8 @@ class totara_certification_certification_completion_testcase extends reportcache
                     'certifpath' => CERTIFPATH_RECERT,
                     'timecompleted' => 1001,
                     'timewindowopens' => 1002,
-                    'timeexpires' => 1003),
+                    'timeexpires' => 1003,
+                    'baselinetimeexpires' => 1003),
                 array('error:statecertified-renewalstatusincorrect' => 'renewalstatus') // 1.
             ),
             // Completed + due => window open, problems #1.
@@ -926,11 +992,13 @@ class totara_certification_certification_completion_testcase extends reportcache
                     'certifpath' => CERTIFPATH_CERT, // 1: Should be CERTIFPATH_RECERT.
                     'timecompleted' => 0, // 3: Should be > 0.
                     'timewindowopens' => 0, // 4: Should be > 0.
-                    'timeexpires' => 0), // 5: Should be > 0.
+                    'timeexpires' => 0, // 5: Should be > 0.
+                    'baselinetimeexpires' => 0), // 6: Should be > 0.
                 array('error:statewindowopen-pathincorrect' => 'certifpath', // 1.
                     'error:statewindowopen-timecompletedempty' => 'timecompleted', // 3.
                     'error:statewindowopen-timewindowopensempty' => 'timewindowopens', // 4.
-                    'error:statewindowopen-timeexpiresempty' => 'timeexpires') // 5.
+                    'error:statewindowopen-timeexpiresempty' => 'timeexpires', // 5.
+                    'error:statewindowopen-baselinetimeexpiresempty' => 'baselinetimeexpires') // 6.
             ),
             // Completed + due => window open, problems #2.
             array('certified due problems #2',
@@ -942,10 +1010,12 @@ class totara_certification_certification_completion_testcase extends reportcache
                     'certifpath' => CERTIFPATH_RECERT,
                     'timecompleted' => -1, // 2: Should be > 0.
                     'timewindowopens' => -1, // 3: Should be > 0.
-                    'timeexpires' => -1), // 4: Should be > 0.
+                    'timeexpires' => -1, // 4: Should be > 0.
+                    'baselinetimeexpires' => -1), // 5: Should be > 0.
                 array('error:statewindowopen-timecompletedempty' => 'timecompleted', // 2.
                     'error:statewindowopen-timewindowopensempty' => 'timewindowopens', // 3.
-                    'error:statewindowopen-timeexpiresempty' => 'timeexpires') // 4.
+                    'error:statewindowopen-timeexpiresempty' => 'timeexpires', // 4.
+                    'error:statewindowopen-baselinetimeexpiresempty' => 'baselinetimeexpires') // 5.
             ),
             // Completed + due => window open, problems #3.
             array('certified due problems #3',
@@ -957,9 +1027,11 @@ class totara_certification_certification_completion_testcase extends reportcache
                     'certifpath' => CERTIFPATH_RECERT,
                     'timecompleted' => 1003,
                     'timewindowopens' => 1002, // 1: Should be >= timecompleted.
-                    'timeexpires' => 1001), // 2: Should be >= timewindowopens.
+                    'timeexpires' => 1001, // 2: Should be >= timewindowopens.
+                    'baselinetimeexpires' => 1001), // 3: Should be >= timewindowopens.
                 array('error:statewindowopen-timewindowopenstimecompletednotordered' => 'timewindowopens', // 1.
-                    'error:statewindowopen-timeexpirestimewindowopensnotordered' => 'timeexpires') // 2.
+                    'error:statewindowopen-timeexpirestimewindowopensnotordered' => 'timeexpires', // 2.
+                    'error:statewindowopen-baselinetimeexpirestimewindowopensnotordered' => 'baselinetimeexpires') // 3.
             ),
             // Completed + due => window open, no problems.
             array('certified due no problems',
@@ -971,7 +1043,8 @@ class totara_certification_certification_completion_testcase extends reportcache
                     'certifpath' => CERTIFPATH_RECERT,
                     'timecompleted' => 1001,
                     'timewindowopens' => 1002,
-                    'timeexpires' => 1003),
+                    'timeexpires' => 1003,
+                    'baselinetimeexpires' => 1003),
                 array()
             ),
             // In progress + due => window open, problems #1.
@@ -984,11 +1057,13 @@ class totara_certification_certification_completion_testcase extends reportcache
                     'certifpath' => CERTIFPATH_CERT, // 1: Should be CERTIFPATH_RECERT.
                     'timecompleted' => 0, // 3: Should be > 0.
                     'timewindowopens' => 0, // 4: Should be > 0.
-                    'timeexpires' => 0), // 5: Should be > 0.
+                    'timeexpires' => 0, // 5: Should be > 0.
+                    'baselinetimeexpires' => 0), // 6: Should be > 0.
                 array('error:statewindowopen-pathincorrect' => 'certifpath', // 1.
                     'error:statewindowopen-timecompletedempty' => 'timecompleted', // 3.
                     'error:statewindowopen-timewindowopensempty' => 'timewindowopens', // 4.
-                    'error:statewindowopen-timeexpiresempty' => 'timeexpires') // 5.
+                    'error:statewindowopen-timeexpiresempty' => 'timeexpires', // 5.
+                    'error:statewindowopen-baselinetimeexpiresempty' => 'baselinetimeexpires') // 6.
             ),
             // In progress + due => window open, problems #2.
             array('in progress due problems #2',
@@ -1000,10 +1075,12 @@ class totara_certification_certification_completion_testcase extends reportcache
                     'certifpath' => CERTIFPATH_RECERT,
                     'timecompleted' => -1, // 2: Should be > 0.
                     'timewindowopens' => -1, // 3: Should be > 0.
-                    'timeexpires' => -1), // 4: Should be > 0.
+                    'timeexpires' => -1, // 4: Should be > 0.
+                    'baselinetimeexpires' => -1), // 5: Should be > 0.
                 array('error:statewindowopen-timecompletedempty' => 'timecompleted', // 2.
                     'error:statewindowopen-timewindowopensempty' => 'timewindowopens', // 3.
-                    'error:statewindowopen-timeexpiresempty' => 'timeexpires') // 4.
+                    'error:statewindowopen-timeexpiresempty' => 'timeexpires', // 4.
+                    'error:statewindowopen-baselinetimeexpiresempty' => 'baselinetimeexpires') // 5.
             ),
             // In progress + due => window open, problems #3.
             array('in progress due problems #3',
@@ -1015,9 +1092,11 @@ class totara_certification_certification_completion_testcase extends reportcache
                     'certifpath' => CERTIFPATH_RECERT,
                     'timecompleted' => 1003,
                     'timewindowopens' => 1002, // 1: Should be >= timecompleted.
-                    'timeexpires' => 1001), // 2: Should be >= timewindowopens.
+                    'timeexpires' => 1001, // 2: Should be >= timewindowopens.
+                    'baselinetimeexpires' => 1001), // 3: Should be >= timewindowopens.
                 array('error:statewindowopen-timewindowopenstimecompletednotordered' => 'timewindowopens', // 1.
-                    'error:statewindowopen-timeexpirestimewindowopensnotordered' => 'timeexpires') // 2.
+                    'error:statewindowopen-timeexpirestimewindowopensnotordered' => 'timeexpires', // 2.
+                    'error:statewindowopen-baselinetimeexpirestimewindowopensnotordered' => 'baselinetimeexpires') // 3.
             ),
             // In progress + due => window open, no problems.
             array('in progress due no problems',
@@ -1029,7 +1108,8 @@ class totara_certification_certification_completion_testcase extends reportcache
                     'certifpath' => CERTIFPATH_RECERT,
                     'timecompleted' => 1001,
                     'timewindowopens' => 1002,
-                    'timeexpires' => 1003),
+                    'timeexpires' => 1003,
+                    'baselinetimeexpires' => 1003),
                 array()
             ),
             // Expired, problems #1.
@@ -1042,12 +1122,14 @@ class totara_certification_certification_completion_testcase extends reportcache
                     'certifpath' => CERTIFPATH_RECERT, // 2: Should be CERTIFPATH_CERT.
                     'timecompleted' => 1001, // 3: Should be 0.
                     'timewindowopens' => 1002, // 4: Should be 0.
-                    'timeexpires' => 1003), // 5: Should be 0.
+                    'timeexpires' => 1003, // 5: Should be 0.
+                    'baselinetimeexpires' => 1003), // 6: Should be 0.
                 array('error:stateexpired-renewalstatusincorrect' => 'renewalstatus', // 1.
                     'error:stateexpired-pathincorrect' => 'certifpath', // 2.
                     'error:stateexpired-timecompletednotempty' => 'timecompleted', // 3.
                     'error:stateexpired-timewindowopensnotempty' => 'timewindowopens', // 4.
-                    'error:stateexpired-timeexpiresnotempty' => 'timeexpires') // 5.
+                    'error:stateexpired-timeexpiresnotempty' => 'timeexpires', // 5.
+                    'error:stateexpired-baselinetimeexpiresnotempty' => 'baselinetimeexpires') // 6.
             ),
             // Expired, problems #2.
             array('expired problems #2',
@@ -1059,11 +1141,13 @@ class totara_certification_certification_completion_testcase extends reportcache
                     'certifpath' => CERTIFPATH_CERT,
                     'timecompleted' => -1, // 2: Should be 0.
                     'timewindowopens' => -1, // 3: Should be 0.
-                    'timeexpires' => -1), // 4: Should be 0.
+                    'timeexpires' => -1, // 4: Should be 0.
+                    'baselinetimeexpires' => -1), // 5: Should be 0.
                 array('error:stateexpired-renewalstatusincorrect' => 'renewalstatus', // 1.
                     'error:stateexpired-timecompletednotempty' => 'timecompleted', // 2.
                     'error:stateexpired-timewindowopensnotempty' => 'timewindowopens', // 3.
-                    'error:stateexpired-timeexpiresnotempty' => 'timeexpires') // 4.
+                    'error:stateexpired-timeexpiresnotempty' => 'timeexpires', // 4.
+                    'error:stateexpired-baselinetimeexpiresnotempty' => 'baselinetimeexpires') // 5.
             ),
             // Expired, no problems.
             array('expired no problems',
@@ -1075,7 +1159,8 @@ class totara_certification_certification_completion_testcase extends reportcache
                     'certifpath' => CERTIFPATH_CERT,
                     'timecompleted' => 0,
                     'timewindowopens' => 0,
-                    'timeexpires' => 0),
+                    'timeexpires' => 0,
+                    'baselinetimeexpires' => 0),
                 array()
             ),
             // In progress + expired => expired, problems #1.
@@ -1088,11 +1173,13 @@ class totara_certification_certification_completion_testcase extends reportcache
                     'certifpath' => CERTIFPATH_RECERT, // 2: Should be CERTIFPATH_CERT.
                     'timecompleted' => 1001, // 3: Should be 0.
                     'timewindowopens' => 1002, // 4: Should be 0.
-                    'timeexpires' => 1003), // 5: Should be 0.
+                    'timeexpires' => 1003, // 5: Should be 0.
+                    'baselinetimeexpires' => 1003), // 6: Should be 0.
                 array('error:stateexpired-pathincorrect' => 'certifpath', // 2.
                     'error:stateexpired-timecompletednotempty' => 'timecompleted', // 3.
                     'error:stateexpired-timewindowopensnotempty' => 'timewindowopens', // 4.
-                    'error:stateexpired-timeexpiresnotempty' => 'timeexpires') // 5.
+                    'error:stateexpired-timeexpiresnotempty' => 'timeexpires', // 5.
+                    'error:stateexpired-baselinetimeexpiresnotempty' => 'baselinetimeexpires') // 6.
             ),
             // In progress + expired => expired, problems #2.
             array('expired problems #2',
@@ -1104,10 +1191,12 @@ class totara_certification_certification_completion_testcase extends reportcache
                     'certifpath' => CERTIFPATH_CERT,
                     'timecompleted' => -1, // 2: Should be 0.
                     'timewindowopens' => -1, // 3: Should be 0.
-                    'timeexpires' => -1), // 4: Should be 0.
+                    'timeexpires' => -1, // 4: Should be 0.
+                    'baselinetimeexpires' => -1), // 4: Should be 0.
                 array('error:stateexpired-timecompletednotempty' => 'timecompleted', // 2.
                     'error:stateexpired-timewindowopensnotempty' => 'timewindowopens', // 3.
-                    'error:stateexpired-timeexpiresnotempty' => 'timeexpires') // 4.
+                    'error:stateexpired-timeexpiresnotempty' => 'timeexpires', // 4.
+                    'error:stateexpired-baselinetimeexpiresnotempty' => 'baselinetimeexpires') // 5.
             ),
             // In progress + expired => expired, no problems.
             array('expired no problems',
@@ -1119,7 +1208,8 @@ class totara_certification_certification_completion_testcase extends reportcache
                     'certifpath' => CERTIFPATH_CERT,
                     'timecompleted' => 0,
                     'timewindowopens' => 0,
-                    'timeexpires' => 0),
+                    'timeexpires' => 0,
+                    'baselinetimeexpires' => 0),
                 array()
             ),
         );
@@ -1189,7 +1279,8 @@ class totara_certification_certification_completion_testcase extends reportcache
             'certifpath' => CERTIFPATH_RECERT,
             'timecompleted' => 1001,
             'timewindowopens' => 1002,
-            'timeexpires' => 1003);
+            'timeexpires' => 1003,
+            'baselinetimeexpires' => 1003);
         $errors = certif_get_completion_errors((object)$completionhistory, null);
         $this->assertEquals(array(), $errors);
 
@@ -1203,7 +1294,8 @@ class totara_certification_certification_completion_testcase extends reportcache
             'certifpath' => CERTIFPATH_RECERT,
             'timecompleted' => 1001,
             'timewindowopens' => 1002,
-            'timeexpires' => 1003); // Not the same.
+            'timeexpires' => 1003, // Not the same.
+            'baselinetimeexpires' => 1003);
         $errors = certif_get_completion_errors((object)$completionhistory, null);
         $this->assertEquals(array(), $errors);
 
@@ -1217,7 +1309,8 @@ class totara_certification_certification_completion_testcase extends reportcache
             'certifpath' => CERTIFPATH_RECERT,
             'timecompleted' => $now, // Note.
             'timewindowopens' => $now + 1000,
-            'timeexpires' => $now + 2000); // As set in shift_completions_to_certified.
+            'timeexpires' => $now + 2000, // As set in shift_completions_to_certified.
+            'baselinetimeexpires' => $now + 2000); // As set in shift_completions_to_certified.
         $errors = certif_get_completion_errors((object)$completionhistory, null);
         $this->assertEquals(array('error:completionhistorydatesnotunique' => 'timecompleted'), $errors);
 
@@ -1316,6 +1409,7 @@ class totara_certification_certification_completion_testcase extends reportcache
             'timecompleted' => 1001,
             'timewindowopens' => 1002,
             'timeexpires' => 1003,
+            'baselinetimeexpires' => 1003,
             'unassigned' => 1);
         $errors = certif_get_completion_errors((object)$completionhistory, null);
         $this->assertEquals(array(), $errors);
@@ -1331,6 +1425,7 @@ class totara_certification_certification_completion_testcase extends reportcache
             'timecompleted' => 1001,
             'timewindowopens' => 1002,
             'timeexpires' => 1003,
+            'baselinetimeexpires' => 1003,
             'unassigned' => 1);
         $errors = certif_get_completion_errors((object)$completionhistory, null);
         $this->assertEquals(array('error:invalidunassignedhist' => 'unassigned'), $errors);
@@ -1346,6 +1441,7 @@ class totara_certification_certification_completion_testcase extends reportcache
             'timecompleted' => 1001,
             'timewindowopens' => 1002,
             'timeexpires' => 1003,
+            'baselinetimeexpires' => 1003,
             'unassigned' => 1);
         $errors = certif_get_completion_errors((object)$completionhistory, null);
         $this->assertEquals(array(), $errors);
@@ -1371,6 +1467,7 @@ class totara_certification_certification_completion_testcase extends reportcache
             'timecompleted' => 1001,
             'timewindowopens' => 1002,
             'timeexpires' => 1003,
+            'baselinetimeexpires' => 1003,
             'unassigned' => 1);
         $errors = certif_get_completion_errors((object)$completionhistory, null);
         $this->assertEquals(array('error:invalidunassignedhist' => 'unassigned'), $errors);
@@ -1434,10 +1531,10 @@ class totara_certification_certification_completion_testcase extends reportcache
         $DB->execute($sql, $params);
         $sql = "UPDATE {certif_completion}
                    SET status = :certstatus, renewalstatus = :renewalstatus, certifpath = :certifpath,
-                       timecompleted = :timecompleted, timewindowopens = :timewindowopens, timeexpires = :timeexpires";
+                       timecompleted = :timecompleted, timewindowopens = :timewindowopens, timeexpires = :timeexpires, baselinetimeexpires = :baselinetimeexpires";
         $params = array('certstatus' => CERTIFSTATUS_COMPLETED, 'renewalstatus' => CERTIFRENEWALSTATUS_NOTDUE,
             'certifpath' => CERTIFPATH_RECERT, 'timecompleted' => $timecompleted, 'timewindowopens' => $timecompleted + 1000,
-            'timeexpires' => $timecompleted + 2000);
+            'timeexpires' => $timecompleted + 2000, 'baselinetimeexpires' => $timecompleted + 2000);
         $DB->execute($sql, $params);
     }
 
@@ -1560,7 +1657,7 @@ class totara_certification_certification_completion_testcase extends reportcache
     /**
      * Test certif_fix_completions - ensure that records with a different state aren't affected.
      *
-     * We will use the fixcertcertifiedduedatedifferent fix key. This will set the due date to
+     * We will use the fixcertcertifiedduedateempty fix key. This will set the due date to
      * be the same as the expiry date.
      */
     public function test_certif_fix_completions_only_specified_state() {
@@ -1672,7 +1769,7 @@ class totara_certification_certification_completion_testcase extends reportcache
     /**
      * Test certif_fix_completions - ensure that records with the specified problem AND other problems are NOT fixed.
      *
-     * We will use the fixcertcertifiedduedatedifferent fix key. This will set the due date to
+     * We will use the fixcertcertifiedduedateempty fix key. This will set the due date to
      * be the same as the expiry date.
      */
     public function test_certif_fix_completions_only_if_isolated_problem() {
@@ -1751,9 +1848,8 @@ class totara_certification_certification_completion_testcase extends reportcache
 
     /**
      * Test certif_fix_completions - ensure that partial fixes work, and don't fix those without the secondary problem.
-     *
-     * We will use the fixcert001 fix key. This repairs the due date of records which also have incorrect program
-     * timecompleted and status.
+     * We will use the fixcert001mismatchexpiry fix key. This repairs the due date of records which also have incorrect
+     * program timecompleted and status.
      */
     public function test_certif_fix_completions_known_unfixed_problems() {
         global $DB;
@@ -1797,10 +1893,13 @@ class totara_certification_certification_completion_testcase extends reportcache
 
         // Break some records - program status and timecompleted.
         $sql = "UPDATE {prog_completion}
-                   SET status = :status, timecompleted = :timecompleted
+                   SET status = :status, timecompleted = :timecompleted, timedue = :timedue
                  WHERE programid = :programid OR userid = :userid AND coursesetid = 0";
         $params = array('status' => STATUS_PROGRAM_COMPLETE, 'timecompleted' => $timecompleted,
-                        'programid' => $windowopenprog->id, 'userid' => $windowopenuser->id);
+                        'programid' => $windowopenprog->id, 'userid' => $windowopenuser->id,
+                        // We want to change timedue just enough not to generate extra errors.
+                        // Shifting completion changes timedue by 2000, so let's make is just below that.
+                        'timedue' => $timecompleted + 1500);
         $DB->execute($sql, $params);
 
         $expectederrorstimedueonly = array(
@@ -1836,8 +1935,8 @@ class totara_certification_certification_completion_testcase extends reportcache
         }
         $this->assertEquals($this->numtestusers * $this->numtestcerts, count($certcompletions));
 
-        // Apply the fixcert001 fix to all users and certs, but won't affect those with program status problems.
-        certif_fix_completions('fixcert001');
+        // Apply the fixcert001mismatchexpiry fix to all users and certs, but won't affect those with program status problems.
+        certif_fix_completions('fixcert001mismatchexpiry');
 
         // Check that the correct records have been fixed, and that the others haven't.
         $certcompletions = $DB->get_records('certif_completion');
@@ -2073,6 +2172,7 @@ class totara_certification_certification_completion_testcase extends reportcache
         $certcompletioncertifiedtemplate->timecompleted = 1001;
         $certcompletioncertifiedtemplate->timewindowopens = 1002;
         $certcompletioncertifiedtemplate->timeexpires = 1003;
+        $certcompletioncertifiedtemplate->baselinetimeexpires = 1003;
         $certcompletioncertifiedtemplate->timemodified = $now;
 
         $progcompletioncertifiedtemplate = new stdClass();
@@ -2319,6 +2419,7 @@ class totara_certification_certification_completion_testcase extends reportcache
         $historycompletioncertifiedtemplate->timecompleted = 1001;
         $historycompletioncertifiedtemplate->timewindowopens = 1002;
         $historycompletioncertifiedtemplate->timeexpires = 1003;
+        $historycompletioncertifiedtemplate->baselinetimeexpires = 1003;
         $historycompletioncertifiedtemplate->timemodified = $now;
 
         // Add completion with invalid data.
@@ -2393,6 +2494,7 @@ class totara_certification_certification_completion_testcase extends reportcache
         $expectedcertcompletion->timecompleted = 1004;
         $expectedcertcompletion->timewindowopens = 1005;
         $expectedcertcompletion->timeexpires = 1006; // Should match timedue.
+        $expectedcertcompletion->baselinetimeexpires = 1006;
 
         $expectedprogcompletion = new stdClass();
         $expectedprogcompletion->id = 1007;
@@ -2409,7 +2511,7 @@ class totara_certification_certification_completion_testcase extends reportcache
 
         $certcompletion = clone($expectedcertcompletion);
         $progcompletion = clone($expectedprogcompletion);
-        $progcompletion->timedue = 9999; // This is the error that needs fixing.
+        $progcompletion->timedue = 0; // This is the error that needs fixing.
 
         certif_fix_completion_expiry_to_due_date($certcompletion, $progcompletion);
 
@@ -2432,6 +2534,7 @@ class totara_certification_certification_completion_testcase extends reportcache
         $expectedcertcompletion->timecompleted = 1004;
         $expectedcertcompletion->timewindowopens = 1005;
         $expectedcertcompletion->timeexpires = 1006;
+        $expectedcertcompletion->baselinetimeexpires = 1006;
 
         $expectedprogcompletion = new stdClass();
         $expectedprogcompletion->id = 1007;
@@ -2474,6 +2577,7 @@ class totara_certification_certification_completion_testcase extends reportcache
         $expectedcertcompletion->timecompleted = 1004;
         $expectedcertcompletion->timewindowopens = 1005;
         $expectedcertcompletion->timeexpires = 1006;
+        $expectedcertcompletion->baselinetimeexpires = 1006;
 
         $expectedprogcompletion = new stdClass();
         $expectedprogcompletion->id = 1007;
@@ -2515,6 +2619,7 @@ class totara_certification_certification_completion_testcase extends reportcache
         $expectedcertcompletion->timecompleted = 1004;
         $expectedcertcompletion->timewindowopens = 1005;
         $expectedcertcompletion->timeexpires = 1006;
+        $expectedcertcompletion->baselinetimeexpires = 1006;
 
         $expectedprogcompletion = new stdClass();
         $expectedprogcompletion->id = 1007;
@@ -2568,6 +2673,7 @@ class totara_certification_certification_completion_testcase extends reportcache
         $testcertcompletion->timecompleted = 1004;
         $testcertcompletion->timewindowopens = 1005;
         $testcertcompletion->timeexpires = 1006;
+        $testcertcompletion->baselinetimeexpires = 1006;
 
         $testprogcompletion = new stdClass();
         $testprogcompletion->id = 1007;
@@ -2587,6 +2693,7 @@ class totara_certification_certification_completion_testcase extends reportcache
         $expectedcertcompletion->renewalstatus = CERTIFRENEWALSTATUS_NOTDUE;
         $expectedcertcompletion->timecompleted = $testprogcompletion->timecompleted;
         $expectedcertcompletion->timeexpires = $testprogcompletion->timecompleted + DAYSECS * 100;
+        $expectedcertcompletion->baselinetimeexpires = $expectedcertcompletion->timeexpires;
         $expectedcertcompletion->timewindowopens = $expectedcertcompletion->timeexpires - DAYSECS * 20;
 
         $expectedprogcompletion = new stdClass();
@@ -2627,6 +2734,7 @@ class totara_certification_certification_completion_testcase extends reportcache
         $testcertcompletion->renewalstatus = CERTIFRENEWALSTATUS_NOTDUE;
         $testcertcompletion->timecompleted = $now;
         $testcertcompletion->timeexpires = $testcertcompletion->timecompleted + DAYSECS * 100;
+        $testcertcompletion->baselinetimeexpires = $testcertcompletion->timecompleted + DAYSECS * 100;
         $testcertcompletion->timewindowopens = $testcertcompletion->timeexpires - DAYSECS * 20;
 
         $testprogcompletion = new stdClass();
@@ -2680,6 +2788,7 @@ class totara_certification_certification_completion_testcase extends reportcache
         $testcertcompletion->renewalstatus = CERTIFRENEWALSTATUS_NOTDUE;
         $testcertcompletion->timecompleted = $now;
         $testcertcompletion->timeexpires = $testcertcompletion->timecompleted + DAYSECS * 100;
+        $testcertcompletion->baselinetimeexpires = $testcertcompletion->timecompleted + DAYSECS * 100;
         $testcertcompletion->timewindowopens = $testcertcompletion->timeexpires - DAYSECS * 20;
 
         $testprogcompletion = new stdClass();
@@ -2720,6 +2829,7 @@ class totara_certification_certification_completion_testcase extends reportcache
         $expectedcertcompletion->timecompleted = 0;
         $expectedcertcompletion->timewindowopens = 0;
         $expectedcertcompletion->timeexpires = 0;
+        $expectedcertcompletion->baselinetimeexpires = 0;
 
         $expectedprogcompletion = new stdClass();
         $expectedprogcompletion->id = 1007;
@@ -2762,6 +2872,7 @@ class totara_certification_certification_completion_testcase extends reportcache
         $expectedcertcompletion->timecompleted = 1004;
         $expectedcertcompletion->timewindowopens = 1005;
         $expectedcertcompletion->timeexpires = 1006;
+        $expectedcertcompletion->baselinetimeexpires = 1006;
 
         $expectedprogcompletion = new stdClass();
         $expectedprogcompletion->id = 1007;
@@ -2802,6 +2913,7 @@ class totara_certification_certification_completion_testcase extends reportcache
         $expectedcertcompletion->timecompleted = 0;
         $expectedcertcompletion->timewindowopens = 0;
         $expectedcertcompletion->timeexpires = 0;
+        $expectedcertcompletion->baselinetimeexpires = 0;
 
         $expectedprogcompletion = new stdClass();
         $expectedprogcompletion->id = 1007;
@@ -2847,6 +2959,7 @@ class totara_certification_certification_completion_testcase extends reportcache
         $expectedcertcompletion->timecompleted = 0;
         $expectedcertcompletion->timewindowopens = 0;
         $expectedcertcompletion->timeexpires = 0;
+        $expectedcertcompletion->baselinetimeexpires = 0;
 
         $expectedprogcompletion = new stdClass();
         $expectedprogcompletion->id = 1007;

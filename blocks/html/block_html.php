@@ -122,23 +122,14 @@ class block_html extends block_base {
     }
 
     function content_is_trusted() {
-        global $SCRIPT;
-
-        if (!$context = context::instance_by_id($this->instance->parentcontextid, IGNORE_MISSING)) {
+        // Totara: do not allow self-XSS in user related pages.
+        $instance = context::instance_by_id($this->instance->parentcontextid, IGNORE_MISSING);
+        if (!$instance) {
             return false;
         }
-        //find out if this block is on the profile page
-        if ($context->contextlevel == CONTEXT_USER) {
-            if ($SCRIPT === '/my/index.php') {
-                // this is exception - page is completely private, nobody else may see content there
-                // that is why we allow JS here
-                return true;
-            } else {
-                // no JS on public personal pages, it would be a big security issue
-                return false;
-            }
+        if ($instance->contextlevel == CONTEXT_USER) {
+            return false;
         }
-
         return true;
     }
 

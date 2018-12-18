@@ -138,7 +138,7 @@ class totara_dialog_content_hierarchy extends totara_dialog_content {
      * @param   $frameworkid    int     Framework id (optional)
      * @param   $showhidden     boolean When listing frameworks, include hidden frameworks (optional)
      * @param bool $skipaccesschecks
-     * @param int  $contentreportid Report id containing content restriction definition
+     * @param int  $contentreportid Report id containing content restriction definition (intended for dialogs in reports)
      */
     public function __construct($prefix, $frameworkid = 0, $showhidden = false, $skipaccesschecks = false, $contentreportid = 0) {
 

@@ -80,6 +80,7 @@ if (!empty($userid)) {
 }
 
 echo $OUTPUT->heading($heading);
+echo html_writer::start_tag('p') . get_string('extensionexpirywarning', 'totara_program') . html_writer::end_tag('p');
 
 if (!empty($userid)) {
     if (!$user = $DB->get_record('user', array('id' => $userid))) {

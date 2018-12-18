@@ -54,6 +54,7 @@ M.totara_editcertcompletion = M.totara_editcertcompletion || {
         $('#id_timecompleted_enabled').closest('span').hide();
         $('#id_timewindowopens_enabled').closest('span').hide();
         $('#id_timeexpires_enabled').closest('span').hide();
+        $('#id_baselinetimeexpires_enabled').closest('span').hide();
         $('#id_progtimecompleted_enabled').closest('span').hide();
 
         // If there were errors on page load, force the user to select a completion state (show the best guess).
@@ -138,6 +139,7 @@ M.totara_editcertcompletion = M.totara_editcertcompletion || {
                 $('#id_timewindowopens_enabled').closest('.fitem').next().hide();
 
                 $('#id_timeexpires_enabled').closest('.fitem').next().hide();
+                $('#id_baselinetimeexpires_enabled').closest('.fitem').next().hide();
 
                 $('#id_progtimecompleted_enabled').closest('.fitem').next().hide(); // Not applicable.
                 $('#id_progtimecompleted_enabled').closest('.fitem').next().next().hide(); // Tied to cert timecompleted.
@@ -165,6 +167,9 @@ M.totara_editcertcompletion = M.totara_editcertcompletion || {
                 $('#id_timeexpires_enabled').prop('checked', false);
                 $('#id_timeexpires_enabled').closest('.fitem').next().show();
 
+                $('#id_baselinetimeexpires_enabled').prop('checked', false);
+                $('#id_baselinetimeexpires_enabled').closest('.fitem').next().show();
+
                 $('#id_progstatus').val(0); // STATUS_PROGRAM_INCOMPLETE.
 
                 $('#id_progtimecompleted_enabled').prop('checked', false);
@@ -191,6 +196,9 @@ M.totara_editcertcompletion = M.totara_editcertcompletion || {
 
                 $('#id_timeexpires_enabled').prop('checked', true);
                 $('#id_timeexpires_enabled').closest('.fitem').next().hide();
+
+                $('#id_baselinetimeexpires_enabled').prop('checked', true);
+                $('#id_baselinetimeexpires_enabled').closest('.fitem').next().hide();
 
                 $('#id_progstatus').val(1); // STATUS_PROGRAM_COMPLETE.
 
@@ -222,6 +230,9 @@ M.totara_editcertcompletion = M.totara_editcertcompletion || {
                 $('#id_timeexpires_enabled').prop('checked', true);
                 $('#id_timeexpires_enabled').closest('.fitem').next().hide();
 
+                $('#id_baselinetimeexpires_enabled').prop('checked', true);
+                $('#id_baselinetimeexpires_enabled').closest('.fitem').next().hide();
+
                 $('#id_progstatus').val(0); // STATUS_PROGRAM_INCOMPLETE.
 
                 $('#id_progtimecompleted_enabled').prop('checked', false);
@@ -250,6 +261,9 @@ M.totara_editcertcompletion = M.totara_editcertcompletion || {
 
                 $('#id_timeexpires_enabled').prop('checked', false);
                 $('#id_timeexpires_enabled').closest('.fitem').next().show();
+
+                $('#id_baselinetimeexpires_enabled').prop('checked', false);
+                $('#id_baselinetimeexpires_enabled').closest('.fitem').next().show();
 
                 $('#id_progstatus').val(0); // STATUS_PROGRAM_INCOMPLETE.
 

@@ -459,6 +459,50 @@ class totara_form_form_testcase extends advanced_testcase {
         $this->assertFalse($fs->file_exists($usercontext->id, 'user', 'test', 6, '/', 'pokus.txt'));
     }
 
+    public function test_update_file_area_nosubdirs() {
+        global $USER;
+        $this->setAdminUser();
+        $usercontext = \context_user::instance($USER->id);
+        $draftitemid = file_get_unused_draft_itemid();
+        $fs = get_file_storage();
+        $record = array(
+            'contextid' => $usercontext->id,
+            'component' => 'user',
+            'filearea' => 'draft',
+            'itemid' => $draftitemid,
+            'filepath' => '/',
+            'filename' => 'pokus2.txt',
+        );
+        $draftfile = $fs->create_file_from_string($record, 'haha');
+
+        $definition = new test_definition($this,
+            function (model $model, advanced_testcase $testcase) {
+                /** @var filemanager $filemanager1 */
+                $filemanager1 = $model->add(new filemanager('somefilemanager1', 'Some filemanager 1', array('subdirs' => false)));
+            });
+        test_form::phpunit_set_definition($definition);
+
+        $postdata = array(
+            'somefilemanager1' => $draftitemid,
+        );
+        test_form::phpunit_set_post_data($postdata);
+        $currentdata = array(
+            'somefilemanager1' => new file_area($usercontext, 'user', 'test', 6),
+        );
+        $form = new test_form($currentdata);
+        $data = $form->get_data();
+        $files = $form->get_files();
+        $this->assertInstanceOf('stdClass', $data);
+        $this->assertSame(array(), (array)$data);
+        $this->assertInstanceOf('stdClass', $files);
+        $this->assertCount(1, (array)$files);
+        $this->assertCount(1, $files->somefilemanager1);
+        $this->assertEquals($draftfile, $files->somefilemanager1[0]);
+
+        $form->update_file_area('somefilemanager1');
+        $this->assertTrue($fs->file_exists($usercontext->id, 'user', 'test', 6, '/', 'pokus2.txt'));
+    }
+
     public function test_save_file() {
         global $USER;
         $this->setAdminUser();

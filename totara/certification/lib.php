@@ -651,13 +651,16 @@ function write_certif_completion($certificationid, $userid, $certificationpath =
         $timedue = $DB->get_field('prog_completion', 'timedue',
             array('programid' => $programid, 'userid' => $userid, 'coursesetid' => 0));
 
-        $base = get_certiftimebase($certification->recertifydatetype, $certificationcompletion->timeexpires,
+        //TL-17804: Use baselinetimeexpires instead of timeexpires so we don't get unexpected shifts in recertification
+        //windows when granting extensions
+        $base = get_certiftimebase($certification->recertifydatetype, $certificationcompletion->baselinetimeexpires,
             $lastcompleted, $timedue, $certification->activeperiod, $certification->minimumactiveperiod,
             $certification->windowperiod);
 
         $todb->timeexpires = get_timeexpires($base, $certification->activeperiod);
         $todb->timewindowopens = get_timewindowopens($todb->timeexpires, $certification->windowperiod);
         $todb->timecompleted = $lastcompleted;
+        $todb->baselinetimeexpires = $todb->timeexpires; //TL-17804: Copy expiry to default expiry field to preserve it in case of extensions
 
         // Put the new timeexpires into the timedue field in the prog_completion, so that it will be there if the cert expires.
         $DB->set_field('prog_completion', 'timedue', $todb->timeexpires,
@@ -672,6 +675,7 @@ function write_certif_completion($certificationid, $userid, $certificationpath =
         $todb->timewindowopens = 0;
         $todb->timeexpires = 0;
         $todb->timecompleted = 0;
+        $todb->baselinetimeexpires = 0;
     }
 
     $todb->timemodified = $now;
@@ -933,6 +937,7 @@ function certif_create_completion($programid, $userid, $message = '') {
         $certcompletion->timecompleted = 0;
         $certcompletion->timewindowopens = 0;
         $certcompletion->timeexpires = 0;
+        $certcompletion->baselinetimeexpires = 0;
         $certcompletion->timemodified = $now;
 
         if (!$createprogcompletion) {
@@ -1910,6 +1915,7 @@ function certif_process_submitted_edit_completion($submitted) {
     $certcompletion->timecompleted = $submitted->timecompleted;
     $certcompletion->timewindowopens = $submitted->timewindowopens;
     $certcompletion->timeexpires = $submitted->timeexpires;
+    $certcompletion->baselinetimeexpires = $submitted->baselinetimeexpires;
     $certcompletion->timemodified = $now;
 
     $progcompletion = new stdClass();
@@ -1964,6 +1970,7 @@ function certif_process_submitted_edit_completion_history($submitted) {
     $certcompletion->timecompleted = $submitted->timecompleted;
     $certcompletion->timewindowopens = $submitted->timewindowopens;
     $certcompletion->timeexpires = $submitted->timeexpires;
+    $certcompletion->baselinetimeexpires = $submitted->baselinetimeexpires;
     $certcompletion->timemodified = $now;
     $certcompletion->unassigned = $submitted->unassigned;
 
@@ -2192,6 +2199,9 @@ function certif_get_completion_errors($certcompletion, $progcompletion) {
             if ($certcompletion->timeexpires != 0) {
                 $errors['error:stateassigned-timeexpiresnotempty'] = 'timeexpires';
             }
+            if ($certcompletion->baselinetimeexpires != 0) {
+                $errors['error:stateassigned-baselinetimeexpiresnotempty'] = 'baselinetimeexpires';
+            }
             if ($progcompletion) {
                 if ($progcompletion->status != STATUS_PROGRAM_INCOMPLETE) {
                     $errors['error:stateassigned-progstatusincorrect'] = 'progstatus';
@@ -2223,8 +2233,14 @@ function certif_get_completion_errors($certcompletion, $progcompletion) {
             if ($certcompletion->timeexpires <= 0) {
                 $errors['error:statecertified-timeexpiresempty'] = 'timeexpires';
             }
+            if ($certcompletion->baselinetimeexpires <= 0) {
+                $errors['error:statecertified-baselinetimeexpiresempty'] = 'baselinetimeexpires';
+            }
             if ($certcompletion->timeexpires < $certcompletion->timewindowopens) {
                 $errors['error:statecertified-timeexpirestimewindowopensnotordered'] = 'timeexpires';
+            }
+            if ($certcompletion->baselinetimeexpires < $certcompletion->timewindowopens) {
+                $errors['error:statecertified-baselinetimeexpirestimewindowopensnotordered'] = 'baselinetimeexpires';
             }
             if ($progcompletion) {
                 if (userdate($certcompletion->timecompleted, get_string('strftimedateshort', 'langconfig')) !=
@@ -2267,8 +2283,14 @@ function certif_get_completion_errors($certcompletion, $progcompletion) {
             if ($certcompletion->timeexpires <= 0) {
                 $errors['error:statewindowopen-timeexpiresempty'] = 'timeexpires';
             }
+            if ($certcompletion->baselinetimeexpires <= 0) {
+                $errors['error:statewindowopen-baselinetimeexpiresempty'] = 'baselinetimeexpires';
+            }
             if ($certcompletion->timeexpires < $certcompletion->timewindowopens) {
                 $errors['error:statewindowopen-timeexpirestimewindowopensnotordered'] = 'timeexpires';
+            }
+            if ($certcompletion->baselinetimeexpires < $certcompletion->timewindowopens) {
+                $errors['error:statewindowopen-baselinetimeexpirestimewindowopensnotordered'] = 'baselinetimeexpires';
             }
             if ($progcompletion) {
                 if ($certcompletion->timeexpires != $progcompletion->timedue) {
@@ -2300,6 +2322,9 @@ function certif_get_completion_errors($certcompletion, $progcompletion) {
             }
             if ($certcompletion->timeexpires != 0) {
                 $errors['error:stateexpired-timeexpiresnotempty'] = 'timeexpires';
+            }
+            if ($certcompletion->baselinetimeexpires != 0) {
+                $errors['error:stateexpired-baselinetimeexpiresnotempty'] = 'baselinetimeexpires';
             }
             if ($progcompletion) {
                 if ($progcompletion->timedue <= 0) {
@@ -2430,8 +2455,8 @@ function certif_get_completion_error_solution($problemkey, $programid = 0, $user
     switch ($problemkey) {
         case 'error:statewindowopen-timeexpirestimeduedifferent':
             $url = clone($baseurl);
-            $url->param('fixkey', 'fixcertwindowopenduedatedifferent');
-            $html = get_string('error:info_fixduedate', 'totara_certification') . '<br>' .
+            $url->param('fixkey', 'fixcertwindowopenduedatedifferentmistachexpiry');
+            $html = get_string('error:info_fixduedatemismatchexpiry', 'totara_certification') . '<br>' .
                 html_writer::link($url, get_string('clicktofixcompletions', 'totara_program'));
             break;
         case 'error:statewindowopen-timedueempty|error:statewindowopen-timeexpirestimeduedifferent':
@@ -2442,8 +2467,8 @@ function certif_get_completion_error_solution($problemkey, $programid = 0, $user
             break;
         case 'error:statecertified-timeexpirestimeduedifferent':
             $url = clone($baseurl);
-            $url->param('fixkey', 'fixcertcertifiedduedatedifferent');
-            $html = get_string('error:info_fixduedate', 'totara_certification') . '<br>' .
+            $url->param('fixkey', 'fixcertcertifiedduedatedifferentmistachexpiry');
+            $html = get_string('error:info_fixduedatemismatchexpiry', 'totara_certification') . '<br>' .
                 html_writer::link($url, get_string('clicktofixcompletions', 'totara_program'));
             break;
         case 'error:statecertified-timedueempty|error:statecertified-timeexpirestimeduedifferent':
@@ -2471,8 +2496,8 @@ function certif_get_completion_error_solution($problemkey, $programid = 0, $user
         case 'error:statewindowopen-progstatusincorrect|error:statewindowopen-progtimecompletednotempty|error:statewindowopen-timeexpirestimeduedifferent':
             $html = get_string('error:info_fixcombination', 'totara_certification') . '<br>';
             $url1 = clone($baseurl);
-            $url1->param('fixkey', 'fixcert001');
-            $html .= get_string('error:info_fixduedate', 'totara_certification') . '<br>' .
+            $url1->param('fixkey', 'fixcert001mismatchexpiry');
+            $html .= get_string('error:info_fixduedatemismatchexpiry', 'totara_certification') . '<br>' .
                 html_writer::link($url1, get_string('clicktofixcompletions', 'totara_program'));
             break;
         case 'error:statewindowopen-progstatusincorrect|error:statewindowopen-progtimecompletednotempty|error:statecertified-timedueempty|error:statewindowopen-timeexpirestimeduedifferent':
@@ -2610,6 +2635,7 @@ function certif_fix_completions($fixkey, $programid = 0, $userid = 0) {
         $certcompletion->renewalstatus = $record->renewalstatus;
         $certcompletion->timewindowopens = $record->timewindowopens;
         $certcompletion->timeexpires = $record->timeexpires;
+        $certcompletion->baselinetimeexpires = $record->baselinetimeexpires;
         $certcompletion->timecompleted = $record->timecompleted;
 
         $progcompletion = new stdClass();
@@ -2636,9 +2662,9 @@ function certif_fix_completions($fixkey, $programid = 0, $userid = 0) {
 
         // Only fix if this is an exact match for the specified problem.
         switch ($fixkey) {
-            case 'fixcertwindowopenduedatedifferent':
+            case 'fixcertwindowopenduedatedifferentmismatchexpiry':
                 if ($problemkey == 'error:statewindowopen-timeexpirestimeduedifferent') {
-                    $result = certif_fix_completion_expiry_to_due_date($certcompletion, $progcompletion);
+                    $result = certif_fix_extension_didnt_update_due_date($certcompletion, $progcompletion);
                 }
                 break;
             case 'fixcertwindowopenduedateempty':
@@ -2646,9 +2672,9 @@ function certif_fix_completions($fixkey, $programid = 0, $userid = 0) {
                     $result = certif_fix_completion_expiry_to_due_date($certcompletion, $progcompletion);
                 }
                 break;
-            case 'fixcertcertifiedduedatedifferent':
+            case 'fixcertcertifiedduedatedifferentmismatchexpiry':
                 if ($problemkey == 'error:statecertified-timeexpirestimeduedifferent') {
-                    $result = certif_fix_completion_expiry_to_due_date($certcompletion, $progcompletion);
+                    $result = certif_fix_extension_didnt_update_due_date($certcompletion, $progcompletion);
                 }
                 break;
             case 'fixcertcertifiedduedateempty':
@@ -2671,9 +2697,9 @@ function certif_fix_completions($fixkey, $programid = 0, $userid = 0) {
                     $result = certif_fix_completion_prog_status_reset($certcompletion, $progcompletion);
                 }
                 break;
-            case 'fixcert001':
+            case 'fixcert001mismatchexpiry':
                 if ($problemkey == 'error:statewindowopen-progstatusincorrect|error:statewindowopen-progtimecompletednotempty|error:statewindowopen-timeexpirestimeduedifferent') {
-                    $result = certif_fix_completion_expiry_to_due_date($certcompletion, $progcompletion);
+                    $result = certif_fix_extension_didnt_update_due_date($certcompletion, $progcompletion);
                     $ignoreproblem = 'error:statewindowopen-progstatusincorrect|error:statewindowopen-progtimecompletednotempty';
                 }
                 break;
@@ -2838,7 +2864,7 @@ function certif_write_completion($certcompletion, $progcompletion, $message = ''
     if (!empty($errors)) {
         $problemkey = certif_get_completion_error_problemkey($errors);
     } else {
-        $problemkey = "noprobleams";
+        $problemkey = "noproblems";
     }
 
     if (empty($errors) && $state != CERTIFCOMPLETIONSTATE_INVALID || $problemkey === $ignoreproblemkey) {
@@ -2926,15 +2952,43 @@ function certif_write_completion_history($certcomplhistory, $message = '') {
 /**
  * Fixes program completion records that should have the same due date as the corresponding certification completion expiry date.
  *
+ * This should only be used when $programcompletion->timedue is empty! Otherwise, use certif_fix_extension_didnt_update_due_date.
+ *
  * @param stdClass $certcompletion a record from certif_completion to be fixed
  * @param stdClass $progcompletion a corresponding record from prog_completion to be fixed
  * @return string message for transaction log
  */
 function certif_fix_completion_expiry_to_due_date(&$certcompletion, &$progcompletion) {
+    if ($progcompletion->timedue > 0) {
+        throw new coding_exception("Tried to apply certif_fix_completion_expiry_to_due_date to a record which has a program time due");
+    }
+
     $progcompletion->timedue = $certcompletion->timeexpires;
 
     return 'Automated fix \'certif_fix_completion_due_date\' was applied<br>' .
         '<ul><li>\'Expiry date\' was copied to \'Due date\'</li></ul>';
+}
+
+/**
+ * Fixes the problem where extensions were granted and applied to the certification expiry date, but the due date was unchanged.
+ *
+ * This should only be used when $programcompletion->timedue is NOT empty! Otherwise, use certif_fix_completion_expiry_to_due_date.
+ *
+ * @param stdClass $certcompletion a record from certif_completion to be fixed
+ * @param stdClass $progcompletion a corresponding record from prog_completion to be fixed
+ * @return string message for transaction log
+ */
+function certif_fix_extension_didnt_update_due_date(&$certcompletion, &$progcompletion) {
+    if ($progcompletion->timedue <= 0) {
+        throw new coding_exception("Tried to apply certif_fix_extension_didnt_update_due_date to a record which has an empty program time due");
+    }
+
+    $certcompletion->baselinetimeexpires = $progcompletion->timedue;
+    $progcompletion->timedue = $certcompletion->timeexpires;
+
+    return 'Automated fix \'certif_fix_extension_didnt_update_due_date\' was applied<br>' .
+        '<ul><li>\'Due date was\' was copied to \'Baseline expiry date\'</li></ul>
+         <ul><li>\'Expiry date\' was copied to \'Due date\'</li></ul>';
 }
 
 /**
@@ -3041,6 +3095,7 @@ function certif_fix_cert_completion_date(&$certcompletion, &$progcompletion) {
 
     if ($certification->recertifydatetype == CERTIFRECERT_COMPLETION) {
         $certcompletion->timeexpires = get_timeexpires($certcompletion->timecompleted, $certification->activeperiod);
+        $certcompletion->baselinetimeexpires = $certcompletion->timeexpires;
         $certcompletion->timewindowopens = get_timewindowopens($certcompletion->timeexpires, $certification->windowperiod);
         $progcompletion->timedue = $certcompletion->timeexpires;
 
@@ -3048,6 +3103,7 @@ function certif_fix_cert_completion_date(&$certcompletion, &$progcompletion) {
             <ul><li>\'Certification completion date\' was set to ' . prog_format_log_date($certcompletion->timecompleted) . '</li>
             <li>\'Certification window open date\' was set to ' . prog_format_log_date($certcompletion->timewindowopens) . '</li>
             <li>\'Certification expiry date\' was set to ' . prog_format_log_date($certcompletion->timeexpires) . '</li>
+            <li>\'Certification baseline expiry date\' was set to ' . prog_format_log_date($certcompletion->baselinetimeexpires) . '</li>
             <li>\'Program due date\' was set to ' . prog_format_log_date($progcompletion->timedue) . '</li></ul>';
     } else {
         return 'Automated fix \'certif_fix_cert_completion_date\' was applied<br>
@@ -3162,6 +3218,7 @@ function certif_load_completion($programid, $userid, $mustexist = true) {
     $certcompletion->renewalstatus = $record->renewalstatus;
     $certcompletion->timewindowopens = $record->timewindowopens;
     $certcompletion->timeexpires = $record->timeexpires;
+    $certcompletion->baselinetimeexpires = $record->baselinetimeexpires;
     $certcompletion->timecompleted = $record->timecompleted;
     $certcompletion->timemodified = $record->timemodified;
 
@@ -3214,6 +3271,7 @@ function certif_load_all_completions($userid) {
         $certcompletion->renewalstatus = $record->renewalstatus;
         $certcompletion->timewindowopens = $record->timewindowopens;
         $certcompletion->timeexpires = $record->timeexpires;
+        $certcompletion->baselinetimeexpires = $record->baselinetimeexpires;
         $certcompletion->timecompleted = $record->timecompleted;
         $certcompletion->timemodified = $record->timemodified;
 
@@ -3289,6 +3347,7 @@ function certif_calculate_completion_description($certcompletion, $progcompletio
         '<li>Completion date: ' . prog_format_log_date($certcompletion->timecompleted) . '</li>' .
         '<li>Window open date: ' . prog_format_log_date($certcompletion->timewindowopens) . '</li>' .
         '<li>Expiry date: ' . prog_format_log_date($certcompletion->timeexpires) . '</li>' .
+        '<li>Baseline expiry date: ' . prog_format_log_date($certcompletion->baselinetimeexpires) . '</li>' .
         '<li>Program status: ' . $progstatus . ' (' . $progcompletion->status . ')</li>' .
         '<li>Program completion date: ' . prog_format_log_date($progcompletion->timecompleted) . '</li></ul>';
 
@@ -3347,6 +3406,7 @@ function certif_calculate_completion_history_description($certcomplhistory, $mes
         '<li>Completion date: ' . prog_format_log_date($certcomplhistory->timecompleted) . '</li>' .
         '<li>Window open date: ' . prog_format_log_date($certcomplhistory->timewindowopens) . '</li>' .
         '<li>Expiry date: ' . prog_format_log_date($certcomplhistory->timeexpires) . '</li>' .
+        '<li>Baseline expiry date: ' . prog_format_log_date($certcomplhistory->baselinetimeexpires) . '</li>' .
         '<li>Unassigned: ' . $unassigned . '</li></ul>';
 
     return $description;
@@ -3415,7 +3475,7 @@ function certif_get_all_completions_with_errors($programid = 0, $userid = 0) {
 
     // Check existing completion records for inconsistency errors.
     $sql = "SELECT cc.userid, pc.programid, cc.status, cc.renewalstatus, cc.timecompleted, cc.timewindowopens, prog.fullname,
-                   cc.timeexpires, cc.certifpath, pc.status AS progstatus, pc.timecompleted AS progtimecompleted, pc.timedue
+                   cc.timeexpires, cc.baselinetimeexpires, cc.certifpath, pc.status AS progstatus, pc.timecompleted AS progtimecompleted, pc.timedue
               FROM {certif_completion} cc
               JOIN {prog} prog ON prog.certifid = cc.certifid
               JOIN {prog_completion} pc ON pc.programid = prog.id AND pc.userid = cc.userid AND pc.coursesetid = 0";
@@ -3438,6 +3498,7 @@ function certif_get_all_completions_with_errors($programid = 0, $userid = 0) {
         $certcompletion->timecompleted = $record->timecompleted;
         $certcompletion->timewindowopens = $record->timewindowopens;
         $certcompletion->timeexpires = $record->timeexpires;
+        $certcompletion->baselinetimeexpires = $record->baselinetimeexpires;
 
         $progcompletion = new stdClass();
         $progcompletion->status = $record->progstatus;

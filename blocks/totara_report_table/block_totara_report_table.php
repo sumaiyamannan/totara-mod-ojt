@@ -123,7 +123,7 @@ class block_totara_report_table extends block_base {
      * @return stdClass
      */
     public function get_content() {
-        global $DB, $SESSION, $CFG, $PAGE;
+        global $DB, $SESSION, $CFG, $PAGE, $OUTPUT;
 
         // Include report builder here.
         require_once($CFG->dirroot . '/totara/reportbuilder/lib.php');
@@ -215,8 +215,19 @@ class block_totara_report_table extends block_base {
             }
         }
 
-        $report->include_js();
         $reporturl = new moodle_url($report->report_url());
+
+        // If initial filtering is enabled then return now and show a message
+        if ($report->is_initially_hidden()) {
+            $reportname = $report->fullname;
+            $reportlink = html_writer::link($reporturl, get_string('gotoreportpage', 'block_totara_report_table'));
+            $message = get_string('reportinitialdisplayfiltered', 'block_totara_report_table', ['reportname' => $reportname, 'reportlink' => $reportlink]);
+            $message = html_writer::tag('p', $message, ['class' => 'no-results']);
+            $this->content->text = $OUTPUT->notification($message);
+            return $this->content;
+        }
+
+        $report->include_js();
         if ($sid) {
             $reporturl->param('sid', $sid);
         }
@@ -228,8 +239,8 @@ class block_totara_report_table extends block_base {
         // We only want to show the report if it is not empty, or if it is empty but has been filtered and has total results.
         if (!empty($this->config->hideifnoresults)) {
             // Done inside a nested IF just to be extremely sure the count calls aren't executed unless needed.
-            // full_count is likely a second super expensive query.
-            if ((isset($sid) && $report->get_filtered_count() == 0) || $report->get_full_count() == 0) {
+            // Filtered count will do for this as it bypasses the can_display_total_count setting.
+            if ($report->get_filtered_count() == 0) {
                 return $this->content;
             }
         }

@@ -362,7 +362,38 @@ function xmldb_totara_certification_upgrade($oldversion) {
     // is any problem then the records must be fixed manually.
     if ($oldversion < 2016051100) {
 
+        // Duplicating code from 2016092004 upgrade step to make sure certif_upgrade_fix_reassigned_users() does not fail.
+        $table_completion = new xmldb_table('certif_completion');
+        $field_completion = new xmldb_field('baselinetimeexpires', XMLDB_TYPE_INTEGER, '10', null, false, null);
+
+        //Create new field for default expiry
+        if (!$dbman->field_exists($table_completion, $field_completion)) {
+            $dbman->add_field($table_completion, $field_completion);
+
+            $sql = 'UPDATE {certif_completion} SET baselinetimeexpires = timeexpires WHERE timeexpires IS NOT NULL';
+            $DB->execute($sql);
+        }
+
+        $table_history = new xmldb_table('certif_completion_history');
+        $field_history = new xmldb_field('baselinetimeexpires', XMLDB_TYPE_INTEGER, '10', null, false, null);
+
+        //Create new field for default expiry
+        if (!$dbman->field_exists($table_history, $field_history)) {
+            $dbman->add_field($table_history, $field_history);
+
+            $sql = 'UPDATE {certif_completion_history} SET baselinetimeexpires = timeexpires WHERE timeexpires IS NOT NULL';
+            $DB->execute($sql);
+        }
+
         certif_upgrade_fix_reassigned_users();
+
+        // Clean up after upgrade, these fields will be added later.
+        if (!$dbman->field_exists($table_completion, $field_completion)) {
+            $dbman->drop_field($table_completion, $field_completion);
+        }
+        if (!$dbman->field_exists($table_history, $field_history)) {
+            $dbman->drop_field($table_history, $field_history);
+        }
 
         // Savepoint reached.
         totara_upgrade_mod_savepoint(true, 2016051100, 'totara_certification');
@@ -402,6 +433,33 @@ function xmldb_totara_certification_upgrade($oldversion) {
 
         // Savepoint reached.
         upgrade_plugin_savepoint(true, 2016092003, 'totara', 'certification');
+    }
+
+    if ($oldversion < 2016092004) {
+        $table = new xmldb_table('certif_completion');
+        $field = new xmldb_field('baselinetimeexpires', XMLDB_TYPE_INTEGER, '10', null, false, null);
+
+        // Create new field for default expiry in the completion table.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+
+            $sql = 'UPDATE {certif_completion} SET baselinetimeexpires = timeexpires WHERE timeexpires IS NOT NULL';
+            $DB->execute($sql);
+        }
+
+        $table = new xmldb_table('certif_completion_history');
+        $field = new xmldb_field('baselinetimeexpires', XMLDB_TYPE_INTEGER, '10', null, false, null);
+
+        // Create new field for default expiry in the completion history table.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+
+            $sql = 'UPDATE {certif_completion_history} SET baselinetimeexpires = timeexpires WHERE timeexpires IS NOT NULL';
+            $DB->execute($sql);
+        }
+
+        // Savepoint reached
+        upgrade_plugin_savepoint(true, 2016092004, 'totara', 'certification');
     }
 
     return true;

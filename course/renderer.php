@@ -1038,8 +1038,10 @@ class core_course_renderer extends plugin_renderer_base {
             $output .= $contentpart;
         }
 
-        // show availability info (if module is not available)
-        if (!$mod->available) {
+        // Show availability info if module is not available and user is allowed to view hidden activities.
+        $modcontext = context_module::instance($mod->id);
+        $viewhiddenactivities = has_capability('moodle/course:viewhiddenactivities', $modcontext);
+        if (!$mod->available || ($mod->available && $viewhiddenactivities)) {
             $output .= $this->course_section_cm_availability($mod, $displayoptions);
         }
         $output .= html_writer::end_tag('div'); // $indentclasses

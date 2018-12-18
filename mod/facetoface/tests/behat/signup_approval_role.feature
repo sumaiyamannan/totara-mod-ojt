@@ -102,7 +102,7 @@ Feature: Seminar Signup Role Approval
     And I click on "Dashboard" in the totara menu
     Then I should see "Seminar trainer confirmation"
 
-    When I click on "View all alerts" "link"
+    When I click on "View all tasks" "link"
     And I click on "Attendees" "link"
     Then I should see "Jimmy Jim"
 

@@ -70,14 +70,13 @@ class rb_current_pos_content extends rb_base_content {
     /**
      * Generate the SQL to apply this content restriction
      *
-     * @param string $jafield Job assignment field to compare
      * @param string $field SQL field to apply the restriction against
      * @param integer $reportid ID of the report
      *
      * @return array containing SQL snippet to be used in a WHERE clause, as well as array of SQL params
      */
-    private function restriction_sql($jafield, $field, $reportid) {
-        global $CFG, $DB;
+    public function sql_restriction($field, $reportid) {
+        global $DB;
 
         // remove rb_ from start of classname
         $type = substr(get_class($this), 3);
@@ -85,59 +84,57 @@ class rb_current_pos_content extends rb_base_content {
         $restriction = $settings['recursive'];
         $userid = $this->reportfor;
 
-        $viewparam = $DB->get_unique_param('viewid');
-        $params = array($viewparam => $userid);
-
-        // Set up the base joins and where clause for the restrictions.
-        $joinsql = " SELECT 1
-                       FROM {job_assignment} u1ja
-                 INNER JOIN {pos} p1
-                         ON u1ja.positionid = p1.id";
-        $wheresql = " WHERE u1ja.userid = :{$viewparam}";
-
-        switch ($restriction) {
-            case self::CONTENT_POS_EQUAL:
-                $joinsql .= " LEFT JOIN {job_assignment} u2ja
-                                     ON u2ja.positionid = p1.id";
-
-                $wheresql .= " AND u2ja.{$jafield} = {$field}";
-                break;
-            case self::CONTENT_POS_BELOW:
-                $joinsql .= " LEFT JOIN {pos} p2
-                                     ON p2.path LIKE " . $DB->sql_concat('p1.path', "'/%'") . "
-                              LEFT JOIN {job_assignment} u3ja
-                                     ON u3ja.positionid = p2.id";
-
-                $wheresql .= " AND u3ja.{$jafield} = {$field} ";
-                break;
-            case self::CONTENT_POS_EQUALANDBELOW:
-                $joinsql .= " INNER JOIN ( SELECT ja.userid,p.id AS positionid,p.path
-                                             FROM {job_assignment} ja
-                                       INNER JOIN {pos} p
-                                               ON p.id = ja.positionid
-                                         ) viewerja
-                                      ON viewerja.userid = :{$viewparam}
-                                     AND ( p1.path LIKE " . $DB->sql_concat('viewerja.path', "'/%'") . "
-                                           OR viewerja.positionid = u1ja.positionid
-                                         )";
-                $wheresql = " WHERE u1ja.{$jafield} = {$field}";
-                break;
+        $jobs = \totara_job\job_assignment::get_all($userid);
+        $posids = array();
+        foreach ($jobs as $job) {
+            if ($job->positionid) {
+                $posids[] = $job->positionid;
+            }
         }
 
-        $sql = "EXISTS({$joinsql}{$wheresql})";
-        return array($sql, $params);
-    }
+        if (empty($posids)) {
+            // There will be no match, no need to run the big query, empty result will do.
+            return array("$field = NULL", array());
+        }
 
-    /**
-     * Generate the SQL to apply this content restriction
-     *
-     * @param string $field SQL field to apply the restriction against
-     * @param integer $reportid ID of the report
-     *
-     * @return array containing SQL snippet to be used in a WHERE clause, as well as array of SQL params
-     */
-    public function sql_restriction($field, $reportid) {
-        return $this->restriction_sql('userid', $field, $reportid);
+        list($possql, $params) = $DB->get_in_or_equal($posids, SQL_PARAMS_NAMED, 'posid');
+        $viewpospath = $DB->sql_concat('viewerpos.path', "'/%'");
+
+        if ($restriction == self::CONTENT_POS_EQUAL) {
+            $wheresql = "$field IN (
+            SELECT ja.userid
+              FROM {job_assignment} ja
+              JOIN {pos} viewerpos ON viewerpos.id = ja.positionid
+             WHERE viewerpos.id $possql)";
+
+            return array($wheresql, $params);
+        }
+
+        if ($restriction == self::CONTENT_POS_BELOW) {
+            $wheresql = "$field IN (
+            SELECT ja.userid
+              FROM {job_assignment} ja
+              JOIN {pos} pos ON pos.id = ja.positionid
+              JOIN {pos} viewerpos ON pos.path LIKE $viewpospath
+             WHERE viewerpos.id $possql)";
+
+            return array($wheresql, $params);
+        }
+
+        if ($restriction == self::CONTENT_POS_EQUALANDBELOW) {
+            $wheresql = "$field IN (
+            SELECT ja.userid
+              FROM {job_assignment} ja
+              JOIN {pos} pos ON pos.id = ja.positionid
+              JOIN {pos} viewerpos ON pos.path LIKE $viewpospath OR viewerpos.id = pos.id
+             WHERE viewerpos.id $possql)";
+
+            return array($wheresql, $params);
+        }
+
+        // Invalid restriction, empty result will do.
+        debugging('Invalid restriction type detected', DEBUG_DEVELOPER);
+        return array("$field = NULL", array());
     }
 
     /**
@@ -150,15 +147,74 @@ class rb_current_pos_content extends rb_base_content {
     }
 
     /**
-     * Generate the SQL to apply this content restriction to hierarchy queries
+     * Generate the SQL to apply this content restriction to position queries
+     * in position dialogs used in reports.
      *
-     * @param string $field SQL field to apply the restriction against
+     * NOTE: always return parent categories even if user is not allowed to see data from them,
+     *       this is necessary for trees in dialogs.
+     *
+     * @param string $field position id SQL field to apply the restriction against
      * @param integer $reportid ID of the report
      *
      * @return array containing SQL snippet to be used in a WHERE clause, as well as array of SQL params
      */
     public function sql_hierarchy_restriction($field, $reportid) {
-        return $this->restriction_sql('positionid', $field, $reportid);
+        global $DB;
+
+        // remove rb_ from start of classname
+        $type = substr(get_class($this), 3);
+        $settings = reportbuilder::get_all_settings($reportid, $type);
+        $restriction = $settings['recursive'];
+        $userid = $this->reportfor;
+
+        $jobs = \totara_job\job_assignment::get_all($userid);
+        $posids = array();
+        foreach ($jobs as $job) {
+            if ($job->positionid) {
+                $posids[] = $job->positionid;
+            }
+        }
+
+        if (empty($posids)) {
+            // There will be no match, NULL is not equal to anything, not even NULL.
+            return array("{$field} = NULL", array());
+        }
+
+        list($possql, $params) = $DB->get_in_or_equal($posids, SQL_PARAMS_NAMED, 'posid');
+        $viewpospath = $DB->sql_concat('viewerpos.path', "'/%'");
+        $parentpospath = $DB->sql_concat('pos.path', "'/%'");
+
+        $sql = "SELECT pos.id
+                  FROM {pos} pos
+                  JOIN {pos} viewerpos ON viewerpos.path LIKE $parentpospath
+                 WHERE viewerpos.id $possql";
+        $parents = $DB->get_records_sql($sql, $params);
+        $parentids = array_keys($parents);
+
+        if ($restriction == self::CONTENT_POS_EQUAL) {
+            $itemids = $posids;
+
+        } else if ($restriction == self::CONTENT_POS_BELOW || $restriction == self::CONTENT_POS_EQUALANDBELOW) {
+            // Hierarchy has to include full tree from parent to the current restriction,
+            // otherwise we won't be able to build a selector dialog.
+            $sql = "SELECT pos.id
+                      FROM {pos} pos
+                      JOIN {pos} viewerpos ON pos.path LIKE $viewpospath OR viewerpos.id = pos.id
+                     WHERE viewerpos.id $possql";
+            $items = $DB->get_records_sql($sql, $params);
+            $itemids = array_keys($items);
+        } else {
+            // Invalid restriction, NULL is not equal to anything, not even NULL.
+            debugging('Invalid restriction type detected', DEBUG_DEVELOPER);
+            return array("{$field} = NULL", array());
+        }
+
+        if (!$itemids and !$parentids) {
+            return array("{$field} = NULL", array());
+        }
+
+        list($idsql, $params) = $DB->get_in_or_equal(array_merge($itemids, $parentids), SQL_PARAMS_NAMED, 'posid');
+        return array("{$field} $idsql", $params);
     }
 
     /**
@@ -276,14 +332,13 @@ class rb_current_org_content extends rb_base_content {
     /**
      * Generate the SQL to apply this content restriction
      *
-     * @param string $jafield Job assignment field to compare
      * @param string $field SQL field to apply the restriction against
      * @param integer $reportid ID of the report
      *
      * @return array containing SQL snippet to be used in a WHERE clause, as well as array of SQL params
      */
-    private function restriction_sql($jafield, $field, $reportid) {
-        global $CFG, $DB;
+    public function sql_restriction($field, $reportid) {
+        global $DB;
 
         // remove rb_ from start of classname
         $type = substr(get_class($this), 3);
@@ -291,56 +346,57 @@ class rb_current_org_content extends rb_base_content {
         $restriction = $settings['recursive'];
         $userid = $this->reportfor;
 
-        $viewparam = $DB->get_unique_param('viewid');
-        $params = array($viewparam => $userid);
-
-        // Set up the base joins and where clause for the restrictions.
-        $joinsql = " SELECT 1
-                       FROM {job_assignment} u1ja
-                 INNER JOIN {org} o1
-                         ON u1ja.organisationid = o1.id";
-        $wheresql = " WHERE u1ja.userid = :{$viewparam}";
-        switch ($restriction) {
-            case self::CONTENT_ORG_EQUAL:
-                $joinsql .= " LEFT JOIN {job_assignment} u2ja
-                                ON u2ja.organisationid = o1.id";
-
-                $wheresql .= " AND u2ja.{$jafield} = {$field}";
-                break;
-            case self::CONTENT_ORG_BELOW:
-                $joinsql .= " LEFT JOIN {org} o2
-                                ON o2.path LIKE " . $DB->sql_concat('o1.path', "'/%'") . "
-                         LEFT JOIN {job_assignment} u3ja
-                                ON u3ja.organisationid = o2.id";
-
-                $wheresql .= " AND u3ja.{$jafield} = {$field} ";
-                break;
-            case self::CONTENT_ORG_EQUALANDBELOW:
-                $joinsql .= " INNER JOIN (
-                        SELECT ja.userid,o.id AS organisationid,o.path
-                            FROM {job_assignment} ja
-                            INNER JOIN {org} o ON o.id = ja.organisationid
-                    ) viewerja ON viewerja.userid = :{$viewparam}
-                        AND ( o1.path LIKE " . $DB->sql_concat('viewerja.path', "'/%'") . "
-                        OR viewerja.organisationid = u1ja.organisationid )";
-                $wheresql = " WHERE u1ja.{$jafield} = {$field}";
-                break;
+        $jobs = \totara_job\job_assignment::get_all($userid);
+        $orgids = array();
+        foreach ($jobs as $job) {
+            if ($job->organisationid) {
+                $orgids[] = $job->organisationid;
+            }
         }
 
-        $sql = "EXISTS({$joinsql}{$wheresql})";
-        return array($sql, $params);
-    }
+        if (empty($orgids)) {
+            // There will be no match, no need to run the big query, empty result will do.
+            return array("{$field} = NULL", array());
+        }
 
-    /**
-     * Generate the SQL to apply this content restriction
-     *
-     * @param string $field SQL field to apply the restriction against
-     * @param integer $reportid ID of the report
-     *
-     * @return array containing SQL snippet to be used in a WHERE clause, as well as array of SQL params
-     */
-    public function sql_restriction($field, $reportid) {
-        return $this->restriction_sql('userid', $field, $reportid);
+        list($orgsql, $params) = $DB->get_in_or_equal($orgids, SQL_PARAMS_NAMED, 'orgid');
+        $vieworgpath = $DB->sql_concat('viewerorg.path', "'/%'");
+
+        if ($restriction == self::CONTENT_ORG_EQUAL) {
+            $wheresql = "$field IN (
+            SELECT ja.userid
+              FROM {job_assignment} ja
+              JOIN {org} viewerorg ON viewerorg.id = ja.organisationid
+             WHERE viewerorg.id $orgsql)";
+
+            return array($wheresql, $params);
+        }
+
+        if ($restriction == self::CONTENT_ORG_BELOW) {
+            $wheresql = "$field IN (
+            SELECT ja.userid
+              FROM {job_assignment} ja
+              JOIN {org} org ON org.id = ja.organisationid
+              JOIN {org} viewerorg ON org.path LIKE $vieworgpath
+             WHERE viewerorg.id $orgsql)";
+
+            return array($wheresql, $params);
+        }
+
+        if ($restriction == self::CONTENT_ORG_EQUALANDBELOW) {
+            $wheresql = "$field IN (
+            SELECT ja.userid
+              FROM {job_assignment} ja
+              JOIN {org} org ON org.id = ja.organisationid
+              JOIN {org} viewerorg ON org.path LIKE $vieworgpath OR viewerorg.id = org.id
+             WHERE viewerorg.id $orgsql)";
+
+            return array($wheresql, $params);
+        }
+
+        // Invalid restriction, empty result will do.
+        debugging('Invalid restriction type detected', DEBUG_DEVELOPER);
+        return array("{$field} = NULL", array());
     }
 
     /**
@@ -353,15 +409,74 @@ class rb_current_org_content extends rb_base_content {
     }
 
     /**
-     * Generate the SQL to apply this content restriction to hierarchy queries
+     * Generate the SQL to apply this content restriction to organisation queries
+     * in organisation dialogs used in reports.
      *
-     * @param string $field SQL field to apply the restriction against
+     * NOTE: always return parent categories even if user is not allowed to see data from them,
+     *       this is necessary for trees in dialogs.
+     *
+     * @param string $field organisation id SQL field to apply the restriction against
      * @param integer $reportid ID of the report
      *
      * @return array containing SQL snippet to be used in a WHERE clause, as well as array of SQL params
      */
     public function sql_hierarchy_restriction($field, $reportid) {
-        return $this->restriction_sql('organisationid', $field, $reportid);
+        global $DB;
+
+        // remove rb_ from start of classname
+        $type = substr(get_class($this), 3);
+        $settings = reportbuilder::get_all_settings($reportid, $type);
+        $restriction = $settings['recursive'];
+        $userid = $this->reportfor;
+
+        $jobs = \totara_job\job_assignment::get_all($userid);
+        $orgids = array();
+        foreach ($jobs as $job) {
+            if ($job->organisationid) {
+                $orgids[] = $job->organisationid;
+            }
+        }
+
+        if (empty($orgids)) {
+            // There will be no match, NULL is not equal to anything, not even NULL.
+            return array("{$field} = NULL", array());
+        }
+
+        list($orgsql, $params) = $DB->get_in_or_equal($orgids, SQL_PARAMS_NAMED, 'orgid');
+        $vieworgpath = $DB->sql_concat('viewerorg.path', "'/%'");
+        $parentorgpath = $DB->sql_concat('org.path', "'/%'");
+
+        $sql = "SELECT org.id
+                  FROM {org} org
+                  JOIN {org} viewerorg ON viewerorg.path LIKE $parentorgpath
+                 WHERE viewerorg.id $orgsql";
+        $parents = $DB->get_records_sql($sql, $params);
+        $parentids = array_keys($parents);
+
+        if ($restriction == self::CONTENT_ORG_EQUAL) {
+            $itemids = $orgids;
+
+        } else if ($restriction == self::CONTENT_ORG_BELOW || $restriction == self::CONTENT_ORG_EQUALANDBELOW) {
+            // Hierarchy has to include full tree from parent to the current restriction,
+            // otherwise we won't be able to build a selector dialog.
+            $sql = "SELECT org.id
+                      FROM {org} org
+                      JOIN {org} viewerorg ON org.path LIKE $vieworgpath OR viewerorg.id = org.id
+                     WHERE viewerorg.id $orgsql";
+            $items = $DB->get_records_sql($sql, $params);
+            $itemids = array_keys($items);
+        } else {
+            // Invalid restriction, NULL is not equal to anything, not even NULL.
+            debugging('Invalid restriction type detected', DEBUG_DEVELOPER);
+            return array("{$field} = NULL", array());
+        }
+
+        if (!$itemids and !$parentids) {
+            return array("{$field} = NULL", array());
+        }
+
+        list($idsql, $params) = $DB->get_in_or_equal(array_merge($itemids, $parentids), SQL_PARAMS_NAMED, 'orgid');
+        return array("{$field} $idsql", $params);
     }
 
     /**

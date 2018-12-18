@@ -84,21 +84,26 @@ Scenario: Confirm that a historical Certified, before window opens state is save
   And the field "Certification path" matches value "Recertification"
   # Note: "In progress" should be a static element with "Not applicable"
   And I set the following fields to these values:
-    | timecompleted[day]      | 3         |
-    | timecompleted[month]    | September |
-    | timecompleted[year]     | 2030      |
-    | timecompleted[hour]     | 12        |
-    | timecompleted[minute]   | 30        |
-    | timewindowopens[day]    | 2         |
-    | timewindowopens[month]  | September |
-    | timewindowopens[year]   | 2030      |
-    | timewindowopens[hour]   | 12        |
-    | timewindowopens[minute] | 30        |
-    | timeexpires[day]        | 1         |
-    | timeexpires[month]      | September |
-    | timeexpires[year]       | 2030      |
-    | timeexpires[hour]       | 12        |
-    | timeexpires[minute]     | 30        |
+    | timecompleted[day]          | 3         |
+    | timecompleted[month]        | September |
+    | timecompleted[year]         | 2030      |
+    | timecompleted[hour]         | 12        |
+    | timecompleted[minute]       | 30        |
+    | timewindowopens[day]        | 2         |
+    | timewindowopens[month]      | September |
+    | timewindowopens[year]       | 2030      |
+    | timewindowopens[hour]       | 12        |
+    | timewindowopens[minute]     | 30        |
+    | timeexpires[day]            | 1         |
+    | timeexpires[month]          | September |
+    | timeexpires[year]           | 2030      |
+    | timeexpires[hour]           | 12        |
+    | timeexpires[minute]         | 30        |
+    | baselinetimeexpires[day]    | 1         |
+    | baselinetimeexpires[month]  | September |
+    | baselinetimeexpires[year]   | 2030      |
+    | baselinetimeexpires[hour]   | 12        |
+    | baselinetimeexpires[minute] | 30        |
   And I click on "Save changes" "button"
   Then I should see "Window open date should not be before Completion date when user is certified and recertification window has not yet opened."
   And I should see "Expiry date should not be before Window open date when user is certified and recertification window has not yet opened."
@@ -114,11 +119,16 @@ Scenario: Confirm that a historical Certified, before window opens state is save
   And I should see "Expiry date should not be before Window open date when user is certified and recertification window has not yet opened."
 
   When I set the following fields to these values:
-    | timeexpires[day]    | 5         |
-    | timeexpires[month]  | September |
-    | timeexpires[year]   | 2030      |
-    | timeexpires[hour]   | 12        |
-    | timeexpires[minute] | 30        |
+    | timeexpires[day]            | 5         |
+    | timeexpires[month]          | September |
+    | timeexpires[year]           | 2030      |
+    | timeexpires[hour]           | 12        |
+    | timeexpires[minute]         | 30        |
+    | baselinetimeexpires[day]    | 5         |
+    | baselinetimeexpires[month]  | September |
+    | baselinetimeexpires[year]   | 2030      |
+    | baselinetimeexpires[hour]   | 12        |
+    | baselinetimeexpires[minute] | 30        |
   And I click on "Save changes" "button"
   Then I should not see "Window open date must be after Completion date when user is certified and recertification window is open."
   And I should not see "Expiry date should not be before Window open date when user is certified and recertification window is open."
@@ -141,6 +151,11 @@ Scenario: Confirm that a historical Certified, before window opens state is save
     | timeexpires[year]              | 2030                           |
     | timeexpires[hour]              | 12                             |
     | timeexpires[minute]            | 30                             |
+    | baselinetimeexpires[day]       | 5                              |
+    | baselinetimeexpires[month]     | September                      |
+    | baselinetimeexpires[year]      | 2030                           |
+    | baselinetimeexpires[hour]      | 12                             |
+    | baselinetimeexpires[minute]    | 30                             |
 
 Scenario: Confirm that a historical Certified, window is open state is saved correctly
   Given I click on "Add history" "button"
@@ -152,22 +167,27 @@ Scenario: Confirm that a historical Certified, window is open state is saved cor
   And the "Certification path" "field" should be disabled
   And the field "Certification path" matches value "Recertification"
   And I set the following fields to these values:
-    | In progress             | Yes       |
-    | timecompleted[day]      | 3         |
-    | timecompleted[month]    | September |
-    | timecompleted[year]     | 2030      |
-    | timecompleted[hour]     | 12        |
-    | timecompleted[minute]   | 30        |
-    | timewindowopens[day]    | 2         |
-    | timewindowopens[month]  | September |
-    | timewindowopens[year]   | 2030      |
-    | timewindowopens[hour]   | 12        |
-    | timewindowopens[minute] | 30        |
-    | timeexpires[day]        | 1         |
-    | timeexpires[month]      | September |
-    | timeexpires[year]       | 2030      |
-    | timeexpires[hour]       | 12        |
-    | timeexpires[minute]     | 30        |
+    | In progress                 | Yes       |
+    | timecompleted[day]          | 3         |
+    | timecompleted[month]        | September |
+    | timecompleted[year]         | 2030      |
+    | timecompleted[hour]         | 12        |
+    | timecompleted[minute]       | 30        |
+    | timewindowopens[day]        | 2         |
+    | timewindowopens[month]      | September |
+    | timewindowopens[year]       | 2030      |
+    | timewindowopens[hour]       | 12        |
+    | timewindowopens[minute]     | 30        |
+    | timeexpires[day]            | 1         |
+    | timeexpires[month]          | September |
+    | timeexpires[year]           | 2030      |
+    | timeexpires[hour]           | 12        |
+    | timeexpires[minute]         | 30        |
+    | baselinetimeexpires[day]    | 1         |
+    | baselinetimeexpires[month]  | September |
+    | baselinetimeexpires[year]   | 2030      |
+    | baselinetimeexpires[hour]   | 12        |
+    | baselinetimeexpires[minute] | 30        |
   Then the field "Certification status" matches value "In progress"
   And I click on "Save changes" "button"
   Then I should see "Window open date must be after Completion date when user is certified and recertification window is open."
@@ -184,11 +204,16 @@ Scenario: Confirm that a historical Certified, window is open state is saved cor
   And I should see "Expiry date should not be before Window open date when user is certified and recertification window is open."
 
   When I set the following fields to these values:
-    | timeexpires[day]    | 5         |
-    | timeexpires[month]  | September |
-    | timeexpires[year]   | 2030      |
-    | timeexpires[hour]   | 12        |
-    | timeexpires[minute] | 30        |
+    | timeexpires[day]            | 5         |
+    | timeexpires[month]          | September |
+    | timeexpires[year]           | 2030      |
+    | timeexpires[hour]           | 12        |
+    | timeexpires[minute]         | 30        |
+    | baselinetimeexpires[day]    | 5         |
+    | baselinetimeexpires[month]  | September |
+    | baselinetimeexpires[year]   | 2030      |
+    | baselinetimeexpires[hour]   | 12        |
+    | baselinetimeexpires[minute] | 30        |
   And I click on "Save changes" "button"
   Then I should not see "Window open date must be after Completion date when user is certified and recertification window is open."
   And I should not see "Expiry date should not be before Window open date when user is certified and recertification window is open."
@@ -211,6 +236,11 @@ Scenario: Confirm that a historical Certified, window is open state is saved cor
     | timeexpires[year]              | 2030                      |
     | timeexpires[hour]              | 12                        |
     | timeexpires[minute]            | 30                        |
+    | baselinetimeexpires[day]       | 5                         |
+    | baselinetimeexpires[month]     | September                 |
+    | baselinetimeexpires[year]      | 2030                      |
+    | baselinetimeexpires[hour]      | 12                        |
+    | baselinetimeexpires[minute]    | 30                        |
 
 Scenario: Confirm that a historical Expired state is saved correctly
   And I click on "Add history" "button"

@@ -59,7 +59,7 @@ Feature: Seminar timezones in reports
     And I click on "#id_customfield_locationdisplay_map" "css_element"
     And I click on "#id_customfield_locationdisplay_map" "css_element"
     And I press "Use Address"
-    And I click on "OK" "button" in the "Create new room" "totaradialogue"
+    And I click on "//div[@aria-describedby='editcustomroom0-dialog']//div[@class='ui-dialog-buttonset']/button[contains(.,'OK')]" "xpath_element"
 
     And I press "Save changes"
     And I follow "Add a new event"
@@ -94,7 +94,7 @@ Feature: Seminar timezones in reports
     And I click on "#id_customfield_locationdisplay_map" "css_element"
     And I click on "#id_customfield_locationdisplay_map" "css_element"
     And I press "Use Address"
-    And I click on "OK" "button" in the "Create new room" "totaradialogue"
+    And I click on "//div[@aria-describedby='editcustomroom0-dialog']//div[@class='ui-dialog-buttonset']/button[contains(.,'OK')]" "xpath_element"
 
     And I press "Save changes"
     And I should see "6:15 PM - 8:45 PM Europe/Prague" in the "Room 1" "table_row"
@@ -141,10 +141,10 @@ Feature: Seminar timezones in reports
       | facetoface_displaysessiontimezones | 0 |
     And I navigate to my "F2F sessions" report
     # That's a bit strange that w/o timezone date shown in different format, might need to look at that later.
-    Then I should see "2 Jan 2020" in the "First User" "table_row"
+    Then I should see "2 January 2020" in the "First User" "table_row"
     And I should see "01:15" in the "First User" "table_row"
     And I should see "03:45" in the "First User" "table_row"
-    And I should see "4 Feb 2021" in the "Second User" "table_row"
+    And I should see "4 February 2021" in the "Second User" "table_row"
     And I should see "01:00" in the "Second User" "table_row"
     And I should see "02:30" in the "Second User" "table_row"
     And I should not see "Prague"
