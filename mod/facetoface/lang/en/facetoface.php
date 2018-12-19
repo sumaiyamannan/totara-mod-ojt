@@ -505,7 +505,7 @@ $string['error:cannotsendrequestuser'] = 'There was a problem sending the signup
 $string['error:cannotsendrequestmanager'] = 'There was a problem sending the signup request message to your manager\'s email account.';
 $string['error:cannotsendconfirmationusermanager'] = 'A confirmation message could not be sent to your email address and to your manager\'s email address.';
 $string['error:cannotsignupforacancelledevent'] = 'This event has been cancelled. It is no longer possible to sign up for it.';
-$string['error:canttakeattendanceforunstartedsession'] = 'Can not take attendance for a event that has yet to start.';
+$string['error:canttakeattendanceforunstartedsession'] = 'Can not take attendance for an event that has yet to start.';
 $string['error:capabilityaddattendees'] = 'You do not have the necessary permissions to add attendees';
 $string['error:capabilityremoveattendees'] = 'You do not have the necessary permissions to remove attendees';
 $string['error:capacitynotnumeric'] = 'Event capacity is not a number';
@@ -740,7 +740,7 @@ $string['managerreserveheader'] = 'Manager reservations';
 $string['managesessions'] = 'View and manage sessions';
 $string['mark_selected_as'] = 'Mark all selected as: ';
 $string['maxbookings'] = 'Maximum bookings';
-$string['maxbookings_help'] = '**Maximum bookings** is the number of seats available in a event.
+$string['maxbookings_help'] = '**Maximum bookings** is the number of seats available in an event.
 
 When a seminar event reaches capacity the event details do not appear on the course page. The details will appear greyed out on the **View all events** page and the learner cannot enrol on the event.';
 $string['maximumpoints'] = 'Maximum number of points';
@@ -834,11 +834,11 @@ $string['numberofattendees'] = 'Number of attendees';
 $string['uploadfile'] = 'Upload file';
 $string['occuredonx'] = 'Occured on {$a}';
 $string['occurswhenenabled'] = 'Occurs when enabled';
-$string['occurswhenuserbookssession'] = 'Occurs when a learner books a event';
-$string['occurswhenuserrequestssessionwithmanagerapproval'] = 'Occurs when a user attempts to book a event with manager approval required';
-$string['occurswhenuserrequestssessionwithmanagerdecline'] = 'Occurs when a user attempts to declined a event with manager approval required';
+$string['occurswhenuserbookssession'] = 'Occurs when a learner books an event';
+$string['occurswhenuserrequestssessionwithmanagerapproval'] = 'Occurs when a user attempts to book an event with manager approval required';
+$string['occurswhenuserrequestssessionwithmanagerdecline'] = 'Occurs when a user attempts to declined an event with manager approval required';
 $string['occurswhenusersbookingiscancelled'] = 'Occurs when a learner\'s booking is cancelled';
-$string['occurswhenuserwaitlistssession'] = 'Occurs when a learner is waitlisted on a event';
+$string['occurswhenuserwaitlistssession'] = 'Occurs when a learner is waitlisted on an event';
 $string['occursxaftersession'] = 'Occurs {$a} after end of event';
 $string['occursxbeforesession'] = 'Occurs {$a} before start of event';
 $string['odsformat'] = 'OpenDocument';
@@ -1023,7 +1023,7 @@ $string['selfapprovalsought'] = 'Self Approval Sought';
 $string['selfapprovalsoughtbrief'] = 'I accept the terms and conditions.';
 $string['selfapprovalsoughtdesc'] = 'By checking this box, I confirm that I have read and agreed to the {$a} (opens a new window).';
 $string['selfapprovaltandc'] = 'Self Approval Terms and Conditions';
-$string['selfapprovaltandc_help'] = 'Where an activity has approval required and a event has self approval enabled these are the terms and conditions that will be displayed when a user signs up.';
+$string['selfapprovaltandc_help'] = 'Where an activity has approval required and an event has self approval enabled these are the terms and conditions that will be displayed when a user signs up.';
 $string['selfapprovaltandccontents'] = 'By checking the box you confirm that permission to sign up to this seminar activity has been granted by your manager.
 
 Falsely claiming that approval has been granted can result in non-admittance and disciplinary action.
@@ -1054,7 +1054,7 @@ $string['sessionenddatewithtime'] = '{$a->enddate}, {$a->endtime} {$a->timezone}
 $string['sessionsdetailstablesummary'] = 'Full description of the current event.';
 $string['sessionfinishdateshort'] = 'Finish date';
 $string['sessionfinishtime'] = 'Event finish time';
-$string['sessionfinishtime_help'] = 'When creating or editing a event, the event timezone may differ from the timezone for the **Finish time**. This is because the timezone for **Finish time** is determined by the timezone of the user creating or editing the event. The timezone of the user creating or editing the event does not affect the event timezone itself.';
+$string['sessionfinishtime_help'] = 'When creating or editing an event, the event timezone may differ from the timezone for the **Finish time**. This is because the timezone for **Finish time** is determined by the timezone of the user creating or editing the event. The timezone of the user creating or editing the event does not affect the event timezone itself.';
 $string['sessioninprogress'] = 'Event in progress';
 $string['sessionisfull'] = 'This event is now full. You will need to pick another time or talk to the instructor.';
 $string['sessionnoattendeesaswaitlist'] = 'This event does not have any attendees because it does not have a known date and time.<br />See the wait-list tab for users that have signed up.';
@@ -1075,7 +1075,7 @@ $string['sessionsreport'] = 'Sessions report';
 $string['sessionstartdate'] = 'Session start';
 $string['sessionstartdateshort'] = 'Start date';
 $string['sessionstarttime'] = 'Event start time';
-$string['sessionstarttime_help'] = 'When creating or editing a event, the event timezone may differ from the timezone for the **Start time**. This is because the timezone for **Start time** is determined by the timezone of the user creating or editing the event. The timezone of the user creating or editing the event does not affect the event timezone itself.';
+$string['sessionstarttime_help'] = 'When creating or editing an event, the event timezone may differ from the timezone for the **Start time**. This is because the timezone for **Start time** is determined by the timezone of the user creating or editing the event. The timezone of the user creating or editing the event does not affect the event timezone itself.';
 $string['sessiontimezone'] = 'Timezone displayed';
 $string['sessiontimezone_help'] = 'Select the timezone you want this event to be displayed in e.g. \'Pacific/Auckland\'. This will display the start time, finish time and timezone in accordance with the timezone selected. If you choose **User timezone**, this will display the start time, finish date, and timezone in relation to the timezone of the user viewing the event.';
 $string['sessiontimezoneunknown'] = 'Unknown Timezone';
@@ -2148,14 +2148,14 @@ $string['error:shortnametaken'] = 'Custom field with this short name already exi
 
 $string['allowoverbook_help'] = 'When **Enable waitlist** is checked, learners will be able to sign up for a seminar event even if it is already full.
 
-When a learner signs up for a event that is already full, they will receive an email advising that they have been waitlisted for the event and will be notified when a booking becomes available.';
+When a learner signs up for an event that is already full, they will receive an email advising that they have been waitlisted for the event and will be notified when a booking becomes available.';
 $string['approvalreqd_help'] = 'When **Approval required** is checked, a learner will need approval from their manager to be permitted to attend a seminar event.';
 $string['cancellationinstrmngr'] = '# Notice for manager';
 $string['cancellationinstrmngr_help'] = 'When **Send notice to manager** is checked, the text in the **Notice for manager** field is sent to a learner\'s manager advising that they have cancelled a seminar booking.';
 $string['cancellationmessage_help'] = 'This message is sent out whenever users cancel their booking for an event.';
 $string['confirmationinstrmngr'] = '# Notice for manager';
 $string['confirmationinstrmngr_help'] = 'When **Send notice to manager** is checked, the text in the **Notice for manager** field is sent to a manager advising that a staff member has signed up for a seminar event.';
-$string['confirmationmessage_help'] = 'This message is sent out whenever users sign up for a event.';
+$string['confirmationmessage_help'] = 'This message is sent out whenever users sign up for an event.';
 $string['description_help'] = '**Description** is the course description that displays when a learner enrols on a seminar event.
 
 The **Description** also displays in the training calendar.';
@@ -2203,12 +2203,12 @@ $string['notificationtype_help'] = '**Notification Type** allows the learner to 
 $string['recipients_help'] = 'The options are:
 
 * **Booked**: Allows you to send the notification to all users who were booked, only those who attended, or only those who did not attend. Please note, when selecting **All booked**, notifications will be issued to all booked users, regardless of their attendance status, for events past and present.
-* **Wait-listed**: Will send a notification to those who are signed up for a event which allows overbooking, but are not yet booked.
-* **User cancelled**: Will send a notification to users for whom a event was cancelled or users who removed themselves from an event.
+* **Wait-listed**: Will send a notification to those who are signed up for an event which allows overbooking, but are not yet booked.
+* **User cancelled**: Will send a notification to users for whom an event was cancelled or users who removed themselves from an event.
 * **Pending Requests**: Will send a notification to users for whom have requested a booking from their manager/role/admin that has not been approved or declined yet.';
 $string['reminderinstrmngr'] = '# Notice for Manager';
 $string['reminderinstrmngr_help'] = 'When **Send notice to manager** is checked, the text in the **Notice for Manager** field is sent to a learner\'s manager advising that they have signed up for a seminar event.';
-$string['remindermessage_help'] = 'This message is sent out a few days before a event\'s start date.';
+$string['remindermessage_help'] = 'This message is sent out a few days before an event\'s start date.';
 $string['requestmessage_help'] = 'When **Approval required** is enabled, the **Request message** section is available.
 
 The **Request message** section displays the notices sent to the learner and their manager regarding the approval process for the learner to attend the seminar event.
@@ -2228,7 +2228,7 @@ When **Course** is selected all of the seminar activity events will be displayed
 
 When **None** is selected, seminar activity events will only be displayed as **User Events** on a confirmed attendee\'s calendar, provided the **Show on user\'s calendar** option has been selected.';
 $string['suppressemail_help'] = 'Use this option if you want to silently add/remove users from a seminar event. When this option is toggled, the usual email confirmation is not sent to the selected users.';
-$string['thirdpartyemailaddress_help'] = '**Third-party email address(es)** is an optional field used to specify the email address of a third-party (such as an external instructor) who will then receive confirmation messages whenever a user signs-up for a event.
+$string['thirdpartyemailaddress_help'] = '**Third-party email address(es)** is an optional field used to specify the email address of a third-party (such as an external instructor) who will then receive confirmation messages whenever a user signs-up for an event.
 When entering **multiple email addresses**, separate each address with a comma. For example: bob@example.com,joe@example.com';
 $string['thirdpartywaitlist_help'] = 'When **Notify third-party about wait-listed events** is selected the third-party(s) will be notified when a learner signs up for a wait-listed event. When
 
@@ -2237,7 +2237,7 @@ $string['timefinish_help'] = 'Finish time is the time when the event ends.';
 $string['timestart_help'] = 'Start time is the time when the event begins.';
 $string['useridentifier'] = 'User identifier';
 
-$string['usercalentry_help'] = 'When active this setting adds a **User Event** entry to the calendar of an attendee of a seminar event. When turned off this prevents a duplicate event appearing in a event attendee\'s calendar, where you have calendar display settings set to **Course** or **Site**.';
+$string['usercalentry_help'] = 'When active this setting adds a **User Event** entry to the calendar of an attendee of a seminar event. When turned off this prevents a duplicate event appearing in an event attendee\'s calendar, where you have calendar display settings set to **Course** or **Site**.';
 $string['venue_help'] = '**Venue** is the building the event will be held in.
 
 The **Venue** displays on the **Sign-up** page, the **View all events** page and in all email notifications.';
@@ -2375,7 +2375,7 @@ $string['waitliststatus'] = 'You have a place on the waitlist of the following s
 
 # Deprecated
 $string['cancel'] = 'Cancel';
-$string['capacity_help'] = '**Capacity** is the number of seats available in a event.
+$string['capacity_help'] = '**Capacity** is the number of seats available in an event.
 
 When a face-to-face event reaches capacity the event details do not appear on the course page. The details will appear greyed out on the **View all events** page and the learner cannot enrol on the event.';
 $string['copy'] = 'Copy';
