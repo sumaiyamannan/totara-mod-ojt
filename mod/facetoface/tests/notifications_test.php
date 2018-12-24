@@ -2211,4 +2211,77 @@ class mod_facetoface_notifications_testcase extends advanced_testcase {
         $affectedrows = facetoface_notification_restore_missing_template(MDL_F2F_CONDITION_SESSION_CANCELLATION);
         $this->assertEquals(3, $affectedrows);
     }
+
+    /**
+     * Test that under capacity notifications are not sent for cancelled notifications.
+     * @dataProvider status_provider
+     */
+    public function test_facetoface_notify_under_capacity_not_sent_for_cancelled_events($cancelled) {
+        global $CFG, $DB;
+        $this->resetAfterTest();
+
+        $course = $this->getDataGenerator()->create_course();
+
+        /**
+         * @var \mod_facetoface_generator $seminargen
+         */
+        $seminargen = $this->getDataGenerator()->get_plugin_generator('mod_facetoface');
+        $seminarrec = $seminargen->create_instance([
+            'name' => 'Seminar 1',
+            'course' => $course->id
+        ]);
+
+        $sessiondate = new stdClass();
+        $sessiondate->timestart = time() + DAYSECS;
+        $sessiondate->timefinish = $sessiondate->timestart + (DAYSECS * 2);
+        $sessiondate->sessiontimezone = 'Pacific/Auckland';
+
+        $seminareventid = $seminargen->add_session([
+            'facetoface' => $seminarrec->id,
+            'cutoff' => DAYSECS+1,
+            'mincapacity' => 1,
+            'cancelledstatus' => $cancelled,
+            'sessiondates' => [$sessiondate]
+        ]);
+
+        $teacherrole = $DB->get_record('role', array('shortname' => 'editingteacher'));
+        $CFG->facetoface_session_rolesnotify = $teacherrole->id;
+        $user = $this->getDataGenerator()->create_user();
+        $this->getDataGenerator()->enrol_user($user->id, $course->id, $teacherrole->id);
+
+        $sessrole = new stdClass();
+        $sessrole->roleid = $teacherrole->id;
+        $sessrole->sessionid = $seminareventid;
+        $sessrole->userid = $user->id;
+        $DB->insert_record('facetoface_session_roles', $sessrole);
+
+        $emailsink = $this->redirectMessages();
+
+        ob_start();
+        facetoface_notify_under_capacity();
+        ob_end_clean();
+
+        $messages = $emailsink->get_messages();
+        $emailsink->close();
+
+        $CFG->facetoface_session_rolesnotify = '';
+
+        if ($cancelled) {
+            $this->assertCount(0, $messages);
+        } else {
+            $this->assertCount(1, $messages);
+            $this->assertContains('Event under capacity', current($messages)->subject);
+        }
+    }
+
+    /**
+     * Provider for test_facetoface_notify_under_capacity_not_sent_for_cancelled_events
+     * @return array
+     */
+    public function status_provider() {
+        return [
+            [0],
+            [1]
+        ];
+    }
 }

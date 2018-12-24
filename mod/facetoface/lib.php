@@ -1401,7 +1401,10 @@ function facetoface_notify_under_capacity() {
                 INNER JOIN {facetoface_sessions_dates} d ON s.id = d.sessionid
                 GROUP BY s.id
             ) dates ON dates.sessid = s.id
-            WHERE mincapacity > 0 AND (minstart - cutoff) < :now AND (minstart - cutoff) >= :lastcron";
+            WHERE mincapacity > 0 
+              AND (minstart - cutoff) < :now 
+              AND (minstart - cutoff) >= :lastcron 
+              AND s.cancelledstatus = 0";
 
     $tocheck = $DB->get_records_sql($sql, $params);
 
