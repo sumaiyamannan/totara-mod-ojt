@@ -195,6 +195,10 @@ class core_userliblib_testcase extends advanced_testcase {
      * Test function user_count_login_failures().
      */
     public function test_user_count_login_failures() {
+        // Totara: missing dependency
+        global $CFG;
+        require_once($CFG->libdir . '/authlib.php');
+
         $this->resetAfterTest();
         set_config('lockoutthreshold', 0); // Totara has 20 by default.
         $user = $this->getDataGenerator()->create_user();

@@ -296,7 +296,9 @@ class mod_forum_maildigest_testcase extends advanced_testcase {
     }
 
     public function test_cron_no_posts() {
-        global $DB;
+        // Totara: resolve dependencies for the test
+        global $CFG, $DB;
+        require_once($CFG->dirroot . '/mod/forum/lib.php');
 
         $this->resetAfterTest(true);
 

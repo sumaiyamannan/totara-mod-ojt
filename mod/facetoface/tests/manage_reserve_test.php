@@ -28,6 +28,9 @@ class mod_facetoface_manage_reserve_testcase extends \advanced_testcase {
      * Test that allocations do not depend on free space
      */
     public function test_limit_reserveinfo_to_capacity_empty() {
+        global $CFG;
+        require_once($CFG->dirroot . '/mod/facetoface/lib.php');
+
         $reserveinfo = $this->seed_reservations();
 
         $result = facetoface_limit_reserveinfo_to_capacity_left(42, $reserveinfo, 0);
@@ -46,6 +49,9 @@ class mod_facetoface_manage_reserve_testcase extends \advanced_testcase {
      * Test that reservation is limited by non-zero capacity
      */
     public function test_limit_reserveinfo_to_capacity_one() {
+        global $CFG;
+        require_once($CFG->dirroot . '/mod/facetoface/lib.php');
+
         $reserveinfo = $this->seed_reservations();
 
         $result = facetoface_limit_reserveinfo_to_capacity_left(42, $reserveinfo, 1);
@@ -66,6 +72,9 @@ class mod_facetoface_manage_reserve_testcase extends \advanced_testcase {
      */
     //
     public function test_limit_reserveinfo_to_capacity_enough() {
+        global $CFG;
+        require_once($CFG->dirroot . '/mod/facetoface/lib.php');
+
         $reserveinfo = $this->seed_reservations();
 
         $result = facetoface_limit_reserveinfo_to_capacity_left(42, $reserveinfo, 10);

@@ -115,6 +115,9 @@ class tool_uploadcourse_helper_testcase extends advanced_testcase {
 
     public function test_get_restore_content_dir() {
         global $CFG;
+        // Totara: missing dependencies
+        require_once($CFG->dirroot . '/backup/util/includes/backup_includes.php');
+
         $this->resetAfterTest(true);
         $this->setAdminUser();
 

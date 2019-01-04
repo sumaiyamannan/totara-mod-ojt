@@ -1001,7 +1001,8 @@ class mod_facetoface_notifications_testcase extends advanced_testcase {
 
     public function test_facetoface_notification_loop_session_placeholders_room_customfields() {
         $this->resetAfterTest(true);
-        global $DB;
+        global $DB, $CFG;
+        require_once($CFG->dirroot . '/totara/customfield/field/location/field.class.php');
 
         // We'll use the server timezone otherwise this test will fail in some parts of the world and not others.
         $timezone = core_date::get_server_timezone();
@@ -1124,7 +1125,8 @@ class mod_facetoface_notifications_testcase extends advanced_testcase {
      */
     public function test_facetoface_notification_substitute_deprecated_placeholders_with_customfield_values() {
         $this->resetAfterTest(true);
-        global $DB;
+        global $DB, $CFG;
+        require_once($CFG->dirroot . '/totara/customfield/field/location/field.class.php');
 
         // We'll use the server timezone otherwise this test will fail in some parts of the world and not others.
         $timezone = core_date::get_server_timezone();

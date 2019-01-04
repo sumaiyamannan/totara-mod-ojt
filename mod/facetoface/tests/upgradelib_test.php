@@ -960,6 +960,7 @@ class mod_facetoface_upgradelib_testcase extends advanced_testcase {
     public function test_mod_facetoface_delete_orphaned_customfield_data_signup() {
         global $CFG, $DB;
         require_once($CFG->dirroot.'/lib/upgradelib.php');
+        require_once($CFG->dirroot.'/mod/facetoface/db/upgradelib.php');
 
         $this->resetAfterTest();
         $this->preventResetByRollback();
@@ -1371,7 +1372,9 @@ Room:   [session:room]<br />
      * Test facetoface_upgradelib_managerprefix_clarification()
      */
     public function test_facetoface_upgradelib_managerprefix_clarification() {
-        global $DB;
+        global $CFG, $DB;
+        require_once($CFG->dirroot.'/mod/facetoface/db/upgradelib.php');
+
         $this->resetAfterTest();
 
         // Prepate data.

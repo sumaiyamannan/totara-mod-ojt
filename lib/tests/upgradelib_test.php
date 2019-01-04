@@ -28,6 +28,7 @@ defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once($CFG->libdir.'/upgradelib.php');
 
+
 /**
  * Tests various classes and functions in upgradelib.php library.
  */
@@ -484,6 +485,8 @@ class core_upgradelib_testcase extends advanced_testcase {
 
     public function test_upgrade_extra_credit_weightoverride() {
         global $DB, $CFG;
+        // Totara: resolve dependencies for the test
+        require_once($CFG->libdir . '/db/upgradelib.php');
 
         $this->resetAfterTest(true);
 
@@ -551,6 +554,10 @@ class core_upgradelib_testcase extends advanced_testcase {
     public function test_upgrade_calculated_grade_items_freeze() {
         global $DB, $CFG;
         $this->resetAfterTest();
+
+        // Totara: resolve dependencies for the test
+        require_once($CFG->libdir . '/db/upgradelib.php');
+        require_once($CFG->libdir . '/gradelib.php');
 
         // Create a user.
         $user = $this->getDataGenerator()->create_user();
@@ -680,6 +687,10 @@ class core_upgradelib_testcase extends advanced_testcase {
         global $DB, $CFG;
         $this->resetAfterTest();
 
+        // Totara: resolve dependencies for the test
+        require_once($CFG->libdir . '/db/upgradelib.php');
+        require_once($CFG->libdir . '/gradelib.php');
+
         // Create a user.
         $user = $this->getDataGenerator()->create_user();
 
@@ -742,7 +753,10 @@ class core_upgradelib_testcase extends advanced_testcase {
     }
 
     public function test_upgrade_course_tags() {
-        global $DB;
+        // Totara: missing dependencies
+        global $DB, $CFG;
+        require_once($CFG->libdir . '/db/upgradelib.php');
+
         $this->resetAfterTest();
 
         // Running upgrade script when there are no tags.

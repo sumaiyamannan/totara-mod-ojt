@@ -23,9 +23,6 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-global $CFG;
-require_once($CFG->dirroot . '/admin/tool/totara_sync/lib.php');
-
 class tool_totara_sync_user_csv_emptyfields_setting_testcase extends advanced_testcase {
 
     private $filedir = null;
@@ -218,6 +215,14 @@ class tool_totara_sync_user_csv_emptyfields_setting_testcase extends advanced_te
         */
         // TODO: Add all the other possible custom field types.
     );
+
+    public static function setUpBeforeClass() {
+        parent::setUpBeforeClass();
+
+        global $CFG;
+
+        require_once($CFG->dirroot . '/admin/tool/totara_sync/lib.php');
+    }
 
     protected function tearDown() {
         $this->filedir = null;

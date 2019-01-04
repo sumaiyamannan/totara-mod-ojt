@@ -29,6 +29,9 @@ defined('MOODLE_INTERNAL') || die();
  */
 class totara_core_random_string_testcase extends advanced_testcase {
     public function test_totara_random_bytes() {
+        global $CFG;
+        require_once($CFG->dirroot . '/totara/core/deprecatedlib.php');
+
         $result = totara_random_bytes(10);
         $this->assertSame(10, strlen($result));
         $this->assertDebuggingCalled();

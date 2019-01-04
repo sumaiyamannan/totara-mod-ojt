@@ -124,16 +124,28 @@ class qtype_missing_test extends question_testcase {
     }
 
     public function test_can_analyse_responses() {
+        // Totara: add missing /question/type/missingtype/questiontype.php
+        global $CFG;
+        require_once(dirname(__FILE__) . '/../questiontype.php');
+
         $qtype = new qtype_missingtype();
         $this->assertFalse($qtype->can_analyse_responses());
     }
 
     public function test_get_random_guess_score() {
+        // Totara: add missing /question/type/missingtype/questiontype.php
+        global $CFG;
+        require_once(dirname(__FILE__) . '/../questiontype.php');
+
         $qtype = new qtype_missingtype();
         $this->assertNull($qtype->get_random_guess_score(null));
     }
 
     public function test_get_possible_responses() {
+        // Totara: add missing /question/type/missingtype/questiontype.php
+        global $CFG;
+        require_once(dirname(__FILE__) . '/../questiontype.php');
+
         $qtype = new qtype_missingtype();
         $this->assertEquals(array(), $qtype->get_possible_responses(null));
     }
