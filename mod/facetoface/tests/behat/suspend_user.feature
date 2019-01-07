@@ -112,17 +112,17 @@ Feature: Suspend user in different session times
     # Session in progress
     And I follow "Add a new event"
     And I click on "Edit session" "link"
-    And I set the following fields to these values:
-      | timestart[day]     | 1    |
-      | timestart[month]   | 1    |
-      | timestart[year]    | 2016 |
-      | timestart[hour]    | 11   |
-      | timestart[minute]  | 00   |
-      | timefinish[day]    | 1    |
-      | timefinish[month]  | 1    |
-      | timefinish[year]   | 2019 |
-      | timefinish[hour]   | 12   |
-      | timefinish[minute] | 00   |
+    And I fill seminar session with relative date in form data:
+      | timestart[day]     | 0    |
+      | timestart[month]   | 0    |
+      | timestart[year]    | 0    |
+      | timestart[hour]    | 0    |
+      | timestart[minute]  | -30  |
+      | timefinish[day]    | 0    |
+      | timefinish[month]  | 0    |
+      | timefinish[year]   | 0    |
+      | timefinish[hour]   | 0    |
+      | timefinish[minute] | +30  |
     And I press "OK"
     And I set the following fields to these values:
       | Maximum bookings | 2 |
