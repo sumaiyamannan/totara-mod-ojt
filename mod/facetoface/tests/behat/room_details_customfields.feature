@@ -169,3 +169,4 @@ Feature: Check room details with all possible custom fields
     And I should see "Upcoming sessions in this room"
     And I should see "Seminar TL-9134"
     And I should see the "Green leaves on customfield text area" image in the "//dd[preceding-sibling::dt[1][. = 'Room text area']]" "xpath_element"
+    And I should see image with alt text "Green leaves on customfield text area"

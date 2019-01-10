@@ -85,6 +85,7 @@ Feature: In a lesson activity, teacher can add embedded images in questions answ
     Then I should see "What animal is an amphibian?"
     And "//*[contains(@class, 'answeroption')]//img[contains(@src, 'pluginfile.php')]" "xpath_element" should exist
     And "//*[contains(@class, 'answeroption')]//img[contains(@src, 'moodle_logo.jpg')]" "xpath_element" should exist
+    And I should see image with alt text "It's the logo"
     And I set the following fields to these values:
       | Cat | 1 |
     And I press "Submit"
@@ -98,6 +99,7 @@ Feature: In a lesson activity, teacher can add embedded images in questions answ
     And I should not see "Wrong"
     And "//img[contains(@src, 'pluginfile.php')]" "xpath_element" should exist in the ".correctanswer" "css_element"
     And "//img[contains(@src, 'moodle_logo.jpg')]" "xpath_element" should exist in the ".correctanswer" "css_element"
+    And I should see image with alt text "It's the logo"
     And I press "Continue"
     And I should see "Congratulations - end of lesson reached"
     And I should see "Your score is 1 (out of 2)."

@@ -451,6 +451,7 @@ Feature: Evidence custom fields.
     And I follow "Text area evidence"
     Then I should see "Text area test : This is a text area!"
     And I should see the "My image" image in the "//*[@id='dp-plan-content']" "xpath_element"
+    And I should see image with alt text "My image"
 
   Scenario: As a learner I need to provide a URL when creating an evidence record so that I can link to online documents and pages within Totara
 

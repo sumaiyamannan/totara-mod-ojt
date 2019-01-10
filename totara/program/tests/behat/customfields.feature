@@ -131,3 +131,4 @@ Feature: Program and certification customfields can be created and populated
     And I should see "This is within an editor" for "Program text area" in the program overview
     And I should see "This is an input" for "Program text input" in the program overview
     And I should see "http://totaralms.com" for "Program address" in the program overview
+    And I should see image with alt text "Blue leaves"

@@ -113,6 +113,7 @@ Feature: Test use of images in goals and goal custom fields
     And I click on "Save image" "button"
     And I press "Save changes"
     Then I should see the "logo3 in goal description" image in the "//dd[preceding-sibling::dt[1][. = 'Description']]" "xpath_element"
+    And I should see image with alt text "logo3 in goal description"
 
     # Image in the custom field
     When I click on "Edit" "link"
@@ -161,12 +162,16 @@ Feature: Test use of images in goals and goal custom fields
     When I follow "My goal 1"
     Then I should see the "logo3 in goal description" image in the "//dd[preceding-sibling::dt[1][. = 'Description']]" "xpath_element"
     And I should see the "logo4 on custom My goal 1 customfield text area" image in the "//dd[preceding-sibling::dt[1][. = 'Custom comp text area 1']]" "xpath_element"
+    And I should see image with alt text "logo3 in goal description"
+    And I should see image with alt text "logo4 on custom My goal 1 customfield text area"
 
     When I click on "Goals" in the totara menu
     And I follow "View Goal Frameworks"
     And I follow "Goal Framework"
     Then I should see the "logo3 in goal description" image in the "Description" "table_row"
     And I should see the "logo4 on custom My goal 1 customfield text area" image in the "Custom comp text area 1" "table_row"
+    And I should see image with alt text "logo3 in goal description"
+    And I should see image with alt text "logo4 on custom My goal 1 customfield text area"
 
     # Personal goal with images in the description and customfield text area
     When I click on "Goals" in the totara menu
@@ -209,6 +214,8 @@ Feature: Test use of images in goals and goal custom fields
     Then I should see the "logo5 in pers goal description" image in the "//dd[preceding-sibling::dt[1][. = 'Description']]" "xpath_element"
     And I should see the "logo6 on personal goal customfield text area" image in the "//dd[preceding-sibling::dt[1][. = 'Custom pers text area 1']]" "xpath_element"
     And I should see "leaves-blue.png"
+    And I should see image with alt text "logo5 in pers goal description"
+    And I should see image with alt text "logo6 on personal goal customfield text area"
 
     # Also check reports
     When I log out
@@ -234,6 +241,8 @@ Feature: Test use of images in goals and goal custom fields
     And I follow "View This Report"
     Then I should see the "logo4 on custom My goal 1 customfield text area" image in the "My goal 1" "table_row"
     And I should see the "logo6 on personal goal customfield text area" image in the "My personal goal 1" "table_row"
+    And I should see image with alt text "logo4 on custom My goal 1 customfield text area"
+    And I should see image with alt text "logo6 on personal goal customfield text area"
 
     When I am on site homepage
     And I navigate to "Manage reports" node in "Site administration > Reports > Report builder"
@@ -255,6 +264,7 @@ Feature: Test use of images in goals and goal custom fields
     And I follow "View This Report"
     And I follow "Goal Framework"
     Then I should see the "logo4 on custom My goal 1 customfield text area" image in the "My goal 1" "table_row"
+    And I should see image with alt text "logo4 on custom My goal 1 customfield text area"
 
     When I am on site homepage
     And I navigate to "Manage reports" node in "Site administration > Reports > Report builder"
@@ -275,6 +285,7 @@ Feature: Test use of images in goals and goal custom fields
     And I press "Save changes"
     And I follow "View This Report"
     Then I should see the "logo4 on custom My goal 1 customfield text area" image in the "Learner One" "table_row"
+    And I should see image with alt text "logo4 on custom My goal 1 customfield text area"
 
     When I am on site homepage
     And I navigate to "Manage reports" node in "Site administration > Reports > Report builder"

@@ -49,6 +49,9 @@ Feature: Add images to Atto
     Then the field "Describe this image" matches value "It's the Moodle"
     And the field "Width" matches value "123"
     And the field "Height" matches value "456"
+    When I press "Save image"
+    And I press "Update profile"
+    Then I should see image with alt text "It's the Moodle"
 
   @javascript
   Scenario: Manually inserting an image

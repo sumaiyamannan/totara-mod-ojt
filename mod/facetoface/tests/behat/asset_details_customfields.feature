@@ -158,3 +158,4 @@ Feature: Check asset details with all possible custom fields
     And I should see "Duis aute irure dolor in reprehenderit in voluptate"
     And I should see "Totara LMS"
     And I should see the "Green leaves on customfield text area" image in the "//dd[preceding-sibling::dt[1][. = 'Asset text area']]" "xpath_element"
+    And I should see image with alt text "Green leaves on customfield text area"
