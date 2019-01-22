@@ -596,8 +596,14 @@ JS;
                 'name' => 'listofvalues'
             ), "", " value AS optionid, id AS paramid");
 
+            if (is_object($this->options)) {
+                $options = $this->options_from_sqlobj($this->options);
+            } else {
+                $options = $this->options;
+            }
+
             foreach ($this->listofvalues as $optioninstanceid) {
-                if (!isset($this->options[$optioninstanceid])) {
+                if (!isset($options[$optioninstanceid])) {
                     $item = isset($fullparams[$optioninstanceid]) ? $fullparams[$optioninstanceid] : null;
                     if (!$item) {
                         debugging("Missing {$optioninstanceid} in full params");
