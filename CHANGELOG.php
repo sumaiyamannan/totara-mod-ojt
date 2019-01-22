@@ -3,6 +3,50 @@
 
 Totara Learn Changelog
 
+Release 9.28 (24th January 2019):
+=================================
+
+
+Security issues:
+
+    TL-19900       Applied fixes for Bootstrap XSS issues
+
+                   Bootstrap recently included security fixes in their latest set of releases.
+                   To avoid affecting functionality using the current versions of Bootstrap,
+                   only the security fixes have been applied rather than upgrading the version
+                   of Bootstrap used.
+
+                   It is expected that there was no exploit that could be carried out in
+                   Totara due to this vulnerability, as the necessary user input does not go
+                   into the affected attributes when using Bootstrap components. However we
+                   have applied these fixes to minimise the risk of becoming vulnerable in the
+                   future.
+
+                   The Bootstrap library is used by the Roots theme.
+
+Improvements:
+
+    TL-18759       Improved the display of user's enrolment status
+
+                   Added clarification to the Status field on the course enrolments page. If
+                   editing a user's enrolment while the corresponding enrolment module is
+                   disabled, the status will now be displayed as 'Effectively suspended'.
+
+Bug fixes:
+
+    TL-19471       Fixed unavailable programs not showing in user's Record of Learning items when the user had started the program
+    TL-19797       Fixed minimum bookings notification being sent for cancelled events
+    TL-19877       Fixed bug where multi-framework rules were flagged as deleted in Audiences dynamic rules
+    TL-20007       Fixed an error with audience rules relying on a removed user-defined field value
+
+                   This affected the 'choose' type of audience rules on text input user custom
+                   fields. If a user-defined input value was used in the rule definition, and
+                   that value was then subsequently removed as a field input, a fatal error
+                   was thrown when viewing the audience. This is now handled gracefully,
+                   rather than displaying an object being used as an array error the missing
+                   value can now be removed from the rule.
+
+
 Release 9.27 (19th December 2018):
 ==================================
 
