@@ -75,6 +75,13 @@ class mariadb_native_moodle_database extends mysqli_native_moodle_database {
     }
 
     /**
+     * Add configuration for specific versions of MariaDB
+     */
+    protected function version_specific_support() {
+        // MariaDB doesn't have issues specific to Mysql (at least yet), so override it.
+    }
+
+    /**
      * Returns database server info array
      * @return array Array containing 'description' and 'version' info
      */
