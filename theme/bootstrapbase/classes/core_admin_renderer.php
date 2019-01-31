@@ -60,7 +60,7 @@ class theme_bootstrapbase_core_admin_renderer extends core_admin_renderer {
      */
     public function admin_notifications_page($maturity, $insecuredataroot, $errorsdisplayed,
                                              $cronoverdue, $dbproblems, $maintenancemode, $availableupdates, $availableupdatesfetch,
-                                             $buggyiconvnomb, $registered, array $cachewarnings = array(), $latesterror, $activeusers, $totara_release) {
+                                             $buggyiconvnomb, $registered, array $cachewarnings = array(), $latesterror, $activeusers, $totara_release, $activeusers3mth = 0) {
 
         $output = parent::admin_notifications_page($maturity, $insecuredataroot, $errorsdisplayed,
             $cronoverdue, $dbproblems, $maintenancemode, $availableupdates, $availableupdatesfetch,
