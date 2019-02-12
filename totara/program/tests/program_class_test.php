@@ -1605,7 +1605,6 @@ class totara_program_program_class_testcase extends reportcache_advanced_testcas
     private function mark_user_complete_in_course($user, $course) {
         $params = array('userid' => $user->id, 'course' => $course->id);
         $completion = new completion_completion($params);
-        $completion->mark_inprogress();
         $this->assertNotEmpty($completion->mark_complete());
         $this->assertTrue($completion->is_complete());
     }
