@@ -167,7 +167,10 @@ class totara_question_renderer extends plugin_renderer_base {
                 } else {
                     $content = format_string($currentuseritems[0]->content);
                 }
-                $form->addElement(new MoodleQuickForm_static('', get_string('youranswer', 'totara_question'), $content));
+
+                if (!empty(trim($content))) {
+                    $form->addElement(new MoodleQuickForm_static('', get_string('youranswer', 'totara_question'), $content));
+                }
             } else {
                 if ($multifield) {
                     $youranswerlabel = get_string('youranswer', 'totara_question');

@@ -566,7 +566,10 @@ class auth_connect_util_testcase extends advanced_testcase {
     }
 
     public function test_update_local_users_deleting() {
-        global $DB;
+        global $CFG, $DB;
+
+        require_once($CFG->libdir . '/authlib.php');
+
         $this->resetAfterTest();
 
         // Verify default settings.

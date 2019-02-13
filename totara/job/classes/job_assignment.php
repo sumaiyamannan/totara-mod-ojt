@@ -1094,7 +1094,7 @@ class job_assignment {
                                (tempmanagerjaid IS NOT NULL AND tempmanagerexpirydate > :now))";
                 $params['now'] = time();
             } else {
-                $sql = " AND managerjaid IS NOT NULL";
+                $sql .= " AND managerjaid IS NOT NULL";
             }
         }
 

@@ -711,7 +711,10 @@ class enrol_meta_plugin_testcase extends advanced_testcase {
      * Test that a new group with the name of the course is created.
      */
     public function test_enrol_meta_create_new_group() {
-        global $DB;
+        // Totara: resolve dependencies for the test
+        global $CFG, $DB;
+        require_once($CFG->dirroot . '/enrol/meta/locallib.php');
+
         $this->resetAfterTest();
         // Create two courses.
         $course = $this->getDataGenerator()->create_course(array('fullname' => 'Mathematics'));

@@ -88,7 +88,10 @@ class mod_quiz_reportlib_testcase extends advanced_testcase {
     }
 
     public function test_quiz_report_qm_filter_select_first_last_best() {
-        global $DB;
+        // Totara: resolve dependencies for the test
+        global $DB, $CFG;
+        require_once($CFG->dirroot . '/mod/quiz/attemptlib.php');
+
         $this->resetAfterTest();
 
         $fakeattempt = new stdClass();

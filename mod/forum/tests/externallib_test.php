@@ -42,6 +42,8 @@ class mod_forum_external_testcase extends externallib_advanced_testcase {
         \mod_forum\subscriptions::reset_forum_cache();
 
         require_once($CFG->dirroot . '/mod/forum/externallib.php');
+        // Totara: missing dependencies for individual tests
+        require_once($CFG->dirroot . '/mod/forum/lib.php');
     }
 
     protected function tearDown() {

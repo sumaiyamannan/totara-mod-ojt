@@ -36,6 +36,15 @@ class backup_step_testcase extends advanced_testcase {
     protected $courseid;  // course id used for testing
     protected $userid;      // user record used for testing
 
+    // Totara: resolve dependencies for the test
+    public static function setUpBeforeClass() {
+        parent::setUpBeforeClass();
+
+        global $CFG;
+        require_once($CFG->dirroot . '/backup/util/includes/backup_includes.php');
+        require_once($CFG->dirroot . '/backup/moodle2/backup_custom_fields.php');
+    }
+
     protected function setUp() {
         global $DB, $CFG;
         parent::setUp();
@@ -166,6 +175,10 @@ class backup_step_testcase extends advanced_testcase {
      * Verify the add_subplugin_structure() backup method behavior and created structures.
      */
     public function test_backup_structure_step_add_subplugin_structure() {
+        // Totara: resolve dependencies for the test
+        global $CFG;
+        require_once($CFG->dirroot . '/backup/moodle2/backup_subplugin.class.php');
+
         // Create mocked task, step and element.
         $bt = new mock_backup_task_basepath('taskname');
         $bs = new mock_backup_structure_step('steptest', null, $bt);

@@ -664,6 +664,8 @@ class core_user_externallib_testcase extends externallib_advanced_testcase {
      */
     public function test_update_users() {
         global $USER, $CFG, $DB;
+        // Totara: missing dependencies
+        require_once($CFG->dirroot . '/user/lib.php');
 
         $this->resetAfterTest(true);
 

@@ -123,6 +123,11 @@ Feature: Course customfields can be created and populated
     # Here we go.
     And I press "Save and return"
 
-    # Just the check the form saves correctly and returns
-    # to the right page.
+    # Check the form saves correctly and returns to the right page.
     Then I should see "Test course"
+
+    # Confirm image loads successfully.
+    When I click on "Test course" "link"
+    And I navigate to "Edit settings" node in "Course administration"
+    And I click on "Custom fields" "link"
+    Then I should see image with alt text "Blue leaves"

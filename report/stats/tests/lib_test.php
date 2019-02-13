@@ -87,6 +87,10 @@ class report_stats_lib_testcase extends advanced_testcase {
      * Tests the report_stats_myprofile_navigation() function.
      */
     public function test_report_stats_myprofile_navigation() {
+        // Totara: missing dependency
+        global $CFG;
+        require_once($CFG->dirroot . '/report/stats/lib.php');
+
         $this->setAdminUser();
         $iscurrentuser = false;
 
@@ -104,6 +108,10 @@ class report_stats_lib_testcase extends advanced_testcase {
      * Tests the report_stats_myprofile_navigation() function when stats are disabled.
      */
     public function test_report_stats_myprofile_navigation_stats_disabled() {
+        // Totara: missing dependency
+        global $CFG;
+        require_once($CFG->dirroot . '/report/stats/lib.php');
+
         $this->setAdminUser();
         $iscurrentuser = false;
 
@@ -121,6 +129,10 @@ class report_stats_lib_testcase extends advanced_testcase {
      * Tests the report_stats_myprofile_navigation() function without permission.
      */
     public function test_report_stats_myprofile_navigation_without_permission() {
+        // Totara: missing dependency
+        global $CFG;
+        require_once($CFG->dirroot . '/report/stats/lib.php');
+
         // Try to see as a user without permission.
         $this->setUser($this->user);
         $iscurrentuser = true;

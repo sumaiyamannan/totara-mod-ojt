@@ -2452,4 +2452,45 @@ class totara_program_lib_testcase extends reportcache_advanced_testcase {
         $this->assert_count_and_close_recordset(0, prog_find_orphaned_exceptions($this->certifications[5]->id, $this->users[2]->id, 'certification'));
         $this->assert_count_and_close_recordset(0, prog_find_orphaned_exceptions($this->certifications[6]->id, $this->users[2]->id, 'certification'));
     }
+
+    /**
+     * Tests visibility rules for prog_get_all_programs
+     */
+    public function test_prog_get_required_programs() {
+        global $DB;
+
+        $this->resetAfterTest(true);
+
+        $user = $this->getDataGenerator()->create_user();
+
+        $program1 = $this->getDataGenerator()->create_program(); // Enroled, active
+        $program2 = $this->getDataGenerator()->create_program(); // Not enroled, active
+        $program3 = $this->getDataGenerator()->create_program(); // Enroled, not available, not started
+        $program4 = $this->getDataGenerator()->create_program(); // Not enroled, not available, not started
+
+        $this->getDataGenerator()->assign_to_program($program1->id, ASSIGNTYPE_INDIVIDUAL, $user->id);
+        $this->getDataGenerator()->assign_to_program($program3->id, ASSIGNTYPE_INDIVIDUAL, $user->id);
+
+        //Make programs unavailable
+        $program3->availableuntil = 1000;
+        $program4->availableuntil = 1000;
+        $DB->update_record('prog', $program3);
+        $DB->update_record('prog', $program4);
+
+        //Check normal visibility rules
+        $programs1 = prog_get_required_programs($user->id);
+
+        $this->assertArrayHasKey($program1->id, $programs1);
+        $this->assertArrayNotHasKey($program2->id, $programs1);
+        $this->assertArrayNotHasKey($program3->id, $programs1);
+        $this->assertArrayNotHasKey($program4->id, $programs1);
+
+        //Check showhidden shows expired programs
+        $programs2 = prog_get_required_programs($user->id, '', '', '', false, true);
+
+        $this->assertArrayHasKey($program1->id, $programs2);
+        $this->assertArrayNotHasKey($program2->id, $programs2);
+        $this->assertArrayHasKey($program3->id, $programs2);
+        $this->assertArrayNotHasKey($program4->id, $programs2);
+    }
 }

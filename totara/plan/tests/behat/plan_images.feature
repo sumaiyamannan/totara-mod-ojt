@@ -33,11 +33,12 @@ Feature: Learner creates a learning plan and adds an image to description
         And I click on "Private files" "link"
         And I click on "pic1.png" "link"
         And I click on "Select this file" "button"
-        And I set the field "Describe this image for someone who cannot see it" to "Its a picture"
+        And I set the field "Describe this image for someone who cannot see it" to "It's a picture"
         And I click on "Save image" "button"
         And I press "Create plan"
         And I should see "My Learning Plan"
         And "//img[contains(@src, 'pic1.png')]" "xpath_element" should exist
+        And I should see image with alt text "It's a picture"
 
     @javascript
     Scenario: Learner adds image to Objective within a plan
@@ -62,9 +63,10 @@ Feature: Learner creates a learning plan and adds an image to description
         And I click on "Private files" "link"
         And I click on "pic1.png" "link"
         And I click on "Select this file" "button"
-        And I set the field "Describe this image for someone who cannot see it" to "Its a picture"
+        And I set the field "Describe this image for someone who cannot see it" to "It's a picture"
         And I click on "Save image" "button"
         And I press "Add objective"
         And I should see "My test Objective"
         And I follow "My test Objective"
         And "//img[contains(@src, 'pic1.png')]" "xpath_element" should exist
+        And I should see image with alt text "It's a picture"

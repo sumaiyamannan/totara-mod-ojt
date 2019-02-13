@@ -81,6 +81,7 @@ Feature: Test use of images in competencies and competency custom fields
     And I click on "Save image" "button"
     And I press "Save changes"
     Then I should see the "logo2 in competency description" image in the "//dd[preceding-sibling::dt[1][. = 'Description']]" "xpath_element"
+    And I should see image with alt text "logo2 in competency description"
 
     # Image in the custom field
     When I click on "Edit" "link"
@@ -101,10 +102,14 @@ Feature: Test use of images in competencies and competency custom fields
     Then I should see the "logo2 in competency description" image in the "//dd[preceding-sibling::dt[1][. = 'Description']]" "xpath_element"
     And I should see the "logo3 on customfield text area" image in the "//dd[preceding-sibling::dt[1][. = 'Custom text area 1']]" "xpath_element"
     And I should see "learninglogo4.jpg"
+    And I should see image with alt text "logo2 in competency description"
+    And I should see image with alt text "logo3 on customfield text area"
 
     When I press "Return to competency framework"
     Then I should see the "logo2 in competency description" image in the "My competency 1" "table_row"
     And I should see the "logo3 on customfield text area" image in the "Custom text area 1" "table_row"
+    And I should see image with alt text "logo2 in competency description"
+    And I should see image with alt text "logo3 on customfield text area"
 
     # Also check reports
     # For this we need a completed competency
@@ -167,6 +172,8 @@ Feature: Test use of images in competencies and competency custom fields
     When I follow "My competency 1"
     Then I should see the "logo2 in competency description" image in the "//dd[preceding-sibling::dt[1][. = 'Description']]" "xpath_element"
     And I should see the "logo3 on customfield text area" image in the "//dd[preceding-sibling::dt[1][. = 'Custom text area 1']]" "xpath_element"
+    And I should see image with alt text "logo2 in competency description"
+    And I should see image with alt text "logo3 on customfield text area"
 
     When I navigate to "Manage reports" node in "Site administration > Reports > Report builder"
     And I set the following fields to these values:
@@ -184,3 +191,4 @@ Feature: Test use of images in competencies and competency custom fields
     And I press "Save changes"
     And I follow "View This Report"
     Then I should see the "logo3 on customfield text area" image in the "My competency 1" "table_row"
+    And I should see image with alt text "logo3 on customfield text area"

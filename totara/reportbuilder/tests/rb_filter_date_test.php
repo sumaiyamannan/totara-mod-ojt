@@ -37,6 +37,12 @@ class totara_reportbuilder_rb_filter_date_testcase extends advanced_testcase {
     private $today_timestamp;
     private $filter;
 
+    private static $paramcounts;
+
+    public static function setUpBeforeClass() {
+        self::$paramcounts = array();
+    }
+
     protected function tearDown() {
         $this->today_timestamp = null;
         $this->filter = null;
@@ -63,6 +69,20 @@ class totara_reportbuilder_rb_filter_date_testcase extends advanced_testcase {
     }
 
     /**
+     * @see \moodle_database::get_unique_param()
+     *
+     * @param string $prefix
+     * @return string
+     */
+    private static function uq_param($prefix) {
+        if (!isset(self::$paramcounts[$prefix])) {
+            self::$paramcounts[$prefix] = 0;
+        }
+        self::$paramcounts[$prefix]++;
+        return 'uq_'.$prefix.'_'.self::$paramcounts[$prefix];
+    }
+
+    /**
      * Test the sql created for the 'is after' part of the filter.
      */
     public function test_get_sql_filter_after() {
@@ -77,8 +97,11 @@ class totara_reportbuilder_rb_filter_date_testcase extends advanced_testcase {
             'notset' => 0
         ));
 
-        $this->assertEquals('base.firstaccess != :uq_fdnotnull_1 AND base.firstaccess >= :uq_fdafter_1', $sql);
-        $this->assertEquals(array('uq_fdnotnull_1' => 0, 'uq_fdafter_1' => 1483228800), $params);
+        $uq_fdnotnull = self::uq_param('fdnotnull');
+        $uq_fdafter = self::uq_param('fdafter');
+
+        $this->assertEquals("base.firstaccess != :{$uq_fdnotnull} AND base.firstaccess >= :{$uq_fdafter}", $sql);
+        $this->assertEquals(array($uq_fdnotnull => 0, $uq_fdafter => 1483228800), $params);
     }
 
     /**
@@ -96,8 +119,11 @@ class totara_reportbuilder_rb_filter_date_testcase extends advanced_testcase {
             'notset' => 0
         ));
 
-        $this->assertEquals('base.firstaccess != :uq_fdnotnull_2 AND base.firstaccess < :uq_fdbefore_1', $sql);
-        $this->assertEquals(array('uq_fdnotnull_2' => 0, 'uq_fdbefore_1' => 1483228800), $params);
+        $uq_fdnotnull = self::uq_param('fdnotnull');
+        $uq_fdbefore = self::uq_param('fdbefore');
+
+        $this->assertEquals("base.firstaccess != :{$uq_fdnotnull} AND base.firstaccess < :{$uq_fdbefore}", $sql);
+        $this->assertEquals(array($uq_fdnotnull => 0, $uq_fdbefore => 1483228800), $params);
     }
 
     /**
@@ -116,8 +142,15 @@ class totara_reportbuilder_rb_filter_date_testcase extends advanced_testcase {
             'notset' => 0
         ));
 
-        $this->assertEquals('base.firstaccess != :uq_fdnotnull_3 AND base.firstaccess >= :uq_fdafter_2 AND base.firstaccess < :uq_fdbefore_2', $sql);
-        $this->assertEquals(array('uq_fdnotnull_3' => 0, 'uq_fdafter_2' => 1483228800, 'uq_fdbefore_2' => 1491001200), $params);
+        $uq_fdnotnull = self::uq_param('fdnotnull');
+        $uq_fdafter = self::uq_param('fdafter');
+        $uq_fdbefore = self::uq_param('fdbefore');
+
+        $this->assertEquals(
+            "base.firstaccess != :{$uq_fdnotnull} AND base.firstaccess >= :{$uq_fdafter} AND base.firstaccess < :{$uq_fdbefore}",
+            $sql
+        );
+        $this->assertEquals(array($uq_fdnotnull => 0, $uq_fdafter => 1483228800, $uq_fdbefore => 1491001200), $params);
     }
 
     /**
@@ -134,8 +167,11 @@ class totara_reportbuilder_rb_filter_date_testcase extends advanced_testcase {
             'notset' => 0
         ));
 
-        $this->assertEquals('base.firstaccess >= ' . $this->today_timestamp . ' AND base.firstaccess <= :uq_fdaysafter_1', $sql);
-        $this->assertEquals(array('uq_fdnotnull_4' => 0, 'uq_fdaysafter_1' => $this->today_timestamp + (10 * DAYSECS)), $params);
+        $uq_fdnotnull = self::uq_param('fdnotnull');
+        $uq_fdaysafter = self::uq_param('fdaysafter');
+
+        $this->assertEquals("base.firstaccess >= {$this->today_timestamp} AND base.firstaccess <= :{$uq_fdaysafter}", $sql);
+        $this->assertEquals(array($uq_fdnotnull => 0, $uq_fdaysafter => $this->today_timestamp + (10 * DAYSECS)), $params);
     }
 
     /**
@@ -153,8 +189,11 @@ class totara_reportbuilder_rb_filter_date_testcase extends advanced_testcase {
             'notset' => 0
         ));
 
-        $this->assertEquals('base.firstaccess <= ' . $this->today_timestamp . ' AND base.firstaccess >= :uq_fdaysbefore_1', $sql);
-        $this->assertEquals(array('uq_fdnotnull_5' => 0, 'uq_fdaysbefore_1' => $this->today_timestamp - (10 * DAYSECS)), $params);
+        $uq_fdnotnull = self::uq_param('fdnotnull');
+        $uq_fdaysbefore = self::uq_param('fdaysbefore');
+
+        $this->assertEquals("base.firstaccess <= {$this->today_timestamp} AND base.firstaccess >= :{$uq_fdaysbefore}", $sql);
+        $this->assertEquals(array($uq_fdnotnull => 0, $uq_fdaysbefore => $this->today_timestamp - (10 * DAYSECS)), $params);
     }
 
     /**
@@ -172,11 +211,20 @@ class totara_reportbuilder_rb_filter_date_testcase extends advanced_testcase {
             'notset' => 0
         ));
 
-        $this->assertEquals('(base.firstaccess >= ' . $this->today_timestamp . ' AND base.firstaccess <= :uq_fdaysafter_2
-                OR base.firstaccess <= ' . $this->today_timestamp . ' AND base.firstaccess >= :uq_fdaysbefore_2)', $sql);
-        $this->assertEquals(array('uq_fdnotnull_6' => 0,
-            'uq_fdaysafter_2' => $this->today_timestamp + (10 * DAYSECS),
-            'uq_fdaysbefore_2' => $this->today_timestamp - (10 * DAYSECS)),
+        $uq_fdnotnull = self::uq_param('fdnotnull');
+        $uq_fdaysafter = self::uq_param('fdaysafter');
+        $uq_fdaysbefore = self::uq_param('fdaysbefore');
+
+        $this->assertEquals(
+            "(base.firstaccess >= {$this->today_timestamp} AND base.firstaccess <= :{$uq_fdaysafter}
+                OR base.firstaccess <= {$this->today_timestamp} AND base.firstaccess >= :{$uq_fdaysbefore})", $sql
+        );
+        $this->assertEquals(
+            array(
+                $uq_fdnotnull => 0,
+                $uq_fdaysafter => $this->today_timestamp + (10 * DAYSECS),
+                $uq_fdaysbefore => $this->today_timestamp - (10 * DAYSECS)
+            ),
             $params
         );
     }

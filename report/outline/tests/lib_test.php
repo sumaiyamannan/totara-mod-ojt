@@ -90,6 +90,10 @@ class report_outline_lib_testcase extends advanced_testcase {
      * Tests the report_outline_myprofile_navigation() function as an admin user.
      */
     public function test_report_outline_myprofile_navigation() {
+        // Totara: missing dependency
+        global $CFG;
+        require_once($CFG->dirroot . '/report/outline/lib.php');
+
         $this->setAdminUser();
         $iscurrentuser = false;
 
@@ -105,6 +109,10 @@ class report_outline_lib_testcase extends advanced_testcase {
      * Tests the report_outline_myprofile_navigation() function as a user without permission.
      */
     public function test_report_outline_myprofile_navigation_without_permission() {
+        // Totara: missing dependency
+        global $CFG;
+        require_once($CFG->dirroot . '/report/outline/lib.php');
+
         $this->setUser($this->user);
         $iscurrentuser = true;
 

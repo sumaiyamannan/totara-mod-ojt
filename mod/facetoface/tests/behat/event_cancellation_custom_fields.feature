@@ -192,6 +192,7 @@ Feature: Seminar event cancellation custom fields
     And I should see "hi" in the "//dt[contains(., 'canceltextinput')]//following-sibling::dd" "xpath_element"
     And I should see "http://example.org" in the "//dt[contains(., 'cancelURL')]//following-sibling::dd" "xpath_element"
     And I should see the "Green leaves on customfield text area" image in the "//dd[preceding-sibling::dt[1][. = 'canceltextarea']]" "xpath_element"
+    And I should see image with alt text "Green leaves on customfield text area"
 
 
   # ----------------------------------------------------------------------------
@@ -236,6 +237,7 @@ Feature: Seminar event cancellation custom fields
     And I should see "hi" in the "Test Seminar" "table_row"
     And I should see "http://example.org" in the "Test Seminar" "table_row"
     And I should see the "Green leaves on customfield text area" image in the "Test Seminar" "table_row"
+    And I should see image with alt text "Green leaves on customfield text area"
 
 
   # ----------------------------------------------------------------------------

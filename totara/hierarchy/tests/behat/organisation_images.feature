@@ -72,6 +72,7 @@ Feature: Test use of images in organisations and organisation custom fields
     And I click on "Save image" "button"
     And I press "Save changes"
     Then I should see the "logo2 in organisation description" image in the "//dd[preceding-sibling::dt[1][. = 'Description']]" "xpath_element"
+    And I should see image with alt text "logo2 in organisation description"
 
     # Image in the custom field
     When I click on "Edit" "link"
@@ -92,10 +93,14 @@ Feature: Test use of images in organisations and organisation custom fields
     Then I should see the "logo2 in organisation description" image in the "//dd[preceding-sibling::dt[1][. = 'Description']]" "xpath_element"
     And I should see the "logo3 on customfield text area" image in the "//dd[preceding-sibling::dt[1][. = 'Custom text area 1']]" "xpath_element"
     And I should see "learninglogo4.jpg"
+    And I should see image with alt text "logo2 in organisation description"
+    And I should see image with alt text "logo3 on customfield text area"
 
     When I press "Return to organisation framework"
     Then I should see the "logo2 in organisation description" image in the "My organisation 1" "table_row"
     And I should see the "logo3 on customfield text area" image in the "Custom text area 1" "table_row"
+    And I should see image with alt text "logo2 in organisation description"
+    And I should see image with alt text "logo3 on customfield text area"
 
     # Also check reports
     When I am on site homepage
@@ -119,3 +124,5 @@ Feature: Test use of images in organisations and organisation custom fields
     When I follow "My organisation 1"
     Then I should see the "logo2 in organisation description" image in the "//dd[preceding-sibling::dt[1][. = 'Description']]" "xpath_element"
     And I should see the "logo3 on customfield text area" image in the "//dd[preceding-sibling::dt[1][. = 'Custom text area 1']]" "xpath_element"
+    And I should see image with alt text "logo2 in organisation description"
+    And I should see image with alt text "logo3 on customfield text area"

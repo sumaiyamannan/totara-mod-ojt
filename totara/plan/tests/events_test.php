@@ -142,6 +142,9 @@ class totara_plan_events_testcase extends advanced_testcase {
     }
 
     public function test_approval_events() {
+        global $CFG;
+        require_once($CFG->dirroot . '/totara/plan/lib.php');
+
         $this->resetAfterTest();
 
         $user = $this->getDataGenerator()->create_user();

@@ -177,7 +177,9 @@ class appraisal_answer_form extends moodleform {
             $question->name = format_string($question->name);
             $isviewonlyquestion = true;
             $elem = $question->get_element();
-            $rights = $question->roles[$roleassignment->appraisalrole];
+            $rights = array_key_exists($roleassignment->appraisalrole, $question->roles)
+                      ? $question->roles[$roleassignment->appraisalrole]
+                      : 0;
 
             if (($rights & appraisal::ACCESS_CANANSWER) == appraisal::ACCESS_CANANSWER) {
                 $isviewonlyquestion = false;
@@ -207,7 +209,7 @@ class appraisal_answer_form extends moodleform {
             }
 
             if (($rights & appraisal::ACCESS_CANVIEWOTHER) == appraisal::ACCESS_CANVIEWOTHER) {
-                if (!$question->populate_roles_element($roleassignment, $otherassignments, $nouserpic)) {
+                if ($question->populate_roles_element($roleassignment, $otherassignments, $nouserpic)) {
                     $isviewonlyquestion = false;
                 }
             }

@@ -191,6 +191,8 @@ class core_completion_externallib_testcase extends externallib_advanced_testcase
      */
     public function test_get_course_completion_status() {
         global $DB, $CFG, $COMPLETION_CRITERIA_TYPES;
+        // Totara: resolve dependencies for the test
+        require_once($CFG->dirroot.'/completion/criteria/completion_criteria.php');
         require_once($CFG->dirroot.'/completion/criteria/completion_criteria_self.php');
         require_once($CFG->dirroot.'/completion/criteria/completion_criteria_date.php');
         require_once($CFG->dirroot.'/completion/criteria/completion_criteria_activity.php');
@@ -293,6 +295,8 @@ class core_completion_externallib_testcase extends externallib_advanced_testcase
      */
     public function test_mark_course_self_completed() {
         global $DB, $CFG;
+        // Totara: resolve dependencies for the test
+        require_once($CFG->dirroot.'/completion/criteria/completion_criteria.php');
         require_once($CFG->dirroot.'/completion/criteria/completion_criteria_self.php');
 
         $this->resetAfterTest(true);

@@ -90,6 +90,10 @@ class report_log_lib_testcase extends advanced_testcase {
      * Tests the report_log_myprofile_navigation() function as an admin viewing the logs for a user.
      */
     public function test_report_log_myprofile_navigation() {
+        // Totara: missing dependency
+        global $CFG;
+        require_once($CFG->dirroot . '/report/log/lib.php');
+
         // Set as the admin.
         $this->setAdminUser();
         $iscurrentuser = false;
@@ -107,6 +111,10 @@ class report_log_lib_testcase extends advanced_testcase {
      * Tests the report_log_myprofile_navigation() function as a user without permission.
      */
     public function test_report_log_myprofile_navigation_without_permission() {
+        // Totara: missing dependency
+        global $CFG;
+        require_once($CFG->dirroot . '/report/log/lib.php');
+
         // Set to the other user.
         $this->setUser($this->user);
         $iscurrentuser = true;

@@ -3273,7 +3273,10 @@ class appraisal_page {
         $answers = new stdClass();
         foreach ($questions as $question) {
             if (!$question->is_locked($roleassignment)) {
-                $rights = $question->roles[$roleassignment->appraisalrole];
+                $rights = array_key_exists($roleassignment->appraisalrole, $question->roles)
+                          ? $question->roles[$roleassignment->appraisalrole]
+                          : 0;
+
                 // If a user isn't required to answer a question don't try and set form as it doesn't exist.
                 if (($rights & appraisal::ACCESS_CANANSWER) == appraisal::ACCESS_CANANSWER) {
                     $answers = $question->get_element()->set_as_form($formdata)->get_as_db($answers);
@@ -4085,10 +4088,8 @@ class appraisal_question extends question_storage {
         $questroles = $this->roles;
         unset($questroles[$roleassignment->appraisalrole]);
         $rolecodestrings = appraisal::get_roles();
-        $isviewonlyquestion = true;
         foreach ($questroles as $eachrole => $rights) {
             if (isset($otherassignments[$eachrole]) && ($rights & appraisal::ACCESS_CANANSWER) == appraisal::ACCESS_CANANSWER) {
-                $isviewonlyquestion = false;
                 // Show role user icon.
                 $subjectid = $otherassignments[$eachrole]->userid;
 
@@ -4105,7 +4106,8 @@ class appraisal_question extends question_storage {
                 $this->get_element()->add_question_role_info($eachrole, $questioninfo);
             }
         }
-        return $isviewonlyquestion;
+
+        return ($this->roles[$roleassignment->appraisalrole] & appraisal::ACCESS_CANANSWER) === appraisal::ACCESS_CANANSWER;
     }
 
 

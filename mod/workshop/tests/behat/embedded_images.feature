@@ -69,7 +69,10 @@ Feature: Teachers can embed images into instructions and conclusion fields
     # Save the form and check the images are displayed in appropriate phases.
     And I change phase in workshop "Workshop with embedded images" to "Submission phase"
     Then "//*[contains(@class, 'instructions')]//img[contains(@src, 'pluginfile.php') and contains(@src, '/mod_workshop/instructauthors/moodlelogo.png') and @alt='How to submit']" "xpath_element" should exist
+    And I should see image with alt text "How to submit"
     And I change phase in workshop "Workshop with embedded images" to "Assessment phase"
     And "//*[contains(@class, 'instructions')]//img[contains(@src, 'pluginfile.php') and contains(@src, '/mod_workshop/instructreviewers/moodlelogo.png') and @alt='How to assess']" "xpath_element" should exist
+    And I should see image with alt text "How to assess"
     And I change phase in workshop "Workshop with embedded images" to "Closed"
     And "//*[contains(@class, 'conclusion')]//img[contains(@src, 'pluginfile.php') and contains(@src, '/mod_workshop/conclusion/moodlelogo.png') and @alt='Well done']" "xpath_element" should exist
+    And I should see image with alt text "Well done"

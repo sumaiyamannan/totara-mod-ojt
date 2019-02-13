@@ -26,7 +26,6 @@ defined('MOODLE_INTERNAL') || die();
 global $CFG;
 
 require_once($CFG->dirroot . '/totara/reportbuilder/tests/reportcache_advanced_testcase.php');
-require_once($CFG->dirroot . '/totara/program/program.class.php');
 
 /**
  * Class totara_program_program_class_testcase
@@ -55,6 +54,13 @@ class totara_program_program_class_testcase extends reportcache_advanced_testcas
 
     private $orgframe, $posframe;
     private $users = array(), $organisations = array(), $positions = array(), $audiences = array(), $managers = array(), $managerjas= array();
+
+    public static function setUpBeforeClass() {
+        parent::setUpBeforeClass();
+
+        global $CFG;
+        require_once($CFG->dirroot . '/totara/program/program.class.php');
+    }
 
     protected function setUp() {
         parent::setUp();
@@ -685,6 +691,8 @@ class totara_program_program_class_testcase extends reportcache_advanced_testcas
      * Test unassigning users.
      */
     public function test_unassign_learners() {
+        global $CFG;
+        require_once($CFG->dirroot . '/enrol/locallib.php');
 
         $this->resetAfterTest();
 

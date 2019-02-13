@@ -37,7 +37,7 @@ Feature: Test Current Learning block
     And I press "Customise this page"
     And I select "Private files" from the "Add a block" singleselect
     And I follow "Manage private files..."
-    And I upload "blocks/current_learning/tests/fixtures/totara_logo.svg" file to "Files" filemanager
+    And I upload "mod/workshop/tests/fixtures/moodlelogo.png" file to "Files" filemanager
     And I click on "Save changes" "button"
 
     # Edit the program.
@@ -48,15 +48,16 @@ Feature: Test Current Learning block
 
     # Add the image to the summary field.
     And I click on "Details" "link"
+    And I set the field "Summary" to "<p>Image test</p>"
     And I select the text in the "id_summary_editor" Atto editor
     And I click on "Image" "button" in the "#fitem_id_summary_editor" "css_element"
     And I click on "Browse repositories..." "button"
-    And I click on "Private files" "link"
-    And I click on "totara_logo.svg" "link"
+    And I click on "moodlelogo.png" "link"
     And I click on "Select this file" "button"
-    And I set the field "Describe this image for someone who cannot see it" to "Its a picture"
+    And I set the field "Describe this image for someone who cannot see it" to "It's a picture"
     And I click on "Save image" "button"
     And I press "Save changes"
+    And I should see image with alt text "It's a picture"
 
     # Add the program content.
     And I click on "Content" "link"

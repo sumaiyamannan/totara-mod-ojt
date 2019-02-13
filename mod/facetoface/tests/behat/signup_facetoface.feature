@@ -376,6 +376,7 @@ Feature: Sign up to a seminar
     And "Sam1 Student1" row "Signup multi (text)" column of "facetoface_sessions" table should contain "Aye, Nay"
     And "Sam1 Student1" row "Signup input" column of "facetoface_sessions" table should contain "hi"
     And I should see the "Green leaves on customfield text area" image in the "//table[@id='facetoface_sessions']/tbody/tr" "xpath_element"
+    And I should see image with alt text "Green leaves on customfield text area"
 
     When I log out
     And I log in as "student1"
@@ -423,6 +424,7 @@ Feature: Sign up to a seminar
     And I should see "Monkey" in the "//div[@aria-hidden='false' and @class='moodle-dialogue-base']" "xpath_element"
     And I should see "http://totaralms.com" in the "//div[@aria-hidden='false' and @class='moodle-dialogue-base']" "xpath_element"
     And I should see the "Green leaves on customfield text area" image in the "//div[@aria-hidden='false' and @class='moodle-dialogue-base']" "xpath_element"
+    And I should see image with alt text "Green leaves on customfield text area"
 
   Scenario: bulk adding and removing attendees saves custom field data for all users
     When I log in as "admin"

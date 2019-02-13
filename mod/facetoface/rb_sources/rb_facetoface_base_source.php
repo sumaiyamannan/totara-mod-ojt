@@ -40,7 +40,7 @@ abstract class rb_facetoface_base_source extends rb_base_source {
      * @param string $joinsessions
      */
     public function add_facetoface_common_to_columns(&$columnoptions, $joinsessions = 'sessions') {
-                $columnoptions[] = new rb_column_option(
+        $columnoptions[] = new rb_column_option(
             'facetoface',
             'facetofaceid',
             get_string('ftfid', 'rb_source_facetoface_room_assignments'),
@@ -91,11 +91,11 @@ abstract class rb_facetoface_base_source extends rb_base_source {
     }
 
    /**
-     * Add common facetoface session columns
-     * Requires 'sessions' join and custom named join to {facetoface_sessions_dates} (by default 'base')
-     * @param array $columnoptions
-     * @param string $sessiondatejoin Join that provides {facetoface_sessions_dates}
-     */
+    * Add common facetoface session columns
+    * Requires 'sessions' join and custom named join to {facetoface_sessions_dates} (by default 'base')
+    * @param array $columnoptions
+    * @param string $sessiondatejoin Join that provides {facetoface_sessions_dates}
+    */
     public function add_session_common_to_columns(&$columnoptions, $sessiondatejoin = 'base') {
         global $CFG;
 
@@ -148,6 +148,32 @@ abstract class rb_facetoface_base_source extends rb_base_source {
                 'extrafields' => array('timezone' => "{$sessiondatejoin}.sessiontimezone"),
                 'displayfunc' => 'nice_datetime' . $intimezone,
                 'dbdatatype' => 'timestamp'
+            )
+        );
+
+        $columnoptions[] = new rb_column_option(
+            'date',
+            'localsessionstartdate',
+            get_string('localsessstartdate', 'rb_source_facetoface_sessions'),
+            "{$sessiondatejoin}.timestart",
+            array(
+                'joins' => array($sessiondatejoin),
+                'displayfunc' => 'local_event_date',
+                'dbdatatype' => 'timestamp',
+                'defaultheading' => get_string('sessstartdatetime', 'rb_source_facetoface_room_assignments'),
+            )
+        );
+
+        $columnoptions[] = new rb_column_option(
+            'date',
+            'localsessionfinishdate',
+            get_string('localsessfinishdate', 'rb_source_facetoface_sessions'),
+            "{$sessiondatejoin}.timefinish",
+            array(
+                'joins' => array($sessiondatejoin),
+                'displayfunc' => 'local_event_date',
+                'dbdatatype' => 'timestamp',
+                'defaultheading' => get_string('sessfinishdatetime', 'rb_source_facetoface_room_assignments'),
             )
         );
 

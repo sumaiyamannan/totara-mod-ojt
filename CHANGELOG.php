@@ -3,6 +3,104 @@
 
 Totara Learn Changelog
 
+Release 9.28 (24th January 2019):
+=================================
+
+
+Security issues:
+
+    TL-19900       Applied fixes for Bootstrap XSS issues
+
+                   Bootstrap recently included security fixes in their latest set of releases.
+                   To avoid affecting functionality using the current versions of Bootstrap,
+                   only the security fixes have been applied rather than upgrading the version
+                   of Bootstrap used.
+
+                   It is expected that there was no exploit that could be carried out in
+                   Totara due to this vulnerability, as the necessary user input does not go
+                   into the affected attributes when using Bootstrap components. However we
+                   have applied these fixes to minimise the risk of becoming vulnerable in the
+                   future.
+
+                   The Bootstrap library is used by the Roots theme.
+
+Improvements:
+
+    TL-18759       Improved the display of user's enrolment status
+
+                   Added clarification to the Status field on the course enrolments page. If
+                   editing a user's enrolment while the corresponding enrolment module is
+                   disabled, the status will now be displayed as 'Effectively suspended'.
+
+Bug fixes:
+
+    TL-19471       Fixed unavailable programs not showing in user's Record of Learning items when the user had started the program
+    TL-19797       Fixed minimum bookings notification being sent for cancelled events
+    TL-19877       Fixed bug where multi-framework rules were flagged as deleted in Audiences dynamic rules
+    TL-20007       Fixed an error with audience rules relying on a removed user-defined field value
+
+                   This affected the 'choose' type of audience rules on text input user custom
+                   fields. If a user-defined input value was used in the rule definition, and
+                   that value was then subsequently removed as a field input, a fatal error
+                   was thrown when viewing the audience. This is now handled gracefully,
+                   rather than displaying an object being used as an array error the missing
+                   value can now be removed from the rule.
+
+
+Release 9.27 (19th December 2018):
+==================================
+
+
+Security issues:
+
+    TL-19593       Improved handling of seminar attendee export fields
+
+                   Validation was improved for fields that are set by a site admin to be
+                   included when exporting seminar attendance, making user information that
+                   can be exported consistent with other parts of the application.
+
+                   Permissions checks are now also made to ensure that the user exporting has
+                   permission to access the information of each user in the report.
+
+Bug fixes:
+
+    TL-18892       Fixed problem with redisplayed goal question in appraisals
+
+                   Formerly, a redisplayed goal question would display the goal status as a
+                   drop-down list - whether or not the user had rights to change/answer the
+                   question. However, when the goal was changed, it was ignored. This patch
+                   changes the drop-down into a text string when necessary so that it cannot
+                   be changed.
+
+    TL-19373       Added two new seminar date columns which support export
+
+                   The new columns are "Local Session Start Date/Time" and "Local Session
+                   Finish Date/Time" and they support exporting to Excel and Open Document
+                   formats.
+
+    TL-19481       Fixed the course restoration process for seminar event multi-select customfields
+
+                   Previously during course restoration, the seminar event multi-select
+                   customfield was losing the value(s) if there was more than one value
+                   selected.
+
+    TL-19615       Fixed a permission error when a user tried to edit a seminar calendar event
+    TL-19692       Fixed a naming error for an undefined user profile datatype in the observer class unit tests
+    TL-19696       Fixed the handling of calendar events when editing the calendar display settings of a seminar with multiple sessions
+
+                   Previously with Seminar *Calendar display settings = None* and if the
+                   seminar with multiple events was updated, the user calendar seminar dates
+                   were hidden and the user couldn't see the seminar event in the calendar.
+
+    TL-19760       Fixed multi-language support for custom headings in Report Builder
+    TL-19779       Fixed an error when signing up to a seminar event that requires approval with no job assignment and temporary managers disabled
+
+Contributions:
+
+    * Ghada El-Zoghbi at Catalyst AU - TL-19692
+    * Learning Pool - TL-19779
+
+
 Release 9.26 (4th December 2018):
 =================================
 
