@@ -3,6 +3,60 @@
 
 Totara Learn Changelog
 
+Release 9.29 (14th February 2019):
+==================================
+
+
+API changes:
+
+    TL-20109       Added a default value for $activeusers3mth when calling core_admin_renderer::admin_notifications_page()
+
+                   TL-18789 introduced an additional parameter to
+                   core_admin_renderer::admin_notifications_page() which was not indicated and
+                   will cause issues with themes that override this function (which
+                   bootstrapbase did in Totara 9). This issue adds a default value for this
+                   function and also fixes the PHP error when using themes derived off
+                   bootstrap base in Totara 9.
+
+Performance improvements:
+
+    TL-19810       Removed unnecessary caching from the URL sanitisation in page redirection code
+
+                   Prior to this fix several functions within Totara, including the redirect
+                   function, were using either clean_text() or purify_html() to clean and
+                   sanitise URL's that were going to be output. Both functions were designed
+                   for larger bodies of text, and as such cached the result after cleaning in
+                   order to improve performance. The uses of these functions were leading to
+                   cache bloat, that on a large site could be have a noticeable impact upon
+                   performance.
+
+                   After this fix, places that were previously using clean_text() or
+                   purify_html() to clean URL's now use purify_uri() instead. This function
+                   does not cache the result, and is optimised specifically for its purpose.
+
+    TL-20026       Removed an unused index on the 'element' column in the 'scorm_scoes_track' table
+
+Bug fixes:
+
+    TL-19916       MySQL Derived merge has been turned off for all versions 5.7.20 / 8.0.4 and lower
+
+                   The derived merge optimisation for MySQL is now forcibly turned off when
+                   connecting to MySQL, if the version of MySQL that is running is 5.7.20 /
+                   8.0.4 or lower. This was done to work around a known bug  in MySQL which
+                   could lead to the wrong results being returned for queries that were using
+                   a LEFT join to eliminate rows, this issue was fixed in versions 5.7.21 /
+                   8.0.4 of MySQL and above and can be found in their changelogs as issue #26627181:
+                    * https://dev.mysql.com/doc/relnotes/mysql/5.7/en/news-5-7-21.html
+                    * https://dev.mysql.com/doc/relnotes/mysql/8.0/en/news-8-0-4.html
+
+                   In some cases this can affect performance, so we strongly recommend all
+                   sites running MySQL 5.7.20 / 8.0.4 or lower upgrade both Totara, and their
+                   version of MySQL.
+
+    TL-20018       Removed exception modal when version tracking script fails to contact community
+    TL-20102       Fixed certificates not rendering text in RTL languages.
+
+
 Release 9.28 (24th January 2019):
 =================================
 
