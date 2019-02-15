@@ -54,15 +54,19 @@ class totara_program_messages_testcase extends reportcache_advanced_testcase {
     private $program_generator = null;
     private $program1, $program2;
     private $user1, $user2, $user3, $user4, $user5, $user6;
-    private $manager, $managerja;
+    private $manager;
     private $sink;
 
     protected function tearDown() {
         $this->program_generator = null;
-        $this->program1 = null;
-        $this->user1 = null;
+        $this->program1 = $this->program2 = null;
+        $this->user1 = $this->user2 = $this->user3 = $this->user4 = $this->user5 = $this->user6 = null;
         $this->manager = null;
+
+        $this->sink->clear();
+        $this->sink->close();
         $this->sink = null;
+
         parent::tearDown();
     }
 

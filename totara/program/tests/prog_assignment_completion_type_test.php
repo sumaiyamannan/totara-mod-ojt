@@ -38,14 +38,20 @@ require_once($CFG->dirroot . '/totara/program/program.class.php');
  */
 class totara_program_prog_assignment_completion_type_testcase extends reportcache_advanced_testcase {
 
-    private $users, $dates, $userfields;
+    private $users, $dates;
     private $programgenerator, $programs, $positiongenerator, $positions, $courses;
     private $beforesetuptime, $aftersetuptime;
 
     protected function tearDown() {
         $this->users = null;
+        $this->dates = null;
         $this->programgenerator = null;
+        $this->programs = null;
+        $this->positiongenerator = null;
+        $this->positions = null;
+        $this->courses = null;
         $this->beforesetuptime = null;
+        $this->aftersetuptime = null;
         parent::tearDown();
     }
 

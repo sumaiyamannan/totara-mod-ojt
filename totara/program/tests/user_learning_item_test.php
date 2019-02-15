@@ -29,16 +29,19 @@ class totara_program_user_learning_item_testcase extends advanced_testcase {
 
     private $generator;
     private $program_generator, $completion_generator;
-    private $course1, $course2, $course3, $course4, $course5, $course6;
+    private $course1, $course2, $course3, $course4, $course5, $course6, $course7, $course8;
     private $program1, $program2, $program3, $program4;
     private $user1;
 
     protected function tearDown() {
         $this->generator = null;
         $this->program_generator = null;
-        $this->course1 = null;
-        $this->program1 = null;
+        $this->completion_generator = null;
+        $this->course1 = $this->course2 = $this->course3 = $this->course4 = null;
+        $this->course5 = $this->course6 = $this->course7 = $this->course8 = null;
+        $this->program1 = $this->program2 = $this->program3 = $this->program4 = null;
         $this->user1 = null;
+
         parent::tearDown();
     }
 
