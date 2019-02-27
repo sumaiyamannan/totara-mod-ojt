@@ -954,6 +954,7 @@ class coursecat implements renderable, cacheable_object, IteratorAggregate {
         }
 
         if ($checkvisibility and !empty($CFG->audiencevisibility)) {
+            require_once($CFG->dirroot . '/totara/coursecatalog/lib.php');
             // A hack to improve performance if audience visibility is in use. Not an ideal solution but
             // avoids less than optimal caches or changes to multiple function signatures.
             $fields[] = 'visibilityjoin.isvisibletouser AS totara_isvisibletouser';
