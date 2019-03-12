@@ -456,6 +456,9 @@ class mysqli_native_moodle_database extends moodle_database {
         $this->mysqli->set_charset('utf8');
         $this->query_end(true);
 
+        // Totara: Configuration related to specific MySQL versions.
+        $this->version_specific_support();
+
         // If available, enforce strict mode for the session. That guaranties
         // standard behaviour under some situations, avoiding some MySQL nasty
         // habits like truncating data or performing some transparent cast losses.
@@ -487,6 +490,22 @@ class mysqli_native_moodle_database extends moodle_database {
         $this->temptables = new mysqli_native_moodle_temptables($this);
 
         return true;
+    }
+
+    /**
+     * Add configuration for specific versions of MySQL
+     */
+    protected function version_specific_support() {
+        $version = $this->mysqli->server_info;
+
+        // MySQL Bug https://bugs.mysql.com/bug.php?id=84812
+        if (version_compare($version, '5.7.21') < 0
+            || version_compare($version, '8.0.0') >= 0 && version_compare($version, '8.0.4') < 0) {
+            $sql = "SET SESSION optimizer_switch='derived_merge=off'";
+            $this->query_start($sql, null, SQL_QUERY_AUX);
+            $this->mysqli->query($sql);
+            $this->query_end(true);
+        }
     }
 
     /**

@@ -260,7 +260,7 @@ class core_admin_renderer extends plugin_renderer_base {
      */
     public function admin_notifications_page($maturity, $insecuredataroot, $errorsdisplayed,
             $cronoverdue, $dbproblems, $maintenancemode, $availableupdates, $availableupdatesfetch,
-            $buggyiconvnomb, $registered, array $cachewarnings = array(), $latesterror, $activeusers, $totara_release, $activeusers3mth) {
+            $buggyiconvnomb, $registered, array $cachewarnings = array(), $latesterror, $activeusers, $totara_release, $activeusers3mth = 0) {
         global $CFG, $PAGE;
         $output = '';
         /** @var totara_core_renderer $totara_renderer */

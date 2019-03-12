@@ -1893,6 +1893,110 @@ function purify_html($text, $options = array()) {
 }
 
 /**
+ * Use HTMLPurifier to make sure URI is not dangerous.
+ *
+ * NOTE: illegal nonprintable characters are removed, '&amp;' are replaced with '&'
+ *       and other illegal characters are %encoded.
+ *
+ * @param string $uri
+ * @param bool $httponly true if URL will be used for browser redirect, false for all allowed URI schemas
+ * @return string safe uri with & not encoded or empty string '' if URI unsafe
+ */
+function purify_uri($uri, $httponly = false) {
+    global $CFG;
+
+    if ($uri === null or $uri === '') {
+        return '';
+    }
+
+    $uri = preg_replace('/[\x00-\x1F\x7F]/', '', $uri);
+    $uri = str_replace('"', '%22', $uri);
+    $uri = str_replace('\'', '%27', $uri);
+    $uri = str_replace('&amp;', '&', $uri);
+
+    if ($uri === '') {
+        return '';
+    }
+
+    static $configs = array();
+
+    // Purifier code can change only during major version upgrade.
+    $version = empty($CFG->version) ? 0 : $CFG->version;
+    $cachedir = "$CFG->localcachedir/htmlpurifier/$version";
+    if (!file_exists($cachedir)) {
+        // Purging of caches may remove the cache dir at any time,
+        // luckily file_exists() results should be cached for all existing directories.
+        $configs = array();
+        gc_collect_cycles();
+
+        make_localcache_directory('htmlpurifier', false);
+        check_dir_exists($cachedir);
+    }
+
+    $type = $httponly ? 'httponly' : 'any';
+
+    if (!isset($configs[$type])) {
+        require_once $CFG->libdir.'/htmlpurifier/HTMLPurifier.safe-includes.php';
+        require_once $CFG->libdir.'/htmlpurifier/locallib.php';
+        $config = HTMLPurifier_Config::createDefault();
+
+        // See http://htmlpurifier.org/phorum/read.php?3,6874,6874
+
+        $config->set('HTML.DefinitionID', 'purifyuri_' . $type);
+        $config->set('HTML.DefinitionRev', 1);
+        $config->set('Cache.SerializerPath', $cachedir);
+        $config->set('Cache.SerializerPermissions', $CFG->directorypermissions);
+        $config->set('Core.Encoding', 'UTF-8');
+        $config->set('HTML.Doctype', 'XHTML 1.0 Transitional');
+        $config->set('HTML.Allowed', '');
+
+        if ($httponly) {
+            $config->set('URI.OverrideAllowedSchemes', false);
+            $config->set('URI.AllowedSchemes', array(
+                'http' => true,
+                'https' => true,
+            ));
+        } else {
+            $config->set('URI.AllowedSchemes', array(
+                'http' => true,
+                'https' => true,
+                'ftp' => true,
+                'irc' => true,
+                'nntp' => true,
+                'news' => true,
+                'rtsp' => true,
+                'rtmp' => true,
+                'teamspeak' => true,
+                'gopher' => true,
+                'mms' => true,
+                'mailto' => true,
+                'skype'=>true,
+                'ymsgr'=>true,
+                'meet'=>true,
+                'sip'=>true,
+                'xmpp'=>true,
+                'aim'=>true,
+                'myim'=>true,
+                'msnim'=>true
+            ));
+        }
+
+        $configs[$type] = $config;
+    } else {
+        $config = $configs[$type];
+    }
+
+    $sanitizer = new HTMLPurifier_AttrDef_URI();
+    $context = new HTMLPurifier_Context();
+
+    $uri = $sanitizer->validate($uri, $config, $context);
+    if ($uri === false) {
+        return '';
+    }
+    return $uri;
+}
+
+/**
  * Given plain text, makes it into HTML as nicely as possible.
  *
  * May contain HTML tags already.
@@ -2745,11 +2849,17 @@ function redirect($url, $message='', $delay=-1) {
 
     // Sanitise url - we can not rely on moodle_url or our URL cleaning
     // because they do not support all valid external URLs.
-    $url = preg_replace('/[\x00-\x1F\x7F]/', '', $url);
-    $url = str_replace('"', '%22', $url);
-    $encodedurl = preg_replace("/\&(?![a-zA-Z0-9#]{1,8};)/", "&amp;", $url);
-    $encodedurl = preg_replace('/^.*href="([^"]*)".*$/', "\\1", clean_text('<a href="'.$encodedurl.'" />', FORMAT_HTML));
-    $url = str_replace('&amp;', '&', $encodedurl);
+    // Totara: make sure there are no nasties in the URL.
+    $safeurl = purify_uri($url, true);
+    if ($safeurl === '') {
+        // This should not happen, just go the main page, this is detected as failure in behat.
+        error_log('Debugging: Invalid URL detected in redirect(): ' . $url);
+        $url = $CFG->wwwroot;
+        $encodedurl = $CFG->wwwroot;
+    } else {
+        $url = $safeurl;
+        $encodedurl = preg_replace("/\&(?![a-zA-Z0-9#]{1,8};)/", "&amp;", $safeurl);
+    }
 
     if (!empty($message)) {
         if ($delay === -1 || !is_numeric($delay)) {
