@@ -1172,44 +1172,38 @@ class hierarchy {
      * See {@link _delete_hierarchy_items()} in the child class for details
      *
      * @param integer $id the item id to delete
-     * @param boolean $triggerevent If true, this command will trigger a "{$prefix}_added" event handler
+     * @param boolean $triggerevent If true, this command will trigger a "{$prefix}_deleted" event handler
      *
      * @return boolean success or failure
      */
     public function delete_hierarchy_item($id, $triggerevent = true) {
-        global $DB, $USER;
+        global $DB;
 
         if (!$DB->record_exists($this->shortprefix, array('id' => $id))) {
             return false;
         }
 
-        $snapshot = $DB->get_record($this->shortprefix, array('id' => $id));
-
         // Get array of items to delete (the item specified *and* all its children).
-        $delete_list = $this->get_item_descendants($id);
-        // Make a copy for triggering events.
-        $deleted_list = $delete_list;
+        $ids = array_keys($this->get_item_descendants($id));
 
-        // Make sure we know the item's framework id.
-        $frameworkid = isset($this->frameworkid) ? $this->frameworkid :
-            $DB->get_field($this->shortprefix, 'frameworkid', array('id' => $id));
+        // Let's get snapshots for the events, if needed
+        if ($triggerevent) {
+            // We can insert this into a query as we know there is at least one record.
+            list($in_sql, $in_params) = $DB->get_in_or_equal($ids, SQL_PARAMS_NAMED);
+            $snapshots = $DB->get_records_select($this->shortprefix, "id {$in_sql}", $in_params);
+        }
 
-            $transaction = $DB->start_delegated_transaction();
+        $transaction = $DB->start_delegated_transaction();
 
-            // Iterate through 1000 items at a time, because oracle can't use.
-            // More than 1000 items in an sql IN clause.
-            while ($delete_items = totara_pop_n($delete_list, 1000)) {
-                $delete_ids = array_keys($delete_items);
-                if (!$this->_delete_hierarchy_items($delete_ids)) {
-                    return false;
-                }
-            }
-            $transaction->allow_commit();
+        if (!$this->_delete_hierarchy_items($ids)) {
+            return false;
+        }
+
+        $transaction->allow_commit();
 
         // Raise an event for each item deleted to let other parts of the system know.
         if ($triggerevent) {
-            foreach ($deleted_list as $deleted_item) {
-
+            foreach ($snapshots as $snapshot) {
                 $eventclass = "\\hierarchy_{$this->prefix}\\event\\{$this->prefix}_deleted";
                 $eventclass::create_from_instance($snapshot)->trigger();
             }
