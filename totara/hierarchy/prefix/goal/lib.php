@@ -731,7 +731,7 @@ class goal extends hierarchy {
             if ($assignment->assigntype == GOAL_ASSIGNMENT_INDIVIDUAL && $canedit) {
                 // Set up the edit and delete icons.
                 $del_params = array('goalid' => $assignment->goalid, 'assigntype' => $assignment->assigntype,
-                    'modid' => $assignment->userid);
+                    'modid' => $assignment->userid, 'assignment_id' => $assignment->id);
                 $del_url = new moodle_url('/totara/hierarchy/prefix/goal/assign/remove.php', $del_params);
                 $del_str = get_string('delete');
                 $del_button = ' ' . $OUTPUT->action_icon($del_url, new pix_icon('t/delete', $del_str));

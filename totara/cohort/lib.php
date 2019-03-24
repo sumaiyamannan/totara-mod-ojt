@@ -1981,6 +1981,7 @@ function check_access_audience_visibility($type, $instance, $userid = null) {
         // Don't rely on this too much - it's a hack to improve performance without getting too messy.
         $totarajoinisvisible = $object->totara_isvisibletouser;
     } else {
+        require_once($CFG->dirroot . '/totara/coursecatalog/lib.php');
         list($visibilityjoinsql, $visibilityjoinparams) = totara_visibility_join($userid, $type, $alias);
         $params = array_merge(array('itemcontext' => $itemcontext, 'instanceid' => $object->id), $visibilityjoinparams);
 

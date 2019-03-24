@@ -2501,6 +2501,26 @@ abstract class moodle_database {
     }
 
     /**
+     * Returns the driver specific syntax for the beginning of a word boundary.
+     *
+     * @since Totara 9.30
+     * @return string or empty if not supported
+     */
+    public function sql_regex_word_boundary_start() {
+        return '';
+    }
+
+    /**
+     * Returns the driver specific syntax for the end of a word boundary.
+     *
+     * @since Totara 9.30
+     * @return string or empty if not supported
+     */
+    public function sql_regex_word_boundary_end() {
+        return '';
+    }
+
+    /**
      * Returns the SQL that allows to find intersection of two or more queries
      *
      * @since Moodle 2.8

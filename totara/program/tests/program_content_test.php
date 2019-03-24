@@ -53,8 +53,8 @@ class totara_program_program_content_testcase extends advanced_testcase {
     protected function tearDown() {
         $this->generator = null;
         $this->program_generator = null;
-        $this->course1 = null;
-        $this->program1 = null;
+        $this->course1 = $this->course2 = $this->course3 = null;
+        $this->program1 = $this->program2 = null;
         parent::tearDown();
     }
 

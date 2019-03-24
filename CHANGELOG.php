@@ -3,6 +3,34 @@
 
 Totara Learn Changelog
 
+Release 9.30 (22nd March 2019):
+===============================
+
+
+Security issues:
+
+    TL-20498       MDL-64651: Prevented links in comments from including the referring URL when followed
+    TL-20518       Changed the Secure page layout to use layout/secure.php
+
+                   Previously the secure page layout was using the standard layout PHP file in
+                   both Roots and Basis themes and unless otherwise specified, in child
+                   themes.
+
+Bug fixes:
+
+    TL-20033       Fixed the SQL pattern for word matching regular expressions in MySQL 8
+    TL-20228       Fixed memory leaks in totara_program PHPUnit tests
+    TL-20302       Fixed 'Allow cancellations' form setting for users without 'Configure cancellation' capability when adding an event
+    TL-20339       Fixed deletion of multiple goals when a single goal was unassigned from a user
+
+                   When a user is assigned to the same organisation via several job
+                   assignments and then simultaneously unassigned from the organisation, the
+                   goals assigned to this user via an organisation are converted to individual
+                   duplicated goal assignments. Previously, when a single goal was deleted,
+                   the duplicate records were deleted as well. After the patch, the individual
+                   goal assignments are removed separately.
+
+
 Release 9.29 (14th February 2019):
 ==================================
 

@@ -1703,6 +1703,36 @@ class mysqli_native_moodle_database extends moodle_database {
     }
 
     /**
+     * Returns the driver specific syntax for the beginning of a word boundary.
+     *
+     * @since Totara 9.30
+     * @return string or empty if not supported
+     */
+    public function sql_regex_word_boundary_start() {
+        $version = $this->mysqli->server_info;
+        // ICU expression library in MySQL 8 has new word boundary markers.
+        if (version_compare($version, '8.0.4', '>=')) {
+            return '\\b';
+        }
+        return '[[:<:]]';
+    }
+
+    /**
+     * Returns the driver specific syntax for the end of a word boundary.
+     *
+     * @since Totara 9.30
+     * @return string or empty if not supported
+     */
+    public function sql_regex_word_boundary_end() {
+        $version = $this->mysqli->server_info;
+        // ICU expression library in MySQL 8 has new word boundary markers.
+        if (version_compare($version, '8.0.4', '>=')) {
+            return '\\b';
+        }
+        return '[[:>:]]';
+    }
+
+    /**
      * Returns the SQL to be used in order to an UNSIGNED INTEGER column to SIGNED.
      *
      * @deprecated since 2.3

@@ -49,6 +49,9 @@ class totara_program_program_class_testcase extends reportcache_advanced_testcas
     /** @var totara_plan_generator $plan_generator */
     private $plan_generator;
 
+    /** @var core_completion_generator $completion_generator */
+    private $completion_generator;
+
     /** @var phpunit_message_sink $messagesink */
     private $messagesink;
 
@@ -75,6 +78,7 @@ class totara_program_program_class_testcase extends reportcache_advanced_testcas
         $maxmanagers = 3;
 
         $this->data_generator = $this->getDataGenerator();
+        $this->completion_generator = $this->data_generator->get_plugin_generator('core_completion');
         $this->program_generator = $this->data_generator->get_plugin_generator('totara_program');
         $this->hierarchy_generator = $this->data_generator->get_plugin_generator('totara_hierarchy');
         $this->cohort_generator = $this->data_generator->get_plugin_generator('totara_cohort');
@@ -117,11 +121,18 @@ class totara_program_program_class_testcase extends reportcache_advanced_testcas
         $this->messagesink = null;
         $this->data_generator = null;
         $this->program_generator = null;
+        $this->completion_generator = null;
         $this->hierarchy_generator = null;
         $this->cohort_generator = null;
         $this->plan_generator = null;
         $this->orgframe = null;
         $this->users = null;
+        $this->posframe = null;
+        $this->organisations = array();
+        $this->positions = array();
+        $this->audiences = array();
+        $this->managers = array();
+        $this->managerjas = array();
         parent::tearDown();
     }
 
@@ -1194,8 +1205,8 @@ class totara_program_program_class_testcase extends reportcache_advanced_testcas
             $this->markTestSkipped('Skipped due to bad luck - fix the program add_courseset_to_program method');
         }
         $course = reset($courses);
-        // Mark the user as complete in this one course, this should put them into progress.
-        $this->mark_user_complete_in_course($user, $course);
+        // Mark the user as complete in this one course, this should put them into program progress.
+        $this->completion_generator->complete_course($course, $user);
         $this->assertFalse($courseset->check_courseset_complete($user->id));
     }
 
@@ -1341,8 +1352,8 @@ class totara_program_program_class_testcase extends reportcache_advanced_testcas
         $courses_one = $courseset->get_courses();
         $this->assertCount(1, $courses_one);
         foreach ($courses_one as $course) {
-            $this->mark_user_complete_in_course($user_incomplete, $course);
-            $this->mark_user_complete_in_course($user_complete, $course);
+            $this->completion_generator->complete_course($course, $user_incomplete);
+            $this->completion_generator->complete_course($course, $user_complete);
         }
         // Check they are complete, this will mark the user as complete for the first course set.
         $this->assertTrue($courseset->check_courseset_complete($user_incomplete->id));
@@ -1353,7 +1364,7 @@ class totara_program_program_class_testcase extends reportcache_advanced_testcas
         $courses_two = $courseset->get_courses();
         $this->assertCount(1, $courses_two);
         foreach ($courses_two as $course) {
-            $this->mark_user_complete_in_course($user_complete, $course);
+            $this->completion_generator->complete_course($course, $user_complete);
         }
         $this->assertNotFalse($courseset->check_courseset_complete($user_complete->id));
 
@@ -1494,8 +1505,8 @@ class totara_program_program_class_testcase extends reportcache_advanced_testcas
         $courses_one = $courseset->get_courses();
         $this->assertCount(1, $courses_one);
         foreach ($courses_one as $course) {
-            $this->mark_user_complete_in_course($user_incomplete, $course);
-            $this->mark_user_complete_in_course($user_complete, $course);
+            $this->completion_generator->complete_course($course, $user_incomplete);
+            $this->completion_generator->complete_course($course, $user_complete);
         }
         // Check they are complete, this will mark the user as complete for the first course set.
         $this->assertTrue($courseset->check_courseset_complete($user_incomplete->id));
@@ -1506,7 +1517,7 @@ class totara_program_program_class_testcase extends reportcache_advanced_testcas
         $courses_two = $courseset->get_courses();
         $this->assertCount(1, $courses_two);
         foreach ($courses_two as $course) {
-            $this->mark_user_complete_in_course($user_complete, $course);
+            $this->completion_generator->complete_course($course, $user_complete);
         }
         $this->assertNotFalse($courseset->check_courseset_complete($user_complete->id));
 
@@ -1602,20 +1613,6 @@ class totara_program_program_class_testcase extends reportcache_advanced_testcas
             $this->verify_user_complete_in_course($user_complete, $course);
             $this->verify_user_complete_in_course($user_incomplete, $course, false);
         }
-    }
-
-    /**
-     * Marks the user as complete in the course and assert it was done successfully.
-     *
-     * @param stdClass $user
-     * @param stdClass $course
-     */
-    private function mark_user_complete_in_course($user, $course) {
-        $params = array('userid' => $user->id, 'course' => $course->id);
-        $completion = new completion_completion($params);
-        $completion->mark_inprogress();
-        $this->assertNotEmpty($completion->mark_complete());
-        $this->assertTrue($completion->is_complete());
     }
 
     /**
