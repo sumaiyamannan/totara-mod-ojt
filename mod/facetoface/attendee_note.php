@@ -31,8 +31,6 @@ require_once($CFG->dirroot . '/mod/facetoface/attendee_note_form.php');
 $userid    = required_param('userid', PARAM_INT); // Facetoface signup user ID.
 $sessionid = required_param('s', PARAM_INT); // Facetoface session ID.
 
-require_sesskey();
-
 if (!$session = facetoface_get_session($sessionid)) {
     print_error('error:incorrectcoursemodulesession', 'facetoface');
 }
@@ -80,8 +78,7 @@ if (!empty($customfields)) {
 $output .= '<hr />';
 $output .= $renderer->single_button(
     new moodle_url('/mod/facetoface/editattendeesnote.php', array('userid' => $userid, 's' => $sessionid, 'sesskey' => sesskey())),
-    get_string('edit'),
-    'get'
+    get_string('edit')
 );
 
 header('Content-type: text/html; charset=utf-8');
