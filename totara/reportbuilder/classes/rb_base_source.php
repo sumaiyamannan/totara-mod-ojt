@@ -2431,7 +2431,7 @@ abstract class rb_base_source {
             $groupname,
             'fullname',
             get_string('userfullname', 'totara_reportbuilder'),
-            $DB->sql_concat_join("' '", $usednamefields),
+            "CASE WHEN {$join}.id IS NULL THEN NULL ELSE " . $DB->sql_concat_join("' '", $usednamefields) . " END",
             array('joins' => $join,
                   'dbdatatype' => 'char',
                   'outputformat' => 'text',
