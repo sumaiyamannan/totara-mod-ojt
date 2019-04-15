@@ -1143,6 +1143,13 @@ class core_accesslib_testcase extends advanced_testcase {
                 $this->assertSame("$name ($rolecounts[$roleid])", $nameswithcounts[$roleid]);
             }
         }
+
+        // Assign teacher role again on same context from a different component, check that it is only counted once.
+        $this->assertSame(2, $DB->count_records('role_assignments', []));
+        role_assign($teacherrole->id, $teacher->id, $coursecontext, 'totara_cohort');
+        $this->assertSame(3, $DB->count_records('role_assignments', []));
+        list($rolenames2, $rolecounts2, $nameswithcounts2) = get_assignable_roles($coursecontext, ROLENAME_BOTH, true, $admin);
+        $this->assertEquals($rolecounts, $rolecounts2);
     }
 
     /**
