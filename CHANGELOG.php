@@ -3,6 +3,81 @@
 
 Totara Learn Changelog
 
+Release 9.31 (29th April 2019):
+===============================
+
+
+Security issues:
+
+    TL-20532       Fixed a file path serialisation issue in TCPDF library
+
+                   Prior to this fix an attacker could trigger a deserialisation of arbitrary
+                   data by targeting the phar:// stream wrapped in PHP.
+                   In Totara 11, 12 and above The TCPDF library  has been upgraded to version
+                   6.2.26.
+                   In all older versions the fix from the TCPDF library for this issue has
+                   been cherry-picked into Totara.
+
+    TL-20607       Improved HTML sanitisation of Bootstrap tool-tips and popovers
+
+                   An XSS vulnerability was recently identified and fix in the Bootstrap 3
+                   library that we use.
+                   The vulnerability arose from a lack of sanitisation on attribute values for
+                   the popover component.
+                   The fix developed by Bootstrap has now been cherry-picked into all affected
+                   branches.
+
+    TL-20614       Removed session key from page URL on seminar attendance and cancellation note editing screens
+    TL-20615       Fixed external database credentials being passed as URL parameters in HR Import
+
+                   When using the HR Import database sync, the external DB credentials were
+                   passed to the server via query parameters in the URL. This meant that these
+                   values could be unintentionally preserved in a user's browser history, or
+                   network logs.
+
+                   This doesn't pose any risk of compromise to the Totara database, but does
+                   leave external databases vulnerable, and any other services that share its
+                   credentials.
+
+                   If you have used HR Import's external database import, it is recommended
+                   that you update the external database credentials, as well as clear browser
+                   histories and remove any network logs that might have captured the
+                   parameters.
+
+    TL-20622       Totara form editor now consistently cleans content before loading it into the editor
+
+Bug fixes:
+
+    TL-12258       Backport from TL-19936 to fix custom rating default value.
+
+                   Without the backport, when the admin views an activated appraisal, all the
+                   previously selected default values for a custom rating question would show.
+                   With the backport, only  the current default value will be shown.
+
+    TL-20148       Fixed a web services error that occurred when the current language resolved to a language that was not installed
+    TL-20488       Added batch processing of users when being unassigned from or reassigned to a program
+    TL-20586       Fixed event generation when deleting hierarchy items
+
+                   Prior to the patch the same event was generated for all descendant
+                   hierarchy items when deleting an item with children.
+
+    TL-20700       Fixed misleading count of users with role
+
+                   A user can be assigned the same role from different contexts. The Users
+                   With Role count was incorrectly double-counting such instances leading to
+                   inaccurate totals being displayed. With this fix the system counts only the
+                   distinct users per role, not the number of assignments per role.
+
+    TL-20751       Fixed 'fullname' column option in user columns to return NULL when empty
+
+                   Previously the column returned a space character when no value was
+                   available which prevented users from applying "is empty" filter
+
+Contributions:
+
+    * Kineo UK - TL-20751
+
+
 Release 9.30 (22nd March 2019):
 ===============================
 
