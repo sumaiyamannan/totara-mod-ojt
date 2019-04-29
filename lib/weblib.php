@@ -2196,8 +2196,13 @@ function get_html_lang($dir = false) {
             $direction = ' dir="ltr"';
         }
     }
+    // Totara: make sure we set existing language to make this compatible with PARAM_LANG!
+    $currentlanguage = current_language();
+    if (!get_string_manager()->translation_exists($currentlanguage)) {
+        $currentlanguage = 'en';
+    }
     // Accessibility: added the 'lang' attribute to $direction, used in theme <html> tag.
-    $language = str_replace('_', '-', current_language());
+    $language = str_replace('_', '-', $currentlanguage);
     @header('Content-Language: '.$language);
     return ($direction.' lang="'.$language.'" xml:lang="'.$language.'"');
 }

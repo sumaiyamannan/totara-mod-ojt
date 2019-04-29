@@ -1047,7 +1047,7 @@ if ($show_table) {
                 $icon = '';
                 if (has_capability('mod/facetoface:manageattendeesnote', $context)) {
                     $url = new moodle_url('/mod/facetoface/cancellation_note.php',
-                        array('s' => $session->id, 'userid' => $attendee->id, 'sesskey' => sesskey()));
+                        array('s' => $session->id, 'userid' => $attendee->id));
                     $showpix = new pix_icon('/t/preview', get_string('showcancelreason', 'facetoface'));
                     $icon = $OUTPUT->action_icon($url, $showpix, null, array('class' => 'action-icon attendee-cancellation-note pull-right'));
                 }
@@ -1106,7 +1106,7 @@ if ($show_table) {
                 $data[] = str_replace(' ', '&nbsp;', get_string('status_'.facetoface_get_status($attendee->statuscode), 'facetoface'));
                 $icon = '';
                 if (has_capability('mod/facetoface:manageattendeesnote', $context)) {
-                    $url = new moodle_url('/mod/facetoface/attendee_note.php', array('s' => $session->id, 'userid' => $attendee->id, 'sesskey' => sesskey()));
+                    $url = new moodle_url('/mod/facetoface/attendee_note.php', array('s' => $session->id, 'userid' => $attendee->id));
                     $showpix = new pix_icon('/t/preview', get_string('showattendeesnote', 'facetoface'));
                     $icon = $OUTPUT->action_icon($url, $showpix, null, array('class' => 'action-icon attendee-add-note pull-right'));
                 }
@@ -1277,7 +1277,7 @@ if ($action == 'approvalrequired') {
 
         $icon = '';
         if (has_capability('mod/facetoface:manageattendeesnote', $context)) {
-            $url = new moodle_url('/mod/facetoface/attendee_note.php', array('s' => $session->id, 'userid' => $attendee->id, 'sesskey' => sesskey()));
+            $url = new moodle_url('/mod/facetoface/attendee_note.php', array('s' => $session->id, 'userid' => $attendee->id));
             $icon = $OUTPUT->action_icon($url, $pix, null, array('class' => 'action-icon attendee-add-note pull-right'));
         }
         if ($includeattendeesnote) {

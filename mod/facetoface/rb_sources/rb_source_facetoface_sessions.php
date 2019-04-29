@@ -948,8 +948,7 @@ class rb_source_facetoface_sessions extends rb_facetoface_base_source {
         if (has_capability('mod/facetoface:manageattendeesnote', $context)) {
             $url = new moodle_url('/mod/facetoface/attendee_note.php', array(
                 's' => $row->sessionid,
-                'userid' => $row->userid,
-                'sesskey'=> sesskey()
+                'userid' => $row->userid
             ));
             $pix = new pix_icon('t/edit', get_string('edit'));
             $icon = $OUTPUT->action_icon($url, $pix, null, array('class' => 'js-hide action-icon attendee-add-note pull-right'));

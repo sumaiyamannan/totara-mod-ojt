@@ -85,6 +85,7 @@ M.totara_question_multichoice = M.totara_question_multichoice || {
             $makeDefault.append($makeDefaultLink);
             $makeDefaultLink.on('click', function(){
                 if (M.totara_question_multichoice.config.oneAnswer == 1) {
+                    $allOptions.find('.unselectlink a').click();
                     $allOptions.find('.unselectlink').hide();
                     $allOptions.find('.makedefaultlink').show();
                 }
@@ -159,7 +160,6 @@ M.totara_question_multichoice = M.totara_question_multichoice || {
 
     function clearChoices() {
         $allOptions.find("input[type='text']").val('');
-        $allOptions.find('.unselectlink').show();
     }
 
     // Disable "Save options as" fields.
