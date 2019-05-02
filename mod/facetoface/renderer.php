@@ -1074,7 +1074,7 @@ class mod_facetoface_renderer extends plugin_renderer_base {
 
             foreach ($users as $user) {
                 $fullname = fullname($user);
-                $row = array($fullname, $user->email, $user->username, $user->idnumber);
+                $row = array($fullname, $user->email, $user->username, s($user->idnumber));
 
                 if ($jaselector) {
                     $janame = '';

@@ -143,6 +143,11 @@ abstract class quiz_attempts_report_table extends table_sql {
                 get_string('reviewattempt', 'quiz'), array('class' => 'reviewlink'));
     }
 
+    // TOTARA - Escape potential XSS in idnumber field.
+    public function col_idnumber($row) {
+        return s($row->idnumber);
+    }
+
     /**
      * Generate the display of the attempt state column.
      * @param object $attempt the table row being output.
