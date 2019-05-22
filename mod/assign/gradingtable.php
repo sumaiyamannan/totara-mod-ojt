@@ -474,6 +474,10 @@ class assign_grading_table extends table_sql implements renderable {
                $this->assignment->get_uniqueid_for_user($row->userid);
     }
 
+    // TOTARA - Escape potential XSS in idnumber field.
+    public function col_idnumber($row) {
+        return s($row->idnumber);
+    }
 
     /**
      * Add the userid to the row class so it can be updated via ajax.

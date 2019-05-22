@@ -3,6 +3,39 @@
 
 Totara Learn Changelog
 
+Release 9.32 (22nd May 2019):
+=============================
+
+
+Security issues:
+
+    TL-20730       Course grouping descriptions are now consistently cleaned
+
+                   Prior to this fix grouping descriptions for the most part were consistently
+                   cleaned.
+                   There was however one use of the description field that was not cleaned in
+                   the same way as all other uses.
+                   This fix was to make that one use consistent with all other uses.
+
+    TL-20803       Improved the sanitisation of user ID number field for display in various places
+
+                   The user ID number field is treated as raw, unfiltered text, which means
+                   that HTML tags are not removed when a user's profile is saved. While it is
+                   desirable to treat it that way, for compatibility with systems that might
+                   allow HTML entities to be part of user IDs, it is extremely important to
+                   properly sanitise ID numbers whenever they are used in output.
+
+                   This patch explicitly sanitises user ID numbers in all places where they
+                   are known to be displayed.
+
+                   Even with this patch, admins are strongly encouraged to set the 'Show user
+                   identity' setting so that the display of ID number is disabled.
+
+Bug fixes:
+
+    TL-20767       Removed duplicate settings and unused headings from course default settings
+
+
 Release 9.31 (29th April 2019):
 ===============================
 
