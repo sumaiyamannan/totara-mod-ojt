@@ -460,4 +460,12 @@ class core_setuplib_testcase extends advanced_testcase {
             return get_exception_info($e);
         }
     }
+
+    /**
+     * Test the generate_uuid() function.
+     */
+    public function test_generate_uuid() {
+        $uuid = generate_uuid();
+        $this->assertTrue(self::is_valid_uuid_v4($uuid), "Invalid v4 UUID: '$uuid'");
+    }
 }
