@@ -224,7 +224,9 @@ function upgrade_main_savepoint($result, $version, $allowabort=true) {
 
     // Main savepoint may be called from lib/db/upgrade.php and lib/upgradelib.php only.
     $debuginfo = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 1);
-    if ($debuginfo[0]['file'] !== $CFG->dirroot . '/lib/db/upgrade.php' && $debuginfo[0]['file'] !== $CFG->dirroot . '/lib/upgradelib.php') {
+    $callee = str_replace(DIRECTORY_SEPARATOR, '/', $debuginfo[0]['file']);
+    $dirroot = str_replace(DIRECTORY_SEPARATOR, '/', $CFG->dirroot);
+    if ($callee !== $dirroot . '/lib/db/upgrade.php' && $callee !== $dirroot . '/lib/upgradelib.php') {
         throw new upgrade_main_savepoint_exception($debuginfo[0]['file']);
     }
 
