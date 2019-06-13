@@ -27,6 +27,7 @@ require_once($CFG->dirroot.'/totara/plan/lib.php');
 
 $PAGE->set_context(context_system::instance());
 require_login();
+require_sesskey();
 
 // Check if Learning plans are enabled.
 check_learningplan_enabled();
