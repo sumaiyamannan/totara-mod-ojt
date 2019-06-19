@@ -1445,6 +1445,7 @@
       </CUSTOM_CHECK>
       <CUSTOM_CHECK file="lib/upgradelib.php" function="check_mysql_large_prefix" level="required">
       </CUSTOM_CHECK>
+      <CUSTOM_CHECK level="optional" file="/totara/core/environmentlib.php" function="totara_core_check_for_ngram"/>
     </CUSTOM_CHECKS>
   </MOODLE>
 </COMPATIBILITY_MATRIX>
