@@ -30,6 +30,7 @@ require_once($CFG->dirroot.'/totara/plan/lib.php');
 check_learningplan_enabled();
 
 require_login();
+require_sesskey();
 $context = context_system::instance();
 $PAGE->set_context($context);
 ///

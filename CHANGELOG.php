@@ -3,6 +3,29 @@
 
 Totara Learn Changelog
 
+Release 9.33 (19th June 2019):
+==============================
+
+
+Security issues:
+
+    TL-21071       MDL-64708: Removed an open redirect within the audience upload form
+    TL-21243       Added sesskey checks to prevent CSRF in several Learning Plan dialogs
+
+Bug fixes:
+
+    TL-21175       Added the ability to fix out of order competency scale values
+
+                   Previously when a competency scale was assigned to a framework, and users
+                   had achieved values from that scale, it was not possible to correct any
+                   ordering issues involving proficient values being below non-proficient
+                   values.
+
+                   Warnings are now shown when proficient values are out of order, and it is
+                   possible to change the proficiency settings of these scales to correct this
+                   situation.
+
+
 Release 9.32 (22nd May 2019):
 =============================
 

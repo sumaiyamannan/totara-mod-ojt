@@ -296,6 +296,8 @@ $string['competencyscaledefault'] = 'Default value';
 $string['competencyscaledefault_help'] = 'The **Default Value** is automatically assigned to a user when they have not yet demonstrated the proficiency required by the competency\'s specified evidence item(s) (course/activity completion, or passing course/activity grade).';
 $string['competencyscaledescription'] = 'Description';
 $string['competencyscaleinuse'] = 'This scale is in use (i.e. users have competencies marked with values from this scale). Scale values cannot be created, re-ordered or deleted to preserve data integrity. You can still rename scale values but this may confuse users when their proficiency changes without warning.';
+$string['competenctscaleoutoforderexist'] = 'There are scales with non-proficient values that are set higher than proficient ones. Scale values should be ordered from most proficient to least proficient – please adjust the proficiency setting on affected scale values to reflect this.';
+$string['competenctscaleoutoforderthis'] = 'This scale has non-proficient values that are set higher than proficient ones. Scale values should be ordered from most proficient to least proficient – please adjust the proficiency setting on affected scale values to reflect this.';
 $string['competencyscaleproficient'] = 'Proficient value';
 $string['competencyscaleproficient_help'] = 'Proficient values provide a way for the system to track if a user is \'competent\' in a particular competency. This is used to show progress in learning plans and only show overdue notices for incomplete competencies.
 A user is considered \'competent\' if the scale value set has \'proficent\' checked. You can have multiple scale values set to proficient, but you must have at least one scale value marked as proficient. The proficient value is edited by editing the scale value.
@@ -314,6 +316,10 @@ $string['competencyscalesgeneral'] = 'Competency Scale';
 $string['competencyscalesgeneral_help'] = '**Competency scales** enable you to define the criteria by which a competency can be measured. For example, a scale might have three values \'competent, competent with supervision, not competent\'.
 
 You must have a competency scale set up before you set up a competency framework, or any competencies.';
+$string['competencyscalevalueconfirmtitle'] = 'Confirm updates to scale values';
+$string['competencyscalevalueconfirmproficient'] = 'The proficiency status of users currently assigned to competencies using this scale may be affected.
+
+Do you want to proceed with applying these changes?';
 $string['competencyscalevaluedescription'] = 'Description';
 $string['competencyscalevaluedescription_help'] = 'A longer description of the competency scale value.';
 $string['competencyscalevalueidnumber'] = 'Scale value ID number';
@@ -1276,6 +1282,7 @@ $string['updatedposition'] = 'The position "{$a}" has been updated';
 $string['updateposition'] = 'Update position';
 $string['updatescalevaluefailure'] = 'Scale value failed to update';
 $string['updatescalevaluesuccess'] = 'Scale value updated';
+$string['usedscale'] = 'Scale is already in use. New values may not be added.';
 $string['useraspirationalposition'] = 'Aspirational position';
 $string['useraspirationalposition_help'] = 'This is the target position the user will be progressing towards. Click **Choose position** to select the user\'s aspirational position from position framework(s) set up.';
 $string['useresourcelevelevidence'] = 'Use resource-level evidence';

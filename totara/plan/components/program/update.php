@@ -34,6 +34,7 @@ check_learningplan_enabled();
 check_program_enabled();
 
 require_login();
+require_sesskey();
 $systemcontext = context_system::instance();
 $PAGE->set_context($systemcontext);
 

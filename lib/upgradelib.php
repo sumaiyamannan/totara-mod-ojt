@@ -50,6 +50,15 @@ class upgrade_exception extends moodle_exception {
 }
 
 /**
+ * Exception indicating invalid call to upgrade_main_savepoint() during upgrade.
+ */
+class upgrade_main_savepoint_exception extends moodle_exception {
+    public function __construct($pluginfile) {
+        parent::__construct('upgradeerrormainsavepoint', 'admin', '', $pluginfile, $pluginfile);
+    }
+}
+
+/**
  * Exception indicating downgrade error during upgrade.
  *
  * @package    core
@@ -211,6 +220,14 @@ function upgrade_main_savepoint($result, $version, $allowabort=true) {
 
     if (!$result) {
         throw new upgrade_exception(null, $version);
+    }
+
+    // Main savepoint may be called from lib/db/upgrade.php and lib/upgradelib.php only.
+    $debuginfo = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 1);
+    $callee = str_replace(DIRECTORY_SEPARATOR, '/', $debuginfo[0]['file']);
+    $dirroot = str_replace(DIRECTORY_SEPARATOR, '/', $CFG->dirroot);
+    if ($callee !== $dirroot . '/lib/db/upgrade.php' && $callee !== $dirroot . '/lib/upgradelib.php') {
+        throw new upgrade_main_savepoint_exception($debuginfo[0]['file']);
     }
 
     if ($CFG->version >= $version) {
