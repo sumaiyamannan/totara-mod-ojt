@@ -3,7 +3,7 @@
 global $CFG;
 require_once($CFG->dirroot . '/lib/password_compat/lib/password.php');
 
-class PasswordGetInfoTest extends PHPUnit_Framework_TestCase {
+class PasswordGetInfoTest extends basic_testcase {
     
     public static function provideInfo() {
         return array(

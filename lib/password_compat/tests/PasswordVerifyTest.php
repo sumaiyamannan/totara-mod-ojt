@@ -3,7 +3,7 @@
 global $CFG;
 require_once($CFG->dirroot . '/lib/password_compat/lib/password.php');
 
-class PasswordVerifyTest extends PHPUnit_Framework_TestCase {
+class PasswordVerifyTest extends basic_testcase {
     
     public function testFuncExists() {
         $this->assertTrue(function_exists('password_verify'));
