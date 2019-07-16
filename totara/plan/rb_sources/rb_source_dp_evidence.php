@@ -346,16 +346,7 @@ class rb_source_dp_evidence extends rb_base_source {
 
         $out = '';
 
-        // Check user's permissions to edit this item
-        $usercontext = context_user::instance($row->userid);
-        $canaccess = has_capability('totara/plan:accessanyplan', $usercontext);
-        $canedit = has_capability('totara/plan:editsiteevidence', $usercontext);
-        if ($row->readonly && !($canaccess || $canedit)) {
-            $out .= get_string('evidence_readonly', 'totara_plan');
-        } else if ($USER->id == $row->userid ||
-            \totara_job\job_assignment::is_managing($USER->id, $row->userid) ||
-                $canaccess || $canedit) {
-
+        if (can_create_or_edit_evidence($row->userid, !empty($evidenceid), $row->readonly)) {
             $out .= $OUTPUT->action_icon(
                         new moodle_url('/totara/plan/record/evidence/edit.php',
                                 array('id' => $evidenceid, 'userid' => $row->userid)),
@@ -367,6 +358,8 @@ class rb_source_dp_evidence extends rb_base_source {
                         new moodle_url('/totara/plan/record/evidence/edit.php',
                                 array('id' => $evidenceid, 'userid' => $row->userid, 'd' => '1')),
                         new pix_icon('t/delete', get_string('delete')));
+        } else if ($row->readonly) {
+            $out .= get_string('evidence_readonly', 'totara_plan');
         }
 
         return $out;
