@@ -3,6 +3,20 @@
 
 Totara Learn Changelog
 
+Release 9.34 (17th July 2019):
+==============================
+
+
+Bug fixes:
+
+    TL-19138       Fixed warning message when deleting a report builder saved search
+
+                   If a report builder saved search is deleted, any scheduled reports that use
+                   that saved search are also deleted. The warning message to confirm the
+                   deletion of the saved search now also correctly displays any scheduled
+                   reports that will also be deleted.
+
+
 Release 9.33 (19th June 2019):
 ==============================
 
