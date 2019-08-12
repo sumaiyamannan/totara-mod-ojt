@@ -162,7 +162,7 @@ $string['contentcontrols'] = 'Content Controls';
 $string['contentdesc_userown'] = 'The {$a->field} is "{$a->user}"';
 $string['contentdesc_userdirect'] = 'The {$a->field} reports directly to "{$a->user}" in one of their job assignments';
 $string['contentdesc_userindirect'] = 'The {$a->field} reports indirectly to "{$a->user}" in one of their job assignments';
-$string['contentdesc_usertemp'] = 'The {$a->field} temporarly reports to "{$a->user}" in one of their job assignments';
+$string['contentdesc_usertemp'] = 'The {$a->field} temporarily reports to "{$a->user}" in one of their job assignments';
 $string['contentdesc_posbelow'] = 'The user\'s current position is below "{$a}" in one of their job assignments';
 $string['contentdesc_posboth'] = 'The user\'s current position is equal to or below "{$a}" in one of their job assignments';
 $string['contentdesc_posequal'] = 'The user\'s current position is equal to "{$a}" in one of their job assignments';
@@ -536,7 +536,7 @@ $string['numresponses'] = '{$a} response(s).';
 $string['occurredafter'] = 'occurred after';
 $string['occurredbefore'] = 'occurred before';
 $string['occurredprevfinancialyear'] = 'occurred in the previous financial year';
-$string['occurredthisfinancialyear'] = 'occurred in this finanicial year';
+$string['occurredthisfinancialyear'] = 'occurred in this financial year';
 $string['odsformat'] = 'ODS format';
 $string['on'] = 'on';
 $string['onlydisplayrecordsfor'] = 'Only display records for';
@@ -731,7 +731,7 @@ $string['reportbuilderhidden'] = 'Hide in My Reports';
 $string['reportbuilderhidden_help'] = 'When **Hide in My Reports** is checked the report will not appear on the **My Reports** page for any logged in users.
 Note that the **Hide in My Reports** option only hides the link to the report. Users with the correct access permissions may still access the report using the URL.';
 $string['reportbuilderinitcache'] = 'Cache Status (User Time)';
-$string['reportbuilderjobassignmentfilter'] = 'Job assignment concantenated filter';
+$string['reportbuilderjobassignmentfilter'] = 'Job assignment concatenated filter';
 $string['reportbuilderjobassignmentfilter_help'] = 'This filter allows you to filter information based on all job assignments. The filter has the following options:
 
 * **is any value**: This option disables the filter (i.e. all information is accepted by this filter).
@@ -769,7 +769,7 @@ $string['reportbuildertag_help'] = 'This criteria is enabled by selecting the **
 
 If any tags in the **Include records tagged with** section are selected, only records belonging to an item tagged with all the selected tags will be shown. Records belonging to items with no tags will **not** be shown.
 
-If any tags in the **Exclude records tagged with** section are selected, records belonging to a coures tagged with the selected tags will **not** be shown. All records belonging to items without any tags will be shown.
+If any tags in the **Exclude records tagged with** section are selected, records belonging to a course tagged with the selected tags will **not** be shown. All records belonging to items without any tags will be shown.
 
 It is possible to include and exclude tags at the same time, but a single tag cannot be both included and excluded.';
 $string['reportbuildertrainer'] = 'Report Builder: Show by trainer';
