@@ -3,6 +3,78 @@
 
 Totara Learn Changelog
 
+Release 9.35 (22nd August 2019):
+================================
+
+
+Security issues:
+
+    TL-8385        Fixed users still having the ability to edit evidence despite lacking the capability
+
+                   Previously when a user did not have the 'Edit one's own site-level
+                   evidence' capability, they were still able to edit and delete their own
+                   evidence.
+
+                   With this patch, users without the capability are now prevented from
+                   editing and deleting their own evidence.
+
+    TL-21743       Prevented invalid email addresses in user upload
+
+                   Prior to this fix validation of user emails uploaded by the site
+                   administrator through the upload user administration tool was not
+                   consistent with the rest of the platform. Email addresses were validated,
+                   but if invalid they were not rejected or fixed, and the invalid email
+                   address was saved for the user.
+
+                   This fix ensures that user email address validation is consistent in all
+                   parts of the code base.
+
+    TL-21928       Ensured capabilities are checked when creating a course using single activity format
+
+                   When creating a course using the single activity course format, permissions
+                   weren't being checked to ensure the user was allowed to create an instance
+                   of an activity. Permissions are now checked correctly and users can only
+                   create single activity courses using activities they have permission to
+                   create.
+
+Improvements:
+
+    TL-21437       Added button to allow manual downloading of site registration data
+
+                   It is now possible to manually download an encrypted copy of site
+                   registration data from the register page, in cases where a site cannot be
+                   registered automatically.
+
+Bug fixes:
+
+    TL-21358       Fixed a permission error preventing a user from viewing their own goals in complex hierarchies
+
+                   Prior to this fix if a user had two or more job assignments where they were
+                   the manager of, and team member of, another user at the same time, they
+                   would encounter a permissions error when they attempted to view their own
+                   goals pages.
+                   This has now been fixed, and users in this situation can view their own
+                   goals.
+
+    TL-21581       Added 'debugstringids' configuration setting support to core_string_manager
+
+                   Fixed issue when "Show origin of languages strings" in Development >
+                   Debugging is enabled, in some rare cases, not all strings origins were
+                   displayed.
+
+    TL-21886       Fixed typos in the reportbuilder language strings
+
+                   The following language strings were updated:
+                   - reportbuilderjobassignmentfilter
+                   - reportbuildertag_help
+                   - occurredthisfinancialyear
+                   - contentdesc_usertemp
+
+Contributions:
+
+    * Jo Jones at Kineo UK - TL-21581
+
+
 Release 9.34 (17th July 2019):
 ==============================
 
