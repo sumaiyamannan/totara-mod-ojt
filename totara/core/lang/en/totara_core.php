@@ -173,6 +173,7 @@ $string['deleteusercheckfull'] = 'Are you absolutely sure you want to completely
 If you wish to retain any data you may wish to consider suspending the user instead.';
 $string['disablefeature'] = 'Disable';
 $string['downloaderrorlog'] = 'Download error log';
+$string['downloadregistrationdata'] = 'Download encrypted registration data';
 $string['dynamicappraisals'] = 'Dynamic Appraisals';
 $string['editheading'] = 'Edit the Report Heading Block';
 $string['edition'] = 'Edition';

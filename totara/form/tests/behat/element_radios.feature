@@ -68,22 +68,22 @@ Feature: Totara form radios element tests
     When I set the following Totara form fields to these values:
       | Basic radios                    | Yes      |
       | Required basic radios           | 1        |
-      | Radios with current data        | No       |
+      | Radios with current data        | Yes      |
       | Hidden if reference             | Yes      |
       | A is visible when hiddenif reference is yes          | No    |
       | D is visible when hiddenif reference is yes          | Bravo |
       | F is visible when hiddenif reference is yes          | Yes   |
       | G is visible when required radios is not empty (yes) | No    |
     And I should see the following Totara form fields having these values:
-      | Basic radios                    | Yes      |
+      | Basic radios                    | 1        |
       | Horizontal radios               | $@NULL@$ |
-      | Required basic radios           | No       |
-      | Radios with current data        | Yes      |
+      | Required basic radios           | 1        |
+      | Radios with current data        | 1        |
     And I press "Save changes"
     Then I should see "The form has been submit"
     And "radios_basic" row "Value" column of "form_results" table should contain "«1»"
     And "radios_required" row "Value" column of "form_results" table should contain "«1»"
-    And "radios_with_current_data" row "Value" column of "form_results" table should contain "«0»"
+    And "radios_with_current_data" row "Value" column of "form_results" table should contain "«1»"
     And "radios_frozen_empty" row "Value" column of "form_results" table should contain "«--null--»"
     And "radios_frozen_empty" row "Post data" column of "form_results" table should contain "No post data"
     And "radios_frozen_with_current_data" row "Value" column of "form_results" table should contain "«1»"
@@ -169,8 +169,8 @@ Feature: Totara form radios element tests
     And I should see the following Totara form fields having these values:
       | Basic radios                    | Yes      |
       | Horizontal radios               | $@NULL@$ |
-      | Required basic radios           | No       |
-      | Radios with current data        | Yes      |
+      | Required basic radios           | Yes      |
+      | Radios with current data        | No       |
     And I press "Save changes"
     Then I should see "The form has been submit"
     And "radios_basic" row "Value" column of "form_results" table should contain "«1»"

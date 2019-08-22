@@ -6992,14 +6992,8 @@ function get_string($identifier, $component = '', $a = null, $lazyload = false) 
                 break;
         }
     }
-
-    $result = get_string_manager()->get_string($identifier, $component, $a);
-
-    // Debugging feature lets you display string identifier and component.
-    if (isset($CFG->debugstringids) && $CFG->debugstringids && optional_param('strings', 0, PARAM_INT)) {
-        $result .= ' {' . $identifier . '/' . $component . '}';
-    }
-    return $result;
+    // Totara: Debugging feature to display string identifier and component was moved to string_manager_standard::get_string()
+    return get_string_manager()->get_string($identifier, $component, $a);
 }
 
 /**
@@ -10114,10 +10108,7 @@ class lang_string {
 
             // Process the string.
             $this->string = get_string_manager()->get_string($this->identifier, $this->component, $this->a, $this->lang);
-            // Debugging feature lets you display string identifier and component.
-            if (isset($CFG->debugstringids) && $CFG->debugstringids && optional_param('strings', 0, PARAM_INT)) {
-                $this->string .= ' {' . $this->identifier . '/' . $this->component . '}';
-            }
+            // Totara: Debugging feature to display string identifier and component was moved to string_manager_standard::get_string()
         }
         // Return the string.
         return $this->string;

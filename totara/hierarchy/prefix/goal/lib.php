@@ -1367,18 +1367,6 @@ class goal extends hierarchy {
                     GOAL_ASSIGNMENT_MANAGER => true,
                     GOAL_ASSIGNMENT_ADMIN => true,
                 );
-            } else if (in_array($USER->id, $managers) || in_array($USER->id, $teamleaders) || in_array($USER->id, $appraisers)) {
-                // Manager, manager's manager and appraiser permissions.
-                $permissions['can_view_personal'] = has_capability('totara/hierarchy:viewstaffpersonalgoal', $context);
-                $permissions['can_edit_personal'] = has_capability('totara/hierarchy:managestaffpersonalgoal', $context);
-                $permissions['can_view_company'] = has_capability('totara/hierarchy:viewstaffcompanygoal', $context);
-                $permissions['can_edit_company'] = has_capability('totara/hierarchy:managestaffcompanygoal', $context);
-                $permissions['can_edit'] = array(
-                    GOAL_ASSIGNMENT_INDIVIDUAL => $permissions['can_edit_company'],
-                    GOAL_ASSIGNMENT_SELF => $permissions['can_edit_personal'],
-                    GOAL_ASSIGNMENT_MANAGER => $permissions['can_edit_personal'],
-                    GOAL_ASSIGNMENT_ADMIN => false,
-                );
             } else if ($userid == $USER->id) {
                 // User permissions.
                 $permissions['can_view_personal'] = has_capability('totara/hierarchy:viewownpersonalgoal', $context);
@@ -1389,6 +1377,18 @@ class goal extends hierarchy {
                     GOAL_ASSIGNMENT_INDIVIDUAL => $permissions['can_edit_company'],
                     GOAL_ASSIGNMENT_SELF => $permissions['can_edit_personal'],
                     GOAL_ASSIGNMENT_MANAGER => false,
+                    GOAL_ASSIGNMENT_ADMIN => false,
+                );
+            } else if (in_array($USER->id, $managers) || in_array($USER->id, $teamleaders) || in_array($USER->id, $appraisers)) {
+                // Manager, manager's manager and appraiser permissions.
+                $permissions['can_view_personal'] = has_capability('totara/hierarchy:viewstaffpersonalgoal', $context);
+                $permissions['can_edit_personal'] = has_capability('totara/hierarchy:managestaffpersonalgoal', $context);
+                $permissions['can_view_company'] = has_capability('totara/hierarchy:viewstaffcompanygoal', $context);
+                $permissions['can_edit_company'] = has_capability('totara/hierarchy:managestaffcompanygoal', $context);
+                $permissions['can_edit'] = array(
+                    GOAL_ASSIGNMENT_INDIVIDUAL => $permissions['can_edit_company'],
+                    GOAL_ASSIGNMENT_SELF => $permissions['can_edit_personal'],
+                    GOAL_ASSIGNMENT_MANAGER => $permissions['can_edit_personal'],
                     GOAL_ASSIGNMENT_ADMIN => false,
                 );
             } else {

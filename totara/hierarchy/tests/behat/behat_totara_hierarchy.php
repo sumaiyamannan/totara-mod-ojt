@@ -258,6 +258,7 @@ class behat_totara_hierarchy extends behat_base {
             'tempmanager', // Username.
             'tempmanagerjaidnumber', // String.
             'tempmanagerexpirydate', // Unix datetime
+            'usefirst'
         );
 
         $data = $table->getHash();
@@ -368,8 +369,18 @@ class behat_totara_hierarchy extends behat_base {
             }
             unset($record['position']);
 
+            $usefirst = !empty($record['usefirst']) ? true : false;
+            unset($record['usefirst']);
+
+            // Check if we should use the first assignment
+            if ($usefirst) {
+                $ja = \totara_job\job_assignment::get_first($userid);
+                if (!empty($ja)) {
+                    $ja->update($record);
+                    continue; // Don't need to create new job assignment.
+                }
             // Check if this is an update.
-            if (!empty($record['idnumber'])) {
+            } else if (!empty($record['idnumber'])) {
                 $ja = \totara_job\job_assignment::get_with_idnumber($userid, $record['idnumber'], false);
                 if (!empty($ja)) {
                     $ja->update($record);
