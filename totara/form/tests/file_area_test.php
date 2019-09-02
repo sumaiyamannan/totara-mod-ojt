@@ -120,10 +120,62 @@ class totara_form_file_area_testcase extends advanced_testcase {
     }
 
     public function test_create_draft_area() {
-        // TODO TL-9424: Test the creation of a draft file area.
+        $this->resetAfterTest();
+
+        $user = $this->getDataGenerator()->create_user();
+        $this->setUser($user);
+        $usercontext = \context_user::instance($user->id);
+        $syscontext = context_system::instance();
+        $fs = get_file_storage();
+
+        $filearea = new file_area($syscontext, 'totara_core', 'testarea', null);
+        $draftitemid = $filearea->create_draft_area();
+        $this->assertTrue(is_numeric($draftitemid));
+        $this->assertFalse($fs->file_exists($usercontext->id, 'user', 'draft', $draftitemid, '/', '.'));
+
+        $filearea = new file_area($syscontext, 'totara_core', 'testarea', 0);
+        $draftitemid = $filearea->create_draft_area();
+        $this->assertTrue(is_numeric($draftitemid));
+        $this->assertFalse($fs->file_exists($usercontext->id, 'user', 'draft', $draftitemid, '/', '.'));
+
+        $file = $fs->create_file_from_string(['contextid' => $syscontext->id, 'component' => 'totara_core', 'filearea' => 'testarea', 'itemid' => 0, 'filepath' => '/', 'filename' => 'test.jpg'], 'abc');
+        $filearea = new file_area($syscontext, 'totara_core', 'testarea', 0);
+        $draftitemid = $filearea->create_draft_area();
+        $this->assertTrue(is_numeric($draftitemid));
+        $this->assertTrue($fs->file_exists($usercontext->id, 'user', 'draft', $draftitemid, '/', '.'));
+        $this->assertTrue($fs->file_exists($usercontext->id, 'user', 'draft', $draftitemid, '/', 'test.jpg'));
     }
 
     public function test_update_file_area() {
-        // TODO TL-9424: Test the updaing of a file area.
+        $this->resetAfterTest();
+
+        $user = $this->getDataGenerator()->create_user();
+        $this->setUser($user);
+        $usercontext = \context_user::instance($user->id);
+        $syscontext = context_system::instance();
+        $fs = get_file_storage();
+
+        $filearea = new file_area($syscontext, 'totara_core', 'testarea', null);
+        $draftitemid = $filearea->create_draft_area();
+        $this->assertTrue(is_numeric($draftitemid));
+        $this->assertFalse($fs->file_exists($usercontext->id, 'user', 'draft', $draftitemid, '/', '.'));
+        $file = $fs->create_file_from_string(['contextid' => $usercontext->id, 'component' => 'user', 'filearea' => 'draft', 'itemid' => $draftitemid, 'filepath' => '/', 'filename' => 'test.jpg'], 'abc');
+        $files = $fs->get_area_files($usercontext->id, 'user', 'draft', $draftitemid);
+        $this->assertCount(2, $files);
+
+        $filearea->update_file_area($files, ['subdirs' => true], $syscontext, 3);
+        $this->assertTrue($fs->file_exists($syscontext->id, 'totara_core', 'testarea', 3, '/', '.'));
+        $this->assertTrue($fs->file_exists($syscontext->id, 'totara_core', 'testarea', 3, '/', 'test.jpg'));
+
+        $filearea = new file_area($syscontext, 'totara_core', 'testarea', 3);
+        $draftitemid = $filearea->create_draft_area();
+        $file = $fs->create_file_from_string(['contextid' => $usercontext->id, 'component' => 'user', 'filearea' => 'draft', 'itemid' => $draftitemid, 'filepath' => '/', 'filename' => 'test2.jpg'], 'xyz');
+        $files = $fs->get_area_files($usercontext->id, 'user', 'draft', $draftitemid);
+        $this->assertCount(3, $files);
+
+        $filearea->update_file_area($files, ['subdirs' => true], $syscontext, 3);
+        $this->assertTrue($fs->file_exists($syscontext->id, 'totara_core', 'testarea', 3, '/', '.'));
+        $this->assertTrue($fs->file_exists($syscontext->id, 'totara_core', 'testarea', 3, '/', 'test.jpg'));
+        $this->assertTrue($fs->file_exists($syscontext->id, 'totara_core', 'testarea', 3, '/', 'test2.jpg'));
     }
 }
