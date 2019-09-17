@@ -3,6 +3,22 @@
 
 Totara Learn Changelog
 
+Release 9.36 (19th September 2019):
+===================================
+
+
+Bug fixes:
+
+    TL-22208       Fixed file support in Totara form editor element
+
+                   Prior to this patch when using an editor element with totara forms, images
+                   that had previously been uploaded to the field were not displaying properly
+                   during editing.
+
+                   Note: This form element is not currently in use anywhere in a way that
+                   would be affected by this.
+
+
 Release 9.35 (22nd August 2019):
 ================================
 
