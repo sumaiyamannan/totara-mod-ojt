@@ -24,7 +24,8 @@
 use totara_form\form\element\editor,
     totara_form\model,
     totara_form\test\test_definition,
-    totara_form\test\test_form;
+    totara_form\test\test_form,
+    totara_form\file_area;
 
 /**
  * Test for \totara_form\form\element\editor class.
@@ -135,7 +136,121 @@ class totara_form_element_editor_testcase extends advanced_testcase {
     }
 
     public function test_submission_files() {
-        // TODO TL-9422: test submission files.
+        global $OUTPUT, $PAGE;
+
+        $user = $this->getDataGenerator()->create_user();
+        $this->setUser($user);
+        $usercontext = \context_user::instance($user->id);
+        $syscontext = context_system::instance();
+        $fs = get_file_storage();
+
+        $PAGE->set_url('/totara/form/tests/element_editor_test.php');
+        $PAGE->set_context($syscontext);
+
+        $definition = new test_definition($this,
+            function (model $model, advanced_testcase $testcase) {
+                /** @var editor $editor1 */
+                $editor1 = $model->add(new editor('someeditor1', 'Some editor 1'));
+            });
+        test_form::phpunit_set_definition($definition);
+
+        $currentdata = array(
+            'someeditor1' => '',
+            'someeditor1format' => null,
+            'someeditor1filearea' => new file_area($syscontext, 'totara_core', 'testarea', null),
+        );
+        $form = new test_form($currentdata);
+        $data = $definition->model->export_for_template($OUTPUT);
+        $this->assertSame('someeditor1', $data['items'][0]['name']);
+        $this->assertSame('', $data['items'][0]['text']);
+        $draftitemid = $data['items'][0]['itemid'];
+        $this->assertTrue(is_numeric($draftitemid));
+        $this->assertNull($form->get_data());
+        $this->assertNull($form->get_files());
+
+        $file = $fs->create_file_from_string(['contextid' => $usercontext->id, 'component' => 'user', 'filearea' => 'draft', 'itemid' => $draftitemid, 'filepath' => '/', 'filename' => 'test.jpg'], 'abc');
+        $url = moodle_url::make_draftfile_url($draftitemid, '/', 'test.jpg');
+        $postdata = array(
+            'someeditor1' => array('text' => 'some image <img src="' . $url . '" alt="test.jpg" />', 'format' => FORMAT_HTML, 'itemid' => $draftitemid),
+        );
+        test_form::phpunit_set_post_data($postdata);
+        $currentdata = array(
+            'someeditor1' => '',
+            'someeditor1format' => null,
+            'someeditor1filearea' => new file_area($syscontext, 'totara_core', 'testarea', null),
+        );
+        $form = new test_form($currentdata);
+        $data = $definition->model->export_for_template($OUTPUT);
+        $this->assertSame('someeditor1', $data['items'][0]['name']);
+        $this->assertSame($postdata['someeditor1']['text'], $data['items'][0]['text']);
+        $this->assertSame($draftitemid, $data['items'][0]['itemid']);
+        $this->assertTrue(is_numeric($draftitemid));
+
+        $data = (array)$form->get_data();
+        $expected = [
+            'someeditor1' => 'some image <img src="@@PLUGINFILE@@/test.jpg" alt="test.jpg" />',
+            'someeditor1format' => '1',
+        ];
+        $this->assertSame($expected, $data);
+
+        $files = $form->get_files();
+        $this->assertCount(2, $files->someeditor1);
+        /** @var stored_file $draftfile */
+        $draftfile = $files->someeditor1[1];
+        $this->assertSame($usercontext->id, (int)$draftfile->get_contextid());
+        $this->assertSame($draftitemid, $draftfile->get_itemid());
+        $this->assertSame('/', $draftfile->get_filepath());
+        $this->assertSame('test.jpg', $draftfile->get_filename());
+
+        $form->update_file_area('someeditor1', $syscontext, 3);
+        $this->assertTrue($fs->file_exists($syscontext->id, 'totara_core', 'testarea', 3, '/', '.'));
+        $this->assertTrue($fs->file_exists($syscontext->id, 'totara_core', 'testarea', 3, '/', 'test.jpg'));
+
+        // Now add another file.
+        test_form::phpunit_set_post_data(null);
+        $currentdata = $expected;
+        $currentdata['someeditor1filearea'] = new file_area($syscontext, 'totara_core', 'testarea', 3);
+        $form = new test_form($currentdata);
+        $data = $definition->model->export_for_template($OUTPUT);
+        $this->assertSame('someeditor1', $data['items'][0]['name']);
+        $draftitemid = $data['items'][0]['itemid'];
+        $this->assertSame('some image <img src="http://www.example.com/moodle/draftfile.php/' . $usercontext->id . '/user/draft/' . $draftitemid . '/test.jpg" alt="test.jpg" />', $data['items'][0]['text']);
+        $this->assertTrue(is_numeric($draftitemid));
+        $this->assertNull($form->get_data());
+        $this->assertNull($form->get_files());
+
+        $file = $fs->create_file_from_string(['contextid' => $usercontext->id, 'component' => 'user', 'filearea' => 'draft', 'itemid' => $draftitemid, 'filepath' => '/', 'filename' => 'test2.jpg'], 'xyz');
+        $url = moodle_url::make_draftfile_url($draftitemid, '/', 'test.jpg');
+        $url2 = moodle_url::make_draftfile_url($draftitemid, '/', 'test2.jpg');
+        $postdata = array(
+            'someeditor1' => array('text' => 'some image <img src="' . $url . '" alt="test.jpg" /><img src="' . $url2 . '" alt="test2.jpg" />', 'format' => FORMAT_HTML, 'itemid' => $draftitemid),
+        );
+        test_form::phpunit_set_post_data($postdata);
+        $currentdata = array(
+            'someeditor1' => 'some image <img src="@@PLUGINFILE@@/test.jpg" alt="test.jpg" />',
+            'someeditor1format' => '1',
+            'someeditor1filearea' => new file_area($syscontext, 'totara_core', 'testarea', 3),
+        );
+        $form = new test_form($currentdata);
+        $data = $definition->model->export_for_template($OUTPUT);
+        $this->assertSame('someeditor1', $data['items'][0]['name']);
+        $this->assertSame($postdata['someeditor1']['text'], $data['items'][0]['text']);
+        $this->assertSame($draftitemid, $data['items'][0]['itemid']);
+        $this->assertTrue(is_numeric($draftitemid));
+
+        $data = (array)$form->get_data();
+        $expected = [
+            'someeditor1' => 'some image <img src="@@PLUGINFILE@@/test.jpg" alt="test.jpg" /><img src="@@PLUGINFILE@@/test2.jpg" alt="test2.jpg" />',
+            'someeditor1format' => '1',
+        ];
+        $this->assertSame($expected, $data);
+
+        $files = $form->get_files();
+        $this->assertCount(3, $files->someeditor1);
+        $form->update_file_area('someeditor1', $syscontext, 3);
+        $this->assertTrue($fs->file_exists($syscontext->id, 'totara_core', 'testarea', 3, '/', '.'));
+        $this->assertTrue($fs->file_exists($syscontext->id, 'totara_core', 'testarea', 3, '/', 'test.jpg'));
+        $this->assertTrue($fs->file_exists($syscontext->id, 'totara_core', 'testarea', 3, '/', 'test2.jpg'));
     }
 
     public function test_frozen() {
