@@ -408,6 +408,8 @@ class manager {
         if ($timedout) {
             $_SESSION['SESSION']->has_timed_out = true;
         }
+
+        self::append_samesite_cookie_attribute();
     }
 
     /**
@@ -475,6 +477,67 @@ class manager {
 
         // Setup $USER object.
         self::set_user($user);
+        self::append_samesite_cookie_attribute();
+    }
+
+    /**
+     * Returns a valid setting for the SameSite cookie attribute.
+     *
+     * @return string The desired setting for the SameSite attribute on the cookie. Empty string indicates the SameSite attribute
+     * should not be set at all.
+     */
+    private static function get_samesite_cookie_setting() {
+        // We only want None or no attribute at this point. When we have cookie handling compatible with Lax,
+        // we can look at checking a setting.
+
+        // Need to make sure the user agent is compatible with this option.
+        if (\core_useragent::is_safari() || \core_useragent::is_safari_ios()) {
+            $useragentstring = \core_useragent::get_user_agent_string();
+            if (preg_match("/Version\/([0-9].)/i", $useragentstring, $matches)) {
+                if (version_compare($matches[1], '13', '<')) {
+                    return '';
+                }
+            } else {
+                // If there were no matches, safest assumption would be an old Safari version with a different user agent pattern.
+                return '';
+            }
+        }
+
+        // Old versions of Chrome do not support SameSite=None.
+        if (\core_useragent::is_chrome() && !\core_useragent::check_chrome_version('67')) {
+            return '';
+        }
+
+        return 'None';
+    }
+
+    /**
+     * Conditionally append the SameSite attribute to the session cookie if necessary.
+     *
+     * Contains a hack for versions of PHP lower than 7.3 as there is no API built into PHP cookie API
+     * for adding the SameSite setting.
+     *
+     * This won't change the Set-Cookie headers if:
+     *  * If the samesite setting is empty.
+     *  * If the samesite setting is None but the browser is not compatible with that setting.
+     */
+    private static function append_samesite_cookie_attribute() {
+        $cookiesamesite = self::get_samesite_cookie_setting();
+
+        if (empty($cookiesamesite)) {
+            return;
+        }
+
+        $cookies = headers_list();
+        header_remove('Set-Cookie');
+        $setcookiesession = 'Set-Cookie: ' . session_name() . '=';
+
+        foreach ($cookies as $cookie) {
+            if (strpos($cookie, $setcookiesession) === 0) {
+                $cookie .= '; SameSite=' . $cookiesamesite;
+            }
+            header($cookie, false);
+        }
     }
 
     /**
@@ -511,6 +574,8 @@ class manager {
         self::add_session_record($_SESSION['USER']->id); // Do not use $USER here because it may not be set up yet.
         session_write_close();
         self::$sessionactive = false;
+
+        self::append_samesite_cookie_attribute();
     }
 
     /**
