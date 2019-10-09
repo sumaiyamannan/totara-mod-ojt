@@ -2190,10 +2190,10 @@ function prog_display_link_icon($progid, $userid = null) {
 
     if ($assigned && $accessible) {
         $url = new moodle_url('/totara/program/required.php', array('id' => $prog->id, 'userid' => $user->id));
-        $html = $OUTPUT->action_link($url, $icon . $prog->fullname);
+        $html = $OUTPUT->action_link($url, $icon . format_string($prog->fullname));
     } else if ($accessible) {
         $url = new moodle_url('/totara/program/view.php', array('id' => $prog->id));
-        $html = $OUTPUT->action_link($url, $icon . $prog->fullname);
+        $html = $OUTPUT->action_link($url, $icon . format_string($prog->fullname));
     } else {
         $html = $icon . $prog->fullname;
     }

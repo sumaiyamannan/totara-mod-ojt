@@ -1029,7 +1029,7 @@ function dp_display_plans_menu_required($programs, $extraparams, $progcount=0) {
             continue;
         }
         $urlparams['id'] = $p->id;
-        $list[] = $OUTPUT->action_link(new moodle_url('/totara/program/required.php', $urlparams), $p->fullname);
+        $list[] = $OUTPUT->action_link(new moodle_url('/totara/program/required.php', $urlparams), format_string($p->fullname));
     }
     return($list);
 }
