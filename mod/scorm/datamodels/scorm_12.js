@@ -649,6 +649,12 @@ function SCORMapi1_2(def, cmiobj, cmiint, cmistring256, cmistring4096, scormdebu
         var myRequest = NewHttpReq();
         //alert('going to:' + "<?php p($CFG->wwwroot) ?>/mod/scorm/datamodel.php" + "id=<?php p($id) ?>&a=<?php p($a) ?>&sesskey=<?php echo sesskey() ?>"+datastring);
         result = DoRequest(myRequest,datamodelurl,datamodelurlparams + datastring);
+
+        // TOTARA: Check the scorm_ajax_result, it may be false.
+        if (result === false) {
+            return false;
+        }
+
         results = String(result).split('\n');
         errorCode = results[1];
         return results[0];
