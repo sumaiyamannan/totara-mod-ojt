@@ -490,25 +490,14 @@ class manager {
         // We only want None or no attribute at this point. When we have cookie handling compatible with Lax,
         // we can look at checking a setting.
 
-        // Need to make sure the user agent is compatible with this option.
-        if (\core_useragent::is_safari() || \core_useragent::is_safari_ios()) {
-            $useragentstring = \core_useragent::get_user_agent_string();
-            if (preg_match("/Version\/([0-9].)/i", $useragentstring, $matches)) {
-                if (version_compare($matches[1], '13', '<')) {
-                    return '';
-                }
-            } else {
-                // If there were no matches, safest assumption would be an old Safari version with a different user agent pattern.
-                return '';
-            }
+        // Browser support for none is not consistent yet. There are known issues with Safari, and IE11.
+        // Things are stablising, however as they're not stable yet we will deal specifically with the version of chrome
+        // that introduces a default of lax, setting it to none for the current version of chrome (2 releases before the change)
+        if (\core_useragent::is_chrome() && \core_useragent::check_chrome_version('78')) {
+            return 'None';
         }
 
-        // Old versions of Chrome do not support SameSite=None.
-        if (\core_useragent::is_chrome() && !\core_useragent::check_chrome_version('67')) {
-            return '';
-        }
-
-        return 'None';
+        return '';
     }
 
     /**
