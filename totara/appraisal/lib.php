@@ -405,19 +405,20 @@ class appraisal {
                 DEBUG_DEVELOPER);
         }
 
+        // Due to the potentially large amounts of missing roles, only the first
+        // few missing appraisee roles should be displayed.
+        $shownlimit = 10;
         $assign = new totara_assign_appraisal('appraisal', $this);
-        $missing = $assign->missing_role_assignments();
+        $missing = $assign->missing_role_assignments($shownlimit);
         if ($missing->appraiseecount === 0) {
             $err = get_string('appraisalinvalid:learners', 'totara_appraisal');
             return ['learners' => $err];
         }
 
-        // Due to the potentially large amounts of missing roles, only the first
-        // few missing appraisee roles should be displayed.
-        $shownlimit = 10;
-        $allmissing = $missing->roles;
-        $shown = array_slice($allmissing, 0, $shownlimit, true);
-
+        $shown = $missing->roles;
+        if (empty($shown)) {
+            return [];
+        }
         $fullnames = [];
         foreach (user_get_users_by_id(array_keys($shown)) as $user) {
             $fullnames[$user->id] = fullname($user);
@@ -428,12 +429,10 @@ class appraisal {
         foreach ($shown as $appraiseeid => $roles) {
             $csv = array_reduce(
                 $roles,
-
                 function ($accumulated, $role) use ($roledesc) {
                     $desc = get_string($roledesc[$role], 'totara_appraisal');
                     return empty($accumulated) ? $desc : "$accumulated, $desc";
                 },
-
                 ''
             );
 
@@ -453,7 +452,7 @@ class appraisal {
             $war["missingroles$count"] = $error;
         }
 
-        $excess = count($allmissing) - count($shown);
+        $excess = $missing->appraiseecount - $missing->validappraiseecount - count($shown);
         if ($excess > 0) {
             $err = get_string('xmoremissingroles', 'totara_appraisal', $excess);
             $war['missingrolesmore'] = $err;
