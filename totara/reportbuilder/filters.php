@@ -41,10 +41,6 @@ $returnurl = new moodle_url('/totara/reportbuilder/filters.php', array('id' => $
 
 $report = new reportbuilder($id, null, false, null, null, true);
 
-
-// Check filterheadings and searchcolumnheadings for multilang spans. Need to set context to use format_string.
-$PAGE->set_context(context_user::instance($USER->id));
-
 $filterheadings = array();
 foreach ($report->src->filteroptions as $option) {
     $key = $option->type . '-' . $option->value;

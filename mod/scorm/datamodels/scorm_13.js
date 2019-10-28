@@ -1228,6 +1228,11 @@ function SCORMapi1_3(def, cmiobj, cmiint, cmicommentsuser, cmicommentslms, scorm
         var myRequest = NewHttpReq();
         result = DoRequest(myRequest, datamodelurl, datamodelurlparams + datastring);
 
+        // TOTARA: Check the scorm_ajax_result, it may be false.
+        if (result === false) {
+            return false;
+        }
+
         var results = String(result).split('\n');
         if ((results.length > 2) && (navrequest != '')) {
             eval(results[2]);

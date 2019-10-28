@@ -3,6 +3,109 @@
 
 Totara Learn Changelog
 
+Release 9.37 (25th October 2019):
+=================================
+
+
+Important:
+
+    TL-22311       The SameSite cookie attribute is now set to None in Chrome 78 and above
+
+                   Chrome, in an upcoming release, will be introducing a default for the
+                   SameSite cookie attribute of 'Lax'.
+
+                   The current behaviour in all supported browsers is to leave the SameSite
+                   cookie attribute unset, when not explicitly provided by the server at the
+                   time the cookie is first set. When unset or set to 'None', HTTP requests
+                   initiated by another site will often contain the Totara session cookie.
+                   When set to 'Lax', requests initiated by another site will no longer
+                   provide the Totara session cookie with the request.
+
+                   Many commonly used features in Totara rely on third-party requests
+                   including the user's session cookie. Furthermore, there are inconsistencies
+                   between browsers in how the SameSite=Lax behaviour works. For this reason,
+                   we will be setting the SameSite to 'None' for the session cookie when
+                   Chrome 78 or later is in use. This will ensure that Totara continues to
+                   operate as it has previously in this browser.
+
+                   Due to the earlier mentioned inconsistencies in other browsers, we will not
+                   set the SameSite attribute in any other browsers for the time being.
+                   TL-22692 has been opened to watch the situation as it evolves and make
+                   further improvements to our product when the time is right.
+
+                   This change is currently planned to be made in Chrome 80, which we
+                   anticipate will be released Q1 2020.
+
+                   Chrome 80 is bringing another related change as well. Insecure cookies that
+                   set SameSite to 'None' will be rejected. This will require that sites both
+                   run over HTTPS and have the 'Secure cookies only' setting enabled within
+                   Totara (leading to the secure cookie attribute being enabled).
+
+                   The following actions will need to be taken by all sites where users will
+                   be running Chrome:
+                    * Upgrade to this release of Totara, or a later one.
+                    * Configure the site to run over HTTPS if it is not already doing so.
+                    * Enable the 'Secure cookies only' [cookiesecure] setting within Totara
+
+                   For more information on the two changes being made in Chrome please see the
+                   following:
+                    * [https://www.chromestatus.com/feature/5088147346030592] Cookies default
+                   to SameSite=Lax
+                    * [https://www.chromestatus.com/feature/5633521622188032] Reject insecure
+                   SameSite=None cookies
+
+    TL-22621       SCORM no longer uses synchronous XHR requests for interaction
+
+                   Chrome, in an upcoming release, will be removing the ability to make
+                   synchronous XHR requests during page unload events, including beforeunload,
+                   unload, pagehide and visibilitychanged.
+                   If JavaScript code attempts to make such a request, the request will fail.
+
+                   This functionality is often used by SCORM to perform a last-second save of
+                   the user's progress at the time the user leaves the page. Totara sends this
+                   request to the server using XHR. As a consequence of the change Chrome is
+                   making, the user's progress would not be saved.
+
+                   The fix introduced with this patch detects page unload events, and if the
+                   SCORM package attempts to save state or communicate with the server during
+                   unload, the navigation.sendBeacon API will be used (if available) instead
+                   of a synchronous XHR request. The purpose of the navigation.sendBeacon API
+                   is in line with this use, and it is one of two approaches recommended by
+                   Chrome.
+
+                   The original timeframe for this change in Chrome was with Chrome 78 due out
+                   this month. However Chrome has pushed this back now to Chrome 80. More
+                   information on this change in Chrome can be found at
+                   [https://www.chromestatus.com/feature/4664843055398912]
+
+                   We recommend all sites that make use of SCORM and who have users running
+                   Chrome to update their Totara installations in advance of the Chrome 80
+                   release.
+
+Bug fixes:
+
+    TL-22398       Fixed a potential problem in role_unassign_all_bulk() related to cascaded manual role unassignment
+
+                   The problem may only affect third-party code because the problematic
+                   parameter is not used in standard distribution.
+
+    TL-22401       Removed unnecessary use of set context on report builder filters page
+    TL-22503       Backport TL-22045: Login form is now only submitted once per page load
+    TL-22559       Seminar notification sender no longer reuses the sending user object
+
+                   The reuse of the sending user object when sending notifications from within
+                   the seminar occasionally led to an issue where notifications would appear
+                   to come from random users. This has now been fixed by ensuring a fresh
+                   sending user object is used for each notification.
+
+    TL-22576       All areas displaying a program or certification fullname are now formatted consistently
+
+                   Prior to this change there were a handful of areas not correctly formatting
+                   program and certification full names before displaying them. These have all
+                   been tidied up and program and certification fullname is now formatted
+                   correctly and consistently.
+
+
 Release 9.36 (19th September 2019):
 ===================================
 

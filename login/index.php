@@ -437,6 +437,7 @@ if (isloggedin() and !isguestuser()) {
     $auth_instructions = trim(format_text($instructions, FORMAT_HTML, $options, null));
 
     include("index_form.html");
+    $PAGE->requires->js_call_amd('core/form_duplicate_prevent', 'init', array(array('login', 'guestlogin', 'signup')));
     if ($errormsg) {
         $PAGE->requires->js_init_call('M.util.focus_login_error', null, true);
     } else if (!empty($CFG->loginpageautofocus)) {

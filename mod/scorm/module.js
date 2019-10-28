@@ -471,9 +471,18 @@ M.mod_scorm.init = function(Y, nav_display, navposition_left, navposition_top, h
             if (scoes_nav[launch_sco].flow === 1) {
                 var datastring = scoes_nav[launch_sco].url + '&function=scorm_seq_flow&request=backward';
                 result = scorm_ajax_request(M.cfg.wwwroot + '/mod/scorm/datamodels/sequencinghandler.php?', datastring);
-                mod_scorm_seq = encodeURIComponent(result);
-                result = Y.JSON.parse (result);
-                if (typeof result.nextactivity.id != undefined) {
+
+                // TOTARA: Check the scorm_ajax_result, it may be false.
+                if (result === false) {
+                    // Either the outcome was a failure, or we are unloading and simply just don't know
+                    // what the outcome actually was.
+                    result = {};
+                } else {
+                    mod_scorm_seq = encodeURIComponent(result);
+                    result = Y.JSON.parse(result);
+                }
+
+                if (typeof result.nextactivity !== 'undefined' && typeof result.nextactivity.id !== 'undefined') {
                         var node = scorm_prev(scorm_tree_node.getSelectedNodes()[0]);
                         if (node == null) {
                             // Avoid use of TreeView for Navigation.
@@ -503,8 +512,17 @@ M.mod_scorm.init = function(Y, nav_display, navposition_left, navposition_top, h
             if (scoes_nav[launch_sco].flow === 1) {
                 var datastring = scoes_nav[launch_sco].url + '&function=scorm_seq_flow&request=forward';
                 result = scorm_ajax_request(M.cfg.wwwroot + '/mod/scorm/datamodels/sequencinghandler.php?', datastring);
-                mod_scorm_seq = encodeURIComponent(result);
-                result = Y.JSON.parse (result);
+
+                // TOTARA: Check the scorm_ajax_result, it may be false.
+                if (result === false) {
+                    // Either the outcome was a failure, or we are unloading and simply just don't know
+                    // what the outcome actually was.
+                    result = {};
+                } else {
+                    mod_scorm_seq = encodeURIComponent(result);
+                    result = Y.JSON.parse(result);
+                }
+
                 if (typeof result.nextactivity !== 'undefined' && typeof result.nextactivity.id !== 'undefined') {
                     var node = scorm_next(scorm_tree_node.getSelectedNodes()[0]);
                     if (node === null) {

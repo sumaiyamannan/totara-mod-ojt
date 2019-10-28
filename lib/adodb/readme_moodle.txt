@@ -29,5 +29,6 @@ Our changes:
    Check if fixed upstream during the next upgrade and remove this note.
  * MDL-52544 Pull upstream patch for php7 and ocipo.
  * TL-14768 Added fix in ADODB_mssqlnative::_connect() to ensure that host and port are separated by ,
+ * TL-22854 PostgreSQL 12.0 compatibility replacing "d.adsrc" with "pg_get_expr(d.adbin, d.adrelid)"
 
 skodak, iarenaza, moodler, stronk7

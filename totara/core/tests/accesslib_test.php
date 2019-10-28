@@ -62,23 +62,24 @@ class totara_core_accesslib_testcase extends advanced_testcase {
 
         $user4 = $this->getDataGenerator()->create_user();
         $this->getDataGenerator()->enrol_user($user4->id, $course1->id, $student->id);
+        role_assign($student->id, $user4->id, $context1->id, 'totara_core', 77);
         $this->getDataGenerator()->enrol_user($user4->id, $course2->id, $student->id);
+        role_assign($student->id, $user4->id, $context2->id, 'totara_core', 66);
 
-        $this->assertCount(8, $DB->get_records('role_assignments'));
+        $this->assertCount(10, $DB->get_records('role_assignments'));
+        $this->assertCount(2, $DB->get_records('role_assignments', array('userid' => $user1->id)));
+        $this->assertCount(2, $DB->get_records('role_assignments', array('userid' => $user2->id)));
+        $this->assertCount(2, $DB->get_records('role_assignments', array('userid' => $user3->id)));
+        $this->assertCount(4, $DB->get_records('role_assignments', array('userid' => $user4->id)));
 
         // Empty user list.
         role_unassign_all_bulk(array('contextid' => $context1->id, 'userids' => array()));
-        $this->assertCount(8, $DB->get_records('role_assignments'));
+        $this->assertCount(10, $DB->get_records('role_assignments'));
 
-        role_unassign_all_bulk(array('contextid' => $context1->id, 'roleid' => $student->id, 'userids' => array($user4->id)));
-        $this->assertCount(7, $DB->get_records('role_assignments'));
-        $this->assertCount(0, $DB->get_records('role_assignments', array('userid' => $user4->id, 'contextid' => $context1->id)));
-        $this->assertCount(1, $DB->get_records('role_assignments', array('userid' => $user4->id, 'contextid' => $context2->id)));
-
-        role_unassign_all_bulk(array('contextid' => $catcontext->id, 'userids' => array($user2->id, $user3->id)), true);
-        $this->assertCount(3, $DB->get_records('role_assignments'));
-        $this->assertCount(0, $DB->get_records('role_assignments', array('userid' => $user3->id)));
-        $this->assertCount(0, $DB->get_records('role_assignments', array('userid' => $user2->id)));
+        $this->assertDebuggingNotCalled();
+        role_unassign_all_bulk(array('contextid' => $context1->id));
+        $this->assertCount(10, $DB->get_records('role_assignments'));
+        $this->assertDebuggingCalled('Missing userid parameter in role_unassign_all_bulk()');
 
         try {
             role_unassign_all_bulk(array());
@@ -95,6 +96,32 @@ class totara_core_accesslib_testcase extends advanced_testcase {
             $this->assertInstanceOf('coding_exception', $e);
             $this->assertEquals('Coding error detected, it must be fixed by a programmer: Unknown role_unsassign_all_bulk() parameter key (key:xxx)', $e->getMessage());
         }
+
+        role_unassign_all_bulk(array('contextid' => $context1->id, 'roleid' => $student->id, 'userids' => array($user4->id), 'component' => 'enrol_self'));
+        $this->assertCount(10, $DB->get_records('role_assignments'));
+
+        role_unassign_all_bulk(array('contextid' => $context1->id, 'roleid' => $student->id, 'userids' => array($user4->id), 'component' => 'totara_core'));
+        $this->assertCount(9, $DB->get_records('role_assignments'));
+        $this->assertCount(2, $DB->get_records('role_assignments', array('userid' => $user1->id)));
+        $this->assertCount(2, $DB->get_records('role_assignments', array('userid' => $user2->id)));
+        $this->assertCount(2, $DB->get_records('role_assignments', array('userid' => $user3->id)));
+        $this->assertCount(1, $DB->get_records('role_assignments', array('userid' => $user4->id, 'contextid' => $context1->id, 'component' => '')));
+        $this->assertCount(2, $DB->get_records('role_assignments', array('userid' => $user4->id, 'contextid' => $context2->id)));
+
+        role_unassign_all_bulk(array('contextid' => $context2->id, 'roleid' => $student->id, 'userids' => array($user4->id), 'component' => 'totara_core'), false, true);
+        $this->assertCount(7, $DB->get_records('role_assignments'));
+        $this->assertCount(2, $DB->get_records('role_assignments', array('userid' => $user1->id)));
+        $this->assertCount(2, $DB->get_records('role_assignments', array('userid' => $user2->id)));
+        $this->assertCount(2, $DB->get_records('role_assignments', array('userid' => $user3->id)));
+        $this->assertCount(1, $DB->get_records('role_assignments', array('userid' => $user4->id, 'contextid' => $context1->id, 'component' => '')));
+        $this->assertCount(0, $DB->get_records('role_assignments', array('userid' => $user4->id, 'contextid' => $context2->id)));
+
+        role_unassign_all_bulk(array('contextid' => $catcontext->id, 'userids' => array($user2->id, $user3->id)), true);
+        $this->assertCount(3, $DB->get_records('role_assignments'));
+        $this->assertCount(2, $DB->get_records('role_assignments', array('userid' => $user1->id)));
+        $this->assertCount(0, $DB->get_records('role_assignments', array('userid' => $user2->id)));
+        $this->assertCount(0, $DB->get_records('role_assignments', array('userid' => $user3->id)));
+        $this->assertCount(1, $DB->get_records('role_assignments', array('userid' => $user4->id)));
     }
 
     /**

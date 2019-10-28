@@ -2014,8 +2014,12 @@ function role_unassign_all(array $params, $subcontexts = false, $includemanual =
 }
 
 /**
- * Bulk removes multiple role assignments, parameters may contain:
- *   'roleid', 'userids', 'contextid'(required), 'component', 'enrolid'.
+ * Bulk removes multiple role assignments for given users in given contexts,
+ * parameters may contain:
+ *   'roleid', 'userids'(requried), 'contextid'(required), 'component', 'enrolid'.
+ *
+ * Please note that 'userids' array parameter is mandatory, if it is empty
+ * no roles are unassigned.
  *
  * @since Totara 2.2
  *
@@ -2025,17 +2029,24 @@ function role_unassign_all(array $params, $subcontexts = false, $includemanual =
  * @return void
  */
 function role_unassign_all_bulk(array $params, $subcontexts = false, $includemanual = false) {
-    global $USER, $CFG, $DB;
+    global $DB;
 
     if (!$params) {
         throw new coding_exception('Missing parameters in role_unsassign_all_bulk() call');
     }
 
     $allowed = array('roleid', 'userids', 'contextid', 'component', 'itemid');
+    $where = [];
+    $whereparams = [];
     foreach ($params as $key => $value) {
         if (!in_array($key, $allowed)) {
             throw new coding_exception('Unknown role_unsassign_all_bulk() parameter key', 'key:'.$key);
         }
+        if ($key === 'userids') {
+            continue;
+        }
+        $whereparams[$key] = $value;
+        $where[] = "{$key} = :{$key}";
     }
 
     if (isset($params['component']) && $params['component'] !== '' && strpos($params['component'], '_') === false) {
@@ -2051,105 +2062,97 @@ function role_unassign_all_bulk(array $params, $subcontexts = false, $includeman
     if (empty($params['contextid'])) {
         throw new coding_exception('contextid parameter required in role_unsassign_all_bulk() call');
     }
+    $context = context::instance_by_id($params['contextid'], IGNORE_MISSING);
+    if (!$context) {
+        debugging('Invalid contextid specified in role_unassign_all_bulk()', DEBUG_DEVELOPER);
+        return;
+    }
 
-    /// construct query
-    $sql = "SELECT *
-        FROM {role_assignments} WHERE ";
-    $wheresql = '';
-    $sqlinparams = array();
-    if (!empty($params['userids'])) {
-        list($sqlin, $sqlinparams) = $DB->get_in_or_equal($params['userids'], SQL_PARAMS_NAMED);
-        $wheresql .= "userid {$sqlin} AND ";
-        unset($params['userids']);
-    } else if (isset($params['userids']) and empty($params['userids'])) {
+    if (!isset($params['userids'])) {
+        debugging('Missing userid parameter in role_unassign_all_bulk()', DEBUG_DEVELOPER);
+    }
+    if (empty($params['userids'])) {
         // The list of users is present and empty, this means nothing to do!
         return;
     }
-    $wheresql .= implode(' AND ', array_map(function ($iname) { return "{$iname} = :{$iname}"; }, array_keys($params)));
-    $params = array_merge($sqlinparams, $params);
+
+    /// construct query
+
+    list($sqlin, $sqlinparams) = $DB->get_in_or_equal($params['userids'], SQL_PARAMS_NAMED);
+    $where[] = "userid {$sqlin}";
+    $whereparams = array_merge($whereparams, $sqlinparams);
+    unset($sqlinparams);
+    $wheresql = implode(' AND ', $where);
+
+    $sql = "SELECT *
+              FROM {role_assignments}
+             WHERE $wheresql";
 
     /// process context
-    $ras = $DB->get_records_sql($sql . $wheresql, $params);
+    $ras = $DB->get_records_sql($sql, $whereparams);
     if (!empty($ras)) {
         list($sqlin, $sqlparams) = $DB->get_in_or_equal(array_keys($ras));
         $DB->delete_records_select('role_assignments', "id {$sqlin}", $sqlparams);
-        if ($context = context::instance_by_id($params['contextid'], IGNORE_MISSING)) {
-            // this is a bit expensive but necessary
-            $context->mark_dirty();
-            \totara_core\event\bulk_role_assignments_started::create_from_context($context)->trigger();
-            foreach ($ras as $ra) {
-                $event = \core\event\role_unassigned::create(array(
-                    'context' => $context,
-                    'objectid' => $ra->roleid,
-                    'relateduserid' => $ra->userid,
-                    'other' => array(
-                        'id' => $ra->id,
-                        'component' => $ra->component,
-                        'itemid' => $ra->itemid
-                    )
-                ));
-                $event->add_record_snapshot('role_assignments', $ra);
-                $event->trigger();
-            }
-            \totara_core\event\bulk_role_assignments_ended::create_from_context($context)->trigger();
+        $context->mark_dirty();
+        // this is a bit expensive but necessary
+        \totara_core\event\bulk_role_assignments_started::create_from_context($context)->trigger();
+        foreach ($ras as $ra) {
+            $event = \core\event\role_unassigned::create(array(
+                'context' => $context,
+                'objectid' => $ra->roleid,
+                'relateduserid' => $ra->userid,
+                'other' => array(
+                    'id' => $ra->id,
+                    'component' => $ra->component,
+                    'itemid' => $ra->itemid
+                )
+            ));
+            $event->add_record_snapshot('role_assignments', $ra);
+            $event->trigger();
         }
+        \totara_core\event\bulk_role_assignments_ended::create_from_context($context)->trigger();
         unset($ras);
+        unset($sqlparams);
     }
 
     /// process subcontexts
-    if ($subcontexts && $context = context::instance_by_id($params['contextid'], IGNORE_MISSING)) {
-        if ($params['contextid'] instanceof context) {
-            $context = $params['contextid'];
-        } else {
-            $context = context::instance_by_id($params['contextid'], IGNORE_MISSING);
-        }
-
-        if ($context) {
-            $contexts = $context->get_child_contexts();
-            $sparams = $params;
-            foreach ($contexts as $context) {
-                $sparams['contextid'] = $context->id;
-                $ras = $DB->get_records_sql($sql . $wheresql, $sparams);
-                if (!empty($ras)) {
-                    list($sqlin, $sqlparams) = $DB->get_in_or_equal(array_keys($ras));
-                    $DB->delete_records_select('role_assignments', "id {$sqlin}", $sqlparams);
-                    // this is a bit expensive but necessary
-                    $context->mark_dirty();
-                    \totara_core\event\bulk_role_assignments_started::create_from_context($context)->trigger();
-                    foreach ($ras as $ra) {
-                        $event = \core\event\role_unassigned::create(array(
-                            'context' => $context,
-                            'objectid' => $ra->roleid,
-                            'relateduserid' => $ra->userid,
-                            'other' => array(
-                                'id' => $ra->id,
-                                'component' => $ra->component,
-                                'itemid' => $ra->itemid
-                            )
-                        ));
-                        $event->add_record_snapshot('role_assignments', $ra);
-                        $event->trigger();
-                    }
-                    \totara_core\event\bulk_role_assignments_ended::create_from_context($context)->trigger();
+    if ($subcontexts) {
+        $contexts = $context->get_child_contexts();
+        foreach ($contexts as $context) {
+            $whereparams['contextid'] = $context->id;
+            $ras = $DB->get_records_sql($sql, $whereparams);
+            if (!empty($ras)) {
+                list($sqlin, $sqlinparams) = $DB->get_in_or_equal(array_keys($ras));
+                $DB->delete_records_select('role_assignments', "id {$sqlin}", $sqlinparams);
+                $context->mark_dirty();
+                // this is a bit expensive but necessary
+                \totara_core\event\bulk_role_assignments_started::create_from_context($context)->trigger();
+                foreach ($ras as $ra) {
+                    $event = \core\event\role_unassigned::create(array(
+                        'context' => $context,
+                        'objectid' => $ra->roleid,
+                        'relateduserid' => $ra->userid,
+                        'other' => array(
+                            'id' => $ra->id,
+                            'component' => $ra->component,
+                            'itemid' => $ra->itemid
+                        )
+                    ));
+                    $event->add_record_snapshot('role_assignments', $ra);
+                    $event->trigger();
                 }
+                \totara_core\event\bulk_role_assignments_ended::create_from_context($context)->trigger();
             }
-            unset($sparams);
         }
+        unset($ras);
+        unset($sqlinparams);
     }
 
     /// do this once more for all manual role assignments
     if ($includemanual) {
-        $params['userids'] = array_values($sqlinparams);
         $params['component'] = '';  // manual
-        foreach ($sqlinparams as $i => $p) {
-            // unset userid prepared param trash
-            unset($params[$i]);
-        }
         role_unassign_all_bulk($params, $subcontexts, false);
     }
-
-    /// do full reload of capabilities for current user.
-    reload_all_capabilities();
 }
 
 
