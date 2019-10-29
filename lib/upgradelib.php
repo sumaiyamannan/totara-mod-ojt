@@ -1453,15 +1453,33 @@ function print_upgrade_part_start($plugin, $installation, $verbose) {
         if (empty($plugin) or $plugin == 'moodle') {
             // no need to log - log table not yet there ;-)
         } else {
-            upgrade_log(UPGRADE_LOG_NORMAL, $plugin, 'Starting plugin installation');
+            upgrade_log(UPGRADE_LOG_NORMAL, $plugin, 'Starting plugin installation', get_upgrade_system_info());
         }
     } else {
         if (empty($plugin) or $plugin == 'moodle') {
-            upgrade_log(UPGRADE_LOG_NORMAL, $plugin, 'Starting core upgrade');
+            upgrade_log(UPGRADE_LOG_NORMAL, $plugin, 'Starting core upgrade', get_upgrade_system_info());
         } else {
-            upgrade_log(UPGRADE_LOG_NORMAL, $plugin, 'Starting plugin upgrade');
+            upgrade_log(UPGRADE_LOG_NORMAL, $plugin, 'Starting plugin upgrade', get_upgrade_system_info());
         }
     }
+}
+
+/**
+ * Returns basic system information for upgrade logging purposes.
+ *
+ * @internal
+ *
+ * @return string
+ */
+function get_upgrade_system_info() {
+    global $CFG, $DB;
+
+    $phpversion = phpversion();
+    $dbtype = $CFG->dbtype;
+    $dbversion = $DB->get_server_info()['version'];
+    $osdetails = php_uname('s') . " " . php_uname('r') . " " . php_uname('m');
+
+    return "PHP: $phpversion, $dbtype: $dbversion, OS: $osdetails";
 }
 
 /**
