@@ -595,6 +595,7 @@ class mysql_sql_generator extends sql_generator {
             'ALTER',
             'ANALYZE',
             'AND',
+            'ARRAY', // Added in 8.0.17
             'AS',
             'ASC',
             'ASENSITIVE',
@@ -652,6 +653,7 @@ class mysql_sql_generator extends sql_generator {
             'EACH',
             'ELSE',
             'ELSEIF',
+            'EMPTY', // Added in 8.0.4
             'ENCLOSED',
             'ESCAPED',
             'EXCEPT', // Added in 8.0
@@ -704,11 +706,13 @@ class mysql_sql_generator extends sql_generator {
             'IS',
             'ITERATE',
             'JOIN',
+            'JSON_TABLE', // Added in 8.0.4
             'KEY',
             'KEYS',
             'KILL',
             'LAG', // Added in 8.0.2.
             'LAST_VALUE', // Added in 8.0.2.
+            'LATERAL', // Added in 8.0.4
             'LEAD', // Added in 8.0.2.
             'LEADING',
             'LEAVE',
@@ -733,6 +737,7 @@ class mysql_sql_generator extends sql_generator {
             'MEDIUMBLOB',
             'MEDIUMINT',
             'MEDIUMTEXT',
+            'MEMBER', // Added in 8.0.17
             'MIDDLEINT',
             'MINUTE_MICROSECOND',
             'MINUTE_SECOND',
