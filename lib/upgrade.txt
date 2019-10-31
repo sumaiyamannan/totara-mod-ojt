@@ -1,6 +1,10 @@
 This files describes API changes in core libraries and APIs,
 information provided here is intended especially for developers.
 
+=== 9.43 ===
+
+* New function make_content_disposition() correctly encodes the filename field of the Content-Disposition header
+
 === 9.40 ===
 
 * Node.js recommended version has changed it is now recommended to use Node 12 LTS version.

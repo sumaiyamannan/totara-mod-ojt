@@ -100,12 +100,16 @@ class writer extends tabexport_writer {
             // Behat cannot deal with force-downloaded files,
             // let's open the file in browser instead so that behat may assert the contents.
             header('Content-Type: text/plain');
-            header('Content-Disposition: inline; filename="'.$filename.'"');
+            // Totara: Send the content-disposition header with properly encoded filename.
+            require($CFG->libdir.'/filelib.php');
+            header(make_content_disposition('inline', $filename));
             return;
         }
 
         header('Content-Type: application/x-forcedownload');
-        header('Content-Disposition: attachment; filename="'.$filename.'"');
+        // Totara: Send the content-disposition header with properly encoded filename.
+        require($CFG->libdir.'/filelib.php');
+        header(make_content_disposition('attachment', $filename));
     }
 
     /**
