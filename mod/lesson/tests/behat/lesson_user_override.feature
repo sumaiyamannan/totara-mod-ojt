@@ -52,16 +52,16 @@ Feature: Lesson user override
       | id_deadline_enabled | 1 |
       | deadline[day]       | 1 |
       | deadline[month]     | January |
-      | deadline[year]      | 2020 |
+      | deadline[year]      | 2030 |
       | deadline[hour]      | 08 |
       | deadline[minute]    | 00 |
     And I press "Save"
-    And I should see "Wednesday, 1 January 2020, 8:00"
+    And I should see "Tuesday, 1 January 2030, 8:00"
     Then I click on "Edit" "link"
     And I set the following fields to these values:
-      | deadline[year] | 2030 |
+      | deadline[year] | 2035 |
     And I press "Save"
-    And I should see "Tuesday, 1 January 2030, 8:00"
+    And I should see "Monday, 1 January 2035, 8:00"
     And I click on "Delete" "link"
     And I press "Continue"
     And I should not see "Sam1 Student1"
@@ -75,17 +75,17 @@ Feature: Lesson user override
       | id_deadline_enabled | 1 |
       | deadline[day]       | 1 |
       | deadline[month]     | January |
-      | deadline[year]      | 2020 |
+      | deadline[year]      | 2030 |
       | deadline[hour]      | 08 |
       | deadline[minute]    | 00 |
     And I press "Save"
-    And I should see "Wednesday, 1 January 2020, 8:00"
+    And I should see "Tuesday, 1 January 2030, 8:00"
     Then I click on "copy" "link"
     And I set the following fields to these values:
       | Override user  | Student2  |
-      | deadline[year] | 2030 |
+      | deadline[year] | 2035 |
     And I press "Save"
-    And I should see "Tuesday, 1 January 2030, 8:00"
+    And I should see "Monday, 1 January 2035, 8:00"
     And I should see "Sam2 Student2"
 
   Scenario: Allow a single user to have re-take the lesson
@@ -190,7 +190,7 @@ Feature: Lesson user override
       | id_deadline_enabled | 1 |
       | deadline[day]       | 1 |
       | deadline[month]     | January |
-      | deadline[year]      | 2020 |
+      | deadline[year]      | 2030 |
       | deadline[hour]      | 08 |
       | deadline[minute]    | 00 |
     And I press "Save"
@@ -214,7 +214,7 @@ Feature: Lesson user override
       | id_available_enabled | 1 |
       | available[day]       | 1 |
       | available[month]     | January |
-      | available[year]      | 2020 |
+      | available[year]      | 2030 |
       | available[hour]      | 08 |
       | available[minute]    | 00 |
     And I press "Save and display"
@@ -234,7 +234,7 @@ Feature: Lesson user override
     And I log in as "student2"
     And I follow "Course 1"
     And I follow "Test lesson"
-    Then  I should see "This lesson will be open on Wednesday, 1 January 2020, 8:00"
+    Then  I should see "This lesson will be open on Tuesday, 1 January 2030, 8:00"
     And I should not see "Cat is an amphibian"
     And I log out
     And I log in as "student1"

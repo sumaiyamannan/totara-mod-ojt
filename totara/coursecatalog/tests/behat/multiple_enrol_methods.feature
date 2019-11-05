@@ -66,12 +66,12 @@ Feature: Users can auto-enrol themself in courses where self enrolment is allowe
     And I set the following fields to these values:
       | timestart[day]     | 1    |
       | timestart[month]   | 1    |
-      | timestart[year]    | 2020 |
+      | timestart[year]    | 2030 |
       | timestart[hour]    | 11   |
       | timestart[minute]  | 00   |
       | timefinish[day]    | 1    |
       | timefinish[month]  | 1    |
-      | timefinish[year]   | 2020 |
+      | timefinish[year]   | 2030 |
       | timefinish[hour]   | 12   |
       | timefinish[minute] | 00   |
     And I click on "OK" "button" in the "Select date" "totaradialogue"
@@ -107,6 +107,6 @@ Feature: Users can auto-enrol themself in courses where self enrolment is allowe
     And I should see "Courses" in the "Navigation" "block"
     And I click on "Courses" "link_or_button" in the "Navigation" "block"
     And I click on ".rb-display-expand" "css_element"
-    And I click on "Sign-up" "link" in the "1 January 2020" "table_row"
+    And I click on "Sign-up" "link" in the "1 January 2030" "table_row"
     And I press "Sign-up"
     Then I should see "Topic 1"

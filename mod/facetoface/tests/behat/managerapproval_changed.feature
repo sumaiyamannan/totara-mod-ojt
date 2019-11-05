@@ -52,19 +52,6 @@ Feature: Seminar Approval required
     And I click on "#id_approvaloptions_approval_manager" "css_element"
     And I press "Save and display"
     And I follow "Add a new event"
-    And I click on "Edit session" "link"
-    And I set the following fields to these values:
-      | timestart[day]     | 1    |
-      | timestart[month]   | 1    |
-      | timestart[year]    | 2020 |
-      | timestart[hour]    | 11   |
-      | timestart[minute]  | 00   |
-      | timefinish[day]    | 1    |
-      | timefinish[month]  | 1    |
-      | timefinish[year]   | 2020 |
-      | timefinish[hour]   | 12   |
-      | timefinish[minute] | 00   |
-    And I click on "OK" "button" in the "Select date" "totaradialogue"
     And I set the following fields to these values:
       | capacity           | 4    |
     And I press "Save changes"
@@ -139,19 +126,6 @@ Feature: Seminar Approval required
     And I click on "#id_approvaloptions_approval_manager" "css_element"
     And I press "Save and display"
     And I follow "Add a new event"
-    And I click on "Edit session" "link"
-    And I set the following fields to these values:
-      | timestart[day]     | 1    |
-      | timestart[month]   | 1    |
-      | timestart[year]    | 2020 |
-      | timestart[hour]    | 11   |
-      | timestart[minute]  | 00   |
-      | timefinish[day]    | 1    |
-      | timefinish[month]  | 1    |
-      | timefinish[year]   | 2020 |
-      | timefinish[hour]   | 12   |
-      | timefinish[minute] | 00   |
-    And I click on "OK" "button" in the "Select date" "totaradialogue"
     And I set the following fields to these values:
       | capacity           | 4    |
       | Enable waitlist    | 1    |

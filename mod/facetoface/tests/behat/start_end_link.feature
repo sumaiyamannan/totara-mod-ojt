@@ -25,12 +25,12 @@ Feature: Confirm end date is adjusted when start date is altered
     And I set the following fields to these values:
       | timestart[day]     | 1    |
       | timestart[month]   | 1    |
-      | timestart[year]    | 2020 |
+      | timestart[year]    | 2030 |
       | timestart[hour]    | 11   |
       | timestart[minute]  | 0    |
       | timefinish[day]    | 1    |
       | timefinish[month]  | 1    |
-      | timefinish[year]   | 2020 |
+      | timefinish[year]   | 2030 |
       | timefinish[hour]   | 12   |
       | timefinish[minute] | 0    |
 
@@ -43,7 +43,7 @@ Feature: Confirm end date is adjusted when start date is altered
     | field             | start_value | end_value | end_field            |
     | timestart[day]    | 2           | 2         | id_timefinish_day    |
     | timestart[month]  | 2           | February  | id_timefinish_month  |
-    | timestart[year]   | 2021        | 2021      | id_timefinish_year   |
+    | timestart[year]   | 2037        | 2037      | id_timefinish_year   |
     | timestart[hour]   | 12          | 13        | id_timefinish_hour   |
     | timestart[minute] | 30          | 30        | id_timefinish_minute |
 
@@ -71,5 +71,5 @@ Feature: Confirm end date is adjusted when start date is altered
     And I click on "#dateselector-calendar-panel .yui3-calendarnav-nextmonth" "css_element"
     And I click on "#dateselector-calendar-panel .yui3-calendarnav-nextmonth" "css_element"
     And I click on "22" "text" in the "#dateselector-calendar-panel" "css_element"
-    Then I should see "2021" in the "#id_timefinish_year" "css_element"
+    Then I should see "2037" in the "#id_timefinish_year" "css_element"
 

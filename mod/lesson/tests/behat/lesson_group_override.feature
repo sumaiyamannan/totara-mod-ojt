@@ -59,16 +59,16 @@ Feature: Lesson user override
       | id_deadline_enabled | 1 |
       | deadline[day]       | 1 |
       | deadline[month]     | January |
-      | deadline[year]      | 2020 |
+      | deadline[year]      | 2030 |
       | deadline[hour]      | 08 |
       | deadline[minute]    | 00 |
     And I press "Save"
-    And I should see "Wednesday, 1 January 2020, 8:00"
+    And I should see "Tuesday, 1 January 2030, 8:00"
     Then I click on "Edit" "link"
     And I set the following fields to these values:
-      | deadline[year] | 2030 |
+      | deadline[year] | 2035 |
     And I press "Save"
-    And I should see "Tuesday, 1 January 2030, 8:00"
+    And I should see "Monday, 1 January 2035, 8:00"
     And I click on "Delete" "link"
     And I press "Continue"
     And I should not see "Group 1"
@@ -82,17 +82,17 @@ Feature: Lesson user override
       | id_deadline_enabled | 1 |
       | deadline[day]       | 1 |
       | deadline[month]     | January |
-      | deadline[year]      | 2020 |
+      | deadline[year]      | 2030 |
       | deadline[hour]      | 08 |
       | deadline[minute]    | 00 |
     And I press "Save"
-    And I should see "Wednesday, 1 January 2020, 8:00"
+    And I should see "Tuesday, 1 January 2030, 8:00"
     Then I click on "copy" "link"
     And I set the following fields to these values:
       | Override group | Group 2  |
-      | deadline[year] | 2030 |
+      | deadline[year] | 2035 |
     And I press "Save"
-    And I should see "Tuesday, 1 January 2030, 8:00"
+    And I should see "Monday, 1 January 2035, 8:00"
     And I should see "Group 2"
 
   Scenario: Allow a single group to have re-take the lesson
@@ -197,7 +197,7 @@ Feature: Lesson user override
       | id_deadline_enabled | 1 |
       | deadline[day]       | 1 |
       | deadline[month]     | January |
-      | deadline[year]      | 2020 |
+      | deadline[year]      | 2030 |
       | deadline[hour]      | 08 |
       | deadline[minute]    | 00 |
     And I press "Save"
@@ -221,7 +221,7 @@ Feature: Lesson user override
       | id_available_enabled | 1 |
       | available[day]       | 1 |
       | available[month]     | January |
-      | available[year]      | 2020 |
+      | available[year]      | 2030 |
       | available[hour]      | 08 |
       | available[minute]    | 00 |
     And I press "Save and display"
@@ -241,7 +241,7 @@ Feature: Lesson user override
     And I log in as "student2"
     And I follow "Course 1"
     And I follow "Test lesson"
-    Then  I should see "This lesson will be open on Wednesday, 1 January 2020, 8:00"
+    Then  I should see "This lesson will be open on Tuesday, 1 January 2030, 8:00"
     And I should not see "Cat is an amphibian"
     And I log out
     And I log in as "student1"
@@ -295,7 +295,7 @@ Feature: Lesson user override
       | id_available_enabled | 1 |
       | available[day]       | 1 |
       | available[month]     | January |
-      | available[year]      | 2030 |
+      | available[year]      | 2035 |
       | available[hour]      | 08 |
       | available[minute]    | 00 |
     And I press "Save and display"
@@ -306,11 +306,11 @@ Feature: Lesson user override
       | id_available_enabled | 1 |
       | available[day]       | 1 |
       | available[month]     | January |
-      | available[year]      | 2020 |
+      | available[year]      | 2030 |
       | available[hour]      | 08 |
       | available[minute]    | 00 |
     And I press "Save"
-    And I should see "Wednesday, 1 January 2020, 8:00"
+    And I should see "Tuesday, 1 January 2030, 8:00"
     And I navigate to "User overrides" node in "Lesson administration"
     And I press "Add user override"
     And I set the following fields to these values:
@@ -318,23 +318,23 @@ Feature: Lesson user override
       | id_available_enabled | 1 |
       | available[day]       | 1 |
       | available[month]     | January |
-      | available[year]      | 2021 |
+      | available[year]      | 2031 |
       | available[hour]      | 08 |
       | available[minute]    | 00 |
     And I press "Save"
-    And I should see "Friday, 1 January 2021, 8:00"
+    And I should see "Wednesday, 1 January 2031, 8:00"
     And I log out
     Then I log in as "student1"
     And I follow "Course 1"
     And I follow "Test lesson"
-    And I should see "This lesson will be open on Friday, 1 January 2021, 8:00"
+    And I should see "This lesson will be open on Wednesday, 1 January 2031, 8:00"
     And I log out
     And I log in as "student2"
     And I follow "Course 1"
     And I follow "Test lesson"
-    And I should see "This lesson will be open on Tuesday, 1 January 2030, 8:00"
+    And I should see "This lesson will be open on Monday, 1 January 2035, 8:00"
     And I log out
     And I log in as "student3"
     And I follow "Course 1"
     And I follow "Test lesson"
-    And I should see "This lesson will be open on Wednesday, 1 January 2020, 8:00"
+    And I should see "This lesson will be open on Tuesday, 1 January 2030, 8:00"

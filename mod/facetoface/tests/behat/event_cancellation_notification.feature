@@ -72,13 +72,13 @@ Feature: Seminar event cancellation notifications
       | sessiontimezone     | Pacific/Auckland |
       | timestart[day]      | 10               |
       | timestart[month]    | 2                |
-      | timestart[year]     | 2025             |
+      | timestart[year]     | 2030             |
       | timestart[hour]     | 9                |
       | timestart[minute]   | 0                |
       | timestart[timezone] | Pacific/Auckland |
       | timefinish[day]     | 10               |
       | timefinish[month]   | 2                |
-      | timefinish[year]    | 2025             |
+      | timefinish[year]    | 2030             |
       | timefinish[hour]    | 15               |
       | timefinish[minute]  | 0                |
       | timefinish[timezone]| Pacific/Auckland |
@@ -113,19 +113,19 @@ Feature: Seminar event cancellation notifications
     And I click on "Find Learning" in the totara menu
     And I follow "Course 1"
     And I follow "View all events"
-    Then I should see "9:00 AM - 3:00 PM Pacific/Auckland" in the "10 February 2025" "table_row"
-    And I should see "2 / 2" in the "10 February 2025" "table_row"
-    And I should see "Booking full" in the "10 February 2025" "table_row"
-    And "Cancel event" "link" should exist in the "10 February 2025" "table_row"
+    Then I should see "9:00 AM - 3:00 PM Pacific/Auckland" in the "10 February 2030" "table_row"
+    And I should see "2 / 2" in the "10 February 2030" "table_row"
+    And I should see "Booking full" in the "10 February 2030" "table_row"
+    And "Cancel event" "link" should exist in the "10 February 2030" "table_row"
 
-    When I click on "Cancel event" "link" in the "10 February 2025" "table_row"
+    When I click on "Cancel event" "link" in the "10 February 2030" "table_row"
     Then I should see "Canceling event in Test Seminar"
-    And I should see "10 February 2025, 9:00 AM - 3:00 PM Pacific/Auckland"
+    And I should see "10 February 2030, 9:00 AM - 3:00 PM Pacific/Auckland"
     And I press "Yes"
-    Then I should see "9:00 AM - 3:00 PM Pacific/Auckland" in the "10 February 2025" "table_row"
-    And I should see "3 / 2 (Overbooked)" in the "10 February 2025" "table_row"
-    And I should see "Event cancelled" in the "10 February 2025" "table_row"
-    And "Cancel event" "link" should not exist in the "10 February 2025" "table_row"
+    Then I should see "9:00 AM - 3:00 PM Pacific/Auckland" in the "10 February 2030" "table_row"
+    And I should see "3 / 2 (Overbooked)" in the "10 February 2030" "table_row"
+    And I should see "Event cancelled" in the "10 February 2030" "table_row"
+    And "Cancel event" "link" should not exist in the "10 February 2030" "table_row"
 
     When I log out
     And I log in as "learner1"
@@ -140,7 +140,7 @@ Feature: Seminar event cancellation notifications
 
     And I should see "Course:   Course 1"
     And I should see "Seminar:   Test Seminar"
-    And I should see "10 February 2025, 9:00 AM - 10 February 2025, 3:00 PM Pacific/Auckland"
+    And I should see "10 February 2030, 9:00 AM - 10 February 2030, 3:00 PM Pacific/Auckland"
 
     When I log out
     And I log in as "learner2"
@@ -155,7 +155,7 @@ Feature: Seminar event cancellation notifications
 
     And I should see "Course:   Course 1"
     And I should see "Seminar:   Test Seminar"
-    And I should see "10 February 2025, 9:00 AM - 10 February 2025, 3:00 PM Pacific/Auckland"
+    And I should see "10 February 2030, 9:00 AM - 10 February 2030, 3:00 PM Pacific/Auckland"
 
     When I log out
     And I log in as "learner3"
@@ -170,7 +170,7 @@ Feature: Seminar event cancellation notifications
 
     And I should see "Course:   Course 1"
     And I should see "Seminar:   Test Seminar"
-    And I should see "10 February 2025, 9:00 AM - 10 February 2025, 3:00 PM Pacific/Auckland"
+    And I should see "10 February 2030, 9:00 AM - 10 February 2030, 3:00 PM Pacific/Auckland"
 
     When I log out
     And I log in as "teacher1"
@@ -185,7 +185,7 @@ Feature: Seminar event cancellation notifications
 
     And I should see "Course:   Course 1"
     And I should see "Seminar:   Test Seminar"
-    And I should see "10 February 2025, 9:00 AM - 10 February 2025, 3:00 PM Pacific/Auckland"
+    And I should see "10 February 2030, 9:00 AM - 10 February 2030, 3:00 PM Pacific/Auckland"
 
 
   # ----------------------------------------------------------------------------
@@ -194,20 +194,20 @@ Feature: Seminar event cancellation notifications
     And I log in as "teacher1"
     And I click on "Find Learning" in the totara menu
     And I follow "Course 1"
-    And I click on "Edit event" "link" in the "10 February 2025" "table_row"
+    And I click on "Edit event" "link" in the "10 February 2030" "table_row"
     And I press "Add a new session"
     And I follow "show-selectdate1-dialog"
     And I set the following fields to these values:
       | sessiontimezone     | Pacific/Auckland |
       | timestart[day]      | 11               |
       | timestart[month]    | 3                |
-      | timestart[year]     | 2026             |
+      | timestart[year]     | 2031             |
       | timestart[hour]     | 10               |
       | timestart[minute]   | 0                |
       | timestart[timezone] | Pacific/Auckland |
       | timefinish[day]     | 11               |
       | timefinish[month]   | 3                |
-      | timefinish[year]    | 2026             |
+      | timefinish[year]    | 2031             |
       | timefinish[hour]    | 16               |
       | timefinish[minute]  | 0                |
       | timefinish[timezone]| Pacific/Auckland |
@@ -219,19 +219,19 @@ Feature: Seminar event cancellation notifications
     And I click on "Find Learning" in the totara menu
     And I follow "Course 1"
     And I follow "View all events"
-    Then I should see "9:00 AM - 3:00 PM Pacific/Auckland" in the "10 February 2025" "table_row"
-    And I should see "10:00 AM - 4:00 PM Pacific/Auckland" in the "11 March 2026" "table_row"
-    And I should see "2 / 2" in the "10 February 2025" "table_row"
-    And I should see "Booking full" in the "10 February 2025" "table_row"
-    And "Cancel event" "link" should exist in the "10 February 2025" "table_row"
+    Then I should see "9:00 AM - 3:00 PM Pacific/Auckland" in the "10 February 2030" "table_row"
+    And I should see "10:00 AM - 4:00 PM Pacific/Auckland" in the "11 March 2031" "table_row"
+    And I should see "2 / 2" in the "10 February 2030" "table_row"
+    And I should see "Booking full" in the "10 February 2030" "table_row"
+    And "Cancel event" "link" should exist in the "10 February 2030" "table_row"
 
-    When I click on "Cancel event" "link" in the "10 February 2025" "table_row"
+    When I click on "Cancel event" "link" in the "10 February 2030" "table_row"
     And I press "Yes"
-    Then I should see "9:00 AM - 3:00 PM Pacific/Auckland" in the "10 February 2025" "table_row"
-    And I should see "10:00 AM - 4:00 PM Pacific/Auckland" in the "11 March 2026" "table_row"
-    And I should see "3 / 2 (Overbooked)" in the "10 February 2025" "table_row"
-    And I should see "Event cancelled" in the "10 February 2025" "table_row"
-    And "Cancel event" "link" should not exist in the "10 February 2025" "table_row"
+    Then I should see "9:00 AM - 3:00 PM Pacific/Auckland" in the "10 February 2030" "table_row"
+    And I should see "10:00 AM - 4:00 PM Pacific/Auckland" in the "11 March 2031" "table_row"
+    And I should see "3 / 2 (Overbooked)" in the "10 February 2030" "table_row"
+    And I should see "Event cancelled" in the "10 February 2030" "table_row"
+    And "Cancel event" "link" should not exist in the "10 February 2030" "table_row"
 
     When I log out
     And I log in as "learner1"
@@ -246,8 +246,8 @@ Feature: Seminar event cancellation notifications
 
     And I should see "Course:   Course 1"
     And I should see "Seminar:   Test Seminar"
-    And I should see "10 February 2025, 9:00 AM - 10 February 2025, 3:00 PM Pacific/Auckland"
-    And I should see "11 March 2026, 10:00 AM - 11 March 2026, 4:00 PM Pacific/Auckland"
+    And I should see "10 February 2030, 9:00 AM - 10 February 2030, 3:00 PM Pacific/Auckland"
+    And I should see "11 March 2031, 10:00 AM - 11 March 2031, 4:00 PM Pacific/Auckland"
 
     When I log out
     And I log in as "learner2"
@@ -262,8 +262,8 @@ Feature: Seminar event cancellation notifications
 
     And I should see "Course:   Course 1"
     And I should see "Seminar:   Test Seminar"
-    And I should see "10 February 2025, 9:00 AM - 10 February 2025, 3:00 PM Pacific/Auckland"
-    And I should see "11 March 2026, 10:00 AM - 11 March 2026, 4:00 PM Pacific/Auckland"
+    And I should see "10 February 2030, 9:00 AM - 10 February 2030, 3:00 PM Pacific/Auckland"
+    And I should see "11 March 2031, 10:00 AM - 11 March 2031, 4:00 PM Pacific/Auckland"
 
     When I log out
     And I log in as "learner3"
@@ -278,8 +278,8 @@ Feature: Seminar event cancellation notifications
 
     And I should see "Course:   Course 1"
     And I should see "Seminar:   Test Seminar"
-    And I should see "10 February 2025, 9:00 AM - 10 February 2025, 3:00 PM Pacific/Auckland"
-    And I should see "11 March 2026, 10:00 AM - 11 March 2026, 4:00 PM Pacific/Auckland"
+    And I should see "10 February 2030, 9:00 AM - 10 February 2030, 3:00 PM Pacific/Auckland"
+    And I should see "11 March 2031, 10:00 AM - 11 March 2031, 4:00 PM Pacific/Auckland"
 
     When I log out
     And I log in as "teacher1"
@@ -294,8 +294,8 @@ Feature: Seminar event cancellation notifications
 
     And I should see "Course:   Course 1"
     And I should see "Seminar:   Test Seminar"
-    And I should see "10 February 2025, 9:00 AM - 10 February 2025, 3:00 PM Pacific/Auckland"
-    And I should see "11 March 2026, 10:00 AM - 11 March 2026, 4:00 PM Pacific/Auckland"
+    And I should see "10 February 2030, 9:00 AM - 10 February 2030, 3:00 PM Pacific/Auckland"
+    And I should see "11 March 2031, 10:00 AM - 11 March 2031, 4:00 PM Pacific/Auckland"
 
 
   # ----------------------------------------------------------------------------
@@ -305,13 +305,13 @@ Feature: Seminar event cancellation notifications
     And I click on "Find Learning" in the totara menu
     And I follow "Course 1"
     And I follow "View all events"
-    Then I should see "9:00 AM - 3:00 PM Pacific/Auckland" in the "10 February 2025" "table_row"
-    And I should see "2 / 2" in the "10 February 2025" "table_row"
-    And I should see "Booking full" in the "10 February 2025" "table_row"
-    And "Cancel event" "link" should exist in the "10 February 2025" "table_row"
-    And I click on "Cancel event" "link" in the "10 February 2025" "table_row"
+    Then I should see "9:00 AM - 3:00 PM Pacific/Auckland" in the "10 February 2030" "table_row"
+    And I should see "2 / 2" in the "10 February 2030" "table_row"
+    And I should see "Booking full" in the "10 February 2030" "table_row"
+    And "Cancel event" "link" should exist in the "10 February 2030" "table_row"
+    And I click on "Cancel event" "link" in the "10 February 2030" "table_row"
     And I should see "Canceling event in Test Seminar"
-    And I should see "10 February 2025, 9:00 AM - 3:00 PM Pacific/Auckland"
+    And I should see "10 February 2030, 9:00 AM - 3:00 PM Pacific/Auckland"
     And I press "Yes"
 
     When I log out
@@ -329,7 +329,7 @@ Feature: Seminar event cancellation notifications
     And I click on "Find Learning" in the totara menu
     And I follow "Course 1"
     And I follow "View all events"
-    And I click on "Delete event" "link" in the "10 February 2025" "table_row"
+    And I click on "Delete event" "link" in the "10 February 2030" "table_row"
     And I press "Continue"
 
     When I log out
@@ -345,9 +345,9 @@ Feature: Seminar event cancellation notifications
     And I click on "Find Learning" in the totara menu
     And I follow "Course 1"
     And I follow "View all events"
-    Then I should see "9:00 AM - 3:00 PM Pacific/Auckland" in the "10 February 2025" "table_row"
-    And I should see "Booking full" in the "10 February 2025" "table_row"
-    And I should see "Reserve spaces for team (0/1)" in the "10 February 2025" "table_row"
+    Then I should see "9:00 AM - 3:00 PM Pacific/Auckland" in the "10 February 2030" "table_row"
+    And I should see "Booking full" in the "10 February 2030" "table_row"
+    And I should see "Reserve spaces for team (0/1)" in the "10 February 2030" "table_row"
 
     When I follow "Reserve spaces for team"
     And I set the field "reserve" to "1*"
@@ -359,7 +359,7 @@ Feature: Seminar event cancellation notifications
     And I click on "Find Learning" in the totara menu
     And I follow "Course 1"
     And I follow "View all events"
-    And I click on "Cancel event" "link" in the "10 February 2025" "table_row"
+    And I click on "Cancel event" "link" in the "10 February 2030" "table_row"
     And I press "Yes"
 
     When I log out
@@ -367,9 +367,9 @@ Feature: Seminar event cancellation notifications
     And I click on "Find Learning" in the totara menu
     And I follow "Course 1"
     And I follow "View all events"
-    Then I should see "9:00 AM - 3:00 PM Pacific/Auckland" in the "10 February 2025" "table_row"
-    And I should see "Event cancelled" in the "10 February 2025" "table_row"
-    And I should see "Sign-up unavailable" in the "10 February 2025" "table_row"
+    Then I should see "9:00 AM - 3:00 PM Pacific/Auckland" in the "10 February 2030" "table_row"
+    And I should see "Event cancelled" in the "10 February 2030" "table_row"
+    And I should see "Sign-up unavailable" in the "10 February 2030" "table_row"
 
     When I click on "Dashboard" in the totara menu
     Then I should see "Seminar event cancellation"
@@ -382,7 +382,7 @@ Feature: Seminar event cancellation notifications
 
     And I should see "Course:   Course 1"
     And I should see "Seminar:   Test Seminar"
-    And I should see "10 February 2025, 9:00 AM - 10 February 2025, 3:00 PM Pacific/Auckland"
+    And I should see "10 February 2030, 9:00 AM - 10 February 2030, 3:00 PM Pacific/Auckland"
 
 
   # ----------------------------------------------------------------------------
@@ -392,9 +392,9 @@ Feature: Seminar event cancellation notifications
     And I click on "Find Learning" in the totara menu
     And I follow "Course 1"
     And I follow "View all events"
-    Then I should see "9:00 AM - 3:00 PM Pacific/Auckland" in the "10 February 2025" "table_row"
-    And I should see "Booking full" in the "10 February 2025" "table_row"
-    And I should see "Allocate spaces for team (0/1)" in the "10 February 2025" "table_row"
+    Then I should see "9:00 AM - 3:00 PM Pacific/Auckland" in the "10 February 2030" "table_row"
+    And I should see "Booking full" in the "10 February 2030" "table_row"
+    And I should see "Allocate spaces for team (0/1)" in the "10 February 2030" "table_row"
 
     When I follow "Allocate spaces for team"
     And I click on "Learner Four" "option"
@@ -407,7 +407,7 @@ Feature: Seminar event cancellation notifications
     And I click on "Find Learning" in the totara menu
     And I follow "Course 1"
     And I follow "View all events"
-    And I click on "Cancel event" "link" in the "10 February 2025" "table_row"
+    And I click on "Cancel event" "link" in the "10 February 2030" "table_row"
     And I press "Yes"
 
     When I log out
@@ -423,16 +423,16 @@ Feature: Seminar event cancellation notifications
 
     And I should see "Course:   Course 1"
     And I should see "Seminar:   Test Seminar"
-    And I should see "10 February 2025, 9:00 AM - 10 February 2025, 3:00 PM Pacific/Auckland"
+    And I should see "10 February 2030, 9:00 AM - 10 February 2030, 3:00 PM Pacific/Auckland"
 
     When I log out
     And I log in as "manager4"
     And I click on "Find Learning" in the totara menu
     And I follow "Course 1"
     And I follow "View all events"
-    Then I should see "9:00 AM - 3:00 PM Pacific/Auckland" in the "10 February 2025" "table_row"
-    And I should see "Event cancelled" in the "10 February 2025" "table_row"
-    And I should see "Sign-up unavailable" in the "10 February 2025" "table_row"
+    Then I should see "9:00 AM - 3:00 PM Pacific/Auckland" in the "10 February 2030" "table_row"
+    And I should see "Event cancelled" in the "10 February 2030" "table_row"
+    And I should see "Sign-up unavailable" in the "10 February 2030" "table_row"
 
     When I click on "Dashboard" in the totara menu
     Then I should see "Seminar event cancellation"
@@ -445,4 +445,4 @@ Feature: Seminar event cancellation notifications
 
     And I should see "Course:   Course 1"
     And I should see "Seminar:   Test Seminar"
-    And I should see "10 February 2025, 9:00 AM - 10 February 2025, 3:00 PM Pacific/Auckland"
+    And I should see "10 February 2030, 9:00 AM - 10 February 2030, 3:00 PM Pacific/Auckland"

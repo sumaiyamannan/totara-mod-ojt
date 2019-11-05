@@ -34,12 +34,12 @@ Feature: Users can enrol on courses that have several seminar activities and sig
     And I set the following fields to these values:
       | timestart[day]     | 1    |
       | timestart[month]   | 1    |
-      | timestart[year]    | 2020 |
+      | timestart[year]    | 2030 |
       | timestart[hour]    | 11   |
       | timestart[minute]  | 00   |
       | timefinish[day]    | 1    |
       | timefinish[month]  | 1    |
-      | timefinish[year]   | 2020 |
+      | timefinish[year]   | 2030 |
       | timefinish[hour]   | 12   |
       | timefinish[minute] | 00   |
     And I click on "OK" "button" in the "Select date" "totaradialogue"
@@ -55,12 +55,12 @@ Feature: Users can enrol on courses that have several seminar activities and sig
     And I set the following fields to these values:
       | timestart[day]     | 2    |
       | timestart[month]   | 1    |
-      | timestart[year]    | 2020 |
+      | timestart[year]    | 2030 |
       | timestart[hour]    | 11   |
       | timestart[minute]  | 00   |
       | timefinish[day]    | 2    |
       | timefinish[month]  | 1    |
-      | timefinish[year]   | 2020 |
+      | timefinish[year]   | 2030 |
       | timefinish[hour]   | 12   |
       | timefinish[minute] | 00   |
     And I click on "OK" "button" in the "Select date" "totaradialogue"
@@ -75,11 +75,11 @@ Feature: Users can enrol on courses that have several seminar activities and sig
     And I log in as "student1"
     And I click on "Find Learning" in the totara menu
     And I follow "Course 1"
-    And I click on "Sign-up" "link" in the "2 January 2020" "table_row"
+    And I click on "Sign-up" "link" in the "2 January 2030" "table_row"
     And I press "Sign-up"
     Then I should see "Your request was accepted"
     And I click on "Find Learning" in the totara menu
     And I follow "Course 1"
-    And I click on "Sign-up" "link" in the "1 January 2020" "table_row"
+    And I click on "Sign-up" "link" in the "1 January 2030" "table_row"
     And I press "Sign-up"
     And I should see "Your request was accepted"

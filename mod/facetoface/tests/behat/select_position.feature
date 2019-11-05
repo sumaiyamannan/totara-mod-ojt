@@ -40,17 +40,17 @@ Feature: Add a seminar with select position
     And I set the following fields to these values:
       | timestart[day]       | 1    |
       | timestart[month]     | 1    |
-      | timestart[year]      | 2020 |
+      | timestart[year]      | 2030 |
       | timestart[hour]      | 11   |
       | timestart[minute]    | 0    |
       | timefinish[day]      | 1    |
       | timefinish[month]    | 1    |
-      | timefinish[year]     | 2020 |
+      | timefinish[year]     | 2030 |
       | timefinish[hour]     | 12   |
       | timefinish[minute]   | 0    |
     And I press "OK"
     And I press "Save changes"
-    And I should see "1 January 2020"
+    And I should see "1 January 2030"
     And I log out
     And I log in as "student1"
     And I click on "Find Learning" in the totara menu
@@ -87,17 +87,17 @@ Feature: Add a seminar with select position
     And I set the following fields to these values:
       | timestart[day]       | 1    |
       | timestart[month]     | 1    |
-      | timestart[year]      | 2020 |
+      | timestart[year]      | 2030 |
       | timestart[hour]      | 11   |
       | timestart[minute]    | 0    |
       | timefinish[day]      | 1    |
       | timefinish[month]    | 1    |
-      | timefinish[year]     | 2020 |
+      | timefinish[year]     | 2030 |
       | timefinish[hour]     | 12   |
       | timefinish[minute]   | 0    |
     And I press "OK"
     And I press "Save changes"
-    And I should see "1 January 2020"
+    And I should see "1 January 2030"
     And I log out
     When I log in as "student1"
     And I click on "Find Learning" in the totara menu
@@ -147,17 +147,17 @@ Feature: Add a seminar with select position
     And I set the following fields to these values:
       | timestart[day]       | 1    |
       | timestart[month]     | 1    |
-      | timestart[year]      | 2020 |
+      | timestart[year]      | 2030 |
       | timestart[hour]      | 11   |
       | timestart[minute]    | 0    |
       | timefinish[day]      | 1    |
       | timefinish[month]    | 1    |
-      | timefinish[year]     | 2020 |
+      | timefinish[year]     | 2030 |
       | timefinish[hour]     | 12   |
       | timefinish[minute]   | 0    |
     And I press "OK"
     And I press "Save changes"
-    And I should see "1 January 2020"
+    And I should see "1 January 2030"
     And I log out
     And I log in as "student1"
     And I click on "Find Learning" in the totara menu
@@ -193,17 +193,17 @@ Feature: Add a seminar with select position
     And I set the following fields to these values:
       | timestart[day]       | 1    |
       | timestart[month]     | 1    |
-      | timestart[year]      | 2020 |
+      | timestart[year]      | 2030 |
       | timestart[hour]      | 11   |
       | timestart[minute]    | 0    |
       | timefinish[day]      | 1    |
       | timefinish[month]    | 1    |
-      | timefinish[year]     | 2020 |
+      | timefinish[year]     | 2030 |
       | timefinish[hour]     | 12   |
       | timefinish[minute]   | 0    |
     And I press "OK"
     And I press "Save changes"
-    And I should see "1 January 2020"
+    And I should see "1 January 2030"
     And I log out
     When I log in as "student1"
     And I click on "Find Learning" in the totara menu

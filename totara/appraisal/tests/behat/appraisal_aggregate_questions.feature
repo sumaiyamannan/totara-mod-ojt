@@ -32,9 +32,9 @@ Feature: Perform basic actions for aggregate questions
       | Zero Aggregate Tests  |
     And the following "stages" exist in "totara_appraisal" plugin:
       | appraisal            | name   | timedue                 |
-      | Aggregate Tests      | Stage1 | 1 January 2020 23:59:59 |
-      | Aggregate Tests      | Stage2 | 1 January 2030 23:59:59 |
-      | Zero Aggregate Tests | Stage0 | 1 January 2030 23:59:59 |
+      | Aggregate Tests      | Stage1 | 1 Jan +2 years 23:59:59 |
+      | Aggregate Tests      | Stage2 | 1 Jan +5 years 23:59:59 |
+      | Zero Aggregate Tests | Stage0 | 1 Jan +5 years 23:59:59 |
     And the following "pages" exist in "totara_appraisal" plugin:
       | appraisal            | stage  | name              |
       | Aggregate Tests      | Stage1 | Stage1-Ratings    |

@@ -40,13 +40,13 @@ Feature: Seminar event cancellation rebooking
       | sessiontimezone     | Pacific/Auckland |
       | timestart[day]      | 10               |
       | timestart[month]    | 2                |
-      | timestart[year]     | 2025             |
+      | timestart[year]     | 2030             |
       | timestart[hour]     | 9                |
       | timestart[minute]   | 0                |
       | timestart[timezone] | Pacific/Auckland |
       | timefinish[day]     | 10               |
       | timefinish[month]   | 2                |
-      | timefinish[year]    | 2025             |
+      | timefinish[year]    | 2030             |
       | timefinish[hour]    | 15               |
       | timefinish[minute]  | 0                |
       | timefinish[timezone]| Pacific/Auckland |
@@ -85,13 +85,13 @@ Feature: Seminar event cancellation rebooking
       | sessiontimezone     | Pacific/Auckland |
       | timestart[day]      | 10               |
       | timestart[month]    | 2                |
-      | timestart[year]     | 2030             |
+      | timestart[year]     | 2035             |
       | timestart[hour]     | 9                |
       | timestart[minute]   | 0                |
       | timestart[timezone] | Pacific/Auckland |
       | timefinish[day]     | 10               |
       | timefinish[month]   | 2                |
-      | timefinish[year]    | 2030             |
+      | timefinish[year]    | 2035             |
       | timefinish[hour]    | 15               |
       | timefinish[minute]  | 0                |
       | timefinish[timezone]| Pacific/Auckland |
@@ -103,7 +103,7 @@ Feature: Seminar event cancellation rebooking
 
   # ----------------------------------------------------------------------------
   Scenario: mod_facetoface_cancel_600: Mass rebooking after a cancelled event
-    Given I click on "Attendees" "link" in the "10 February 2030" "table_row"
+    Given I click on "Attendees" "link" in the "10 February 2035" "table_row"
     And I click on "Add users" "option" in the "#menuf2f-actions" "css_element"
     And I click on "Learner One, learner1@example.com" "option"
     And I press "Add"
@@ -123,7 +123,7 @@ Feature: Seminar event cancellation rebooking
     And I click on "Find Learning" in the totara menu
     And I follow "Course 1"
     And I follow "View all events"
-    And I click on "Cancel event" "link" in the "10 February 2025" "table_row"
+    And I click on "Cancel event" "link" in the "10 February 2030" "table_row"
     And I press "Yes"
 
     Given I log out
@@ -131,10 +131,10 @@ Feature: Seminar event cancellation rebooking
     And I click on "Find Learning" in the totara menu
     And I follow "Course 1"
     And I follow "View all events"
-    Then I should see "Booking open" in the "10 February 2030" "table_row"
-    And I should see "Event cancelled" in the "10 February 2025" "table_row"
+    Then I should see "Booking open" in the "10 February 2035" "table_row"
+    And I should see "Event cancelled" in the "10 February 2030" "table_row"
 
-    When I click on "Attendees" "link" in the "10 February 2030" "table_row"
+    When I click on "Attendees" "link" in the "10 February 2035" "table_row"
     And I click on "Add users" "option" in the "#menuf2f-actions" "css_element"
     And I click on "Learner One, learner1@example.com" "option"
     And I press "Add"
@@ -145,7 +145,7 @@ Feature: Seminar event cancellation rebooking
     And I press "Continue"
     And I press "Confirm"
     And I follow "Go back"
-    Then I should see "2 / 19" in the "10 February 2030" "table_row"
+    Then I should see "2 / 19" in the "10 February 2035" "table_row"
 
   # ----------------------------------------------------------------------------
   Scenario: mod_facetoface_cancel_601: Individual learner rebooking after a cancelled event
@@ -154,7 +154,7 @@ Feature: Seminar event cancellation rebooking
     And I click on "Find Learning" in the totara menu
     And I follow "Course 1"
     And I follow "View all events"
-    And I click on "Cancel event" "link" in the "10 February 2025" "table_row"
+    And I click on "Cancel event" "link" in the "10 February 2030" "table_row"
     And I press "Yes"
 
     Given I log out
@@ -162,39 +162,39 @@ Feature: Seminar event cancellation rebooking
     And I click on "Find Learning" in the totara menu
     And I follow "Course 1"
     And I follow "View all events"
-    Then I should see "Booking open" in the "10 February 2030" "table_row"
-    Then I should see "19" in the "10 February 2030" "table_row"
-    And I should see "Event cancelled" in the "10 February 2025" "table_row"
+    Then I should see "Booking open" in the "10 February 2035" "table_row"
+    Then I should see "19" in the "10 February 2035" "table_row"
+    And I should see "Event cancelled" in the "10 February 2030" "table_row"
 
-    When I click on "Sign-up" "link" in the "10 February 2030" "table_row"
+    When I click on "Sign-up" "link" in the "10 February 2035" "table_row"
     And I press "Sign-up"
-    Then I should see "Booked" in the "10 February 2030" "table_row"
-    Then I should see "18" in the "10 February 2030" "table_row"
+    Then I should see "Booked" in the "10 February 2035" "table_row"
+    Then I should see "18" in the "10 February 2035" "table_row"
 
     Given I log out
     And I log in as "learner2"
     And I click on "Find Learning" in the totara menu
     And I follow "Course 1"
     And I follow "View all events"
-    Then I should see "Booking open" in the "10 February 2030" "table_row"
-    Then I should see "18" in the "10 February 2030" "table_row"
-    And I should see "Event cancelled" in the "10 February 2025" "table_row"
+    Then I should see "Booking open" in the "10 February 2035" "table_row"
+    Then I should see "18" in the "10 February 2035" "table_row"
+    And I should see "Event cancelled" in the "10 February 2030" "table_row"
 
-    When I click on "Sign-up" "link" in the "10 February 2030" "table_row"
+    When I click on "Sign-up" "link" in the "10 February 2035" "table_row"
     And I press "Sign-up"
-    Then I should see "Booked" in the "10 February 2030" "table_row"
-    Then I should see "17" in the "10 February 2030" "table_row"
+    Then I should see "Booked" in the "10 February 2035" "table_row"
+    Then I should see "17" in the "10 February 2035" "table_row"
 
     Given I log out
     And I log in as "learner3"
     And I click on "Find Learning" in the totara menu
     And I follow "Course 1"
     And I follow "View all events"
-    Then I should see "Booking open" in the "10 February 2030" "table_row"
-    Then I should see "17" in the "10 February 2030" "table_row"
-    And I should see "Event cancelled" in the "10 February 2025" "table_row"
+    Then I should see "Booking open" in the "10 February 2035" "table_row"
+    Then I should see "17" in the "10 February 2035" "table_row"
+    And I should see "Event cancelled" in the "10 February 2030" "table_row"
 
-    When I click on "Sign-up" "link" in the "10 February 2030" "table_row"
+    When I click on "Sign-up" "link" in the "10 February 2035" "table_row"
     And I press "Sign-up"
-    Then I should see "Booked" in the "10 February 2030" "table_row"
-    Then I should see "16" in the "10 February 2030" "table_row"
+    Then I should see "Booked" in the "10 February 2035" "table_row"
+    Then I should see "16" in the "10 February 2035" "table_row"

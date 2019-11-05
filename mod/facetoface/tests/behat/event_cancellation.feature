@@ -41,13 +41,13 @@ Feature: Seminar event cancellation basic
       | sessiontimezone     | Pacific/Auckland |
       | timestart[day]      | 10               |
       | timestart[month]    | 2                |
-      | timestart[year]     | 2025             |
+      | timestart[year]     | 2030             |
       | timestart[hour]     | 9                |
       | timestart[minute]   | 0                |
       | timestart[timezone] | Pacific/Auckland |
       | timefinish[day]     | 10               |
       | timefinish[month]   | 2                |
-      | timefinish[year]    | 2025             |
+      | timefinish[year]    | 2030             |
       | timefinish[hour]    | 15               |
       | timefinish[minute]  | 0                |
       | timefinish[timezone]| Pacific/Auckland |
@@ -71,30 +71,30 @@ Feature: Seminar event cancellation basic
     And I click on "Find Learning" in the totara menu
     And I follow "Course 1"
     And I follow "View all events"
-    Then I should see "9:00 AM - 3:00 PM Pacific/Auckland" in the "10 February 2025" "table_row"
-    And I should see "2 / 39" in the "10 February 2025" "table_row"
-    And I should see "Booking open" in the "10 February 2025" "table_row"
-    And "Cancel event" "link" should exist in the "10 February 2025" "table_row"
+    Then I should see "9:00 AM - 3:00 PM Pacific/Auckland" in the "10 February 2030" "table_row"
+    And I should see "2 / 39" in the "10 February 2030" "table_row"
+    And I should see "Booking open" in the "10 February 2030" "table_row"
+    And "Cancel event" "link" should exist in the "10 February 2030" "table_row"
 
-    When I click on "Cancel event" "link" in the "10 February 2025" "table_row"
+    When I click on "Cancel event" "link" in the "10 February 2030" "table_row"
     Then I should see "Canceling event in Test Seminar"
-    And I should see "10 February 2025, 9:00 AM - 3:00 PM Pacific/Auckland"
+    And I should see "10 February 2030, 9:00 AM - 3:00 PM Pacific/Auckland"
 
     When I press "No"
-    Then I should see "9:00 AM - 3:00 PM Pacific/Auckland" in the "10 February 2025" "table_row"
-    And I should see "2 / 39" in the "10 February 2025" "table_row"
-    And I should see "Booking open" in the "10 February 2025" "table_row"
+    Then I should see "9:00 AM - 3:00 PM Pacific/Auckland" in the "10 February 2030" "table_row"
+    And I should see "2 / 39" in the "10 February 2030" "table_row"
+    And I should see "Booking open" in the "10 February 2030" "table_row"
 
-    When I click on "Cancel event" "link" in the "10 February 2025" "table_row"
+    When I click on "Cancel event" "link" in the "10 February 2030" "table_row"
     And I press "Yes"
-    Then I should see "9:00 AM - 3:00 PM Pacific/Auckland" in the "10 February 2025" "table_row"
-    And I should see "2 / 39" in the "10 February 2025" "table_row"
-    And I should see "Event cancelled" in the "10 February 2025" "table_row"
-    And I should see "Sign-up unavailable" in the "10 February 2025" "table_row"
-    And "Cancel event" "link" should not exist in the "10 February 2025" "table_row"
-    And "Copy event" "link" should exist in the "10 February 2025" "table_row"
-    And "Delete event" "link" should exist in the "10 February 2025" "table_row"
-    And "Edit event" "link" should not exist in the "10 February 2025" "table_row"
+    Then I should see "9:00 AM - 3:00 PM Pacific/Auckland" in the "10 February 2030" "table_row"
+    And I should see "2 / 39" in the "10 February 2030" "table_row"
+    And I should see "Event cancelled" in the "10 February 2030" "table_row"
+    And I should see "Sign-up unavailable" in the "10 February 2030" "table_row"
+    And "Cancel event" "link" should not exist in the "10 February 2030" "table_row"
+    And "Copy event" "link" should exist in the "10 February 2030" "table_row"
+    And "Delete event" "link" should exist in the "10 February 2030" "table_row"
+    And "Edit event" "link" should not exist in the "10 February 2030" "table_row"
 
     And I navigate to "Events report" node in "Site administration > Seminars"
     And I should see "N/A" in the ".session_bookingstatus div span" "css_element"
@@ -105,14 +105,14 @@ Feature: Seminar event cancellation basic
     And I click on "Find Learning" in the totara menu
     And I follow "Course 1"
     And I follow "View all events"
-    Then I should see "9:00 AM - 3:00 PM Pacific/Auckland" in the "10 February 2025" "table_row"
-    And I should see "2 / 39" in the "10 February 2025" "table_row"
-    And I should see "Sign-up unavailable" in the "10 February 2025" "table_row"
-    And I should see "Event cancelled" in the "10 February 2025" "table_row"
-    And "Cancel event" "link" should not exist in the "10 February 2025" "table_row"
-    And "Copy event" "link" should exist in the "10 February 2025" "table_row"
-    And "Delete event" "link" should exist in the "10 February 2025" "table_row"
-    And "Edit event" "link" should not exist in the "10 February 2025" "table_row"
+    Then I should see "9:00 AM - 3:00 PM Pacific/Auckland" in the "10 February 2030" "table_row"
+    And I should see "2 / 39" in the "10 February 2030" "table_row"
+    And I should see "Sign-up unavailable" in the "10 February 2030" "table_row"
+    And I should see "Event cancelled" in the "10 February 2030" "table_row"
+    And "Cancel event" "link" should not exist in the "10 February 2030" "table_row"
+    And "Copy event" "link" should exist in the "10 February 2030" "table_row"
+    And "Delete event" "link" should exist in the "10 February 2030" "table_row"
+    And "Edit event" "link" should not exist in the "10 February 2030" "table_row"
 
 
   # ----------------------------------------------------------------------------
@@ -125,13 +125,13 @@ Feature: Seminar event cancellation basic
       | sessiontimezone     | Pacific/Auckland |
       | timestart[day]      | 10               |
       | timestart[month]    | 2                |
-      | timestart[year]     | 2025             |
+      | timestart[year]     | 2030             |
       | timestart[hour]     | 9                |
       | timestart[minute]   | 0                |
       | timestart[timezone] | Pacific/Auckland |
       | timefinish[day]     | 10               |
       | timefinish[month]   | 2                |
-      | timefinish[year]    | 2025             |
+      | timefinish[year]    | 2030             |
       | timefinish[hour]    | 15               |
       | timefinish[minute]  | 0                |
       | timefinish[timezone]| Pacific/Auckland |
@@ -143,13 +143,13 @@ Feature: Seminar event cancellation basic
       | sessiontimezone     | Pacific/Auckland |
       | timestart[day]      | 11               |
       | timestart[month]    | 3                |
-      | timestart[year]     | 2026             |
+      | timestart[year]     | 2031             |
       | timestart[hour]     | 10               |
       | timestart[minute]   | 0                |
       | timestart[timezone] | Pacific/Auckland |
       | timefinish[day]     | 11               |
       | timefinish[month]   | 3                |
-      | timefinish[year]    | 2026             |
+      | timefinish[year]    | 2031             |
       | timefinish[hour]    | 16               |
       | timefinish[minute]  | 0                |
       | timefinish[timezone]| Pacific/Auckland |
@@ -168,23 +168,23 @@ Feature: Seminar event cancellation basic
     And I press "Confirm"
 
     When I follow "Go back"
-    Then I should see "9:00 AM - 3:00 PM Pacific/Auckland" in the "10 February 2025" "table_row"
-    And I should see "10:00 AM - 4:00 PM Pacific/Auckland" in the "11 March 2026" "table_row"
-    And I should see "2 / 39" in the "10 February 2025" "table_row"
-    And I should see "Booking open" in the "10 February 2025" "table_row"
-    And "Cancel event" "link" should exist in the "10 February 2025" "table_row"
+    Then I should see "9:00 AM - 3:00 PM Pacific/Auckland" in the "10 February 2030" "table_row"
+    And I should see "10:00 AM - 4:00 PM Pacific/Auckland" in the "11 March 2031" "table_row"
+    And I should see "2 / 39" in the "10 February 2030" "table_row"
+    And I should see "Booking open" in the "10 February 2030" "table_row"
+    And "Cancel event" "link" should exist in the "10 February 2030" "table_row"
 
-    When I click on "Cancel event" "link" in the "10 February 2025" "table_row"
+    When I click on "Cancel event" "link" in the "10 February 2030" "table_row"
     And I press "Yes"
-    Then I should see "9:00 AM - 3:00 PM Pacific/Auckland" in the "10 February 2025" "table_row"
-    And I should see "10:00 AM - 4:00 PM Pacific/Auckland" in the "11 March 2026" "table_row"
-    And I should see "2 / 39" in the "10 February 2025" "table_row"
-    And I should see "Event cancelled" in the "10 February 2025" "table_row"
-    And I should see "Sign-up unavailable" in the "10 February 2025" "table_row"
-    And "Cancel event" "link" should not exist in the "10 February 2025" "table_row"
-    And "Copy event" "link" should exist in the "10 February 2025" "table_row"
-    And "Delete event" "link" should exist in the "10 February 2025" "table_row"
-    And "Edit event" "link" should not exist in the "10 February 2025" "table_row"
+    Then I should see "9:00 AM - 3:00 PM Pacific/Auckland" in the "10 February 2030" "table_row"
+    And I should see "10:00 AM - 4:00 PM Pacific/Auckland" in the "11 March 2031" "table_row"
+    And I should see "2 / 39" in the "10 February 2030" "table_row"
+    And I should see "Event cancelled" in the "10 February 2030" "table_row"
+    And I should see "Sign-up unavailable" in the "10 February 2030" "table_row"
+    And "Cancel event" "link" should not exist in the "10 February 2030" "table_row"
+    And "Copy event" "link" should exist in the "10 February 2030" "table_row"
+    And "Delete event" "link" should exist in the "10 February 2030" "table_row"
+    And "Edit event" "link" should not exist in the "10 February 2030" "table_row"
 
 
   # ----------------------------------------------------------------------------
@@ -197,13 +197,13 @@ Feature: Seminar event cancellation basic
       | sessiontimezone     | Pacific/Auckland |
       | timestart[day]      | 10               |
       | timestart[month]    | 2                |
-      | timestart[year]     | 2025             |
+      | timestart[year]     | 2030             |
       | timestart[hour]     | 9                |
       | timestart[minute]   | 0                |
       | timestart[timezone] | Pacific/Auckland |
       | timefinish[day]     | 10               |
       | timefinish[month]   | 2                |
-      | timefinish[year]    | 2025             |
+      | timefinish[year]    | 2030             |
       | timefinish[hour]    | 15               |
       | timefinish[minute]  | 0                |
       | timefinish[timezone]| Pacific/Auckland |
@@ -248,7 +248,7 @@ Feature: Seminar event cancellation basic
     And I click on "Find Learning" in the totara menu
     And I follow "Course 1"
     And I follow "View all events"
-    Then I should see "9:00 AM - 3:00 PM Pacific/Auckland" in the "10 February 2025" "table_row"
+    Then I should see "9:00 AM - 3:00 PM Pacific/Auckland" in the "10 February 2030" "table_row"
     And I should see date "-10 day Pacific/Auckland" formatted "%d %B %Y"
     And I should see "10:00 AM - 4:00 PM Pacific/Auckland"
     And I should see "2 / 39" in the "10:00 AM - 4:00 PM Pacific/Auckland" "table_row"
@@ -263,7 +263,7 @@ Feature: Seminar event cancellation basic
     And I click on "Find Learning" in the totara menu
     And I follow "Course 1"
     And I follow "View all events"
-    Then I should see "9:00 AM - 3:00 PM Pacific/Auckland" in the "10 February 2025" "table_row"
+    Then I should see "9:00 AM - 3:00 PM Pacific/Auckland" in the "10 February 2030" "table_row"
     And I should see date "-10 day Pacific/Auckland" formatted "%d %B %Y"
     And I should see "10:00 AM - 4:00 PM Pacific/Auckland"
     And I should see "2 / 39" in the "10:00 AM - 4:00 PM Pacific/Auckland" "table_row"
@@ -284,13 +284,13 @@ Feature: Seminar event cancellation basic
       | sessiontimezone     | Pacific/Auckland |
       | timestart[day]      | 10               |
       | timestart[month]    | 2                |
-      | timestart[year]     | 2025             |
+      | timestart[year]     | 2030             |
       | timestart[hour]     | 9                |
       | timestart[minute]   | 0                |
       | timestart[timezone] | Pacific/Auckland |
       | timefinish[day]     | 10               |
       | timefinish[month]   | 2                |
-      | timefinish[year]    | 2025             |
+      | timefinish[year]    | 2030             |
       | timefinish[hour]    | 15               |
       | timefinish[minute]  | 0                |
       | timefinish[timezone]| Pacific/Auckland |
@@ -330,7 +330,7 @@ Feature: Seminar event cancellation basic
     And I press "Confirm"
 
     When I follow "Go back"
-    Then I should see "9:00 AM - 3:00 PM Pacific/Auckland" in the "10 February 2025" "table_row"
+    Then I should see "9:00 AM - 3:00 PM Pacific/Auckland" in the "10 February 2030" "table_row"
     And I should see date "0 day Pacific/Auckland" formatted "%d %B %Y"
     And I should see "12:05 AM - 11:55 PM Pacific/Auckland"
     And I should see "2 / 39" in the "12:05 AM - 11:55 PM Pacific/Auckland" "table_row"
@@ -345,7 +345,7 @@ Feature: Seminar event cancellation basic
     And I click on "Find Learning" in the totara menu
     And I follow "Course 1"
     And I follow "View all events"
-    Then I should see "9:00 AM - 3:00 PM Pacific/Auckland" in the "10 February 2025" "table_row"
+    Then I should see "9:00 AM - 3:00 PM Pacific/Auckland" in the "10 February 2030" "table_row"
     And I should see date "0 day Pacific/Auckland" formatted "%d %B %Y"
     And I should see "12:05 AM - 11:55 PM Pacific/Auckland"
     And I should see "2 / 39" in the "12:05 AM - 11:55 PM Pacific/Auckland" "table_row"

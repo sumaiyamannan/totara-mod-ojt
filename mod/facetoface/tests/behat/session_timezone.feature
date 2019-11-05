@@ -71,13 +71,13 @@ Feature: Seminar session date with timezone management
       | sessiontimezone      | Pacific/Auckland |
       | timestart[day]       | 2                |
       | timestart[month]     | 1                |
-      | timestart[year]      | 2020             |
+      | timestart[year]      | 2030             |
       | timestart[hour]      | 3                |
       | timestart[minute]    | 0                |
       | timestart[timezone]  | Europe/Prague    |
       | timefinish[day]      | 2                |
       | timefinish[month]    | 1                |
-      | timefinish[year]     | 2020             |
+      | timefinish[year]     | 2030             |
       | timefinish[hour]     | 4                |
       | timefinish[minute]   | 0                |
       | timefinish[timezone] | Europe/Prague    |
@@ -93,13 +93,13 @@ Feature: Seminar session date with timezone management
       | sessiontimezone      | User timezone |
       | timestart[day]       | 3             |
       | timestart[month]     | 2             |
-      | timestart[year]      | 2021          |
+      | timestart[year]      | 2031          |
       | timestart[hour]      | 9             |
       | timestart[minute]    | 0             |
       | timestart[timezone]  | Europe/London |
       | timefinish[day]      | 3             |
       | timefinish[month]    | 2             |
-      | timefinish[year]     | 2021          |
+      | timefinish[year]     | 2031          |
       | timefinish[hour]     | 11            |
       | timefinish[minute]   | 0             |
       | timefinish[timezone] | Europe/Prague |
@@ -117,13 +117,13 @@ Feature: Seminar session date with timezone management
       | sessiontimezone      | Pacific/Auckland |
       | timestart[day]       | 2                |
       | timestart[month]     | January          |
-      | timestart[year]      | 2020             |
+      | timestart[year]      | 2030             |
       | timestart[hour]      | 15               |
       | timestart[minute]    | 00               |
       | timestart[timezone]  | Pacific/Auckland |
       | timefinish[day]      | 2                |
       | timefinish[month]    | January          |
-      | timefinish[year]     | 2020             |
+      | timefinish[year]     | 2030             |
       | timefinish[hour]     | 16               |
       | timefinish[minute]   | 00               |
       | timefinish[timezone] | Pacific/Auckland |
@@ -135,13 +135,13 @@ Feature: Seminar session date with timezone management
       | sessiontimezone      | User timezone    |
       | timestart[day]       | 3                |
       | timestart[month]     | February         |
-      | timestart[year]      | 2021             |
+      | timestart[year]      | 2031             |
       | timestart[hour]      | 17               |
       | timestart[minute]    | 00               |
       | timestart[timezone]  | Australia/Perth  |
       | timefinish[day]      | 3                |
       | timefinish[month]    | February         |
-      | timefinish[year]     | 2021             |
+      | timefinish[year]     | 2031             |
       | timefinish[hour]     | 18               |
       | timefinish[minute]   | 00               |
       | timefinish[timezone] | Australia/Perth  |
@@ -154,14 +154,14 @@ Feature: Seminar session date with timezone management
       | timefinish[timezone] | Pacific/Auckland |
 
     And I set the following fields to these values:
-      | timestart[day]       | 4             |
+      | timestart[day]       | 2             |
       | timestart[month]     | 4             |
-      | timestart[year]      | 2022          |
+      | timestart[year]      | 2035          |
       | timestart[hour]      | 1             |
       | timestart[minute]    | 00            |
-      | timefinish[day]      | 4             |
+      | timefinish[day]      | 2             |
       | timefinish[month]    | 4             |
-      | timefinish[year]     | 2022          |
+      | timefinish[year]     | 2035          |
       | timefinish[hour]     | 2             |
       | timefinish[minute]   | 00            |
       | sessiontimezone      | Europe/Prague |

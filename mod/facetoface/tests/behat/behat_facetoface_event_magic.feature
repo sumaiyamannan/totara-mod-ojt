@@ -23,13 +23,13 @@ Feature: Test steps in behat_facetoface.php
       | sessiontimezone     | Pacific/Auckland |
       | timestart[day]      | 10               |
       | timestart[month]    | 2                |
-      | timestart[year]     | 2025             |
+      | timestart[year]     | 2035             |
       | timestart[hour]     | 9                |
       | timestart[minute]   | 0                |
       | timestart[timezone] | Pacific/Auckland |
       | timefinish[day]     | 10               |
       | timefinish[month]   | 2                |
-      | timefinish[year]    | 2025             |
+      | timefinish[year]    | 2035             |
       | timefinish[hour]    | 15               |
       | timefinish[minute]  | 0                |
       | timefinish[timezone]| Pacific/Auckland |
@@ -41,26 +41,26 @@ Feature: Test steps in behat_facetoface.php
       | sessiontimezone     | Pacific/Auckland |
       | timestart[day]      | 11               |
       | timestart[month]    | 3                |
-      | timestart[year]     | 2026             |
+      | timestart[year]     | 2036             |
       | timestart[hour]     | 10               |
       | timestart[minute]   | 0                |
       | timestart[timezone] | Pacific/Auckland |
       | timefinish[day]     | 11               |
       | timefinish[month]   | 3                |
-      | timefinish[year]    | 2026             |
+      | timefinish[year]    | 2036             |
       | timefinish[hour]    | 16               |
       | timefinish[minute]  | 0                |
       | timefinish[timezone]| Pacific/Auckland |
     And I click on "OK" "button" in the "Select date" "totaradialogue"
 
     When I press "Save changes"
-    Then I should see "9:00 AM - 3:00 PM Pacific/Auckland" in the "10 February 2025" "table_row"
-    And I should see "10:00 AM - 4:00 PM Pacific/Auckland" in the "11 March 2026" "table_row"
+    Then I should see "9:00 AM - 3:00 PM Pacific/Auckland" in the "10 February 2035" "table_row"
+    And I should see "10:00 AM - 4:00 PM Pacific/Auckland" in the "11 March 2036" "table_row"
 
-    When I use magic to adjust the seminar event "start" from "11/03/2026 10:00" "Pacific/Auckland" to "11/03/2000 09:00"
-    And I use magic to adjust the seminar event "end" from "11/03/2026 16:00" "Pacific/Auckland" to "11/03/2000 14:00"
+    When I use magic to adjust the seminar event "start" from "11/03/2036 10:00" "Pacific/Auckland" to "11/03/2000 09:00"
+    And I use magic to adjust the seminar event "end" from "11/03/2036 16:00" "Pacific/Auckland" to "11/03/2000 14:00"
     And I click on "Find Learning" in the totara menu
     And I follow "Course 1"
     And I follow "View all events"
-    Then I should see "9:00 AM - 3:00 PM Pacific/Auckland" in the "10 February 2025" "table_row"
+    Then I should see "9:00 AM - 3:00 PM Pacific/Auckland" in the "10 February 2035" "table_row"
     And I should see "9:00 AM - 2:00 PM Pacific/Auckland" in the "11 March 2000" "table_row"

@@ -147,10 +147,10 @@ Feature: Sign up status
   Examples:
   | periodopen | startyear | startzone        | periodclose | endyear | endzone         | signupavailable     | bookingstatus                | signupperiod                                                                 |
   | 1          | 2014      | Australia/Perth  | 1           | 2015    | Australia/Perth | Sign-up unavailable | Sign-up period is now closed | 30 July 2014 1:00 AM Australia/Perth to 30 July 2015 1:00 AM Australia/Perth |
-  | 1          | 2014      | Australia/Perth  | 1           | 2030    | Australia/Perth | Join waitlist       | Booking open                 | 30 July 2014 1:00 AM Australia/Perth to 30 July 2030 1:00 AM Australia/Perth |
-  | 1          | 2029      | Australia/Perth  | 1           | 2030    | Australia/Perth | Sign-up unavailable | Sign-up period not open      | 30 July 2029 1:00 AM Australia/Perth to 30 July 2030 1:00 AM Australia/Perth |
-  | 1          | 2029      | Pacific/Honolulu | 1           | 2030    | Pacific/Fiji    | Sign-up unavailable | Sign-up period not open      | 30 July 2029 7:00 PM Australia/Perth to 29 July 2030 9:00 PM Australia/Perth |
-  | 0          | 2029      | Australia/Perth  | 0           | 2030    | Australia/Perth | Join waitlist       | Booking open                 | Booking open                                                                 |
-  | 1          | 2029      | Australia/Perth  | 0           | 2030    | Australia/Perth | Sign-up unavailable | Sign-up period not open      | After 30 July 2029 1:00 AM Australia/Perth                                   |
-  | 0          | 2029      | Australia/Perth  | 1           | 2030    | Australia/Perth | Join waitlist       | Booking open                 | Before 30 July 2030 1:00 AM Australia/Perth                                  |
+  | 1          | 2014      | Australia/Perth  | 1           | 2031    | Australia/Perth | Join waitlist       | Booking open                 | 30 July 2014 1:00 AM Australia/Perth to 30 July 2031 1:00 AM Australia/Perth |
+  | 1          | 2030      | Australia/Perth  | 1           | 2031    | Australia/Perth | Sign-up unavailable | Sign-up period not open      | 30 July 2030 1:00 AM Australia/Perth to 30 July 2031 1:00 AM Australia/Perth |
+  | 1          | 2030      | Pacific/Honolulu | 1           | 2031    | Pacific/Fiji    | Sign-up unavailable | Sign-up period not open      | 30 July 2030 7:00 PM Australia/Perth to 29 July 2031 9:00 PM Australia/Perth |
+  | 0          | 2030      | Australia/Perth  | 0           | 2031    | Australia/Perth | Join waitlist       | Booking open                 | Booking open                                                                 |
+  | 1          | 2030      | Australia/Perth  | 0           | 2031    | Australia/Perth | Sign-up unavailable | Sign-up period not open      | After 30 July 2030 1:00 AM Australia/Perth                                   |
+  | 0          | 2030      | Australia/Perth  | 1           | 2031    | Australia/Perth | Join waitlist       | Booking open                 | Before 30 July 2031 1:00 AM Australia/Perth                                  |
 

@@ -151,7 +151,7 @@ Feature: Filter seminar events in calendar by their customfields
       | customfield_datetime[enabled] | 1               |
       | customfield_datetime[day]     | 15              |
       | customfield_datetime[month]   | 12              |
-      | customfield_datetime[year]    | 2020            |
+      | customfield_datetime[year]    | 2030            |
       | Menu of choices               | Choice 2        |
       | Text area                     | Big text        |
     # Untick default - only Option 2 selected
@@ -169,7 +169,7 @@ Feature: Filter seminar events in calendar by their customfields
       | customfield_datetime[enabled] | 1             |
       | customfield_datetime[day]     | 13            |
       | customfield_datetime[month]   | 12            |
-      | customfield_datetime[year]    | 2020          |
+      | customfield_datetime[year]    | 2030          |
       | Menu of choices               | Choice 3      |
       | Text area                     | Some text     |
     # Option 1 selected by default
@@ -186,7 +186,7 @@ Feature: Filter seminar events in calendar by their customfields
       | customfield_datetime[enabled] | 1               |
       | customfield_datetime[day]     | 15              |
       | customfield_datetime[month]   | 12              |
-      | customfield_datetime[year]    | 2020            |
+      | customfield_datetime[year]    | 2030            |
       | Menu of choices               | Choice 1        |
       | Text area                     | New text        |
     # Untick default - only Option 2 selected
@@ -204,7 +204,7 @@ Feature: Filter seminar events in calendar by their customfields
       | customfield_datetime[enabled] | 1             |
       | customfield_datetime[day]     | 13            |
       | customfield_datetime[month]   | 12            |
-      | customfield_datetime[year]    | 2020          |
+      | customfield_datetime[year]    | 2030          |
       | Menu of choices               | Choice 3      |
       | Text area                     | Some text     |
     # Leave default - Options 1 and 2 selected
@@ -248,7 +248,7 @@ Feature: Filter seminar events in calendar by their customfields
       | customfield_datetime[enabled] | 1             |
       | customfield_datetime[day]     | 13            |
       | customfield_datetime[month]   | 11            |
-      | customfield_datetime[year]    | 2020          |
+      | customfield_datetime[year]    | 2030          |
       | Menu of choices               | Choice 1      |
       | Text area                     | My area       |
     And I click on "#id_customfield_multiselect_0" "css_element"
@@ -289,7 +289,7 @@ Feature: Filter seminar events in calendar by their customfields
       | customfield_datetime[enabled] | 1            |
       | customfield_datetime[day]     | 15           |
       | customfield_datetime[month]   | 11           |
-      | customfield_datetime[year]    | 2020         |
+      | customfield_datetime[year]    | 2030         |
       | Menu of choices               | Choice 2     |
       | Text area                     | Input area   |
     And I click on "#id_customfield_multiselect_0" "css_element"

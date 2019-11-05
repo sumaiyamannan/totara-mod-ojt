@@ -29,13 +29,13 @@ Feature: I can add and edit seminar session dates
     And I set the following fields to these values:
       | timestart[day]       | 1                |
       | timestart[month]     | 1                |
-      | timestart[year]      | 2020             |
+      | timestart[year]      | 2030             |
       | timestart[hour]      | 10               |
       | timestart[minute]    | 00               |
       | timestart[timezone]  | Pacific/Auckland |
       | timefinish[day]      | 1                |
       | timefinish[month]    | 1                |
-      | timefinish[year]     | 2020             |
+      | timefinish[year]     | 2030             |
       | timefinish[hour]     | 11               |
       | timefinish[minute]   | 00               |
       | timefinish[timezone] | Pacific/Auckland |
@@ -45,9 +45,9 @@ Feature: I can add and edit seminar session dates
     And I press "Save changes"
     And I should not see "The cut-off for minimum capacity is after the events earliest start date, it must be before to have any effect."
     And I should see "Upcoming events"
-    And I should see "1 January 2020"
-    And I use magic to adjust the seminar event "start" from "01/01/2020 10:00" "Pacific/Auckland" to "26/10/2016 10:00"
-    And I use magic to adjust the seminar event "end" from "01/01/2020 11:00" "Pacific/Auckland" to "26/10/2016 11:00"
+    And I should see "1 January 2030"
+    And I use magic to adjust the seminar event "start" from "01/01/2030 10:00" "Pacific/Auckland" to "26/10/2016 10:00"
+    And I use magic to adjust the seminar event "end" from "01/01/2030 11:00" "Pacific/Auckland" to "26/10/2016 11:00"
 
     When I follow "Test seminar name"
     Then I should see "Upcoming events"
@@ -89,13 +89,13 @@ Feature: I can add and edit seminar session dates
     And I set the following fields to these values:
       | timestart[day]       | 1                |
       | timestart[month]     | 1                |
-      | timestart[year]      | 2020             |
+      | timestart[year]      | 2030             |
       | timestart[hour]      | 10               |
       | timestart[minute]    | 00               |
       | timestart[timezone]  | Pacific/Auckland |
       | timefinish[day]      | 1                |
       | timefinish[month]    | 1                |
-      | timefinish[year]     | 2020             |
+      | timefinish[year]     | 2030             |
       | timefinish[hour]     | 11               |
       | timefinish[minute]   | 00               |
       | timefinish[timezone] | Pacific/Auckland |
@@ -105,7 +105,7 @@ Feature: I can add and edit seminar session dates
     When I press "Save changes"
     Then I should not see "The cut-off for minimum capacity is after the events earliest start date, it must be before to have any effect."
     And I should see "Upcoming events"
-    And I should see "1 January 2020"
+    And I should see "1 January 2030"
 
     When I click to edit the seminar session in row 1
     Then I should see "Editing event in Test seminar name"
@@ -123,13 +123,13 @@ Feature: I can add and edit seminar session dates
     And I set the following fields to these values:
       | timestart[day]       | 3                |
       | timestart[month]     | 2                |
-      | timestart[year]      | 2020             |
+      | timestart[year]      | 2030             |
       | timestart[hour]      | 10               |
       | timestart[minute]    | 00               |
       | timestart[timezone]  | Pacific/Auckland |
       | timefinish[day]      | 3                |
       | timefinish[month]    | 2                |
-      | timefinish[year]     | 2020             |
+      | timefinish[year]     | 2030             |
       | timefinish[hour]     | 11               |
       | timefinish[minute]   | 00               |
       | timefinish[timezone] | Pacific/Auckland |
@@ -153,13 +153,13 @@ Feature: I can add and edit seminar session dates
     And I set the following fields to these values:
       | timestart[day]       | 1                |
       | timestart[month]     | 1                |
-      | timestart[year]      | 2020             |
+      | timestart[year]      | 2030             |
       | timestart[hour]      | 10               |
       | timestart[minute]    | 00               |
       | timestart[timezone]  | Pacific/Auckland |
       | timefinish[day]      | 1                |
       | timefinish[month]    | 1                |
-      | timefinish[year]     | 2020             |
+      | timefinish[year]     | 2030             |
       | timefinish[hour]     | 11               |
       | timefinish[minute]   | 00               |
       | timefinish[timezone] | Pacific/Auckland |
@@ -173,9 +173,9 @@ Feature: I can add and edit seminar session dates
     And I press "Save changes"
     And I should not see "The cut-off for minimum capacity is after the events earliest start date, it must be before to have any effect."
     And I should see "Upcoming events"
-    And I should see "1 January 2020"
-    And I use magic to adjust the seminar event "start" from "01/01/2020 10:00" "Pacific/Auckland" to "26/10/2016 10:00"
-    And I use magic to adjust the seminar event "end" from "01/01/2020 11:00" "Pacific/Auckland" to "26/10/2016 11:00"
+    And I should see "1 January 2030"
+    And I use magic to adjust the seminar event "start" from "01/01/2030 10:00" "Pacific/Auckland" to "26/10/2016 10:00"
+    And I use magic to adjust the seminar event "end" from "01/01/2030 11:00" "Pacific/Auckland" to "26/10/2016 11:00"
 
     When I follow "Test seminar name"
     Then I should see "Upcoming events"
@@ -227,13 +227,13 @@ Feature: I can add and edit seminar session dates
     And I set the following fields to these values:
       | timestart[day]       | 1                |
       | timestart[month]     | 1                |
-      | timestart[year]      | 2020             |
+      | timestart[year]      | 2030             |
       | timestart[hour]      | 10               |
       | timestart[minute]    | 00               |
       | timestart[timezone]  | Pacific/Auckland |
       | timefinish[day]      | 1                |
       | timefinish[month]    | 1                |
-      | timefinish[year]     | 2020             |
+      | timefinish[year]     | 2030             |
       | timefinish[hour]     | 11               |
       | timefinish[minute]   | 00               |
       | timefinish[timezone] | Pacific/Auckland |
@@ -247,7 +247,7 @@ Feature: I can add and edit seminar session dates
     When I press "Save changes"
     Then I should not see "The cut-off for minimum capacity is after the events earliest start date, it must be before to have any effect."
     And I should see "Upcoming events"
-    And I should see "1 January 2020"
+    And I should see "1 January 2030"
 
     When I click to edit the seminar session in row 1
     Then I should see "Editing event in Test seminar name"
@@ -265,13 +265,13 @@ Feature: I can add and edit seminar session dates
     And I set the following fields to these values:
       | timestart[day]       | 3                |
       | timestart[month]     | 2                |
-      | timestart[year]      | 2020             |
+      | timestart[year]      | 2030             |
       | timestart[hour]      | 10               |
       | timestart[minute]    | 00               |
       | timestart[timezone]  | Pacific/Auckland |
       | timefinish[day]      | 3                |
       | timefinish[month]    | 2                |
-      | timefinish[year]     | 2020             |
+      | timefinish[year]     | 2030             |
       | timefinish[hour]     | 11               |
       | timefinish[minute]   | 00               |
       | timefinish[timezone] | Pacific/Auckland |

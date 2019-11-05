@@ -30,13 +30,13 @@ Feature: My Future Bookings seminar sessions report overview
       | sessiontimezone      | Europe/Prague   |
       | timestart[day]       | 2               |
       | timestart[month]     | 5               |
-      | timestart[year]      | 2020            |
+      | timestart[year]      | 2030            |
       | timestart[hour]      | 1               |
       | timestart[minute]    | 15              |
       | timestart[timezone]  | Europe/Prague   |
       | timefinish[day]      | 2               |
       | timefinish[month]    | 5               |
-      | timefinish[year]     | 2020            |
+      | timefinish[year]     | 2030            |
       | timefinish[hour]     | 3               |
       | timefinish[minute]   | 45              |
       | timefinish[timezone] | Europe/Prague   |
@@ -48,12 +48,12 @@ Feature: My Future Bookings seminar sessions report overview
     And I set the following fields to these values:
       | timestart[day]       | 2               |
       | timestart[month]     | 4               |
-      | timestart[year]      | 2020            |
+      | timestart[year]      | 2030            |
       | timestart[hour]      | 1               |
       | timestart[minute]    | 15              |
       | timefinish[day]      | 2               |
       | timefinish[month]    | 4               |
-      | timefinish[year]     | 2020            |
+      | timefinish[year]     | 2030            |
       | timefinish[hour]     | 3               |
       | timefinish[minute]   | 45              |
     And I press "OK"

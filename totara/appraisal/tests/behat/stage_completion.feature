@@ -36,7 +36,7 @@ Feature: Test appraisal stage completion with missing roles
       | Appraisal1  |
     And the following "stages" exist in "totara_appraisal" plugin:
       | appraisal   | name       | timedue                 |
-      | Appraisal1  | App1_Stage | 1 January 2020 23:59:59 |
+      | Appraisal1  | App1_Stage | 1 January 2030 23:59:59 |
     And the following "pages" exist in "totara_appraisal" plugin:
       | appraisal   | stage      | name      |
       | Appraisal1  | App1_Stage | App1_Page |
@@ -288,7 +288,7 @@ Feature: Test appraisal stage completion with missing roles
       | timedue[enabled]      | 1                       |
       | timedue[day]          | 31                      |
       | timedue[month]        | 12                      |
-      | timedue[year]         | 2020                    |
+      | timedue[year]         | 2030                    |
       | Page names (optional) | App1 Page2              |
     And I click on "Add stage" "button" in the ".fitem_actionbuttons" "css_element"
     Then I should see "App1 Stage2" in the ".appraisal-stages" "css_element"
