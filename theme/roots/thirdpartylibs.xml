@@ -11,7 +11,7 @@
     <location>amd/src/bootstrap.js</location>
     <name>Bootstrap</name>
     <license>MIT</license>
-    <version>3.3.7</version>
+    <version>3.3.4</version>
     <licenseversion></licenseversion>
   </library>
 </libraries>
