@@ -223,6 +223,9 @@
         <KEY NAME="appruserassi_act_fk" TYPE="foreign" FIELDS="activestageid" REFTABLE="appraisal_stage" REFFIELDS="id"/>
         <KEY NAME="appruserassi_job_fk" TYPE="foreign" FIELDS="jobassignmentid" REFTABLE="job_assignment" REFFIELDS="id"/>
       </KEYS>
+      <INDEXES>
+        <INDEX NAME="appruserassi_usrappr_ix" UNIQUE="true" FIELDS="appraisalid, userid"/>
+      </INDEXES>
     </TABLE>
     <TABLE NAME="appraisal_role_assignment" COMMENT="Individual user assignments by their roles">
       <FIELDS>

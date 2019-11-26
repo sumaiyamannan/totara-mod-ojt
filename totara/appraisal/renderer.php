@@ -31,6 +31,7 @@ require_once($CFG->dirroot.'/totara/appraisal/constants.php');
 require_once($CFG->dirroot.'/totara/job/classes/job_assignment.php');
 
 use totara_job\job_assignment;
+use totara_appraisal\task\update_assignments_adhoc_task;
 
 /**
  * Output renderer for totara_appraisals module
@@ -1297,11 +1298,11 @@ class totara_appraisal_renderer extends plugin_renderer_base {
      * @return  string      HTML
      */
     public function display_notlive_notice($appraisalid, $canassign = false) {
+        if ($canassign
+            && !update_assignments_adhoc_task::is_queued($appraisalid)
+        ) {
+            $out = get_string('changesnotlive', 'totara_appraisal');
 
-        // Not live notification text.
-        $out = get_string('changesnotlive', 'totara_appraisal');
-
-        if ($canassign) {
             // Update learner assignments button.
             $updatestr = get_string('updatenow', 'totara_appraisal');
             $updateparams = array('appraisalid' => $appraisalid, 'update' => true, 'sesskey' => sesskey());
@@ -1309,9 +1310,11 @@ class totara_appraisal_renderer extends plugin_renderer_base {
             $updatebutton = new single_button($updateurl, $updatestr, 'get');
             $updatebutton->class .= ' update_assignment_records';
             $out .= $this->render($updatebutton);
+        } else {
+            $out = get_string('assignmentstaskqueued', 'totara_appraisal');
         }
 
-        return $this->container($out, 'notifynotice');
+        return $this->container($out, 'notifymessage alert alert-info');
     }
 
     /**

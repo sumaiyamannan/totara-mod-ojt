@@ -376,5 +376,11 @@ function xmldb_totara_appraisal_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2016092003, 'totara', 'appraisal');
     }
 
+    // TL-22800 fix duplicate user assignments
+    if ($oldversion < 2016092006) {
+        totara_appraisal_upgrade_add_user_assignment_index();
+        upgrade_plugin_savepoint(true, 2016092006, 'totara', 'appraisal');
+    }
+
     return true;
 }

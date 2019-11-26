@@ -137,3 +137,44 @@ function totara_appraisal_upgrade_fix_inconsistent_multichoice_param1() {
 
     $DB->execute($sql, $params);
 }
+
+/**
+ * TL-22800 fix duplicate user assignments
+ *
+ * There was production issue in which there was a race condition between the
+ * appraisal assignment cron and the front end and in the end, there were
+ * duplicate records in the user assignment table.
+ *
+ * This fix adds a unique (appraisal, appraisee) index to the table so that
+ * duplicates will not occur any more. However, it is possible that duplicates
+ * exist prior to this upgrade. Hence, this function checks for duplicates first
+ * before creating the index; if duplicates exist, the *entire* upgrade process
+ * is stopped.
+ */
+function totara_appraisal_upgrade_add_user_assignment_index() {
+    global $DB;
+
+    $duplicates = $DB->record_exists_sql("
+        SELECT userid, appraisalid, count(appraisalid) as duplicates
+        FROM {appraisal_user_assignment}
+        GROUP BY appraisalid, userid
+        HAVING count(appraisalid) > 1
+    ");
+
+    if ($duplicates) {
+        throw new moodle_exception(
+            'notlocalisederrormessage',
+            'totara_appraisal',
+            '',
+            "UPGRADE CANNOT CONTINUE: appraisal_user_assignment table has duplicates. Please get in touch with the Totara support team and cite that your site has been affected by TL-22800"
+        );
+    }
+
+    $table = new xmldb_table('appraisal_user_assignment');
+    $index = new xmldb_index('appruserassi_usrappr_ix', XMLDB_INDEX_UNIQUE, array('appraisalid', 'userid'));
+
+    $dbman = $DB->get_manager();
+    if (!$dbman->index_exists($table, $index)) {
+        $dbman->add_index($table, $index);
+    }
+}
