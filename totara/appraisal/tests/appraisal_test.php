@@ -333,32 +333,54 @@ class appraisal_test extends appraisal_testcase {
         $count = $DB->count_records('appraisal_user_assignment', array('appraisalid' => $appraisal->id));
         $this->assertEquals(2, $count);
 
-        // Set up group.
+        // Set up groups.
         $user1 = $this->getDataGenerator()->create_user();
         $user2 = $this->getDataGenerator()->create_user();
+        $user3 = $this->getDataGenerator()->create_user();
+        $user4 = $this->getDataGenerator()->create_user();
 
-        $cohort = $this->getDataGenerator()->create_cohort();
+        $data_generator = $this->getDataGenerator();
+        $cohort = $data_generator->create_cohort();
         cohort_add_member($cohort->id, $user1->id);
         cohort_add_member($cohort->id, $user2->id);
 
-        // Add group.
+        $hierarchy_generator = $data_generator->get_plugin_generator('totara_hierarchy');
+        $org_fw = $hierarchy_generator->create_framework('organisation', ['fullname' => 'test organisation']);
+        $org_ids = $hierarchy_generator->create_hierarchies($org_fw->id, 'organisation', 1);
+        \totara_job\job_assignment::create_default($user3->id, ['organisationid' => reset($org_ids)]);
+
+        $pos_fw = $hierarchy_generator->create_framework('position', ['fullname' => 'test position']);
+        $pos_ids = $hierarchy_generator->create_hierarchies($pos_fw->id, 'position', 1);
+        \totara_job\job_assignment::create_default($user4->id, ['positionid' => reset($pos_ids)]);
+
+        // Add groups.
         $urlparams = array('includechildren' => false, 'listofvalues' => array($cohort->id));
         $assign = new totara_assign_appraisal('appraisal', $appraisal);
         $grouptypeobj = $assign->load_grouptype('cohort');
+        $grouptypeobj->handle_item_selector($urlparams);
+
+        $urlparams = array('includechildren' => false, 'listofvalues' => $org_ids);
+        $grouptypeobj = $assign->load_grouptype('org');
+        $grouptypeobj->handle_item_selector($urlparams);
+
+        $urlparams = array('includechildren' => false, 'listofvalues' => $pos_ids);
+        $grouptypeobj = $assign->load_grouptype('pos');
         $grouptypeobj->handle_item_selector($urlparams);
 
         // There should still only be 2 user assignments.
         $this->assertEquals(appraisal::STATUS_ACTIVE, $appraisal->status);
         $count = $DB->count_records('appraisal_user_assignment', array('appraisalid' => $appraisal->id));
         $this->assertEquals(2, $count);
+        $this->assertFalse($assign->is_synced(), 'assignment already synced');
 
         // Force user assignments update.
         $appraisal->check_assignment_changes();
 
-        // Check users have now gone up to 4.
+        // Check users have now gone up to 6.
         $this->assertEquals(appraisal::STATUS_ACTIVE, $appraisal->status);
         $count = $DB->count_records('appraisal_user_assignment', array('appraisalid' => $appraisal->id));
-        $this->assertEquals(4, $count);
+        $this->assertEquals(6, $count);
+        $this->assertTrue($assign->is_synced(), 'assignment not synced');
     }
 
     public function test_active_appraisal_remove_group () {
@@ -1515,5 +1537,90 @@ class appraisal_test extends appraisal_testcase {
             $this->assertFalse($DB->record_exists('appraisal_user_assignment', $params));
             $this->assertFalse($DB->record_exists('appraisal_role_assignment', $paramsrole));
         }
+    }
+
+    /**
+     * Tests the statistics returned by totara_assign_appraisal::missing_role_assignments()
+     */
+    public function test_missing_role_assignments() {
+        global $DB;
+
+        $this->resetAfterTest();
+        $this->setAdminUser();
+
+        // Set up appraisal.
+        $roles = [
+            appraisal::ROLE_LEARNER => 6,
+            appraisal::ROLE_MANAGER => 6,
+            appraisal::ROLE_TEAM_LEAD => 6,
+            appraisal::ROLE_APPRAISER => 6
+        ];
+
+        $def = array('name' => 'Appraisal', 'stages' => array(
+            array('name' => 'Stage', 'timedue' => time() + 86400, 'pages' => array(
+                array('name' => 'Page', 'questions' => array(
+                    array('name' => 'Text', 'type' => 'text', 'roles' => $roles)
+                ))
+            ))
+        ));
+        $appraisal = appraisal::build($def);
+
+        // Set up group.
+        $teamlead = $this->getDataGenerator()->create_user();
+        $manager = $this->getDataGenerator()->create_user();
+        $appraiser = $this->getDataGenerator()->create_user();
+        $user1 = $this->getDataGenerator()->create_user();
+        $user2 = $this->getDataGenerator()->create_user();
+        $user3 = $this->getDataGenerator()->create_user();
+
+        $teamleadja = \totara_job\job_assignment::create_default($teamlead->id);
+        $managerja = \totara_job\job_assignment::create_default(
+            $manager->id,
+            [
+                'managerjaid' => $teamleadja->id
+            ]
+        );
+
+        $jobassignmentmanagers = [
+            'managerjaid' => $managerja->id,
+            'appraiserid' => $appraiser->id
+        ];
+        \totara_job\job_assignment::create_default($user1->id, $jobassignmentmanagers);
+
+        $cohort = $this->getDataGenerator()->create_cohort();
+        cohort_add_member($cohort->id, $user1->id);
+        cohort_add_member($cohort->id, $user2->id);
+        cohort_add_member($cohort->id, $user3->id);
+
+        // Assign group and activate.
+        $urlparams = array('includechildren' => false, 'listofvalues' => array($cohort->id));
+        $assign = new totara_assign_appraisal('appraisal', $appraisal);
+        $grouptypeobj = $assign->load_grouptype('cohort');
+        $grouptypeobj->handle_item_selector($urlparams);
+
+        $appraisal->activate();
+        $this->update_job_assignments($appraisal);
+
+        $userassignments = $DB->get_records('appraisal_user_assignment', array('appraisalid' => $appraisal->id));
+        $this->assertEquals(3, count($userassignments));
+        foreach ($userassignments as $aua) {
+            $countrole = $DB->count_records('appraisal_role_assignment', array('appraisaluserassignmentid' => $aua->id));
+            $this->assertEquals(4, $countrole);
+        }
+
+        $missing = $assign->missing_role_assignments();
+        $this->assertEquals(count($userassignments), $missing->appraiseecount);
+        $this->assertEquals(1, $missing->validappraiseecount);
+
+        $this->assertTrue(array_key_exists($user2->id, $missing->roles));
+        $this->assertEquals(3, count($missing->roles[$user2->id]));
+        $this->assertTrue(array_key_exists($user3->id, $missing->roles));
+        $this->assertEquals(3, count($missing->roles[$user3->id]));
+
+        $limit = 1;
+        $missing = $assign->missing_role_assignments($limit);
+        $this->assertEquals(count($userassignments), $missing->appraiseecount);
+        $this->assertEquals(1, $missing->validappraiseecount);
+        $this->assertEquals($limit, count($missing->roles));
     }
 }

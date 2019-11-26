@@ -34,8 +34,6 @@ use totara_job\job_assignment;
 class totara_assign_appraisal extends totara_assign_core {
     protected static $module = 'appraisal';
 
-    private $job_assignment_id_cache = [];
-
     public function store_user_assignments($newusers = null, $processor = null) {
         // Define a processor function to format the data for appraisals.
         $processor = function($record, $modulekey, $moduleinstanceid) {
@@ -353,95 +351,249 @@ class totara_assign_appraisal extends totara_assign_core {
      * appraisal roles. It does not compare against the *actual* assigned roles;
      * that may NOT have been updated yet because it requires a cron run.
      *
+     * @param int $limit indicates the number of appraisees to retrieve who have
+     *        missing roles. If 0, returns all appraisees with missing roles -
+     *        this could take a long time to generate when there are a large
+     *        number of appraisees involved.
+     *
      * @return \stdClass comprising the following fields:
      *         - int $appraiseecount: no of appraisees for this appraisal.
-     *         - array $roles: mapping of appraisee ids to missing roles or an
-     *           empty mapping if nothing is missing.
+     *         - int $validappraiseecount: no of appraisees who have all valid
+     *           roles in this appraisal.
+     *         - array $roles: mapping of appraisee ids to missing roles.
+     *         - int[] nojobselected: ids of those appraisees who have no job
+     *           assignments linked to the appraisal.
      */
-    public function missing_role_assignments() {
-        $appraiseeids = $this->get_current_appraisee_ids();
+    public function missing_role_assignments($limit=0) {
+        global $DB;
 
-        $allmissing = new \stdClass();
-        $allmissing->appraiseecount = count($appraiseeids);
-        $allmissing->roles = [];
-        $allmissing->nojobselected = [];
+        $appraisee_ids = $this->get_current_appraisee_ids();
+        $appraisee_count = count($appraisee_ids);
+        $appraisal_roles = $this->moduleinstance->get_roles_involved();
+        $all_missing = (object) [
+            'appraiseecount' => $appraisee_count,
+            'validappraiseecount' => $appraisee_count,
+            'roles' => [],
+            'nojobselected' => []
+        ];
 
-        if (empty($appraiseeids)) {
-            return $allmissing;
+        if (!$appraisee_ids) {
+            return $all_missing;
         }
 
-        return array_reduce(
-            $appraiseeids,
+        $ref_cols = [
+            appraisal::ROLE_LEARNER => 'ua.jobassignmentid',
+            appraisal::ROLE_MANAGER => 'ja_learner.managerjaid',
+            appraisal::ROLE_TEAM_LEAD => 'ja_manager.managerjaid',
+            appraisal::ROLE_APPRAISER => 'ja_learner.appraiserid'
+        ];
 
-            function (\stdClass $missing, $appraisee) {
-                $roles = $this->missing_role_assignments_for_appraisee(
-                    $appraisee
-                );
-
-                if (!empty($roles)) {
-                    $missing->roles[$appraisee] = $roles;
-
-                    if (!$this->get_job_assignment_id($appraisee)) {
-                        $missing->nojobselected[] = $appraisee;
-                    }
+        $role_filters = array_reduce(
+            $appraisal_roles,
+            function ($filters, $role) use ($ref_cols) {
+                if (!array_key_exists($role, $ref_cols)) {
+                    return $filters;
                 }
 
-                return $missing;
+                $col = $ref_cols[$role];
+                $filter = "COALESCE($col, 0) = 0 AND ra.appraisalrole = $role";
+
+                return $filters ? "$filters\nOR ($filter)" : $filter;
             },
-
-            $allmissing
+            ''
         );
+
+        $from_missing = "
+            FROM
+                {appraisal_role_assignment} ra
+            INNER JOIN
+                {appraisal_user_assignment} ua on ua.id = ra.appraisaluserassignmentid
+            LEFT JOIN
+                {job_assignment} ja_learner on ja_learner.id = ua.jobassignmentid
+            LEFT JOIN
+                {job_assignment} ja_manager on ja_manager.id = ja_learner.managerjaid
+            WHERE
+                ua.appraisalid = :appraisal_id
+                AND ua.status = :appraisal_active
+                AND ($role_filters)
+        ";
+
+        // Retrieve records for the official roles in an active appraisal which
+        // do not have physical users assigned to roles as determined from the
+        // appraisee's job assignment. The SQL is complicated because:
+        // 1) The appraisal could have a variable number of non appraisee roles
+        // 2) The appraisee could have been assigned to the appraisal but have
+        //    no job assignment yet (ie multijob is on and the appraisee has yet
+        //    to select a job assignment)
+        // 3) The appraisee has a job assignment for the appraisal but that does
+        //    not have managers or appraisers.
+        //
+        // Note the ra.id column; if not there will cause $DB to complain: "Did
+        // you remember to make the first column something unique in your call
+        // to get_records".
+        $actual_missing = "
+            SELECT
+                ra.id as ra_id,
+                ua.userid as appraisee_id,
+                ra.appraisalrole as role,
+                COALESCE(ua.jobassignmentid, 0) as appraisee_jaid
+            $from_missing
+        ";
+        $params = [
+            'appraisal_id' => $this->moduleinstanceid,
+            'appraisal_active' => appraisal::STATUS_ACTIVE
+        ];
+
+        $records = $DB->get_recordset_sql($actual_missing, $params);
+        foreach ($records as $raw) {
+            $appraisee_id = $raw->appraisee_id;
+
+            $missing_roles = array_key_exists($appraisee_id, $all_missing->roles)
+                             ? $all_missing->roles[$appraisee_id] : [];
+
+            if (!in_array($raw->role, $missing_roles)) {
+                $missing_roles[] = $raw->role;
+            }
+            $all_missing->roles[$appraisee_id] = $missing_roles;
+
+            if (!$raw->appraisee_jaid
+                && !in_array($appraisee_id, $all_missing->nojobselected)
+            ) {
+                $all_missing->nojobselected[] = $appraisee_id;
+            }
+
+            if ($limit > 0 && count($all_missing->roles) >= $limit) {
+                break;
+            }
+        }
+        $records->close();
+
+        // Unfortunately cannot use $DB->count_records_sql() here; incredibly
+        // that cannot handle empty result sets!
+        $count_missing = $DB->get_record_sql(
+            "SELECT COUNT(DISTINCT ua.userid) as count_missing $from_missing",
+            $params
+        )->count_missing;
+        $all_missing->validappraiseecount -= $count_missing;
+
+        if ($limit > 0 && count($all_missing->roles) >= $limit) {
+            return $all_missing;
+        }
+
+        // Normally, the appraisal_role_assignment table is always in sync with
+        // the appraisal_user_assignment table. However, problems arise when the
+        // assignment process has to deal with a large set of appraisees: a PHP
+        // timeout occurs and PHP kills the assignment script. That results in
+        // partially filled tables (by itself, that is a problem and needs to be
+        // addressed elsewere). However, the consequence for this method is that
+        // records that should exist in the appraisal_role_assignment table are
+        // missing when data exists in the appraisal_user_assignment table.
+        // Hence this extra processing here to get hold of those missing role
+        // entries.
+        $from_missing = "
+            FROM
+                {appraisal_user_assignment} ua
+            WHERE
+                ua.appraisalid = :appraisal_id
+                AND ua.status = :appraisal_active
+                AND NOT EXISTS (
+                    SELECT ra.appraisaluserassignmentid
+                    FROM {appraisal_role_assignment} ra
+                    WHERE ra.appraisaluserassignmentid = ua.id
+                )
+        ";
+        $actual_missing = "
+            SELECT
+                ua.id as id,
+                ua.userid as appraisee_id,
+                COALESCE(ua.jobassignmentid, 0) as appraisee_jaid
+            $from_missing
+        ";
+
+        $records = $DB->get_recordset_sql($actual_missing, $params);
+        foreach ($records as $raw) {
+            $appraisee_id = $raw->appraisee_id;
+            if (!array_key_exists($appraisee_id, $all_missing->roles)) {
+                $all_missing->roles[$appraisee_id] = $appraisal_roles;
+            }
+
+            if (!$raw->appraisee_jaid && !in_array($appraisee_id, $all_missing->nojobselected)) {
+                $all_missing->nojobselected[] = $appraisee_id;
+            }
+
+            if ($limit > 0 && count($all_missing->roles) >= $limit) {
+                break;
+            }
+        }
+        $records->close();
+
+        $count_missing = $DB->get_record_sql(
+            "SELECT COUNT(DISTINCT ua.userid) as count_missing $from_missing",
+            $params
+        )->count_missing;
+        $all_missing->validappraiseecount -= $count_missing;
+
+        return $all_missing;
     }
 
     /**
-     * Determines which role assignments are missing for the given appraisee for
-     * the current appraisal. Note this is just a check of the associated job
-     * roles against the expected appraisal roles.
+     * Indicates whether the correct appraisees users have already been stored
+     * in the appraisal assignment tables.
      *
-     * @param int $appraiseeid appraisee id.
-     *
-     * @return array list of the missing roles (an appraisal::ROLE_XYZ constant)
-     *         or an empty array if nothing is missing.
+     * @return bool true if the appraisees have already been stored.
      */
-    private function missing_role_assignments_for_appraisee($appraiseeid) {
-        $appraisal = $this->moduleinstance;
-        $requiredroles = $appraisal->get_roles_involved();
+    public function is_synced() {
+        global $DB;
 
-        $jobassignmentid = $this->get_job_assignment_id($appraiseeid);
-        $job = empty($jobassignmentid)
-               ? null
-               : job_assignment::get_with_id($jobassignmentid, false);
-        if (empty($job)) {
-            // Even if no job assignments have been linked to the appraisal, the
-            // fact that there is an appraisee means there is already a learner
-            // role assignment. So the learner role does not need to be listed.
-            return array_filter(
-                $requiredroles,
-
-                function ($role) {
-                    return $role != appraisal::ROLE_LEARNER;
-                }
-            );
-        }
-
-        return appraisal_assignments::missing_appraisal_roles_from_job(
-            $requiredroles, $job
+        // There are existing methods (get_removed_users()/get_unstored_users())
+        // that return the actual users involved. For efficiency and performance,
+        // this method does not use them since what it needs are just counts.
+        list($grouping_sql, $group_params, ) = $this->get_users_from_groups_sql('u', 'id');
+        list($assign_sql, $assign_params, $assign_alias) = $this->get_users_from_assignments_sql(
+            'u', 'id'
         );
-    }
+        $status_active = [\appraisal::STATUS_ACTIVE];
 
-    /**
-     * @param int $appraiseeid
-     * @return int|null
-     */
-    private function get_job_assignment_id($appraiseeid) {
-        if (!isset($this->job_assignment_id_cache[$appraiseeid])) {
-            $appraisal = $this->moduleinstance;
-            $assignment = appraisal_user_assignment::get_user(
-                $appraisal->id, $appraiseeid
-            );
-            $this->job_assignment_id_cache[$appraiseeid] = $assignment->jobassignmentid;
+        // Find users in appraisal groupings that have still not been assigned
+        // to the appraisal.
+        $in_groups_but_not_assigned = "
+        SELECT count(u.id)
+          FROM {user} u
+          {$grouping_sql}
+         WHERE u.id NOT IN (
+            SELECT u.id
+              FROM {user} u
+              {$assign_sql}
+              WHERE $assign_alias.status = ?
+         )
+        ";
+
+        $params = array_merge($group_params, $assign_params, $status_active);
+        $count = $DB->count_records_sql($in_groups_but_not_assigned, $params);
+        if ($count > 0) {
+            return false;
         }
-        return $this->job_assignment_id_cache[$appraiseeid];
+
+        // Find users in appraisal assignments that have been removed from the
+        // groups assigned to the appraisal.
+        $assigned_but_not_in_groups = "
+        SELECT count(u.id)
+          FROM {user} u
+          {$assign_sql}
+         WHERE u.id NOT IN (
+            SELECT u.id
+              FROM {user} u
+              {$grouping_sql}
+         )
+         AND $assign_alias.status = ?
+        ";
+        $params = array_merge($assign_params, $group_params, $status_active);
+        $count = $DB->count_records_sql($assigned_but_not_in_groups, $params);
+        if ($count > 0) {
+            return false;
+        }
+
+        return true;
     }
 
     /**

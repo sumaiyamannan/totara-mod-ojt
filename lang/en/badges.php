@@ -340,6 +340,8 @@ $string['nobadges'] = 'There are no badges available.';
 $string['nocriteria'] = 'Criteria for this badge have not been set up yet.';
 $string['noexpiry'] = 'This badge does not have an expiry date.';
 $string['noparamstoadd'] = 'There are no additional parameters available to add to this badge requirement.';
+$string['nosupportedbackpack'] = 'In August 2019, the Mozilla Foundation retired its Open Badges backpack. Connections to other backpack services are not currently available.';
+$string['nosupportedbackpack_header'] = 'The Mozilla Backpack service is no longer available';
 $string['notacceptedrole'] = 'Your current role assignment is not among the roles that can manually issue this badge.<br/>
 If you would like to see users who have already earned this badge, you can visit {$a} page. ';
 $string['notconnected'] = 'Not connected';

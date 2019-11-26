@@ -59,7 +59,7 @@ if (($hassiteconfig || has_any_capability(array(
 
     $globalsettings->add(new admin_setting_configcheckbox('badges_allowexternalbackpack',
             new lang_string('allowexternalbackpack', 'badges'),
-            new lang_string('allowexternalbackpack_desc', 'badges'), 1));
+            new lang_string('allowexternalbackpack_desc', 'badges'), 0)); // Totara: Mozilla backpack is dead. Turn this off for now.
 
     $globalsettings->add(new admin_setting_configcheckbox('badges_allowcoursebadges',
             new lang_string('allowcoursebadges', 'badges'),

@@ -3,6 +3,53 @@
 
 Totara Learn Changelog
 
+Release 9.38 (26th November 2019):
+==================================
+
+
+Security issues:
+
+    TL-23017       Backport MDL-66228: Prevented open redirect when editing Content page in Lesson activity
+
+Performance improvements:
+
+    TL-22827       Improved appraisal assignment tab performance
+
+                   Some appraisal functions in the assignment page have been rewritten to use
+                   bulk SQL queries to improve their performance. Previously, the code worked
+                   with one entity at a time.
+
+Improvements:
+
+    TL-22122       Added on-screen notification to users trying to connect to the Mozilla Open Badges Backpack
+
+                   Since Mozilla retired its Open Badges Backpack platform in August 2019,
+                   users attempting a connection to the backpack from Totara experience a
+                   connection time out.
+
+                   This improvement notifies the user about the backpack's end-of-service and
+                   no longer tries to connect to the backpack.
+
+                   Also, on new installations, the 'Enable connection to external backpacks'
+                   is now disabled by default, since no other external backpacks are currently
+                   supported.
+
+    TL-22840       Added system information to upgrade logs
+    TL-22890       Backported TL-22783 / MDL-62891
+
+                   Backported the following commits:
+                    # [MDL-62891|https://tracker.moodle.org/browse/MDL-62891] core: Stop using
+                   var_export() to describe callables
+                    # [MDL-62891|https://tracker.moodle.org/browse/MDL-62891] core: Introduce
+                   new get_callable_name() function
+
+Bug fixes:
+
+    TL-22863       Fixed use of MySQL 8 reserved keyword 'member' in Report builder sources
+    TL-22886       Password length restriction was removed from user signup forms
+    TL-22930       Made sure microphone and camera access is allowed from the iframe in the External Tool activities
+
+
 Release 9.37 (25th October 2019):
 =================================
 

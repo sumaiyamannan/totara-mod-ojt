@@ -120,7 +120,7 @@ if ( $launchcontainer == LTI_LAUNCH_CONTAINER_WINDOW ) {
     echo "<p>".get_string("basiclti_in_new_window", "lti")."</p>\n";
 } else {
     // Request the launch content with an iframe tag.
-    echo '<iframe id="contentframe" height="600px" width="100%" src="launch.php?id='.$cm->id.'"></iframe>';
+    echo '<iframe id="contentframe" height="600px" width="100%" src="launch.php?id='.$cm->id.'" allow=\'microphone *; camera *\'></iframe>';
 
     // Output script to make the iframe tag be as large as possible.
     $resize = '

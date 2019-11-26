@@ -61,6 +61,19 @@ if ($disconnect && $backpack) {
     $DB->delete_records('badge_backpack', array('userid' => $USER->id));
     $badgescache->delete($USER->id);
     redirect(new moodle_url('/badges/mybackpack.php'));
+} else {
+    // Totara: Remove option to connect to a backpack.
+    echo $OUTPUT->header();
+    echo $OUTPUT->heading($title);
+
+    echo $OUTPUT->box_start('generalbox boxaligncenter backpack-unsupported');
+    echo $OUTPUT->heading(get_string('nosupportedbackpack_header', 'badges'), 3);
+    echo $OUTPUT->box(get_string('nosupportedbackpack', 'badges'));
+    echo $OUTPUT->box_end();
+
+    echo $OUTPUT->continue_button(new moodle_url('/user/preferences.php'));
+    echo $OUTPUT->footer();
+    exit;
 }
 
 if ($backpack) {

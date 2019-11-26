@@ -1089,6 +1089,50 @@ class core_useragent_testcase extends advanced_testcase {
                 ),
             ),
 
+            // Chrome based MS Edge Beta; OS X Catalina.
+            array(
+                'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.70 Safari/537.36 Edg/78.0.276.20',
+                array(
+                    'is_chrome'                     => true,
+                    'check_chrome_version'          => array(
+                        '7'                         => true,
+                        '8'                         => true,
+                        '10'                        => true,
+                        '39'                        => true,
+                        '78'                        => true,
+                        '79'                        => false,
+                    ),
+
+                    'is_webkit'                     => true,
+
+                    'versionclasses'                => array(
+                        'safari',
+                    ),
+                ),
+            ),
+
+            // Chrome based MS Edge Beta; Windows.
+            array(
+                'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.70 Safari/537.36 Edg/44.18362.387.0',
+                array(
+                    'is_chrome'                     => true,
+                    'check_chrome_version'          => array(
+                        '7'                         => true,
+                        '8'                         => true,
+                        '10'                        => true,
+                        '39'                        => true,
+                        '78'                        => true,
+                        '79'                        => false,
+                    ),
+
+                    'is_webkit'                     => true,
+
+                    'versionclasses'                => array(
+                        'safari',
+                    ),
+                ),
+            ),
+
             // Opera 8.51; Windows XP.
             array(
                 'Opera/8.51 (Windows NT 5.1; U; en)',
