@@ -332,13 +332,13 @@ function certificate_print_user_files($certificate, $userid, $contextid) {
 
     $component = 'mod_certificate';
     $filearea = 'issue';
-    $files = $fs->get_area_files($contextid, $component, $filearea, $certrecord->id);
+    $files = $fs->get_area_files($contextid, $component, $filearea, $certrecord->id, "itemid, filepath, filename", false);
     foreach ($files as $file) {
         $filename = $file->get_filename();
         $link = file_encode_url($CFG->wwwroot.'/pluginfile.php', '/'.$contextid.'/mod_certificate/issue/'.$certrecord->id.'/'.$filename);
         $mimetype = $file->get_mimetype();
         $fileicon = file_mimetype_flex_icon($mimetype);
-        $output = $fileicon . '&nbsp;' . '<a href="'.$link.'" >'.s($filename).'</a>';
+        $output .= $fileicon . '&nbsp;' . '<a href="'.$link.'" >'.s($filename).'</a>';
 
     }
     $output .= '<br />';
