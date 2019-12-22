@@ -3,6 +3,71 @@
 
 Totara Learn Changelog
 
+Release 9.39 (30th December 2019):
+==================================
+
+
+Important:
+
+    TL-22800       Reworked the appraisal role assignment process to prevent duplicate assignments
+
+                   1) This patch adds a new index to the appraisal_user_assignment table – a
+                      unique index on an appraisal ID/appraisee ID combination.
+
+                      It is possible that a site's appraisal_user_assignment table already has
+                      duplicates; in this case, the site upgrade will fail. Therefore before
+                      doing this upgrade, back up the site and then run this SQL query:
+
+                      SELECT userid, appraisalid, count(appraisalid) as duplicates
+                      FROM mdl_appraisal_user_assignment
+                      GROUP BY appraisalid, userid
+                      HAVING count(appraisalid) > 1
+
+                      If this query returns a result, it means that the table has duplicates, and
+                      they must be resolved first before an upgrade can successfully run. For
+                      help, get in touch with the Totara support team and indicate the site has
+                      been affected by TL-22800.
+
+                   2) The behaviour has changed when the 'Update now' button is pressed in the
+                      appraisal assignment tab. This is only for dynamic appraisals and the
+                      button appears when appraisal assignments are added/removed after
+                      activation. Previously when the button was pressed, the assignments were
+                      updated in real time and the user would wait until the operation completed.
+                      The refreshed screen would then show the updated list of appraisees.
+
+                      With this patch, pressing the button spawns an ad hoc task instead and the
+                      refreshed screen does not show the updated list of appraisees. Only when
+                      the ad hoc task runs (depending on the next cron run – usually in the
+                      next minute) are the assignments updated. When the user revisits the
+                      appraisal assignment page, it will show the updated list of appraisees.
+
+Security issues:
+
+    TL-21671       Legacy internal flag 'ignoresesskey' is now usable within one request only, to prevent any potential security issues
+
+Improvements:
+
+    TL-22697       Added a label to the seminar sign-in sheet download form
+
+Bug fixes:
+
+    TL-23165       Fixed inconsistency of Bootstrap Javascript versions
+
+                   Previously, the thirdpartylibs.xml stated that the bootstrap Javascript
+                   version in use was 3.3.7, when in fact it was version 3.3.4.
+
+                   There were no code changes and all security fixes included in 3.4.1 are
+                   still present.
+
+    TL-23237       Fixed an issue where incorrect links were generated for certificate downloads
+
+                   Previously the list of certificate files used to generate the links
+                   included directories, and when generating the links the filenames were
+                   overridden with the next one in the list. Due to the sort order of some
+                   databases this could result in the filename in the link being replaced by
+                   the full-stop representing the directory.
+
+
 Release 9.38 (26th November 2019):
 ==================================
 
