@@ -281,3 +281,26 @@ ul.assetlist {
 .f2f-usersbox {
     margin-bottom: 48px;
 }
+
+.path-mod-facetoface form.signinsheet #fgroup_id_exportgroup {
+    text-align: left;
+}
+
+.path-mod-facetoface form.signinsheet #fgroup_id_exportgroup fieldset legend {
+    margin-right: 3px;
+    padding-right: 0;
+    padding-top: 3px;
+}
+
+.path-mod-facetoface form.signinsheet fieldset.fgroup legend span.legend {
+    padding-top: 0;
+    font-weight: normal;
+}
+
+.path-mod-facetoface form.signinsheet fieldset.fgroup div.felement {
+    padding-left: 5px;
+}
+
+.path-mod-facetoface form.signinsheet input[type="submit"] {
+    margin-left: 0;
+}

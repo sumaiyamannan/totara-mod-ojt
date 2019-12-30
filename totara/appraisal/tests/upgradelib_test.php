@@ -25,6 +25,8 @@ global $CFG;
 require_once($CFG->dirroot.'/totara/appraisal/db/upgradelib.php');
 require_once($CFG->dirroot.'/totara/appraisal/tests/appraisal_testcase.php');
 
+use totara_job\job_assignment;
+
 /**
  * To test, run this from the command line from the $CFG->dirroot.
  * vendor/bin/phpunit --verbose totara_appraisal_upgradelib_test totara/appraisal/tests/upgradelib_test.php
@@ -214,5 +216,84 @@ class totara_appraisal_upgradelib_test extends appraisal_testcase {
         // Check the results.
         $actualresults = $DB->get_records('appraisal_quest_field', array(), 'name');
         $this->assertEquals($expectedresults, $actualresults);
+    }
+
+    public function test_totara_appraisal_upgrade_add_user_assignment_index() {
+        global $DB;
+
+        $this->setAdminUser();
+        $this->resetAfterTest();
+
+        $generator = $this->getDataGenerator();
+        $manager_ja = job_assignment::create_default($generator->create_user()->id);
+        $hierarchy = ['managerjaid' => $manager_ja->id];
+
+        $users = array_map(
+            function ($i) use ($generator, $hierarchy) {
+                $user = $generator->create_user();
+                job_assignment::create_default($user->id, $hierarchy);
+
+                return $user;
+            },
+            range(0, 5)
+        );
+
+        list($appraisal, ) = $this->prepare_appraisal_with_users([], $users);
+        $appraisal->activate();
+
+        $find_duplicates = "
+            SELECT userid, appraisalid, count(appraisalid) as duplicates
+            FROM {appraisal_user_assignment}
+            GROUP BY appraisalid, userid
+            HAVING count(appraisalid) > 1
+        ";
+        $this->assertFalse($DB->record_exists_sql($find_duplicates), 'duplicates exist');
+
+        // Remove index on user_assignment table if it exists; the upgrade should
+        // succeed because there are no duplicates.
+        $table = new xmldb_table('appraisal_user_assignment');
+        $index = new xmldb_index('appruserassi_usrappr_ix', XMLDB_INDEX_UNIQUE, ['appraisalid', 'userid']);
+        $dbman = $DB->get_manager();
+        if ($dbman->index_exists($table, $index)) {
+            $dbman->drop_index($table, $index);
+        }
+        $this->assertFalse($dbman->index_exists($table, $index), 'index still exists');
+
+        try {
+            totara_appraisal_upgrade_add_user_assignment_index();
+            $this->assertTrue($dbman->index_exists($table, $index), 'index not created');
+        } catch (Exception $e) {
+            $this->fail("adding index failed");
+        }
+
+        // Create a few duplicates and rerun the upgrade. Now it should fail.
+        $dbman->drop_index($table, $index);
+        $this->assertFalse($dbman->index_exists($table, $index), 'index still exists');
+
+        $columns = "
+            userid,
+            appraisalid,
+            activestageid,
+            timecompleted,
+            status,
+            jobassignmentid,
+            jobassignmentlastmodified
+        ";
+
+        $create_duplicates = "
+            INSERT INTO {appraisal_user_assignment}($columns)
+            SELECT $columns FROM {appraisal_user_assignment} WHERE userid = ?
+        ";
+        $DB->execute($create_duplicates, [end($users)->id]);
+
+        try {
+            totara_appraisal_upgrade_add_user_assignment_index();
+            $this->fail("upgrade went through");
+        } catch (moodle_exception $e) {
+            $this->assertContains('duplicates', $e->getMessage(), 'wrong message');
+        } catch (Exception $e) {
+            $this->fail("wrong exception thrown");
+        }
+        $this->assertFalse($dbman->index_exists($table, $index), 'index still created');
     }
 }

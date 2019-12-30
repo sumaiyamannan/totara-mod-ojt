@@ -99,7 +99,8 @@ if ($update && $canassign) {
         print_error('error:attemptupdatestatic', 'totara_appraisal');
     }
 
-    $appraisal->check_assignment_changes();
+    \totara_appraisal\task\update_assignments_adhoc_task::enqueue($appraisal->id);
+
     redirect($returnurl);
 }
 

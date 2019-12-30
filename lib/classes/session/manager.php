@@ -92,6 +92,9 @@ class manager {
             $GLOBALS['SESSION'] = $_SESSION['SESSION'];
             $_SESSION['SESSION'] =& $GLOBALS['SESSION'];
 
+            // Totara: make sure the nasty sesskey hack cannot be passed via session to another page.
+            unset($GLOBALS['USER']->ignoresesskey);
+
         } catch (\Exception $ex) {
             self::init_empty_session();
             self::$sessionactive = false;

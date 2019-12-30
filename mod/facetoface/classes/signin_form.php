@@ -29,6 +29,7 @@ require_once("{$CFG->dirroot}/mod/facetoface/lib.php");
 class mod_facetoface_signin_form extends moodleform {
     public function definition() {
         $mform = $this->_form;
+        $mform->updateAttributes(['class' => 'mform signinsheet']);
 
         $select = reportbuilder_get_export_options(null, true);
         if (count($select) == 0) {
@@ -48,6 +49,8 @@ class mod_facetoface_signin_form extends moodleform {
         } else if (isset($select['pdflandscape'])) {
             $data['format'] = 'pdflandscape';
         }
+
+        $mform->addElement('header', 'signinsheet', get_string('signinsheet', 'mod_facetoface'));
 
         $options = array();
         foreach ($session->sessiondates as $date) {
@@ -71,10 +74,10 @@ class mod_facetoface_signin_form extends moodleform {
             $group[] = $mform->createElement('select', 'format', get_string('exportformat', 'totara_core'), $select);
         }
 
-        $group[] = $mform->createElement('submit', 'export', get_string('downloadsigninsheet', 'mod_facetoface'));
+        $group[] = $mform->createElement('submit', 'export', get_string('download', 'mod_facetoface'));
 
         if (count($group) > 1) {
-            $mform->addGroup($group, 'exportgroup', '', array(' '), false);
+            $mform->addGroup($group, 'exportgroup', get_string('downloadsigninsheet', 'mod_facetoface'), array(' '), false);
         } else {
             $mform->addElement($group[0]);
         }
