@@ -53,24 +53,10 @@ Feature: Seminar Signup Self Approval
       | approvaloptions   | approval_admin          |
     And I follow "View all events"
     And I follow "Add a new event"
-    And I click on "Edit session" "link"
-    And I set the following fields to these values:
-      | timestart[day]     | 1    |
-      | timestart[month]   | 1    |
-      | timestart[year]    | 2020 |
-      | timestart[hour]    | 10   |
-      | timestart[minute]  | 0    |
-      | timefinish[day]    | 1    |
-      | timefinish[month]  | 1    |
-      | timefinish[year]   | 2020 |
-      | timefinish[hour]   | 12   |
-      | timefinish[minute] | 0    |
-    And I press "OK"
-    And I set the following fields to these values:
-      | capacity              | 10   |
-    And I press "Save changes"
 
   Scenario: Student signs up and self approves
+    And I set the field "capacity" to "10"
+    And I press "Save changes"
     When I click on "Find Learning" in the totara menu
     And I follow "Classroom Connect Course"
     And I follow "View all events"

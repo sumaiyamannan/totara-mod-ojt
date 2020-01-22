@@ -24,9 +24,9 @@ Feature: Clone appraisals
       |  Appraisal Test |
     And the following "stages" exist in "totara_appraisal" plugin:
       | appraisal       | name   | timedue                 |
-      |  Appraisal Test | Stage1 | 1 January 2020 23:59:59 |
-      |  Appraisal Test | Stage2 | 1 January 2030 23:59:59 |
-      |  Appraisal Test | Stage3 | 1 January 2040 23:59:59 |
+      |  Appraisal Test | Stage1 | 1 January +2 years 23:59:59 |
+      |  Appraisal Test | Stage2 | 1 January +5 years 23:59:59 |
+      |  Appraisal Test | Stage3 | 1 January +8 years 23:59:59 |
     And the following "pages" exist in "totara_appraisal" plugin:
       | appraisal       | stage  | name                    |
       |  Appraisal Test | Stage1 | Stage1-Text             |

@@ -32,19 +32,6 @@ Feature: Test suitable job assignment for session sign-up
     And I follow "Course 1"
     And I follow "Test seminar name"
     And I follow "Add a new event"
-    And I click on "Edit session" "link"
-    And I set the following fields to these values:
-      | timestart[day]     | 1    |
-      | timestart[month]   | 1    |
-      | timestart[year]    | 2020 |
-      | timestart[hour]    | 11   |
-      | timestart[minute]  | 00   |
-      | timefinish[day]    | 1    |
-      | timefinish[month]  | 1    |
-      | timefinish[year]   | 2020 |
-      | timefinish[hour]   | 12   |
-      | timefinish[minute] | 00   |
-    And I press "OK"
     And I set the following fields to these values:
       | capacity           | 10   |
     And I press "Save changes"
@@ -57,5 +44,5 @@ Feature: Test suitable job assignment for session sign-up
     And I click on "Find Learning" in the totara menu
     And I follow "Course 1"
     And I follow "Test seminar name"
-    And I click on "Sign-up" "link" in the "1 January 2020" "table_row"
+    And I click on the link "Sign-up" in row 1
     Then I should see "You must have a suitable job assignment to sign up for this seminar activity."

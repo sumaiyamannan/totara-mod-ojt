@@ -29,7 +29,7 @@ Feature: A teacher can set available from and deadline dates to access a lesson
       | Description | Test lesson description |
       | available[day] | 1 |
       | available[month] | January |
-      | available[year] | 2020 |
+      | available[year] | 2030 |
       | available[hour] | 08 |
       | available[minute] | 00 |
     And I press "Save and display"
@@ -44,7 +44,7 @@ Feature: A teacher can set available from and deadline dates to access a lesson
     And I log in as "student1"
     And I follow "Course 1"
     When I follow "Test lesson"
-    Then I should see "This lesson will be open on Wednesday, 1 January 2020, 8:00"
+    Then I should see "This lesson will be open on Tuesday, 1 January 2030, 8:00"
     And I should not see "First page contents"
 
   Scenario: Forbidding lesson accesses until a specified date

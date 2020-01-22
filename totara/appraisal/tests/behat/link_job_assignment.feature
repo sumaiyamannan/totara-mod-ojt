@@ -42,8 +42,8 @@ Feature: Link appraisal with an appraisee job assignment.
       | Job assignment test |
     And the following "stages" exist in "totara_appraisal" plugin:
       | appraisal           | name   | timedue                 |
-      | Job assignment test | Stage1 | 1 January 2020 23:59:59 |
-      | Job assignment test | Stage2 | 1 January 2030 23:59:59 |
+      | Job assignment test | Stage1 | 1 January +2 years 23:59:59 |
+      | Job assignment test | Stage2 | 1 January +5 years 23:59:59 |
     And the following "pages" exist in "totara_appraisal" plugin:
       | appraisal           | stage  | name        |
       | Job assignment test | Stage1 | Stage1 Page |

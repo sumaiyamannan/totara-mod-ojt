@@ -40,12 +40,12 @@ Feature: Add - Remove seminar attendees
     And I set the following fields to these values:
       | timestart[day]     | 1    |
       | timestart[month]   | 1    |
-      | timestart[year]    | 2020 |
+      | timestart[year]    | 2030 |
       | timestart[hour]    | 11   |
       | timestart[minute]  | 00   |
       | timefinish[day]    | 1    |
       | timefinish[month]  | 1    |
-      | timefinish[year]   | 2020 |
+      | timefinish[year]   | 2030 |
       | timefinish[hour]   | 12   |
       | timefinish[minute] | 00   |
     And I press "OK"
@@ -152,20 +152,6 @@ Feature: Add - Remove seminar attendees
     And I follow "Course 1"
     And I follow "Test seminar name"
     And I follow "Add a new event"
-    And I click on "Edit session" "link"
-    And I fill seminar session with relative date in form data:
-      | sessiontimezone    | Pacific/Auckland |
-      | timestart[day]     | +1               |
-      | timestart[month]   | 0                |
-      | timestart[year]    | 0                |
-      | timestart[hour]    | 0                |
-      | timestart[minute]  | 0                |
-      | timefinish[day]    | +1               |
-      | timefinish[month]  | 0                |
-      | timefinish[year]   | 0                |
-      | timefinish[hour]   | +1               |
-      | timefinish[minute] | 0                |
-    And I press "OK"
     And I set the following fields to these values:
       | capacity           | 2                |
     And I press "Save changes"
@@ -198,12 +184,12 @@ Feature: Add - Remove seminar attendees
     And I set the following fields to these values:
       | timestart[day]     | 1    |
       | timestart[month]   | 1    |
-      | timestart[year]    | 2020 |
+      | timestart[year]    | 2030 |
       | timestart[hour]    | 11   |
       | timestart[minute]  | 00   |
       | timefinish[day]    | 1    |
       | timefinish[month]  | 1    |
-      | timefinish[year]   | 2020 |
+      | timefinish[year]   | 2030 |
       | timefinish[hour]   | 12   |
       | timefinish[minute] | 00   |
     And I press "OK"
@@ -231,12 +217,12 @@ Feature: Add - Remove seminar attendees
     And I set the following fields to these values:
       | timestart[day]     | 1    |
       | timestart[month]   | 1    |
-      | timestart[year]    | 2020 |
+      | timestart[year]    | 2030 |
       | timestart[hour]    | 11   |
       | timestart[minute]  | 00   |
       | timefinish[day]    | 1    |
       | timefinish[month]  | 1    |
-      | timefinish[year]   | 2020 |
+      | timefinish[year]   | 2030 |
       | timefinish[hour]   | 12   |
       | timefinish[minute] | 00   |
     And I press "OK"
@@ -252,7 +238,7 @@ Feature: Add - Remove seminar attendees
     And I press "Continue"
     Then I should see "1 problem(s) encountered during import."
     When I click on "View results" "link"
-    Then I should see "Sam1 Student1 is already booked to attend Test seminar name at 11:00 AM to 12:00 PM on 1 January 2020. Please select another user or change the session"
+    Then I should see "Sam1 Student1 is already booked to attend Test seminar name at 11:00 AM to 12:00 PM on 1 January 2030. Please select another user or change the session"
     When I press "Close"
     And I set the following fields to these values:
       | Allow scheduling conflicts | 1 |
@@ -273,20 +259,6 @@ Feature: Add - Remove seminar attendees
     And I follow "Course 1"
     And I follow "Test seminar name"
     And I follow "Add a new event"
-    And I click on "Edit session" "link"
-    And I fill seminar session with relative date in form data:
-      | sessiontimezone    | Pacific/Auckland |
-      | timestart[day]     | +1               |
-      | timestart[month]   | 0                |
-      | timestart[year]    | 0                |
-      | timestart[hour]    | 0                |
-      | timestart[minute]  | 0                |
-      | timefinish[day]    | +1               |
-      | timefinish[month]  | 0                |
-      | timefinish[year]   | 0                |
-      | timefinish[hour]   | +1               |
-      | timefinish[minute] | 0                |
-    And I press "OK"
     And I set the following fields to these values:
       | capacity           | 2                |
     And I press "Save changes"
@@ -372,19 +344,6 @@ Feature: Add - Remove seminar attendees
     And I follow "Course 1"
     And I follow "Test seminar name"
     And I follow "Add a new event"
-    And I click on "Edit session" "link"
-    And I set the following fields to these values:
-      | timestart[day]     | 1    |
-      | timestart[month]   | 1    |
-      | timestart[year]    | 2020 |
-      | timestart[hour]    | 11   |
-      | timestart[minute]  | 00   |
-      | timefinish[day]    | 1    |
-      | timefinish[month]  | 1    |
-      | timefinish[year]   | 2020 |
-      | timefinish[hour]   | 12   |
-      | timefinish[minute] | 00   |
-    And I press "OK"
     And I set the following fields to these values:
       | capacity           | 1    |
     And I press "Save changes"
@@ -438,19 +397,6 @@ Feature: Add - Remove seminar attendees
     And I follow "Course 1"
     And I follow "Test seminar name"
     And I follow "Add a new event"
-    And I click on "Edit session" "link"
-    And I set the following fields to these values:
-      | timestart[day]     | 1    |
-      | timestart[month]   | 1    |
-      | timestart[year]    | 2020 |
-      | timestart[hour]    | 11   |
-      | timestart[minute]  | 00   |
-      | timefinish[day]    | 1    |
-      | timefinish[month]  | 1    |
-      | timefinish[year]   | 2020 |
-      | timefinish[hour]   | 12   |
-      | timefinish[minute] | 00   |
-    And I press "OK"
     And I set the following fields to these values:
       | capacity           | 1    |
     And I press "Save changes"

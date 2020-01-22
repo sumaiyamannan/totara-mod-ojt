@@ -27,6 +27,7 @@ defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
 require_once($CFG->dirroot . '/totara/hierarchy/lib.php');
+require_once($CFG->dirroot . '/totara/hierarchy/prefix/competency/lib.php');
 require_once($CFG->dirroot . '/totara/hierarchy/prefix/position/lib.php');
 
 /**

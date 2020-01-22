@@ -3,6 +3,20 @@
 
 Totara Learn Changelog
 
+Release 9.40 (22nd January 2020):
+=================================
+
+
+API changes:
+
+    TL-23511       The new minimum required Node.js version has changed to 12
+
+                   It is recommended now to run at least Node.js 12 to run grunt builds.
+                   Node.js 8 is almost out of support; we recommend to use the latest Node.js
+                   12 to run grunt builds. However to avoid compatibility issues in stable
+                   releases running Node 8 is still supported.
+
+
 Release 9.39 (30th December 2019):
 ==================================
 

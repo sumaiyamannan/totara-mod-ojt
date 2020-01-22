@@ -22,13 +22,13 @@ Feature: Confirm overlapping sessions can be removed
     And I set the following fields to these values:
       | timestart[day]       | 15               |
       | timestart[month]     | 7                |
-      | timestart[year]      | 2020             |
+      | timestart[year]      | 2030             |
       | timestart[hour]      | 15               |
       | timestart[minute]    | 0                |
       | timestart[timezone]  | Pacific/Auckland |
       | timefinish[day]      | 15               |
       | timefinish[month]    | 7                |
-      | timefinish[year]     | 2020             |
+      | timefinish[year]     | 2030             |
       | timefinish[hour]     | 16               |
       | timefinish[minute]   | 0                |
       | timefinish[timezone] | Pacific/Auckland |
@@ -38,13 +38,13 @@ Feature: Confirm overlapping sessions can be removed
     And I set the following fields to these values:
       | timestart[day]       | 15             |
       | timestart[month]     | 7              |
-      | timestart[year]      | 2020           |
+      | timestart[year]      | 2030           |
       | timestart[hour]      | <starthour>    |
       | timestart[minute]    | <startminute>  |
       | timestart[timezone]  | <timezone>     |
       | timefinish[day]      | 15             |
       | timefinish[month]    | 7              |
-      | timefinish[year]     | 2020           |
+      | timefinish[year]     | 2030           |
       | timefinish[hour]     | <finishhour>   |
       | timefinish[minute]   | <finishminute> |
       | timefinish[timezone] | <timezone>     |

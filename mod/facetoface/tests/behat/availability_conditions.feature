@@ -48,12 +48,12 @@ Feature: Seminar availability based on activity completion
     And I set the following fields to these values:
       | timestart[day]     | 1    |
       | timestart[month]   | 1    |
-      | timestart[year]    | 2020 |
+      | timestart[year]    | 2030 |
       | timestart[hour]    | 11   |
       | timestart[minute]  | 00   |
       | timefinish[day]    | 1    |
       | timefinish[month]  | 1    |
-      | timefinish[year]   | 2020 |
+      | timefinish[year]   | 2030 |
       | timefinish[hour]   | 12   |
       | timefinish[minute] | 00   |
     And I press "OK"
@@ -76,7 +76,7 @@ Feature: Seminar availability based on activity completion
     And I click on "Find Learning" in the totara menu
     And I follow "Course 1"
     And I click on "Edit event" "link" in the "0 / 10" "table_row"
-    And I click on "Delete" "link" in the "1 January 2020" "table_row"
+    And I click on "Delete" "link" in the "1 January 2030" "table_row"
     And I press "Save changes"
     And I log out
 
@@ -131,7 +131,7 @@ Feature: Seminar availability based on activity completion
     And I set the field "Method of comparison" to "is equal to"
     And I press "Save and display"
     And I click on "Edit event" "link" in the "0 / 10" "table_row"
-    And I click on "Delete" "link" in the "1 January 2020" "table_row"
+    And I click on "Delete" "link" in the "1 January 2030" "table_row"
     And I press "Save changes"
     And I log out
 

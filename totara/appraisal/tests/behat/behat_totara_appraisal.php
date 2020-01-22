@@ -45,7 +45,8 @@ class behat_totara_appraisal extends behat_base {
 
         if (!$questiondata) {
             // NOTE: MySQL has relatively low limits on number of varchar table columns, so we don't use 'text' as default here.
-            $questiondata = ['datatype' => 'datepicker', 'startyear' => 1975, 'stopyear' => 2020, 'withtime' => 0];
+            $stopyear = (new \DateTime('+2 years'))->format('Y');
+            $questiondata = ['datatype' => 'datepicker', 'startyear' => 1975, 'stopyear' => $stopyear, 'withtime' => 0];
         }
         for ($i = 1; $i <= $numberofquestions; $i++) {
             $datagenerator->create_complex_question($page->id, $questiondata);
@@ -65,7 +66,8 @@ class behat_totara_appraisal extends behat_base {
 
         switch($type) {
             case 'datepicker':
-                $questiondata = ['datatype' => 'datepicker', 'startyear' => 1975, 'stopyear' => 2020, 'withtime' => 0];
+                $stopyear = (new \DateTime('+2 years'))->format('Y');
+                $questiondata = ['datatype' => 'datepicker', 'startyear' => 1975, 'stopyear' => $stopyear, 'withtime' => 0];
                 break;
             case 'text':
                 $questiondata = ['datatype' => 'text'];

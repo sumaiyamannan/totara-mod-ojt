@@ -11,7 +11,7 @@ or perform an upgrade triggered by a version bump.
 Installation
 ============
 
-1. Install Node.js and npm in your OS - the only supported version is LTS v8 with npm v5
+1. Install Node.js and npm in your OS - LTS version starting from 8 are supported, 12 is recommended use the latest NPM available
 2. run 'npm install' in the root directory to install all required npm modules in expected versions
 3. either install grunt-cli globally using 'npm install grunt-cli -g' (you may be required to use sudo)
 4. or install grunt locally via 'npm install grunt-cli' (you will have to use './node_modules/.bin/grunt' later)
@@ -36,7 +36,7 @@ to minimise problems when switching branches in one checkout.
 
 Totara employees should use the following procedure:
 
-1. make sure you have latest Node.js v8 with latest npm@5 installed
+1. make sure you have latest Node.js 12 with latest npm installed
 2. run 'grunt' and make sure everything is up-to-date before you start
 3. delete node_modules/ directory
 4. delete package-lock.json file
@@ -55,6 +55,6 @@ Steps for homebrew on OSX
 =========================
 
 1. brew uninstall all node versions
-2. use 'brew install node@8'
+2. use 'brew install node@12'
 3. add node bin directory to your path
-4. check the npm version is v5
+4. check the npm version is latest

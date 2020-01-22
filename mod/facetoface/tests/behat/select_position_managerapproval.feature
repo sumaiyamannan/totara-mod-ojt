@@ -43,19 +43,6 @@ Feature: Seminar Select position with Manager approval
       | Select job assignment on signup | 1                  |
     And I follow "View all events"
     And I follow "Add a new event"
-    And I click on "Edit session" "link"
-    And I set the following fields to these values:
-      | timestart[day]       | 1    |
-      | timestart[month]     | 1    |
-      | timestart[year]      | 2020 |
-      | timestart[hour]      | 11   |
-      | timestart[minute]    | 0    |
-      | timefinish[day]      | 1    |
-      | timefinish[month]    | 1    |
-      | timefinish[year]     | 2020 |
-      | timefinish[hour]     | 12   |
-      | timefinish[minute]   | 0    |
-    And I press "OK"
     And I set the following fields to these values:
       | capacity              | 1    |
     And I press "Save changes"

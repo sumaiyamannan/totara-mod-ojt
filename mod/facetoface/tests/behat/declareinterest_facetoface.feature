@@ -46,19 +46,6 @@ Feature: Manager approval and declare of interest
       | Users can declare interest | Always                          |
     And I click on "View all events" "link" in the "declareinterestfullybooked" activity
     And I follow "Add a new event"
-    And I click on "Edit session" "link"
-    And I set the following fields to these values:
-      | timestart[day]     | 1    |
-      | timestart[month]   | 1    |
-      | timestart[year]    | 2020 |
-      | timestart[hour]    | 11   |
-      | timestart[minute]  | 00   |
-      | timefinish[day]    | 1    |
-      | timefinish[month]  | 1    |
-      | timefinish[year]   | 2020 |
-      | timefinish[hour]   | 12   |
-      | timefinish[minute] | 00   |
-    And I press "OK"
     And I press "Save changes"
     And I log out
     And I log in as "student1"
@@ -85,19 +72,6 @@ Feature: Manager approval and declare of interest
       | Users can declare interest  | When no upcoming events are available for booking |
     And I click on "View all events" "link" in the "declareinterestfullybooked" activity
     And I follow "Add a new event"
-    And I click on "Edit session" "link"
-    And I set the following fields to these values:
-      | timestart[day]     | 1    |
-      | timestart[month]   | 1    |
-      | timestart[year]    | 2020 |
-      | timestart[hour]    | 11   |
-      | timestart[minute]  | 00   |
-      | timefinish[day]    | 1    |
-      | timefinish[month]  | 1    |
-      | timefinish[year]   | 2020 |
-      | timefinish[hour]   | 12   |
-      | timefinish[minute] | 00   |
-    And I press "OK"
     And I set the following fields to these values:
       | capacity           | 1    |
     And I press "Save changes"
@@ -126,19 +100,6 @@ Feature: Manager approval and declare of interest
       | Users can declare interest | When no upcoming events are available for booking |
     And I click on "View all events" "link" in the "declareinterestfullybooked" activity
     And I follow "Add a new event"
-    And I click on "Edit session" "link"
-    And I set the following fields to these values:
-      | timestart[day]     | 1    |
-      | timestart[month]   | 1    |
-      | timestart[year]    | 2020 |
-      | timestart[hour]    | 11   |
-      | timestart[minute]  | 00   |
-      | timefinish[day]    | 1    |
-      | timefinish[month]  | 1    |
-      | timefinish[year]   | 2020 |
-      | timefinish[hour]   | 12   |
-      | timefinish[minute] | 00   |
-    And I press "OK"
     And I set the following fields to these values:
       | Enable waitlist    | Yes  |
       | capacity           | 1    |
@@ -172,12 +133,12 @@ Feature: Manager approval and declare of interest
     And I set the following fields to these values:
       | timestart[day]     | 1    |
       | timestart[month]   | 1    |
-      | timestart[year]    | 2020 |
+      | timestart[year]    | 2030 |
       | timestart[hour]    | 11   |
       | timestart[minute]  | 00   |
       | timefinish[day]    | 1    |
       | timefinish[month]  | 1    |
-      | timefinish[year]   | 2020 |
+      | timefinish[year]   | 2030 |
       | timefinish[hour]   | 12   |
       | timefinish[minute] | 00   |
     And I press "OK"
@@ -193,12 +154,12 @@ Feature: Manager approval and declare of interest
     And I set the following fields to these values:
       | timestart[day]     | 1    |
       | timestart[month]   | 1    |
-      | timestart[year]    | 2020 |
+      | timestart[year]    | 2030 |
       | timestart[hour]    | 11   |
       | timestart[minute]  | 00   |
       | timefinish[day]    | 1    |
       | timefinish[month]  | 1    |
-      | timefinish[year]   | 2020 |
+      | timefinish[year]   | 2030 |
       | timefinish[hour]   | 12   |
       | timefinish[minute] | 00   |
     And I press "OK"

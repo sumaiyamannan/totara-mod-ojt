@@ -33,13 +33,13 @@ Feature: Seminar timezones in reports
       | sessiontimezone      | Europe/Prague   |
       | timestart[day]       | 2               |
       | timestart[month]     | 1               |
-      | timestart[year]      | 2020            |
+      | timestart[year]      | 2030            |
       | timestart[hour]      | 1               |
       | timestart[minute]    | 15              |
       | timestart[timezone]  | Australia/Perth |
       | timefinish[day]      | 2               |
       | timefinish[month]    | 1               |
-      | timefinish[year]     | 2020            |
+      | timefinish[year]     | 2030            |
       | timefinish[hour]     | 3               |
       | timefinish[minute]   | 45              |
       | timefinish[timezone] | Australia/Perth |
@@ -68,13 +68,13 @@ Feature: Seminar timezones in reports
       | sessiontimezone      | User timezone   |
       | timestart[day]       | 4               |
       | timestart[month]     | 2               |
-      | timestart[year]      | 2021            |
+      | timestart[year]      | 2031            |
       | timestart[hour]      | 1               |
       | timestart[minute]    | 0               |
       | timestart[timezone]  | Australia/Perth |
       | timefinish[day]      | 4               |
       | timefinish[month]    | 2               |
-      | timefinish[year]     | 2021            |
+      | timefinish[year]     | 2031            |
       | timefinish[hour]     | 2               |
       | timefinish[minute]   | 30              |
       | timefinish[timezone] | Australia/Perth |
@@ -98,9 +98,9 @@ Feature: Seminar timezones in reports
 
     And I press "Save changes"
     And I should see "6:15 PM - 8:45 PM Europe/Prague" in the "Room 1" "table_row"
-    And I should see "1 January 2020" in the "Room 1" "table_row"
+    And I should see "1 January 2030" in the "Room 1" "table_row"
     And I should see "1:00 AM - 2:30 AM Australia/Perth" in the "Room 2" "table_row"
-    And I should see "4 February 2021" in the "Room 2" "table_row"
+    And I should see "4 February 2031" in the "Room 2" "table_row"
     And I click on "Attendees" "link" in the "Room 1" "table_row"
     And I click on "Add users" "option" in the "#menuf2f-actions" "css_element"
     And I click on "First User, user1@example.com" "option"
@@ -128,28 +128,28 @@ Feature: Seminar timezones in reports
     And I add the "Session Start (linked to activity)" column to the report
 
     When I navigate to my "F2F sessions" report
-    Then I should see "1 January 2020" in the "First User" "table_row"
+    Then I should see "1 January 2030" in the "First User" "table_row"
     And I should see "6:15 PM Europe/Prague" in the "First User" "table_row"
     And I should see "8:45 PM Europe/Prague" in the "First User" "table_row"
-    And I should see "4 February 2021" in the "Second User" "table_row"
+    And I should see "4 February 2031" in the "Second User" "table_row"
     And I should see "1:00 AM Australia/Perth" in the "Second User" "table_row"
     And I should see "2:30 AM Australia/Perth" in the "Second User" "table_row"
-    And I should not see "2 January 2020"
+    And I should not see "2 January 2030"
 
     When I am on homepage
     And I set the following administration settings values:
       | facetoface_displaysessiontimezones | 0 |
     And I navigate to my "F2F sessions" report
     # That's a bit strange that w/o timezone date shown in different format, might need to look at that later.
-    Then I should see "2 January 2020" in the "First User" "table_row"
+    Then I should see "2 January 2030" in the "First User" "table_row"
     And I should see "01:15" in the "First User" "table_row"
     And I should see "03:45" in the "First User" "table_row"
-    And I should see "4 February 2021" in the "Second User" "table_row"
+    And I should see "4 February 2031" in the "Second User" "table_row"
     And I should see "01:00" in the "Second User" "table_row"
     And I should see "02:30" in the "Second User" "table_row"
     And I should not see "Prague"
     And I should not see "Perth"
-    And I should not see "1 January 2020"
+    And I should not see "1 January 2030"
 
   @javascript
   Scenario: Test timezones in seminar summary report
@@ -172,13 +172,13 @@ Feature: Seminar timezones in reports
       | sessiontimezone      | Europe/Prague   |
       | timestart[day]       | 2               |
       | timestart[month]     | 1               |
-      | timestart[year]      | 2020            |
+      | timestart[year]      | 2030            |
       | timestart[hour]      | 1               |
       | timestart[minute]    | 15              |
       | timestart[timezone]  | Australia/Perth |
       | timefinish[day]      | 2               |
       | timefinish[month]    | 1               |
-      | timefinish[year]     | 2020            |
+      | timefinish[year]     | 2030            |
       | timefinish[hour]     | 3               |
       | timefinish[minute]   | 45              |
       | timefinish[timezone] | Australia/Perth |
@@ -196,13 +196,13 @@ Feature: Seminar timezones in reports
       | sessiontimezone      | User timezone   |
       | timestart[day]       | 4               |
       | timestart[month]     | 2               |
-      | timestart[year]      | 2021            |
+      | timestart[year]      | 2031            |
       | timestart[hour]      | 1               |
       | timestart[minute]    | 0               |
       | timestart[timezone]  | Australia/Perth |
       | timefinish[day]      | 4               |
       | timefinish[month]    | 2               |
-      | timefinish[year]     | 2021            |
+      | timefinish[year]     | 2031            |
       | timefinish[hour]     | 2               |
       | timefinish[minute]   | 30              |
       | timefinish[timezone] | Australia/Perth |
@@ -218,18 +218,18 @@ Feature: Seminar timezones in reports
     And I add the "Session Start Date/Time" column to the report
 
     When I navigate to my "F2F summary" report
-    Then I should see "1 January 2020" in the "Test seminar 1 name" "table_row"
-    And I should see "4 February 2021" in the "Test seminar 2 name" "table_row"
+    Then I should see "1 January 2030" in the "Test seminar 1 name" "table_row"
+    And I should see "4 February 2031" in the "Test seminar 2 name" "table_row"
     And I should see "Europe/Prague" in the "Test seminar 1 name" "table_row"
     And I should see "Australia/Perth" in the "Test seminar 2 name" "table_row"
-    And I should not see "2 January 2020"
+    And I should not see "2 January 2030"
 
     When I am on homepage
     And I set the following administration settings values:
       | facetoface_displaysessiontimezones | 0 |
     And I navigate to my "F2F summary" report
-    Then I should see "2 Jan 2020" in the "Test seminar 1 name" "table_row"
-    And I should see "4 Feb 2021" in the "Test seminar 2 name" "table_row"
+    Then I should see "2 Jan 2030" in the "Test seminar 1 name" "table_row"
+    And I should see "4 Feb 2031" in the "Test seminar 2 name" "table_row"
     And I should not see "Prague"
     And I should not see "Perth"
-    And I should not see "1 January 2020"
+    And I should not see "1 January 2030"

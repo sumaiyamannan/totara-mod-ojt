@@ -27,19 +27,6 @@ Feature: Users are forced to get manager approval where required
       | Manager Approval | 1                        |
     And I follow "View all events"
     And I follow "Add a new event"
-    And I click on "Edit session" "link"
-    And I set the following fields to these values:
-      | timestart[day]     | 1    |
-      | timestart[month]   | 1    |
-      | timestart[year]    | 2020 |
-      | timestart[hour]    | 11   |
-      | timestart[minute]  | 00   |
-      | timefinish[day]    | 1    |
-      | timefinish[month]  | 1    |
-      | timefinish[year]   | 2020 |
-      | timefinish[hour]   | 12   |
-      | timefinish[minute] | 00   |
-    And I click on "OK" "button" in the "Select date" "totaradialogue"
     And I press "Save changes"
     And I log out
 
@@ -69,7 +56,7 @@ Feature: Users are forced to get manager approval where required
     When I log in as "student1"
     And I click on "Find Learning" in the totara menu
     And I follow "Course 1"
-    And I click on "Sign-up" "link" in the "1 January 2020" "table_row"
+    And I click on the link "Sign-up" in row 1
     And I press "Request approval"
     Then I should see "Your request was sent to your manager for approval."
     And I log out
@@ -102,7 +89,7 @@ Feature: Users are forced to get manager approval where required
     When I log in as "student1"
     And I click on "Find Learning" in the totara menu
     And I follow "Course 1"
-    And I click on "Sign-up" "link" in the "1 January 2020" "table_row"
+    And I click on the link "Sign-up" in row 1
     And I press "Request approval"
     Then I should see "Your request was sent to your manager for approval."
     And I log out

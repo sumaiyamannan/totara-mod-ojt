@@ -48,12 +48,12 @@ Feature: Seminar Event Registration Closure
     And I set the following fields to these values:
       | timestart[day]     | 1    |
       | timestart[month]   | 1    |
-      | timestart[year]    | 2020 |
+      | timestart[year]    | 2031 |
       | timestart[hour]    | 11   |
       | timestart[minute]  | 00   |
       | timefinish[day]    | 1    |
       | timefinish[month]  | 1    |
-      | timefinish[year]   | 2020 |
+      | timefinish[year]   | 2031 |
       | timefinish[hour]   | 12   |
       | timefinish[minute] | 00   |
     And I click on "OK" "button" in the "Select date" "totaradialogue"
@@ -68,7 +68,7 @@ Feature: Seminar Event Registration Closure
       | registrationtimefinish[enabled] | 1    |
       | registrationtimefinish[day]     | 30   |
       | registrationtimefinish[month]   | 12   |
-      | registrationtimefinish[year]    | 2019 |
+      | registrationtimefinish[year]    | 2030 |
       | registrationtimefinish[hour]    | 17   |
       | registrationtimefinish[minute]  | 00   |
     And I press "Save changes"
@@ -114,7 +114,7 @@ Feature: Seminar Event Registration Closure
     When I click on "Find Learning" in the totara menu
     And I click on "Course 1" "link"
     And I click on "View all events" "link"
-    And I click on "Edit event" "link" in the "1 January 2020" "table_row"
+    And I click on "Edit event" "link" in the "1 January 2031" "table_row"
     And I set the following fields to these values:
       | registrationtimefinish[day]     | 1    |
       | registrationtimefinish[month]   | 1    |

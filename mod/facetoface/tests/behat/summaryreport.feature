@@ -97,12 +97,12 @@ Feature: Seminar sessions report overview
     And I set the following fields to these values:
       | timestart[day]     | 1    |
       | timestart[month]   | 1    |
-      | timestart[year]    | 2020 |
+      | timestart[year]    | 2030 |
       | timestart[hour]    | 11   |
       | timestart[minute]  | 0    |
       | timefinish[day]    | 1    |
       | timefinish[month]  | 1    |
-      | timefinish[year]   | 2020 |
+      | timefinish[year]   | 2030 |
       | timefinish[hour]   | 12   |
       | timefinish[minute] | 0    |
     And I click on "OK" "button" in the "Select date" "totaradialogue"
@@ -158,12 +158,12 @@ Feature: Seminar sessions report overview
     And I set the following fields to these values:
       | timestart[day]     | 1                |
       | timestart[month]   | 1                |
-      | timestart[year]    | 2030             |
+      | timestart[year]    | 2031             |
       | timestart[hour]    | 0                |
       | timestart[minute]  | 0                |
       | timefinish[day]    | 1                |
       | timefinish[month]  | 1                |
-      | timefinish[year]   | 2030             |
+      | timefinish[year]   | 2031             |
       | timefinish[hour]   | 0                |
       | timefinish[minute] | 30               |
     And I click on "OK" "button" in the "Select date" "totaradialogue"
@@ -189,12 +189,12 @@ Feature: Seminar sessions report overview
     And I set the following fields to these values:
       | timestart[day]     | 1    |
       | timestart[month]   | 1    |
-      | timestart[year]    | 2020 |
+      | timestart[year]    | 2030 |
       | timestart[hour]    | 11   |
       | timestart[minute]  | 00   |
       | timefinish[day]    | 1    |
       | timefinish[month]  | 1    |
-      | timefinish[year]   | 2020 |
+      | timefinish[year]   | 2030 |
       | timefinish[hour]   | 12   |
       | timefinish[minute] | 00   |
     And I click on "OK" "button" in the "Select date" "totaradialogue"

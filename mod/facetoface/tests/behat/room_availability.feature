@@ -59,12 +59,12 @@ Feature: Seminar room availability
     And I set the following fields to these values:
       | timestart[day]     | 1    |
       | timestart[month]   | 1    |
-      | timestart[year]    | 2025 |
+      | timestart[year]    | 2030 |
       | timestart[hour]    | 11   |
       | timestart[minute]  | 00   |
       | timefinish[day]    | 1    |
       | timefinish[month]  | 1    |
-      | timefinish[year]   | 2025 |
+      | timefinish[year]   | 2030 |
       | timefinish[hour]   | 12   |
       | timefinish[minute] | 00   |
     And I click on "OK" "button" in the "Select date" "totaradialogue"
@@ -87,12 +87,12 @@ Feature: Seminar room availability
     And I set the following fields to these values:
       | timestart[day]     | 1    |
       | timestart[month]   | 1    |
-      | timestart[year]    | 2026 |
+      | timestart[year]    | 2031 |
       | timestart[hour]    | 11   |
       | timestart[minute]  | 00   |
       | timefinish[day]    | 1    |
       | timefinish[month]  | 1    |
-      | timefinish[year]   | 2026 |
+      | timefinish[year]   | 2031 |
       | timefinish[hour]   | 12   |
       | timefinish[minute] | 00   |
     And I click on "OK" "button" in the "Select date" "totaradialogue"
@@ -110,12 +110,12 @@ Feature: Seminar room availability
     And I set the following fields to these values:
       | timestart[day]     | 1    |
       | timestart[month]   | 1    |
-      | timestart[year]    | 2025 |
+      | timestart[year]    | 2030 |
       | timestart[hour]    | 12   |
       | timestart[minute]  | 00   |
       | timefinish[day]    | 1    |
       | timefinish[month]  | 1    |
-      | timefinish[year]   | 2025 |
+      | timefinish[year]   | 2030 |
       | timefinish[hour]   | 13   |
       | timefinish[minute] | 00   |
     And I click on "OK" "button" in the "Select date" "totaradialogue"
@@ -125,9 +125,9 @@ Feature: Seminar room availability
     And I should not see "Room 3 (Capacity: 10)"
     And I click on "Room 1 (Capacity: 10)" "text" in the "Choose a room" "totaradialogue"
     And I click on "OK" "button" in the "Choose a room" "totaradialogue"
-    And I should see "Room 1 (10)" in the "1 January 2025 1:00 PM" "table_row"
-    And I should see "Room 1 (10)" in the "1 January 2025 11:00 AM" "table_row"
-    And I should see "Room 2 (10)" in the "January 2026" "table_row"
+    And I should see "Room 1 (10)" in the "1 January 2030 1:00 PM" "table_row"
+    And I should see "Room 1 (10)" in the "1 January 2030 11:00 AM" "table_row"
+    And I should see "Room 2 (10)" in the "January 2031" "table_row"
     And I press "Save changes"
 
     When I follow "Add a new event"
@@ -137,12 +137,12 @@ Feature: Seminar room availability
     And I set the following fields to these values:
       | timestart[day]     | 1    |
       | timestart[month]   | 1    |
-      | timestart[year]    | 2025 |
+      | timestart[year]    | 2030 |
       | timestart[hour]    | 10   |
       | timestart[minute]  | 00   |
       | timefinish[day]    | 1    |
       | timefinish[month]  | 1    |
-      | timefinish[year]   | 2025 |
+      | timefinish[year]   | 2030 |
       | timefinish[hour]   | 11   |
       | timefinish[minute] | 00   |
     And I click on "OK" "button" in the "Select date" "totaradialogue"
@@ -162,12 +162,12 @@ Feature: Seminar room availability
     And I set the following fields to these values:
       | timestart[day]     | 1    |
       | timestart[month]   | 1    |
-      | timestart[year]    | 2025 |
+      | timestart[year]    | 2030 |
       | timestart[hour]    | 13   |
       | timestart[minute]  | 00   |
       | timefinish[day]    | 1    |
       | timefinish[month]  | 1    |
-      | timefinish[year]   | 2025 |
+      | timefinish[year]   | 2030 |
       | timefinish[hour]   | 14   |
       | timefinish[minute] | 00   |
     And I click on "OK" "button" in the "Select date" "totaradialogue"
@@ -187,12 +187,12 @@ Feature: Seminar room availability
     And I set the following fields to these values:
       | timestart[day]     | 1    |
       | timestart[month]   | 1    |
-      | timestart[year]    | 2026 |
+      | timestart[year]    | 2031 |
       | timestart[hour]    | 11   |
       | timestart[minute]  | 00   |
       | timefinish[day]    | 1    |
       | timefinish[month]  | 1    |
-      | timefinish[year]   | 2026 |
+      | timefinish[year]   | 2031 |
       | timefinish[hour]   | 12   |
       | timefinish[minute] | 00   |
     And I click on "OK" "button" in the "Select date" "totaradialogue"
@@ -212,12 +212,12 @@ Feature: Seminar room availability
     And I set the following fields to these values:
       | timestart[day]     | 1    |
       | timestart[month]   | 1    |
-      | timestart[year]    | 2025 |
+      | timestart[year]    | 2030 |
       | timestart[hour]    | 11   |
       | timestart[minute]  | 00   |
       | timefinish[day]    | 1    |
       | timefinish[month]  | 1    |
-      | timefinish[year]   | 2025 |
+      | timefinish[year]   | 2030 |
       | timefinish[hour]   | 12   |
       | timefinish[minute] | 00   |
     And I click on "OK" "button" in the "Select date" "totaradialogue"
@@ -231,12 +231,12 @@ Feature: Seminar room availability
     And I set the following fields to these values:
       | timestart[day]     | 1    |
       | timestart[month]   | 1    |
-      | timestart[year]    | 2025 |
+      | timestart[year]    | 2030 |
       | timestart[hour]    | 11   |
       | timestart[minute]  | 00   |
       | timefinish[day]    | 1    |
       | timefinish[month]  | 1    |
-      | timefinish[year]   | 2025 |
+      | timefinish[year]   | 2030 |
       | timefinish[hour]   | 12   |
       | timefinish[minute] | 00   |
     And I click on "OK" "button" in the "Select date" "totaradialogue"
@@ -256,12 +256,12 @@ Feature: Seminar room availability
     And I set the following fields to these values:
       | timestart[day]     | 1    |
       | timestart[month]   | 1    |
-      | timestart[year]    | 2025 |
+      | timestart[year]    | 2030 |
       | timestart[hour]    | 11   |
       | timestart[minute]  | 00   |
       | timefinish[day]    | 1    |
       | timefinish[month]  | 1    |
-      | timefinish[year]   | 2025 |
+      | timefinish[year]   | 2030 |
       | timefinish[hour]   | 12   |
       | timefinish[minute] | 00   |
     And I click on "OK" "button" in the "Select date" "totaradialogue"
@@ -292,12 +292,12 @@ Feature: Seminar room availability
     And I set the following fields to these values:
       | timestart[day]     | 1    |
       | timestart[month]   | 1    |
-      | timestart[year]    | 2026 |
+      | timestart[year]    | 2031 |
       | timestart[hour]    | 11   |
       | timestart[minute]  | 00   |
       | timefinish[day]    | 1    |
       | timefinish[month]  | 1    |
-      | timefinish[year]   | 2026 |
+      | timefinish[year]   | 2031 |
       | timefinish[hour]   | 12   |
       | timefinish[minute] | 00   |
     And I click on "OK" "button" in the "Select date" "totaradialogue"
@@ -322,12 +322,12 @@ Feature: Seminar room availability
     And I set the following fields to these values:
       | timestart[day]     | 1    |
       | timestart[month]   | 1    |
-      | timestart[year]    | 2026 |
+      | timestart[year]    | 2031 |
       | timestart[hour]    | 11   |
       | timestart[minute]  | 00   |
       | timefinish[day]    | 1    |
       | timefinish[month]  | 1    |
-      | timefinish[year]   | 2026 |
+      | timefinish[year]   | 2031 |
       | timefinish[hour]   | 12   |
       | timefinish[minute] | 00   |
     And I click on "OK" "button" in the "Select date" "totaradialogue"
@@ -352,12 +352,12 @@ Feature: Seminar room availability
     And I set the following fields to these values:
       | timestart[day]     | 1    |
       | timestart[month]   | 1    |
-      | timestart[year]    | 2025 |
+      | timestart[year]    | 2030 |
       | timestart[hour]    | 11   |
       | timestart[minute]  | 00   |
       | timefinish[day]    | 1    |
       | timefinish[month]  | 1    |
-      | timefinish[year]   | 2025 |
+      | timefinish[year]   | 2030 |
       | timefinish[hour]   | 12   |
       | timefinish[minute] | 00   |
     And I click on "OK" "button" in the "Select date" "totaradialogue"
@@ -377,12 +377,12 @@ Feature: Seminar room availability
     And I set the following fields to these values:
       | timestart[day]     | 1    |
       | timestart[month]   | 1    |
-      | timestart[year]    | 2025 |
+      | timestart[year]    | 2030 |
       | timestart[hour]    | 12   |
       | timestart[minute]  | 00   |
       | timefinish[day]    | 1    |
       | timefinish[month]  | 1    |
-      | timefinish[year]   | 2025 |
+      | timefinish[year]   | 2030 |
       | timefinish[hour]   | 13   |
       | timefinish[minute] | 00   |
     And I click on "OK" "button" in the "Select date" "totaradialogue"
@@ -403,12 +403,12 @@ Feature: Seminar room availability
     And I set the following fields to these values:
       | timestart[day]     | 1    |
       | timestart[month]   | 1    |
-      | timestart[year]    | 2025 |
+      | timestart[year]    | 2030 |
       | timestart[hour]    | 11   |
       | timestart[minute]  | 00   |
       | timefinish[day]    | 1    |
       | timefinish[month]  | 1    |
-      | timefinish[year]   | 2025 |
+      | timefinish[year]   | 2030 |
       | timefinish[hour]   | 12   |
       | timefinish[minute] | 00   |
     And I click on "OK" "button" in the "Select date" "totaradialogue"
@@ -490,12 +490,12 @@ Feature: Seminar room availability
     And I set the following fields to these values:
       | timestart[day]     | 1    |
       | timestart[month]   | 1    |
-      | timestart[year]    | 2025 |
+      | timestart[year]    | 2030 |
       | timestart[hour]    | 11   |
       | timestart[minute]  | 00   |
       | timefinish[day]    | 1    |
       | timefinish[month]  | 1    |
-      | timefinish[year]   | 2025 |
+      | timefinish[year]   | 2030 |
       | timefinish[hour]   | 12   |
       | timefinish[minute] | 00   |
     And I click on "OK" "button" in the "Select date" "totaradialogue"
@@ -510,12 +510,12 @@ Feature: Seminar room availability
     And I set the following fields to these values:
       | timestart[day]     | 1    |
       | timestart[month]   | 1    |
-      | timestart[year]    | 2025 |
+      | timestart[year]    | 2030 |
       | timestart[hour]    | 11   |
       | timestart[minute]  | 00   |
       | timefinish[day]    | 1    |
       | timefinish[month]  | 1    |
-      | timefinish[year]   | 2025 |
+      | timefinish[year]   | 2030 |
       | timefinish[hour]   | 12   |
       | timefinish[minute] | 00   |
     And I click on "OK" "button" in the "Select date" "totaradialogue"
@@ -542,12 +542,12 @@ Feature: Seminar room availability
     And I set the following fields to these values:
       | timestart[day]     | 1    |
       | timestart[month]   | 1    |
-      | timestart[year]    | 2025 |
+      | timestart[year]    | 2030 |
       | timestart[hour]    | 12   |
       | timestart[minute]  | 00   |
       | timefinish[day]    | 1    |
       | timefinish[month]  | 1    |
-      | timefinish[year]   | 2025 |
+      | timefinish[year]   | 2030 |
       | timefinish[hour]   | 13   |
       | timefinish[minute] | 00   |
     And I click on "OK" "button" in the "Select date" "totaradialogue"
@@ -571,12 +571,12 @@ Feature: Seminar room availability
     And I set the following fields to these values:
       | timestart[day]     | 1    |
       | timestart[month]   | 1    |
-      | timestart[year]    | 2025 |
+      | timestart[year]    | 2030 |
       | timestart[hour]    | 11   |
       | timestart[minute]  | 00   |
       | timefinish[day]    | 1    |
       | timefinish[month]  | 1    |
-      | timefinish[year]   | 2025 |
+      | timefinish[year]   | 2030 |
       | timefinish[hour]   | 12   |
       | timefinish[minute] | 00   |
     And I click on "OK" "button" in the "Select date" "totaradialogue"
@@ -595,12 +595,12 @@ Feature: Seminar room availability
     And I set the following fields to these values:
       | timestart[day]     | 1    |
       | timestart[month]   | 1    |
-      | timestart[year]    | 2025 |
+      | timestart[year]    | 2030 |
       | timestart[hour]    | 11   |
       | timestart[minute]  | 00   |
       | timefinish[day]    | 1    |
       | timefinish[month]  | 1    |
-      | timefinish[year]   | 2025 |
+      | timefinish[year]   | 2030 |
       | timefinish[hour]   | 12   |
       | timefinish[minute] | 00   |
     And I click on "OK" "button" in the "Select date" "totaradialogue"
@@ -622,12 +622,12 @@ Feature: Seminar room availability
     And I set the following fields to these values:
       | timestart[day]     | 1    |
       | timestart[month]   | 1    |
-      | timestart[year]    | 2025 |
+      | timestart[year]    | 2030 |
       | timestart[hour]    | 12   |
       | timestart[minute]  | 00   |
       | timefinish[day]    | 1    |
       | timefinish[month]  | 1    |
-      | timefinish[year]   | 2025 |
+      | timefinish[year]   | 2030 |
       | timefinish[hour]   | 13   |
       | timefinish[minute] | 00   |
     And I click on "OK" "button" in the "Select date" "totaradialogue"
@@ -652,12 +652,12 @@ Feature: Seminar room availability
     And I set the following fields to these values:
       | timestart[day]     | 1    |
       | timestart[month]   | 1    |
-      | timestart[year]    | 2025 |
+      | timestart[year]    | 2030 |
       | timestart[hour]    | 11   |
       | timestart[minute]  | 00   |
       | timefinish[day]    | 1    |
       | timefinish[month]  | 1    |
-      | timefinish[year]   | 2025 |
+      | timefinish[year]   | 2030 |
       | timefinish[hour]   | 12   |
       | timefinish[minute] | 00   |
     And I click on "OK" "button" in the "Select date" "totaradialogue"
@@ -672,12 +672,12 @@ Feature: Seminar room availability
     And I set the following fields to these values:
       | timestart[day]     | 1    |
       | timestart[month]   | 1    |
-      | timestart[year]    | 2025 |
+      | timestart[year]    | 2030 |
       | timestart[hour]    | 13   |
       | timestart[minute]  | 00   |
       | timefinish[day]    | 1    |
       | timefinish[month]  | 1    |
-      | timefinish[year]   | 2025 |
+      | timefinish[year]   | 2030 |
       | timefinish[hour]   | 14   |
       | timefinish[minute] | 00   |
     And I click on "OK" "button" in the "Select date" "totaradialogue"
@@ -692,12 +692,12 @@ Feature: Seminar room availability
     And I set the following fields to these values:
       | timestart[day]     | 1    |
       | timestart[month]   | 1    |
-      | timestart[year]    | 2025 |
+      | timestart[year]    | 2030 |
       | timestart[hour]    | 15   |
       | timestart[minute]  | 00   |
       | timefinish[day]    | 1    |
       | timefinish[month]  | 1    |
-      | timefinish[year]   | 2025 |
+      | timefinish[year]   | 2030 |
       | timefinish[hour]   | 16   |
       | timefinish[minute] | 00   |
     And I click on "OK" "button" in the "Select date" "totaradialogue"
@@ -713,12 +713,12 @@ Feature: Seminar room availability
       | room-roomavailable_enable        | Free between the following times |
       | room-roomavailable_start[day]    | 1                                |
       | room-roomavailable_start[month]  | January                          |
-      | room-roomavailable_start[year]   | 2025                             |
+      | room-roomavailable_start[year]   | 2030                             |
       | room-roomavailable_start[hour]   | 10                               |
       | room-roomavailable_start[minute] | 00                               |
       | room-roomavailable_end[day]      | 1                                |
       | room-roomavailable_end[month]    | January                          |
-      | room-roomavailable_end[year]     | 2025                             |
+      | room-roomavailable_end[year]     | 2030                             |
       | room-roomavailable_end[hour]     | 11                               |
       | room-roomavailable_end[minute]   | 00                               |
     And I press "submitgroupstandard[addfilter]"
@@ -729,12 +729,12 @@ Feature: Seminar room availability
     When I set the following fields to these values:
       | room-roomavailable_start[day]    | 1                                |
       | room-roomavailable_start[month]  | January                          |
-      | room-roomavailable_start[year]   | 2025                             |
+      | room-roomavailable_start[year]   | 2030                             |
       | room-roomavailable_start[hour]   | 10                               |
       | room-roomavailable_start[minute] | 00                               |
       | room-roomavailable_end[day]      | 1                                |
       | room-roomavailable_end[month]    | January                          |
-      | room-roomavailable_end[year]     | 2025                             |
+      | room-roomavailable_end[year]     | 2030                             |
       | room-roomavailable_end[hour]     | 11                               |
       | room-roomavailable_end[minute]   | 01                               |
     And I press "submitgroupstandard[addfilter]"
@@ -745,12 +745,12 @@ Feature: Seminar room availability
     When I set the following fields to these values:
       | room-roomavailable_start[day]    | 1                                |
       | room-roomavailable_start[month]  | January                          |
-      | room-roomavailable_start[year]   | 2025                             |
+      | room-roomavailable_start[year]   | 2030                             |
       | room-roomavailable_start[hour]   | 11                               |
       | room-roomavailable_start[minute] | 30                               |
       | room-roomavailable_end[day]      | 1                                |
       | room-roomavailable_end[month]    | January                          |
-      | room-roomavailable_end[year]     | 2025                             |
+      | room-roomavailable_end[year]     | 2030                             |
       | room-roomavailable_end[hour]     | 12                               |
       | room-roomavailable_end[minute]   | 30                               |
     And I press "submitgroupstandard[addfilter]"
@@ -761,12 +761,12 @@ Feature: Seminar room availability
     When I set the following fields to these values:
       | room-roomavailable_start[day]    | 1                                |
       | room-roomavailable_start[month]  | January                          |
-      | room-roomavailable_start[year]   | 2025                             |
+      | room-roomavailable_start[year]   | 2030                             |
       | room-roomavailable_start[hour]   | 12                               |
       | room-roomavailable_start[minute] | 59                               |
       | room-roomavailable_end[day]      | 1                                |
       | room-roomavailable_end[month]    | January                          |
-      | room-roomavailable_end[year]     | 2025                             |
+      | room-roomavailable_end[year]     | 2030                             |
       | room-roomavailable_end[hour]     | 14                               |
       | room-roomavailable_end[minute]   | 00                               |
     And I press "submitgroupstandard[addfilter]"
@@ -777,12 +777,12 @@ Feature: Seminar room availability
     When I set the following fields to these values:
       | room-roomavailable_start[day]    | 1                                |
       | room-roomavailable_start[month]  | January                          |
-      | room-roomavailable_start[year]   | 2025                             |
+      | room-roomavailable_start[year]   | 2030                             |
       | room-roomavailable_start[hour]   | 10                               |
       | room-roomavailable_start[minute] | 00                               |
       | room-roomavailable_end[day]      | 1                                |
       | room-roomavailable_end[month]    | January                          |
-      | room-roomavailable_end[year]     | 2025                             |
+      | room-roomavailable_end[year]     | 2030                             |
       | room-roomavailable_end[hour]     | 14                               |
       | room-roomavailable_end[minute]   | 00                               |
     And I press "submitgroupstandard[addfilter]"
@@ -793,12 +793,12 @@ Feature: Seminar room availability
     When I set the following fields to these values:
       | room-roomavailable_start[day]    | 1                                |
       | room-roomavailable_start[month]  | January                          |
-      | room-roomavailable_start[year]   | 2025                             |
+      | room-roomavailable_start[year]   | 2030                             |
       | room-roomavailable_start[hour]   | 14                               |
       | room-roomavailable_start[minute] | 00                               |
       | room-roomavailable_end[day]      | 1                                |
       | room-roomavailable_end[month]    | January                          |
-      | room-roomavailable_end[year]     | 2025                             |
+      | room-roomavailable_end[year]     | 2030                             |
       | room-roomavailable_end[hour]     | 15                               |
       | room-roomavailable_end[minute]   | 00                               |
     And I press "submitgroupstandard[addfilter]"

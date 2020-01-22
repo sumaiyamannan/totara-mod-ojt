@@ -35,19 +35,6 @@ Feature: Seminar Signup Role Approval Trainer Role
       | Description | Test seminar description |
     And I follow "View all events"
     And I follow "Add a new event"
-    And I click on "Edit session" "link"
-    And I set the following fields to these values:
-      | timestart[day]     | 1    |
-      | timestart[month]   | 1    |
-      | timestart[year]    | 2020 |
-      | timestart[hour]    | 10   |
-      | timestart[minute]  | 0    |
-      | timefinish[day]    | 1    |
-      | timefinish[month]  | 1    |
-      | timefinish[year]   | 2020 |
-      | timefinish[hour]   | 12   |
-      | timefinish[minute] | 0    |
-    And I press "OK"
     And I set the following fields to these values:
       | capacity              | 10   |
     And I click on "Benny Ben" "checkbox" in the "#id_trainerroles" "css_element"

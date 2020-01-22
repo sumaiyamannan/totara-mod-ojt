@@ -60,19 +60,6 @@ Feature: Seminar Signup Admin Approval
     And I click on "Save" "button" in the "Select activity level approvers" "totaradialogue"
     And I press "Save and display"
     And I follow "Add a new event"
-    And I click on "Edit session" "link"
-    And I set the following fields to these values:
-      | timestart[day]     | 1    |
-      | timestart[month]   | 1    |
-      | timestart[year]    | 2020 |
-      | timestart[hour]    | 11   |
-      | timestart[minute]  | 0    |
-      | timefinish[day]    | 1    |
-      | timefinish[month]  | 1    |
-      | timefinish[year]   | 2020 |
-      | timefinish[hour]   | 12   |
-      | timefinish[minute] | 0    |
-    And I press "OK"
     And I set the following fields to these values:
       | capacity           | 10   |
     And I press "Save changes"
@@ -126,7 +113,7 @@ Feature: Seminar Signup Admin Approval
     Then I should see "Seminar booking admin request"
     And I click on "View all tasks" "link"
     And I should see "Sally Sal" in the "td.user_namelink" "css_element"
-    And I click on "Attendees" "link" in the "1 January 2020" "table_row"
+    And I click on "Attendees" "link" in the "Follow the link" "table_row"
     Then I should see "Sally Sal"
 
   Scenario: Student gets approved through both steps of the 2 stage approval
@@ -144,7 +131,7 @@ Feature: Seminar Signup Admin Approval
     Then I should see "Seminar booking admin request"
     And I click on "View all tasks" "link"
     And I should see "Jimmy Jim" in the "td.user_namelink" "css_element"
-    And I click on "Attendees" "link" in the "1 January 2020" "table_row"
+    And I click on "Attendees" "link" in the "Follow the link" "table_row"
     Then I should see "Jimmy Jim" in the ".lastrow" "css_element"
 
     When I click on "requests[8]" "radio" in the ".lastrow .lastcol" "css_element"
@@ -159,7 +146,7 @@ Feature: Seminar Signup Admin Approval
     Then I should see "Seminar booking admin request"
     And I click on "View all tasks" "link"
     And I should see "Jimmy Jim" in the "td.user_namelink" "css_element"
-    And I click on "Attendees" "link" in the "1 January 2020" "table_row"
+    And I click on "Attendees" "link" in the "Follow the link" "table_row"
     Then I should see "Jimmy Jim"
 
     When I click on "requests[8]" "radio" in the ".lastrow .lastcol" "css_element"
@@ -174,7 +161,7 @@ Feature: Seminar Signup Admin Approval
     When I click on "Find Learning" in the totara menu
     And I follow "Classroom Connect Course"
     And I follow "View all events"
-    Then I should see "Booked" in the "1 January 2020" "table_row"
+    Then I should see "Booked" in the "9" "table_row"
 
   Scenario: Student signs up with manager assigned with manager select enabled and admin approval required and does not select manager
     When I log in as "admin"

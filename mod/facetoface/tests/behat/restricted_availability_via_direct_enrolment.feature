@@ -40,12 +40,12 @@ Feature: Seminar availability based on activity completion using direct enrolmen
     And I set the following fields to these values:
       | timestart[day]     | 1    |
       | timestart[month]   | 1    |
-      | timestart[year]    | 2020 |
+      | timestart[year]    | 2030 |
       | timestart[hour]    | 11   |
       | timestart[minute]  | 00   |
       | timefinish[day]    | 1    |
       | timefinish[month]  | 1    |
-      | timefinish[year]   | 2020 |
+      | timefinish[year]   | 2030 |
       | timefinish[hour]   | 12   |
       | timefinish[minute] | 00   |
     And I press "OK"
@@ -70,12 +70,12 @@ Feature: Seminar availability based on activity completion using direct enrolmen
     And I set the following fields to these values:
       | timestart[day]     | 1    |
       | timestart[month]   | 1    |
-      | timestart[year]    | 2021 |
+      | timestart[year]    | 2031 |
       | timestart[hour]    | 11   |
       | timestart[minute]  | 00   |
       | timefinish[day]    | 1    |
       | timefinish[month]  | 1    |
-      | timefinish[year]   | 2021 |
+      | timefinish[year]   | 2031 |
       | timefinish[hour]   | 12   |
       | timefinish[minute] | 00   |
     And I press "OK"
