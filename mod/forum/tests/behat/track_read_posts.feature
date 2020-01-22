@@ -212,13 +212,15 @@ Feature: A teacher can set one of 3 possible options for tracking read forum pos
     And I reload the page
     And I should see "Test post message...Read the rest of this topic" in the "div .unread" "css_element"
     And I click on "Site news" "link"
-    And I should see "1" in the "//table[@class='forumheaderlist']/tbody/tr[1]/td[count(//thead//tr/th[text()='Unread']/preceding-sibling::*)+2]" "xpath_element"
+    # There is a colspan="2" making the columns out of alignment
+    And "Test post subject" row "Last post" column of "forumheaderlist" table should contain "1"
     And I am on site homepage
     When I click on "Read the rest of this topic" "link"
     And I reload the page
     Then I should see "Test post message. Simply dummy text to mark post as read if they are displayed in full" in the "div .read" "css_element"
     And I click on "Site news" "link"
-    And I should see "0" in the "//table[@class='forumheaderlist']/tbody/tr[1]/td[count(//thead//tr/th[text()='Unread']/preceding-sibling::*)+2]" "xpath_element"
+    # There is a colspan="2" making the columns out of alignment
+    And "Test post subject" row "Last post" column of "forumheaderlist" table should contain "0"
     And I log out
 
   Scenario: Learning forum posts should be marked as read if they are displayed in full
@@ -242,8 +244,10 @@ Feature: A teacher can set one of 3 possible options for tracking read forum pos
     And I follow "Course 1"
     Then I should see "1 unread post"
     And I follow "Test forum name"
-    And I should see "1" in the "//table[@class='forumheaderlist']/tbody/tr[1]/td[count(//thead//tr/th[text()='Unread']/preceding-sibling::*)+2]" "xpath_element"
+    # There is a colspan="2" making the columns out of alignment
+    And "Test post subject" row "Last post" column of "forumheaderlist" table should contain "1"
     And I follow "Test post subject"
     And I should see "Test post message. Simply dummy text to mark post as read if they are displayed in full"
     And I follow "Test forum name"
-    And I should see "0" in the "//table[@class='forumheaderlist']/tbody/tr[1]/td[count(//thead//tr/th[text()='Unread']/preceding-sibling::*)+2]" "xpath_element"
+    # There is a colspan="2" making the columns out of alignment
+    And "Test post subject" row "Last post" column of "forumheaderlist" table should contain "0"
