@@ -536,13 +536,13 @@ M.totara_programcontent = M.totara_programcontent || {
 
         var setprefixes_ce = $('input:hidden[name=setprefixes_ce]').val();
         var setprefixesarray_ce = [];
-        if (setprefixes_ce != '') {
+        if (setprefixes_ce) {
             setprefixesarray_ce = setprefixes_ce.split(',');
         }
 
         var setprefixes_rc = $('input:hidden[name=setprefixes_rc]').val();
         var setprefixesarray_rc = [];
-        if (setprefixes_rc != '') {
+        if (setprefixes_rc) {
             setprefixesarray_rc = setprefixes_rc.split(',');
         }
 
