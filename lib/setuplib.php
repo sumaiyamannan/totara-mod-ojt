@@ -623,10 +623,12 @@ function generate_uuid() {
     $uuid = '';
 
     // Check if PECL UUID extension is available.
-    if (function_exists('uuid_time')) {
+    if (function_exists('uuid_time') && function_exists('uuid_create') && defined('UUID_TYPE_RANDOM')) {
         // Create a V4 UUID.
         $uuid = uuid_create(UUID_TYPE_RANDOM);
-    } else {
+    }
+
+    if (strlen($uuid) !== 36) { // Fall back to random stuff if UUID extension is not present or does not work.
         // Fallback uuid generation based on:
         // "http://www.php.net/manual/en/function.uniqid.php#94959".
         $uuid = sprintf('%04x%04x-%04x-%04x-%04x-%04x%04x%04x',
