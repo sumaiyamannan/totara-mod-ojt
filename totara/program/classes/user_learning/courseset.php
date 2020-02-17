@@ -127,9 +127,13 @@ class courseset implements designation {
      * @return bool Returns true if this course set is complete
      */
     public function is_set_complete() {
-        $complete = $this->set->check_courseset_complete($this->user->id);
-
-        return $complete;
+        // First check if the course set is already marked as complete.
+        if ($this->set->is_courseset_complete($this->user->id)) {
+            return true;
+        } else {
+            // Otherwise carry out a check to see if the course set should be marked as complete and mark it as complete if so.
+            return $this->set->check_courseset_complete($this->user->id);
+        }
     }
 
     /**
