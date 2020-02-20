@@ -668,7 +668,7 @@ if ($mode === MODE_USERDETAILS) {    // Print simple listing.
             $data = array();
             if ($bulkoperations) {
                 // TL-6296: added aria-label
-                $data[] = '<input type="checkbox" class="usercheckbox" name="user'.$user->id.'" aria-label="' . get_string('select', 'grades', fullname($user)) . '"/>';
+                $data[] = '<input type="checkbox" class="usercheckbox" name="user'.$user->id.'" aria-label="' . s(get_string('select', 'grades', fullname($user))) . '"/>';
             }
             $data[] = $OUTPUT->user_picture($user, array('size' => 35, 'courseid' => $course->id));
             $data[] = $profilelink;
