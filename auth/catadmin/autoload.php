@@ -8,7 +8,6 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-require_once(__DIR__ . '/../saml2/extlib/simplesamlphp/vendor/autoload.php');
 require_once(__DIR__ . '/../saml2/extlib/xmlseclibs/xmlseclibs.php');
 
 spl_autoload_register(
