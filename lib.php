@@ -72,15 +72,15 @@ function auth_catadmin_get_sp_metadata() {
     $metaArray20 = array();
 
     $slosvcdefault = array(
-        SAML2_Constants::BINDING_HTTP_REDIRECT,
-        SAML2_Constants::BINDING_SOAP,
+        SAML2\Constants::BINDING_HTTP_REDIRECT,
+        SAML2\Constants::BINDING_SOAP,
     );
 
     $slob = $spconfig->getArray('SingleLogoutServiceBinding', $slosvcdefault);
     $slol = "$CFG->wwwroot/auth/catadmin/sp/saml2-logout.php/{$sourceId}";
 
     foreach ($slob as $binding) {
-        if ($binding == SAML2_Constants::BINDING_SOAP && !($store instanceof SimpleSAML_Store_SQL)) {
+        if ($binding == SAML2\Constants::BINDING_SOAP && !($store instanceof SimpleSAML_Store_SQL)) {
             /* We cannot properly support SOAP logout. */
             continue;
         }
@@ -110,7 +110,7 @@ function auth_catadmin_get_sp_metadata() {
         $acsArray = array('index' => $index);
         switch ($services) {
             case 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST':
-                $acsArray['Binding'] = SAML2_Constants::BINDING_HTTP_POST;
+                $acsArray['Binding'] = SAML2\Constants::BINDING_HTTP_POST;
                 $acsArray['Location'] = "$CFG->wwwroot/auth/catadmin/sp/saml2-acs.php/{$sourceId}";
                 break;
             case 'urn:oasis:names:tc:SAML:1.0:profiles:browser-post':
@@ -128,7 +128,7 @@ function auth_catadmin_get_sp_metadata() {
             case 'urn:oasis:names:tc:SAML:2.0:profiles:holder-of-key:SSO:browser':
                 $acsArray['Binding'] = 'urn:oasis:names:tc:SAML:2.0:profiles:holder-of-key:SSO:browser';
                 $acsArray['Location'] = "$CFG->wwwroot/auth/catadmin/sp/saml2-acs.php/{$sourceId}";
-                $acsArray['hoksso:ProtocolBinding'] = SAML2_Constants::BINDING_HTTP_REDIRECT;
+                $acsArray['hoksso:ProtocolBinding'] = SAML2\Constants::BINDING_HTTP_REDIRECT;
                 break;
         }
         $eps[] = $acsArray;
@@ -260,7 +260,7 @@ function auth_catadmin_get_sp_metadata() {
         $metaArray20['validate.authnrequest'] = $spconfig->getBoolean('sign.authnrequest');
     }
 
-    $supported_protocols = array('urn:oasis:names:tc:SAML:1.1:protocol', SAML2_Constants::NS_SAMLP);
+    $supported_protocols = array('urn:oasis:names:tc:SAML:1.1:protocol', SAML2\Constants::NS_SAMLP);
 
     $metaArray20['metadata-set'] = 'saml20-sp-remote';
     $metaArray20['entityid'] = $entityId;
