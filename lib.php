@@ -67,7 +67,7 @@ function auth_catadmin_get_sp_metadata() {
 
     $entityId = "$CFG->wwwroot/auth/catadmin/sp/metadata.php";
     $spconfig = $source->getMetadata();
-    $store = SimpleSAML_Store::getInstance();
+    $store = SimpleSAML\Store::getInstance();
 
     $metaArray20 = array();
 
