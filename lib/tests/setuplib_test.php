@@ -460,4 +460,30 @@ class core_setuplib_testcase extends advanced_testcase {
             return get_exception_info($e);
         }
     }
+
+    /**
+     * Validate the given V4 UUID.
+     *
+     * @param string $value The candidate V4 UUID
+     * @return bool True if valid; otherwise, false.
+     */
+    protected static function is_valid_uuid_v4($value) {
+        // Version 4 UUIDs have the form xxxxxxxx-xxxx-4xxx-Yxxx-xxxxxxxxxxxx
+        // where x is any hexadecimal digit and Y is one of 8, 9, aA, or bB.
+        // First, the size is 36 (32 + 4 dashes).
+        if (strlen($value) != 36) {
+            return false;
+        }
+        // Finally, check the format.
+        $uuidv4pattern = '/^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i';
+        return (preg_match($uuidv4pattern, $value) === 1);
+    }
+
+    /**
+     * Test the generate_uuid() function.
+     */
+    public function test_generate_uuid() {
+        $uuid = generate_uuid();
+        $this->assertTrue(self::is_valid_uuid_v4($uuid), "Invalid v4 UUID: '$uuid'");
+    }
 }

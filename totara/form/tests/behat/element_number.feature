@@ -143,15 +143,6 @@ Feature: Totara form number element tests
     Then a new page should not have loaded since I started watching
     And I should not see "The form has been submit"
 
-    # Now exploit a bug in Chromes HTML5 number validation.
-    When I set the following Totara form fields to these values:
-      | Basic number | -.72 |
-      | Required basic number | 42 |
-    When I press "Save changes"
-    Then a new page should have loaded since I started watching
-    And I should not see "The form has been submit"
-    And I should see "Form could not be submitted, validation failed"
-
   Scenario: Test decimals fail validation for number elements in Totara forms
     Given I select "Basic number element [totara_form\form\testform\element_number]" from the "Test form" singleselect
     Then I should see "Form: Basic number element"

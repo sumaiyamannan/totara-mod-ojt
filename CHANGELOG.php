@@ -3,6 +3,44 @@
 
 Totara Learn Changelog
 
+Release 9.41 (26th February 2020):
+==================================
+
+
+Important:
+
+    TL-23764       Chrome 80: SameSite=None is now only set if you are using secure cookies and HTTPS
+
+                   Prior to this change if you were not running your Totara site over HTTPS,
+                   and upgraded to Chrome 80 then you not be able to log into your site.
+                   This was because Chrome 80 was rejecting the cookie as it had the SameSite
+                   attribute set to None and the Secure flag was not set (as you were not
+                   running over HTTPS).
+
+                   After upgrading SameSite will be left for Chrome to default a value for.
+                   You will be able to log in, but may find that third party content on your
+                   site does not work.
+                   In order to ensure that your site performs correctly please upgrade your
+                   site to use HTTPS and enable the Secure Cookies setting within Totara if it
+                   is not already enabled.
+
+Security issues:
+
+    TL-24133       Ensured content was encoded before being used within aria-labels when viewing the users list
+
+Bug fixes:
+
+    TL-7631        Conditional fields when editing certification course sets are now correctly disabled when not relevant
+    TL-23740       Fixed compatibility with UUID PHP extension
+    TL-23852       The current learning block no longer triggers a re-aggregation of program courseset completion
+
+                   The current learning block in some situations was causing program courseset
+                   completion to be re-aggregated, leading to courseset completion time being
+                   incorrectly updated if the courseset had already been completed.
+                   This has been fixed and the courseset completion date is no longer updated
+                   after it has been initially set.
+
+
 Release 9.40 (22nd January 2020):
 =================================
 

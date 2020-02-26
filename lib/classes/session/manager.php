@@ -496,7 +496,9 @@ class manager {
         // Browser support for none is not consistent yet. There are known issues with Safari, and IE11.
         // Things are stablising, however as they're not stable yet we will deal specifically with the version of chrome
         // that introduces a default of lax, setting it to none for the current version of chrome (2 releases before the change)
-        if (\core_useragent::is_chrome() && \core_useragent::check_chrome_version('78')) {
+        // We also check you are using secure cookies and HTTPS because if you are not running over HTTPS then setting SameSite=None
+        // will cause your session cookie to be rejected.
+        if (\core_useragent::is_chrome() && \core_useragent::check_chrome_version('78') && is_moodle_cookie_secure()) {
             return 'None';
         }
 

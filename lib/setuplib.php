@@ -607,26 +607,28 @@ function get_exception_info($ex) {
 }
 
 /**
- * Generate a uuid.
+ * Generate a V4 UUID.
  *
- * Unique is hard. Very hard. Attempt to use the PECL UUID functions if available, and if not then revert to
+ * Unique is hard. Very hard. Attempt to use the PECL UUID function if available, and if not then revert to
  * constructing the uuid using mt_rand.
  *
  * It is important that this token is not solely based on time as this could lead
  * to duplicates in a clustered environment (especially on VMs due to poor time precision).
+ *
+ * @see https://tools.ietf.org/html/rfc4122
  *
  * @return string The uuid.
  */
 function generate_uuid() {
     $uuid = '';
 
-    if (function_exists("uuid_create")) {
-        $context = null;
-        uuid_create($context);
+    // Check if PECL UUID extension is available.
+    if (function_exists('uuid_time') && function_exists('uuid_create') && defined('UUID_TYPE_RANDOM')) {
+        // Create a V4 UUID.
+        $uuid = uuid_create(UUID_TYPE_RANDOM);
+    }
 
-        uuid_make($context, UUID_MAKE_V4);
-        uuid_export($context, UUID_FMT_STR, $uuid);
-    } else {
+    if (strlen($uuid) !== 36) { // Fall back to random stuff if UUID extension is not present or does not work.
         // Fallback uuid generation based on:
         // "http://www.php.net/manual/en/function.uniqid.php#94959".
         $uuid = sprintf('%04x%04x-%04x-%04x-%04x-%04x%04x%04x',
