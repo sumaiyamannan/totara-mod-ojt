@@ -23,7 +23,9 @@ class suspend_users extends \core\task\scheduled_task {
         $users = $DB->get_records_sql("SELECT id FROM {user} WHERE auth = 'catadmin' AND lastaccess < ?", array(strtotime('-1 week')));
         foreach ($users as $user) {
             $key = array_search($user->id, $admins);
-            unset($admins[$key]);
+            if ($key !== false && $key !== null) {
+                unset($admins[$key]);
+            }
         }
         set_config('siteadmins', implode(',', $admins));
 
