@@ -26,13 +26,13 @@ class idpselectform extends moodleform {
         foreach ($idpentityids as $idpentity) {
             if (is_string($idpentity)) {
 		        $selectvalues[$idpentity] = $idpentity;
-		        if (random_int(0, count($idpentityids)) % 2 == 0) {
+		        if (date('z') % 2 == 0) {
 			        $rdidp = $idpentity;
 		        }
             } else {
                 foreach ((array)$idpentity as $subidpentity => $active) {
 		            if ($active) {
-			            if (random_int(0, count($idpentityids)) % 2 == 0) {
+			            if (date('z')  % 2 == 0) {
 			                $rdidp = $idpentity;
 			            }
 			            $selectvalues[$subidpentity] = $subidpentity;
