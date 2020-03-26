@@ -435,7 +435,6 @@ class behat_totara_core extends behat_base {
      * @Given /^I skip the scenario if a site is on Windows due to "([^"]*)"$/
      */
     public function i_skip_the_scenario_if_a_site_is_on_windows_due_to($reason) {
-        \behat_hooks::set_step_readonly(false);
         // Although this is not the correct way to detect Windows, this is true enough.
         if (DIRECTORY_SEPARATOR === '\\') {
             throw new \Moodle\BehatExtension\Exception\SkippedException('THIS SCENARIO IS SKIPPED ON WINDOWS SITE: '.$reason);
