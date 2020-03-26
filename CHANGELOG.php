@@ -3,6 +3,20 @@
 
 Totara Learn Changelog
 
+Release 9.42 (27th March 2020):
+===============================
+
+
+Security issues:
+
+    TL-23720       Validation of URLs handled by the URL repository has been tightened
+
+                   URL validation across the entire platform was improved in Totara 12 to make
+                   it more robust.
+                   These changes have been backported in part, specifically for and limited to
+                   the URL download repository as it is a high risk plugin.
+
+
 Release 9.41 (26th February 2020):
 ==================================
 
