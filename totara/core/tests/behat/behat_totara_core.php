@@ -429,6 +429,19 @@ class behat_totara_core extends behat_base {
     }
 
     /**
+     * Convenience step to force a Behat scenario to be skipped if a server is running on Windows.
+     * Note that we do not need the opposite step so far.
+     *
+     * @Given /^I skip the scenario if a site is on Windows due to "([^"]*)"$/
+     */
+    public function i_skip_the_scenario_if_a_site_is_on_windows_due_to($reason) {
+        // Although this is not the correct way to detect Windows, this is true enough.
+        if (DIRECTORY_SEPARATOR === '\\') {
+            throw new \Moodle\BehatExtension\Exception\SkippedException('THIS SCENARIO IS SKIPPED ON WINDOWS SITE: '.$reason);
+        }
+    }
+
+    /**
      * Am I on the right page? This is intended to be used
      * instead of 'I should see "Course 1"' when on course page.
      *
