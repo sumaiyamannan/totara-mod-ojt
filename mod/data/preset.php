@@ -136,7 +136,7 @@ if (optional_param('sesskey', false, PARAM_BOOL) && confirm_sesskey()) {
         $exportfilename = basename($exportfile);
         header("Content-Type: application/download\n");
         // Totara: Send the content-disposition header with properly encoded filename.
-        require($CFG->libdir.'/filelib.php');
+        require_once($CFG->libdir.'/filelib.php');
         header(make_content_disposition('attachment', $exportfilename));
         header('Expires: 0');
         header('Cache-Control: must-revalidate,post-check=0,pre-check=0');

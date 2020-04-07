@@ -138,7 +138,7 @@ if ($csv && $grandtotal && count($activities)>0) { // Only show CSV if there are
 
     $shortname = format_string($course->shortname, true, array('context' => $context));
     // Totara: Send the content-disposition header with properly encoded filename.
-    require($CFG->libdir.'/filelib.php');
+    require_once($CFG->libdir.'/filelib.php');
     $filename = 'progress.'.
         preg_replace('/[^a-z0-9-]/','_',core_text::strtolower(strip_tags($shortname))).'.csv';
     header(make_content_disposition('attachment', $filename));
