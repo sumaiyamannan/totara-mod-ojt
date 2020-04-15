@@ -14,16 +14,16 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-/**
- * Catalyst
- *
- * @package local_catalyst
- * @author  Eugene Venter <eugene@catalyst.net.nz>
- * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
-defined('MOODLE_INTERNAL') or die();
+defined('MOODLE_INTERNAL') || die();
 
-$plugin->component = 'local_catalyst';
-$plugin->version   = 2018102801;
-$plugin->requires  = 2013111800;
-$plugin->cron      = 0;
+$tasks = [
+    [
+        'classname' => 'local_catalyst\task\clear_local_cache',
+        'blocking' => 0,
+        'minute' => 0,
+        'hour' => 'R',
+        'day' => '*',
+        'dayoftheweek' => '*',
+        'month' => '*',
+    ],
+];
