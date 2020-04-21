@@ -84,7 +84,7 @@ abstract class cohort_rule_sqlhandler_in extends cohort_rule_sqlhandler {
      * @return stdClass
      */
     public function get_query_base_operator($operator, $query, $lov, $defaultdata = null) {
-        global $CFG;
+        global $CFG, $DB;
         require_once($CFG->dirroot.'/totara/core/searchlib.php');
 
         // Create object to be returned
@@ -115,7 +115,8 @@ abstract class cohort_rule_sqlhandler_in extends cohort_rule_sqlhandler {
                 list($sqlhandler->sql, $sqlhandler->params) = search_get_keyword_where_clause_options($query, $lov, false, 'endswith');
                 break;
             case COHORT_RULES_OP_IN_ISEMPTY:
-                list($sqlhandler->sql, $sqlhandler->params) = array("({$query} = :empty OR ({$query}) IS NULL)", array('empty' => ''));
+                $emptyparam = $DB->get_unique_param('empty');
+                list($sqlhandler->sql, $sqlhandler->params) = array("({$query} = :{$emptyparam} OR ({$query}) IS NULL)", array($emptyparam => ''));
                 break;
             case COHORT_RULES_OP_IN_NOTEQUALTO:
                 list($sql, $params) = search_get_keyword_where_clause_options($query, $lov, true, 'notequal');
