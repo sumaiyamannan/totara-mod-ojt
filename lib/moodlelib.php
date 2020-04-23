@@ -8783,7 +8783,8 @@ function getremoteaddr($default='0.0.0.0') {
 
             $forwardedaddresses = array_filter($forwardedaddresses, function($ip) {
                 global $CFG;
-                return !\core\ip_utils::is_ip_in_subnet_list($ip, $CFG->reverseproxyignore, ',');
+                $reverseproxyignore = isset($CFG->reverseproxyignore) ? $CFG->reverseproxyignore : '';
+                return !\core\ip_utils::is_ip_in_subnet_list($ip, $reverseproxyignore, ',');
             });
 
             // Multiple proxies can append values to this header including an
