@@ -305,6 +305,7 @@ $string['configrequestedstudentname'] = 'Word for learner used in requested cour
 $string['configrequestedstudentsname'] = 'Word for learners used in requested courses';
 $string['configrequestedteachername'] = 'Word for trainer used in requested courses';
 $string['configrequestedteachersname'] = 'Word for trainers used in requested courses';
+$string['configreverseproxyignore'] = 'If your server is behind multiple reverse proxies that append to the X-Forwarded-For header then you will need to specify a comma separated list of ip addresses or subnets of the reverse proxies to be ignored in order to find the users correct IP address.';
 $string['configrunclamavonupload'] = 'When enabled, clam AV will be used to scan all uploaded files.';
 $string['configrunclamonupload'] = 'Run clam AV on file upload? You will need a correct path in pathtoclam for this to work.  (Clam AV is a free virus scanner that you can get from http://www.clamav.net/)';
 $string['configuserquota'] = 'The maximum number of bytes that a user can store in their own private file area. {$a->bytes} bytes == {$a->displaysize}';
@@ -960,6 +961,7 @@ $string['restorecourse'] = 'Restore course';
 $string['restorernewroleid'] = 'Restorers\' role in courses';
 $string['restorernewroleid_help'] = 'If the user does not already have the permission to manage the newly restored course, the user is automatically assigned this role and enrolled if necessary. Select **None** if you do not want restorers to be able to manage every restored course.';
 $string['reverseproxy'] = 'Reverse proxy';
+$string['reverseproxyignore'] = 'Ignore reverse proxies';
 $string['riskconfig'] = 'Users could change site configuration and behaviour';
 $string['riskconfigshort'] = 'Configuration risk';
 $string['riskdataloss'] = 'Users could destroy large amounts of content or information';

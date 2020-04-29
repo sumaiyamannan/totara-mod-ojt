@@ -434,4 +434,31 @@ class restore_quiz_activity_structure_step extends restore_questions_activity_st
                     'shufflequestions' => $this->legacyshufflequestionsoption));
         }
     }
+
+    protected function after_restore() {
+        global $DB;
+
+        // Totara: fix quiz gradepass issue coming from Totara 2.7 and earlier.
+        if ($this->get_task()->get_info()->moodle_version < 2014051299) {
+            $params = [
+                'courseid'     => $this->get_courseid(),
+                'itemtype'     => 'mod',
+                'itemmodule'   => 'quiz',
+                'iteminstance' => $this->get_new_parentid('quiz'),
+            ];
+            $gradeitem = $DB->get_record('grade_items', $params);
+            $quiz = $DB->get_record('quiz', ['id' => $this->get_new_parentid('quiz')]);
+            $cm = get_coursemodule_from_instance('quiz', $quiz->id);
+            if ($cm->completion == 2) { // "Show activity as complete when conditions are met" option selected course.
+                if ($gradeitem->gradepass != 0) {
+                    $quiz->completionpass = '1';
+                    $DB->update_record('quiz', $quiz);
+                }
+            }
+            if ($quiz->completionpass == 1 && $cm->completiongradeitemnumber === null) {
+                $cm->completiongradeitemnumber = $gradeitem->itemnumber;
+                $DB->update_record('course_modules', $cm);
+            }
+        }
+    }
 }
