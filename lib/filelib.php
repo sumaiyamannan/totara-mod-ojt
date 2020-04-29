@@ -2093,6 +2093,37 @@ function readstring_accel($string, $mimetype, $accelerate) {
 }
 
 /**
+ * Generate the string of the Content-Disposition header. (RFC2183, RFC6266, RFC5987)
+ *
+ * @param string $dispositiontype The disposition type must be either 'inline' or 'attachment'
+ * @param string|false|null $filename The filename. Set false or null to not append the filename and filename*.
+ *                                    Note that invalid filename characters are stripped.
+ * @since Totara 9.43, 10.32, 11.26, 12.17, 13.0
+ */
+function make_content_disposition($dispositiontype, $filename = null) {
+    // The disposition type is case insensitive.
+    $dispositiontype = strtolower($dispositiontype);
+    if ($dispositiontype !== 'inline' && $dispositiontype !== 'attachment') {
+        throw new coding_exception('The disposition-type must be inline or attachment.');
+    }
+    // Clean up filename.
+    $filename = (string)$filename;
+    if ($filename !== '') {
+        $filename = clean_param($filename, PARAM_FILE);
+    }
+    // Do not send a filename.
+    if ($filename === '') {
+        return 'Content-Disposition: '.$dispositiontype;
+    }
+    // IE11 and Edge18 do not accept utf-8 characters in the "filename" field because its character set is not well defined.
+    // RFC6266 has introduced the new field "filename*" to solve this problem.
+    // However, Safari ignores the section 4.3 and just does not work if both "filename" and "filename*" are sent.
+    // The workaround is to send only "filename*" as any other supported web browser correctly implements RFC6266.
+    $filename_enc = rawurlencode($filename);
+    return 'Content-Disposition: '.$dispositiontype.'; filename*=utf-8\'\''.$filename_enc;
+}
+
+/**
  * Handles the sending of temporary file to user, download is forced.
  * File is deleted after abort or successful sending, does not return, script terminated
  *
@@ -2118,12 +2149,8 @@ function send_temp_file($path, $filename, $pathisstring=false) {
         core_shutdown_manager::register_function('send_temp_file_finished', array($path));
     }
 
-    // if user is using IE, urlencode the filename so that multibyte file name will show up correctly on popup
-    if (core_useragent::is_ie()) {
-        $filename = urlencode($filename);
-    }
-
-    header('Content-Disposition: attachment; filename="'.$filename.'"');
+    // Totara: Remove browser detection and send the Content-Disposition header with properly encoded filename.
+    header(make_content_disposition('attachment', $filename));
     if (is_https()) { // HTTPS sites - watch out for IE! KB812935 and KB316431.
         header('Cache-Control: private, max-age=10, no-transform');
         header('Expires: '. gmdate('D, d M Y H:i:s', 0) .' GMT');
@@ -2201,12 +2228,14 @@ function send_file($path, $filename, $lifetime = null , $filter=0, $pathisstring
     $mimetype = totara_tweak_file_sending($mimetype, $forcedownload);
 
     if ($forcedownload) {
-        header('Content-Disposition: attachment; filename="'.$filename.'"');
+        // Totara: Send the content-disposition header with properly encoded filename.
+        header(make_content_disposition('attachment', $filename));
     } else if ($mimetype !== 'application/x-shockwave-flash') {
         // If this is an swf don't pass content-disposition with filename as this makes the flash player treat the file
         // as an upload and enforces security that may prevent the file from being loaded.
 
-        header('Content-Disposition: inline; filename="'.$filename.'"');
+        // Totara: Send the content-disposition header with properly encoded filename.
+        header(make_content_disposition('inline', $filename));
     }
 
     if ($lifetime > 0) {

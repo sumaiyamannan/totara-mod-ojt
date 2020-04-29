@@ -3,6 +3,66 @@
 
 Totara Learn Changelog
 
+Release 9.43 (29th April 2020):
+===============================
+
+
+Security issues:
+
+    TL-24490       Shibboleth attributes are now validated against a blacklist of common $_SERVER variables
+
+                   Prior to this change Shibboleth attribute mapping could access any
+                   variables stored in $_SERVER, allowing for malicious configurations to be
+                   created.
+                   All user attributes are now validated to ensure that they are not in a list
+                   of commonly available $_SERVER variables that do not belong to Shibboleth.
+
+    TL-24587       HTML block no longer allows self-XSS
+
+                   Prior to this change, users could perform XSS attacks on themselves by
+                   adding an HTML block when customising their dashboard, giving it malicious
+                   content, saving it, and then editing it again.
+                   When customised, a dashboard is only visible to the owning user. However
+                   admins could still experience the malicious block using the login as
+                   functionality.
+
+                   This has now been fixed, and when editing an HTML block on user pages the
+                   content is cleaned before it is loaded into the editor.
+
+    TL-24618       Backported MDL-67861: IP addresses can be spoofed using X-Forwarded-For
+
+                   If your server is behind multiple reverse proxies that append to
+                   the X-Forwarded-For header then you will need to specify a comma
+                   separated list of ip addresses or subnets of the reverse proxies to be
+                   ignored in order to find the users correct IP address.
+
+Bug fixes:
+
+    TL-23459       Made sure Quiz activity takes passing grade requirement into account when restoring from course backups made with Totara 2.7 or earlier
+    TL-24779       Ensured "inlist" type audience rule SQL parameters use unique names
+
+                   This occurred when multiple inlist rules were added to an audience and were
+                   using the IS EMPTY operator.
+                   If encountered a fatal error was produced.
+                   The inlist rule has now been updated to ensure it uses unique parameter
+                   names.
+
+API changes:
+
+    TL-22910       Send filename* instead of filename in the Content-Disposition response header
+
+                   This patch will particularly resolve the file name corruption (mojibake)
+                   when downloading a file with name containing non-ASCII characters on
+                   Microsoft Edge 18 or older, by sending the filename* field introduced in
+                   RFC 6266.
+                   On the other hand, the filename field (without asterisk) is no longer sent
+                   to prevent a browser bug in Apple Safari.
+
+Contributions:
+
+    * Sergey Vidusov at Androgogic - TL-24779
+
+
 Release 9.42 (27th March 2020):
 ===============================
 
