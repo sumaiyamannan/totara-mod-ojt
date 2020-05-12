@@ -172,13 +172,9 @@ class auth_plugin_catadmin extends auth_plugin_base {
                 $this->error_page(get_string('noidpfound', 'auth_catadmin', $idpalias));
             }
         } else if (!empty(optional_param('idp', '', PARAM_RAW))) {
-            $SESSION->catadminidp = optional_param('idp', '', PARAM_RAW);
+            $SESSION->catadminidp = md5(optional_param('idp', '', PARAM_RAW));
         } else if (!is_null($catadminsaml->defaultidp)) {
             $SESSION->catadminidp = md5($catadminsaml->defaultidp->entityid);
-        }
-
-        if (optional_param('rememberidp', '', PARAM_RAW) == 1) {
-            $this->set_idp_cookie($SESSION->catadminidp);
         }
 
         $auth = new \SimpleSAML\Auth\Simple($this->spname);
@@ -233,6 +229,12 @@ class auth_plugin_catadmin extends auth_plugin_base {
             $user->firstname = $attributes['catalystFirstName'][0];
             $user->lastname = $attributes['catalystLastName'][0];
             user_update_user($user, false, false);
+        } else {
+            if ($user->email !== $attributes['catalystEmail'][0]) {
+                // Change emails
+                $user->email = $attributes['catalystEmail'][0];
+                user_update_user($user, false, false);
+            }
         }
 
         $admins = array();
@@ -265,33 +267,6 @@ class auth_plugin_catadmin extends auth_plugin_base {
         }
 
         return;
-    }
-
-    /**
-     * Sets a preferred IdP in a cookie for faster subsequent logging in.
-     *
-     * @param string $idp a md5 encoded IdP entityid
-     */
-    public function set_idp_cookie($idp) {
-        global $CFG;
-
-        if (NO_MOODLE_COOKIES) {
-            return;
-        }
-
-        $cookiename = 'MOODLEIDP1_'.$CFG->sessioncookie;
-
-        $cookiesecure = is_moodle_cookie_secure();
-
-        // Delete old cookie.
-        setcookie($cookiename, '', time() - HOURSECS, $CFG->sessioncookiepath, $CFG->sessioncookiedomain,
-            $cookiesecure, $CFG->cookiehttponly);
-
-        if ($idp !== '') {
-            // Set username cookie for 60 days.
-            setcookie($cookiename, $idp, time() + (DAYSECS * 60), $CFG->sessioncookiepath, $CFG->sessioncookiedomain,
-                $cookiesecure, $CFG->cookiehttponly);
-        }
     }
 
     public function error_page($msg) {
