@@ -5,6 +5,7 @@
  */
 
 $string['pluginname'] = 'Catadmin Authentication';
+$string['auth_catadmindescription'] = 'Authentication plugin for Catalyst IT Staff';
 
 $string['debug'] = 'Debugging';
 $string['debug_help'] = '<p>This adds extra debugging to the normal moodle log | <a href=\'{$a}\'>View SSP config</a></p>';
