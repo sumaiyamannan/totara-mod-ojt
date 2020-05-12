@@ -64,6 +64,12 @@ class gradeimport_csv_renderer extends plugin_renderer_base {
      */
     public function import_preview_page($header, $data) {
 
+        // Totara: treat csv data as plain text
+        $header = array_map('s', $header);
+        foreach ($data as $k => $v) {
+            $data[$k] = array_map('s', $v);
+        }
+
         $html = $this->output->heading(get_string('importpreview', 'grades'));
 
         $table = new html_table();
