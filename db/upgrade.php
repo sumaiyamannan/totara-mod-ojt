@@ -20,8 +20,8 @@ function xmldb_auth_catadmin_upgrade($oldverison) {
     global $CFG, $DB;
 
     if ($oldverison < 2020042801) {
-        if ($DB->record_exists('user' , ['username' => 'catadmin'])) {
-            $catadminid = $DB->get_field_select('user', 'id', 'username = ?', array('catadmin'));
+        if ($DB->record_exists('user' , ['username' => 'catadmin', 'deleted' => 0, 'mnethostid' => $CFG->mnet_localhost_id])) {
+            $catadminid = $DB->get_field_select('user', 'id', 'username = ? and deleted = 0 and nmethostid = ?', array('catadmin', $CFG->mnet_localhost_id));
             $DB->update_record('user', ['id' => $catadminid, 'firstname' => 'Catalyst']);
             $DB->update_record('user', ['id' => $catadminid, 'lastname' => 'TestAccount']);
 
