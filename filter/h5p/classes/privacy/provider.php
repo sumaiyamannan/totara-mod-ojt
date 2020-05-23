@@ -33,7 +33,7 @@ class provider implements \core_privacy\local\metadata\null_provider {
     /**
      * Return the reason why null provider suffices.
      */
-    public static function get_reason(): string {
+    public static function get_reason() {  // WR#333652: temp remove return type while on PHP5.
         return 'privacy:metadata';
     }
 }
