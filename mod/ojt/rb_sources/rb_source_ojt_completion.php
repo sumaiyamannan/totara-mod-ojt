@@ -205,8 +205,13 @@ class rb_source_ojt_completion extends rb_base_source {
                 'base',
                 'status',
                 get_string('completionstatus', 'rb_source_ojt_completion'),
-                'base.status',
-                array('displayfunc' => 'ojt_completion_status')
+                "CASE 
+                    WHEN status IS NULL THEN '-1'
+                    ELSE base.status
+                END",    
+                array(
+                    'displayfunc' => 'ojt_completion_status'
+                )
             ),
             new rb_column_option(
                 'base',
@@ -422,8 +427,8 @@ class rb_source_ojt_completion extends rb_base_source {
     //
 
     function rb_display_ojt_completion_status($status, $row, $isexport) {
-        if (empty($status)) {
-            return get_string('completionstatus'.OJT_INCOMPLETE, 'ojt');
+        if ($status == '-1') {
+            return get_string('notassessed', 'ojt');
         } else {
             return get_string('completionstatus'.$status, 'ojt');
         }

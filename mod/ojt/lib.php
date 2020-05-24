@@ -46,12 +46,35 @@ define('OJT_CTYPE_TOPICITEM', 2);
 define('OJT_INCOMPLETE', 0);
 define('OJT_REQUIREDCOMPLETE', 1);
 define('OJT_COMPLETE', 2);
+define('OJT_FAILED', 3);
+define('OJT_REASSESSMENT', 4);
+
+/**
+ * OJT completion statuses text
+ * KINEO CCM
+ * HWRHAS-159
+ * Because passing zero to ojt_update_completion to force other completion status
+ * resolved as null
+ */
+define('OJT_COMPLETION_INCOMPLETE', 'incomplete');
+define('OJT_COMPLETION_REQUIREDCOMPLETE', 'requiredcomplete');
+define('OJT_COMPLETION_COMPLETE', 'complete');
+define('OJT_COMPLETION_FAILED', 'failed');
+define('OJT_COMPLETION_REASSESSMENT', 'reassessment');
 
 /**
  * OJT completion requirements
  */
 define('OJT_REQUIRED', 0);
 define('OJT_OPTIONAL', 1);
+
+
+/**
+ * KINEO CCM
+ * HWRHAS-161
+ */
+define('OJT_QUESTION_TYPE_TEXT', 1);
+define('OJT_QUESTION_TYPE_DROPDOWN', 2);
 
 /* Moodle core API */
 
@@ -166,6 +189,10 @@ function ojt_delete_instance($id) {
 
     // Delete topics
     $DB->delete_records('ojt_topic', array('ojtid' => $ojt->id));
+    
+    // KINEO CCM
+    // Delete ojt archives
+    $DB->delete_records('ojt_archives', array('ojtid' => $ojt->id));
 
     // Finally, delete the ojt ;)
     $DB->delete_records('ojt', array('id' => $ojt->id));
@@ -280,10 +307,10 @@ function ojt_get_completion_state($course, $cm, $userid, $type) {
     if (empty($ojt->completiontopics)) {
         return $type;
     }
-
+    
     return $DB->record_exists_select('ojt_completion',
-        'ojtid = ? AND userid =? AND type = ? AND status IN (?, ?)',
-        array($ojt->id, $userid, OJT_CTYPE_OJT, OJT_COMPLETE, OJT_REQUIREDCOMPLETE));
+        'ojtid = ? AND userid =? AND type = ? AND status IN (?, ?, ?)',
+        array($ojt->id, $userid, OJT_CTYPE_OJT, OJT_COMPLETE, OJT_REQUIREDCOMPLETE, OJT_FAILED));
 
 }
 
@@ -470,13 +497,19 @@ function ojt_pluginfile($course, $cm, $context, $filearea, array $args, $forcedo
         // Only evaluators and/or owners have access to files
         return false;
     }
-
+  
+    // BEGIN - KINEO CORE MODIFICATION
+    // MPIHAS-369 
     $fs = get_file_storage();
-    $relativepath = implode('/', $args);
-    $fullpath = "/$context->id/mod_ojt/$filearea/$relativepath";
-    if ((!$file = $fs->get_file_by_hash(sha1($fullpath))) || $file->is_directory()) {
+
+    $filename = array_pop($args);
+    $itemid = array_shift($args);
+    $filepath = array_shift($args) ? '/'.implode('/', array_shift($args)).'/' : '/';
+
+    if (!$file = $fs->get_file($context->id, 'mod_ojt', $filearea, $itemid, $filepath, $filename) or $file->is_directory()) {
         send_file_not_found();
     }
+    // END - KINEO CORE MODIFICATION 
 
     // finally send the file
     send_stored_file($file, null, 0, $forcedownload, $options);
@@ -593,4 +626,3 @@ function ojt_comment_template() {
 
     return $renderer->comment_template();
 }
-

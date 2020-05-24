@@ -74,6 +74,11 @@ $canevaluate = has_capability('mod/ojt:evaluate', $modcontext);
 $canevalself = has_capability('mod/ojt:evaluateself', $modcontext);
 $cansignoff = has_capability('mod/ojt:signoff', $modcontext);
 
+// KINEO CCM MPIHAS-523
+if(!empty($ojt->allowselfevaluation)) {
+    $canevalself = true;
+}
+
 if ($canevalself && !($canevaluate || $cansignoff)) {
     // Seeing as the user can only self-evaluate, but nothing else, redirect them straight to the eval page
     redirect(new moodle_url($CFG->wwwroot.'/mod/ojt/evaluate.php',

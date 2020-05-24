@@ -80,7 +80,10 @@ echo $OUTPUT->heading($headingstr);
 echo $OUTPUT->container_start('', 'ojt_evaluation');
 
 $countfiltered = $report->get_filtered_count();
-$countall = $report->get_full_count();
+$countall = 0;
+if($report->can_display_total_count()) {
+    $countall = $report->get_full_count();
+}
 
 if ($debug) {
     $report->debug($debug);

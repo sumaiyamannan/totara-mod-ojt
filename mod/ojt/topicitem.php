@@ -29,6 +29,9 @@ $ojtid = required_param('bid', PARAM_INT); // OJT instance id.
 $topicid  = required_param('tid', PARAM_INT);  // Topic id.
 $itemid = optional_param('id', 0, PARAM_INT);  // Topic item id.
 $delete = optional_param('delete', 0, PARAM_BOOL);
+// KINEO CCM
+// HWRHAS-161
+$questiontype = optional_param('type', 1, PARAM_INT);
 
 $ojt = $DB->get_record('ojt', array('id' => $ojtid), '*', MUST_EXIST);
 $course = $DB->get_record('course', array('id' => $ojt->course), '*', MUST_EXIST);
@@ -38,7 +41,7 @@ require_login($course, true, $cm);
 $context = context_module::instance($cm->id);
 require_capability('mod/ojt:manage', $context);
 
-$PAGE->set_url('/mod/ojt/topicitem.php', array('bid' => $ojtid, 'tid' => $topicid, 'id' => $itemid));
+$PAGE->set_url('/mod/ojt/topicitem.php', array('bid' => $ojtid, 'tid' => $topicid, 'id' => $itemid, 'type' => $questiontype));
 
 // Handle actions
 if ($delete) {
@@ -59,15 +62,26 @@ if ($delete) {
     totara_set_notification(get_string('itemdeleted', 'ojt'), $redirecturl, array('class' => 'notifysuccess'));
 }
 
-$form = new ojt_topic_item_form(null, array('ojtid' => $ojtid, 'topicid' => $topicid));
+if($questiontype == OJT_QUESTION_TYPE_DROPDOWN) {
+    $formName = 'ojt_topic_item_menu_question_form';
+} else {
+    $formName = 'ojt_topic_item_form';
+}
+$form = new $formName(null, array('ojtid' => $ojtid, 'topicid' => $topicid, 'type' => $questiontype));
 if ($data = $form->get_data()) {
     // Save topic
     $item = new stdClass();
     $item->topicid = $data->tid;
     $item->name = $data->name;
     $item->completionreq = $data->completionreq;
-    $item->allowfileuploads = $data->allowfileuploads;
-    $item->allowselffileuploads = $data->allowselffileuploads;
+    $item->allowfileuploads = !empty($data->allowfileuploads) ? $data->allowfileuploads : '';
+    $item->allowselffileuploads = !empty($data->allowselffileuploads) ? $data->allowselffileuploads : '';
+    // HWRHAS-161
+    // KINEO CCM
+    if(!empty($data->menuoptions)) {
+        $item->other = $data->menuoptions;
+    }
+    $item->type = $data->type;
 
     if (empty($data->id)) {
         // Add
@@ -94,6 +108,10 @@ echo $OUTPUT->heading($PAGE->heading);
 
 if (!empty($itemid)) {
     $item = $DB->get_record('ojt_topic_item', array('id' => $itemid), '*', MUST_EXIST);
+    $item->menuoptions = !empty($item->other) ? $item->other : '';
+    if(!empty($questiontype)) {
+        $item->type = $questiontype;
+    }
     $form->set_data($item);
 }
 

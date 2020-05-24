@@ -24,14 +24,10 @@
  * OJT item completion ajax toggler
  */
 
-define('AJAX_SCRIPT', true);
-
 require_once(dirname(dirname(dirname(__FILE__))).'/config.php');
 require_once($CFG->dirroot.'/mod/ojt/lib.php');
 require_once($CFG->dirroot.'/mod/ojt/locallib.php');
 require_once($CFG->dirroot .'/totara/core/js/lib/setup.php');
-
-require_sesskey();
 
 $userid = required_param('userid', PARAM_INT);
 $ojtid  = required_param('bid', PARAM_INT);
@@ -45,8 +41,10 @@ $cm         = get_coursemodule_from_instance('ojt', $ojt->id, $course->id, false
 
 require_login($course, true, $cm);
 
-if (!ojt_can_evaluate($userid, context_module::instance($cm->id))) {
-    print_error('access denied');
+if(empty($ojt->allowselfevaluation)) {
+    if (!ojt_can_evaluate($userid, context_module::instance($cm->id))) {
+        print_error('access denied');
+    }
 }
 
 // Get the ojt item, joining on topic to ensure the item does belong to the ojt
@@ -91,6 +89,10 @@ if ($completion = $DB->get_record('ojt_completion', $params)) {
             $completion->comment = required_param('comment', PARAM_TEXT);
             // append a date to the comment string
             $completion->comment .= ' - '.userdate(time(), $dateformat).'.';
+            break;
+        case 'savemenuoption':
+            $completion->status = OJT_COMPLETE;
+            $completion->comment = required_param('option', PARAM_TEXT);
             break;
         default:
     }

@@ -46,6 +46,14 @@ $PAGE->set_url('/mod/ojt/view.php', array('id' => $cm->id));
 $PAGE->set_title(format_string($course->fullname));
 $PAGE->set_heading(format_string($ojt->name).' - '.get_string('manage', 'ojt'));
 
+// jQuery UI for Sorting
+$PAGE->requires->js('/mod/ojt/js_libs/jquery-ui.min.js', true);
+$jsmodule = array(
+    'name' => 'mod_ojt_evaluate',
+    'fullpath' => '/mod/ojt/sorttopics.js'
+);
+$PAGE->requires->js_init_call('M.mod_ojt_sorttopics.init', array(), false, $jsmodule);
+
 // Output starts here.
 echo $OUTPUT->header();
 
@@ -53,6 +61,11 @@ echo $OUTPUT->header();
 echo $OUTPUT->heading($PAGE->heading);
 
 $addtopicurl = new moodle_url('/mod/ojt/topic.php', array('bid' => $ojt->id));
+
+// KINEO CCM
+// MPIHAS-384
+echo html_writer::tag('button', get_string('btn_updatetopic_order', 'mod_ojt'), array('id' => 'update-ojt-topics-order'));
+
 echo html_writer::tag('div', $OUTPUT->single_button($addtopicurl, get_string('addtopic', 'ojt')),
     array('class' => 'mod-ojt-topic-addbtn'));
 

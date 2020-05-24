@@ -51,10 +51,17 @@ $string['competencies'] = 'Competencies';
 $string['competencies_help'] = 'Here you can select which of the assigned course competencies should be marked as proficient upon completion of this topic.
 
 Multiple competencies can be selected by holding down \<CTRL\> and and selecting the items.';
+
 $string['completionstatus'] = 'Completion status';
 $string['completionstatus0'] = 'Incomplete';
 $string['completionstatus1'] = 'Required complete';
 $string['completionstatus2'] = 'Complete';
+// HWRHAS-1599
+$string['completionstatus3'] = 'Training required';
+// HWRHAS-254
+$string['completionstatus4'] = 'Re-assessment required';
+
+
 $string['completiontopics'] = 'All required topics are complete and, if enabled, witnessed.';
 $string['confirmtopicdelete'] = 'Are you sure you want to delete this topic?';
 $string['confirmitemdelete'] = 'Are you sure you want to delete this topic item?';
@@ -95,3 +102,42 @@ $string['type1'] = 'Topic';
 $string['type2'] = 'Item';
 $string['updatefiles'] = 'Update files';
 $string['witnessed'] = 'Witnessed';
+// MPIHAS-384
+$string['btn_sorttopicitems'] = 'Save Topic Item Order';
+$string['positionupdate_successful'] = 'Position update successfully';
+$string['btn_sorttopic'] = 'Save Topic Order';
+$string['sorttopic'] = 'Sort Topic';
+$string['btn_cancel'] = 'Cancel';
+$string['btn_updatetopic_order'] = 'Update topic order';
+// MPIHAS-523
+$string['allowselfevaluation'] = 'Allow learner self-evaluation';
+// HWRHAS-159
+$string['completion_status'] = 'Completion status';
+$string['achieved'] = 'Assessment complete - competent';
+$string['notachieved'] = 'Reassessment required';
+$string['trainingrequired'] = 'Stand down recommended';
+$string['achieved_modaltext'] = 'You are about to mark this activity\'s status as <strong>Assessment complete - competent</strong>. This means they will continue on the normal reassessment schedule. Please confirm?';
+$string['notachieved_modaltext'] = 'You are about to mark this activity\'s status as <strong>Reassessment required</strong>. This means they will need to be seen by a Driver Trainer sooner than the normal reassessment schedule. Please confirm?';
+$string['trainingrequired_modaltext'] = 'You are about to mark this activity\'s status as <strong>Stand down recommended</strong>. This means you are recommending to their manager that they are stood down from further driver duties until additional training and a reassessment is complete. Please confirm?.';
+$string['cancel'] = 'Cancel';
+$string['confirm'] = 'Confirm';
+$string['confirm_modal_title'] = 'Confirm completions status';
+$string['confirm_modal_body'] = '<span id="ojt-modal-completion-status"></span>';
+$string['current_completion_status'] = 'Current completion status';
+$string['topic_item'] = 'Topic item';
+$string['ojtarchivedfor'] = 'Archived OJT record for {$a}';
+$string['ojtarchivedevidence'] = 'Archived OJT Evidence';
+$string['archiveojt'] = 'Archive OJT';
+// HWRHAS-162
+$string['saveallonsubmit'] = 'Save evaluation data on form submit';
+$string['saveallonsubmit_help'] = 'When checked, while evaluating the learner, all form data will be saved on form submit instead of individually.';
+$string['submit'] = 'Submit';
+// HWRHAS-161
+$string['menuoptions'] = 'Menu options';
+$string['menuoptions_help'] = 'Enter menu options in a new line.';
+$string['textquestion'] = 'Text question';
+$string['menuquestion'] = 'Menu question';
+// HWRHAS-239
+$string['questiontype'] = 'Question type';
+// HWRHAS-245
+$string['notassessed'] = 'Not yet assessed';

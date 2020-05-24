@@ -53,8 +53,19 @@ $modcontext = context_module::instance($cm->id);
 $canevaluate = ojt_can_evaluate($userid, $modcontext);
 $cansignoff = has_capability('mod/ojt:signoff', $modcontext);
 $canwitness = has_capability('mod/ojt:witnessitem', $modcontext);
-if (!($canevaluate || $cansignoff || $canwitness)) {
-    print_error('accessdenied', 'ojt');
+
+// KINEO CCM MPIHAS-523
+if(empty($ojt->allowselfevaluation)) {
+    if (!($canevaluate || $cansignoff || $canwitness)) {
+        print_error('accessdenied', 'ojt');
+    }
+} else {
+    global $USER;
+    if($userid == $USER->id) {
+        $canevaluate = true;
+    } else {
+        print_error('accessdenied', 'ojt');
+    }
 }
 
 $userojt = ojt_get_user_ojt($ojt->id, $userid);
@@ -106,7 +117,14 @@ if ($ojt->intro) {
 
 // Print the evaluation
 $renderer = $PAGE->get_renderer('ojt');
-echo $renderer->user_ojt($userojt, $canevaluate, $cansignoff, $canwitness);
+if($userojt->saveallonsubmit) {
+    echo $renderer->user_ojt_save_on_submission($userojt, $canevaluate, $cansignoff, $canwitness);
+    echo $renderer->activity_completion_status_dropdown($userojt);
+} else {
+    echo $renderer->user_ojt($userojt, $canevaluate, $cansignoff, $canwitness);
+}
+
+
 
 // Finish the page.
 echo $OUTPUT->footer();

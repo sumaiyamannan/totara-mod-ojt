@@ -35,7 +35,7 @@ class ojt_topic_form extends moodleform {
         $mform =& $this->_form;
         $courseid = $this->_customdata['courseid'];
         $ojtid = $this->_customdata['ojtid'];
-
+        
         $mform->addElement('text', 'name', get_string('name', 'ojt'));
         $mform->setType('name', PARAM_TEXT);
         $mform->addRule('name', null, 'required', null, 'client');
@@ -85,6 +85,8 @@ class ojt_topic_item_form extends moodleform {
         $mform =& $this->_form;
         $ojtid = $this->_customdata['ojtid'];
         $topicid = $this->_customdata['topicid'];
+        $questiontype = $this->_customdata['type'];
+        
 
         $mform->addElement('text', 'name', get_string('name', 'ojt'));
         $mform->setType('name', PARAM_TEXT);
@@ -97,6 +99,16 @@ class ojt_topic_item_form extends moodleform {
 
         $mform->addElement('advcheckbox', 'allowselffileuploads', get_string('allowselffileuploads', 'ojt'));
         $mform->setType('allowselffileuploads', PARAM_BOOL);
+        
+        // HWRHAS-239
+        // Question item type
+        $question_type = array(
+            OJT_QUESTION_TYPE_TEXT => get_string('textquestion', 'mod_ojt'),
+            OJT_QUESTION_TYPE_DROPDOWN => get_string('menuquestion', 'mod_ojt')
+        );
+        $mform->addElement('select', 'type', get_string('questiontype', 'ojt'), $question_type);
+        $mform->getElement('type')->setSelected($questiontype);
+        $mform->setType('type', PARAM_INT);
 
         $mform->addElement('hidden', 'id');
         $mform->setType('id', PARAM_INT);
@@ -106,8 +118,69 @@ class ojt_topic_item_form extends moodleform {
         $mform->addElement('hidden', 'tid');
         $mform->setType('tid', PARAM_INT);
         $mform->setDefault('tid', $topicid);
+        // KINEO CCM
+        // HWRHAS-161
+        //$mform->addElement('hidden', 'type');
+        //$mform->setType('type', PARAM_TEXT);
+        //$mform->setDefault('type', $questiontype);
+        
 
         $this->add_action_buttons(false);
     }
 }
 
+/**
+ * KINEO CCM
+ * Added a new class instead of modifying the old one 
+ * for ease of maintenance 
+ * 
+ * HWRHAS-161
+ * OJT topic item dropdown menu question type form
+ */
+class ojt_topic_item_menu_question_form extends moodleform {
+    function definition() {
+        global $CFG;
+        $mform =& $this->_form;
+        $ojtid = $this->_customdata['ojtid'];
+        $topicid = $this->_customdata['topicid'];
+        $questiontype = $this->_customdata['type'];
+
+        $mform->addElement('text', 'name', get_string('name', 'ojt'));
+        $mform->setType('name', PARAM_TEXT);
+        $mform->addRule('name', null, 'required', null, 'client');
+        
+        $mform->addElement('textarea', 'menuoptions', get_string('menuoptions', 'ojt'), array('rows' => 8, 'cols' => 40));
+        $mform->setType('menuoptions', PARAM_TEXT);
+        //$mform->addRule('menuoptions', null, 'required', null, 'client');
+        $mform->addHelpButton('menuoptions', 'menuoptions', 'ojt');
+        
+        $mform->addElement('advcheckbox', 'completionreq', get_string('optionalcompletion', 'ojt'));
+        
+        // HWRHAS-239
+        // Question item type
+        $question_type = array(
+            OJT_QUESTION_TYPE_TEXT => get_string('textquestion', 'mod_ojt'),
+            OJT_QUESTION_TYPE_DROPDOWN => get_string('menuquestion', 'mod_ojt')
+        );
+        $mform->addElement('select', 'type', get_string('questiontype', 'ojt'), $question_type);
+        $mform->getElement('type')->setSelected($questiontype);
+        $mform->setType('type', PARAM_INT);
+        
+        $mform->addElement('hidden', 'id');
+        $mform->setType('id', PARAM_INT);
+        $mform->addElement('hidden', 'bid');
+        $mform->setType('bid', PARAM_INT);
+        $mform->setDefault('bid', $ojtid);
+        $mform->addElement('hidden', 'tid');
+        $mform->setType('tid', PARAM_INT);
+        $mform->setDefault('tid', $topicid);
+           
+        // KINEO CCM
+        // HWRHAS-161
+        //$mform->addElement('hidden', 'type');
+        //$mform->setType('type', PARAM_TEXT);
+        //$mform->setDefault('type', $questiontype);
+
+        $this->add_action_buttons(false);
+    }
+}

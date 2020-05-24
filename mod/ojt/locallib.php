@@ -60,7 +60,7 @@ function ojt_get_user_ojt($ojtid, $userid) {
         LEFT JOIN {ojt_item_witness} bw ON bw.topicitemid = i.id AND bw.userid = ?
         LEFT JOIN {user} witnessuser ON bw.witnessedby = witnessuser.id
         WHERE i.topicid {$insql}
-        ORDER BY i.topicid, i.id";
+        ORDER BY i.topicid, i.position"; // KINEO CCM => from i.id to i.position
     $params = array_merge(array(OJT_CTYPE_TOPICITEM, $userid, $userid), $params);
     $items = $DB->get_records_sql($sql, $params);
 
@@ -82,7 +82,7 @@ function ojt_get_user_topics($userid, $ojtid) {
         LEFT JOIN {ojt_topic_signoff} s ON t.id = s.topicid AND s.userid = ?
         LEFT JOIN {user} su ON s.modifiedby = su.id
         WHERE t.ojtid = ?
-        ORDER BY t.id';
+        ORDER BY t.position'; // KINEO CCM => from i.id to i.position
     return $DB->get_records_sql($sql, array(OJT_CTYPE_TOPIC, $userid, $userid, $ojtid));
 }
 
@@ -211,7 +211,19 @@ function ojt_update_topic_competency_proficiency($userid, $topicid, $status) {
     }
 }
 
-function ojt_update_completion($userid, $ojtid) {
+/**
+ * KINEO CCM 
+ * $tutor_forced_completion_status
+ * HWRHAS-159
+ * 
+ * @global type $DB
+ * @global type $USER
+ * @param type $userid
+ * @param type $ojtid
+ * @param type $tutor_forced_completion_status
+ * @return type
+ */
+function ojt_update_completion($userid, $ojtid, $tutor_forced_completion_status = null, $modifieldby = null) {
     global $DB, $USER;
 
     // Check if all required ojt topics have been completed, then complete the ojt
@@ -231,10 +243,18 @@ function ojt_update_completion($userid, $ojtid) {
         } else if ($topic->status == OJT_REQUIREDCOMPLETE) {
             // Degrade status a bit
             $status = OJT_REQUIREDCOMPLETE;
+        } else if ($topic->status == OJT_COMPLETION_REASSESSMENT) {
+	        // Degrade status a bit
+	        $status = OJT_REASSESSMENT;
         }
     }
 
     $transaction = $DB->start_delegated_transaction();
+    
+    if(!empty($tutor_forced_completion_status)) {
+        $status = ojt_completion_status_text_to_int($tutor_forced_completion_status);
+    }
+    
     $currentcompletion = $DB->get_record('ojt_completion',
         array('userid' => $userid, 'ojtid' => $ojtid, 'type' => OJT_CTYPE_OJT));
     if (empty($currentcompletion->status) || $status != $currentcompletion->status) {
@@ -242,7 +262,7 @@ function ojt_update_completion($userid, $ojtid) {
         $completion = empty($currentcompletion) ? new stdClass() : $currentcompletion;
         $completion->status = $status;
         $completion->timemodified = time();
-        $completion->modifiedby = $USER->id;
+        $completion->modifiedby = empty($modifieldby) ? $USER->id : $modifieldby;
         if (empty($currentcompletion)) {
             $completion->userid = $userid;
             $completion->type = OJT_CTYPE_OJT;
@@ -251,17 +271,24 @@ function ojt_update_completion($userid, $ojtid) {
         } else {
             $DB->update_record('ojt_completion', $completion);
         }
-
         // Update activity completion state
-        ojt_update_activity_completion($ojtid, $userid, $status);
+        ojt_update_activity_completion($ojtid, $userid, $status, $tutor_forced_completion_status);
     }
     $transaction->allow_commit();
 
     return empty($completion) ? $currentcompletion : $completion;
 }
 
-
-function ojt_update_activity_completion($ojtid, $userid, $ojtstatus) {
+/**
+ * KINEO CCM $tutor_forced_completion_status
+ * 
+ * @global type $DB
+ * @param type $ojtid
+ * @param type $userid
+ * @param type $ojtstatus
+ * @param type $tutor_forced_completion_status
+ */
+function ojt_update_activity_completion($ojtid, $userid, $ojtstatus, $tutor_forced_completion_status = null) {
     global $DB;
 
     $ojt = $DB->get_record('ojt', array('id' => $ojtid), '*', MUST_EXIST);
@@ -271,13 +298,76 @@ function ojt_update_activity_completion($ojtid, $userid, $ojtstatus) {
         $cm = get_coursemodule_from_instance('ojt', $ojt->id, $ojt->course, false, MUST_EXIST);
         $ccompletion = new completion_info($course);
         if ($ccompletion->is_enabled($cm)) {
-            if (in_array($ojtstatus, array(OJT_COMPLETE, OJT_REQUIREDCOMPLETE))) {
-                $ccompletion->update_state($cm, COMPLETION_COMPLETE, $userid);
+            // KINEO CCM
+            // if manually forced completion status update
+            if(!empty($tutor_forced_completion_status)) {
+                if ($ojtstatus == OJT_FAILED) {
+                    ojt_update_state_manual($cm, COMPLETION_COMPLETE_FAIL, $userid, $ccompletion);
+                } else {
+                    ojt_update_state_manual($cm, COMPLETION_COMPLETE, $userid, $ccompletion);
+                }
             } else {
-                $ccompletion->update_state($cm, COMPLETION_INCOMPLETE, $userid);
+                if (in_array($ojtstatus, array(OJT_COMPLETE, OJT_REQUIREDCOMPLETE))) {
+                    $ccompletion->update_state($cm, COMPLETION_COMPLETE, $userid);
+                } else {
+                    $ccompletion->update_state($cm, COMPLETION_INCOMPLETE, $userid);
+                }
             }
         }
     }
+}
+
+/**
+ * Clone of update_state function in completionlib
+ * To handle this tricky completion
+ * 
+ * @global type $USER
+ * @global type $DB
+ * @param type $cm
+ * @param type $possibleresult
+ * @param type $userid
+ * @return type
+ */
+function ojt_update_state_manual($cm, $possibleresult, $userid, $ccompletion) {
+    global $USER, $DB;
+    
+    // Do nothing if completion is not enabled for that activity
+    if (!$ccompletion->is_enabled($cm)) {
+        return;
+    }
+    
+    $current = $ccompletion->get_data($cm, false, $userid);
+    
+    $newstate = $possibleresult;
+
+    // If changed, update
+    if ($newstate != $current->completionstate) {
+        $current->completionstate = $newstate;
+        $current->timemodified    = time();
+        // If module_get_completion_state set time of completion then use it.
+        $current->timecompleted = ($newstate == COMPLETION_INCOMPLETE) ? null : time();
+        // TOTARA - Whether or not this was 0 before, it should be 0 now as no reaggregation is necessary after this.
+        $current->reaggregate = 0;
+        $ccompletion->internal_set_data($cm, $current);
+    }
+
+    // Notify course completion.
+    if (in_array($newstate, array(COMPLETION_COMPLETE, COMPLETION_COMPLETE_PASS, COMPLETION_COMPLETE_FAIL))) {
+        $userid = $userid ? $userid : $USER->id;
+        $event = \totara_core\event\module_completion::create(
+            array(
+                'other' => array(
+                        'moduleinstance' => $cm->id,
+                        'userid' => $userid,
+                        'course' => $cm->course,
+                        'criteriatype' => COMPLETION_CRITERIA_TYPE_ACTIVITY,
+                        'module' => $DB->get_field('modules', 'name', array('id' => $cm->module)),
+                        ),
+            )
+        );
+        $event->trigger();
+    }
+    
 }
 
 /**
@@ -345,4 +435,153 @@ function ojt_can_evaluate($userid, $context) {
     }
 
     return true;
+}
+
+// MPIHAS-384
+/**
+ * A centralised function to get topic items so that we can display them according to their sort position 
+ * 
+ * @global type $DB
+ * @param type $topicid
+ * @return object topic items
+ */
+function ojt_get_topic_items($topicid) {
+    global $DB;
+    
+    $items_sql = "SELECT * 
+                    FROM {ojt_topic_item} 
+                   WHERE topicid = :topicid 
+                ORDER BY position ASC
+                ";
+    $items = $DB->get_records_sql($items_sql, array('topicid' => $topicid));
+    
+    return $items;
+}
+
+/**
+ * A centralised function to get topics so that we can display them according to their sort position 
+ * 
+ * @global type $DB
+ * @param type $ojtid
+ * @return object topics
+ */
+function ojt_get_topics($ojtid) {
+    global $DB;
+    
+    $topics_sql = "SELECT * 
+                    FROM {ojt_topic} 
+                   WHERE ojtid = :ojtid 
+                ORDER BY position ASC
+                ";
+    $topics = $DB->get_records_sql($topics_sql, array('ojtid' => $ojtid));
+    
+    return $topics;
+}
+
+/**
+ * Get ojt completion info
+ * 
+ * @global type $DB
+ * @param type $userid
+ * @param type $ojtid
+ * @return type
+ */
+function ojt_get_completion_info($userid, $ojtid) {
+    global $DB;
+    
+    $sql = "SELECT oc.*
+              FROM {modules} m
+              JOIN {course_modules} cm
+                ON m.id = cm.module
+              JOIN {ojt_completion} oc
+                ON oc.ojtid = cm.instance
+             WHERE m.name = :modulename
+               AND oc.type = :type
+               AND oc.userid = :userid
+               AND oc.ojtid = :ojtid
+        ";
+    
+    $params = array(
+        'modulename' => 'ojt',
+        'type' => OJT_CTYPE_OJT, // zero indicates, this is the record for main ojt completion
+        'userid' => $userid,
+        'ojtid' => $ojtid
+    );
+    
+    return $DB->get_record_sql($sql, $params);
+}
+
+/**
+ * Get course module info
+ * 
+ * @global type $DB
+ * @param type $ojtid
+ * @return type
+ */
+function ojt_get_course_module($ojtid) {
+    global $DB;
+    
+    $sql = "SELECT cm.*
+              FROM {course_modules} cm
+              JOIN {modules} m
+                ON m.id = cm.module
+              JOIN {ojt} ojt
+                ON ojt.id = cm.instance
+             WHERE m.name = :modulename
+               AND ojt.id = :ojtid
+            ";
+    
+    $params = array(
+        'modulename' => 'ojt',
+        'ojtid' => $ojtid
+    );
+    
+    return $DB->get_record_sql($sql, $params);
+}
+
+/**
+ * Get ojt topics items by OJT id
+ * 
+ * @global type $DB
+ * @param type $ojtid
+ * @return type
+ */
+function ojt_get_topic_items_by_ojtid($ojtid) {
+    global $DB;
+    
+    $sql = "SELECT ti.*
+              FROM {ojt_topic_item} ti
+              JOIN {ojt_topic} t
+                ON t.id = ti.topicid
+             WHERE t.ojtid = :ojtid
+        ";
+    
+    return $DB->get_records_sql($sql, array('ojtid' => $ojtid));
+}
+
+
+/**
+ * HWRHAS-159
+ * 
+ * @param type $completion_status
+ * @return type
+ */
+function ojt_completion_status_text_to_int($completion_status) {
+    switch($completion_status) {
+        case OJT_COMPLETION_INCOMPLETE:
+            return OJT_INCOMPLETE;
+            break;
+        case OJT_COMPLETION_COMPLETE:
+            return OJT_COMPLETE;
+            break;
+        case OJT_COMPLETION_FAILED:
+            return OJT_FAILED;
+            break;
+        case OJT_COMPLETION_REQUIREDCOMPLETE:
+            return OJT_REQUIREDCOMPLETE;
+            break;
+	    case OJT_COMPLETION_REASSESSMENT:
+		    return OJT_REASSESSMENT;
+		    break;
+    }
 }
