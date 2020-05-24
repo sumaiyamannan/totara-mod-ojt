@@ -360,7 +360,7 @@ function ojt_generate_pdf($html, $filename, $title, $subject, $userfullname) {
     
     \core_php_time_limit::raise(300);
     
-    require_once($CFG->dirroot.'/mod/ojt/tcpdf/tcpdf.php');  
+    require_once($CFG->libdir.'/tcpdf/tcpdf.php');
     
     // create new PDF document
     $pdf = new \TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
