@@ -1142,7 +1142,14 @@ function user_can_view_profile($user, $course = null, $usercontext = null) {
             return true;
         }
         // This returns context information, so we can preload below.
-        $userscourses = enrol_get_all_users_courses($user->id);
+        // Kineo patch. Included during WR#333652.
+//------------------------------------------------------------------------------------------------
+//-------BEGIN CORE HACK--------------------------------------------------------------------------
+//------------------------------------------------------------------------------------------------
+        $userscourses = empty($CFG->preventsamecourseuserprofileaccess) ? enrol_get_all_users_courses($user->id) : array();
+//------------------------------------------------------------------------------------------------
+//-------END CORE HACK----------------------------------------------------------------------------
+//------------------------------------------------------------------------------------------------
     }
 
     if (empty($userscourses)) {

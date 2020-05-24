@@ -330,6 +330,8 @@ class core_user_external extends external_api {
      * @since Moodle 2.2
      */
     public static function update_users_parameters() {
+        // Kineo patched this on HWR to expose the 'suspended' field. Including the patch just in case.
+        // WR#333652
         return new external_function_parameters(
             array(
                 'users' => new external_multiple_structure(
@@ -354,6 +356,8 @@ class core_user_external extends external_api {
                             'auth' =>
                                 new external_value(PARAM_PLUGIN, 'Auth plugins include manual, ldap, imap, etc', VALUE_OPTIONAL, '',
                                     NULL_NOT_ALLOWED),
+                            'suspended' =>
+                                new external_value(PARAM_BOOL, 'Suspend user account, either false to enable user login or true to disable it', VALUE_OPTIONAL),
                             'idnumber' =>
                                 new external_value(PARAM_RAW, 'An arbitrary ID code number perhaps from the institution',
                                     VALUE_OPTIONAL),
