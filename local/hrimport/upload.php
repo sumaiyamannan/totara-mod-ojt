@@ -21,7 +21,7 @@ global $OUTPUT;
 
 require_login(null, true);
 // WR#333652: Restrict HR Import access to administrators.
-require_capability('moodle/site:config', context_system::instance())
+require_capability('moodle/site:config', context_system::instance());
 
 $context = \context_system::instance();
 $PAGE->set_context($context);

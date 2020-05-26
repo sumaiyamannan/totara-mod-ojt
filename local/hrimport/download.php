@@ -15,7 +15,7 @@ require_once($CFG->libdir.'/filelib.php');
 
 require_login();
 // WR#333652: Restrict HR Import access to administrators.
-require_capability('moodle/site:config', context_system::instance())
+require_capability('moodle/site:config', context_system::instance());
 
 $filename = required_param('filename', PARAM_FILE);
 $dir = $CFG->tempdir.'/hrimport/'.$filename;
