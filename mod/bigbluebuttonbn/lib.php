@@ -48,29 +48,33 @@ if (!class_exists('\Firebase\JWT\JWT')) {
     }
 }
 
-if (!isset($CFG->bigbluebuttonbn)) {
-    $CFG->bigbluebuttonbn = array();
-}
+// Do not declare new $CFG variables if unit tests are running
+// as it can cause "unexpected new $CFG->xxx value" warnings.
+if (!defined('PHPUNIT_TEST') || !PHPUNIT_TEST) {
+    if (!isset($CFG->bigbluebuttonbn)) {
+        $CFG->bigbluebuttonbn = array();
+    }
 
-if (file_exists(dirname(__FILE__).'/config.php')) {
-    require_once(dirname(__FILE__).'/config.php');
-    // Old BigBlueButtonBN cfg schema. For backward compatibility.
-    global $BIGBLUEBUTTONBN_CFG;
-    if (isset($BIGBLUEBUTTONBN_CFG)) {
-        foreach ((array) $BIGBLUEBUTTONBN_CFG as $key => $value) {
-            $cfgkey = str_replace("bigbluebuttonbn_", "", $key);
-            $CFG->bigbluebuttonbn[$cfgkey] = $value;
+    if (file_exists(dirname(__FILE__) . '/config.php')) {
+        require_once(dirname(__FILE__) . '/config.php');
+        // Old BigBlueButtonBN cfg schema. For backward compatibility.
+        global $BIGBLUEBUTTONBN_CFG;
+        if (isset($BIGBLUEBUTTONBN_CFG)) {
+            foreach ((array)$BIGBLUEBUTTONBN_CFG as $key => $value) {
+                $cfgkey = str_replace("bigbluebuttonbn_", "", $key);
+                $CFG->bigbluebuttonbn[$cfgkey] = $value;
+            }
         }
     }
-}
 
-/*
- * DURATIONCOMPENSATION: Feature removed by configuration
- */
-$CFG->bigbluebuttonbn['scheduled_duration_enabled'] = 0;
-/*
- * Remove this block when restored
- */
+    /*
+     * DURATIONCOMPENSATION: Feature removed by configuration
+     */
+    $CFG->bigbluebuttonbn['scheduled_duration_enabled'] = 0;
+    /*
+     * Remove this block when restored
+     */
+}
 
  /** @var BIGBLUEBUTTONBN_DEFAULT_SERVER_URL string of default bigbluebutton server url */
 const BIGBLUEBUTTONBN_DEFAULT_SERVER_URL = 'http://test-install.blindsidenetworks.com/bigbluebutton/';
