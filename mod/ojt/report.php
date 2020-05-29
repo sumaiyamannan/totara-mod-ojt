@@ -96,7 +96,8 @@ $report->display_sidebar_search();
 $report->display_table();
 
 // Export button.
-$renderer->export_select($report->_id, $sid);
+// WR#333652: Temporarily removed, pending a better fix later.
+// $renderer->export_select($report->_id, $sid);
 
 echo $OUTPUT->container_end();
 
