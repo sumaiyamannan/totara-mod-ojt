@@ -8,8 +8,8 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2020010901;    // The current plugin version (Date: YYYYMMDDXX).
-$plugin->release   = 2020010901;    // Match release exactly to version.
+$plugin->version   = 2020042801;    // The current plugin version (Date: YYYYMMDDXX).
+$plugin->release   = 2020042801;    // Match release exactly to version.
 $plugin->requires  = 2014051200;    // Moodle version 2.7
 
 $plugin->component = 'auth_catadmin';  // Full name of the plugin (used for diagnostics).
