@@ -5834,7 +5834,7 @@ function email_to_user($user, $from, $subject, $messagetext, $messagehtml = '', 
             $CFG->emailonlyfromnoreplyaddress = true;
         }
     } else {
-        $mail->Sender = $supportuser->email;
+        $mail->Sender = $noreplyaddress;
     }
 
     if (!empty($CFG->emailonlyfromnoreplyaddress)) {
