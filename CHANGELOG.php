@@ -3,6 +3,15 @@
 
 Totara Learn Changelog
 
+Release 9.44 (21st May 2020):
+=============================
+
+
+Bug fixes:
+
+    TL-25077       Fixed grade import preview to show CSV data as plain text
+
+
 Release 9.43 (29th April 2020):
 ===============================
 
