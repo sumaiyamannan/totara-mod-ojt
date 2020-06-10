@@ -136,9 +136,13 @@ class grade_import_mapping_form extends moodleform {
                         '0'   => get_string('ignore', 'grades'),
                         'new' => get_string('newitem', 'grades')
                     ),
-                    get_string('gradeitems', 'grades') => $gradeitems,
-                    get_string('feedbacks', 'grades')  => $feedbacks
                 );
+                if ($gradeitems) {
+                    $headermapsto[get_string('gradeitems', 'grades')] = $gradeitems;
+                }
+                if ($feedbacks) {
+                    $headermapsto[get_string('feedbacks', 'grades')] = $feedbacks;
+                }
                 $mform->addElement('selectgroups', 'mapping_'.$i, s($h), $headermapsto);
                 $i++;
             }
