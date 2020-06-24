@@ -102,9 +102,7 @@ Feature: Learning plans can be created for members of an audience.
 
     # Add a user to the audience.
     When I switch to "Edit members" tab
-    And I set the field "Potential users" to "learner1 learner1 (learner1@example.com)"
-    And I press "Add"
-    And I set the field "Potential users" to "learner2 learner2 (learner2@example.com)"
+    And I set the field "Potential users" to "learner1 learner1 (learner1@example.com),learner2 learner2 (learner2@example.com)"
     And I press "Add"
     And I switch to "Members" tab
     Then I should see "learner1 learner1"
