@@ -3,6 +3,27 @@
 
 Totara Learn Changelog
 
+Release 9.45 (25th June 2020):
+==============================
+
+
+Security issues:
+
+    TL-25145       Backported MDL-68410to prevent remote code execution by malformed SCORM package
+
+Improvements:
+
+    TL-25275       Improved reliability of SCORM packages saving progress
+
+Bug fixes:
+
+    TL-25108       Fixed report builder select filters to matching the search when a value contains an ampersand
+    TL-25216       Fixed compatibility of theme rendering with non-standard authentication methods
+
+                   This fixes fatal errors stating that the layout file does not contain the
+                   main content placeholder.
+
+
 Release 9.44 (21st May 2020):
 =============================
 

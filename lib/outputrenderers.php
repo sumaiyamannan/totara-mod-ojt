@@ -165,6 +165,9 @@ class core_renderer extends renderer_base {
      */
     protected $metarefreshtag = '';
 
+    /** @var string unique part for tokens */
+    protected static $uniqueid;
+
     /**
      * @var string Unique token for the closing HTML
      */
@@ -194,9 +197,15 @@ class core_renderer extends renderer_base {
         $this->page = $page;
         $this->target = $target;
 
-        $this->unique_end_html_token = '%%ENDHTML-'.sesskey().'%%';
-        $this->unique_performance_info_token = '%%PERFORMANCEINFO-'.sesskey().'%%';
-        $this->unique_main_content_token = '[MAIN CONTENT GOES HERE - '.sesskey().']';
+        if (!isset(self::$uniqueid)) {
+            // Anything that is not likely to be ever on page will do,
+            // note we need to keep the placeholders the same even if we create a new instance of renderer.
+            self::$uniqueid = uniqid();
+        }
+
+        $this->unique_end_html_token = '%%ENDHTML-' . self::$uniqueid . '%%';
+        $this->unique_performance_info_token = '%%PERFORMANCEINFO-' . self::$uniqueid . '%%';
+        $this->unique_main_content_token = '[MAIN CONTENT GOES HERE - ' . self::$uniqueid . ']';
     }
 
     /**

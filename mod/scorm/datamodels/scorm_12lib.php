@@ -93,12 +93,13 @@ function scorm_eval_prerequisites($prerequisites, $usertracks) {
                     if (isset($statuses[$value])) {
                         $value = $statuses[$value];
                     }
+
+                    $elementprerequisitematch = (strcmp($usertracks[$element]->status, $value) == 0);
                     if ($matches[2] == '<>') {
-                        $oper = '!=';
+                        $element = $elementprerequisitematch ? 'false' : 'true';
                     } else {
-                        $oper = '==';
+                        $element = $elementprerequisitematch ? 'true' : 'false';
                     }
-                    $element = '(\''.$usertracks[$element]->status.'\' '.$oper.' \''.$value.'\')';
                 } else {
                     $element = 'false';
                 }
