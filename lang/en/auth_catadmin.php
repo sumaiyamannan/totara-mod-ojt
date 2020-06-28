@@ -27,3 +27,4 @@ $string['tasksuspendusers'] = 'Suspend users task';
 $string['emailtaken'] = 'The email {$a} is already in use.';
 $string['incorrectauthtype'] = 'You attempted to log in but your user account has a different authentication type.';
 $string['nouser'] = 'The user {$a} does not exist in moodle.';
+$string['noaccess'] = 'You do not have access to this site. You are missing group {$a}.';

@@ -39,6 +39,7 @@ class auth_plugin_catadmin extends auth_plugin_base {
         'logtofile'          => 0,
         'logdir'             => '/tmp/',
         'nameidasattrib'     => 0,
+        'groups'             => 'elearning',
     ];
 
     public function __construct() {
@@ -186,6 +187,21 @@ class auth_plugin_catadmin extends auth_plugin_base {
         if (empty($attributes[$attr]) ) {
             $this->error_page(get_string('noattribute', 'auth_catadmin', $attr));
         }
+
+        // Check if user is in same group as site
+        $groups = explode(',', $this->config->groups);
+        $ingroup = false;
+        foreach ($groups as $group) {
+            if (!empty($group)) {
+                if (in_array($group, $attributes['affiliations'])) {
+                    $ingroup = true;
+                }
+            }
+        }
+        if (!$ingroup) {
+            $this->error_page(get_string('noaccess', 'auth_catadmin', $group));
+        }
+
 
         $user = null;
         foreach ($attributes[$attr] as $key => $uid) {
