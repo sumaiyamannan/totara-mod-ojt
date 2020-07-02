@@ -29,7 +29,7 @@ $config = array(
     'errorreporting'    => false,
     'debug.validatexml' => false,
     'secretsalt'        => get_config('auth_catadmin', 'privatekeypass'),
-    'technicalcontact_name'  => $CFG->supportname,
+    'technicalcontact_name'  => $CFG->supportname ? $CFG->supportname : 'Admin User',
     'technicalcontact_email' => $CFG->supportemail ? $CFG->supportemail : $CFG->noreplyaddress,
     'timezone' => class_exists('core_date') ? core_date::get_server_timezone() : null,
 
