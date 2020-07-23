@@ -3,6 +3,15 @@
 
 Totara Learn Changelog
 
+Release 9.46 (23rd July 2020):
+==============================
+
+
+Bug fixes:
+
+    TL-25736       Fixed a missing language string when language pack update fails
+
+
 Release 9.45 (25th June 2020):
 ==============================
 
