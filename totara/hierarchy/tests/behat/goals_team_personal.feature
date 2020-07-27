@@ -1,4 +1,4 @@
-@totara @totara_hierarchy @totara_hierarchy_goals @javascript
+@totara @totara_hierarchy @totara_hierarchy_goal @javascript
 Feature: Verify own and team goals pages can be accessed
 
   # job1:

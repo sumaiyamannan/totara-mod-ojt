@@ -176,6 +176,12 @@ function testing_error($errorcode, $text = '') {
  * @return void exit() if something goes wrong
  */
 function testing_update_composer_dependencies() {
+
+    if (getenv('TOTARA_TESTING_SKIP_COMPOSER')) {
+        // Must've come from configuration. The runner has handled this themselves. Trust them or let them fail.
+        return;
+    }
+
     // To restore the value after finishing.
     $cwd = getcwd();
 
