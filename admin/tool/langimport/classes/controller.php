@@ -142,7 +142,7 @@ class controller {
         global $CFG;
 
         if (!$availablelangs = $this->installer->get_remote_list_of_languages()) {
-            $this->errors[] = get_string('cannotdownloadlanguageupdatelist', 'error');
+            $this->errors[] = get_string('cannotdownloadtotaralanguageupdatelist', 'totara_core');
             return false;
         }
 
