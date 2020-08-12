@@ -132,6 +132,13 @@ class auth_plugin_oidc extends \auth_plugin_base {
         if (!empty($CFG->guestloginbutton) && $username === 'guest' && $password === 'guest') {
             return false;
         }
+
+        $records = $DB->get_records('auth_oidc_token', array('username' => $username));
+        if ($records && sizeof($records) != 1) {
+            for ($i = 0; i < sizeof($records) - 1; $i++) {
+                $DB->delete_record('auth_oidc_token', array('id', $records[$i]->id));
+            }
+        }
         return $this->loginflow->user_login($username, $password);
     }
 
