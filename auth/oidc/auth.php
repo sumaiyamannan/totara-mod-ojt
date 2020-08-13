@@ -134,10 +134,9 @@ class auth_plugin_oidc extends \auth_plugin_base {
         }
 
         $records = $DB->get_records('auth_oidc_token', array('username' => $username));
-        if ($records && sizeof($records) != 1) {
-            for ($i = 0; i < sizeof($records) - 1; $i++) {
-                $DB->delete_record('auth_oidc_token', array('id', $records[$i]->id));
-            }
+        if ($records && sizeof($records) > 1) {
+            $id = reset($records)->id;
+            $DB->delete_records('auth_oidc_token', array('id' => $id));
         }
         return $this->loginflow->user_login($username, $password);
     }
