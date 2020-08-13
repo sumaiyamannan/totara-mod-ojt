@@ -128,6 +128,7 @@ class auth_plugin_oidc extends \auth_plugin_base {
      */
     public function user_login($username, $password = null) {
         global $CFG;
+        global $DB;
         // Short circuit for guest user.
         if (!empty($CFG->guestloginbutton) && $username === 'guest' && $password === 'guest') {
             return false;
