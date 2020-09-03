@@ -178,6 +178,12 @@ class auth_plugin_catadmin extends auth_plugin_base {
             $SESSION->catadminidp = md5($catadminsaml->defaultidp->entityid);
         }
 
+        if (!NO_MOODLE_COOKIES) {
+            $cookiename = 'MOODLECATIDP_' . $CFG->sessioncookie;
+            setcookie($cookiename, $SESSION->catadminidp, time() + (DAYSECS * 60), $CFG->sessioncookiepath,
+                $CFG->sessioncookiedomain, is_moodle_cookie_secure(), $CFG->cookiehttponly);
+        }
+
         $auth = new \SimpleSAML\Auth\Simple($this->spname);
 
         $auth->requireAuth();
@@ -198,7 +204,7 @@ class auth_plugin_catadmin extends auth_plugin_base {
                 }
             }
         }
-        if (!$ingroup) {
+        if (!$ingroup && !empty($groups[0])) {
             $this->error_page(get_string('noaccess', 'auth_catadmin', $group));
         }
 
@@ -283,6 +289,28 @@ class auth_plugin_catadmin extends auth_plugin_base {
         }
 
         return;
+    }
+
+    public function prelogout_hook() {
+        global $CFG, $SESSION, $USER;
+
+        if ($USER->auth == 'catadmin') {
+            $cookiename = 'MOODLECATIDP_' . $CFG->sessioncookie;
+            if (!empty($_COOKIE[$cookiename])) {
+                $SESSION->catadminidp = $_COOKIE[$cookiename];
+
+                require('setup.php');
+                $this->initialise();
+
+                $auth = new \SimpleSAML\Auth\Simple($this->spname);
+                setcookie($cookiename, '', time() - HOURSECS, $CFG->sessioncookiepath, $CFG->sessioncookiedomain,
+                    is_moodle_cookie_secure(), $CFG->cookiehttponly);
+
+                if ($auth->isAuthenticated()) {
+                    $auth->logout();
+                }
+            }
+        }
     }
 
     public function error_page($msg) {
