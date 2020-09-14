@@ -65,19 +65,40 @@ class authcode extends \auth_oidc\loginflow\base {
     }
 
     /**
+     * Get an OIDC parameter.
+     *
+     * This is a modification to PARAM_ALPHANUMEXT to add a few additional characters from Base64-variants.
+     *
+     * @param string $name The name of the parameter.
+     * @param string $fallback The fallback value.
+     * @return string The parameter value, or fallback.
+     */
+    protected function getoidcparam($name, $fallback = '') {
+        $val = optional_param($name, $fallback, PARAM_RAW);
+        $val = trim($val);
+        $valclean = preg_replace('/[^A-Za-z0-9\_\-\.\+\/\=]/i', '', $val);
+        if ($valclean !== $val) {
+            \auth_oidc\utils::debug('Authorization error.', 'authcode::cleanoidcparam', $name);
+            throw new \moodle_exception('errorauthgeneral', 'auth_oidc');
+        }
+        return $valclean;
+    }
+
+    /**
      * Handle requests to the redirect URL.
      *
      * @return mixed Determined by loginflow.
      */
     public function handleredirect() {
-        $state = optional_param('state', '', PARAM_ALPHANUMEXT);
+        $state = $this->getoidcparam('state');
+        $code = $this->getoidcparam('code');
         $promptlogin = (bool)optional_param('promptlogin', 0, PARAM_BOOL);
         $promptaconsent = (bool)optional_param('promptaconsent', 0, PARAM_BOOL);
         $justauth = (bool)optional_param('justauth', 0, PARAM_BOOL);
         if (!empty($state)) {
             $requestparams = [
-                'state' => optional_param('state', '', PARAM_ALPHANUMEXT),
-                'code' => optional_param('code', '', PARAM_ALPHANUMEXT),
+                'state' => $state,
+                'code' => $code,
                 'error_description' => optional_param('error_description', '', PARAM_TEXT),
             ];
             // Response from OP.
@@ -280,7 +301,7 @@ class authcode extends \auth_oidc\loginflow\base {
         }
 
         // Check if Moodle user is already connected to an OIDC user.
-        $tokenrec = $DB->get_record('auth_oidc_token', ['username' => $USER->username]);
+        $tokenrec = $DB->get_record('auth_oidc_token', ['userid' => $USER->id]);
         if (!empty($tokenrec)) {
             if ($tokenrec->oidcuniqid === $oidcuniqid) {
                 // Already connected to current user.
@@ -298,7 +319,7 @@ class authcode extends \auth_oidc\loginflow\base {
         }
 
         // Create token data.
-        $tokenrec = $this->createtoken($oidcuniqid, $USER->username, $authparams, $tokenparams, $idtoken);
+        $tokenrec = $this->createtoken($oidcuniqid, $USER->username, $authparams, $tokenparams, $idtoken, $USER->id);
 
         $eventdata = [
             'objectid' => $USER->id,
@@ -386,25 +407,37 @@ class authcode extends \auth_oidc\loginflow\base {
 
         $tokenrec = $DB->get_record('auth_oidc_token', ['oidcuniqid' => $oidcuniqid]);
         if (!empty($tokenrec)) {
-            ///////////////////////////////////////// Core hack - updating username if there is a change
-            // Getting UPN username
-	        $oidcusername = $idtoken->claim('upn');
-	        $oidcusername = trim(\core_text::strtolower($oidcusername));
-	        $existing_user_params = ['username' => $tokenrec->username, 'mnethostid' => $CFG->mnet_localhost_id];
-	        if (!empty($oidcusername) && $oidcusername != $tokenrec->oidcusername && $DB->record_exists('user', $existing_user_params) !== true) {
-		        $tokenrec->username = $oidcusername;
-		        $tokenrec->oidcusername = $oidcusername;
-		        $DB->update_record('auth_oidc_token', $tokenrec);
-	        }
-	        ///////////////////////////////////////// Core hack - updating username if there is a change
-	    $username = $tokenrec->username;
+            // Already connected user.
+
+            if (empty($tokenrec->userid)) {
+                // ERROR.
+                echo 'ERROR1';die();
+            }
+            $user = $DB->get_record('user', ['id' => $tokenrec->userid]);
+            if (empty($user)) {
+                // ERROR.
+                echo 'ERROR2';die();
+            }
+            $username = $user->username;
             $this->updatetoken($tokenrec->id, $authparams, $tokenparams);
+            $user = authenticate_user_login($username, null, true);
+            complete_user_login($user);
+            return true;
         } else {
+            // No existing token, user not connected.
+            //
+            // Possibilities:
+            //     - Matched user.
+            //     - New user (maybe create).
+
+            // Generate a Moodle username.
             // Use 'upn' if available for username (Azure-specific), or fall back to lower-case oidcuniqid.
             $username = $idtoken->claim('upn');
             if (empty($username)) {
                 $username = $oidcuniqid;
             }
+
+            // See if we have an object listing.
             $username = $this->check_objects($oidcuniqid, $username);
             $matchedwith = $this->check_for_matched($username);
             if (!empty($matchedwith)) {
@@ -413,33 +446,36 @@ class authcode extends \auth_oidc\loginflow\base {
             }
             $username = trim(\core_text::strtolower($username));
             $tokenrec = $this->createtoken($oidcuniqid, $username, $authparams, $tokenparams, $idtoken);
-        }
 
-        $existinguserparams = ['username' => $username, 'mnethostid' => $CFG->mnet_localhost_id];
-        if ($DB->record_exists('user', $existinguserparams) !== true) {
-            // User does not exist. Create user if site allows, otherwise fail.
-            if (empty($CFG->authpreventaccountcreation)) {
-                $user = create_user_record($username, null, 'oidc');
-            } else {
-                // Trigger login failed event.
-                $failurereason = AUTH_LOGIN_NOUSER;
-                $eventdata = ['other' => ['username' => $username, 'reason' => $failurereason]];
-                $event = \core\event\user_login_failed::create($eventdata);
-                $event->trigger();
-                throw new \moodle_exception('errorauthloginfailednouser', 'auth_oidc', null, null, '1');
+            $existinguserparams = ['username' => $username, 'mnethostid' => $CFG->mnet_localhost_id];
+            if ($DB->record_exists('user', $existinguserparams) !== true) {
+                // User does not exist. Create user if site allows, otherwise fail.
+                if (empty($CFG->authpreventaccountcreation)) {
+                    $user = create_user_record($username, null, 'oidc');
+                } else {
+                    // Trigger login failed event.
+                    $failurereason = AUTH_LOGIN_NOUSER;
+                    $eventdata = ['other' => ['username' => $username, 'reason' => $failurereason]];
+                    $event = \core\event\user_login_failed::create($eventdata);
+                    $event->trigger();
+                    throw new \moodle_exception('errorauthloginfailednouser', 'auth_oidc', null, null, '1');
+                }
             }
-        }
 
-        $user = authenticate_user_login($username, null, true);
-        if (empty($user)) {
-            if (!empty($tokenrec)) {
-                throw new \moodle_exception('errorlogintoconnectedaccount', 'auth_oidc', null, null, '2');
+            $user = authenticate_user_login($username, null, true);
+
+            if (!empty($user)) {
+                complete_user_login($user);
+                return true;
             } else {
-                throw new \moodle_exception('errorauthloginfailednouser', 'auth_oidc', null, null, '2');
+                if (!empty($tokenrec)) {
+                    throw new \moodle_exception('errorlogintoconnectedaccount', 'auth_oidc', null, null, '2');
+                } else {
+                    throw new \moodle_exception('errorauthloginfailednouser', 'auth_oidc', null, null, '2');
+                }
             }
-        }
 
-        complete_user_login($user);
-        return true;
+            return true;
+        }
     }
 }

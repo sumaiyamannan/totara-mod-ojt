@@ -23,8 +23,11 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version = 2015111916;
-$plugin->requires = 2015111600;
+$plugin->version = 2016120504;
+// $plugin->requires = 2016120500;
+// WR#343174: "Backporting" into TL9 as an emergency measure.
+// TL12 upgrade will be a more permanent fix.
+$plugin->requires = 2015111610;
 $plugin->component = 'auth_oidc';
 $plugin->maturity = MATURITY_STABLE;
-$plugin->release = '30.0.0.15';
+$plugin->release = '3.2.0.4';
