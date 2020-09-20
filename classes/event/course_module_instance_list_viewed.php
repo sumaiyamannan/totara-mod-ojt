@@ -20,19 +20,16 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-/**
- * Defines the version and other meta-info about the plugin
- *
- * Setting the $plugin->version to 0 prevents the plugin from being installed.
- * See https://docs.moodle.org/dev/version.php for more info.
- */
+namespace mod_ojt\event;
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->component = 'mod_ojt';
-$plugin->version = 2018021800;
-$plugin->release = 'v1.0';
-$plugin->requires = 2017050500; // Requires Totara 12.
-$plugin->maturity = MATURITY_STABLE;
-$plugin->cron = 900;
-$plugin->dependencies = array();
+/**
+ * The mod_ojt instance list viewed event class.
+ *
+ * @package    mod_ojt
+ * @copyright  2015 Eugene Venter <eugene@catalyst.net.nz>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+class course_module_instance_list_viewed extends \core\event\course_module_instances_list_viewed {
+}

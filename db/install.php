@@ -21,18 +21,21 @@
  */
 
 /**
- * Defines the version and other meta-info about the plugin
- *
- * Setting the $plugin->version to 0 prevents the plugin from being installed.
- * See https://docs.moodle.org/dev/version.php for more info.
+ * Provides code to be executed during the module installation
  */
 
-defined('MOODLE_INTERNAL') || die();
+/**
+ * Post installation procedure
+ *
+ * @see upgrade_plugins_modules()
+ */
+function xmldb_ojt_install() {
+}
 
-$plugin->component = 'mod_ojt';
-$plugin->version = 2018021800;
-$plugin->release = 'v1.0';
-$plugin->requires = 2017050500; // Requires Totara 12.
-$plugin->maturity = MATURITY_STABLE;
-$plugin->cron = 900;
-$plugin->dependencies = array();
+/**
+ * Post installation recovery procedure
+ *
+ * @see upgrade_plugins_modules()
+ */
+function xmldb_ojt_install_recovery() {
+}

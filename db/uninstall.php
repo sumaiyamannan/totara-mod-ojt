@@ -21,18 +21,14 @@
  */
 
 /**
- * Defines the version and other meta-info about the plugin
+ * Provides code to be executed during the module uninstallation
  *
- * Setting the $plugin->version to 0 prevents the plugin from being installed.
- * See https://docs.moodle.org/dev/version.php for more info.
+ * @see uninstall_plugin()
  */
 
-defined('MOODLE_INTERNAL') || die();
-
-$plugin->component = 'mod_ojt';
-$plugin->version = 2018021800;
-$plugin->release = 'v1.0';
-$plugin->requires = 2017050500; // Requires Totara 12.
-$plugin->maturity = MATURITY_STABLE;
-$plugin->cron = 900;
-$plugin->dependencies = array();
+/**
+ * Custom uninstallation procedure
+ */
+function xmldb_ojt_uninstall() {
+    return true;
+}
