@@ -90,6 +90,8 @@ class rb_ojt_evaluation_embedded extends rb_base_embedded {
             $this->embeddedparams['ojtid'] = $ojtid;
         }
 
+        $this->usedcomponents[] = 'mod_ojt';
+
         parent::__construct($data);
     }
 
