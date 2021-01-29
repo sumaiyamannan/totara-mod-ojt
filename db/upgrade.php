@@ -40,7 +40,7 @@ defined('MOODLE_INTERNAL') || die();
  * @return bool
  */
 function xmldb_ojt_upgrade($oldversion) {
-    global $DB;
+    global $DB, $CFG;
 
     $dbman = $DB->get_manager(); // Loads ddl manager and xmldb classes.
 
@@ -60,6 +60,77 @@ function xmldb_ojt_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2016031400, 'ojt');
     }
 
+    // WR345138: compatibility fixes for old HWR data migrations.
+    if ($oldversion < 2018021800) {
+        require_once($CFG->dirroot . '/mod/ojt/locallib.php');
+
+        /* We are currently relying on the previous vendor having already
+         * added fields to the TL9 database. When upstreaming later, we
+         * will need to explicitly add in the fields so a stock TL9 can
+         * create the necessary schema.
+         */
+
+        // TODO: Ensure fields in install.xml in are actually in place.
+
+
+        // Ensure OJT topics and items have explicit 'position' field values.
+        echo("* Auditing OJT position records...");
+        $ojtrs = $DB->get_recordset('ojt');
+        foreach ($ojtrs as $ojt) {
+            ojt_reorder_topics($ojt);
+        }
+        echo " Position records updated.\n";
+
+        echo "* Adding 'outcome' field and mapping old status values.\n";
+        // Define field outcome to be added to ojt_completion.
+        $table = new xmldb_table('ojt_completion');
+        $field = new xmldb_field('outcome', XMLDB_TYPE_INTEGER, '2', null, XMLDB_NOTNULL, null, '0', 'archived');
+
+        // Conditionally launch add field outcome.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Remapping for assessment status values.
+        require_once($CFG->dirroot . '/mod/ojt/lib.php');
+
+        $completionrs = $DB->get_recordset('ojt_completion');
+        foreach ($completionrs as $completion) {
+            // echo json_encode($completion) . "\n";
+            switch($completion->status) {
+                case OJT_INCOMPLETE:
+                    $completion->status = OJT_INCOMPLETE;
+                    $completion->outcome = OJT_OUTCOME_NONE;
+                    $DB->update_record('ojt_completion', $completion);
+                    break;
+                case OJT_REQUIREDCOMPLETE:
+                    $completion->status = OJT_REQUIREDCOMPLETE;
+                    $completion->outcome = OJT_OUTCOME_NONE; // Should this be PASSED?
+                    $DB->update_record('ojt_completion', $completion);
+                    break;
+                case OJT_COMPLETE:
+                    $completion->status = OJT_COMPLETE;
+                    $completion->outcome = OJT_OUTCOME_PASSED;
+                    $DB->update_record('ojt_completion', $completion);
+                    break;
+                case 3: // TL9 HWR's OJT_COMPLETION_FAILED
+                    $completion->status = OJT_COMPLETE;
+                    $completion->outcome = OJT_OUTCOME_FAILED;
+                    $DB->update_record('ojt_completion', $completion);
+                    break;
+                case 4: // TL9 HWR's OJT_COMPLETION_REASSESSMENT
+                    $completion->status = OJT_COMPLETE;
+                    $completion->outcome = OJT_OUTCOME_REASSESSMENT;
+                    $DB->update_record('ojt_completion', $completion);
+                    break;
+                default:
+                    echo "Unknown status: {$completion->status} for ID: {$completion->id}\n";
+                    echo json_encode($completion) . "\n";
+            }
+        }
+
+        upgrade_mod_savepoint(true, 2018021800, 'ojt');
+    }
 
     return true;
 }
