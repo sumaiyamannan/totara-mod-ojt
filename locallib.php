@@ -33,7 +33,7 @@ function ojt_get_user_ojt($ojtid, $userid) {
     global $DB;
 
     // Get the ojt details.
-    $sql = 'SELECT '.$userid.' AS userid, b.*, CASE WHEN c.status IS NULL THEN '.OJT_INCOMPLETE.' ELSE c.status END AS status, c.comment
+    $sql = 'SELECT '.$userid.' AS userid, b.*, CASE WHEN c.status IS NULL THEN '.OJT_INCOMPLETE.' ELSE c.status END AS status, c.outcome, c.comment
         FROM {ojt} b
         LEFT JOIN {ojt_completion} c ON b.id = c.ojtid AND c.type = ? AND c.userid = ?
         WHERE b.id = ?';
@@ -60,7 +60,7 @@ function ojt_get_user_ojt($ojtid, $userid) {
         LEFT JOIN {ojt_item_witness} bw ON bw.topicitemid = i.id AND bw.userid = ?
         LEFT JOIN {user} witnessuser ON bw.witnessedby = witnessuser.id
         WHERE i.topicid {$insql}
-        ORDER BY i.topicid, i.id";
+        ORDER BY i.topicid, i.position, i.id";
     $params = array_merge(array(OJT_CTYPE_TOPICITEM, $userid, $userid), $params);
     $items = $DB->get_records_sql($sql, $params);
 
@@ -82,7 +82,7 @@ function ojt_get_user_topics($userid, $ojtid) {
         LEFT JOIN {ojt_topic_signoff} s ON t.id = s.topicid AND s.userid = ?
         LEFT JOIN {user} su ON s.modifiedby = su.id
         WHERE t.ojtid = ?
-        ORDER BY t.id';
+        ORDER BY t.position, t.id';
     return $DB->get_records_sql($sql, array(OJT_CTYPE_TOPIC, $userid, $userid, $ojtid));
 }
 
@@ -345,4 +345,89 @@ function ojt_can_evaluate($userid, $context) {
     }
 
     return true;
+}
+
+
+/**
+ * Ensure topic item positions are ordered as expected.
+ *
+ * Positions start with a default value of '0', so implicit ordering from topic item ID is used.
+ *
+ * @param object $topic An OJT topic record.
+ * @param bool $verbose Whether to display verbose comments or not.
+ *
+ * @return null
+ */
+function ojt_reorder_topic_items($topic, $verbose = false) {
+    global $DB;
+
+    $itemrs = $DB->get_recordset_sql(
+        "SELECT * FROM {ojt_topic_item} WHERE topicid=:topicid ORDER BY position, id",
+        array('topicid' => $topic->id)
+    );
+
+    $itemcounter = 0;
+    foreach ($itemrs as $item) {
+        if ($verbose) {
+            echo("     -> [item:{$item->id}] {pos:{$item->position}} {$item->name}\n");
+        }
+
+        if ($itemcounter != $item->position) {
+            if ($verbose) {
+                echo "        -> * Update item position to: $itemcounter.\n";
+            }
+            // Update OJT topic item position.
+            $item->position = $itemcounter;
+            $DB->update_record('ojt_topic_item', $item);
+        }
+        $itemcounter++;
+    }
+}
+
+/**
+ * Ensure topic positions are ordered as expected.
+ *
+ * Positions start with a default value of '0', so implicit ordering from topic ID is used.
+ *
+ * @param object $ojt An OJT record.
+ * @param bool $verbose Whether to display verbose comments or not.
+ * @param bool $includeitems Reorder topic items as well?
+ *
+ * @return null
+ */
+function ojt_reorder_topics($ojt, $verbose = false, $includeitems = true) {
+    global $DB;
+
+    if ($verbose) {
+        echo("\n[ojt:{$ojt->id}] {$ojt->name}\n");
+    }
+
+    $topiccounter;
+
+    $topicrs = $DB->get_recordset_sql(
+        "SELECT * FROM {ojt_topic} WHERE ojtid=:ojtid ORDER BY position, id",
+        array('ojtid' => $ojt->id)
+    );
+
+    $topiccounter = 0;
+    foreach ($topicrs as $topic) {
+        if ($verbose) {
+            echo "  -> [topic:{$topic->id}] {pos:{$topic->position}} {$topic->name}\n";
+        }
+
+        if ($topiccounter != $topic->position) {
+            if ($verbose) {
+                echo "     -> * Update topic position to: $topiccounter.\n";
+            }
+            // Update OJT topic position.
+            $topic->position = $topiccounter;
+            $DB->update_record('ojt_topic', $topic);
+        }
+
+        if ($includeitems) {
+            ojt_reorder_topic_items($topic, $verbose);
+        }
+
+        $topiccounter++;
+    }
 }
