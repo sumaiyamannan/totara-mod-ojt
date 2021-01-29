@@ -95,3 +95,10 @@ $string['type1'] = 'Topic';
 $string['type2'] = 'Item';
 $string['updatefiles'] = 'Update files';
 $string['witnessed'] = 'Witnessed';
+
+// WR#345138 Compatibility additions
+$string['assessmentoutcome'] = 'Assessment outcome';
+$string['assessmentoutcome0'] = 'No outcome yet';
+$string['assessmentoutcome1'] = 'Training passed';
+$string['assessmentoutcome2'] = 'Reassessment needed';
+$string['assessmentoutcome3'] = 'Training failed';

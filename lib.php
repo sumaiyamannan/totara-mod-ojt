@@ -47,6 +47,16 @@ define('OJT_INCOMPLETE', 0);
 define('OJT_REQUIREDCOMPLETE', 1);
 define('OJT_COMPLETE', 2);
 
+
+/**
+ * WR#345138
+ * OJT assessment outcomes
+ */
+define('OJT_OUTCOME_NONE', 0);
+define('OJT_OUTCOME_PASSED', 1);
+define('OJT_OUTCOME_FAILED', 2);
+define('OJT_OUTCOME_REASSESSMENT', 3);
+
 /**
  * OJT completion requirements
  */
