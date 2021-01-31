@@ -70,8 +70,18 @@ function xmldb_ojt_upgrade($oldversion) {
          * create the necessary schema.
          */
 
-        // TODO: Ensure fields in install.xml in are actually in place.
+        // Ensure 'position' fields in ojt_topic and ojt_topic_item.
+        $table = new xmldb_table('ojt_topic_item');
+        $field = new xmldb_field('position', XMLDB_TYPE_INTEGER, '4', null, null, null, '0', 'allowselffileuploads');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
 
+        $table = new xmldb_table('ojt_topic');
+        $field = new xmldb_field('position', XMLDB_TYPE_INTEGER, '4', null, null, null, '0', 'allowcomments');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
 
         // Ensure OJT topics and items have explicit 'position' field values.
         echo("* Auditing OJT position records...");
@@ -84,7 +94,7 @@ function xmldb_ojt_upgrade($oldversion) {
         echo "* Adding 'outcome' field and mapping old status values.\n";
         // Define field outcome to be added to ojt_completion.
         $table = new xmldb_table('ojt_completion');
-        $field = new xmldb_field('outcome', XMLDB_TYPE_INTEGER, '2', null, XMLDB_NOTNULL, null, '0', 'archived');
+        $field = new xmldb_field('outcome', XMLDB_TYPE_INTEGER, '2', null, XMLDB_NOTNULL, null, '0', 'modifiedby');
 
         // Conditionally launch add field outcome.
         if (!$dbman->field_exists($table, $field)) {
@@ -105,7 +115,7 @@ function xmldb_ojt_upgrade($oldversion) {
                     break;
                 case OJT_REQUIREDCOMPLETE:
                     $completion->status = OJT_REQUIREDCOMPLETE;
-                    $completion->outcome = OJT_OUTCOME_NONE; // Should this be PASSED?
+                    $completion->outcome = OJT_OUTCOME_NONE; // TODO: Should this be PASSED?
                     $DB->update_record('ojt_completion', $completion);
                     break;
                 case OJT_COMPLETE:
@@ -131,6 +141,56 @@ function xmldb_ojt_upgrade($oldversion) {
 
         upgrade_mod_savepoint(true, 2018021800, 'ojt');
     }
+
+    if ($oldversion < 2021020100) {
+        // WR345138: transitional database schema.
+
+        // Ensure OJT archive table exists.
+        $table = new xmldb_table('ojt_archives');
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('ojtid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('userid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('fileid', XMLDB_TYPE_INTEGER, '10', null, null, null, null);
+        $table->add_field('filename', XMLDB_TYPE_CHAR, '255', null, null, null, null);
+        $table->add_field('timecreated', XMLDB_TYPE_INTEGER, '10', null, null, null, null);
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
+
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        // Ensure 'archived' field added to ojt_completion table.
+        $table = new xmldb_table('ojt_completion');
+        $field = new xmldb_field('archived', XMLDB_TYPE_INTEGER, '2', null, null, null, '0', 'outcome');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Menu topic item fields.
+        $table = new xmldb_table('ojt_topic_item');
+        $field = new xmldb_field('type', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0', 'name');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+        $field = new xmldb_field('other', XMLDB_TYPE_TEXT, '', null, null, null, null, 'position');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Custom legacy DB fields; unsure if still needed.
+        $table = new xmldb_table('ojt');
+        $field = new xmldb_field('allowselfevaluation', XMLDB_TYPE_INTEGER, '4', null, null, null, '0', 'itemwitness');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+        $field = new xmldb_field('saveallonsubmit', XMLDB_TYPE_INTEGER, '4', null, null, null, '0', 'allowselfevaluation');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        upgrade_mod_savepoint(true, 2021020100, 'ojt');
+    }
+
 
     return true;
 }
