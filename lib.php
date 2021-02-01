@@ -63,6 +63,12 @@ define('OJT_OUTCOME_REASSESSMENT', 3);
 define('OJT_REQUIRED', 0);
 define('OJT_OPTIONAL', 1);
 
+/**
+ * OJT topic item types
+ */
+define('OJT_ITEM_TYPE_TEXT', 1); // Standard text box.
+define('OJT_ITEM_TYPE_SELECT', 2); // Select from options in 'other' field.
+
 /* Moodle core API */
 
 /**
