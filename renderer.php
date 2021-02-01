@@ -254,7 +254,6 @@ class mod_ojt_renderer extends plugin_renderer_base {
         // TODO: This will eventually have form elements so an assessor can change it.
         $outcometag = 'assessmentoutcome' . $userojt->outcome;
         $out .= html_writer::tag('hr', '');
-        $out .= html_writer::tag('p', "Debugging: ");
         $out .= html_writer::start_tag('p', array('class' => 'mod-ojt-assessment-outcome'));
         $out .= get_string('assessmentoutcome', 'ojt') . ": ";
         $out .= html_writer::tag(
