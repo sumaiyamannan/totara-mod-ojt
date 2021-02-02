@@ -102,3 +102,6 @@ $string['assessmentoutcome0'] = 'No outcome yet';
 $string['assessmentoutcome1'] = 'Training passed';
 $string['assessmentoutcome2'] = 'Reassessment needed';
 $string['assessmentoutcome3'] = 'Training failed';
+
+$string['topicitemtypetext'] = 'Text comment';
+$string['topicitemtypeselect'] = 'Select from a menu of options';
