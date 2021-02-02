@@ -105,6 +105,29 @@ img.ojt-topic-completion-status {
     font-size: 0.8em;
 }
 
+/**
+ * Topic item selection buttons
+ *
+ * Provisional CSS until a comptent adult can look at it.
+ */
+
+input[type="radio"].mod-ojt-topic-item-selection {
+    display: none;
+}
+input[type="radio"].mod-ojt-topic-item-selection+label {
+    padding: 5px 10px 5px 10px;
+    border: thin solid black;
+    border-radius: 5px;
+    margin-left: 10px;
+    color: black;
+    background: lightgrey;
+}
+input[type="radio"].mod-ojt-topic-item-selection:checked+label {
+    font-weight: bolder;
+    background: white;
+
+}
+
 
 /**
  * printing styles
