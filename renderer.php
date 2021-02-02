@@ -138,9 +138,35 @@ class mod_ojt_renderer extends plugin_renderer_base {
                     $completionicon = $item->status == OJT_COMPLETE ? 'completion-manual-y' : 'completion-manual-n';
                     $cellcontent = html_writer::start_tag('div', array('class' => 'ojt-eval-actions', 'ojt-item-id' => $item->id));
                     $cellcontent .= $this->output->flex_icon($completionicon, ['classes' => 'ojt-completion-toggle']);
-                    $cellcontent .= html_writer::tag('textarea', $item->comment,
+                    // WR#345138: Adding in menu selection type.
+                    if ($item->type == OJT_ITEM_TYPE_SELECT) {
+                        $cellcontent .= html_writer::start_tag('span', array('class' => 'mod-ojt-item-type-select'));
+                        $selections = ojt_get_selection_list($item->other);
+                        $comment = trim($item->comment); // Legacy values have whitespace.
+                        foreach ($selections as $i => $choice) {
+                            $inputattrs = array(
+                                'id' => "comment-{$item->id}-$i",
+                                'class' => 'mod-ojt-topic-item-selection',
+                                'name' => "comment-{$item->id}",
+                                'value' => $choice,
+                                'type' => 'radio',
+                            );
+                            if ($choice == $comment) {
+                                $inputattrs['checked'] = true;
+                            }
+                            $cellcontent .= html_writer::tag('input', '', $inputattrs);
+                            $cellcontent .= html_writer::tag('label', $choice, array(
+                                'for' => "comment-{$item->id}-$i"
+                            ));
+                        }
+                        $cellcontent .= html_writer::end_tag('span');
+
+                    }
+                    else {
+                        $cellcontent .= html_writer::tag('textarea', $item->comment,
                         array('name' => 'comment-'.$item->id, 'rows' => 3,
                             'class' => 'ojt-completion-comment', 'ojt-item-id' => $item->id));
+                    }
                     $cellcontent .= html_writer::tag('div', format_text($item->comment, FORMAT_PLAIN),
                         array('class' => 'ojt-completion-comment-print', 'ojt-item-id' => $item->id));
                     $cellcontent .= html_writer::end_tag('div');
