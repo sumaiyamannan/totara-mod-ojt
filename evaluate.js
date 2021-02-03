@@ -125,6 +125,39 @@ M.mod_ojt_evaluate = M.mod_ojt_evaluate || {
             });
         });
 
+        // Comment input for menu selections.
+        $('span.mod-ojt-item-type-select input').change(function() {
+            var commentinput = this;
+            var itemid = $(this).parent().attr('ojt-item-id');
+
+            console.log("commpentinput", commentinput, $(commentinput).val());
+            console.log("itemid", itemid);
+
+            $.ajax({
+                url: M.cfg.wwwroot+'/mod/ojt/evaluatesave.php',
+                type: 'POST',
+                data: {
+                    'sesskey' : M.cfg.sesskey,
+                    'action': 'savecomment',
+                    'bid': config.ojtid,
+                    'userid': config.userid,
+                    'id': itemid,
+                    'comment': $(commentinput).val()
+                },
+                success: function(data) {
+                    // Unlike text comments, no update for the value here.
+                    console.log("data.item.comment", data.item.comment);
+                    // Update the comment print box
+                    $('.ojt-completion-comment-print[ojt-item-id='+itemid+']').html(data.item.comment);
+                    $('.mod-ojt-modifiedstr[ojt-item-id='+itemid+']').html(data.modifiedstr);
+                },
+                error: function (data) {
+                    console.log(data);
+                    alert('Error saving comment...');
+                }
+            });
+        });
+
         // Init completion witness toggle.
         $('.ojt-witness-toggle').on('click', function () {
             var completionimg = $(this);

@@ -106,7 +106,7 @@ img.ojt-topic-completion-status {
 }
 
 /**
- * Topic item selection buttons
+ * WR#345138: Topic item selection buttons
  *
  * Provisional CSS until a comptent adult can look at it.
  */
@@ -125,7 +125,6 @@ input[type="radio"].mod-ojt-topic-item-selection+label {
 input[type="radio"].mod-ojt-topic-item-selection:checked+label {
     font-weight: bolder;
     background: white;
-
 }
 
 
@@ -170,6 +169,10 @@ input[type="radio"].mod-ojt-topic-item-selection:checked+label {
     }
     #mod-ojt-user-ojt .mod-ojt-topic {
         page-break-inside : avoid;
+    }
+    /* WR#345138: Do not display item selection button-labels */
+    .mod-ojt-item-type-select {
+        display: none !important;
     }
 }
 

@@ -140,7 +140,10 @@ class mod_ojt_renderer extends plugin_renderer_base {
                     $cellcontent .= $this->output->flex_icon($completionicon, ['classes' => 'ojt-completion-toggle']);
                     // WR#345138: Adding in menu selection type.
                     if ($item->type == OJT_ITEM_TYPE_SELECT) {
-                        $cellcontent .= html_writer::start_tag('span', array('class' => 'mod-ojt-item-type-select'));
+                        $cellcontent .= html_writer::start_tag('span', array(
+                            'class' => 'mod-ojt-item-type-select',
+                            'ojt-item-id' => $item->id
+                        ));
                         $selections = ojt_get_selection_list($item->other);
                         $comment = trim($item->comment); // Legacy values have whitespace.
                         foreach ($selections as $i => $choice) {
