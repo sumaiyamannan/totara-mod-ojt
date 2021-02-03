@@ -66,7 +66,6 @@ $PAGE->set_title(format_string($ojt->name));
 $headingstr = format_string($ojt->name).' - '.get_string('evaluate', 'ojt');
 $PAGE->set_heading($headingstr);
 
-
 $renderer = $PAGE->get_renderer('totara_reportbuilder');
 
 if ($format != '') {

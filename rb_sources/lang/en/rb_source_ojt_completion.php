@@ -29,3 +29,5 @@ $string['type_ojt_topic_signoff'] = 'OJT topic sign-off';
 $string['type'] = 'Type';
 $string['user'] = 'User';
 
+// WR#345138: compatibility additions
+$string['assessmentoutcome'] = 'Assessment outcome';

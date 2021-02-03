@@ -48,7 +48,7 @@ class rb_source_ojt_completion extends rb_base_source {
 
         $this->base = "(
             SELECT ".$DB->sql_concat('ub.courseid', "'-'", 'ub.userid', "'-'", 'ub.ojtid', "'-'", 'ub.topicid', "'-'", 'ub.type')." AS id,
-            ub.courseid, ub.userid, ub.ojtid, ub.topicid, ub.type, bc.status, bc.timemodified, bc.modifiedby
+            ub.courseid, ub.userid, ub.ojtid, ub.topicid, ub.type, bc.status, bc.outcome, bc.timemodified, bc.modifiedby
             FROM (
                 (SELECT ue.courseid, ue.userid, b.id AS ojtid, 0 AS topicid,".OJT_CTYPE_OJT." AS type
                 FROM
@@ -226,6 +226,13 @@ class rb_source_ojt_completion extends rb_base_source {
             ),
             new rb_column_option(
                 'base',
+                'outcome',
+                get_string('assessmentoutcome', 'rb_source_ojt_completion'),
+                'base.outcome',
+                array('displayfunc' => 'ojt_assessment_outcome')
+            ),
+            new rb_column_option(
+                'base',
                 'type',
                 get_string('type', 'rb_source_ojt_completion'),
                 'base.type',
@@ -290,6 +297,15 @@ class rb_source_ojt_completion extends rb_base_source {
                 'select',
                 array(
                     'selectfunc' => 'ojt_completion_status_list',
+                )
+            ),
+            new rb_filter_option(
+                'base',
+                'outcome',
+                get_string('assessmentoutcome', 'rb_source_ojt_completion'),
+                'select',
+                array(
+                    'selectfunc' => 'ojt_assessment_outcome_list',
                 )
             ),
             new rb_filter_option(
@@ -422,6 +438,21 @@ class rb_source_ojt_completion extends rb_base_source {
         return $statuslist;
     }
 
+    function rb_filter_ojt_assessment_outcome_list() {
+        $outcomes = array(
+            OJT_OUTCOME_NONE,
+            OJT_OUTCOME_PASSED,
+            OJT_OUTCOME_FAILED,
+            OJT_OUTCOME_REASSESSMENT
+        );
+        $outcomelist = array();
+        foreach ($outcomes as $outcome) {
+            $outcomelist[$outcome] = get_string("assessmentoutcome{$outcome}", 'ojt');
+        }
+
+        return $outcomelist;
+    }
+
     function rb_filter_ojt_type_list() {
         $types = array(OJT_CTYPE_OJT, OJT_CTYPE_TOPIC);
         $typelist = array();
@@ -457,9 +488,9 @@ class rb_source_ojt_completion extends rb_base_source {
                 array('id' => 1, 'ojtid' => 1, 'topicid' => 1, 'name' => 'test ojt topic item')
             ),
             'ojt_completion' => array(
-                array('id' => 1, 'userid' => 2, 'type' => 0, 'ojtid' => 1, 'topicid' => 0, 'topicitemid' => 0, 'status' => 1, 'modifiedby' => 1),
-                array('id' => 2, 'userid' => 2, 'type' => 1, 'ojtid' => 1, 'topicid' => 1, 'topicitemid' => 0, 'status' => 1, 'modifiedby' => 1),
-                array('id' => 3, 'userid' => 2, 'type' => 2, 'ojtid' => 1, 'topicid' => 1, 'topicitemid' => 1, 'status' => 1, 'modifiedby' => 1),
+                array('id' => 1, 'userid' => 2, 'type' => 0, 'ojtid' => 1, 'topicid' => 0, 'topicitemid' => 0, 'status' => 1, 'modifiedby' => 1), 'outcome' => 1,
+                array('id' => 2, 'userid' => 2, 'type' => 1, 'ojtid' => 1, 'topicid' => 1, 'topicitemid' => 0, 'status' => 1, 'modifiedby' => 1), 'outcome' => 1,
+                array('id' => 3, 'userid' => 2, 'type' => 2, 'ojtid' => 1, 'topicid' => 1, 'topicitemid' => 1, 'status' => 1, 'modifiedby' => 1), 'outcome' => 1,
             ),
             'user_enrolments' => array(
                 array('id' => 1, 'status' => 0, 'enrolid' => 1, 'userid' => 2)

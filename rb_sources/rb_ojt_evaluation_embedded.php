@@ -56,6 +56,11 @@ class rb_ojt_evaluation_embedded extends rb_base_embedded {
                 'heading' => get_string('status', 'rb_source_ojt_completion'),
             ),
             array(
+                'type' => 'base',
+                'value' => 'outcome',
+                'heading' => get_string('assessmentoutcome', 'rb_source_ojt_completion'),
+            ),
+            array(
                 'type' => 'ojt',
                 'value' => 'evaluatelink',
                 'heading' => ' ',
@@ -72,6 +77,11 @@ class rb_ojt_evaluation_embedded extends rb_base_embedded {
             array(
                 'type' => 'base',
                 'value' => 'status',
+                'advanced' => 0,
+            ),
+            array(
+                'type' => 'base',
+                'value' => 'outcome',
                 'advanced' => 0,
             ),
         );
