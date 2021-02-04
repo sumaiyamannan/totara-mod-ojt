@@ -43,8 +43,14 @@ class mod_ojt_renderer extends plugin_renderer_base {
             $out .= html_writer::start_tag('div', array('class' => 'config-mod-ojt-topic'));
             $out .= html_writer::start_tag('div', array('class' => 'config-mod-ojt-topic-heading'));
             $optionalstr = $topic->completionreq == OJT_OPTIONAL ? ' ('.get_string('optional', 'ojt').')' : '';
-            $out .= format_string($topic->name).$optionalstr;
             if ($config) {
+                $cm = get_coursemodule_from_instance('ojt', $ojt->id, 0, false, MUST_EXIST);
+                $upurl = new moodle_url('/mod/ojt/manage.php', array('id' => $cm->id, 'action' => 'topicup', 'tid' => $topic->id));
+                $downurl = new moodle_url('/mod/ojt/manage.php', array('id' => $cm->id, 'action' => 'topicdown', 'tid' => $topic->id));
+                $out .= $this->output->action_icon($upurl, new flex_icon('arrow-up', ['alt' => 'move topic up']));
+                $out .= $this->output->action_icon($downurl, new flex_icon('arrow-down', ['alt' => 'move topic down']));
+                $out .= format_string($topic->name).$optionalstr;
+
                 $additemurl = new moodle_url('/mod/ojt/topicitem.php', array('bid' => $ojt->id, 'tid' => $topic->id));
                 $out .= $this->output->action_icon($additemurl, new flex_icon('plus', ['alt' => get_string('additem', 'ojt')]));
                 $editurl = new moodle_url('/mod/ojt/topic.php', array('bid' => $ojt->id, 'id' => $topic->id));
@@ -68,12 +74,17 @@ class mod_ojt_renderer extends plugin_renderer_base {
 
         $out = '';
 
-        $items = $DB->get_records('ojt_topic_item', array('topicid' => $topicid), 'id');
+        $items = $DB->get_records('ojt_topic_item', array('topicid' => $topicid), 'position, id');
+        $cm = get_coursemodule_from_instance('ojt', $ojtid, 0, false, MUST_EXIST);
 
         $out .= html_writer::start_tag('div', array('class' => 'config-mod-ojt-topic-items'));
         foreach ($items as $item) {
             $out .= html_writer::start_tag('div', array('class' => 'config-mod-ojt-topic-item'));
             $optionalstr = $item->completionreq == OJT_OPTIONAL ? ' ('.get_string('optional', 'ojt').')' : '';
+            $upurl = new moodle_url('/mod/ojt/manage.php', array('id' => $cm->id, 'action' => 'topicitemup', 'tid' => $topicid, 'n' => $item->id));
+            $downurl = new moodle_url('/mod/ojt/manage.php', array('id' => $cm->id, 'action' => 'topicitemdown', 'tid' => $topicid, 'n' => $item->id));
+            $out .= $this->output->action_icon($upurl, new flex_icon('arrow-up', ['alt' => 'move topic item up']));
+            $out .= $this->output->action_icon($downurl, new flex_icon('arrow-down', ['alt' => 'move topic item down']));
             $out .= format_string($item->name).$optionalstr;
             if ($config) {
                 $editurl = new moodle_url('/mod/ojt/topicitem.php',
