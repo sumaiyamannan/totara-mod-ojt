@@ -127,6 +127,17 @@ input[type="radio"].mod-ojt-topic-item-selection:checked+label {
     background: white;
 }
 
+/**
+ * WR#345138: Topic item action button clearance
+ *
+ * A little bit of padding on the topic/item text (once wrapped in a span)
+ * to separate out the action buttons.
+ */
+span.config-mod-ojt-topic-heading-text, span.config-mod-ojt-topic-item-text {
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
 
 /**
  * printing styles
