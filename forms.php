@@ -25,6 +25,7 @@ if (!defined('MOODLE_INTERNAL')) {
 }
 
 require_once($CFG->libdir . '/formslib.php');
+require_once(dirname(__FILE__).'/lib.php');
 
 /**
  * OJT topic form
@@ -77,7 +78,7 @@ class ojt_topic_form extends moodleform {
 
 
 /**
- * OJT topic item form
+ * OJT topic item form (base)
  */
 class ojt_topic_item_form extends moodleform {
     function definition() {
@@ -107,7 +108,51 @@ class ojt_topic_item_form extends moodleform {
         $mform->setType('tid', PARAM_INT);
         $mform->setDefault('tid', $topicid);
 
+    }
+}
+
+/**
+ * OJT topic item form (text comment)
+ */
+class ojt_topic_item_text_form extends ojt_topic_item_form {
+    function definition() {
+        global $CFG;
+        parent::definition();
+        $mform =& $this->_form;
+        $itemtype = $this->_customdata['type'];
+
+        $mform->addElement('hidden', 'type');
+        $mform->setType('type', PARAM_INT);
+        $mform->setDefault('type', OJT_ITEM_TYPE_TEXT);
+
         $this->add_action_buttons(false);
     }
 }
 
+
+/**
+ * OJT topic item form (menu selection)
+ */
+class ojt_topic_item_select_form extends ojt_topic_item_form {
+    function definition() {
+        global $CFG;
+        parent::definition();
+        $mform =& $this->_form;
+        $itemtype = $this->_customdata['type'];
+
+        $mform->addElement('hidden', 'type');
+        $mform->setType('type', PARAM_INT);
+        $mform->setDefault('type', OJT_ITEM_TYPE_SELECT);
+
+        $mform->addelement(
+            'textarea',
+            'selectionoptions',
+            get_string('selectionoptions', 'ojt'),
+            array('rows' => 8, 'cols' => 40)
+        );
+        $mform->setType('selectionoptions', PARAM_TEXT);
+        $mform->addHelpButton('selectionoptions', 'selectionoptions', 'ojt');
+
+        $this->add_action_buttons(false);
+    }
+}

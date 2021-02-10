@@ -106,3 +106,5 @@ $string['assessmentoutcome3'] = 'Training failed';
 $string['additemsubtype'] = 'Add topic item: {$a}';
 $string['topicitemtypetext'] = 'Text comment';
 $string['topicitemtypeselect'] = 'Select from a menu of options';
+$string['selectionoptions'] = 'Selection options';
+$string['selectionoptions_help'] = 'Enter each selection option on a new line.';

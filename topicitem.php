@@ -29,6 +29,7 @@ $ojtid = required_param('bid', PARAM_INT); // OJT instance id.
 $topicid  = required_param('tid', PARAM_INT);  // Topic id.
 $itemid = optional_param('id', 0, PARAM_INT);  // Topic item id.
 $delete = optional_param('delete', 0, PARAM_BOOL);
+$itemtype = optional_param('type', OJT_ITEM_TYPE_TEXT, PARAM_INT); // Topic item type (text / select).
 
 $ojt = $DB->get_record('ojt', array('id' => $ojtid), '*', MUST_EXIST);
 $course = $DB->get_record('course', array('id' => $ojt->course), '*', MUST_EXIST);
@@ -59,7 +60,16 @@ if ($delete) {
     totara_set_notification(get_string('itemdeleted', 'ojt'), $redirecturl, array('class' => 'notifysuccess'));
 }
 
-$form = new ojt_topic_item_form(null, array('ojtid' => $ojtid, 'topicid' => $topicid));
+// WR#345138: Add in menu select topic items.
+switch ($itemtype) {
+    case OJT_ITEM_TYPE_SELECT:
+        $form = new ojt_topic_item_select_form(null, array('ojtid' => $ojtid, 'topicid' => $topicid, 'type' => $itemtype));
+        break;
+    case OJT_ITEM_TYPE_TEXT:
+    default:
+        $form = new ojt_topic_item_text_form(null, array('ojtid' => $ojtid, 'topicid' => $topicid, 'type' => $itemtype));
+}
+
 if ($data = $form->get_data()) {
     // Save topic
     $item = new stdClass();
@@ -68,6 +78,10 @@ if ($data = $form->get_data()) {
     $item->completionreq = $data->completionreq;
     $item->allowfileuploads = $data->allowfileuploads;
     $item->allowselffileuploads = $data->allowselffileuploads;
+    $item->type = $data->type;
+    if(!empty($data->selectionoptions)) {
+        $item->other = $data->selectionoptions;
+    }
 
     if (empty($data->id)) {
         // Add
@@ -94,6 +108,8 @@ echo $OUTPUT->heading($PAGE->heading);
 
 if (!empty($itemid)) {
     $item = $DB->get_record('ojt_topic_item', array('id' => $itemid), '*', MUST_EXIST);
+    // Sense check against legacy values.
+    $item->selectionoptions = !empty($item->other) ? $item->other : '';
     $form->set_data($item);
 }
 

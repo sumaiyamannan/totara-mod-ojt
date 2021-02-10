@@ -53,6 +53,12 @@ class mod_ojt_renderer extends plugin_renderer_base {
 
                 $additemurl = new moodle_url('/mod/ojt/topicitem.php', array('bid' => $ojt->id, 'tid' => $topic->id));
                 $out .= $this->output->action_icon($additemurl, new flex_icon('plus', ['alt' => get_string('additem', 'ojt')]));
+                $additemselecturl = new moodle_url('/mod/ojt/topicitem.php', array('bid' => $ojt->id, 'tid' => $topic->id, 'type' => OJT_ITEM_TYPE_SELECT));
+                $out .= $this->output->action_icon(
+                    $additemselecturl,
+                    new flex_icon('bars', ['alt' => get_string('additemsubtype', 'ojt', get_string('topicitemtypeselect', 'ojt'))])
+                );
+
                 $editurl = new moodle_url('/mod/ojt/topic.php', array('bid' => $ojt->id, 'id' => $topic->id));
                 $out .= $this->output->action_icon($editurl, new flex_icon('edit', ['alt' => get_string('edittopic', 'ojt')]));
                 $deleteurl = new moodle_url('/mod/ojt/topic.php', array('bid' => $ojt->id, 'id' => $topic->id, 'delete' => 1));
@@ -88,7 +94,7 @@ class mod_ojt_renderer extends plugin_renderer_base {
             $out .= format_string($item->name).$optionalstr;
             if ($config) {
                 $editurl = new moodle_url('/mod/ojt/topicitem.php',
-                    array('bid' => $ojtid, 'tid' => $topicid, 'id' => $item->id));
+                    array('bid' => $ojtid, 'tid' => $topicid, 'id' => $item->id, 'type' => $item->type));
                 $out .= $this->output->action_icon($editurl, new flex_icon('edit', ['alt' => get_string('edititem', 'ojt')]));
                 $deleteurl = new moodle_url('/mod/ojt/topicitem.php',
                     array('bid' => $ojtid, 'tid' => $topicid, 'id' => $item->id, 'delete' => 1));
