@@ -130,9 +130,6 @@ M.mod_ojt_evaluate = M.mod_ojt_evaluate || {
             var commentinput = this;
             var itemid = $(this).parent().attr('ojt-item-id');
 
-            console.log("commpentinput", commentinput, $(commentinput).val());
-            console.log("itemid", itemid);
-
             $.ajax({
                 url: M.cfg.wwwroot+'/mod/ojt/evaluatesave.php',
                 type: 'POST',
@@ -146,7 +143,6 @@ M.mod_ojt_evaluate = M.mod_ojt_evaluate || {
                 },
                 success: function(data) {
                     // Unlike text comments, no update for the value here.
-                    console.log("data.item.comment", data.item.comment);
                     // Update the comment print box
                     $('.ojt-completion-comment-print[ojt-item-id='+itemid+']').html(data.item.comment);
                     $('.mod-ojt-modifiedstr[ojt-item-id='+itemid+']').html(data.modifiedstr);
