@@ -72,8 +72,10 @@ if ($completion = $DB->get_record('ojt_completion', $params)) {
             break;
         case 'savecomment':
             $completion->comment = required_param('comment', PARAM_TEXT);
-            // append a date to the comment string
-            $completion->comment .= ' - '.userdate(time(), $dateformat).'.';
+            if (get_config('mod_ojt', 'topicitemappendtimestamps') && $item->type == OJT_ITEM_TYPE_TEXT) {
+                // append a date to the comment string
+                $completion->comment .= ' - '.userdate(time(), $dateformat).'.';
+            }
             break;
         default:
     }
@@ -89,8 +91,10 @@ if ($completion = $DB->get_record('ojt_completion', $params)) {
             break;
         case 'savecomment':
             $completion->comment = required_param('comment', PARAM_TEXT);
-            // append a date to the comment string
-            $completion->comment .= ' - '.userdate(time(), $dateformat).'.';
+            if (get_config('mod_ojt', 'topicitemappendtimestamps') && $item->type == OJT_ITEM_TYPE_TEXT) {
+                // append a date to the comment string
+                $completion->comment .= ' - '.userdate(time(), $dateformat).'.';
+            }
             break;
         default:
     }

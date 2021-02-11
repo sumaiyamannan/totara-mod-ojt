@@ -116,3 +116,6 @@ Values configured here will be used as the standard set of options on new select
 Please enter each selection option on a new line.
 EOL;
 $string['setting:topicitemselectdefaults_def'] = "Competent\rNot Competent\rN/A";
+
+$string['setting:topicitemappendtimestamps'] = 'Append timestamp';
+$string['setting:topicitemappendtimestamps_desc'] = 'Add a timestamp to the end of topic item comments when they are modified.';
