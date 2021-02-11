@@ -151,6 +151,7 @@ class ojt_topic_item_select_form extends ojt_topic_item_form {
             array('rows' => 8, 'cols' => 40)
         );
         $mform->setType('selectionoptions', PARAM_TEXT);
+        $mform->setDefault('selectionoptions', get_config('mod_ojt', 'topicitemselectdefaults'));
         $mform->addHelpButton('selectionoptions', 'selectionoptions', 'ojt');
 
         $this->add_action_buttons(false);

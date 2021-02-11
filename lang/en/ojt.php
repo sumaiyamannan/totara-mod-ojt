@@ -108,3 +108,11 @@ $string['topicitemtypetext'] = 'Text comment';
 $string['topicitemtypeselect'] = 'Select from a menu of options';
 $string['selectionoptions'] = 'Selection options';
 $string['selectionoptions_help'] = 'Enter each selection option on a new line.';
+
+$string['setting:topicitemselectdefaults'] = 'Topic Item Selection Defaults';
+$string['setting:topicitemselectdefaults_desc'] = <<<EOL
+Values configured here will be used as the standard set of options on new selection topic items.
+
+Please enter each selection option on a new line.
+EOL;
+$string['setting:topicitemselectdefaults_def'] = "Competent\rNot Competent\rN/A";
