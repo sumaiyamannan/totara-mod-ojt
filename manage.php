@@ -23,7 +23,7 @@
 require_once(dirname(dirname(dirname(__FILE__))).'/config.php');
 require_once(dirname(__FILE__).'/lib.php');
 
-$id = optional_param('cmid', 0, PARAM_INT); // Course_module ID
+$id = optional_param('id', 0, PARAM_INT); // Course_module ID
 $b  = optional_param('b', 0, PARAM_INT);  // OJT instance ID
 
 if ($id) {

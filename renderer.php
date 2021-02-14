@@ -87,8 +87,8 @@ class mod_ojt_renderer extends plugin_renderer_base {
         foreach ($items as $item) {
             $out .= html_writer::start_tag('div', array('class' => 'config-mod-ojt-topic-item'));
             $optionalstr = $item->completionreq == OJT_OPTIONAL ? ' ('.get_string('optional', 'ojt').')' : '';
-            $upurl = new moodle_url('/mod/ojt/manage.php', array('id' => $cm->id, 'action' => 'topicitemup', 'tid' => $topicid, 'n' => $item->id));
-            $downurl = new moodle_url('/mod/ojt/manage.php', array('id' => $cm->id, 'action' => 'topicitemdown', 'tid' => $topicid, 'n' => $item->id));
+            $upurl = new moodle_url('/mod/ojt/topicitem.php', array('id' => $cm->id, 'action' => 'topicitemup', 'bid' => $ojtid, 'tid' => $topicid, 'n' => $item->id));
+            $downurl = new moodle_url('/mod/ojt/topicitem.php', array('id' => $cm->id, 'action' => 'topicitemdown', 'bid' => $ojtid, 'tid' => $topicid, 'n' => $item->id));
             $out .= $this->output->action_icon($upurl, new flex_icon('arrow-up', ['alt' => 'move topic item up']));
             $out .= $this->output->action_icon($downurl, new flex_icon('arrow-down', ['alt' => 'move topic item down']));
             $out .= format_string($item->name).$optionalstr;

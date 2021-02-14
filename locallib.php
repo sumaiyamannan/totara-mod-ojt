@@ -385,6 +385,18 @@ function ojt_reorder_topic_items($topic, $verbose = false) {
 }
 
 /**
+ * Reorder topic items in edit mode.
+ * @param $items
+ * @param $oldpos
+ * @param $newpos
+ * @return false
+ */
+function array_move(&$items, $oldpos, $newpos) {
+    if ($oldpos==$newpos) {return false;}
+    array_splice($items,max($newpos,0),0,array_splice($items,max($oldpos,0),1));
+}
+
+/**
  * Ensure topic positions are ordered as expected.
  *
  * Positions start with a default value of '0', so implicit ordering from topic ID is used.

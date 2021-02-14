@@ -87,6 +87,7 @@ $string['printthisojt'] = 'Print this OJT';
 $string['report'] = 'Report';
 $string['signedoff'] = 'Signed off';
 $string['topicdeleted'] = 'Topic deleted';
+$string['topicreordered'] = 'Topic reordered';
 $string['topiccomments'] = 'Comments';
 $string['topicitemfiles'] = 'Files';
 $string['topicitemdeleted'] = 'Topic item deleted';
