@@ -53,6 +53,14 @@ if ($delete) {
     }
 
     ojt_delete_topic($topicid);
+
+    $topicrs = $DB->get_records('ojt_topic', array('ojtid' => $ojtid), 'position');
+    $topicrs = array_values($topicrs);
+    foreach ($topicrs as $index => $topicr) {
+        $topicr->position = $index;
+        $DB->update_record('ojt_topic', $topicr);
+    }
+    
     $redirecturl = new moodle_url('/mod/ojt/manage.php', array('cmid' => $cm->id));
     totara_set_notification(get_string('topicdeleted', 'ojt'), $redirecturl, array('class' => 'notifysuccess'));
 }
@@ -70,7 +78,7 @@ if ($data = $form->get_data()) {
     if (empty($data->id)) {
         // Add
         $topiccount = $DB->get_record('ojt_topic', array('ojtid' => $ojtid), 'count(*)', MUST_EXIST);
-        $topic->position = $topic->count + 1;
+        $topic->position = $topic->count;
         $DB->insert_record('ojt_topic', $topic);
     } else {
         // Update
