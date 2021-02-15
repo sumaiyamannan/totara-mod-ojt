@@ -52,7 +52,7 @@ class mod_ojt_renderer extends plugin_renderer_base {
                 if ((int)$topic->position !== count($topics) - 1) {
                     $out .= $this->output->action_icon($downurl, new flex_icon('arrow-down', ['alt' => 'move topic down']));
                 }
-                $out .= format_string($topic->name).$optionalstr;
+                $out .= html_writer::tag('span', format_string($topic->name).$optionalstr, array('class' => 'config-mod-ojt-topic-heading-text'));
 
                 $additemurl = new moodle_url('/mod/ojt/topicitem.php', array('bid' => $ojt->id, 'tid' => $topic->id));
                 $out .= $this->output->action_icon($additemurl, new flex_icon('plus', ['alt' => get_string('additem', 'ojt')]));
@@ -98,7 +98,7 @@ class mod_ojt_renderer extends plugin_renderer_base {
             if ((int)$item->position !== count($items) - 1) {
                 $out .= $this->output->action_icon($downurl, new flex_icon('arrow-down', ['alt' => 'move topic item down']));
             }
-            $out .= format_string($item->name).$optionalstr;
+            $out .= html_writer::tag('span', format_string($item->name).$optionalstr, array('class' => 'config-mod-ojt-topic-item-text'));
             if ($config) {
                 $editurl = new moodle_url('/mod/ojt/topicitem.php',
                     array('bid' => $ojtid, 'tid' => $topicid, 'id' => $item->id, 'type' => $item->type));
