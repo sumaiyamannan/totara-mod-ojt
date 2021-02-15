@@ -28,6 +28,8 @@ require_once(dirname(__FILE__).'/forms.php');
 $ojtid = required_param('bid', PARAM_INT); // OJT instance id.
 $topicid  = optional_param('id', 0, PARAM_INT);  // Topic id.
 $delete = optional_param('delete', 0, PARAM_BOOL);
+$action  = optional_param('action', '', PARAM_ALPHANUMEXT);  // Action
+
 
 $ojt = $DB->get_record('ojt', array('id' => $ojtid), '*', MUST_EXIST);
 $course = $DB->get_record('course', array('id' => $ojt->course), '*', MUST_EXIST);
@@ -67,6 +69,8 @@ if ($data = $form->get_data()) {
 
     if (empty($data->id)) {
         // Add
+        $topiccount = $DB->get_record('ojt_topic', array('ojtid' => $ojtid), 'count(*)', MUST_EXIST);
+        $topic->position = $topic->count + 1;
         $DB->insert_record('ojt_topic', $topic);
     } else {
         // Update
@@ -88,6 +92,46 @@ if ($data = $form->get_data()) {
 
 
     redirect(new moodle_url('/mod/ojt/manage.php', array('cmid' => $cm->id)));
+}
+
+switch ($action) {
+
+    case 'topicdown':
+        $topic = $DB->get_record('ojt_topic', array('id' => $topicid), '*', MUST_EXIST);
+        $topicrs = $DB->get_records('ojt_topic', array('ojtid' => $ojtid), 'position');
+
+        $topicrs = array_values($topicrs);
+
+        if(array_move($topicrs, $topic->position, $topic->position + 1) !== false) {
+            foreach ($topicrs as $index => $topicr) {
+                $topicr->position = $index;
+                $DB->update_record('ojt_topic', $topicr);
+            }
+            totara_set_notification(get_string('topicreordered', 'ojt'), null, array('class' => 'notifysuccess'));
+        }
+
+        redirect(new moodle_url('/mod/ojt/manage.php', array('cmid' => $cm->id)));
+        break;
+
+    case 'topicup':
+        $topic = $DB->get_record('ojt_topic', array('id' => $topicid), '*', MUST_EXIST);
+        $topicrs = $DB->get_records('ojt_topic', array('ojtid' => $ojtid), 'position');
+
+        $topicrs = array_values($topicrs);
+
+        if(array_move($topicrs, $topic->position, $topic->position - 1) !== false) {
+            foreach ($topicrs as $index => $topicr) {
+                $topicr->position = $index;
+                $DB->update_record('ojt_topic', $topicr);
+            }
+            totara_set_notification(get_string('topicreordered', 'ojt'), null, array('class' => 'notifysuccess'));
+        }
+
+        redirect(new moodle_url('/mod/ojt/manage.php', array('cmid' => $cm->id)));
+        break;
+
+    default:
+        break;
 }
 
 // Print the page header.

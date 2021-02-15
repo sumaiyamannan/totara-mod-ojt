@@ -32,7 +32,7 @@ $delete = optional_param('delete', 0, PARAM_BOOL);
 $itemtype = optional_param('type', OJT_ITEM_TYPE_TEXT, PARAM_INT); // Topic item type (text / select).
 $action  = optional_param('action', '', PARAM_ALPHANUMEXT);  // Action
 $topicitemid  = optional_param('n', 0, PARAM_INT);  // Topic item id
-var_dump($topicitemid);
+
 $ojt = $DB->get_record('ojt', array('id' => $ojtid), '*', MUST_EXIST);
 $course = $DB->get_record('course', array('id' => $ojt->course), '*', MUST_EXIST);
 $cm = get_coursemodule_from_instance('ojt', $ojt->id, $course->id, false, MUST_EXIST);
@@ -87,6 +87,8 @@ if ($data = $form->get_data()) {
 
     if (empty($data->id)) {
         // Add
+        $topicitemcount = $DB->get_record('ojt_topic_item', array('topicid' => $topicid), 'count(*)', MUST_EXIST);
+        $item->position = $topicitemcount->count + 1;
         $DB->insert_record('ojt_topic_item', $item);
     } else {
         // Update
@@ -110,11 +112,10 @@ switch ($action) {
                 $itemr->position = $index;
                 $DB->update_record('ojt_topic_item', $itemr);
             }
-            totara_set_notification(get_string('topicreordered', 'ojt'), $redirecturl, array('class' => 'notifysuccess'));
+            totara_set_notification(get_string('topicreordered', 'ojt'), null, array('class' => 'notifysuccess'));
         }
 
-        redirect(new moodle_url('/mod/ojt/manage.php', array('id' => $cm->id)));
-
+        redirect(new moodle_url('/mod/ojt/manage.php', array('cmid' => $cm->id)));
         break;
 
     case 'topicitemup':
@@ -128,10 +129,10 @@ switch ($action) {
                 $itemr->position = $index;
                 $DB->update_record('ojt_topic_item', $itemr);
             }
-            totara_set_notification(get_string('topicreordered', 'ojt'), $redirecturl, array('class' => 'notifysuccess'));
+            totara_set_notification(get_string('topicreordered', 'ojt'), null, array('class' => 'notifysuccess'));
         }
 
-        redirect(new moodle_url('/mod/ojt/manage.php', array('id' => $cm->id)));
+        redirect(new moodle_url('/mod/ojt/manage.php', array('cmid' => $cm->id)));
         break;
 
     default:

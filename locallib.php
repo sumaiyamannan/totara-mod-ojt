@@ -385,7 +385,7 @@ function ojt_reorder_topic_items($topic, $verbose = false) {
 }
 
 /**
- * Reorder topic items in edit mode.
+ * Reorder topics and topic items in edit mode.
  * @param $items
  * @param $oldpos
  * @param $newpos
