@@ -121,3 +121,12 @@ $string['setting:topicitemselectdefaults_def'] = "Competent\rNot Competent\rN/A"
 
 $string['setting:topicitemappendtimestamps'] = 'Append timestamp';
 $string['setting:topicitemappendtimestamps_desc'] = 'Add a timestamp to the end of topic item comments when they are modified.';
+
+$string['topicstart'] = 'start of topic list';
+$string['topicend'] = 'end of topic list';
+$string['topicitemstart'] = 'start of topic';
+$string['topicitemend'] = 'end of topic';
+$string['movetopicup'] = 'move topic up';
+$string['movetopicdown'] = 'move topic down';
+$string['moveitemup'] = 'move topic item up';
+$string['moveitemdown'] = 'move topic item down';

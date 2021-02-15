@@ -106,8 +106,6 @@ img.ojt-topic-completion-status {
 
 /**
  * WR#345138: Topic item selection buttons
- *
- * Provisional CSS until a comptent adult can look at it.
  */
 
 input[type="radio"].mod-ojt-topic-item-selection {
@@ -136,6 +134,11 @@ input[type="radio"].mod-ojt-topic-item-selection:checked+label {
     background: #0088ce;
     color: #fff;
     border-color: #0088ce;
+}
+
+/* Disable end-of-section action buttons for topics / topic items. */
+.mod-ojt-action-disabled {
+    opacity: 0.1;
 }
 
 /**

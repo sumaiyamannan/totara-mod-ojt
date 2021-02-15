@@ -47,10 +47,14 @@ class mod_ojt_renderer extends plugin_renderer_base {
                 $upurl = new moodle_url('/mod/ojt/topic.php', array('id' => $topic->id, 'action' => 'topicup', 'bid' => $ojt->id));
                 $downurl = new moodle_url('/mod/ojt/topic.php', array('id' => $topic->id, 'action' => 'topicdown', 'bid' => $ojt->id));
                 if ($topic->position !== '0') {
-                    $out .= $this->output->action_icon($upurl, new flex_icon('arrow-up', ['alt' => 'move topic up']));
+                    $out .= $this->output->action_icon($upurl, new flex_icon('arrow-up', ['alt' => get_string('movetopicup', 'ojt')]));
+                } else {
+                    $out .= $this->output->flex_icon('arrow-up', ['alt' => get_string('topicstart', 'ojt'), 'classes' => ['mod-ojt-action-disabled']]);
                 }
                 if ((int)$topic->position !== count($topics) - 1) {
-                    $out .= $this->output->action_icon($downurl, new flex_icon('arrow-down', ['alt' => 'move topic down']));
+                    $out .= $this->output->action_icon($downurl, new flex_icon('arrow-down', ['alt' => get_string('movetopicdown', 'ojt')]));
+                } else {
+                    $out .= $this->output->flex_icon('arrow-down', ['alt' => get_string('topicend', 'ojt'), 'classes' => ['mod-ojt-action-disabled']]);
                 }
                 $out .= html_writer::tag('span', format_string($topic->name).$optionalstr, array('class' => 'config-mod-ojt-topic-heading-text'));
 
@@ -93,10 +97,14 @@ class mod_ojt_renderer extends plugin_renderer_base {
             $upurl = new moodle_url('/mod/ojt/topicitem.php', array('id' => $cm->id, 'action' => 'topicitemup', 'bid' => $ojtid, 'tid' => $topicid, 'n' => $item->id));
             $downurl = new moodle_url('/mod/ojt/topicitem.php', array('id' => $cm->id, 'action' => 'topicitemdown', 'bid' => $ojtid, 'tid' => $topicid, 'n' => $item->id));
             if ($item->position !== '0') {
-                $out .= $this->output->action_icon($upurl, new flex_icon('arrow-up', ['alt' => 'move topic item up']));
+                $out .= $this->output->action_icon($upurl, new flex_icon('arrow-up', ['alt' => get_string('moveitemup', 'ojt')]));
+            } else {
+                $out .= $this->output->flex_icon('arrow-up', ['alt' => get_string('topicitemstart', 'ojt'), 'classes' => ['mod-ojt-action-disabled']]);
             }
             if ((int)$item->position !== count($items) - 1) {
-                $out .= $this->output->action_icon($downurl, new flex_icon('arrow-down', ['alt' => 'move topic item down']));
+                $out .= $this->output->action_icon($downurl, new flex_icon('arrow-down', ['alt' => get_string('moveitemdown', 'ojt')]));
+            } else {
+                $out .= $this->output->flex_icon('arrow-down', ['alt' => get_string('topicitemend', 'ojt'), 'classes' => ['mod-ojt-action-disabled']]);
             }
             $out .= html_writer::tag('span', format_string($item->name).$optionalstr, array('class' => 'config-mod-ojt-topic-item-text'));
             if ($config) {
