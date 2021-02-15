@@ -112,7 +112,7 @@ switch ($action) {
                 $itemr->position = $index;
                 $DB->update_record('ojt_topic_item', $itemr);
             }
-            totara_set_notification(get_string('topicreordered', 'ojt'), null, array('class' => 'notifysuccess'));
+            totara_set_notification(get_string('topicitemreordered', 'ojt'), null, array('class' => 'notifysuccess'));
         }
 
         redirect(new moodle_url('/mod/ojt/manage.php', array('cmid' => $cm->id)));
@@ -129,7 +129,7 @@ switch ($action) {
                 $itemr->position = $index;
                 $DB->update_record('ojt_topic_item', $itemr);
             }
-            totara_set_notification(get_string('topicreordered', 'ojt'), null, array('class' => 'notifysuccess'));
+            totara_set_notification(get_string('topicitemreordered', 'ojt'), null, array('class' => 'notifysuccess'));
         }
 
         redirect(new moodle_url('/mod/ojt/manage.php', array('cmid' => $cm->id)));
