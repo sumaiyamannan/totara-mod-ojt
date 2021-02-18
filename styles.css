@@ -152,6 +152,31 @@ span.config-mod-ojt-topic-heading-text, span.config-mod-ojt-topic-item-text {
     padding-right: 10px;
 }
 
+/**
+ * Assessment outcome section
+ *
+ * Outcomes per lib.php:
+ * OJT_OUTCOME_NONE : 0
+ * OJT_OUTCOME_PASSED : 1
+ * OJT_OUTCOME_FAILED : 2
+ * OJT_OUTCOME_REASSESSMENT : 3
+ */
+.mod-ojt-assessmentoutcome {
+    padding: 12px 25px;
+    margin-left: 8px;
+    font-size: 18px;
+    text-align: center;
+    font-weight: bold;
+    width: 40%;
+}
+#mod-ojt-user-ojt .assessmentoutcome0,
+#mod-ojt-user-ojt .assessmentoutcome1,
+#mod-ojt-user-ojt .assessmentoutcome2,
+#mod-ojt-user-ojt .assessmentoutcome3 {
+    background: #ff9955;
+    border: 1px solid #ff6600;
+    color: black;
+}
 
 /**
  * printing styles
@@ -203,6 +228,10 @@ span.config-mod-ojt-topic-heading-text, span.config-mod-ojt-topic-item-text {
     /* WR#345138: Do not display item selection button-labels */
     .mod-ojt-item-type-select {
         display: none !important;
+    }
+    /* Assessment outcomes */
+    #mod-ojt-user-ojt .mod-ojt-assessmentoutcome {
+        display: table !important;
     }
 }
 

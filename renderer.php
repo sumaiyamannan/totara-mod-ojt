@@ -313,17 +313,15 @@ class mod_ojt_renderer extends plugin_renderer_base {
         // Temporary and read-only: Display assessment outcome
         // TODO: Make sure this is formatted and styled in a way frontend is happy with.
         // TODO: This will eventually have form elements so an assessor can change it.
-        $outcometag = 'assessmentoutcome' . $userojt->outcome;
+        $outcometag = 'assessmentoutcome' . (empty($userojt->outcome) ? OJT_OUTCOME_NONE : $userojt->outcome);
         $out .= html_writer::tag('hr', '');
-        $out .= html_writer::start_tag('p', array('class' => 'mod-ojt-assessment-outcome'));
-        $out .= get_string('assessmentoutcome', 'ojt') . ": ";
+        $out .= html_writer::tag('div', get_string('assessmentoutcome', 'ojt'), array('class' => 'mod-ojt-topic-heading'));
+        $out .= html_writer::tag('hr', '');
         $out .= html_writer::tag(
-            'span',
+            'div',
             get_string($outcometag, 'ojt'),
-            array('class' => $outcometag)
+            array('class' => "mod-ojt-assessmentoutcome {$outcometag}")
         );
-        $out .= html_writer::end_tag('p');
-
         $out .= html_writer::end_tag('div');  // mod-ojt-user-ojt
 
         return $out;
