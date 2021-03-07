@@ -59,6 +59,19 @@ M.mod_ojt_evaluate = M.mod_ojt_evaluate || {
         $('.ojt-completion-toggle').on('click', function () {
             var completionimg = $(this);
             var itemid = $(this).closest('.ojt-eval-actions').attr('ojt-item-id');
+
+            // WR#345138: Do not allow checking as complete with no selection made.
+            // Check if item is a menu
+            $is_selection = $(".mod-ojt-item-type-select[ojt-item-id="+itemid+"]").length;
+            if ($is_selection) {
+                $selecteditem = $(".mod-ojt-item-type-select input[name=comment-"+itemid+"][checked]");
+                // If no menu option is selected, disallow checking completion
+                if($selecteditem.length == 0 && completionimg.attr("data-flex-icon") == 'completion-manual-n') {
+                    console.log("Cannot complete item with no menu selection checked.");
+                    return false;
+                }
+            }
+
             $.ajax({
                 url: M.cfg.wwwroot+'/mod/ojt/evaluatesave.php',
                 type: 'POST',
@@ -146,6 +159,12 @@ M.mod_ojt_evaluate = M.mod_ojt_evaluate || {
                     // Update the comment print box
                     $('.ojt-completion-comment-print[ojt-item-id='+itemid+']').html(data.item.comment);
                     $('.mod-ojt-modifiedstr[ojt-item-id='+itemid+']').html(data.modifiedstr);
+                    // WR#345138: Automatically check topic item as complete when selection is made
+                    // Trigger click if checkbox icon is unchecked.
+                    $selector = $(".ojt-eval-actions[ojt-item-id='"+itemid+"'] span[data-flex-icon]");
+                    if ($selector[0].classList.contains("fa-square-o")) {
+                        $selector.trigger("click");
+                    }
                 },
                 error: function (data) {
                     console.log(data);

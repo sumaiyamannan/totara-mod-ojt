@@ -169,9 +169,9 @@ class mod_ojt_renderer extends plugin_renderer_base {
                 if ($evaluate) {
                     $completionicon = $item->status == OJT_COMPLETE ? 'completion-manual-y' : 'completion-manual-n';
                     $cellcontent = html_writer::start_tag('div', array('class' => 'ojt-eval-actions', 'ojt-item-id' => $item->id));
-                    $cellcontent .= $this->output->flex_icon($completionicon, ['classes' => 'ojt-completion-toggle']);
                     // WR#345138: Adding in menu selection type.
                     if ($item->type == OJT_ITEM_TYPE_SELECT) {
+                        $cellcontent .= $this->output->flex_icon($completionicon, ['classes' => 'ojt-completion-toggle']);
                         $cellcontent .= html_writer::start_tag('span', array(
                             'class' => 'mod-ojt-item-type-select',
                             'ojt-item-id' => $item->id
@@ -198,6 +198,7 @@ class mod_ojt_renderer extends plugin_renderer_base {
 
                     }
                     else {
+                        $cellcontent .= $this->output->flex_icon($completionicon, ['classes' => 'ojt-completion-toggle']);
                         $cellcontent .= html_writer::tag('textarea', $item->comment,
                         array('name' => 'comment-'.$item->id, 'rows' => 3,
                             'class' => 'ojt-completion-comment', 'ojt-item-id' => $item->id));
