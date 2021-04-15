@@ -89,7 +89,7 @@ switch ($action) {
 
         $itemrs = array_values($itemrs);
 
-        if (array_move($itemrs, $topicitem->position, $topicitem->position + 1) !== false) {
+        if (ojt_array_move($itemrs, $topicitem->position, $topicitem->position + 1) !== false) {
             foreach ($itemrs as $index => $itemr) {
                 $itemr->position = $index;
                 $DB->update_record('ojt_topic_item', $itemr);
@@ -105,7 +105,7 @@ switch ($action) {
 
         $itemrs = array_values($itemrs);
 
-        if (array_move($itemrs, $topicitem->position, $topicitem->position - 1) !== false) {
+        if (ojt_array_move($itemrs, $topicitem->position, $topicitem->position - 1) !== false) {
             foreach ($itemrs as $index => $itemr) {
                 $itemr->position = $index;
                 $DB->update_record('ojt_topic_item', $itemr);
