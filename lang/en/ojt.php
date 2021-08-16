@@ -95,6 +95,7 @@ $string['type1'] = 'Topic';
 $string['type2'] = 'Item';
 $string['updatefiles'] = 'Update files';
 $string['witnessed'] = 'Witnessed';
+$string['missingid'] = 'You must specify a course_module ID or an instance ID';
 $string['topicstart'] = 'Start of topic list';
 $string['topicend'] = 'End of topic list';
 $string['topicitemstart'] = 'Start of topic';
