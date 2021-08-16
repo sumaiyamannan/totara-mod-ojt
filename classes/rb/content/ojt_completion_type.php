@@ -79,7 +79,7 @@ final class ojt_completion_type extends base {
     public function form_template(&$mform, $reportid, $title) {
         // get current settings
         $enable = reportbuilder::get_setting($reportid, self::TYPE, 'enable');
-        $completiontype = reportbuilder::get_setting($reportid, $type, 'completiontype');
+        $completiontype = reportbuilder::get_setting($reportid, self::TYPE, 'completiontype');
 
         $mform->addElement('header', 'ojt_completion_type_header',
             get_string('showbyx', 'totara_reportbuilder', lcfirst($title)));
@@ -94,7 +94,7 @@ final class ojt_completion_type extends base {
         $radiogroup[] =& $mform->createElement('radio', 'ojt_completion_type_completiontype',
             '', get_string('type'.OJT_CTYPE_TOPIC, 'ojt'), OJT_CTYPE_TOPIC);
         $mform->addGroup($radiogroup, 'ojt_completion_type_completiontype_group',
-            get_string('includecompltyperecords', 'rb_source_ojt_completion'), html_writer::empty_tag('br'), false);
+            get_string('includecompltyperecords', 'rb_source_ojt_completion'), \html_writer::empty_tag('br'), false);
         $mform->setDefault('ojt_completion_type_completiontype', $completiontype);
         $mform->disabledIf('ojt_completion_type_completiontype_group', 'contentenabled',
             'eq', 0);
