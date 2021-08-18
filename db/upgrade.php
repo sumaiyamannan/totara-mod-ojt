@@ -33,6 +33,8 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+require_once($CFG->dirroot . '/mod/ojt/locallib.php');
+
 /**
  * Execute ojt upgrade from the given old version
  *
