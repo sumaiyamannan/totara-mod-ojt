@@ -355,7 +355,7 @@ function ojt_can_evaluate($userid, $context) {
  * @param $newpos
  * @return false
  */
-function array_move(&$items, $oldpos, $newpos) {
+function ojt_array_move(&$items, $oldpos, $newpos) {
     if ($oldpos == $newpos) {
         return false;
     }
