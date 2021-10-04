@@ -19,7 +19,7 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-
+/* eslint-env jquery */
 M.mod_ojt_expandcollapse = M.mod_ojt_expandcollapse || {
 
     Y: null,
@@ -68,5 +68,4 @@ M.mod_ojt_expandcollapse = M.mod_ojt_expandcollapse || {
 
     },  // init
 
-}
-
+};
