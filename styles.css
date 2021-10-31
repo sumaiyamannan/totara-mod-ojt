@@ -1,3 +1,5 @@
+/* stylelint-disable declaration-no-important */
+
 .config-mod-ojt-topic-heading,
 .mod-ojt-topic-heading {
     font-size: 1.4em;
@@ -146,7 +148,6 @@ img.ojt-topic-completion-status {
         display: table;
     }
     #mod-ojt-user-ojt .mod-ojt-topic {
-        page-break-inside : avoid;
+        page-break-inside: avoid;
     }
 }
-
