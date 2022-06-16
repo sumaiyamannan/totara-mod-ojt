@@ -57,6 +57,34 @@ M.mod_ojt_evaluate = M.mod_ojt_evaluate || {
 
         var config = this.config;
 
+        // Init ojt topic item selection toggle
+        $('.mod-ojt-topic-item-selection-label').on('click', function() {
+            var topicitemselection = $(this);
+            var itemid = topicitemselection.parent().attr('ojt-item-id');
+            $.ajax({
+                url: M.cfg.wwwroot + '/mod/ojt/evaluatesave.php',
+                type: 'POST',
+                data: {
+                    'sesskey': M.cfg.sesskey,
+                    'action': 'complete',
+                    'bid': config.ojtid,
+                    'userid': config.userid,
+                    'id': itemid
+                },
+                success: function(data) {
+                    // Update the topic's completion too.
+                    ojtobj.setTopicStatusIcon(data.item.status, $('#ojt-topic-' + data.item.topicid + ' .ojt-topic-status'));
+
+                    // Update modified string.
+                    $('.mod-ojt-modifiedstr[ojt-item-id=' + itemid + ']').html(data.modifiedstr);
+                },
+                error: function(data) {
+                    console.log(data);
+                    alert('Error saving completion...');
+                }
+            });
+        });
+
         // Init ojt completion toggles.
         $('.ojt-completion-toggle').on('click', function() {
             var completionimg = $(this);
@@ -119,6 +147,39 @@ M.mod_ojt_evaluate = M.mod_ojt_evaluate || {
                     $('.ojt-completion-comment-print[ojt-item-id=' + itemid + ']').html(data.item.comment);
 
                     $('.mod-ojt-modifiedstr[ojt-item-id=' + itemid + ']').html(data.modifiedstr);
+                },
+                error: function(data) {
+                    console.log(data);
+                    alert('Error saving comment...');
+                }
+            });
+        });
+
+        $('span.mod-ojt-item-type-select input').change(function() {
+            var commentinput = this;
+            var itemid = $(this).parent().attr('ojt-item-id');
+
+            $.ajax({
+                url: M.cfg.wwwroot+'/mod/ojt/evaluatesave.php',
+                type: 'POST',
+                data: {
+                    'sesskey' : M.cfg.sesskey,
+                    'action': 'savecomment',
+                    'bid': config.ojtid,
+                    'userid': config.userid,
+                    'id': itemid,
+                    'comment': $(commentinput).val()
+                },
+                success: function(data) {
+                    // Unlike text comments, no update for the value here.
+                    // Update the comment print box
+                    $('.ojt-completion-comment-print[ojt-item-id='+itemid+']').html(data.item.comment);
+                    $('.mod-ojt-modifiedstr[ojt-item-id='+itemid+']').html(data.modifiedstr);
+                    // Trigger click if checkbox icon is unchecked.
+                    $selector = $(".ojt-eval-actions[ojt-item-id='"+itemid+"'] span[data-flex-icon]");
+                    if ($selector.length && $selector[0].classList.contains("fa-square-o")) {
+                        $selector.trigger("click");
+                    }
                 },
                 error: function(data) {
                     console.log(data);

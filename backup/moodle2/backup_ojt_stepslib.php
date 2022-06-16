@@ -44,7 +44,7 @@ class backup_ojt_activity_structure_step extends backup_activity_structure_step 
 
         $items = new backup_nested_element('items');
         $item = new backup_nested_element('item', array('id'), array(
-            'name', 'completionreq', 'allowfileuploads', 'allowselffileuploads'));
+            'name', 'completionreq', 'allowfileuploads', 'allowselffileuploads', 'position', 'type', 'other'));
 
         $completions = new backup_nested_element('completions');
         $completion = new backup_nested_element('completion', array('id'), array(

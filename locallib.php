@@ -29,6 +29,30 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+/**
+ * Build and return a list of topic item selections.
+ *
+ * These usually live in the 'other' field of the {ojt_topic_item} table.
+ *
+ * Since there's user input involved, input has whitespace trimmed and
+ * format-filtered.
+ *
+ * @param string $selectionstring A newline-separated list of topic item choices.
+ *
+ * @return array A cleaned array of topic item selections.
+ */
+function ojt_get_selection_list($selectionstring) {
+    // Split on new lines.
+    $choices = array();
+    $parts = preg_split('/\R/', trim($selectionstring));
+
+    foreach ($parts as $part) {
+        $choices[] = format_string(trim($part), FORMAT_MOODLE);
+    }
+
+    return $choices;
+}
+
 function ojt_get_user_ojt($ojtid, $userid) {
     global $DB;
 

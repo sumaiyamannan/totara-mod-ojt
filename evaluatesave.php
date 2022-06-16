@@ -70,6 +70,9 @@ if ($completion = $DB->get_record('ojt_completion', $params)) {
         case 'togglecompletion':
             $completion->status = $completion->status == OJT_COMPLETE ? OJT_INCOMPLETE : OJT_COMPLETE;
             break;
+        case 'complete':
+            $completion->status = OJT_COMPLETE;
+            break;
         case 'savecomment':
             $completion->comment = required_param('comment', PARAM_TEXT);
             // append a date to the comment string
@@ -87,6 +90,7 @@ if ($completion = $DB->get_record('ojt_completion', $params)) {
         case 'togglecompletion':
             $completion->status = OJT_COMPLETE;
             break;
+        case 'complete':
         case 'savecomment':
             $completion->comment = required_param('comment', PARAM_TEXT);
             // append a date to the comment string
@@ -105,7 +109,7 @@ $jsonparams = array(
     'item' => $completion,
     'modifiedstr' => $modifiedstr
 );
-if ($action == 'togglecompletion') {
+if ($action == 'togglecompletion' || $action == 'complete') {
     $topiccompletion = ojt_update_topic_completion($userid, $ojtid, $item->topicid);
     $jsonparams['topic'] = $topiccompletion;
 }
