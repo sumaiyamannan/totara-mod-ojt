@@ -25,7 +25,8 @@ defined('MOODLE_INTERNAL') || die();
 use core\output\flex_icon;
 
 require_once(dirname(dirname(dirname(__FILE__))).'/config.php');
-require_once($CFG->dirroot.'/mod/ojt/lib.php');
+require_once($CFG->dirroot . '/mod/ojt/lib.php');
+require_once($CFG->dirroot . '/mod/ojt/locallib.php');
 
 class mod_ojt_renderer extends plugin_renderer_base {
 
@@ -67,6 +68,12 @@ class mod_ojt_renderer extends plugin_renderer_base {
 
                 $additemurl = new moodle_url('/mod/ojt/topicitem.php', array('bid' => $ojt->id, 'tid' => $topic->id));
                 $out .= $this->output->action_icon($additemurl, new flex_icon('plus', ['alt' => get_string('additem', 'ojt')]));
+                $additemselecturl = new moodle_url('/mod/ojt/topicitem.php', array('bid' => $ojt->id, 'tid' => $topic->id, 'type' => OJT_ITEM_TYPE_SELECT));
+                $out .= $this->output->action_icon(
+                    $additemselecturl,
+                    new flex_icon('bars', ['alt' => get_string('additemsubtype', 'ojt', get_string('topicitemtypeselect', 'ojt'))])
+                );
+
                 $editurl = new moodle_url('/mod/ojt/topic.php', array('bid' => $ojt->id, 'id' => $topic->id));
                 $out .= $this->output->action_icon($editurl, new flex_icon('edit', ['alt' => get_string('edittopic', 'ojt')]));
                 $deleteurl = new moodle_url('/mod/ojt/topic.php', array('bid' => $ojt->id, 'id' => $topic->id, 'delete' => 1));
@@ -119,7 +126,7 @@ class mod_ojt_renderer extends plugin_renderer_base {
                 array('class' => 'config-mod-ojt-topic-item-text'));
             if ($config) {
                 $editurl = new moodle_url('/mod/ojt/topicitem.php',
-                    array('bid' => $ojtid, 'tid' => $topicid, 'id' => $item->id));
+                    array('bid' => $ojtid, 'tid' => $topicid, 'id' => $item->id, 'type' => $item->type));
                 $out .= $this->output->action_icon($editurl, new flex_icon('edit', ['alt' => get_string('edititem', 'ojt')]));
                 $deleteurl = new moodle_url('/mod/ojt/topicitem.php',
                     array('bid' => $ojtid, 'tid' => $topicid, 'id' => $item->id, 'delete' => 1));
@@ -132,9 +139,17 @@ class mod_ojt_renderer extends plugin_renderer_base {
         return $out;
     }
 
-    // Build a user's ojt form
-    function user_ojt($userojt, $evaluate=false, $signoff=false, $itemwitness=false) {
-        global $CFG, $DB, $USER, $PAGE;
+    /**
+     * Build a user's OJT form/evaluation view.
+     *
+     * @param stdClass $userojt
+     * @param bool $evaluate
+     * @param bool $signoff
+     * @param bool $itemwitness
+     * @return string
+     */
+    function user_ojt(stdClass $userojt, bool $evaluate = false, bool $signoff = false, bool $itemwitness = false): string {
+        global $CFG, $DB, $USER;
 
         $out = '';
         $out = html_writer::start_tag('div', array('id' => 'mod-ojt-user-ojt'));
@@ -179,10 +194,40 @@ class mod_ojt_renderer extends plugin_renderer_base {
                 if ($evaluate) {
                     $completionicon = $item->status == OJT_COMPLETE ? 'completion-manual-y' : 'completion-manual-n';
                     $cellcontent = html_writer::start_tag('div', array('class' => 'ojt-eval-actions', 'ojt-item-id' => $item->id));
-                    $cellcontent .= $this->output->flex_icon($completionicon, ['classes' => 'ojt-completion-toggle']);
-                    $cellcontent .= html_writer::tag('textarea', $item->comment,
-                        array('name' => 'comment-'.$item->id, 'rows' => 3,
-                            'class' => 'ojt-completion-comment', 'ojt-item-id' => $item->id));
+                    // Menu selection type.
+                    if ($item->type == OJT_ITEM_TYPE_SELECT) {
+                        $cellcontent .= html_writer::start_tag('span', array(
+                            'class' => 'mod-ojt-item-type-select',
+                            'ojt-item-id' => $item->id
+                        ));
+                        $selections = ojt_get_selection_list($item->other);
+                        $comment = trim($item->comment); // Legacy values have whitespace.
+                        foreach ($selections as $i => $choice) {
+                            $inputattrs = array(
+                                'id' => "comment-{$item->id}-$i",
+                                'class' => 'mod-ojt-topic-item-selection',
+                                'name' => "comment-{$item->id}",
+                                'value' => $choice,
+                                'type' => 'radio',
+                            );
+                            if ($choice == $comment) {
+                                $inputattrs['checked'] = true;
+                            }
+                            $cellcontent .= html_writer::tag('input', '', $inputattrs);
+                            $cellcontent .= html_writer::tag('label', $choice, array(
+                                'for' => "comment-{$item->id}-$i",
+                                'class' => 'mod-ojt-topic-item-selection-label'
+                            ));
+                        }
+                        $cellcontent .= html_writer::end_tag('span');
+
+                    } else {
+                        // Free text field with checkbox type.
+                        $cellcontent .= $this->output->flex_icon($completionicon, ['classes' => 'ojt-completion-toggle']);
+                        $textAreaOptions = array('name' => 'comment-'.$item->id, 'rows' => 3,
+                            'class' => 'ojt-completion-comment', 'ojt-item-id' => $item->id);
+                        $cellcontent .= html_writer::tag('textarea', $item->comment, $textAreaOptions);
+                    }
                     $cellcontent .= html_writer::tag('div', format_text($item->comment, FORMAT_PLAIN),
                         array('class' => 'ojt-completion-comment-print', 'ojt-item-id' => $item->id));
                     $cellcontent .= html_writer::end_tag('div');
@@ -275,7 +320,7 @@ class mod_ojt_renderer extends plugin_renderer_base {
                 require_once($CFG->dirroot.'/comment/lib.php');
                 comment::init();
                 $options = new stdClass();
-                $options->area    = 'ojt_topic_item_'.$topic->id;
+                $options->area    = 'ojt_topic_item_' . $topic->id;
                 $options->context = $context;
                 $options->itemid  = $userojt->userid;
                 $options->showcount = true;
@@ -312,4 +357,3 @@ class mod_ojt_renderer extends plugin_renderer_base {
     }
 
 }
-

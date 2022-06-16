@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * OJT topic item form
+ * OJT topic item text form
  *
  * @package   mod_ojt
  * @author    Alex Morris <alex.morris@catalyst.net.nz
@@ -25,43 +25,26 @@
 
 namespace mod_ojt\form;
 
-use moodleform;
-
 defined('MOODLE_INTERNAL') || die();
 
 /**
- * OJT topic item form
+ * OJT topic item text form
  *
  * @package   mod_ojt
  * @author    Alex Morris <alex.morris@catalyst.net.nz
  * @copyright Catalyst IT
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class topic_item_form extends moodleform {
+class topic_item_text_form extends topic_item_form {
     function definition() {
+        parent::definition();
         $mform =& $this->_form;
-        $ojtid = $this->_customdata['ojtid'];
-        $topicid = $this->_customdata['topicid'];
 
-        $mform->addElement('text', 'name', get_string('name', 'ojt'));
-        $mform->setType('name', PARAM_TEXT);
-        $mform->addRule('name', null, 'required', null, 'client');
+        $mform->addElement('hidden', 'type');
+        $mform->setType('type', PARAM_INT);
+        $mform->setDefault('type', OJT_ITEM_TYPE_TEXT);
 
-        $mform->addElement('advcheckbox', 'completionreq', get_string('optionalcompletion', 'ojt'));
-
-        $mform->addElement('advcheckbox', 'allowfileuploads', get_string('allowfileuploads', 'ojt'));
-        $mform->setType('allowfileuploads', PARAM_BOOL);
-
-        $mform->addElement('advcheckbox', 'allowselffileuploads', get_string('allowselffileuploads', 'ojt'));
-        $mform->setType('allowselffileuploads', PARAM_BOOL);
-
-        $mform->addElement('hidden', 'id');
-        $mform->setType('id', PARAM_INT);
-        $mform->addElement('hidden', 'bid');
-        $mform->setType('bid', PARAM_INT);
-        $mform->setDefault('bid', $ojtid);
-        $mform->addElement('hidden', 'tid');
-        $mform->setType('tid', PARAM_INT);
-        $mform->setDefault('tid', $topicid);
+        $this->add_action_buttons(false);
     }
+
 }

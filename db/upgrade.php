@@ -83,5 +83,23 @@ function xmldb_ojt_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2021041400, 'ojt');
     }
 
+    if ($oldversion < 2022052600) {
+        $table = new xmldb_table('ojt_topic_item');
+        // Menu topic item type field.
+        $field = new xmldb_field('type', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0', 'name');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Topic item selection options.
+        $table = new xmldb_table('ojt_topic_item');
+        $field = new xmldb_field('other', XMLDB_TYPE_TEXT, '', null, null, null, null, 'position');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        upgrade_mod_savepoint(true, 2022052600, 'ojt');
+    }
+
     return true;
 }
