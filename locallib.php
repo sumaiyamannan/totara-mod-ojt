@@ -115,24 +115,66 @@ function ojt_update_topic_completion($userid, $ojtid, $topicid) {
 
     $ojt = $DB->get_record('ojt', array('id' => $ojtid), '*', MUST_EXIST);
 
-    // Check if all required topic items have been completed
-    $sql = 'SELECT i.*, CASE WHEN c.status IS NULL THEN '.OJT_INCOMPLETE.' ELSE c.status END AS status
+    // Check if all required topic items have been completed.
+    $items = $DB->get_records_sql(
+        'SELECT
+            i.id,
+            i.completionreq,
+            s.signedoff,
+            CASE WHEN c.status IS NULL THEN ? ELSE c.status END AS status
         FROM {ojt_topic_item} i
-        LEFT JOIN {ojt_completion} c ON i.id = c.topicitemid AND c.ojtid = ? AND c.type = ? AND c.userid = ?
-        WHERE i.topicid = ?';
-    $items = $DB->get_records_sql($sql, array($ojtid, OJT_CTYPE_TOPICITEM, $userid, $topicid));
+        LEFT JOIN {ojt_completion} c
+            ON i.id = c.topicitemid
+            AND c.ojtid = ?
+            AND c.type = ?
+            AND c.userid = ?
+        LEFT JOIN {ojt_topic_signoff} s
+            ON s.userid = ?
+            AND s.topicid = ?
+        WHERE i.topicid = ?',
+        [
+            OJT_INCOMPLETE,
+            $ojtid,
+            OJT_CTYPE_TOPICITEM,
+            $userid,
+            $userid,
+            $topicid,
+            $topicid
+        ]
+    );
 
     $status = OJT_COMPLETE;
-    foreach ($items as $item) {
-        if ($item->status == OJT_INCOMPLETE) {
-            if ($item->completionreq == OJT_REQUIRED) {
-                // All required items not complete - bail!
+    if (!empty($items)) {
+        // Iterate through topic items, check conditions to determine if OJT is incomplete.
+        foreach ($items as $item) {
+            if ($item->status == OJT_INCOMPLETE) {
+                if ($item->completionreq == OJT_REQUIRED) {
+                    // All required items not complete - bail!
+                    $status = OJT_INCOMPLETE;
+                    break;
+                } else if ($item->completionreq == OJT_OPTIONAL) {
+                    // Degrade status a bit
+                    $status = OJT_REQUIREDCOMPLETE;
+                }
+            } else if (!empty($ojt->managersignoff) && empty($item->signedoff)) {
+                // Item requires manager sign-off and isn't signed off - also bail!
                 $status = OJT_INCOMPLETE;
                 break;
-            } else if ($item->completionreq == OJT_OPTIONAL) {
-                // Degrade status a bit
-                $status = OJT_REQUIREDCOMPLETE;
             }
+        }
+    } else {
+        // If there are no items in the topic, check topic manager sign-off conditions.
+        $topicsignedoff = $DB->get_field_sql(
+            'SELECT s.signedoff
+            FROM {ojt_topic} t
+            LEFT JOIN {ojt_topic_signoff} s
+                ON s.topicid = ?
+                AND s.userid = ?',
+            [$topicid, $userid],
+            MUST_EXIST
+        );
+        if (!empty($ojt->managersignoff) && empty($topicsignedoff)) {
+            $status = OJT_INCOMPLETE;
         }
     }
 
