@@ -494,8 +494,11 @@ function ojt_pluginfile($course, $cm, $context, $filearea, array $args, $forcedo
  */
 function ojt_extend_navigation(navigation_node $navref, stdClass $course, stdClass $module, cm_info $cm) {
     $context = context_module::instance($cm->id);
-    if (has_capability('mod/ojt:evaluate', $context) || has_capability('mod/ojt:signoff', $context)) {
+    if (has_capability('mod/ojt:evaluate', $context)) {
         $link = new moodle_url('/mod/ojt/report.php', array('cmid' => $cm->id));
+        $node = $navref->add(get_string('evaluatestudents', 'ojt'), $link, navigation_node::TYPE_SETTING);
+    } else if (has_capability('mod/ojt:signoff', $context)) {
+        $link = new moodle_url('/mod/ojt/reportsignoff.php', array('cmid' => $cm->id));
         $node = $navref->add(get_string('evaluatestudents', 'ojt'), $link, navigation_node::TYPE_SETTING);
     }
 
@@ -514,9 +517,13 @@ function ojt_extend_settings_navigation(settings_navigation $settingsnav, naviga
     global $PAGE;
 
     if (has_capability('mod/ojt:evaluate', $PAGE->cm->context) || has_capability('mod/ojt:signoff', $PAGE->cm->context)) {
-        $link = new moodle_url('/mod/ojt/report.php', array('cmid' => $PAGE->cm->id));
+        if (has_capability('mod/ojt:evaluate', $PAGE->cm->context)) {
+            $link = new moodle_url('/mod/ojt/report.php', array('cmid' => $PAGE->cm->id));
+        } else if (has_capability('mod/ojt:signoff', $PAGE->cm->context)) {
+            $link = new moodle_url('/mod/ojt/reportsignoff.php', array('cmid' => $PAGE->cm->id));
+        }
         $node = navigation_node::create(get_string('evaluatestudents', 'ojt'),
-                new moodle_url('/mod/ojt/report.php', array('cmid' => $PAGE->cm->id)),
+                $link,
                 navigation_node::TYPE_SETTING, null, 'mod_ojt_evaluate',
                 new pix_icon('i/valid', ''));
         $ojtnode->add_node($node);
