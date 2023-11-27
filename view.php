@@ -94,12 +94,18 @@ if ($canmanage) {
 }
 
 // "Evaluate students" button
-if (($canevaluate || $cansignoff)) {
+if ($canevaluate) {
+    $link = new moodle_url('/mod/ojt/report.php', array('cmid' => $cm->id));
+} else if ($cansignoff) {
+    $link = new moodle_url('/mod/ojt/reportsignoff.php', array('cmid' => $cm->id));
+}
+if (isset($link)) {
     echo html_writer::start_tag('div', array('class' => 'mod-ojt-evalstudents-btn'));
-    echo $OUTPUT->single_button(new moodle_url('/mod/ojt/report.php', array('cmid' => $cm->id)),
+    echo $OUTPUT->single_button($link,
         get_string('evaluatestudents', 'ojt'), 'get');
     echo html_writer::end_tag('div');
 }
+
 
 $userojt = ojt_get_user_ojt($ojt->id, $USER->id);
 

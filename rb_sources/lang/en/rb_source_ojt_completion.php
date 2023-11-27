@@ -4,6 +4,7 @@ $string['ojt'] = 'OJT';
 $string['ojtcompletion'] = 'OJT Completion';
 $string['ojtcompletiontype'] = 'OJT completion type';
 $string['ojtevaluation'] = 'OJT Evaluation';
+$string['ojtevaluationsignoff'] = 'OJT Evaluation Sign-off';
 $string['ojtname'] = 'OJT name';
 $string['completionstatus'] = 'Completion status';
 $string['completiontypeenable'] = 'Show records based on ojt completion type';
