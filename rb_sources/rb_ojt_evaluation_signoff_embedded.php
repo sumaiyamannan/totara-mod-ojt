@@ -23,7 +23,6 @@
 defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
-use totara_reportbuilder\rb\content\base;
 
 # Include the ojt rb source, to ensure all default settings get created upon report creation
 require_once($CFG->dirroot.'/mod/ojt/rb_sources/rb_source_ojt_completion.php');
@@ -81,7 +80,11 @@ class rb_ojt_evaluation_signoff_embedded extends rb_base_embedded {
             'ojt_completion_type' => array(
                 'enable' => 1,
                 'completiontype' => OJT_CTYPE_OJT
-            )
+            ),
+            'user' => [
+                'enable' => 1,
+                'who' => totara_reportbuilder\rb\content\user::USER_DIRECT_REPORTS
+            ]
         );
 
         // only show non-deleted users
