@@ -101,5 +101,21 @@ function xmldb_ojt_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2022052600, 'ojt');
     }
 
+    if ($oldversion < 2022052602) {
+
+        // Define field signoff_message_sent to be added to ojt_completion.
+        $table = new xmldb_table('ojt_completion');
+        $field = new xmldb_field('signoff_message_sent', XMLDB_TYPE_INTEGER, '11', null, null, null, null, 'modifiedby');
+
+        // Conditionally launch add field signoff_message_sent.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Ojt savepoint reached.
+        upgrade_mod_savepoint(true, 2022052602, 'ojt');
+    }
+
+
     return true;
 }

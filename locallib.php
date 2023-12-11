@@ -114,13 +114,14 @@ function ojt_update_topic_completion($userid, $ojtid, $topicid) {
     global $DB, $USER;
 
     $ojt = $DB->get_record('ojt', array('id' => $ojtid), '*', MUST_EXIST);
+    $currentcompletion = $DB->get_record('ojt_completion',
+        array('userid' => $userid, 'topicid' => $topicid, 'type' => OJT_CTYPE_TOPIC));
 
     // Check if all required topic items have been completed.
     $items = $DB->get_records_sql(
         'SELECT
             i.id,
             i.completionreq,
-            s.signedoff,
             CASE WHEN c.status IS NULL THEN ? ELSE c.status END AS status
         FROM {ojt_topic_item} i
         LEFT JOIN {ojt_completion} c
@@ -128,17 +129,12 @@ function ojt_update_topic_completion($userid, $ojtid, $topicid) {
             AND c.ojtid = ?
             AND c.type = ?
             AND c.userid = ?
-        LEFT JOIN {ojt_topic_signoff} s
-            ON s.userid = ?
-            AND s.topicid = ?
         WHERE i.topicid = ?',
         [
             OJT_INCOMPLETE,
             $ojtid,
             OJT_CTYPE_TOPICITEM,
             $userid,
-            $userid,
-            $topicid,
             $topicid
         ]
     );
@@ -156,25 +152,7 @@ function ojt_update_topic_completion($userid, $ojtid, $topicid) {
                     // Degrade status a bit
                     $status = OJT_REQUIREDCOMPLETE;
                 }
-            } else if (!empty($ojt->managersignoff) && empty($item->signedoff)) {
-                // Item requires manager sign-off and isn't signed off - also bail!
-                $status = OJT_INCOMPLETE;
-                break;
             }
-        }
-    } else {
-        // If there are no items in the topic, check topic manager sign-off conditions.
-        $topicsignedoff = $DB->get_field_sql(
-            'SELECT s.signedoff
-            FROM {ojt_topic} t
-            LEFT JOIN {ojt_topic_signoff} s
-                ON s.topicid = ?
-                AND s.userid = ?',
-            [$topicid, $userid],
-            MUST_EXIST
-        );
-        if (!empty($ojt->managersignoff) && empty($topicsignedoff)) {
-            $status = OJT_INCOMPLETE;
         }
     }
 
@@ -185,9 +163,31 @@ function ojt_update_topic_completion($userid, $ojtid, $topicid) {
         $status = OJT_INCOMPLETE;
     }
 
-    $currentcompletion = $DB->get_record('ojt_completion',
-        array('userid' => $userid, 'topicid' => $topicid, 'type' => OJT_CTYPE_TOPIC));
-    if (empty($currentcompletion->status) || $status != $currentcompletion->status) {
+    $sendmanagersignoffmessage = false;
+    if ($ojt->managersignoff && in_array($item->status, [OJT_COMPLETE, OJT_REQUIREDCOMPLETE])) {
+        // If the topic should be complete, check the manager signoff
+        $topicsignedoff = $DB->record_exists('ojt_topic_signoff', ['topicid' => $topicid, 'userid' => $userid]);
+        if (!$topicsignedoff) {
+            $status = OJT_INCOMPLETE;
+
+            // Send a manager signoff message if we would be switching from
+            // incomplete to complete except for the signoff. And if we haven't
+            // sent one in the last 15 minutes.
+            if (
+                $currentcompletion->status == OJT_INCOMPLETE
+                && (
+                    empty($currentcompletion->signoff_message_sent)
+                    || (
+                        time() - $currentcompletion->signoff_message_sent > 900
+                    ) 
+                )
+            ){
+                $sendmanagersignoffmessage = true;
+            }
+        }
+    }
+
+    if (empty($currentcompletion->status) || $status != $currentcompletion->status || $sendmanagersignoffmessage) {
         // Update topic completion
         $transaction = $DB->start_delegated_transaction();
 
@@ -195,6 +195,9 @@ function ojt_update_topic_completion($userid, $ojtid, $topicid) {
         $completion->status = $status;
         $completion->timemodified = time();
         $completion->modifiedby = $USER->id;
+        if ($sendmanagersignoffmessage) {
+            $completion->signoff_message_sent = time();
+        }
         if (empty($currentcompletion)) {
             $completion->userid = $userid;
             $completion->type = OJT_CTYPE_TOPIC;
@@ -211,6 +214,42 @@ function ojt_update_topic_completion($userid, $ojtid, $topicid) {
         ojt_update_topic_competency_proficiency($userid, $topicid, $status);
 
         $transaction->allow_commit();
+
+        if ($sendmanagersignoffmessage) {
+            $managerids = \totara_job\job_assignment::get_all_manager_userids($completion->userid);
+            $userfrom = core_user::get_user($completion->userid);
+            $contexturl = (new moodle_url(
+                    '/mod/ojt/evaluate.php',
+                    [
+                        'userid' => $completion->userid,
+                        'bid' => $completion->ojtid
+                    ]
+                ))->out();
+
+            $strobj = new stdClass();
+            $strobj->user = fullname($userfrom);
+            $strobj->ojt = format_string($ojt->name);
+            $strobj->topic = format_string(
+                $DB->get_field('ojt_topic', 'name', ['id' => $topicid])
+            );
+            $strobj->topicurl = $contexturl;
+            $strobj->courseshortname = format_string(
+                $DB->get_field('course', 'shortname', ['id' => $ojt->course])
+            );
+
+            foreach ($managerids as $managerid) {
+                $manager = core_user::get_user($managerid);
+                $eventdata = new stdClass();
+                $eventdata->userto = $manager;
+                $eventdata->userfrom = $userfrom;
+                $eventdata->icon = 'elearning-complete';
+                $eventdata->contexturl = $contexturl;
+                $eventdata->subject = get_string('managertasktcompletionsubject', 'ojt', $strobj);
+                $eventdata->fullmessage = get_string('managertasktcompletionmsg', 'ojt', $strobj);
+    
+                tm_task_send($eventdata);
+            }
+        }
     }
 
     return empty($completion) ? $currentcompletion : $completion;

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<XMLDB PATH="mod/ojt/db" VERSION="2015052902" COMMENT="XMLDB file for Moodle mod/ojt"
+<XMLDB PATH="mod/ojt/db" VERSION="20231211" COMMENT="XMLDB file for Moodle mod/ojt"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
 >
@@ -95,6 +95,7 @@
         <FIELD NAME="comment" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
         <FIELD NAME="timemodified" TYPE="int" LENGTH="11" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="modifiedby" TYPE="int" LENGTH="11" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="signoff_message_sent" TYPE="int" LENGTH="11" NOTNULL="false" SEQUENCE="false" COMMENT="The time that the last signoff message for this completion was sent. So we can debounce and prevent too many messages being sent if a silly user just toggles completion on and off a bunch."/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
