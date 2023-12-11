@@ -201,7 +201,7 @@ class mod_ojt_renderer extends plugin_renderer_base {
                             'ojt-item-id' => $item->id
                         ));
                         $selections = ojt_get_selection_list($item->other);
-                        $comment = trim($item->comment); // Legacy values have whitespace.
+                        $comment = trim($item->comment ?? ''); // Legacy values have whitespace.
                         foreach ($selections as $i => $choice) {
                             $inputattrs = array(
                                 'id' => "comment-{$item->id}-$i",

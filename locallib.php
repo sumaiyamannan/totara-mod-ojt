@@ -44,7 +44,7 @@ defined('MOODLE_INTERNAL') || die();
 function ojt_get_selection_list($selectionstring) {
     // Split on new lines.
     $choices = array();
-    $parts = preg_split('/\R/', trim($selectionstring));
+    $parts = preg_split('/\R/', trim($selectionstring ?? ''));
 
     foreach ($parts as $part) {
         $choices[] = format_string(trim($part), FORMAT_MOODLE);
