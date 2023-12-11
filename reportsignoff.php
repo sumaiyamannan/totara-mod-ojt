@@ -49,7 +49,7 @@ if ($cmid) {
 require_login($course, true, $cm);
 
 $modcontext = context_module::instance($cm->id);
-if (!(has_capability('mod/ojt:evaluate', $modcontext) || has_capability('mod/ojt:signoff', $modcontext))) {
+if (!has_capability('mod/ojt:signoff', $modcontext)) {
     print_error('accessdenied', 'ojt');
 }
 
