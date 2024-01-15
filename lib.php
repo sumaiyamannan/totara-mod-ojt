@@ -443,9 +443,10 @@ function ojt_extend_navigation(navigation_node $navref, stdClass $course, stdCla
     if (has_capability('mod/ojt:evaluate', $context)) {
         $link = new moodle_url('/mod/ojt/report.php', array('cmid' => $cm->id));
         $node = $navref->add(get_string('evaluatestudents', 'ojt'), $link, navigation_node::TYPE_SETTING);
-    } else if (has_capability('mod/ojt:signoff', $context)) {
+    }
+    if (has_capability('mod/ojt:signoff', $context)) {
         $link = new moodle_url('/mod/ojt/reportsignoff.php', array('cmid' => $cm->id));
-        $node = $navref->add(get_string('evaluatestudents', 'ojt'), $link, navigation_node::TYPE_SETTING);
+        $node = $navref->add(get_string('signoffstudents', 'ojt'), $link, navigation_node::TYPE_SETTING);
     }
 
 }
@@ -462,15 +463,20 @@ function ojt_extend_navigation(navigation_node $navref, stdClass $course, stdCla
 function ojt_extend_settings_navigation(settings_navigation $settingsnav, navigation_node $ojtnode=null) {
     global $PAGE;
 
-    if (has_capability('mod/ojt:evaluate', $PAGE->cm->context) || has_capability('mod/ojt:signoff', $PAGE->cm->context)) {
-        if (has_capability('mod/ojt:evaluate', $PAGE->cm->context)) {
-            $link = new moodle_url('/mod/ojt/report.php', array('cmid' => $PAGE->cm->id));
-        } else if (has_capability('mod/ojt:signoff', $PAGE->cm->context)) {
-            $link = new moodle_url('/mod/ojt/reportsignoff.php', array('cmid' => $PAGE->cm->id));
-        }
+    if (has_capability('mod/ojt:evaluate', $PAGE->cm->context)) {
+        $link = new moodle_url('/mod/ojt/report.php', array('cmid' => $PAGE->cm->id));
         $node = navigation_node::create(get_string('evaluatestudents', 'ojt'),
                 $link,
                 navigation_node::TYPE_SETTING, null, 'mod_ojt_evaluate',
+                new pix_icon('i/valid', ''));
+        $ojtnode->add_node($node);
+    }
+
+    if (has_capability('mod/ojt:signoff', $PAGE->cm->context)) {
+        $link = new moodle_url('/mod/ojt/reportsignoff.php', array('cmid' => $PAGE->cm->id));
+        $node = navigation_node::create(get_string('signoffstudents', 'ojt'),
+                $link,
+                navigation_node::TYPE_SETTING, null, 'mod_ojt_signoff',
                 new pix_icon('i/valid', ''));
         $ojtnode->add_node($node);
     }

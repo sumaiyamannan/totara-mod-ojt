@@ -66,8 +66,9 @@ $PAGE->set_title(format_string($ojt->name));
 $PAGE->set_heading(format_string($ojt->name).' - '.get_string('evaluate', 'ojt'));
 if (has_capability('mod/ojt:evaluate', $modcontext)) {
     $PAGE->navbar->add(get_string('evaluatestudents', 'ojt'), new moodle_url('/mod/ojt/report.php', array('cmid' => $cm->id)));
-} else if (has_capability('mod/ojt:signoff', $modcontext)) {
-    $PAGE->navbar->add(get_string('evaluatestudents', 'ojt'), new moodle_url('/mod/ojt/reportsignoff.php', array('cmid' => $cm->id)));
+}
+if (has_capability('mod/ojt:signoff', $modcontext)) {
+    $PAGE->navbar->add(get_string('signoffstudents', 'ojt'), new moodle_url('/mod/ojt/reportsignoff.php', array('cmid' => $cm->id)));
 }
 $PAGE->navbar->add(fullname($user));
 
