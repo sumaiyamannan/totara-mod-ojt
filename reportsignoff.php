@@ -68,7 +68,7 @@ if (!$report = reportbuilder::create_embedded('ojt_evaluation_signoff', $config)
 
 $PAGE->set_url('/mod/ojt/reportsignoff.php', array('cmid' => $cm->id));
 $PAGE->set_title(format_string($ojt->name));
-$headingstr = format_string($ojt->name) . ' - ' . get_string('signoff', 'ojt');
+$headingstr = format_string($ojt->name) . ' - ' . get_string('signoffstudents', 'ojt');
 $PAGE->set_heading($headingstr);
 
 
