@@ -462,6 +462,7 @@ function ojt_extend_navigation(navigation_node $navref, stdClass $course, stdCla
  */
 function ojt_extend_settings_navigation(settings_navigation $settingsnav, navigation_node $ojtnode=null) {
     global $PAGE;
+    global $DB;
 
     if (has_capability('mod/ojt:evaluate', $PAGE->cm->context)) {
         $link = new moodle_url('/mod/ojt/report.php', array('cmid' => $PAGE->cm->id));
@@ -472,7 +473,13 @@ function ojt_extend_settings_navigation(settings_navigation $settingsnav, naviga
         $ojtnode->add_node($node);
     }
 
-    if (has_capability('mod/ojt:signoff', $PAGE->cm->context)) {
+    if (
+        has_capability('mod/ojt:signoff', $PAGE->cm->context) 
+        && $DB->record_exists(
+            'ojt',
+            array('id' => $PAGE->cm->instance, 'managersignoff' => 1)
+        )
+    ) {
         $link = new moodle_url('/mod/ojt/reportsignoff.php', array('cmid' => $PAGE->cm->id));
         $node = navigation_node::create(get_string('signoffstudents', 'ojt'),
                 $link,
