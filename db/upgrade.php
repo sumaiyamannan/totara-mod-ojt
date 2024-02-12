@@ -116,6 +116,27 @@ function xmldb_ojt_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2022052602, 'ojt');
     }
 
+    // Expand the ojt_topic.name and ojt_topic_item.name fields to text fields,
+    // so they can hold 1000 characters.
+    if ($oldversion < 2024021300) {
+
+        // Changing type of field name on table ojt_topic to text.
+        $table = new xmldb_table('ojt_topic');
+        $field = new xmldb_field('name', XMLDB_TYPE_TEXT);
+
+        // Launch change of type for field name.
+        $dbman->change_field_type($table, $field);
+
+        // Changing type of field name on table ojt_topic_item to text.
+        $table = new xmldb_table('ojt_topic_item');
+        $field = new xmldb_field('name', XMLDB_TYPE_TEXT);
+
+        // Launch change of type for field name.
+        $dbman->change_field_type($table, $field);
+
+        // Ojt savepoint reached.
+        upgrade_mod_savepoint(true, 2024021300, 'ojt');
+    }
 
     return true;
 }

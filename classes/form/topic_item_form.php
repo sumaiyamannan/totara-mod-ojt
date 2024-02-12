@@ -43,9 +43,10 @@ class topic_item_form extends moodleform {
         $ojtid = $this->_customdata['ojtid'];
         $topicid = $this->_customdata['topicid'];
 
-        $mform->addElement('text', 'name', get_string('name', 'ojt'));
+        $mform->addElement('text', 'name', get_string('name', 'ojt'), array('maxlength' => 1000));
         $mform->setType('name', PARAM_TEXT);
         $mform->addRule('name', null, 'required', null, 'client');
+        $mform->addRule('name', get_string('maximumchars', '', 1000), 'maxlength', 1000, 'client');
 
         $mform->addElement('advcheckbox', 'completionreq', get_string('optionalcompletion', 'ojt'));
 
