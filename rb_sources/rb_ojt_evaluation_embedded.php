@@ -19,9 +19,10 @@
  * @package mod_ojt
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+ 
+defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
-use totara_reportbuilder\rb\content\base;
 
 # Include the ojt rb source, to ensure all default settings get created upon report creation
 require_once($CFG->dirroot.'/mod/ojt/rb_sources/rb_source_ojt_completion.php');
@@ -89,8 +90,6 @@ class rb_ojt_evaluation_embedded extends rb_base_embedded {
         if (!empty($ojtid)) {
             $this->embeddedparams['ojtid'] = $ojtid;
         }
-
-        $this->usedcomponents[] = 'mod_ojt';
 
         parent::__construct($data);
     }

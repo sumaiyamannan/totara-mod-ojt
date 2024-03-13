@@ -24,9 +24,9 @@
  * Prints a particular instance of ojt
  */
 
-require_once(dirname(dirname(dirname(__FILE__))).'/config.php');
-require_once($CFG->dirroot.'/mod/ojt/lib.php');
-require_once($CFG->dirroot.'/totara/reportbuilder/lib.php');
+require_once(dirname(dirname(dirname(__FILE__))) . '/config.php');
+require_once($CFG->dirroot . '/mod/ojt/lib.php');
+require_once($CFG->dirroot . '/totara/reportbuilder/lib.php');
 
 $cmid = optional_param('cmid', 0, PARAM_INT); // Course_module ID
 $ojtid  = optional_param('bid', 0, PARAM_INT);  // ... ojt instance ID - it should be named as the first character of the module.
@@ -49,7 +49,12 @@ if ($cmid) {
 require_login($course, true, $cm);
 
 $modcontext = context_module::instance($cm->id);
-if (!(has_capability('mod/ojt:evaluate', $modcontext) || has_capability('mod/ojt:signoff', $modcontext))) {
+if (!has_capability('mod/ojt:signoff', $modcontext)) {
+    // If they should be on the main report page instead of the signoff page,
+    // just send them there.
+    if (has_capability('mod/ojt:evaluate', $modcontext)) {
+        redirect(new moodle_url('/mod/ojt/report.php', $PAGE->url->params()));
+    }
     print_error('accessdenied', 'ojt');
 }
 
@@ -63,7 +68,7 @@ if (!$report = reportbuilder::create_embedded('ojt_evaluation_signoff', $config)
 
 $PAGE->set_url('/mod/ojt/reportsignoff.php', array('cmid' => $cm->id));
 $PAGE->set_title(format_string($ojt->name));
-$headingstr = format_string($ojt->name).' - '.get_string('evaluate', 'ojt');
+$headingstr = format_string($ojt->name) . ' - ' . get_string('signoffstudents', 'ojt');
 $PAGE->set_heading($headingstr);
 
 

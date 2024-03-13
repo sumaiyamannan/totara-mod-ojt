@@ -329,60 +329,6 @@ function ojt_get_recent_mod_activity(&$activities, &$index, $timestart, $coursei
 function ojt_print_recent_mod_activity($activity, $courseid, $detail, $modnames, $viewfullnames) {
 }
 
-/**
- * Function to be run periodically according to the moodle cron
- *
- * @return boolean
- */
-function ojt_cron () {
-    global $CFG, $DB;
-
-    require_once($CFG->dirroot.'/totara/message/messagelib.php');
-
-    $lastcron = $DB->get_field('modules', 'lastcron', array('name' => 'ojt'));
-
-    // Send topic completion task to managers
-    // Get all topic completions that happended after last cron run.
-    // We can safely use the timemodified field here, as topics don't have comments ;)
-    $sql = "SELECT bc.id AS completionid, u.id AS userid, u.*,
-        b.id AS ojtid, b.name AS ojtname,
-        t.id AS topicid, t.name AS topicname,
-        c.shortname AS courseshortname
-        FROM {ojt_completion} bc
-        JOIN {ojt} b ON bc.ojtid = b.id
-        JOIN {course} c ON b.course = c.id
-        JOIN {ojt_topic} t ON bc.topicid = t.id
-        JOIN {user} u ON bc.userid = u.id
-        WHERE bc.type = ? AND bc.status = ? AND bc.timemodified > ?
-        AND b.id IN (SELECT id FROM {ojt} WHERE managersignoff = 1)";
-    $tcompletions = $DB->get_records_sql($sql, array(OJT_CTYPE_TOPIC, OJT_COMPLETE, $lastcron));
-    foreach ($tcompletions as $completion) {
-        $managerids = \totara_job\job_assignment::get_all_manager_userids($completion->userid);
-        foreach ($managerids as $managerid) {
-            $manager = core_user::get_user($managerid);
-            $eventdata = new stdClass();
-            $eventdata->userto = $manager;
-            $eventdata->userfrom = $completion;
-            $eventdata->icon = 'elearning-complete';
-            $eventdata->contexturl = new moodle_url('/mod/ojt/evaluate.php',
-                array('userid' => $completion->userid, 'bid' => $completion->ojtid));
-            $eventdata->contexturl = $eventdata->contexturl->out();
-            $strobj = new stdClass();
-            $strobj->user = fullname($completion);
-            $strobj->ojt = format_string($completion->ojtname);
-            $strobj->topic = format_string($completion->topicname);
-            $strobj->topicurl = $eventdata->contexturl;
-            $strobj->courseshortname = format_string($completion->courseshortname);
-            $eventdata->subject = get_string('managertasktcompletionsubject', 'ojt', $strobj);
-            $eventdata->fullmessage = get_string('managertasktcompletionmsg', 'ojt', $strobj);
-            // $eventdata->sendemail = TOTARA_MSG_EMAIL_NO;
-
-            tm_task_send($eventdata);
-        }
-    }
-
-    return true;
-}
 
 /**
  * Returns all other caps used in the module
@@ -497,9 +443,10 @@ function ojt_extend_navigation(navigation_node $navref, stdClass $course, stdCla
     if (has_capability('mod/ojt:evaluate', $context)) {
         $link = new moodle_url('/mod/ojt/report.php', array('cmid' => $cm->id));
         $node = $navref->add(get_string('evaluatestudents', 'ojt'), $link, navigation_node::TYPE_SETTING);
-    } else if (has_capability('mod/ojt:signoff', $context)) {
+    }
+    if (has_capability('mod/ojt:signoff', $context)) {
         $link = new moodle_url('/mod/ojt/reportsignoff.php', array('cmid' => $cm->id));
-        $node = $navref->add(get_string('evaluatestudents', 'ojt'), $link, navigation_node::TYPE_SETTING);
+        $node = $navref->add(get_string('signoffstudents', 'ojt'), $link, navigation_node::TYPE_SETTING);
     }
 
 }
@@ -515,16 +462,28 @@ function ojt_extend_navigation(navigation_node $navref, stdClass $course, stdCla
  */
 function ojt_extend_settings_navigation(settings_navigation $settingsnav, navigation_node $ojtnode=null) {
     global $PAGE;
+    global $DB;
 
-    if (has_capability('mod/ojt:evaluate', $PAGE->cm->context) || has_capability('mod/ojt:signoff', $PAGE->cm->context)) {
-        if (has_capability('mod/ojt:evaluate', $PAGE->cm->context)) {
-            $link = new moodle_url('/mod/ojt/report.php', array('cmid' => $PAGE->cm->id));
-        } else if (has_capability('mod/ojt:signoff', $PAGE->cm->context)) {
-            $link = new moodle_url('/mod/ojt/reportsignoff.php', array('cmid' => $PAGE->cm->id));
-        }
+    if (has_capability('mod/ojt:evaluate', $PAGE->cm->context)) {
+        $link = new moodle_url('/mod/ojt/report.php', array('cmid' => $PAGE->cm->id));
         $node = navigation_node::create(get_string('evaluatestudents', 'ojt'),
                 $link,
                 navigation_node::TYPE_SETTING, null, 'mod_ojt_evaluate',
+                new pix_icon('i/valid', ''));
+        $ojtnode->add_node($node);
+    }
+
+    if (
+        has_capability('mod/ojt:signoff', $PAGE->cm->context) 
+        && $DB->record_exists(
+            'ojt',
+            array('id' => $PAGE->cm->instance, 'managersignoff' => 1)
+        )
+    ) {
+        $link = new moodle_url('/mod/ojt/reportsignoff.php', array('cmid' => $PAGE->cm->id));
+        $node = navigation_node::create(get_string('signoffstudents', 'ojt'),
+                $link,
+                navigation_node::TYPE_SETTING, null, 'mod_ojt_signoff',
                 new pix_icon('i/valid', ''));
         $ojtnode->add_node($node);
     }

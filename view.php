@@ -72,7 +72,7 @@ $PAGE->requires->js_init_call('M.mod_ojt_expandcollapse.init', array(), false, $
 $modcontext = context_module::instance($cm->id);
 $canevaluate = has_capability('mod/ojt:evaluate', $modcontext);
 $canevalself = has_capability('mod/ojt:evaluateself', $modcontext);
-$cansignoff = has_capability('mod/ojt:signoff', $modcontext);
+$cansignoff = $ojt->managersignoff && has_capability('mod/ojt:signoff', $modcontext);
 $canmanage = has_capability('mod/ojt:manage', $modcontext);
 
 if ($canevalself && !($canevaluate || $cansignoff)) {
@@ -96,13 +96,16 @@ if ($canmanage) {
 // "Evaluate students" button
 if ($canevaluate) {
     $link = new moodle_url('/mod/ojt/report.php', array('cmid' => $cm->id));
-} else if ($cansignoff) {
-    $link = new moodle_url('/mod/ojt/reportsignoff.php', array('cmid' => $cm->id));
-}
-if (isset($link)) {
     echo html_writer::start_tag('div', array('class' => 'mod-ojt-evalstudents-btn'));
     echo $OUTPUT->single_button($link,
         get_string('evaluatestudents', 'ojt'), 'get');
+    echo html_writer::end_tag('div');
+}
+if ($cansignoff) {
+    $link = new moodle_url('/mod/ojt/reportsignoff.php', array('cmid' => $cm->id));
+    echo html_writer::start_tag('div', array('class' => 'mod-ojt-signoffstudents-btn'));
+    echo $OUTPUT->single_button($link,
+        get_string('managersignoff', 'ojt'), 'get');
     echo html_writer::end_tag('div');
 }
 

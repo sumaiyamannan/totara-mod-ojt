@@ -30,9 +30,8 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'mod_ojt';
-$plugin->version = 2022052600;
-$plugin->release = 'v1.0';
+$plugin->version = 2024021300;
+$plugin->release = 'v1.1';
 $plugin->requires = 2017111309; // Requires Totara 13.
 $plugin->maturity = MATURITY_STABLE;
-$plugin->cron = 900;
 $plugin->dependencies = array();

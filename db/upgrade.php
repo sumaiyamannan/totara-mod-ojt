@@ -101,5 +101,42 @@ function xmldb_ojt_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2022052600, 'ojt');
     }
 
+    if ($oldversion < 2022052602) {
+
+        // Define field signoff_message_sent to be added to ojt_completion.
+        $table = new xmldb_table('ojt_completion');
+        $field = new xmldb_field('signoff_message_sent', XMLDB_TYPE_INTEGER, '11', null, null, null, null, 'modifiedby');
+
+        // Conditionally launch add field signoff_message_sent.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Ojt savepoint reached.
+        upgrade_mod_savepoint(true, 2022052602, 'ojt');
+    }
+
+    // Expand the ojt_topic.name and ojt_topic_item.name fields to text fields,
+    // so they can hold 1000 characters.
+    if ($oldversion < 2024021300) {
+
+        // Changing type of field name on table ojt_topic to text.
+        $table = new xmldb_table('ojt_topic');
+        $field = new xmldb_field('name', XMLDB_TYPE_TEXT);
+
+        // Launch change of type for field name.
+        $dbman->change_field_type($table, $field);
+
+        // Changing type of field name on table ojt_topic_item to text.
+        $table = new xmldb_table('ojt_topic_item');
+        $field = new xmldb_field('name', XMLDB_TYPE_TEXT);
+
+        // Launch change of type for field name.
+        $dbman->change_field_type($table, $field);
+
+        // Ojt savepoint reached.
+        upgrade_mod_savepoint(true, 2024021300, 'ojt');
+    }
+
     return true;
 }
