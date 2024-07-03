@@ -84,6 +84,8 @@ function ojt_supports($feature) {
             return true;
         case FEATURE_ARCHIVE_COMPLETION:
             return true;
+        case FEATURE_COMPLETION_TRACKS_VIEWS:
+            return true;
         default:
             return null;
     }
@@ -565,6 +567,11 @@ function ojt_comment_template() {
  * @param int $userid
  * @param int $courseid
  * @param int $windowopens Unused, the timestamp for when a recertification window opens
+ *
+ * @internal This function should only be used by the course archiving API.
+ *           It should never invalidate grades or activity completion state as these
+ *           operations need to be performed in specific order and are done inside
+ *           the archive_course_activities() function.
  */
 function ojt_archive_completion($userid, $courseid, $windowsopen = null) {
     global $DB;
@@ -580,9 +587,6 @@ function ojt_archive_completion($userid, $courseid, $windowsopen = null) {
     $params = array('userid' => $userid, 'courseid' => $courseid);
 
     if ($completions = $DB->get_records_sql($sql, $params)) {
-        $course = $DB->get_record('course', array('id' => $courseid), '*', MUST_EXIST);
-        $completion = new completion_info($course);
-
         foreach ($completions as $ojtcompletion) {
             $cm = get_coursemodule_from_instance('ojt', $ojtcompletion->id, $courseid);
             $context = context_module::instance($cm->id);
@@ -616,14 +620,7 @@ function ojt_archive_completion($userid, $courseid, $windowsopen = null) {
                 'contextid' => $context->id,
                 'itemid' => $userid
             ]);
-
-            // Reset viewed.
-            $completion->set_module_viewed_reset($cm, $userid);
-            // And reset completion, in case viewed is not a required condition.
-            $completion->update_state($cm, COMPLETION_INCOMPLETE, $userid);
         }
-
-        $completion->invalidatecache($courseid, $userid, true);
     }
     return true;
 }
